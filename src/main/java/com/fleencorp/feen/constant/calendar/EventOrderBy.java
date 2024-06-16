@@ -1,0 +1,23 @@
+package com.fleencorp.feen.constant.calendar;
+
+import com.fleencorp.feen.constant.base.ApiParameter;
+import lombok.Getter;
+
+/**
+ * Enum representing options for sending updates for events.
+ *
+ * @author Yusuf Alamu
+ * @version 1.0
+ */
+@Getter
+public enum EventOrderBy implements ApiParameter {
+
+  START_TIME("startTime"),
+  UPDATED("updated");
+
+  private final String value;
+
+  EventOrderBy(String value) {
+    this.value = value;
+  }
+}
