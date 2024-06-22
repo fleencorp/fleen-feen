@@ -81,7 +81,9 @@ jobs:
         run: |
           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
-      - uses: oNaiPs/secrets-to-env-action@v1.5
+      - name: Convert secrets to environment variables
+        uses: oNaiPs/secrets-to-env-action@v1.5
+        id: secrets-to-env
         with:
           secrets: ${{ toJSON(secrets) }}
 
