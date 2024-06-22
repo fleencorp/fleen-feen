@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.external.google;
 
-import com.fleencorp.feen.constant.calendar.ConferenceSolutionType;
-import com.fleencorp.feen.constant.calendar.EventSendUpdate;
-import com.fleencorp.feen.constant.calendar.EventStatus;
+import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventStatus;
 import com.fleencorp.feen.mapper.GoogleCalendarEventMapper;
 import com.fleencorp.feen.model.request.calendar.event.*;
-import com.fleencorp.feen.model.response.calendar.event.*;
+import com.fleencorp.feen.model.response.google.calendar.event.*;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.*;
@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.util.DateTimeUtil.toDate;
 import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
+import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
 
 /**
@@ -461,10 +461,15 @@ public class GoogleCalendarEventService {
   public CreateInstantCalendarEventResponse createInstantEvent(CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     try {
       // Use the quickAdd feature to create an instant event with the provided title
+
       Event event = calendar.events()
-              .quickAdd(createInstantCalendarEventRequest.getCalendarId(), null)
-              .setText(createInstantCalendarEventRequest.getTitle())
+              .quickAdd(createInstantCalendarEventRequest.getCalendarId(),
+                        createInstantCalendarEventRequest.getTitle())
+              .setSendNotifications(createInstantCalendarEventRequest.getSendNotifications())
+              .setSendUpdates(EventSendUpdate.ALL.getValue())
               .execute();
+
+      log.info(event.toPrettyString());
 
       return CreateInstantCalendarEventResponse.builder()
               .eventId(event.getId())
@@ -487,26 +492,6 @@ public class GoogleCalendarEventService {
     return DEFAULT_CONFERENCE_SOLUTION_NAME;
   }
 
-
-  /**
-   * Converts a LocalDateTime object to a DateTime object.
-   *
-   * <p>This method converts a Java LocalDateTime object to a DateTime object
-   * suitable for use with the Google Calendar API.</p>
-   *
-   * <p>If the conversion succeeds, a new DateTime object is returned; otherwise,
-   * null is returned.</p>
-   *
-   * @param dateTime the LocalDateTime object to convert
-   * @return a DateTime object representing the same date and time, or null if the conversion fails
-  Oøø*/
-  private DateTime toDateTime(LocalDateTime dateTime) {
-    Date date = toDate(dateTime);
-    if (nonNull(date)) {
-      return new DateTime(date);
-    }
-    return null;
-  }
 
   /**
    * Converts a {@link DateTime} object to a {@link LocalDateTime} object.

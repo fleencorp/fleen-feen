@@ -10,9 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main", "*" ]
+    branches: [ "*" ]
   pull_request:
-    branches: [ "main", "*" ]
+    branches: [ "*" ]
 
 permissions:
   contents: write
@@ -56,21 +56,23 @@ jobs:
     needs: [get-ip, current-time]
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
-
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
 
       - name: Update package lists
         run: sudo apt-get update
@@ -79,7 +81,9 @@ jobs:
         run: |
           sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
 
-      - uses: oNaiPs/secrets-to-env-action@v1.5
+      - name: Convert secrets to environment variables
+        uses: oNaiPs/secrets-to-env-action@v1.5
+        id: secrets-to-env
         with:
           secrets: ${{ toJSON(secrets) }}
 
@@ -106,11 +110,47 @@ jobs:
       - name: Clean with Maven
         run: ./mvnw clean
 
+      - name: Install dependencies
+        run: mvn install -DskipTests
+
       - name: Test with Maven
+        env:
+          DB_NAME: test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
         run: ./mvnw test
 
       - name: Verify with Maven
+        env:
+          DB_NAME: test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
         run: ./mvnw verify
+
+  release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && 
+        github.event.action == 'closed' &&
+        github.event.pull_request.merged == true && 
+        github.ref == 'refs/heads/main' &&
+        github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
 
   action-slack:
     runs-on: ubuntu-latest

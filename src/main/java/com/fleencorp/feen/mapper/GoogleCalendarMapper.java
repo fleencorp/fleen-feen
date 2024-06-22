@@ -1,6 +1,6 @@
 package com.fleencorp.feen.mapper;
 
-import com.fleencorp.feen.model.response.calendar.calendar.base.GoogleCalendarResponse;
+import com.fleencorp.feen.model.response.google.calendar.calendar.base.GoogleCalendarResponse;
 import com.google.api.services.calendar.model.Calendar;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.ConferenceProperties;
@@ -29,28 +29,31 @@ public class GoogleCalendarMapper {
    * @return The mapped {@link GoogleCalendarResponse} object.
    */
   public static GoogleCalendarResponse mapToCalendarResponse(CalendarListEntry calendar) {
-    return GoogleCalendarResponse.builder()
-            .kind(calendar.getKind())
-            .etag(calendar.getEtag())
-            .id(calendar.getId())
-            .summary(calendar.getSummary())
-            .description(calendar.getDescription())
-            .timeZone(calendar.getTimeZone())
-            .location(calendar.getLocation())
-            .summaryOverride(calendar.getSummaryOverride())
-            .colorId(calendar.getColorId())
-            .hidden(calendar.getHidden())
-            .selected(calendar.getSelected())
-            .primary(calendar.getPrimary())
-            .foregroundColor(calendar.getForegroundColor())
-            .backgroundColor(calendar.getBackgroundColor())
-            .accessRole(calendar.getAccessRole())
-            .defaultReminders(calendar.getDefaultReminders().stream()
-                    .map(GoogleCalendarMapper::mapToReminders)
-                    .collect(Collectors.toList()))
-            .deleted(calendar.getDeleted())
-            .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
-            .build();
+    if (nonNull(calendar)) {
+      return GoogleCalendarResponse.builder()
+              .kind(calendar.getKind())
+              .etag(calendar.getEtag())
+              .id(calendar.getId())
+              .summary(calendar.getSummary())
+              .description(calendar.getDescription())
+              .timeZone(calendar.getTimeZone())
+              .location(calendar.getLocation())
+              .summaryOverride(calendar.getSummaryOverride())
+              .colorId(calendar.getColorId())
+              .hidden(calendar.getHidden())
+              .selected(calendar.getSelected())
+              .primary(calendar.getPrimary())
+              .foregroundColor(calendar.getForegroundColor())
+              .backgroundColor(calendar.getBackgroundColor())
+              .accessRole(calendar.getAccessRole())
+              .defaultReminders(calendar.getDefaultReminders().stream()
+                      .map(GoogleCalendarMapper::mapToReminders)
+                      .collect(Collectors.toList()))
+              .deleted(calendar.getDeleted())
+              .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -60,16 +63,19 @@ public class GoogleCalendarMapper {
    * @return The mapped {@link GoogleCalendarResponse} object.
    */
   public static GoogleCalendarResponse mapToCalendarResponse(Calendar calendar) {
-    return GoogleCalendarResponse.builder()
-            .kind(calendar.getKind())
-            .etag(calendar.getEtag())
-            .id(calendar.getId())
-            .summary(calendar.getSummary())
-            .description(calendar.getDescription())
-            .timeZone(calendar.getTimeZone())
-            .location(calendar.getLocation())
-            .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
-            .build();
+    if (nonNull(calendar)) {
+      return GoogleCalendarResponse.builder()
+              .kind(calendar.getKind())
+              .etag(calendar.getEtag())
+              .id(calendar.getId())
+              .summary(calendar.getSummary())
+              .description(calendar.getDescription())
+              .timeZone(calendar.getTimeZone())
+              .location(calendar.getLocation())
+              .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
+              .build();
+    }
+    return null;
   }
 
   /**

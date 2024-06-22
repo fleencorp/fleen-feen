@@ -1,9 +1,9 @@
 package com.fleencorp.feen.service.external.google;
 
-import com.fleencorp.feen.constant.calendar.ConferenceSolutionType;
+import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
 import com.fleencorp.feen.mapper.GoogleCalendarMapper;
 import com.fleencorp.feen.model.request.calendar.calendar.*;
-import com.fleencorp.feen.model.response.calendar.calendar.*;
+import com.fleencorp.feen.model.response.google.calendar.calendar.*;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.AclRule;
 import com.google.api.services.calendar.model.CalendarList;
