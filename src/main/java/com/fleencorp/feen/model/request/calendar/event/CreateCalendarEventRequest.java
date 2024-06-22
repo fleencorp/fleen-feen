@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.request.calendar.event;
 
-import com.fleencorp.feen.constant.calendar.EventVisibility;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import lombok.*;
 
 import java.time.LocalDateTime;

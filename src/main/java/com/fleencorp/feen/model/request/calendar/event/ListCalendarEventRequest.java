@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.request.calendar.event;
 
-import com.fleencorp.feen.constant.calendar.EventOrderBy;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventOrderBy;
 import lombok.*;
 
 import java.time.LocalDateTime;

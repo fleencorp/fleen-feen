@@ -11,4 +11,9 @@ public class CreateInstantCalendarEventRequest {
 
   private String calendarId;
   private String title;
+  private Boolean sendNotifications;
+
+  public Boolean getSendNotifications() {
+    return true;
+  }
 }

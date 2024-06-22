@@ -1,11 +1,13 @@
 package com.fleencorp.feen.config.google;
 
 import com.fleencorp.feen.util.JsonUtil;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +18,6 @@ import org.springframework.context.annotation.Configuration;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.List;
-
-import static com.google.api.services.calendar.CalendarScopes.CALENDAR;
 
 /**
  * This class provides configuration for interacting with Google Calendar API.
@@ -33,29 +32,35 @@ import static com.google.api.services.calendar.CalendarScopes.CALENDAR;
  *   Using Google Calendar API with a service account (2)</a>
  * @see <a href="https://sree394.medium.com/leveraging-service-accounts-for-seamless-google-calendar-integration-in-spring-boot-applications-52ee0d65652a">
  *   Leveraging Service Accounts for Seamless Google Calendar Integration in Spring Boot Applications</a>
+ *
+ * @see <a href="https://developers.google.com/cloud-search/docs/guides/delegation">
+ *   Perform Google Workspace domain-wide delegation of authority</a>
  */
 @Configuration
 @Slf4j
 public class CalendarConfiguration {
 
-  private static final List<String> CALENDAR_SCOPES = List.of(CALENDAR);
-  private static final String APPLICATION_NAME = "Fleen Feen";
-  private final String googleCalendarEmail;
+  private final String applicationName;
+  private final String delegatedAuthorityEmail;
   private final ServiceAccountProperties serviceAccountProperties;
   private final JsonUtil jsonUtil;
 
   /**
    * Constructs a new CalendarConfiguration instance with the provided dependencies.
    *
-   * @param googleCalendarEmail       The email address associated with the Google Calendar.
+   * @param delegatedAuthorityEmail   The email address associated with the Google Calendar
+   *                                  and with delegated authority.
+   * @param applicationName           The name of the application
    * @param serviceAccountProperties  The properties required for service account authentication.
    * @param jsonUtil                  Utility class for JSON operations.
    */
   public CalendarConfiguration(
-      @Value("${google.calendar.email}") String googleCalendarEmail,
+      @Value("${google.delegated.authority.email}") String delegatedAuthorityEmail,
+      @Value("${application.name}") String applicationName,
       ServiceAccountProperties serviceAccountProperties,
       JsonUtil jsonUtil) {
-    this.googleCalendarEmail = googleCalendarEmail;
+    this.delegatedAuthorityEmail = delegatedAuthorityEmail;
+    this.applicationName = applicationName;
     this.serviceAccountProperties = serviceAccountProperties;
     this.jsonUtil = jsonUtil;
   }
@@ -72,7 +77,7 @@ public class CalendarConfiguration {
   public Calendar getCalendar() throws GeneralSecurityException, IOException {
     return new Calendar
         .Builder(getHttpTransport(), getJsonFactory(), getHttpCredentialsAdapter())
-      .setApplicationName(APPLICATION_NAME)
+      .setApplicationName(applicationName)
       .build();
   }
 
@@ -81,20 +86,24 @@ public class CalendarConfiguration {
    *
    * @return GoogleCredentials object containing the client credentials.
    * @throws IOException If an I/O exception occurs while reading service account properties.
+   *
    * @see <a href="https://medium.com/@gkav2022/google-calendar-integration-with-springboot-application-cddf361a3406">
    *   Google calendar integration with SpringBoot Application using Service Account</a>
+   * @see <a href="https://developers.google.com/identity/protocols/oauth2/service-account">
+   *   Using OAuth 2.0 for Server to Server Applications - Delegating domain-wide authority to the service account</a>
    */
   public GoogleCredentials getGoogleClientCredentialFromServiceAccount() throws IOException {
     return GoogleCredentials
       .fromStream(getServiceAccountInputStream())
-      .createScoped(CALENDAR_SCOPES)
-      .createDelegated(googleCalendarEmail);
+      .createScoped(CalendarScopes.all())
+      .createDelegated(delegatedAuthorityEmail);
   }
 
   /**
    * Retrieves an input stream from service account properties.
    *
    * @return ByteArrayInputStream containing service account properties JSON.
+   *
    * @see <a href="https://stackoverflow.com/questions/54886906/create-google-calendar-event-from-java-backend-from-oauth-authenticated-users-on">
    *   Create Google Calendar Event from Java Backend from OAuth authenticated Users only</a>
    */

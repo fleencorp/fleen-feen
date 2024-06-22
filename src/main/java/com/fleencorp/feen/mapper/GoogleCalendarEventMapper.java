@@ -1,12 +1,15 @@
 package com.fleencorp.feen.mapper;
 
-import com.fleencorp.feen.model.response.calendar.event.ListCalendarEventResponse;
-import com.fleencorp.feen.model.response.calendar.event.base.GoogleCalendarEventResponse;
+import com.fleencorp.feen.model.response.google.calendar.event.ListCalendarEventResponse;
+import com.fleencorp.feen.model.response.google.calendar.event.base.GoogleCalendarEventResponse;
 import com.google.api.services.calendar.model.*;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.feen.service.external.google.GoogleCalendarEventService.toLocalDateTime;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
 
 /**
  * A utility class that maps Google Calendar API models to custom models.
@@ -43,13 +46,30 @@ public class GoogleCalendarEventMapper {
             .updatedOn(toLocalDateTime(calendarEvents.getUpdated()))
             .timeZone(calendarEvents.getTimeZone())
             .accessRole(calendarEvents.getAccessRole())
-            .items(calendarEvents.getItems()
-                    .stream()
-                    .map(GoogleCalendarEventMapper::mapToEvent)
-                    .collect(Collectors.toList()))
+            .items(mapToEvents(calendarEvents.getItems()))
             .nextPageToken(calendarEvents.getNextPageToken())
             .nextSyncToken(calendarEvents.getNextSyncToken())
             .build();
+  }
+
+  /**
+   * Maps a list of Google Calendar Events to a list of custom Event responses.
+   *
+   * <p>This method converts a list of {@link Event} objects from the Google Calendar API
+   * to a list of {@link GoogleCalendarEventResponse} objects, using the
+   * {@link GoogleCalendarEventMapper#mapToEvent} method for individual mappings.</p>
+   *
+   * @param events The list of {@link Event} objects to be mapped.
+   * @return A list of {@link GoogleCalendarEventResponse} objects, or an empty list if the input is null.
+   */
+  private static List<GoogleCalendarEventResponse> mapToEvents(List<Event> events) {
+    if (nonNull(events)) {
+      return events
+              .stream()
+              .map(GoogleCalendarEventMapper::mapToEvent)
+              .collect(Collectors.toList());
+    }
+    return emptyList();
   }
 
   /**
@@ -64,28 +84,31 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse} object containing the mapped data
    */
   private static GoogleCalendarEventResponse mapToEvent(Event calendarEvent) {
-    return GoogleCalendarEventResponse.builder()
-            .kind(calendarEvent.getKind())
-            .etag(calendarEvent.getEtag())
-            .id(calendarEvent.getId())
-            .status(calendarEvent.getStatus())
-            .htmlLink(calendarEvent.getHtmlLink())
-            .created(calendarEvent.getCreated())
-            .createdOn(toLocalDateTime(calendarEvent.getCreated()))
-            .updated(calendarEvent.getUpdated())
-            .updatedOn(toLocalDateTime(calendarEvent.getUpdated()))
-            .summary(calendarEvent.getSummary())
-            .description(calendarEvent.getDescription())
-            .location(calendarEvent.getLocation())
-            .creator(mapToCreator(calendarEvent.getCreator()))
-            .organizer(mapToOrganizer(calendarEvent.getOrganizer()))
-            .start(mapToStart(calendarEvent.getStart()))
-            .end(mapToEnd(calendarEvent.getEnd()))
-            .iCalUID(calendarEvent.getICalUID())
-            .sequence(calendarEvent.getSequence())
-            .reminders(mapToReminders(calendarEvent.getReminders()))
-            .totalAttendeesOrGuests(calendarEvent.getAttendees() != null ? calendarEvent.getAttendees().size() : 0)
-            .build();
+    if (nonNull(calendarEvent)) {
+      return GoogleCalendarEventResponse.builder()
+              .kind(calendarEvent.getKind())
+              .etag(calendarEvent.getEtag())
+              .id(calendarEvent.getId())
+              .status(calendarEvent.getStatus())
+              .htmlLink(calendarEvent.getHtmlLink())
+              .created(calendarEvent.getCreated())
+              .createdOn(toLocalDateTime(calendarEvent.getCreated()))
+              .updated(calendarEvent.getUpdated())
+              .updatedOn(toLocalDateTime(calendarEvent.getUpdated()))
+              .summary(calendarEvent.getSummary())
+              .description(calendarEvent.getDescription())
+              .location(calendarEvent.getLocation())
+              .creator(mapToCreator(calendarEvent.getCreator()))
+              .organizer(mapToOrganizer(calendarEvent.getOrganizer()))
+              .start(mapToStart(calendarEvent.getStart()))
+              .end(mapToEnd(calendarEvent.getEnd()))
+              .iCalUID(calendarEvent.getICalUID())
+              .sequence(calendarEvent.getSequence())
+              .reminders(mapToReminders(calendarEvent.getReminders()))
+              .totalAttendeesOrGuests(nonNull(calendarEvent.getAttendees()) ? calendarEvent.getAttendees().size() : 0)
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -100,29 +123,32 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse} object containing the mapped data
    */
   public static GoogleCalendarEventResponse mapToEventExpanded(Event calendarEvent) {
-    return GoogleCalendarEventResponse.builder()
-            .kind(calendarEvent.getKind())
-            .etag(calendarEvent.getEtag())
-            .id(calendarEvent.getId())
-            .status(calendarEvent.getStatus())
-            .htmlLink(calendarEvent.getHtmlLink())
-            .created(calendarEvent.getCreated())
-            .updated(calendarEvent.getUpdated())
-            .summary(calendarEvent.getSummary())
-            .description(calendarEvent.getDescription())
-            .location(calendarEvent.getLocation())
-            .creator(mapToCreator(calendarEvent.getCreator()))
-            .organizer(mapToOrganizer(calendarEvent.getOrganizer()))
-            .start(mapToStart(calendarEvent.getStart()))
-            .end(mapToEnd(calendarEvent.getEnd()))
-            .iCalUID(calendarEvent.getICalUID())
-            .sequence(calendarEvent.getSequence())
-            .reminders(mapToReminders(calendarEvent.getReminders()))
-            .attendees(calendarEvent.getAttendees().stream().map(GoogleCalendarEventMapper::mapToAttendee).collect(Collectors.toList()))
-            .conferenceData(mapToConferenceData(calendarEvent.getConferenceData()))
-            .extendedProperties(mapToExtendedProperties(calendarEvent.getExtendedProperties()))
-            .totalAttendeesOrGuests(calendarEvent.getAttendees() != null ? calendarEvent.getAttendees().size() : 0)
-            .build();
+    if (nonNull(calendarEvent)) {
+      return GoogleCalendarEventResponse.builder()
+              .kind(calendarEvent.getKind())
+              .etag(calendarEvent.getEtag())
+              .id(calendarEvent.getId())
+              .status(calendarEvent.getStatus())
+              .htmlLink(calendarEvent.getHtmlLink())
+              .created(calendarEvent.getCreated())
+              .updated(calendarEvent.getUpdated())
+              .summary(calendarEvent.getSummary())
+              .description(calendarEvent.getDescription())
+              .location(calendarEvent.getLocation())
+              .creator(mapToCreator(calendarEvent.getCreator()))
+              .organizer(mapToOrganizer(calendarEvent.getOrganizer()))
+              .start(mapToStart(calendarEvent.getStart()))
+              .end(mapToEnd(calendarEvent.getEnd()))
+              .iCalUID(calendarEvent.getICalUID())
+              .sequence(calendarEvent.getSequence())
+              .reminders(mapToReminders(calendarEvent.getReminders()))
+              .attendees(mapToAttendees(calendarEvent.getAttendees()))
+              .conferenceData(mapToConferenceData(calendarEvent.getConferenceData()))
+              .extendedProperties(mapToExtendedProperties(calendarEvent.getExtendedProperties()))
+              .totalAttendeesOrGuests(calendarEvent.getAttendees() != null ? calendarEvent.getAttendees().size() : 0)
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -135,12 +161,15 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.Creator} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.Creator mapToCreator(Event.Creator eventCreator) {
-    return GoogleCalendarEventResponse.Creator.builder()
-            .id(eventCreator.getId())
-            .email(eventCreator.getEmail())
-            .displayName(eventCreator.getDisplayName())
-            .self(eventCreator.getSelf())
-            .build();
+    if (nonNull(eventCreator)) {
+      return GoogleCalendarEventResponse.Creator.builder()
+              .id(eventCreator.getId())
+              .email(eventCreator.getEmail())
+              .displayName(eventCreator.getDisplayName())
+              .self(eventCreator.getSelf())
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -153,12 +182,15 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.Organizer} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.Organizer mapToOrganizer(Event.Organizer eventOrganizer) {
-    return GoogleCalendarEventResponse.Organizer.builder()
-            .id(eventOrganizer.getId())
-            .email(eventOrganizer.getEmail())
-            .displayName(eventOrganizer.getDisplayName())
-            .self(eventOrganizer.getSelf())
-            .build();
+    if (nonNull(eventOrganizer)) {
+      return GoogleCalendarEventResponse.Organizer.builder()
+              .id(eventOrganizer.getId())
+              .email(eventOrganizer.getEmail())
+              .displayName(eventOrganizer.getDisplayName())
+              .self(eventOrganizer.getSelf())
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -167,14 +199,18 @@ public class GoogleCalendarEventMapper {
    * <p>This method converts the properties of the {@link EventDateTime} object into corresponding properties
    * of the {@link GoogleCalendarEventResponse.Start} object, including dateTime and timeZone.</p>
    *
-   * @param eventEndTime the {@link EventDateTime} object representing the start time of the event
+   * @param eventStartTime the {@link EventDateTime} object representing the start time of the event
    * @return a {@link GoogleCalendarEventResponse.Start} object containing the mapped data
    */
-  private static GoogleCalendarEventResponse.Start mapToStart(EventDateTime eventEndTime) {
-    return GoogleCalendarEventResponse.Start.builder()
-            .dateTime(eventEndTime.getDateTime())
-            .timeZone(eventEndTime.getTimeZone())
-            .build();
+  private static GoogleCalendarEventResponse.Start mapToStart(EventDateTime eventStartTime) {
+    if (nonNull(eventStartTime)) {
+      return GoogleCalendarEventResponse.Start.builder()
+              .dateTime(eventStartTime.getDateTime())
+              .timeZone(eventStartTime.getTimeZone())
+              .actualDateTime(toLocalDateTime(eventStartTime.getDateTime()))
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -183,15 +219,18 @@ public class GoogleCalendarEventMapper {
    * <p>This method converts the properties of the {@link EventDateTime} object into corresponding properties
    * of the {@link GoogleCalendarEventResponse.End} object, including dateTime, timeZone, and actualDateTime.</p>
    *
-   * @param eventEndDateTime the {@link EventDateTime} object representing the end time of the event
+   * @param eventEndTime the {@link EventDateTime} object representing the end time of the event
    * @return a {@link GoogleCalendarEventResponse.End} object containing the mapped data
    */
-  private static GoogleCalendarEventResponse.End mapToEnd(EventDateTime eventEndDateTime) {
-    return GoogleCalendarEventResponse.End.builder()
-            .dateTime(eventEndDateTime.getDateTime())
-            .timeZone(eventEndDateTime.getTimeZone())
-            .actualDateTime(toLocalDateTime(eventEndDateTime.getDateTime()))
-            .build();
+  private static GoogleCalendarEventResponse.End mapToEnd(EventDateTime eventEndTime) {
+    if (nonNull(eventEndTime)) {
+      return GoogleCalendarEventResponse.End.builder()
+              .dateTime(eventEndTime.getDateTime())
+              .timeZone(eventEndTime.getTimeZone())
+              .actualDateTime(toLocalDateTime(eventEndTime.getDateTime()))
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -204,12 +243,33 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.Reminders} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.Reminders mapToReminders(Event.Reminders eventReminders) {
-    return GoogleCalendarEventResponse.Reminders.builder()
-            .useDefault(eventReminders.getUseDefault())
-            .overrides(eventReminders.getOverrides().stream()
+    if (nonNull(eventReminders)) {
+      return GoogleCalendarEventResponse.Reminders.builder()
+              .useDefault(eventReminders.getUseDefault())
+              .overrides(mapToOverrides(eventReminders.getOverrides()))
+              .build();
+    }
+    return null;
+  }
+
+  /**
+   * Maps a list of Google Calendar Event Reminders to a list of custom Reminder Override responses.
+   *
+   * <p>This method converts a list of {@link EventReminder} objects from the Google Calendar API
+   * to a list of {@link GoogleCalendarEventResponse.Reminders.Override} objects, using the
+   * {@link GoogleCalendarEventMapper#mapToOverride} method for individual mappings.</p>
+   *
+   * @param eventReminders The list of {@link EventReminder} objects to be mapped.
+   * @return A list of {@link GoogleCalendarEventResponse.Reminders.Override} objects,
+   *         or an empty list if the input is null.
+   */
+  private static List<GoogleCalendarEventResponse.Reminders.Override> mapToOverrides(List<EventReminder> eventReminders) {
+    if (nonNull(eventReminders)) {
+      return eventReminders.stream()
               .map(GoogleCalendarEventMapper::mapToOverride)
-              .collect(Collectors.toList()))
-            .build();
+              .collect(Collectors.toList());
+    }
+    return emptyList();
   }
 
   /**
@@ -222,10 +282,32 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.Reminders.Override} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.Reminders.Override mapToOverride(EventReminder eventReminderOverride) {
-    return GoogleCalendarEventResponse.Reminders.Override.builder()
-            .method(eventReminderOverride.getMethod())
-            .minutes(eventReminderOverride.getMinutes())
-            .build();
+    if (nonNull(eventReminderOverride)) {
+      return GoogleCalendarEventResponse.Reminders.Override.builder()
+              .method(eventReminderOverride.getMethod())
+              .minutes(eventReminderOverride.getMinutes())
+              .build();
+    }
+    return null;
+  }
+
+  /**
+   * Maps a list of Google Calendar Event Attendees to a list of custom Attendee responses.
+   *
+   * <p>This method converts a list of {@link EventAttendee} objects from the Google Calendar API
+   * to a list of {@link GoogleCalendarEventResponse.Attendee} objects, using the
+   * {@link GoogleCalendarEventMapper#mapToAttendee} method for individual mappings.</p>
+   *
+   * @param eventAttendees The list of {@link EventAttendee} objects to be mapped.
+   * @return A list of {@link GoogleCalendarEventResponse.Attendee} objects, or an empty list if the input is null.
+   */
+  private static List<GoogleCalendarEventResponse.Attendee> mapToAttendees(List<EventAttendee> eventAttendees) {
+    if (nonNull(eventAttendees)) {
+      return eventAttendees.stream()
+              .map(GoogleCalendarEventMapper::mapToAttendee)
+              .collect(Collectors.toList());
+    }
+    return emptyList();
   }
 
   /**
@@ -239,18 +321,21 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.Attendee} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.Attendee mapToAttendee(EventAttendee eventAttendee) {
-    return GoogleCalendarEventResponse.Attendee.builder()
-            .id(eventAttendee.getId())
-            .email(eventAttendee.getEmail())
-            .displayName(eventAttendee.getDisplayName())
-            .organizer(eventAttendee.getOrganizer())
-            .self(eventAttendee.getSelf())
-            .resource(eventAttendee.getResource())
-            .optional(eventAttendee.getOptional())
-            .responseStatus(eventAttendee.getResponseStatus())
-            .comment(eventAttendee.getComment())
-            .additionalGuests(eventAttendee.getAdditionalGuests())
-            .build();
+    if (nonNull(eventAttendee)) {
+      return GoogleCalendarEventResponse.Attendee.builder()
+              .id(eventAttendee.getId())
+              .email(eventAttendee.getEmail())
+              .displayName(eventAttendee.getDisplayName())
+              .organizer(eventAttendee.getOrganizer())
+              .self(eventAttendee.getSelf())
+              .resource(eventAttendee.getResource())
+              .optional(eventAttendee.getOptional())
+              .responseStatus(eventAttendee.getResponseStatus())
+              .comment(eventAttendee.getComment())
+              .additionalGuests(eventAttendee.getAdditionalGuests())
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -263,10 +348,13 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.ConferenceData} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.ConferenceData mapToConferenceData(ConferenceData conferenceData) {
-    return GoogleCalendarEventResponse.ConferenceData.builder()
-            .conferenceSolution(mapToConferenceSolution(conferenceData.getConferenceSolution()))
-            .createRequest(mapToCreateConferenceRequest(conferenceData.getCreateRequest()))
-            .build();
+    if (nonNull(conferenceData)) {
+      return GoogleCalendarEventResponse.ConferenceData.builder()
+              .conferenceSolution(mapToConferenceSolution(conferenceData.getConferenceSolution()))
+              .createRequest(mapToCreateConferenceRequest(conferenceData.getCreateRequest()))
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -279,9 +367,12 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.ConferenceData.ConferenceSolution} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.ConferenceData.ConferenceSolution mapToConferenceSolution(ConferenceSolution conferenceSolution) {
-    return GoogleCalendarEventResponse.ConferenceData.ConferenceSolution.builder()
-            .name(conferenceSolution.getName())
-            .build();
+    if (nonNull(conferenceSolution)) {
+      return GoogleCalendarEventResponse.ConferenceData.ConferenceSolution.builder()
+              .name(conferenceSolution.getName())
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -294,10 +385,13 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.ConferenceData.CreateConferenceRequest} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.ConferenceData.CreateConferenceRequest mapToCreateConferenceRequest(CreateConferenceRequest createConferenceRequest) {
-    return GoogleCalendarEventResponse.ConferenceData.CreateConferenceRequest.builder()
-            .requestId(createConferenceRequest.getRequestId())
-            .conferenceSolutionKey(mapToConferenceSolutionKey(createConferenceRequest.getConferenceSolutionKey()))
-            .build();
+    if (nonNull(createConferenceRequest)) {
+      return GoogleCalendarEventResponse.ConferenceData.CreateConferenceRequest.builder()
+              .requestId(createConferenceRequest.getRequestId())
+              .conferenceSolutionKey(mapToConferenceSolutionKey(createConferenceRequest.getConferenceSolutionKey()))
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -310,9 +404,12 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.ConferenceData.ConferenceSolutionKey} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.ConferenceData.ConferenceSolutionKey mapToConferenceSolutionKey(ConferenceSolutionKey conferenceSolutionKey) {
-    return GoogleCalendarEventResponse.ConferenceData.ConferenceSolutionKey.builder()
-            .type(conferenceSolutionKey.getType())
-            .build();
+    if (nonNull(conferenceSolutionKey)) {
+      return GoogleCalendarEventResponse.ConferenceData.ConferenceSolutionKey.builder()
+              .type(conferenceSolutionKey.getType())
+              .build();
+    }
+    return null;
   }
 
   /**
@@ -325,9 +422,12 @@ public class GoogleCalendarEventMapper {
    * @return a {@link GoogleCalendarEventResponse.ExtendedProperties} object containing the mapped data
    */
   private static GoogleCalendarEventResponse.ExtendedProperties mapToExtendedProperties(Event.ExtendedProperties eventExtendedProperties) {
-    return GoogleCalendarEventResponse.ExtendedProperties.builder()
-            .shared(eventExtendedProperties.getShared())
-            .build();
+    if (nonNull(eventExtendedProperties)) {
+      return GoogleCalendarEventResponse.ExtendedProperties.builder()
+              .shared(eventExtendedProperties.getShared())
+              .build();
+    }
+    return null;
   }
 }
 
