@@ -10,9 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main", "*" ]
+    branches: [ "*" ]
   pull_request:
-    branches: [ "main", "*" ]
+    branches: [ "*" ]
 
 permissions:
   contents: write
@@ -56,6 +56,21 @@ jobs:
     needs: [get-ip, current-time]
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -93,10 +108,24 @@ jobs:
       - name: Clean with Maven
         run: ./mvnw clean
 
+      - name: Install dependencies
+        run: mvn install -DskipTests
+
       - name: Test with Maven
         run: ./mvnw test
 
+      - name: Run tests
+        env:
+          DB_NAME: jdbc:postgresql://localhost:5432/test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
+        run: mvn test
+
       - name: Verify with Maven
+        env:
+          DB_NAME: jdbc:postgresql://localhost:5432/test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
         run: ./mvnw verify
 
   release:
