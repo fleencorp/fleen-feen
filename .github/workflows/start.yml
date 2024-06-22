@@ -71,6 +71,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DB_NAME: test_db
+      DB_USERNAME: test_user
+      DB_PASSWORD: test_pass
+
     steps:
       - uses: actions/checkout@v4
 
@@ -114,18 +119,7 @@ jobs:
       - name: Test with Maven
         run: ./mvnw test
 
-      - name: Run tests
-        env:
-          DB_NAME: test_db
-          DB_USERNAME: test_user
-          DB_PASSWORD: test_pass
-        run: mvn test
-
       - name: Verify with Maven
-        env:
-          DB_NAME: test_db
-          DB_USERNAME: test_user
-          DB_PASSWORD: test_pass
         run: ./mvnw verify
 
   release:
