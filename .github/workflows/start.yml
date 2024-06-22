@@ -58,7 +58,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:13
+        image: postgres:16
         env:
           POSTGRES_DB: test_db
           POSTGRES_USER: test_user
@@ -116,14 +116,14 @@ jobs:
 
       - name: Run tests
         env:
-          DB_NAME: jdbc:postgresql://localhost:5432/test_db
+          DB_NAME: test_db
           DB_USERNAME: test_user
           DB_PASSWORD: test_pass
         run: mvn test
 
       - name: Verify with Maven
         env:
-          DB_NAME: jdbc:postgresql://localhost:5432/test_db
+          DB_NAME: test_db
           DB_USERNAME: test_user
           DB_PASSWORD: test_pass
         run: ./mvnw verify
