@@ -17,12 +17,12 @@ public class AddNewEventAttendeeDto {
   @NotNull(message = "{event.id.NotNull}")
   @IsNumber
   @JsonProperty("event_id")
-  private Long eventId;
+  private String eventId;
 
   @NotNull(message = "{event.userId.NotNull}")
   @IsNumber
   @JsonProperty("user_id")
-  private Long userId;
+  private String userId;
 
   @NotBlank
   @Size

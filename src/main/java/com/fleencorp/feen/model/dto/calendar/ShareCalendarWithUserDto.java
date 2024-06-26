@@ -21,7 +21,7 @@ public class ShareCalendarWithUserDto {
   @NotNull(message = "{calendar.id.NotNull}")
   @IsNumber
   @JsonProperty("calendar_id")
-  private Long calendarId;
+  private String calendarId;
 
   @NotBlank(message = "{calendar.emailAddress.NotBlank}")
   @Size(max = 50, message = "{calendar.emailAddress.Size}")

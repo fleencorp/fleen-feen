@@ -11,5 +11,5 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 public class RescheduleCalendarEventDto extends RescheduleStreamDto {
-  
+
 }

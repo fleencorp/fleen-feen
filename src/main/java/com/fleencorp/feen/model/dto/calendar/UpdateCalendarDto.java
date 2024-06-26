@@ -19,5 +19,5 @@ public class UpdateCalendarDto extends CreateCalendarDto {
   @NotNull(message = "{calendar.id.NotNull}")
   @IsNumber
   @JsonProperty("calendar_id")
-  private Long calendarId;
+  private String calendarId;
 }

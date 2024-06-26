@@ -15,5 +15,5 @@ public class DeleteCalendarEventDto {
   @NotNull(message = "{event.id.NotNull}")
   @IsNumber
   @JsonProperty("event_id")
-  private Long eventId;
+  private String eventId;
 }

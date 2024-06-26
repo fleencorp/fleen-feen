@@ -15,5 +15,5 @@ public class CancelCalendarEventDto {
   @NotNull(message = "{event.id.NotNull}")
   @IsNumber
   @JsonProperty("event_id")
-  private Long eventId;
+  private String eventId;
 }
