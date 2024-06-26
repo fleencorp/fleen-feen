@@ -120,15 +120,15 @@ public class GoogleOauth2Service {
    * the CompletedOauth2AuthorizationResponse.</p>
    *
    * @param authorizationCode The OAuth 2.0 authorization code obtained from the authorization callback.
-   * @param fleenUser The FleenUser for whom the OAuth 2.0 authorization is being verified and saved.
+   * @param authenticatedUser The FleenUser for whom the OAuth 2.0 authorization is being verified and saved.
    * @return A CompletedOauth2AuthorizationResponse containing authorization details if successful,
    *         or null if the authorization code is invalid or expired.
    */
-  public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauthAuthorizationDetails(String authorizationCode, FleenUser fleenUser) {
+  public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauthAuthorizationDetails(String authorizationCode, FleenUser authenticatedUser) {
    CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode);
     GoogleOauth2Authorization googleOauth2Authorization = googleOauth2AuthorizationRepository
-            .findByMember(fleenUser.toMember())
-            .orElseGet(() -> GoogleOauth2Authorization.builder().member(fleenUser.toMember()).build());
+            .findByMember(authenticatedUser.toMember())
+            .orElseGet(() -> GoogleOauth2Authorization.builder().member(authenticatedUser.toMember()).build());
 
     updateOauth2Authorization(googleOauth2Authorization, oauth2AuthorizationResponse);
     googleOauth2AuthorizationRepository.save(googleOauth2Authorization);

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
 import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
@@ -536,21 +537,24 @@ public class GoogleCalendarEventService {
    *
    * <p>Blank or empty email addresses are filtered out before creating attendee objects.</p>
    *
-   * @param attendeeOrGuestEmailAddresses a list of email addresses of attendees or guests
+   * @param attendeeOrGuestEmailAddresses a list of email addresses and alias names of attendees or guests
    * @return a list of EventAttendee objects representing the attendees or guests
    */
-  private List<EventAttendee> addAttendeesOrInviteGuests(List<String> attendeeOrGuestEmailAddresses) {
+  private List<EventAttendee> addAttendeesOrInviteGuests(List<EventAttendeeOrGuest> attendeeOrGuestEmailAddresses) {
     List<EventAttendee> attendees = new ArrayList<>();
     attendeeOrGuestEmailAddresses
-            .stream()
-            .filter(Objects::nonNull)
-            .map(String::trim)
-            .filter(String::isBlank)
-            .forEach(emailAddress -> {
-              EventAttendee attendee = new EventAttendee();
-              attendee.setEmail(emailAddress);
-              attendees.add(attendee);
-            });
+      .stream()
+      .filter(Objects::nonNull)
+      .forEach(attendeeOrGuest -> {
+        EventAttendee attendee = new EventAttendee();
+        attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());
+        attendee.setEmail(attendeeOrGuest.getEmailAddress());
+        attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
+        if (attendee.getOrganizer()) {
+          attendee.setResponseStatus("accepted");
+        }
+        attendees.add(attendee);
+      });
 
     return attendees;
   }
