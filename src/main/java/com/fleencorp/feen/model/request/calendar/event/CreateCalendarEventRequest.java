@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.request.calendar.event;
 
 import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
+import static com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -26,7 +27,7 @@ public class CreateCalendarEventRequest {
   private String organizerEmail;
   private String organizerDisplayName;
   private EventVisibility visibility;
-  private List<String> attendeeOrGuestEmailAddresses;
+  private List<EventAttendeeOrGuest> attendeeOrGuestEmailAddresses;
   private String calendarIdOrName;
 
   @Builder.Default

@@ -1,0 +1,56 @@
+package com.fleencorp.feen.model.dto.event;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.validator.ValidEmail;
+import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+import java.util.List;
+
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreateCalendarEventDto extends CreateStreamDto {
+
+  @Size(min = 10, max = 500, message = "{event.organizerAliasOrDisplayName.Size}")
+  @JsonProperty("organizer_alias_or_display_name")
+  private String organizerAliasOrDisplayName;
+
+  @Valid
+  @NotEmpty(message = "{event.eventAttendeesOrGuests.NotEmpty}")
+  @Size(min = 1, max = 5, message = "{event.eventAttendeesOrGuests.Size}")
+  @JsonProperty("event_attendees_or_guests")
+  private List<EventAttendeeOrGuest> eventAttendeesOrGuests;
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class EventAttendeeOrGuest {
+
+    @NotBlank(message = "{event.eventAttendeesOrGuests.emailAddress.NotBlank}")
+    @Size(min = 6, max = 50, message = "{event.eventAttendeesOrGuests.emailAddress.Size}")
+    @ValidEmail
+    @JsonProperty("email_address")
+    private String emailAddress;
+
+    @Size(min = 3, max = 50, message = "{event.eventAttendeesOrGuests.aliasOrDisplayName.Size}")
+    @JsonProperty("alias_or_display_name")
+    private String aliasOrDisplayName;
+
+    @JsonIgnore
+    private Boolean isOrganizer;
+  }
+
+}
