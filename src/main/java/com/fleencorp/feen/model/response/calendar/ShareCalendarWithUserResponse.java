@@ -1,0 +1,50 @@
+package com.fleencorp.feen.model.response.calendar;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
+import lombok.*;
+import lombok.Builder.Default;
+import lombok.experimental.SuperBuilder;
+
+import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
+import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
+
+@SuperBuilder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(Include.NON_NULL)
+@JsonPropertyOrder({
+  "message",
+  "calendar_id",
+  "user_email_address",
+  "calendar"
+})
+public class ShareCalendarWithUserResponse {
+
+  @JsonProperty("calendar_id")
+  private Long calendarId;
+
+  @JsonProperty("user_email_address")
+  private String userEmailAddress;
+
+  @JsonProperty("calendar")
+  private CalendarResponse calendar;
+
+  @Default
+  @JsonProperty("message")
+  private String message = "Calendar shared with user successfully";
+
+  public static ShareCalendarWithUserResponse of(Long calendarId, String userEmailAddress, CalendarResponse calendar) {
+    return ShareCalendarWithUserResponse.builder()
+            .calendarId(calendarId)
+            .calendar(calendar)
+            .userEmailAddress(userEmailAddress)
+            .build();
+  }
+}

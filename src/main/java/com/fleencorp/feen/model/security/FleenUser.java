@@ -37,9 +37,14 @@ public class FleenUser implements UserDetails {
   private String firstName;
   private String lastName;
   private String profilePhoto;
+  private String country;
   private ProfileStatus profileStatus;
   private boolean mfaEnabled;
   private MfaType mfaType;
+
+  public String getFullName() {
+    return firstName + ' ' + lastName;
+  }
 
   /**
    * Constructs a FleenUser object from a Member entity.
@@ -47,28 +52,28 @@ public class FleenUser implements UserDetails {
    * @param member The Member entity from which to construct the FleenUser.
    * @return A FleenUser object populated with data from the Member entity.
    */
-  public static FleenUser fromMember(Member member) {
+  public static FleenUser fromMember(final Member member) {
     // Extract roles from the Member entity and build authorities
-    List<String> roles = member.getRoles()
+    final List<String> roles = member.getRoles()
       .stream()
       .map(Role::getCode)
       .collect(Collectors.toList());
-    List<GrantedAuthority> authorities = buildAuthorities(roles);
+    final List<GrantedAuthority> authorities = buildAuthorities(roles);
 
     // Build a FleenUser object from the Member entity data
-    var user = FleenUser.builder()
+    final FleenUser user = builder()
       .id(member.getMemberId())
       .emailAddress(member.getEmailAddress())
       .phoneNumber(member.getPhoneNumber())
       .password(member.getPassword())
       .authorities(authorities)
-      .profileStatus(member.getMemberStatus())
+      .profileStatus(member.getProfileStatus())
       .build();
 
     // Set additional properties on the FleenUser object
     user.setFirstName(member.getFirstName());
     user.setLastName(member.getLastName());
-    user.setProfilePhoto(member.getProfilePhoto());
+    user.setProfilePhoto(member.getProfilePhotoUrl());
     user.setMfaEnabled(member.isMfaEnabled());
     user.setMfaType(member.getMfaType());
     return user;
@@ -80,7 +85,7 @@ public class FleenUser implements UserDetails {
    * @param member The Member entity from which to construct the basic FleenUser.
    * @return A basic FleenUser object populated with minimal data from the Member entity.
    */
-  public static FleenUser fromMemberBasic(Member member) {
+  public static FleenUser fromMemberBasic(final Member member) {
     return FleenUser.builder()
       .id(member.getMemberId())
       .firstName(member.getFirstName())
@@ -97,9 +102,9 @@ public class FleenUser implements UserDetails {
    * @param details The JwtTokenDetails object from which to construct the FleenUser.
    * @return A FleenUser object populated with data from the JwtTokenDetails.
    */
-  public static FleenUser fromToken(JwtTokenDetails details) {
+  public static FleenUser fromToken(final JwtTokenDetails details) {
     // Build authorities from token details
-    List<GrantedAuthority> authorities = buildAuthorities(asList(details.getAuthorities()));
+    final List<GrantedAuthority> authorities = buildAuthorities(asList(details.getAuthorities()));
 
     // Build a FleenUser object from the JwtTokenDetails data
     return FleenUser.builder()
@@ -123,7 +128,7 @@ public class FleenUser implements UserDetails {
     return authorities
       .stream()
       .filter(Objects::nonNull)
-      .map(authority -> Role.byAuthority(authority.getAuthority()))
+      .map(authority -> Role.of(authority.getAuthority()))
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
   }
@@ -131,7 +136,7 @@ public class FleenUser implements UserDetails {
   public Member toMember() {
     return Member.builder()
       .memberId(id)
-      .profilePhoto(profilePhoto)
+      .profilePhotoUrl(profilePhoto)
       .firstName(firstName)
       .lastName(lastName)
       .build();
@@ -167,7 +172,7 @@ public class FleenUser implements UserDetails {
         return true;
     }
 
-  public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+  public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
     this.authorities = authorities;
   }
 

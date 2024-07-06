@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 @SuperBuilder
 @Getter
@@ -18,32 +19,33 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "google_oauth_authorization")
+@Table(name = "google_oauth2_authorization")
 public class GoogleOauth2Authorization extends FleenFeenEntity {
 
   @Id
-  @Column(name = "google_oauth_authorization_id")
+  @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "google_oauth2_authorization_id", nullable = false, updatable = false, unique = true)
   private Long googleOauthAuthorizationId;
 
-  @Column(name = "access_token")
   @Convert(converter = StringCryptoConverter.class)
+  @Column(name = "access_token")
   private String accessToken;
 
-  @Column(name = "refresh_token")
   @Convert(converter = StringCryptoConverter.class)
+  @Column(name = "refresh_token")
   private String refreshToken;
 
   @Column(name = "token_expiration_time_in_milliseconds")
   private Long tokenExpirationTimeInMilliseconds;
 
-  @Column(name = "authorization_scope")
-  private String authorizationScope;
+  @Column(name = "scope")
+  private String scope;
 
   @Column(name = "token_type")
   private String tokenType;
 
   @OneToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id")
+  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)
   private Member member;
 
 }

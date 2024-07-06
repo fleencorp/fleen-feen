@@ -11,4 +11,11 @@ public class CancelCalendarEventRequest {
 
   private String calendarId;
   private String eventId;
+
+  public static CancelCalendarEventRequest of(final String calendarId, final String eventId) {
+    return CancelCalendarEventRequest.builder()
+            .calendarId(calendarId)
+            .eventId(eventId)
+            .build();
+  }
 }

@@ -25,7 +25,7 @@ public class Role extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "role_id")
+  @Column(name = "role_id", nullable = false, updatable = false, unique = true)
   private Long roleId;
 
   @Column(name = "title", nullable = false, length = 100)
@@ -37,27 +37,26 @@ public class Role extends FleenFeenEntity {
   @Column(name = "description", length = 1000)
   private String description;
 
-  public static Role create(long id) {
-    Role role = new Role();
-    role.setRoleId(id);
-    return role;
+  public static Role of(long id) {
+    return Role.builder()
+            .roleId(id)
+            .build();
   }
 
-  public static Role create(String title, String code) {
-    Role role = new Role();
-    role.setTitle(title);
-    role.setCode(code);
-    return role;
+  public static Role of(String title, String code) {
+    return Role.builder()
+            .title(title)
+            .code(code)
+            .build();
   }
 
-  public static Role byAuthority(String authority) {
+  public static Role of(String authority) {
     if (nonNull(authority)) {
       return Role
-        .builder()
-        .code(authority.replace(ROLE_PREFIX, ""))
-        .build();
+              .builder()
+              .code(authority.replace(ROLE_PREFIX, ""))
+              .build();
     }
     return null;
-
   }
 }

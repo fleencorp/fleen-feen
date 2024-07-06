@@ -1,8 +1,16 @@
 package com.fleencorp.feen.constant.external;
 
-import com.fleencorp.feen.constant.base.ApiParameter;
+import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+/**
+ * Enum representing types of external systems used within the application.
+ *
+ * <p>Each type corresponds to a specific external system integration.</p>
+ *
+ * @author Yusuf Alamu Musa
+ * @version 1.0
+ */
 @Getter
 public enum ExternalSystemType implements ApiParameter {
 

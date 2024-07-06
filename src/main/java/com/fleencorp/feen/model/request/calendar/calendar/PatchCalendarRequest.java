@@ -14,4 +14,13 @@ import lombok.experimental.SuperBuilder;
 public class PatchCalendarRequest extends CreateCalendarRequest {
 
   private String calendarId;
+
+  public static PatchCalendarRequest of(final String calendarId, final String title, final String description, final String timezone) {
+    return PatchCalendarRequest.builder()
+            .calendarId(calendarId)
+            .title(title)
+            .description(description)
+            .timezone(timezone)
+            .build();
+  }
 }

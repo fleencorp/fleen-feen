@@ -20,10 +20,10 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 public class FleenFeenConfiguration {
 
   /**
-   * Provides an ObjectMapper bean.
-   *
-   * @return ObjectMapper instance configured with various settings
-   */
+  * Provides an ObjectMapper bean.
+  *
+  * @return ObjectMapper instance configured with various settings
+  */
   @Primary
   @Bean
   public ObjectMapper objectMapper() {

@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.domain.base;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +17,14 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@MappedSuperclass
 public class FleenFeenEntity {
 
-  @Column(name = "created_on", updatable = false)
   @CreatedDate
+  @Column(name = "created_on", nullable = false, updatable = false)
   protected LocalDateTime createdOn;
 
-  @Column(name = "updated_on", insertable = false)
   @LastModifiedDate
+  @Column(name = "updated_on", nullable = false)
   protected LocalDateTime updatedOn;
 }

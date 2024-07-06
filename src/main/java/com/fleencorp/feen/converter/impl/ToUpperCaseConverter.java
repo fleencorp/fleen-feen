@@ -20,7 +20,7 @@ public class ToUpperCaseConverter extends StdConverter<String, String> {
   @Override
   public String convert(String value) {
     return value == null
-      ? null
-      : value.trim().toUpperCase();
+            ? null
+            : value.trim().toUpperCase();
   }
 }

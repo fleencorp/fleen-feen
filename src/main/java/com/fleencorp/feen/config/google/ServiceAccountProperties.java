@@ -13,27 +13,27 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
 /**
- * <p>Configuration class representing service account properties used for Google authentication.
- * This class is annotated with various Lombok annotations for generating boilerplate code.
- * It is also annotated with Spring's configuration-related annotations for property binding.
- * </p><br/>
- *
- * <p>
- * The properties are loaded from the "google-service-account.properties" file located in the classpath,
- * with the prefix "sa". The values are then bound to the corresponding fields of this class using
- * the {@link ConfigurationProperties} annotation.
- * </p><br/>
- *
- *
- * <p>
- * The fields in this class represent the various properties required for Google service account authentication.
- * Each field is annotated with {@link NotBlank} to ensure that the corresponding property value is not empty or blank.
- * Additionally, each field is annotated with {@link JsonProperty} to specify the name of the property in JSON format.
- * </p>
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
+* <p>Configuration class representing service account properties used for Google authentication.
+* This class is annotated with various Lombok annotations for generating boilerplate code.
+* It is also annotated with Spring's configuration-related annotations for property binding.
+* </p><br/>
+*
+* <p>
+* The properties are loaded from the "google-service-account.properties" file located in the classpath,
+* with the prefix "sa". The values are then bound to the corresponding fields of this class using
+* the {@link ConfigurationProperties} annotation.
+* </p><br/>
+*
+*
+* <p>
+* The fields in this class represent the various properties required for Google service account authentication.
+* Each field is annotated with {@link NotBlank} to ensure that the corresponding property value is not empty or blank.
+* Additionally, each field is annotated with {@link JsonProperty} to specify the name of the property in JSON format.
+* </p>
+*
+* @author Yusuf Alamu Musa
+* @version 1.0
+*/
 @SuperBuilder
 @Getter
 @Setter
@@ -41,9 +41,7 @@ import org.springframework.context.annotation.PropertySources;
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "sa")
-@PropertySources({
-  @PropertySource("classpath:google-service-account.properties")
-})
+@PropertySources(@PropertySource("classpath:google-service-account.properties"))
 public class ServiceAccountProperties {
 
   @NotBlank
@@ -90,5 +88,4 @@ public class ServiceAccountProperties {
   @NotBlank
   @JsonProperty("universe_domain")
   private String universeDomain;
-
 }
