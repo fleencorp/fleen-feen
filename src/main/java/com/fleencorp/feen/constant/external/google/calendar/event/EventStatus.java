@@ -1,14 +1,14 @@
 package com.fleencorp.feen.constant.external.google.calendar.event;
 
-import com.fleencorp.feen.constant.base.ApiParameter;
+import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 /**
- * Enum representing status options for events.
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
+* Enum representing status options for events.
+*
+* @author Yusuf Alamu Musa
+* @version 1.0
+*/
 @Getter
 public enum EventStatus implements ApiParameter {
 

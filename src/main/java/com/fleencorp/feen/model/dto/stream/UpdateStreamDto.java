@@ -1,7 +1,10 @@
 package com.fleencorp.feen.model.dto.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.feen.converter.ToLowerCase;
+import com.fleencorp.feen.converter.ToTitleCase;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,4 +28,16 @@ public class UpdateStreamDto {
   @Size(max = 1000, message = "{stream.description.Size}")
   @JsonProperty("description")
   private String description;
+
+  @NotEmpty(message = "{stream.tags.NotBlank}")
+  @Size(min = 1, max = 300, message = "{stream.tags.Size}")
+  @ToLowerCase
+  @JsonProperty("tags")
+  protected String tags;
+
+  @NotBlank(message = "{stream.location.NotBlank}")
+  @Size(max = 50, message = "{stream.location.Size}")
+  @ToTitleCase
+  @JsonProperty("location")
+  protected String location;
 }

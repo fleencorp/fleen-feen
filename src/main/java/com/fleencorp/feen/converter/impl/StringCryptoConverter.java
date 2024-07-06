@@ -12,19 +12,21 @@ import static java.util.Objects.nonNull;
  * It implements {@link AttributeConverter} interface to provide methods for converting strings to encrypted form
  * (for storage) and from encrypted form back to plain text (for retrieval).
  * </p>
+ *
+ * @author Yusuf Alamu Musa
+ * @version 1.0
  */
 @Component
 public class StringCryptoConverter implements AttributeConverter<String, String> {
 
   private final EncryptionUtils encryptionUtils;
 
-
   /**
    * Constructor to initialize the converter with an instance of {@link EncryptionUtils}.
    *
    * @param encryptionUtils The utility class used for encryption and decryption.
    */
-  public StringCryptoConverter(EncryptionUtils encryptionUtils) {
+  public StringCryptoConverter(final EncryptionUtils encryptionUtils) {
     this.encryptionUtils = encryptionUtils;
   }
 
@@ -35,7 +37,7 @@ public class StringCryptoConverter implements AttributeConverter<String, String>
    * @return The encrypted string.
    */
   @Override
-  public String convertToDatabaseColumn(String attribute) {
+  public String convertToDatabaseColumn(final String attribute) {
     if (nonNull(attribute)) {
       return encryptionUtils.encrypt(attribute);
     }
@@ -49,7 +51,7 @@ public class StringCryptoConverter implements AttributeConverter<String, String>
    * @return The decrypted string.
    */
   @Override
-  public String convertToEntityAttribute(String attribute) {
+  public String convertToEntityAttribute(final String attribute) {
     if (nonNull(attribute)) {
       return encryptionUtils.decrypt(attribute);
     }

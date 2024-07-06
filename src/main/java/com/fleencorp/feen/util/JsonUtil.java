@@ -32,7 +32,7 @@ public class JsonUtil {
    *
    * @param objectMapper the {@link ObjectMapper} used for JSON conversion
    */
-  public JsonUtil(ObjectMapper objectMapper) {
+  public JsonUtil(final ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
@@ -43,11 +43,11 @@ public class JsonUtil {
    * @return the JSON string representation of the object
    * @throws FleenException if an error occurs during the conversion process
    */
-  public String convertToString(Object value) {
+  public String convertToString(final Object value) {
     try {
       return objectMapper.writeValueAsString(value);
-    } catch (Exception ex) {
-      String message = String.format("Convert to String failed, %s", ex.getMessage());
+    } catch (final Exception ex) {
+      final String message = String.format("Convert to String failed, %s", ex.getMessage());
       throw new FleenException(message);
     }
   }

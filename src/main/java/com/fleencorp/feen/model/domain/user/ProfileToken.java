@@ -24,7 +24,7 @@ public class ProfileToken extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "profile_token_id", nullable = false)
+  @Column(name = "profile_token_id", nullable = false, updatable = false, unique = true)
   private Long profileTokenId;
 
   @Column(name = "reset_password_token", length = 500)
@@ -33,7 +33,7 @@ public class ProfileToken extends FleenFeenEntity {
   @Column(name = "reset_password_token_expiry_date")
   private LocalDateTime resetPasswordTokenExpiryDate;
 
-  @OneToOne(targetEntity = Member.class, fetch = EAGER)
-  @JoinColumn(name = "member_id", nullable = false)
+  @OneToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
+  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)
   private Member member;
 }

@@ -24,6 +24,6 @@ public class JwtTokenDetails {
   private String profilePhoto;
 
   public ProfileStatus getActualMemberStatus() {
-    return parseEnumOrNull(getStatus(), ProfileStatus.class);
+    return parseEnumOrNull(status, ProfileStatus.class);
   }
 }

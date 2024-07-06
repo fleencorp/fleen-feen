@@ -1,9 +1,10 @@
 package com.fleencorp.feen.model.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.base.validator.ValidEmail;
+import com.fleencorp.feen.converter.ToLowerCase;
+import com.fleencorp.feen.converter.ToTitleCase;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -14,18 +15,19 @@ import lombok.*;
 @AllArgsConstructor
 public class AddNewEventAttendeeDto {
 
-  @NotNull(message = "{event.id.NotNull}")
-  @IsNumber
-  @JsonProperty("event_id")
-  private String eventId;
+  @NotBlank(message = "{event.emailAddress.NotBlank}")
+  @Size(min = 6, max = 50, message = "{event.emailAddress.Size}")
+  @ValidEmail
+  @ToLowerCase
+  @JsonProperty("email_address")
+  private String emailAddress;
 
-  @NotNull(message = "{event.userId.NotNull}")
-  @IsNumber
-  @JsonProperty("user_id")
-  private String userId;
-
-  @NotBlank
-  @Size
+  @Size(min = 3, max = 100, message = "{event.aliasOrDisplayName.Size}")
+  @ToTitleCase
   @JsonProperty("alias_or_display_name")
   private String aliasOrDisplayName;
+
+  @Size(min = 10, max = 500, message = "{event.comment.Size}")
+  @JsonProperty("comment")
+  protected String comment;
 }

@@ -4,6 +4,7 @@ import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
+import com.fleencorp.feen.converter.impl.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,14 +29,14 @@ import static java.util.Objects.nonNull;
 @ToString
 @Entity
 @Table(name = "member", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {"email_address"}),
-  @UniqueConstraint(columnNames = {"phone_number"})
+  @UniqueConstraint(columnNames = "email_address"),
+  @UniqueConstraint(columnNames = "phone_number")
 })
 public class Member extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "member_id", nullable = false)
+  @Column(name = "member_id", nullable = false, updatable = false, unique = true)
   private Long memberId;
 
   @Column(name = "first_name", nullable = false, length = 100)
@@ -44,96 +45,135 @@ public class Member extends FleenFeenEntity {
   @Column(name = "last_name", nullable = false, length = 100)
   private String lastName;
 
-  @Column(name = "email_address", nullable = false, length = 150)
+  @Column(name = "email_address", nullable = false, unique = true, length = 50)
   private String emailAddress;
 
-  @Column(name = "phone_number", nullable = false, length = 15)
+  @Column(name = "phone_number", nullable = false, unique = true, length = 15)
   private String phoneNumber;
 
   @Column(name = "password_hash", nullable = false, length = 500)
   private String password;
 
-  @Column(name = "profile_photo", length = 1000)
-  private String profilePhoto;
+  @Column(name = "profile_photo_url", length = 1000)
+  private String profilePhotoUrl;
+
+  @Column(name = "country", length = 50)
+  private String country;
 
   @Builder.Default
-  @Column(name ="email_address_verified")
+  @Column(name ="email_address_verified", nullable = false)
   private boolean emailAddressVerified = false;
 
   @Builder.Default
-  @Column(name ="phone_number_verified")
+  @Column(name ="phone_number_verified", nullable = false)
   private boolean phoneNumberVerified = false;
 
   @Builder.Default
-  @Column(name = "mfa_enabled")
+  @Column(name = "mfa_enabled", nullable = false)
   private boolean mfaEnabled = false;
 
+  @Convert(converter = StringCryptoConverter.class)
   @Column(name = "mfa_secret")
   private String mfaSecret;
 
   @Builder.Default
-  @Column(name = "mfa_type")
   @Enumerated(STRING)
+  @Column(name = "mfa_type", nullable = false)
   private MfaType mfaType = MfaType.NONE;
 
-  @Column(name = "verification_status")
+  @Builder.Default
   @Enumerated(STRING)
-  private ProfileVerificationStatus verificationStatus;
-
-  @Column(name = "member_status")
-  @Enumerated(STRING)
-  private ProfileStatus memberStatus;
+  @Column(name = "verification_status", nullable = false)
+  private ProfileVerificationStatus verificationStatus = ProfileVerificationStatus.PENDING;
 
   @Builder.Default
-  @ManyToMany(fetch = LAZY)
-  @JoinTable(name = "member_role",
-    joinColumns = {
-      @JoinColumn(name = "member_id")
-    },
-    inverseJoinColumns = {
-      @JoinColumn(name = "role_id")
-  })
+  @Enumerated(STRING)
+  @Column(name = "profile_status", nullable = false)
+  private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
+
+  @Builder.Default
+  @ManyToMany(fetch = LAZY, targetEntity = Role.class, cascade = CascadeType.ALL)
+  @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
-  public void clearPreCompletedSignUpRole() {
-    this.roles = new HashSet<>();
+  public String getFullName() {
+    return firstName + ' ' + lastName;
   }
 
-  public void addRole(Role role) {
-    if (roles == null) {
-      roles = new HashSet<>();
+  /**
+   * Adds a role to the user's set of roles.
+   *
+   * @param role the role to add
+   */
+  public void addRole(final Role role) {
+    if (null == roles) {
+      roles = new HashSet<>(); // Initialize roles if null
     }
-    roles.add(role);
+    roles.add(role); // Add the role to the set
   }
 
-  public void addRole(List<Role> roles) {
-    if (roles != null && !roles.isEmpty()) {
-      roles.forEach(this::addRole);
+  /**
+   * Clears the default roles assigned during sign-up by reinitializing the roles set.
+   */
+  public void clearDefaultRolesAssignedDuringSignUpRole() {
+    roles = new HashSet<>(); // Clear roles by reinitializing the set
+  }
+
+  /**
+   * Adds multiple roles to the user's set of roles.
+   *
+   * @param roles the list of roles to add
+   */
+  public void addRole(final List<Role> roles) {
+    if ((null != roles) && !roles.isEmpty()) {
+      roles.forEach(this::addRole); // Add each role from the list
     }
   }
 
-  public void verifyUser(ProfileVerificationType profileVerificationType) {
-    if (profileVerificationType == ProfileVerificationType.PHONE) {
-      setPhoneNumberVerified(true);
-    } else if (profileVerificationType == ProfileVerificationType.EMAIL) {
-      setEmailAddressVerified(true);
+  /**
+   * Verifies the user based on the provided profile verification type.
+   *
+   * @param profileVerificationType the type of profile verification (PHONE or EMAIL)
+   */
+  public void verifyUser(final ProfileVerificationType profileVerificationType) {
+    if (ProfileVerificationType.PHONE == profileVerificationType) {
+      setPhoneNumberVerified(true); // Verify phone number
+    } else if (ProfileVerificationType.EMAIL == profileVerificationType) {
+      setEmailAddressVerified(true); // Verify email address
     }
   }
 
-  public void verifyUserMfa(MfaType mfaType) {
-    if (mfaType == PHONE) {
-      verifyUser(ProfileVerificationType.PHONE);
-    } else if (mfaType == EMAIL) {
-      verifyUser(ProfileVerificationType.EMAIL);
+  /**
+   * Verifies the user for multifactor authentication (MFA) based on the provided MFA type.
+   *
+   * @param mfaType the type of MFA (PHONE or EMAIL)
+   */
+  public void verifyUserMfa(final MfaType mfaType) {
+    if (PHONE == mfaType) {
+      verifyUser(ProfileVerificationType.PHONE); // Verify using phone
+    } else if (EMAIL == mfaType) {
+      verifyUser(ProfileVerificationType.EMAIL); // Verify using email
     }
   }
 
-  public void updateDetails(String firstName, String lastName) {
+  /**
+   * Updates the user's first name and last name if the provided values are not null.
+   *
+   * @param firstName the new first name
+   * @param lastName  the new last name
+   */
+  public void updateDetails(final String firstName, final String lastName) {
     if (nonNull(firstName)) {
-      this.firstName = firstName;
+      this.firstName = firstName; // Update first name if not null
     }
     if (nonNull(lastName)) {
-      this.lastName = lastName;
+      this.lastName = lastName; // Update last name if not null
     }
+  }
+
+  public static Member of(final Long memberId) {
+    return Member.builder()
+            .memberId(memberId)
+            .build();
   }
 }

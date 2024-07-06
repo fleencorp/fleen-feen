@@ -11,9 +11,10 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 @Slf4j
-public class EnumUtil {
+public enum EnumUtil {
+    ;
 
-  private static final char ENUM_VALUE_SEPARATOR = '_';
+    private static final char ENUM_VALUE_SEPARATOR = '_';
   private static final char ENUM_VALUE_REPLACE = ' ';
 
   /**
@@ -27,20 +28,20 @@ public class EnumUtil {
    * @param enumClass The Class representing the Enum type for which ordinal values are retrieved.
    * @return A List of Long values representing the ordinals of the Enum constants, or null if retrieval fails.
    */
-  public static List<Long> getValues(Class<?> enumClass) {
+  public static List<Long> getValues(final Class<?> enumClass) {
     try {
-      List<Long> values = new ArrayList<>();
-      Method valuesMethod = enumClass.getMethod("values");
-      Object[] allEnums = (Object[]) valuesMethod.invoke(null);
+      final List<Long> values = new ArrayList<>();
+      final Method valuesMethod = enumClass.getMethod("values");
+      final Object[] allEnums = (Object[]) valuesMethod.invoke(null);
 
-      for (Object enumValue : allEnums) {
-        Method ordinalMethod = enumClass.getMethod("ordinal");
-        Long ordinalValue = ((Integer) ordinalMethod.invoke(enumValue)).longValue();
+      for (final Object enumValue : allEnums) {
+        final Method ordinalMethod = enumClass.getMethod("ordinal");
+        final Long ordinalValue = ((Integer) ordinalMethod.invoke(enumValue)).longValue();
         values.add(ordinalValue);
       }
       return values;
-    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-      log.error(ex.getMessage(), ex);
+    } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+        EnumUtil.log.error(ex.getMessage(), ex);
     }
     return null;
   }
@@ -59,13 +60,12 @@ public class EnumUtil {
    * @throws IllegalArgumentException If the provided ordinal value is invalid for the Enum.
    */
 
-  public static <T extends Enum<T>> T getEnumConstant(Class<T> enumType, int ordinalValue) {
-    T[] allEnums = enumType.getEnumConstants();
-    if (ordinalValue >= 0 && ordinalValue < allEnums.length) {
+  public static <T extends Enum<T>> T getEnumConstant(final Class<T> enumType, final int ordinalValue) {
+    final T[] allEnums = enumType.getEnumConstants();
+    if ((0 <= ordinalValue) && (ordinalValue < allEnums.length)) {
       return allEnums[ordinalValue];
-    } else {
-      throw new IllegalArgumentException("Invalid ordinal value for the Enum.");
     }
+    throw new IllegalArgumentException("Invalid ordinal value for the Enum.");
   }
 
   /**
@@ -82,16 +82,16 @@ public class EnumUtil {
    * @param enumClass The enum class to be converted to a list of EnumView objects.
    * @return A list of EnumView objects representing the enum constants.
    */
-  public static List<? extends EnumView> convertEnumToList(Class<? extends Enum<?>> enumClass) {
-    List<EnumView> views = new ArrayList<>();
+  public static List<? extends EnumView> convertEnumToList(final Class<? extends Enum<?>> enumClass) {
+    final List<EnumView> views = new ArrayList<>();
 
     if (enumClass.isEnum()) {
-      Enum<?>[] constants = enumClass.getEnumConstants();
+      final Enum<?>[] constants = enumClass.getEnumConstants();
 
-      for (Enum<?> enumConst : constants) {
-        EnumView enumView = new EnumView();
+      for (final Enum<?> enumConst : constants) {
+        final EnumView enumView = new EnumView();
         enumView.setLabel(enumConst.toString()
-          .replaceAll(String.valueOf(ENUM_VALUE_SEPARATOR), String.valueOf(ENUM_VALUE_REPLACE)));
+          .replaceAll(String.valueOf(EnumUtil.ENUM_VALUE_SEPARATOR), String.valueOf(EnumUtil.ENUM_VALUE_REPLACE)));
         enumView.setName(enumConst.name());
         views.add(enumView);
       }
@@ -108,14 +108,14 @@ public class EnumUtil {
    * @param <T>      The Enum type to parse.
    * @return An Enum value of type T if parsing succeeds, or null if parsing fails or inputs are invalid.
    */
-  public static <T extends Enum<T>> T parseEnumOrNull(String value, Class<T> enumType) {
-    if (value == null || enumType == null || !enumType.isEnum()) {
+  public static <T extends Enum<T>> T parseEnumOrNull(final String value, final Class<T> enumType) {
+    if ((null == value) || (null == enumType) || !enumType.isEnum()) {
       return null;
     }
 
     try {
       return Enum.valueOf(enumType, value);
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       return null;
     }
   }
@@ -128,19 +128,18 @@ public class EnumUtil {
    * @param <T>       The type of the enum.
    * @return          {@code true} if all values match enum values, {@code false} otherwise.
    */
-  public static <T extends Enum<T>> boolean matchEnumValues(List<String> values, Class<T> enumClass) {
+  public static <T extends Enum<T>> boolean matchEnumValues(final List<String> values, final Class<T> enumClass) {
     if (nonNull(values) && !values.isEmpty()) {
       // Iterate through each string in the list
-      for (String value : values) {
+      for (final String value : values) {
         boolean matchFound = false;
         // Iterate through each enum value
-        for (T enumValue : enumClass.getEnumConstants()) {
-          // Check if the current string matches the current enum value
-          if (value.equals(enumValue.toString())) {
-            matchFound = true;
-            break;
-          }
-        }
+        // Check if the current string matches the current enum value
+        for (final T enumValue : enumClass.getEnumConstants())
+            if (value.equals(enumValue.toString())) {
+                matchFound = true;
+                break;
+            }
         // If no match is found for the current string, return false
         if (!matchFound) {
           return false;

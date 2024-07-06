@@ -3,6 +3,8 @@ package com.fleencorp.feen.model.dto.stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.DateTimeValid;
 import com.fleencorp.base.validator.FutureDate;
+import com.fleencorp.feen.converter.ToTitleCase;
+import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,6 +25,8 @@ public class RescheduleStreamDto {
 
   @NotBlank(message = "{stream.timezone.NotBlank}")
   @Size(max = 50, message = "{stream.timezone.Size}")
+  @TimezoneValid
+  @ToTitleCase
   @JsonProperty("timezone")
   private String timezone;
 

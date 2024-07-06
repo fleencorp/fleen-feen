@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.dto.event;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEmail;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -16,6 +17,11 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
+import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
+import static com.fleencorp.feen.converter.impl.ToTitleCaseConverter.toTitleCase;
+import static java.lang.Boolean.parseBoolean;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -23,7 +29,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CreateCalendarEventDto extends CreateStreamDto {
 
-  @Size(min = 10, max = 500, message = "{event.organizerAliasOrDisplayName.Size}")
+  @Size(min = 3, max = 100, message = "{event.organizerAliasOrDisplayName.Size}")
   @JsonProperty("organizer_alias_or_display_name")
   private String organizerAliasOrDisplayName;
 
@@ -45,12 +51,29 @@ public class CreateCalendarEventDto extends CreateStreamDto {
     @JsonProperty("email_address")
     private String emailAddress;
 
-    @Size(min = 3, max = 50, message = "{event.eventAttendeesOrGuests.aliasOrDisplayName.Size}")
+    @Size(min = 3, max = 100, message = "{event.eventAttendeesOrGuests.aliasOrDisplayName.Size}")
     @JsonProperty("alias_or_display_name")
     private String aliasOrDisplayName;
 
     @JsonIgnore
     private Boolean isOrganizer;
+  }
+
+  public FleenStream toFleenStream() {
+    return FleenStream.builder()
+            .title(title)
+            .description(description)
+            .tags(tags)
+            .location(location)
+            .timezone(toTitleCase(timezone))
+            .scheduledStartDate(startDateTime)
+            .scheduledEndDate(endDateTime)
+            .streamType(getActualType())
+            .streamVisibility(getActualVisibility())
+            .streamCreationType(SCHEDULED)
+            .streamStatus(ACTIVE)
+            .forKids(parseBoolean(isForKids))
+            .build();
   }
 
 }

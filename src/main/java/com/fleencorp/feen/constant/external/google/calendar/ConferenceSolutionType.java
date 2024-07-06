@@ -1,14 +1,14 @@
 package com.fleencorp.feen.constant.external.google.calendar;
 
-import com.fleencorp.feen.constant.base.ApiParameter;
+import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 /**
- * Enum representing types of conference solutions for events.
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
+* Enum representing types of conference solutions for events.
+*
+* @author Yusuf Alamu Musa
+* @version 1.0
+*/
 @Getter
 public enum ConferenceSolutionType implements ApiParameter {
 
@@ -18,11 +18,11 @@ public enum ConferenceSolutionType implements ApiParameter {
 
   private final String value;
 
-  ConferenceSolutionType(String value) {
+  ConferenceSolutionType(final String value) {
     this.value = value;
   }
 
   public static ConferenceSolutionType getDefault() {
-    return HANGOUTS_MEET;
+    return ConferenceSolutionType.HANGOUTS_MEET;
   }
 }

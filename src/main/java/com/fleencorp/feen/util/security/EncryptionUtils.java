@@ -11,7 +11,6 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -35,13 +34,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Slf4j
 public class EncryptionUtils {
 
-  public EncryptionUtils(@Value("${entity.field.encryption.key}") String encryptionKey) {
-    this.encryptionKey = encryptionKey;
-  }
-
   private final String encryptionKey;
   private static final String TRANSFORMATION = "AES/GCM/NoPadding";
   private static final String ALGORITHM = "AES";
+
+  public EncryptionUtils(@Value("${entity.field.encryption.key}") final String encryptionKey) {
+    this.encryptionKey = encryptionKey;
+  }
 
   /**
    * Encrypts a plaintext value using AES-GCM (Advanced Encryption Standard with Galois/Counter Mode).
@@ -59,17 +58,17 @@ public class EncryptionUtils {
    * @return The Base64-encoded encrypted value.
    * @throws EncryptionFailedException If encryption fails due to an exception.
    */
-  public String encrypt(String value) {
+  public String encrypt(final String value) {
     try {
-      Cipher cipher = getCipher();
+      final Cipher cipher = getCipher();
       cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec(), getGCMParameterSpec());
-      return Base64.encodeBase64String(cipher.doFinal(value.getBytes()));
-    } catch (Exception ex) {
-      String errorMessage = String
+      return Base64.encodeBase64String(cipher.doFinal(value.getBytes(UTF_8)));
+    } catch (final Exception ex) {
+      final String errorMessage = String
         .format("An error occurred while calling encrypt of %s. Reason: %s",
           ex.getClass().getName(),
           ex.getMessage());
-      log.error(errorMessage);
+        EncryptionUtils.log.error(errorMessage);
       throw new EncryptionFailedException(errorMessage);
     }
   }
@@ -90,17 +89,17 @@ public class EncryptionUtils {
    * @return The decrypted plaintext value.
    * @throws DecryptionFailedException If decryption fails due to an exception.
    */
-  public String decrypt(String encryptedValue) {
+  public String decrypt(final String encryptedValue) {
     try {
-      Cipher cipher = getCipher();
+      final Cipher cipher = getCipher();
       cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec(), getGCMParameterSpec());
-      return new String(cipher.doFinal(Base64.decodeBase64(encryptedValue)));
-    } catch (Exception ex) {
-      String errorMessage = String
+      return new String(cipher.doFinal(Base64.decodeBase64(encryptedValue)), UTF_8);
+    } catch (final Exception ex) {
+      final String errorMessage = String
         .format("An error occurred while calling decrypt of %s. Reason: %s",
           ex.getClass().getName(),
           ex.getMessage());
-      log.error(errorMessage);
+        EncryptionUtils.log.error(errorMessage);
       throw new DecryptionFailedException(errorMessage);
     }
   }
@@ -121,7 +120,7 @@ public class EncryptionUtils {
    * @throws NoSuchAlgorithmException If the specified encryption algorithm is not available.
    */
   private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-    return Cipher.getInstance(TRANSFORMATION);
+    return Cipher.getInstance(EncryptionUtils.TRANSFORMATION);
   }
 
   /**
@@ -137,7 +136,7 @@ public class EncryptionUtils {
    * @return A SecretKeySpec object initialized with the encryption key and algorithm.
    */
   private SecretKeySpec getSecretKeySpec() {
-    return new SecretKeySpec(encryptionKey.getBytes(UTF_8), ALGORITHM);
+    return new SecretKeySpec(encryptionKey.getBytes(UTF_8), EncryptionUtils.ALGORITHM);
   }
 
   /**

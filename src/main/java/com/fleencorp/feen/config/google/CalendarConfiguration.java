@@ -1,7 +1,6 @@
 package com.fleencorp.feen.config.google;
 
 import com.fleencorp.feen.util.JsonUtil;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
@@ -17,25 +16,26 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 /**
- * This class provides configuration for interacting with Google Calendar API.
- * It includes methods for obtaining calendar instances, credentials, and other necessary configurations.
- *
- * @author Yusuf Alamu
- * @version 1.0
- *
- * @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0">
- *   Using Google Calendar API with a service account</a>
- * @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-2-b9drsetp">
- *   Using Google Calendar API with a service account (2)</a>
- * @see <a href="https://sree394.medium.com/leveraging-service-accounts-for-seamless-google-calendar-integration-in-spring-boot-applications-52ee0d65652a">
- *   Leveraging Service Accounts for Seamless Google Calendar Integration in Spring Boot Applications</a>
- *
- * @see <a href="https://developers.google.com/cloud-search/docs/guides/delegation">
- *   Perform Google Workspace domain-wide delegation of authority</a>
- */
+* This class provides configuration for interacting with Google Calendar API.
+* It includes methods for obtaining calendar instances, credentials, and other necessary configurations.
+*
+* @author Yusuf Alamu
+* @version 1.0
+*
+* @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0">
+*   Using Google Calendar API with a service account</a>
+* @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-2-b9drsetp">
+*   Using Google Calendar API with a service account (2)</a>
+* @see <a href="https://sree394.medium.com/leveraging-service-accounts-for-seamless-google-calendar-integration-in-spring-boot-applications-52ee0d65652a">
+*   Leveraging Service Accounts for Seamless Google Calendar Integration in Spring Boot Applications</a>
+*
+* @see <a href="https://developers.google.com/cloud-search/docs/guides/delegation">
+*   Perform Google Workspace domain-wide delegation of authority</a>
+*/
 @Configuration
 @Slf4j
 public class CalendarConfiguration {
@@ -55,10 +55,10 @@ public class CalendarConfiguration {
    * @param jsonUtil                  Utility class for JSON operations.
    */
   public CalendarConfiguration(
-      @Value("${google.delegated.authority.email}") String delegatedAuthorityEmail,
-      @Value("${application.name}") String applicationName,
-      ServiceAccountProperties serviceAccountProperties,
-      JsonUtil jsonUtil) {
+      @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      @Value("${application.name}") final String applicationName,
+      final ServiceAccountProperties serviceAccountProperties,
+      final JsonUtil jsonUtil) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.applicationName = applicationName;
     this.serviceAccountProperties = serviceAccountProperties;
@@ -75,8 +75,7 @@ public class CalendarConfiguration {
    */
   @Bean
   public Calendar getCalendar() throws GeneralSecurityException, IOException {
-    return new Calendar
-        .Builder(getHttpTransport(), getJsonFactory(), getHttpCredentialsAdapter())
+    return new Calendar.Builder(CalendarConfiguration.getHttpTransport(), CalendarConfiguration.getJsonFactory(), getHttpCredentialsAdapter())
       .setApplicationName(applicationName)
       .build();
   }
@@ -108,9 +107,9 @@ public class CalendarConfiguration {
    *   Create Google Calendar Event from Java Backend from OAuth authenticated Users only</a>
    */
   public ByteArrayInputStream getServiceAccountInputStream() {
-    ServiceAccountDto serviceAccountDto = ServiceAccountDto.fromServiceAccountProperties(serviceAccountProperties);
-    String serviceAccountPropertiesJson = toJson(serviceAccountDto);
-    return new ByteArrayInputStream(serviceAccountPropertiesJson.getBytes());
+    final ServiceAccountDto serviceAccountDto = ServiceAccountDto.fromServiceAccountProperties(serviceAccountProperties);
+    final String serviceAccountPropertiesJson = toJson(serviceAccountDto);
+    return new ByteArrayInputStream(serviceAccountPropertiesJson.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
@@ -130,9 +129,9 @@ public class CalendarConfiguration {
    * @param value The Java object to be converted to JSON.
    * @return A JSON string representation of the provided object.
    */
-  public String toJson(Object value) {
+  public String toJson(final Object value) {
     // Convert the object to a JSON string
-    String payload = jsonUtil.convertToString(value);
+    final String payload = jsonUtil.convertToString(value);
     // Replace escaped newline characters with actual newline characters
     return payload.replaceAll("\\\\n", "\n");
   }

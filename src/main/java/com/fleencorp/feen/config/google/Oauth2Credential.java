@@ -19,30 +19,30 @@ import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.*;
 
 /**
- * Configuration class for OAuth 2.0 credentials used by web clients.
- *
- * <p> This class represents OAuth 2.0 credentials configuration for web clients,
- * providing properties such as projectId, clientId, clientSecret, authUri, tokenUri,
- * javascriptOrigins, redirectUris, and authProviderX509CertUrl.</p>
- *
- * <p>These properties are typically configured through external properties files loaded
- * using {@link ConfigurationProperties} annotation with the prefix "web"
- * and {@link PropertySource} annotation pointing to "classpath:google-oauth2-web-client.properties".</p>
- *
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- **/
- @SuperBuilder
+* Configuration class for OAuth 2.0 credentials used by web clients.
+*
+* <p> This class represents OAuth 2.0 credentials configuration for web clients,
+* providing properties such as projectId, clientId, clientSecret, authUri, tokenUri,
+* javascriptOrigins, redirectUris, and authProviderX509CertUrl.</p>
+*
+* <p>These properties are typically configured through external properties files loaded
+* using {@link ConfigurationProperties} annotation with the prefix "web"
+* and {@link PropertySource} annotation pointing to "classpath:google-oauth2-web-client.properties".</p>
+*
+*
+* @author Yusuf Alamu Musa
+* @version 1.0
+**/
+@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "web")
-@PropertySources({
+@PropertySources(
   @PropertySource("classpath:google-oauth2-web-client.properties")
-})
+)
 public class Oauth2Credential {
 
   private String projectId;
@@ -62,7 +62,7 @@ public class Oauth2Credential {
     return toList(javascriptOrigins);
   }
 
-  public List<String> toList(String value) {
+  public List<String> toList(final String value) {
     return List.of(value.split(COMMA));
   }
 
@@ -88,8 +88,8 @@ public class Oauth2Credential {
    * @return A GoogleClientSecrets object initialized with the current object's properties.
    */
   public GoogleClientSecrets toGoogleClientSecrets() {
-    GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
-    GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+    final GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
+    final GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
     web.setClientId(clientId);
     web.setAuthUri(authUri);
     web.setTokenUri(tokenUri);
