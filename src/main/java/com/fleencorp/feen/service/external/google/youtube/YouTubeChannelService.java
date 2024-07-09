@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.external.google.youtube;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoryResponse;
@@ -66,6 +67,7 @@ public class YouTubeChannelService {
    * @return A {@link YouTubeCategoriesResponse} containing the list of YouTube category responses.
    * @throws ExternalSystemException If an error occurs while accessing the YouTube API.
    */
+  @MeasureExecutionTime
   public YouTubeCategoriesResponse listCategories() {
     // Initialize a list to store YouTubeCategoryResponse objects
     List<YouTubeCategoryResponse> youTubeCategoryResponses = new ArrayList<>();

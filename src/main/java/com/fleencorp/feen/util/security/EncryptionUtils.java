@@ -68,7 +68,7 @@ public class EncryptionUtils {
         .format("An error occurred while calling encrypt of %s. Reason: %s",
           ex.getClass().getName(),
           ex.getMessage());
-        EncryptionUtils.log.error(errorMessage);
+        log.error(errorMessage);
       throw new EncryptionFailedException(errorMessage);
     }
   }
@@ -99,7 +99,7 @@ public class EncryptionUtils {
         .format("An error occurred while calling decrypt of %s. Reason: %s",
           ex.getClass().getName(),
           ex.getMessage());
-        EncryptionUtils.log.error(errorMessage);
+        log.error(errorMessage);
       throw new DecryptionFailedException(errorMessage);
     }
   }

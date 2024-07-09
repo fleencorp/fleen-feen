@@ -11,10 +11,8 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 @Slf4j
-public enum EnumUtil {
-    ;
-
-    private static final char ENUM_VALUE_SEPARATOR = '_';
+public class EnumUtil {
+  private static final char ENUM_VALUE_SEPARATOR = '_';
   private static final char ENUM_VALUE_REPLACE = ' ';
 
   /**
@@ -41,7 +39,7 @@ public enum EnumUtil {
       }
       return values;
     } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-        EnumUtil.log.error(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
     }
     return null;
   }

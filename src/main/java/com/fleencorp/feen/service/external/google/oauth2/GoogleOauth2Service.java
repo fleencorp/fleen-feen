@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.external.google.oauth2;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.config.google.Oauth2Credential;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
@@ -97,6 +98,7 @@ public class GoogleOauth2Service {
    *
    * @return The OAuth 2.0 authorization URI, or null if unable to construct the URI.
    */
+  @MeasureExecutionTime
   public String getAuthorizationUri() {
     final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = getGoogleAuthorizationCodeFlow();
     if (nonNull(googleAuthorizationCodeFlow)) {
@@ -124,6 +126,7 @@ public class GoogleOauth2Service {
    * @return A CompletedOauth2AuthorizationResponse containing authorization details if successful,
    *         or null if the authorization code is invalid or expired.
    */
+  @MeasureExecutionTime
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(final String authorizationCode, final FleenUser authenticatedUser) {
    final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode);
     final GoogleOauth2Authorization googleOauth2Authorization = googleOauth2AuthorizationRepository
@@ -204,6 +207,7 @@ public class GoogleOauth2Service {
    * @return A RefreshOauth2TokenResponse containing the refreshed OAuth 2.0 access token and other details,
    *         or null if the refresh token is invalid or expired.
    */
+  @MeasureExecutionTime
   public RefreshOauth2TokenResponse refreshUserToken(final String refreshToken) {
     final GoogleTokenResponse googleTokenResponse = refreshAccessToken(refreshToken);
     if (nonNull(googleTokenResponse)) {
@@ -266,6 +270,7 @@ public class GoogleOauth2Service {
    * @throws Oauth2InvalidAuthorizationException If the token request fails due to other authorization errors.
    * @throws ExternalSystemException If an I/O error occurs during the token exchange process.
    */
+  @MeasureExecutionTime
   public TokenResponse exchangeAuthorizationCode(final String authorizationCode) {
     final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = getGoogleAuthorizationCodeFlow();
     try {
@@ -275,13 +280,13 @@ public class GoogleOauth2Service {
             .execute();
       }
     } catch (final TokenResponseException ex) {
-        GoogleOauth2Service.log.error(ex.getMessage());
+        log.error(ex.getMessage());
       if (ex.getMessage().contains("invalid_grant")) {
         throw new Oauth2InvalidGrantOrTokenException(authorizationCode);
       }
       throw new Oauth2InvalidAuthorizationException();
     } catch (final IOException ex) {
-        GoogleOauth2Service.log.error(ex.getMessage());
+        log.error(ex.getMessage());
       throw new ExternalSystemException(ex.getMessage());
     }
     return null;
@@ -302,6 +307,7 @@ public class GoogleOauth2Service {
    * @return A GoogleTokenResponse containing the refreshed OAuth 2.0 access token.
    * @throws ExternalSystemException If an error occurs while refreshing the access token.
    */
+  @MeasureExecutionTime
   public GoogleTokenResponse refreshAccessToken(final String refreshToken) {
     try {
       final GoogleRefreshTokenRequest refreshTokenRequest = new GoogleRefreshTokenRequest(
@@ -314,7 +320,7 @@ public class GoogleOauth2Service {
                 refreshToken,
                 ex.getClass().getName(),
                 ex.getMessage());
-        GoogleOauth2Service.log.error(errorMessage);
+        log.error(errorMessage);
       throw new ExternalSystemException(errorMessage);
     }
   }
