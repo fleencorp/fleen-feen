@@ -13,8 +13,13 @@ import lombok.Getter;
 @Getter
 public enum YouTubeParameter implements ApiParameter {
 
+  APPLICATION_OCTET_STREAM("application/octet-stream"),
   LIVE_STREAMING_BASE_LINK("https://www.youtube.com/watch?v="),
-  US("US");
+  BRANDING_SETTINGS("brandingSettings"),
+  EN("en"),
+  IMAGE_CONTENT_TYPE("image/*"),
+  US("US"),
+  VIDEO_CONTENT_TYPE("video/*");
 
   private final String value;
 

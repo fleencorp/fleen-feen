@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.external.google.youtube;
 
+import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
-import com.fleencorp.feen.exception.base.ExternalSystemException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.mapper.external.YouTubeLiveBroadcastMapper;
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;

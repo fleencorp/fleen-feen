@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.external.google.youtube;
 
+import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
-import com.fleencorp.feen.exception.base.ExternalSystemException;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoryResponse;
 import com.google.api.services.youtube.YouTube;
