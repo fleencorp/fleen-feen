@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 /**
  * Aspect for measuring the execution time of methods annotated with {@link MeasureExecutionTime}.
  *
- * @author Yusuf Alamu Yusuf
+ * @author Yusuf Alamu Musa
  * @version 1.0
  */
 @Component
