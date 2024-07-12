@@ -41,7 +41,7 @@ jobs:
         shell: bash
 
   build:
-    needs: [get-ip, current-time]
+    needs: [current-time]
     runs-on: ubuntu-latest
 
     services:
