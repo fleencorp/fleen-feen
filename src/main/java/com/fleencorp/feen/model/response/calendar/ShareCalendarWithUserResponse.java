@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
-import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
 
 @SuperBuilder
 @Getter

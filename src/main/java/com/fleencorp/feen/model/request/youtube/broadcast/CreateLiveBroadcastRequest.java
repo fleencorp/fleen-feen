@@ -2,8 +2,8 @@ package com.fleencorp.feen.model.request.youtube.broadcast;
 
 import com.fleencorp.feen.constant.external.google.youtube.LiveBroadcastClosedCaptionType;
 import com.fleencorp.feen.constant.external.google.youtube.LiveBroadcastPrivacyStatus;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.constant.external.google.youtube.base.YouTubeLiveBroadcastVisibility;
+import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import lombok.*;
 

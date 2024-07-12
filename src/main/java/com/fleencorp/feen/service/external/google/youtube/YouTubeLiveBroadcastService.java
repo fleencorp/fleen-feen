@@ -18,7 +18,6 @@ import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.YouTube.Builder;
 import com.google.api.services.youtube.YouTube.Channels;
 import com.google.api.services.youtube.model.*;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

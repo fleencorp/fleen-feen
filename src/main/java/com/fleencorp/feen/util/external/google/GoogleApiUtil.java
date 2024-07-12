@@ -10,8 +10,7 @@ import static com.fleencorp.feen.util.DateTimeUtil.toDate;
 import static java.util.Objects.nonNull;
 
 
-public enum GoogleApiUtil {
-    ;
+public class GoogleApiUtil {
 
     /**
    * Converts a LocalDateTime object to a DateTime object.

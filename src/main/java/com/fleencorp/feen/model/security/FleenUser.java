@@ -46,6 +46,12 @@ public class FleenUser implements UserDetails {
     return firstName + ' ' + lastName;
   }
 
+  public static FleenUser of(Long userId) {
+    return FleenUser.builder()
+        .id(userId)
+        .build();
+  }
+
   /**
    * Constructs a FleenUser object from a Member entity.
    *
@@ -102,7 +108,7 @@ public class FleenUser implements UserDetails {
    * @param details The JwtTokenDetails object from which to construct the FleenUser.
    * @return A FleenUser object populated with data from the JwtTokenDetails.
    */
-  public static FleenUser fromToken(final JwtTokenDetails details) {
+  public static FleenUser fromToken(final TokenPayload details) {
     // Build authorities from token details
     final List<GrantedAuthority> authorities = buildAuthorities(asList(details.getAuthorities()));
 
@@ -114,7 +120,7 @@ public class FleenUser implements UserDetails {
       .phoneNumber(details.getPhoneNumber())
       .authorities(authorities)
       .id(details.getUserId())
-      .profileStatus(details.getActualMemberStatus())
+      .profileStatus(details.getProfileStatus())
       .profilePhoto(details.getProfilePhoto())
       .build();
   }

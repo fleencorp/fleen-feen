@@ -100,6 +100,10 @@ public class Member extends FleenFeenEntity {
     return firstName + ' ' + lastName;
   }
 
+  public boolean isMfaDisabled() {
+    return !mfaEnabled;
+  }
+
   /**
    * Adds a role to the user's set of roles.
    *
