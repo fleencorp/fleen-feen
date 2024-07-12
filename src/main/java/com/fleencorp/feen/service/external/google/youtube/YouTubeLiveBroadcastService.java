@@ -1,7 +1,8 @@
 package com.fleencorp.feen.service.external.google.youtube;
 
+import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
-import com.fleencorp.feen.exception.base.ExternalSystemException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.mapper.external.YouTubeLiveBroadcastMapper;
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
@@ -104,6 +105,7 @@ public class YouTubeLiveBroadcastService {
    * @return {@link CreateYouTubeLiveBroadcastResponse} containing the broadcast and live-streaming details
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public CreateYouTubeLiveBroadcastResponse createBroadcast(CreateLiveBroadcastRequest createLiveBroadcastRequest) {
     YouTube youTube = createRequest(createLiveBroadcastRequest.getAccessTokenForHttpRequest());
     Channel channel = getChannel(youTube);
@@ -141,6 +143,7 @@ public class YouTubeLiveBroadcastService {
    * @see <a href="https://developers.google.com/youtube/v3/live/docs/liveBroadcasts/insert">
    *   LiveBroadcasts: insert</a>
    */
+  @MeasureExecutionTime
   public CreateYouTubeLiveBroadcastResponse createLiveBroadcast(CreateLiveBroadcastRequest createLiveBroadcastRequest, YouTube youTube) {
     try {
       LiveBroadcast liveBroadcast = new LiveBroadcast();
@@ -223,6 +226,7 @@ public class YouTubeLiveBroadcastService {
    * @return An {@link UpdateYouTubeLiveBroadcastResponse} object containing the updated live broadcast details.
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public UpdateYouTubeLiveBroadcastResponse updateLiveBroadcast(UpdateLiveBroadcastRequest updateLiveBroadcastRequest) {
     try {
       // Create a YouTube request using the provided access token
@@ -274,6 +278,7 @@ public class YouTubeLiveBroadcastService {
    * @return A {@link RescheduleYouTubeLiveBroadcastResponse} object containing the details of the rescheduled live broadcast.
    * @throws UnableToCompleteOperationException if the operation cannot be completed.
    */
+  @MeasureExecutionTime
   public RescheduleYouTubeLiveBroadcastResponse rescheduleLiveBroadcast(RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest) {
     try {
       // Create a YouTube request using the provided access token
@@ -371,6 +376,7 @@ public class YouTubeLiveBroadcastService {
    * @see <a href="https://www.getphyllo.com/post/how-to-get-youtube-api-key">
    *   How to Get YouTube API Key: A Detailed Guide for Developers</a>
    */
+  @MeasureExecutionTime
   public Channel getChannel(YouTube youTube) {
     try {
       // Create a request to list channels using the 'snippet' part

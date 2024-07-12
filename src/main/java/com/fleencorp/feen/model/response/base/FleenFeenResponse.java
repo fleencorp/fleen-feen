@@ -28,22 +28,27 @@ import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
 public class FleenFeenResponse {
 
   @JsonProperty("id")
-  private Object id;
+  protected Object id;
 
   @Builder.Default
   @JsonProperty("message")
-  private String message = SUCCESS;
+  protected String message = SUCCESS;
 
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
   @JsonProperty("created_on")
-  private LocalDateTime createdOn;
+  protected LocalDateTime createdOn;
 
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
   @JsonProperty("updated_on")
-  private LocalDateTime updatedOn;
+  protected LocalDateTime updatedOn;
 
   public FleenFeenResponse(final Object id) {
     this.id = id;
     message = SUCCESS;
+  }
+
+  public static FleenFeenResponse of() {
+    return FleenFeenResponse.builder()
+        .build();
   }
 }

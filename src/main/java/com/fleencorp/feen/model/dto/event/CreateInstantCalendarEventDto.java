@@ -5,7 +5,6 @@ import com.fleencorp.feen.converter.ToLowerCase;
 import com.fleencorp.feen.converter.ToTitleCase;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 

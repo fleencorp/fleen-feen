@@ -52,7 +52,6 @@ public class ServiceAccountProperties {
   @JsonProperty("project_id")
   private String projectId;
 
-
   @NotBlank
   @JsonProperty("private_key_id")
   private String privateKeyId;

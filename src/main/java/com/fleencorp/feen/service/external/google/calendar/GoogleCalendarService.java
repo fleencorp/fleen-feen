@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.external.google.calendar;
 
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.mapper.external.GoogleCalendarMapper;
@@ -55,6 +56,7 @@ public class GoogleCalendarService {
    * @return {@link GoogleCreateCalendarResponse} the response containing the created calendar
    * @throws UnableToCompleteOperationException the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GoogleCreateCalendarResponse createCalendar(CreateCalendarRequest createCalendarRequest) {
     try {
       // Create a new calendar object and set its properties
@@ -137,6 +139,7 @@ public class GoogleCalendarService {
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/calendars/get">
    *   Calendars: get</a>
    */
+  @MeasureExecutionTime
   public GoogleRetrieveCalendarResponse retrieveCalendar(RetrieveCalendarRequest retrieveCalendarRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
@@ -170,6 +173,7 @@ public class GoogleCalendarService {
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/calendars/delete">
    *   Calendars: delete</a>
    */
+  @MeasureExecutionTime
   public GoogleDeleteCalendarResponse deleteCalendar(DeleteCalendarRequest deleteCalendarRequest) {
     try {
       com.google.api.services.calendar.model.Calendar calendar = service.calendars()
@@ -189,7 +193,7 @@ public class GoogleCalendarService {
       }
       log.error("Cannot delete. Calendar does not exist or cannot be found. {}", deleteCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
-        log.error("Error occurred while deleting calendar. Reason: {}", ex.getMessage());
+      log.error("Error occurred while deleting calendar. Reason: {}", ex.getMessage());
     }
     throw new UnableToCompleteOperationException();
   }
@@ -208,6 +212,7 @@ public class GoogleCalendarService {
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/calendars/patch">
    *   Calendars: patch</a>
    */
+  @MeasureExecutionTime
   public GooglePatchCalendarResponse patchCalendar(final PatchCalendarRequest patchCalendarRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
@@ -253,6 +258,7 @@ public class GoogleCalendarService {
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/acl">
    *   Acl</a>
    */
+  @MeasureExecutionTime
   public GoogleShareCalendarWithUserResponse shareCalendarWithUser(final ShareCalendarWithUserRequest shareCalendarWithUserRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
@@ -280,9 +286,9 @@ public class GoogleCalendarService {
                 .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
                 .build();
       }
-        log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId());
+      log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId());
     } catch (final IOException ex) {
-        log.error("Error occurred while sharing calendar. Reason: {}", ex.getMessage());
+      log.error("Error occurred while sharing calendar. Reason: {}", ex.getMessage());
     }
     throw new UnableToCompleteOperationException();
   }

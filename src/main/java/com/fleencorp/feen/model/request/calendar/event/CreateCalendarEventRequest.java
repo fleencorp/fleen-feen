@@ -92,7 +92,7 @@ public class CreateCalendarEventRequest {
       return StreamVisibility.PRIVATE.getValue();
     } else if (StreamVisibility.PUBLIC.getValue().equals(visibility)) {
       return visibility;
-    };
+    }
     return StreamVisibility.PUBLIC.getValue();
   }
 }

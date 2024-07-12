@@ -1,6 +1,6 @@
 package com.fleencorp.feen.validator.impl;
 
-import com.fleencorp.feen.service.CountryService;
+import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.validator.CountryExist;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

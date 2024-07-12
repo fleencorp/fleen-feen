@@ -16,6 +16,7 @@ public enum ExternalSystemType implements ApiParameter {
 
   YOUTUBE("YouTube"),
   GOOGLE_CALENDAR("Google Calendar"),
+  GOOGLE_RECAPTCHA("Google ReCaptcha"),
   CALENDAR_EVENT("Calendar Event");
 
   private final String value;

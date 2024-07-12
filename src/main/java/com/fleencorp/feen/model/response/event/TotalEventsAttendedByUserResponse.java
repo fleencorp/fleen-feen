@@ -16,4 +16,10 @@ public class TotalEventsAttendedByUserResponse {
 
   @JsonProperty("total_count")
   private Long totalCount;
+
+  public static TotalEventsAttendedByUserResponse of(Long totalCount) {
+    return TotalEventsAttendedByUserResponse.builder()
+        .totalCount(totalCount)
+        .build();
+  }
 }
