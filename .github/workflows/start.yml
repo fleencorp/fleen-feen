@@ -23,20 +23,8 @@ permissions:
   packages: read
 
 jobs:
-  get-ip:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Get GitHub IP
-        id: ip
-        uses: haythem/public-ip@v1.3
-
-      - name: Print Ip address
-        run: |
-          echo "Current IP Address: ${{ steps.ip.outputs.ipv4 }}"
 
   current-time:
-    needs: [get-ip]
     runs-on: ubuntu-latest
 
     steps:
