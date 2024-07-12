@@ -3,6 +3,9 @@ package com.fleencorp.feen.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.slack.api.Slack;
+import com.slack.api.methods.MethodsClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +21,12 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 @Configuration
 @ComponentScan(basePackages = "com.fleencorp.feen")
 public class FleenFeenConfiguration {
+
+  private final String token;
+
+  public FleenFeenConfiguration(@Value("${slack.report.token}") String token) {
+    this.token = token;
+  }
 
   /**
   * Provides an ObjectMapper bean.
@@ -38,5 +47,15 @@ public class FleenFeenConfiguration {
       .findAndAddModules()
       .disable(FAIL_ON_EMPTY_BEANS)
       .build();
+  }
+
+  @Bean
+  public Slack slack() {
+    return Slack.getInstance();
+  }
+
+  @Bean
+  public MethodsClient methodsClient() {
+    return slack().methods(token);
   }
 }
