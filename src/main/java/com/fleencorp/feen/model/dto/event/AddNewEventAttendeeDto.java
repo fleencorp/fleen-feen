@@ -15,14 +15,14 @@ import lombok.*;
 @AllArgsConstructor
 public class AddNewEventAttendeeDto {
 
-  @NotBlank(message = "{event.emailAddress.NotBlank}")
-  @Size(min = 6, max = 50, message = "{event.emailAddress.Size}")
+  @NotBlank(message = "{event.attendee.emailAddress.NotBlank}")
+  @Size(min = 6, max = 50, message = "{event.attendee.emailAddress.Size}")
   @ValidEmail
   @ToLowerCase
   @JsonProperty("email_address")
   private String emailAddress;
 
-  @Size(min = 3, max = 100, message = "{event.aliasOrDisplayName.Size}")
+  @Size(min = 3, max = 100, message = "{event.attendee.aliasOrDisplayName.Size}")
   @ToTitleCase
   @JsonProperty("alias_or_display_name")
   private String aliasOrDisplayName;

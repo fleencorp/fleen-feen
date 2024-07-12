@@ -1,0 +1,1284 @@
+package com.fleencorp.feen.service.impl.auth;
+
+import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
+import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
+import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
+import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
+import com.fleencorp.feen.constant.security.role.RoleType;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
+import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
+import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.exception.profile.BannedAccountException;
+import com.fleencorp.feen.exception.profile.DisabledAccountException;
+import com.fleencorp.feen.exception.role.NoRoleAvailableToAssignException;
+import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.user.UserNotFoundException;
+import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.domain.user.ProfileToken;
+import com.fleencorp.feen.model.domain.user.Role;
+import com.fleencorp.feen.model.dto.auth.*;
+import com.fleencorp.feen.model.dto.mfa.ConfirmMfaVerificationCodeDto;
+import com.fleencorp.feen.model.dto.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
+import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
+import com.fleencorp.feen.model.request.auth.ResendSignUpVerificationCodeRequest;
+import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
+import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.model.request.mfa.ResendMfaVerificationCodeRequest;
+import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
+import com.fleencorp.feen.model.response.auth.SignInResponse;
+import com.fleencorp.feen.model.response.auth.SignUpResponse;
+import com.fleencorp.feen.model.response.mfa.ResendMfaVerificationCodeResponse;
+import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
+import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
+import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
+import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.repository.security.ProfileTokenRepository;
+import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.auth.AuthenticationService;
+import com.fleencorp.feen.service.auth.PasswordService;
+import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.service.mfa.MfaService;
+import com.fleencorp.feen.service.security.TokenService;
+import com.fleencorp.feen.service.user.RoleService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
+import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
+import static com.fleencorp.feen.service.security.OtpService.generateOtp;
+import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
+import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
+import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
+import static java.util.Objects.*;
+
+@Slf4j
+@Service
+public class AuthenticationServiceImpl implements AuthenticationService,
+    PasswordService {
+
+  private final AuthenticationManager authenticationManager;
+  private final CacheService cacheService;
+  private final MfaService mfaService;
+  private final RoleService roleService;
+  private final TokenService tokenService;
+  private final MemberRepository memberRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final ProfileRequestPublisher profileRequestPublisher;
+  private final ProfileTokenRepository profileTokenRepository;
+
+  public AuthenticationServiceImpl(
+      AuthenticationManager authenticationManager,
+      CacheService cacheService,
+      MfaService mfaService,
+      RoleService roleService,
+      TokenService tokenService,
+      MemberRepository memberRepository,
+      PasswordEncoder passwordEncoder,
+      ProfileRequestPublisher profileRequestPublisher,
+      ProfileTokenRepository profileTokenRepository) {
+    this.authenticationManager = authenticationManager;
+    this.cacheService = cacheService;
+    this.mfaService = mfaService;
+    this.roleService = roleService;
+    this.tokenService = tokenService;
+    this.memberRepository = memberRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.profileRequestPublisher = profileRequestPublisher;
+    this.profileTokenRepository = profileTokenRepository;
+  }
+
+  @Override
+  public PasswordEncoder getPasswordEncoder() {
+    return passwordEncoder;
+  }
+
+  /**
+   * Signs up a new member based on the provided sign-up data.
+   * Configures roles and statuses for the new member's profile, encodes the password,
+   * saves the member to the repository, initializes authentication and context,
+   * generates access and refresh tokens, sends a sign-up verification code,
+   * and saves authentication tokens.
+   *
+   * @param signUpDto The DTO containing sign-up data.
+   * @return SignUpResponse containing access token, refresh token, email, phone number,
+   *         authentication status, and profile verification type.
+   */
+  @Override
+  public SignUpResponse signUp(SignUpDto signUpDto) {
+    Member member = signUpDto.toMember();
+
+    // Configure roles for the new member's profile
+    configureRolesForNewProfile(member);
+    // Configure statuses for the new member's profile
+    configureStatusesForNewProfile(member);
+
+    // Encode or hash the user's password before saving
+    String password = signUpDto.getPassword();
+    encodeOrHashUserPassword(member, password);
+
+    // Save the member to the repository
+    memberRepository.save(member);
+
+    // Initialize authentication and set context for the new member
+    FleenUser user = initializeAuthenticationAndContext(member);
+
+    // Generate access and refresh tokens for the authenticated user
+    String accessToken = tokenService.createAccessToken(user);
+    String refreshToken = tokenService.createRefreshToken(user);
+
+    // Generate OTP for sign-up verification
+    String otpCode = generateOtp();
+    ProfileVerificationType profileVerificationType = signUpDto.getActualProfileVerificationType();
+    VerificationType verificationType = getVerificationTypeByProfileVerificationType(profileVerificationType);
+
+    // Prepare and send sign-up verification code request
+    SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, verificationType, user);
+    profileRequestPublisher.sendSignUpVerificationCode(signUpVerificationRequest);
+
+    // Save sign-up verification code temporarily
+    saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
+    // Save authentication tokens for the user
+    saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
+
+    // Return the sign-up response with necessary details
+    return SignUpResponse
+      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, profileVerificationType);
+  }
+
+  /**
+   * Completes the sign-up process for a user with verification code validation, role assignment,
+   * and token generation.
+   *
+   * <p>This method validates the sign-up verification code provided by the user, retrieves the member
+   * details, checks if the sign-up process is already completed, assigns default roles, verifies and
+   * updates the member details, initializes authentication and context for the new user, clears the
+   * temporary sign-up verification code, generates access and refresh tokens, and sends a completed
+   * sign-up verification code.</p>
+   *
+   * @param completeSignUpDto the DTO containing the sign-up completion details
+   * @param user the authenticated user performing the sign-up completion
+   * @return SignUpResponse containing the generated access and refresh tokens
+   * @throws VerificationFailedException if the sign-up verification code validation fails
+   * @throws AlreadySignedUpException if the user is already signed up
+   * @throws NoRoleAvailableToAssignException if no roles are available to assign to the new user
+   */
+  @Override
+  public SignUpResponse completeSignUp(CompleteSignUpDto completeSignUpDto, FleenUser user) {
+    String username = user.getUsername();
+
+    // Validate sign-up verification code
+    validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
+
+    ProfileVerificationType verificationType = completeSignUpDto.getActualProfileVerificationType();
+
+    // Retrieve member details
+    Member member = memberRepository.findByEmailAddress(username)
+        .orElseThrow(VerificationFailedException::new);
+
+    // Check if sign-up is already completed
+    checkIfSignUpIsAlreadyCompleted(member);
+    // Clear default roles assigned during sign-up
+    member.clearDefaultRolesAssignedDuringSignUpRole();
+
+    // Get roles for new user
+    List<Role> userRoles = getRolesForNewUser();
+    // Verify user and update signed-up user details
+    verifyUserAndUpdateSignedUpUserDetailsForNewUser(member, userRoles, verificationType);
+
+    // Initialize authentication and context for the new user
+    FleenUser newUser = initializeAuthenticationAndContext(member);
+    // Clear temporary sign-up verification code
+    clearSignUpVerificationCodeSavedTemporarily(username);
+
+    // Generate access and refresh tokens
+    String accessToken = tokenService.createAccessToken(newUser, AuthenticationStatus.COMPLETED);
+    String refreshToken = tokenService.createRefreshToken(newUser);
+
+    // Save authentication tokens
+    saveAuthenticationTokensToRepositoryOrCache(username, accessToken, refreshToken);
+
+    // Send completed sign-up verification request
+    CompletedUserSignUpRequest completedUserSignUpRequest = CompletedUserSignUpRequest
+        .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
+    profileRequestPublisher.sendCompletedSignUpVerification(completedUserSignUpRequest);
+
+    return SignUpResponse.of(accessToken, refreshToken);
+  }
+
+  /**
+   * Resends the sign-up verification code to the user.
+   *
+   * <p>This method generates a new OTP, prepares a request to resend the sign-up verification code
+   * with user details, publishes the request to a profile request publisher, and saves the newly generated
+   * verification code temporarily for the user.</p>
+   *
+   * @param resendSignUpVerificationCodeDto the DTO containing details for resending the verification code
+   * @param user the authenticated user requesting to resend the verification code
+   * @return ResendSignUpVerificationCodeResponse indicating the successful initiation of code resend
+   */
+  @Override
+  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user) {
+    // Generate a new OTP
+    String otpCode = generateOtp();
+
+    // Get the actual profile verification type from DTO
+    ProfileVerificationType profileVerificationType = resendSignUpVerificationCodeDto.getActualProfileVerificationType();
+    // Prepare the request to resend the sign-up verification code
+    VerificationType verificationType = getVerificationTypeByProfileVerificationType(profileVerificationType);
+    ResendSignUpVerificationCodeRequest resendSignUpVerificationCodeRequest = ResendSignUpVerificationCodeRequest
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
+
+    // Resend sign-up verification code request
+    profileRequestPublisher.resendSignUpVerificationCode(resendSignUpVerificationCodeRequest);
+    // Save the newly generated verification code temporarily for the user
+    saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
+
+    // Return response indicating the successful initiation of code resend
+    return ResendSignUpVerificationCodeResponse.of();
+  }
+
+  /**
+   * Resends the MFA (Multi-Factor Authentication) verification code to the user.
+   *
+   * <p>This method generates a new OTP, prepares a request to resend the MFA verification code
+   * with user details, publishes the request to a profile request publisher, and saves the newly generated
+   * verification code temporarily for the user.</p>
+   *
+   * @param resendMfaVerificationCodeDto the DTO containing details for resending the MFA verification code
+   * @param user the authenticated user requesting to resend the MFA verification code
+   * @return ResendMfaVerificationCodeResponse indicating the successful initiation of code resend
+   */
+  @Override
+  public ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user) {
+    // Generate a new OTP
+    String otpCode = generateOtp();
+
+    // Prepare the request to resend the MFA verification code
+    ResendMfaVerificationCodeRequest resendMfaVerificationCodeRequest = ResendMfaVerificationCodeRequest
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber());
+
+    // Resend mfa verification code request
+    profileRequestPublisher.resendMfaVerificationCode(resendMfaVerificationCodeRequest);
+    // Save the newly generated verification code temporarily for the user
+    saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
+
+    // Return response indicating the successful initiation of code resend
+    return ResendMfaVerificationCodeResponse.of();
+  }
+
+  /**
+   * Signs out the user by deleting their access and refresh tokens from cache
+   * and clearing the security context.
+   *
+   * @param user the authenticated user to sign out
+   */
+  @Override
+  @Async
+  public void signOut(FleenUser user) {
+    String username = user.getUsername();
+    // Clear saved authentication tokens including access and refresh token
+    clearAuthenticationTokens(username);
+    // Clear the security context
+    SecurityContextHolder.getContext().setAuthentication(null);
+    SecurityContextHolder.clearContext();
+  }
+
+  /**
+   * Verifies the Multi-Factor Authentication (MFA) verification code provided by the user,
+   * authenticates the user, and generates access and refresh tokens.
+   *
+   * @param confirmMfaCodeDto the DTO containing the verification code and MFA type to confirm
+   * @param user              the authenticated user performing the action
+   * @return SignInResponse containing the generated access and refresh tokens
+   * @throws InvalidAuthenticationException if the user cannot be found or authenticated
+   */
+  @Override
+  public SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaCodeDto, FleenUser user) {
+    String username = user.getUsername();
+    Member member = memberRepository.findByEmailAddress(username)
+      .orElseThrow(() -> new InvalidAuthenticationException(username));
+
+    // Validate the provided MFA verification code based on its type
+    validateMfaVerificationOrOtpCode(confirmMfaCodeDto.getVerificationCode(), confirmMfaCodeDto.getActualMfaType(), username, member.getMemberId());
+
+    // Initialize authentication and context for the authenticated user
+    FleenUser authenticatedUser = initializeAuthenticationAndContext(member);
+
+    // Create access and refresh tokens for the authenticated user
+    String accessToken = tokenService.createAccessToken(authenticatedUser, AuthenticationStatus.COMPLETED);
+    String refreshToken = tokenService.createRefreshToken(authenticatedUser);
+
+    // Clear temporarily saved MFA verification code
+    clearMfaVerificationCodeSavedTemporarily(username);
+    // Save authentication tokens to repository or cache
+    saveAuthenticationTokensToRepositoryOrCache(username, accessToken, refreshToken);
+
+    // Return SignInResponse with access and refresh tokens
+    return SignInResponse.of(accessToken, refreshToken);
+  }
+
+  /**
+   * Signs in a user with the provided credentials.
+   *
+   * <p>This method authenticates the user using the provided email address and password.
+   * It validates the user's profile status to ensure it is not disabled or banned.
+   * Depending on the user's profile status and MFA settings, it handles the sign-in process
+   * accordingly by initializing authentication, creating tokens, and updating the sign-in response.</p>
+   *
+   * @param signInDto the DTO containing user's sign-in credentials
+   * @return SignInResponse containing authentication details and user information
+   * @throws InvalidAuthenticationException if authentication fails for the provided credentials
+   * @throws DisabledAccountException       if the user's profile status is disabled
+   * @throws BannedAccountException         if the user's profile status is banned
+   */
+  @Override
+  public SignInResponse signIn(SignInDto signInDto) {
+    String emailAddress = signInDto.getEmailAddress();
+    String password = signInDto.getPassword();
+
+    // Authenticate user with email and password
+    Authentication authentication = authenticate(emailAddress, password)
+      .orElseThrow(() -> new InvalidAuthenticationException(emailAddress));
+
+    FleenUser user = (FleenUser) authentication.getPrincipal();
+
+    // Validate profile status before proceeding
+    validateProfileIsNotDisabledOrBanned(user.getProfileStatus());
+
+    SignInResponse signInResponse = createDefaultSignInResponse(user);
+
+    // Handle sign-in based on user's profile and MFA settings
+    if (isProfileInactiveAndUserYetToBeVerified(user)) {
+      handleProfileYetToBeVerified(signInResponse, user);
+      return signInResponse;
+    }
+
+    // Handle sign-in based on user's profile with enabled MFA
+    if (isMfaEnabledAndMfaTypeSet(user)) {
+      handleProfileWithMfaEnabled(signInResponse, user);
+      return signInResponse;
+    }
+
+    // Handle verified profile sign-in
+    handleProfileThatIsVerified(signInResponse, user, authentication);
+
+    return signInResponse;
+  }
+
+  /**
+   * Initiates the password reset process for a user based on their email address.
+   *
+   * <p>This method retrieves the member details using the provided email address,
+   * generates and saves a reset password OTP, and sends a notification containing
+   * the OTP to the user's email address. It returns a response indicating the
+   * success of initiating the password reset process.</p>
+   *
+   * @param forgotPasswordDto the DTO containing the user's email address and verification type
+   * @return ForgotPasswordResponse the response containing the email address and phone number for confirmation
+   * @throws UserNotFoundException if the user with the provided email address is not found in the repository
+   */
+  @Override
+  public ForgotPasswordResponse forgotPassword(ForgotPasswordDto forgotPasswordDto) {
+    // Retrieve user's email address from DTO
+    String emailAddress = forgotPasswordDto.getEmailAddress();
+    // Retrieve member details from repository or throw exception if not found
+    Member member = memberRepository.findByEmailAddress(emailAddress)
+      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+
+    // Determine the verification type from DTO
+    VerificationType verificationType = forgotPasswordDto.getActualVerificationType();
+    // Generate a random six-digit OTP as the reset password token.
+    String otpCode = getRandomSixDigitOtp();
+    // Generate and save reset password OTP for the user
+    generateAndSaveResetPasswordToken(emailAddress, member, otpCode);
+    // Create a FleenUser object from basic member details
+    FleenUser user = FleenUser.fromMemberBasic(member);
+
+    // Create a request to send forgot password code with OTP and user details
+    ForgotPasswordRequest forgotPasswordRequest = ForgotPasswordRequest
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
+    // Publish forgot password code request to external profile request publisher
+    profileRequestPublisher.sendForgotPasswordCode(forgotPasswordRequest);
+    // Save reset password OTP in cache or storage
+    saveResetPasswordOtpTemporarily(member.getEmailAddress(), otpCode);
+
+    // Return response with email address and phone number for confirmation
+    return ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber());
+  }
+
+  /**
+   * Validates the reset password code provided by the user and initiates the password change process.
+   *
+   * @param resetPasswordDto the DTO containing the reset password information
+   * @param user the authenticated user initiating the password change
+   * @return an InitiatePasswordChangeResponse containing the reset password token
+   * @throws UserNotFoundException if the user with the provided email address is not found
+   * @throws ResetPasswordCodeInvalidException if the reset password code is invalid
+   * @throws ResetPasswordCodeExpiredException if the reset password code has expired
+   */
+  @Override
+  public InitiatePasswordChangeResponse validateResetPasswordCode(ResetPasswordDto resetPasswordDto, FleenUser user) {
+    String emailAddress = user.getEmailAddress();
+    Member member = memberRepository.findByEmailAddress(emailAddress)
+      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+
+    validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
+    user = initializeAuthenticationAndContext(member);
+    String resetPasswordToken = tokenService.createResetPasswordToken(user);
+
+    clearResetPasswordOtpSavedTemporarily(user.getUsername());
+    tokenService.saveResetPasswordToken(user.getUsername(), resetPasswordToken);
+
+    return InitiatePasswordChangeResponse.of(resetPasswordToken);
+  }
+
+  /**
+   * Changes the password for the authenticated user.
+   *
+   * @param changePasswordDto the DTO containing the new password information
+   * @param user the authenticated user changing the password
+   * @return a ChangePasswordResponse indicating successful password change
+   * @throws UserNotFoundException if the user with the provided email address is not found
+   */
+  @Override
+  public ChangePasswordResponse changePassword(ChangePasswordDto changePasswordDto, FleenUser user) {
+    String emailAddress = user.getEmailAddress();
+    // Retrieve member from repository or throw exception if not found
+    Member member = memberRepository.findByEmailAddress(emailAddress)
+      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+
+    // Find any existing password reset token and reset or clear details
+    findPasswordTokenAndResetOrClearDetails(emailAddress);
+    // Encode or hash the new password for the member
+    encodeOrHashUserPassword(member, changePasswordDto.getPassword());
+    // Save the updated member with the new password
+    memberRepository.save(member);
+
+    // Return response indicating successful password change
+    return ChangePasswordResponse.of();
+  }
+
+  /**
+   * Configures roles for a new profile.
+   *
+   * <p>This method assigns default roles to a new member's profile. It first checks if the member
+   * is null and throws an {@link UnableToCompleteOperationException} if true. Then, it collects the
+   * default user roles by mapping {@link RoleType#USER} to its value. If no default roles are found,
+   * it throws a {@link NoRoleAvailableToAssignException}. Finally, it retrieves the roles from the
+   * {@link RoleService} and adds them to the member's roles.</p>
+   *
+   * @param member The new member for whom the roles are to be configured.
+   * @throws UnableToCompleteOperationException if the member is null.
+   * @throws NoRoleAvailableToAssignException if no default roles are available to assign.
+   */
+  public void configureRolesForNewProfile(Member member) {
+    if (isNull(member)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Collect default user roles
+    Set<String> defaultUserRoles = Stream
+        .of(RoleType.USER)
+        .map(RoleType::getValue)
+        .collect(Collectors.toSet());
+
+    // Check if the default roles available to assign to user is not empty
+    if (defaultUserRoles.isEmpty()) {
+      throw new NoRoleAvailableToAssignException();
+    }
+
+    // Retrieve roles from the role service and add them to the member
+    List<Role> roles = roleService.findAllByCode(defaultUserRoles);
+    member.getRoles().addAll(roles);
+  }
+
+  /**
+   * Configures statuses for a new profile.
+   *
+   * <p>This method assigns initial statuses to a new member's profile. It checks if the member
+   * is null and throws an {@link UnableToCompleteOperationException} if true. Then, it sets the
+   * profile status to {@link ProfileStatus#INACTIVE} and the verification status to
+   * {@link ProfileVerificationStatus#PENDING}.</p>
+   *
+   * @param member The new member for whom the statuses are to be configured.
+   * @throws UnableToCompleteOperationException if the member is null.
+   */
+  public void configureStatusesForNewProfile(Member member) {
+    if (isNull(member)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Set initial profile status
+    member.setProfileStatus(ProfileStatus.INACTIVE);
+    // Set initial profile verification status
+    member.setVerificationStatus(ProfileVerificationStatus.PENDING);
+  }
+
+  /**
+   * Initializes authentication and sets the authentication context for the provided member.
+   * Throws {@link UnableToCompleteOperationException} if the member is null.
+   *
+   * @param member The member for whom authentication is to be initialized.
+   * @return The {@link FleenUser} associated with the member after authentication and context setup.
+   * @throws UnableToCompleteOperationException If the member is null.
+   */
+  protected FleenUser initializeAuthenticationAndContext(Member member) {
+    if (isNull(member)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Create FleenUser from Member
+    FleenUser user = FleenUser.fromMember(member);
+    // Create Authentication object
+    Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    // Set Authentication object in context (example: Spring Security context)
+    setContext(authentication);
+
+    return user;
+  }
+
+  /**
+   * Sets the authentication context in the security context holder if the authentication
+   * object is not null and is authenticated.
+   *
+   * @param authentication The authentication object to set in the security context holder.
+   */
+  protected void setContext(Authentication authentication) {
+    if (nonNull(authentication) && authentication.isAuthenticated()) {
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+  }
+
+  /**
+   * Saves the sign-up verification code temporarily in the cache.
+   * The verification code is associated with the provided username and expires after 5 minutes.
+   *
+   * @param username         The username for which the verification code is saved.
+   * @param verificationCode The verification code to be saved.
+   */
+  private void saveSignUpVerificationCodeTemporarily(String username, String verificationCode) {
+    cacheService.set(getSignUpVerificationCacheKey(username), verificationCode, Duration.ofMinutes(5));
+  }
+
+  /**
+   * Saves the access token and refresh token for the given username using the JWT service.
+   *
+   * @param username      The username for which the tokens are saved.
+   * @param accessToken   The access token to be saved.
+   * @param refreshToken  The refresh token to be saved.
+   */
+  private void saveAuthenticationTokensToRepositoryOrCache(String username, String accessToken, String refreshToken) {
+    // Save the access token for the username using the JWT service.
+    tokenService.saveAccessToken(username, accessToken);
+    // Save the refresh token for the username using the JWT service.
+    tokenService.saveRefreshToken(username, refreshToken);
+  }
+
+  /**
+   * Validates the provided verification code against the stored code.
+   *
+   * <p>This method checks if the verification key is null, if the key exists in the cache,
+   * and if the stored code matches the provided code. It throws appropriate exceptions if
+   * validation fails.</p>
+   *
+   * @param verificationKey the key used to retrieve the verification code from the cache
+   * @param code            the verification code to validate
+   * @throws VerificationFailedException    if the verification key is null
+   * @throws ExpiredVerificationCodeException if the verification key does not exist in the cache
+   * @throws InvalidVerificationCodeException if the stored code does not match the provided code
+   */
+  protected void validateVerificationCode(String verificationKey, String code) {
+    // Check if the verification key is null
+    if (isNull(verificationKey)) {
+      throw new VerificationFailedException();
+    }
+
+    // Check if the verification key exists in the cache
+    if (!(cacheService.exists(verificationKey))) {
+      throw new ExpiredVerificationCodeException(code);
+    }
+
+    // Retrieve the existing code from the cache
+    String existingCode = (String) cacheService.get(verificationKey);
+
+    // Check if the existing code is null or does not match the provided code
+    if (!(nonNull(existingCode) && existingCode.equals(code))) {
+      throw new InvalidVerificationCodeException(code);
+    }
+  }
+
+  /**
+   * Validates the sign-up verification code for a given username.
+   *
+   * <p>This method checks if the provided username or code is null, retrieves the verification key,
+   * and then validates the verification code against the stored code using the validateVerificationCode method.</p>
+   *
+   * @param username the username for which the verification code is being validated
+   * @param code     the verification code to validate
+   * @throws VerificationFailedException if the username or code is null
+   */
+  private void validateSignUpVerificationCode(String username, String code) {
+    // Check if the username or code is null
+    if (isNull(username) || isNull(code)) {
+      throw new VerificationFailedException();
+    }
+
+    // Retrieve the verification key from the cache
+    String verificationKey = getSignUpVerificationCacheKey(username);
+
+    // Validate the verification code using the retrieved key
+    validateVerificationCode(verificationKey, code);
+  }
+
+  /**
+   * Checks if the sign-up process is already completed for a member.
+   *
+   * <p>This method first checks if the provided member object is null. If it is, it throws an UnableToCompleteOperationException.</p>
+   *
+   * <p>Then, it checks the profile status of the member. If the profile status is not null and indicates that the member is already active,
+   * it throws an AlreadySignedUpException. This ensures that the sign-up process is not repeated for an already active member.</p>
+   *
+   * @param member the Member object whose sign-up status is to be checked
+   * @throws UnableToCompleteOperationException if the member object is null
+   * @throws AlreadySignedUpException if the member is already signed up and active
+   */
+  private void checkIfSignUpIsAlreadyCompleted(Member member) {
+    // Check if the member is null
+    if (isNull(member)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Check if the member status indicates that the member is already signed up
+    if (member.getProfileStatus() != null && ProfileStatus.ACTIVE.equals(member.getProfileStatus())) {
+      throw new AlreadySignedUpException();
+    }
+  }
+
+  /**
+   * Verifies the user and updates signed-up user details for a new member.
+   *
+   * @param member            the member to update
+   * @param roles             the roles to add to the member
+   * @param verificationType  the type of verification used
+   */
+  protected void verifyUserAndUpdateSignedUpUserDetailsForNewUser(Member member, List<Role> roles, ProfileVerificationType verificationType) {
+    // Add the provided roles to the member
+    member.addRole(roles);
+    // Verify the user using the specified verification type
+    member.verifyUser(verificationType);
+    // Set the profile status of the member to ACTIVE
+    member.setProfileStatus(ProfileStatus.ACTIVE);
+    // Set the verification status of the member to APPROVED
+    member.setVerificationStatus(ProfileVerificationStatus.APPROVED);
+  }
+
+  /**
+   * Clears the sign-up verification code saved temporarily for the specified username.
+   *
+   * <p>Deletes the verification code stored in the cache for the given username.</p>
+   *
+   * @param username the username for which the sign-up verification code should be cleared
+   */
+  private void clearSignUpVerificationCodeSavedTemporarily(String username) {
+    // Retrieve the cache key for the sign-up verification code
+    String key = getSignUpVerificationCacheKey(username);
+    // Delete the verification code from the cache
+    cacheService.delete(key);
+  }
+
+  /**
+   * Retrieves the roles assigned to a new user.
+   *
+   * <p>Fetches the roles for a new user from the role service. If no roles are available,
+   * throws a {@link NoRoleAvailableToAssignException}.</p>
+   *
+   * @return list of {@link Role} the roles assigned to a new user
+   * @throws NoRoleAvailableToAssignException if no roles are available to assign
+   */
+  private List<Role> getRolesForNewUser() {
+    // Fetch roles for a new user from the role service
+    List<Role> userRoles = roleService.getRolesForNewUser();
+
+    // Throw exception if no roles are available
+    if (userRoles.isEmpty()) {
+      throw new NoRoleAvailableToAssignException();
+    }
+
+    return userRoles;
+  }
+
+  /**
+   * Saves the MFA verification code temporarily in the cache.
+   *
+   * <p>Sets the MFA verification code for the specified username in the cache with a temporary
+   * duration of 5 minutes.</p>
+   *
+   * @param username the username for which the MFA verification code is saved
+   * @param verificationCode the MFA verification code to be saved
+   */
+  private void saveMfaVerificationCodeTemporarily(String username, String verificationCode) {
+    cacheService.set(getMfaAuthenticationCacheKey(username), verificationCode, Duration.ofMinutes(5));
+  }
+
+  /**
+   * Clears the temporarily saved MFA (Multi-Factor Authentication) verification code
+   * from the cache associated with the given username.
+   *
+   * @param username the username associated with the MFA verification code to clear
+   */
+  private void clearMfaVerificationCodeSavedTemporarily(String username) {
+    // Retrieve the cache key for the sign-up verification code
+    String key = getMfaAuthenticationCacheKey(username);
+    // Delete the verification code from the cache
+    cacheService.delete(key);
+  }
+
+  /**
+   * Validates the Multi-Factor Authentication (MFA) verification code or OTP (One-Time Password) code
+   * based on the provided MFA type and username.
+   *
+   * @param otpCode  the MFA or OTP code to validate
+   * @param mfaType  the type of MFA (phone/email or authenticator app)
+   * @param username the username associated with the MFA or OTP code
+   */
+  private void validateMfaVerificationOrOtpCode(String otpCode, MfaType mfaType, String username, Long userId) {
+    if (mfaService.isPhoneOrEmailMfaType(mfaType)) {
+      // Validate email/phone MFA verification code
+      mfaService.validateEmailOrPhoneMfaVerificationCode(otpCode, username);
+    } else if (mfaService.isAuthenticatorMfaType(mfaType)) {
+      // Validate authenticator app MFA verification code
+      mfaService.validateAuthenticatorMfaVerificationCode(otpCode, userId);
+    }
+  }
+
+  /**
+   * Authenticates a user with the provided email address and password.
+   *
+   * @param emailAddress the user's email address
+   * @param password     the user's password
+   * @return Authentication object representing the authenticated user
+   * @throws org.springframework.security.core.AuthenticationException if authentication fails
+   */
+  public Optional<Authentication> authenticate(String emailAddress, String password) {
+    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
+    return Optional.of(authenticationManager.authenticate(authenticationToken));
+  }
+
+  /**
+   * Validates that the profile is not disabled or banned.
+   *
+   * @param profileStatus the current status of the profile
+   * @throws DisabledAccountException if the profile is disabled
+   * @throws BannedAccountException   if the profile is banned
+   */
+  protected void validateProfileIsNotDisabledOrBanned(ProfileStatus profileStatus) {
+    // Check if the profile is disabled
+    if (ProfileStatus.DISABLED == profileStatus) {
+      throw new DisabledAccountException();
+    }
+    // Check if the profile is banned
+    else if (ProfileStatus.BANNED == profileStatus) {
+      throw new BannedAccountException();
+    }
+  }
+
+  /**
+   * Creates a default sign-in response for the given user.
+   *
+   * @param user the FleenUser for whom the sign-in response is created
+   * @return SignInResponse the default sign-in response
+   */
+  protected SignInResponse createDefaultSignInResponse(FleenUser user) {
+    // Create and return the default sign-in response using the user's email address
+    return SignInResponse.createDefault(user.getEmailAddress());
+  }
+
+  /**
+   * Checks if the user's profile is inactive and if the user is yet to be verified.
+   *
+   * @param user the FleenUser to check
+   * @return boolean true if the user's profile is inactive, and they are yet to be verified, false otherwise
+   */
+  protected boolean isProfileInactiveAndUserYetToBeVerified(FleenUser user) {
+    return ProfileStatus.INACTIVE == user.getProfileStatus()
+        && RoleType.PRE_VERIFIED_USER == retrieveRoleForUserYetToCompleteSignUp(user);
+  }
+
+  /**
+   * Retrieves the role type for a user who is yet to complete the sign-up process.
+   *
+   * @param user the FleenUser whose role is to be retrieved
+   * @return RoleType the role type of the user before completing sign-up, or null if not available
+   */
+  protected RoleType retrieveRoleForUserYetToCompleteSignUp(FleenUser user) {
+    // Check if the user and their authorities are not null
+    if (nonNull(user) && nonNull(user.getAuthorities())) {
+      // Retrieve the first role of the user before completing sign-up
+      Role defaultUserRoleBeforeCompletingSignUp = user.authoritiesToRoles().get(0);
+      // Return the role type based on the retrieved role's code
+      return RoleType.valueOf(defaultUserRoleBeforeCompletingSignUp.getCode());
+    }
+
+    // Return null if the user or their authorities are null
+    return null;
+  }
+
+  /**
+   * Handles the scenario where a user's profile is yet to be verified during sign-in.
+   *
+   * @param signInResponse the response object for the sign-in process
+   * @param user           the FleenUser whose profile is yet to be verified
+   */
+  private void handleProfileYetToBeVerified(SignInResponse signInResponse, FleenUser user) {
+    // Generate a one-time password (OTP)
+    String otpCode = generateOtp();
+    // Create a pre-verification request with the OTP
+    SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, VerificationType.EMAIL, user);
+    // Send the sign-up verification code to the user
+    profileRequestPublisher.sendSignUpVerificationCode(signUpVerificationRequest);
+    // Save the OTP code temporarily in the cache
+    saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
+    // Configure pre-verification authorities based on user role
+    configureAuthoritiesOrRolesForUserYetToCompleteSignUp(user, retrieveRoleForUserYetToCompleteSignUp(user));
+    // Initialize sign-in details for the user
+    initializeAuthenticationAndCreateTokens(user, signInResponse);
+    // Set the authentication stage in the sign-in response
+    signInResponse.setAuthenticationStage(AuthenticationStage.PRE_VERIFICATION);
+  }
+
+  /**
+   * Creates a sign-up verification request.
+   *
+   * @param otp              the one-time password for verification
+   * @param verificationType the type of verification (e.g., EMAIL)
+   * @param user             the FleenUser for whom the verification request is being created
+   * @return the SignUpVerificationRequest object
+   */
+  public SignUpVerificationRequest createSignUpVerificationRequest(String otp, VerificationType verificationType, FleenUser user) {
+    // Create and return the sign-up verification request with user details and verification type
+    return SignUpVerificationRequest
+        .of(otp, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
+  }
+
+  /**
+   * Configures authorities or roles for a user who has not yet completed the sign-up process.
+   *
+   * @param user     the FleenUser whose roles need to be configured
+   * @param roleType the RoleType indicating the user's role
+   */
+  protected void configureAuthoritiesOrRolesForUserYetToCompleteSignUp(FleenUser user, RoleType roleType) {
+    if (requireNonNull(roleType) == RoleType.PRE_VERIFIED_USER) {
+      user.setAuthorities(getUserPreVerifiedAuthorities());
+    }
+  }
+
+  /**
+   * Initializes authentication and creates tokens for the given user, updating the sign-in response accordingly.
+   *
+   * @param fleenUser      the FleenUser to authenticate and create tokens for
+   * @param signInResponse the SignInResponse to update with authentication details
+   */
+  protected void initializeAuthenticationAndCreateTokens(FleenUser fleenUser, SignInResponse signInResponse) {
+    // Initialize authentication for the user
+    initializeAuthentication(fleenUser);
+    // Create tokens, save them, and update the sign-in response
+    createTokeAndSaveTokenAndUpdateResponse(fleenUser, signInResponse);
+  }
+
+  /**
+   * Creates and saves authentication tokens, then updates the sign-in response with the tokens.
+   *
+   * @param user           the FleenUser for whom the tokens are generated
+   * @param signInResponse the SignInResponse to be updated with the generated tokens and user details
+   */
+  protected void createTokeAndSaveTokenAndUpdateResponse(FleenUser user, SignInResponse signInResponse) {
+    // Generate access and refresh tokens for the user
+    String accessToken = tokenService.createAccessToken(user);
+    String refreshToken = tokenService.createRefreshToken(user);
+
+    // Save the generated tokens for the user
+    saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
+
+    // Populate the sign-in response object with authentication details
+    signInResponse.setAccessToken(accessToken);
+    signInResponse.setRefreshToken(refreshToken);
+    signInResponse.setPhoneNumber(user.getPhoneNumber());
+  }
+
+  /**
+   * Initializes the authentication context for the given user.
+   *
+   * @param user the FleenUser whose authentication context is to be initialized
+   */
+  private void initializeAuthentication(FleenUser user) {
+    // Create an authentication token using the user's information and authorities
+    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    // Set the authentication context with the authentication token
+    setContext(authenticationToken);
+  }
+
+  /**
+   * Checks if MFA (Multi-Factor Authentication) is enabled for the user and a valid MFA type is set.
+   *
+   * @param user the FleenUser to check for MFA settings
+   * @return true if MFA is enabled and a valid MFA type is set; false otherwise
+   */
+  protected boolean isMfaEnabledAndMfaTypeSet(FleenUser user) {
+    return nonNull(user) && user.isMfaEnabled() && user.getMfaType() != MfaType.NONE;
+  }
+
+  /**
+   * Handles the sign-in process for a user with MFA (Multi-Factor Authentication) enabled.
+   * Generates an OTP (One-Time Password), sends a verification message based on the user's MFA type,
+   * sets pre-authentication authorities, creates an authentication token, generates an access token,
+   * and updates the sign-in response with authentication details and MFA status.
+   *
+   * @param signInResponse the response object to update with authentication details
+   * @param user           the FleenUser attempting to sign in
+   */
+  private void handleProfileWithMfaEnabled(SignInResponse signInResponse, FleenUser user) {
+    // Generate a one-time password (OTP)
+    String otpCode = generateOtp();
+
+    // Send a verification message based on the user's MFA type
+    if (isMfaTypeByEmailOrPhone(user.getMfaType())) {
+      MfaVerificationRequest mfaVerificationRequest = getVerificationTypeAndCreateMfaVerificationRequest(otpCode, user);
+      // Send the sign-up verification code to the user
+      profileRequestPublisher.sendMfaVerificationCode(mfaVerificationRequest);
+      // Save the OTP code temporarily in the cache
+      saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
+    }
+
+    // Set up pre-authentication authorities for the user
+    user.setAuthorities(getPreAuthenticatedAuthorities());
+    // Create an authentication token using the user's information and authorities
+    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    // Generate an access token for the user
+    String accessToken = tokenService.createAccessToken(user);
+    // Set the authentication context with the authentication token
+    setContext(authenticationToken);
+    // Save the access token for the user
+    tokenService.saveAccessToken(user.getUsername(), accessToken);
+    // Update authentication stage and MFA status in the sign-in response
+    updateSignInResponseForMfaVerification(accessToken, user, signInResponse);
+  }
+
+  /**
+   * Checks if the provided MFA (Multi-Factor Authentication) type is either by phone or email.
+   *
+   * @param mfaType the MFA type to check
+   * @return true if the MFA type is PHONE or EMAIL, false otherwise
+   */
+  protected boolean isMfaTypeByEmailOrPhone(MfaType mfaType) {
+    return MfaType.PHONE == mfaType || MfaType.EMAIL == mfaType;
+  }
+
+  /**
+   * Retrieves the corresponding verification type based on the provided MFA (Multi-Factor Authentication) type.
+   *
+   * @param mfaType the MFA type to retrieve verification type for
+   * @return the VerificationType associated with the MFA type
+   * @throws UnableToCompleteOperationException if the MFA type is null or cannot be mapped to a VerificationType
+   */
+  protected VerificationType getVerificationTypeByMfaType(MfaType mfaType) {
+    // Throw an exception if the provided MFA type is null
+    if (isNull(mfaType)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Parse the MFA type into a VerificationType enum value
+    VerificationType verificationType = parseEnumOrNull(mfaType.name(), VerificationType.class);
+    // Throw an exception if the parsed VerificationType is null (not found)
+    if (isNull(verificationType)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    return verificationType;
+  }
+
+  /**
+   * Retrieves the corresponding verification type based on the provided profile verification type.
+   *
+   * @param profileVerificationType the profile verification type to retrieve verification type for
+   * @return the VerificationType associated with the profile verification type
+   * @throws UnableToCompleteOperationException if the profile verification type is null or cannot be mapped to a VerificationType
+   */
+  protected VerificationType getVerificationTypeByProfileVerificationType(ProfileVerificationType profileVerificationType) {
+    // Throw an exception if the provided profile verification type is null
+    if (isNull(profileVerificationType)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    // Parse the profile verification type into a VerificationType enum value
+    VerificationType verificationType = parseEnumOrNull(profileVerificationType.name(), VerificationType.class);
+    // Throw an exception if the parsed VerificationType is null (not found)
+    if (isNull(verificationType)) {
+      throw new UnableToCompleteOperationException();
+    }
+
+    return verificationType;
+  }
+
+  /**
+   * Retrieves the verification type based on the user's MFA type and creates an MFA verification request.
+   *
+   * <p>This method determines the verification type based on the user's configured MFA type.
+   * It then creates an MFA verification request object using the generated OTP code, user details,
+   * and the determined verification type.</p>
+   *
+   * @param otpCode     the one-time password (OTP) generated for verification
+   * @param user        the FleenUser for whom the verification request is being created
+   * @return MfaVerificationRequest the request object containing OTP, user details, and verification type
+   * @throws UnableToCompleteOperationException if there is an issue with determining or creating the verification type
+   */
+  protected MfaVerificationRequest getVerificationTypeAndCreateMfaVerificationRequest(String otpCode, FleenUser user) {
+    VerificationType verificationType = getVerificationTypeByMfaType(user.getMfaType());
+    return MfaVerificationRequest
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
+  }
+
+  /**
+   * Updates the sign-in response object with details related to MFA verification.
+   *
+   * <p>This method sets the authentication stage to MFA verification,
+   * enables MFA in the response, sets the MFA type, updates the access token,
+   * clears the refresh token, and updates the user's email address and phone number
+   * in the sign-in response.</p>
+   *
+   * @param accessToken     the access token generated for the authenticated user
+   * @param user            the authenticated FleenUser for whom the sign-in response is being updated
+   * @param signInResponse  the SignInResponse object to be updated with authentication details
+   */
+  protected void updateSignInResponseForMfaVerification(String accessToken, FleenUser user, SignInResponse signInResponse) {
+    // Set the authentication stage to MFA verification
+    signInResponse.setAuthenticationStage(AuthenticationStage.MFA_VERIFICATION);
+    // Enable MFA in the sign-in response
+    signInResponse.setMfaEnabled(true);
+    // Set the MFA type used by the user
+    signInResponse.setMfaType(user.getMfaType());
+    // Update the access token in the sign-in response
+    signInResponse.setAccessToken(accessToken);
+    // Clear the refresh token as it is not used in MFA authentication
+    signInResponse.setRefreshToken(null);
+    // Update the user's email address in the sign-in response
+    signInResponse.setEmailAddress(user.getEmailAddress());
+    // Update the user's phone number in the sign-in response
+    signInResponse.setPhoneNumber(user.getPhoneNumber());
+  }
+
+  /**
+   * Handles the profile of a verified user during sign-in.
+   *
+   * <p>This method generates an access token with authentication status as COMPLETED,
+   * creates a refresh token for the user, sets the provided authentication context,
+   * saves the generated tokens, and updates the sign-in response with the tokens and authentication status.</p>
+   *
+   * @param signInResponse   the SignInResponse object to be updated with authentication details
+   * @param user             the verified FleenUser for whom the sign-in response is being updated
+   * @param authentication   the Authentication object representing the authenticated user's credentials
+   */
+  private void handleProfileThatIsVerified(SignInResponse signInResponse, FleenUser user, Authentication authentication) {
+    AuthenticationStatus authenticationStatus = AuthenticationStatus.COMPLETED;
+    // Generate an access token with authentication status as COMPLETED
+    String accessToken = tokenService.createAccessToken(user, authenticationStatus);
+    // Generate a refresh token for the user
+    String refreshToken = tokenService.createRefreshToken(user);
+    // Set the authentication context with the provided authentication object
+    setContext(authentication);
+    // Save the generated tokens for the user
+    saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
+    // Update the sign-in response with the generated tokens and authentication status
+    signInResponse.setAccessToken(accessToken);
+    signInResponse.setRefreshToken(refreshToken);
+    signInResponse.setAuthenticationStatus(authenticationStatus);
+  }
+
+  /**
+   * Saves a reset password OTP (One-Time Password) in the cache for a specified duration.
+   *
+   * <p>This method sets the OTP associated with the username in the cache service
+   * using the cache key derived from the username. The OTP remains valid for 3 minutes.</p>
+   *
+   * @param username the username for which the OTP is generated
+   * @param otp      the OTP generated for password reset
+   */
+  protected void saveResetPasswordOtpTemporarily(String username, String otp) {
+    cacheService.set(getResetPasswordCacheKey(username), otp, Duration.ofMinutes(3));
+  }
+
+  /**
+   * Generates and saves a reset password token for the given email address and member.
+   *
+   * <p>Checks if a profile token already exists for the email address. If found, retrieves it;
+   * otherwise, creates a new one. Associates the member with the profile token, generates a
+   * random six-digit OTP as the reset password token, sets its expiry date to 10 minutes from
+   * now, and saves the profile token in the repository.</p>
+   *
+   * @param emailAddress the email address associated with the member
+   * @param member the member for whom the reset password token is generated
+   */
+  protected void generateAndSaveResetPasswordToken(String emailAddress, Member member, String verificationTokenOrCode) {
+    // Check if a profile token already exists for the given email address.
+    Optional<ProfileToken> profileTokenExists = profileTokenRepository.findByEmailAddress(emailAddress);
+    // If a profile token exists, retrieve it; otherwise, create a new one.
+    ProfileToken profileToken = profileTokenExists.orElseGet(ProfileToken::new);
+    // Set the member associated with the profile token.
+    profileToken.setMember(member);
+    // Set the reset password token in the profile token.
+    profileToken.setResetPasswordToken(verificationTokenOrCode);
+    // Set the expiry date for the reset password token (10 minutes from now).
+    profileToken.setResetPasswordTokenExpiryDate(addMinutesFromNow(10));
+    // Save the profile token.
+    profileTokenRepository.save(profileToken);
+  }
+
+  /**
+   * Clears the saved reset password OTP (One-Time Password) from the cache.
+   *
+   * @param username the username for which the OTP was saved
+   */
+  protected void clearResetPasswordOtpSavedTemporarily(String username) {
+    cacheService.delete(getResetPasswordCacheKey(username));
+  }
+
+  /**
+   * Validates the profile token and reset password code for a given email address.
+   *
+   * @param emailAddress            the email address associated with the profile token
+   * @param verificationTokenOrCode the verification token or code to validate
+   * @throws ResetPasswordCodeInvalidException if the profile token or reset password code is invalid
+   * @throws ResetPasswordCodeExpiredException if the reset password token has expired
+   */
+  private void validateProfileTokenAndResetPasswordCode(String emailAddress, String verificationTokenOrCode) {
+    // Find the profile token associated with the email address
+    ProfileToken profileToken = findProfileToken(emailAddress);
+    // Validate the provided verification token or code against the profile token
+    validateProfileTokenAndVerificationCode(verificationTokenOrCode, profileToken);
+    // Verify that the reset password token associated with the profile token has not expired
+    verifyResetPasswordTokenHasNotExpired(profileToken.getResetPasswordTokenExpiryDate());
+  }
+
+  /**
+   * Finds the profile token associated with the given email address.
+   *
+   * @param emailAddress the email address associated with the profile token
+   * @return the profile token found
+   * @throws ResetPasswordCodeInvalidException if no profile token exists for the email address
+   */
+  protected ProfileToken findProfileToken(String emailAddress) {
+    Optional<ProfileToken> existingProfileToken = profileTokenRepository.findByEmailAddress(emailAddress);
+
+    // If no profile token exists, throw an exception indicating invalid reset password code.
+    if (existingProfileToken.isEmpty()) {
+      throw new ResetPasswordCodeInvalidException();
+    }
+
+    return existingProfileToken.get();
+  }
+
+  /**
+   * Validates the profile token and verification code.
+   *
+   * @param verificationTokenOrCode the verification token or code provided by the user
+   * @param profileToken the profile token containing the reset password token to validate against
+   * @throws ResetPasswordCodeInvalidException if the reset password token in the profile token is null
+   *                                          or does not match the provided verification token or code
+   */
+  protected void validateProfileTokenAndVerificationCode(String verificationTokenOrCode, ProfileToken profileToken) {
+    // If no reset password token exists in the profile token, throw an exception indicating invalid reset password code.
+    if (isNull(profileToken.getResetPasswordToken())) {
+      throw new ResetPasswordCodeInvalidException();
+    }
+
+    // Check if the provided token or code matches the reset password token in the profile token.
+    if (!(profileToken.getResetPasswordToken().equalsIgnoreCase(verificationTokenOrCode))) {
+      throw new ResetPasswordCodeInvalidException();
+    }
+  }
+
+  /**
+   * Verifies that the reset password token has not expired.
+   *
+   * @param resetPasswordTokenExpiryDate the expiry date of the reset password token to verify
+   * @throws ResetPasswordCodeExpiredException if the reset password token expiry date is null
+   *                                          or before the current date and time
+   */
+  protected void verifyResetPasswordTokenHasNotExpired(LocalDateTime resetPasswordTokenExpiryDate) {
+    // Check if the reset password token has expired.
+    if (isNull(resetPasswordTokenExpiryDate) || resetPasswordTokenExpiryDate.isBefore(LocalDateTime.now())) {
+      throw new ResetPasswordCodeExpiredException();
+    }
+  }
+
+  /**
+   * Clears authentication tokens for the specified user.
+   *
+   * @param username the username of the user
+   */
+  protected void clearAuthenticationTokens(String username) {
+    String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
+    String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
+
+    // Delete access token from cache if it exists
+    if (cacheService.exists(accessTokenCacheKeyKey)) {
+      cacheService.delete(accessTokenCacheKeyKey);
+    }
+
+    // Delete refresh token from cache if it exists
+    if (cacheService.exists(refreshTokenCacheKeyKey)) {
+      cacheService.delete(refreshTokenCacheKeyKey);
+    }
+  }
+
+  /**
+   * Finds the profile token by email address and resets the reset password token and its expiry date if found.
+   *
+   * @param emailAddress the email address associated with the profile token
+   */
+  public void findPasswordTokenAndResetOrClearDetails(String emailAddress) {
+    // Find the profile token by email address
+    ProfileToken profileToken = profileTokenRepository.findByEmailAddress(emailAddress)
+        .orElse(null);
+
+    // If profile token exists, reset the reset password token and its expiry date
+    if (nonNull(profileToken)) {
+      resetProfileToken(profileToken);
+    }
+  }
+
+  /**
+   * Resets the reset password token and its expiry date in the profile token.
+   *
+   * @param profileToken the profile token to reset
+   */
+  public void resetProfileToken(ProfileToken profileToken) {
+    // Check if a profile token exists and if it contains a reset password token.
+    if (nonNull(profileToken.getResetPasswordToken())) {
+      // Remove the reset password token and its expiry date.
+      profileToken.setResetPasswordToken(null);
+      profileToken.setResetPasswordTokenExpiryDate(null);
+      // Save the updated profile token.
+      profileTokenRepository.save(profileToken);
+    }
+  }
+}

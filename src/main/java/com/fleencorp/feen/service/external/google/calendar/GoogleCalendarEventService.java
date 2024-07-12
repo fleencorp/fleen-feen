@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.external.google.calendar;
 
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventStatus;
@@ -80,6 +81,7 @@ public class GoogleCalendarEventService {
    *
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/events/list">Events: list</a>
    */
+  @MeasureExecutionTime
   public GoogleListCalendarEventResponse listEvent(final ListCalendarEventRequest listCalendarEventRequest) {
     try {
       // Retrieve events from the calendar based on the request parameters
@@ -121,6 +123,7 @@ public class GoogleCalendarEventService {
    *
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/events/insert">Events: insert </a>
    */
+  @MeasureExecutionTime
   public GoogleCreateCalendarEventResponse createEvent(final CreateCalendarEventRequest createCalendarEventRequest) {
     try {
       final Event event = new Event();
@@ -222,6 +225,7 @@ public class GoogleCalendarEventService {
    * @return {@link GoogleCancelCalendarEventResponse} the response containing the cancelled event
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GoogleCancelCalendarEventResponse cancelEvent(final CancelCalendarEventRequest cancelCalendarEventRequest) {
     try {
       // Retrieve calendar ID and event ID from the cancellation request
@@ -264,6 +268,7 @@ public class GoogleCalendarEventService {
    * @return {@link GoogleRescheduleCalendarEventResponse} the response containing the rescheduled event
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GoogleRescheduleCalendarEventResponse rescheduleEvent(final RescheduleCalendarEventRequest rescheduleCalendarEventRequest) {
     final String calendarId = rescheduleCalendarEventRequest.getCalendarId();
     final String eventId = rescheduleCalendarEventRequest.getEventId();
@@ -310,6 +315,7 @@ public class GoogleCalendarEventService {
    *
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/events/delete">Events: delete</a>
    */
+  @MeasureExecutionTime
   public GoogleDeleteCalendarEventResponse deleteEvent(final DeleteCalendarEventRequest deleteCalendarEventRequest) {
     try {
       // Retrieve calendar ID and event ID from the deletion request
@@ -348,6 +354,7 @@ public class GoogleCalendarEventService {
    *
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/events/get">Events: get</a>
    */
+  @MeasureExecutionTime
   public GoogleRetrieveCalendarEventResponse retrieveEvent(final RetrieveCalendarEventRequest retrieveCalendarEventRequest) {
     try {
       // Retrieve calendar ID and event ID from the retrieval request
@@ -384,6 +391,7 @@ public class GoogleCalendarEventService {
    * @return {@link GoogleAddNewCalendarEventAttendeeResponse} the response containing the attendee that was added to the event
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GoogleAddNewCalendarEventAttendeeResponse addNewAttendeeToCalendarEvent(final AddNewEventAttendeeRequest addNewEventAttendeeRequest) {
     try {
       // Retrieve calendar ID and event ID from the  request
@@ -429,6 +437,7 @@ public class GoogleCalendarEventService {
    * @return a GoogleAddNewCalendarEventAttendeesResponse containing the updated event details
    * @throws UnableToCompleteOperationException if the attendees cannot be added
    */
+  @MeasureExecutionTime
   public GoogleAddNewCalendarEventAttendeesResponse addNewAttendeesToCalendarEvent(final AddNewEventAttendeesRequest addNewEventAttendeesRequest) {
     try {
       // Retrieve calendar ID and event ID from the  request
@@ -473,6 +482,7 @@ public class GoogleCalendarEventService {
    * @return {@link GooglePatchCalendarEventResponse} the response containing the patched event
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GooglePatchCalendarEventResponse patchEvent(final PatchCalendarEventRequest patchCalendarEventRequest) {
     try {
       // Retrieve calendar ID and event ID from the cancellation request
@@ -518,6 +528,7 @@ public class GoogleCalendarEventService {
    * @return {@link GoogleCreateInstantCalendarEventResponse} the response containing the instant event that was created
    * @throws UnableToCompleteOperationException if the operation cannot be completed
    */
+  @MeasureExecutionTime
   public GoogleCreateInstantCalendarEventResponse createInstantEvent(final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     try {
       // Use the quickAdd feature to create an instant event with the provided title
@@ -551,6 +562,7 @@ public class GoogleCalendarEventService {
    * @return {@link GooglePatchCalendarEventResponse} containing the updated event details
    * @throws UnableToCompleteOperationException if the event cannot be updated
    */
+  @MeasureExecutionTime
   public GooglePatchCalendarEventResponse updateEventVisibility(final UpdateCalendarEventVisibilityRequest updateCalendarEventVisibilityRequest) {
     try {
       // Retrieve calendar ID and event ID from the cancellation request
@@ -640,19 +652,21 @@ public class GoogleCalendarEventService {
    */
   private List<EventAttendee> addOrInviteAttendeesOrGuests(final List<CreateCalendarEventDto.EventAttendeeOrGuest> attendeeOrGuests) {
     final List<EventAttendee> attendees = new ArrayList<>();
-    attendeeOrGuests
-      .stream()
-      .filter(Objects::nonNull)
-      .forEach(attendeeOrGuest -> {
-        final EventAttendee attendee = new EventAttendee();
-        attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());
-        attendee.setEmail(attendeeOrGuest.getEmailAddress());
-        attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
-        if (nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
-          attendee.setResponseStatus("accepted");
-        }
-        attendees.add(attendee);
+    if (nonNull(attendeeOrGuests)) {
+      attendeeOrGuests
+        .stream()
+        .filter(Objects::nonNull)
+        .forEach(attendeeOrGuest -> {
+          final EventAttendee attendee = new EventAttendee();
+          attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());
+          attendee.setEmail(attendeeOrGuest.getEmailAddress());
+          attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
+          if (nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
+            attendee.setResponseStatus("accepted");
+          }
+          attendees.add(attendee);
       });
+    }
 
     return attendees;
   }
@@ -668,14 +682,16 @@ public class GoogleCalendarEventService {
    */
   private List<EventAttendee> addOrInviteAttendeesOrGuests(final Set<String> attendeeOrGuestEmailAddresses) {
     final List<EventAttendee> attendees = new ArrayList<>();
-    attendeeOrGuestEmailAddresses
-      .stream()
-      .filter(Objects::nonNull)
-      .forEach(attendeeOrGuestEmailAddress -> {
-        final EventAttendee attendee = new EventAttendee();
-        attendee.setEmail(attendeeOrGuestEmailAddress);
-        attendees.add(attendee);
+    if (nonNull(attendeeOrGuestEmailAddresses)) {
+      attendeeOrGuestEmailAddresses
+        .stream()
+        .filter(Objects::nonNull)
+        .forEach(attendeeOrGuestEmailAddress -> {
+          final EventAttendee attendee = new EventAttendee();
+          attendee.setEmail(attendeeOrGuestEmailAddress);
+          attendees.add(attendee);
       });
+    }
 
     return attendees;
   }

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static jakarta.persistence.EnumType.ORDINAL;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -38,7 +39,7 @@ public class StreamReview extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
-  @Enumerated(EnumType.ORDINAL)
+  @Enumerated(ORDINAL)
   @Column(name = "rating", nullable = false)
   private StreamReviewRating rating;
 }

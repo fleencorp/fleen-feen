@@ -11,10 +11,8 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 @Slf4j
-public enum EnumUtil {
-    ;
-
-    private static final char ENUM_VALUE_SEPARATOR = '_';
+public class EnumUtil {
+  private static final char ENUM_VALUE_SEPARATOR = '_';
   private static final char ENUM_VALUE_REPLACE = ' ';
 
   /**
@@ -41,7 +39,7 @@ public enum EnumUtil {
       }
       return values;
     } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-        EnumUtil.log.error(ex.getMessage(), ex);
+        log.error(ex.getMessage(), ex);
     }
     return null;
   }
@@ -98,26 +96,6 @@ public enum EnumUtil {
     }
 
     return views;
-  }
-
-  /**
-   * Parses a string value into an Enum of a specified type or returns null if parsing fails or if inputs are invalid.
-   *
-   * @param value    A string value to be parsed into the Enum.
-   * @param enumType The Class object of the target Enum type.
-   * @param <T>      The Enum type to parse.
-   * @return An Enum value of type T if parsing succeeds, or null if parsing fails or inputs are invalid.
-   */
-  public static <T extends Enum<T>> T parseEnumOrNull(final String value, final Class<T> enumType) {
-    if ((null == value) || (null == enumType) || !enumType.isEnum()) {
-      return null;
-    }
-
-    try {
-      return Enum.valueOf(enumType, value);
-    } catch (final IllegalArgumentException e) {
-      return null;
-    }
   }
 
   /**

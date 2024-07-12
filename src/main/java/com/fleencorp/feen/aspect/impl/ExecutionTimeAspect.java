@@ -1,0 +1,46 @@
+package com.fleencorp.feen.aspect.impl;
+
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+/**
+ * Aspect for measuring the execution time of methods annotated with {@link MeasureExecutionTime}.
+ *
+ * @author Yusuf Alamu Musa
+ * @version 1.0
+ */
+@Component
+@Aspect
+@Slf4j
+public class ExecutionTimeAspect {
+
+  /**
+   * Advice that measures the execution time of methods annotated with {@link MeasureExecutionTime}.
+   *
+   * @param joinPoint            The join point representing the method being intercepted.
+   * @param measureExecutionTime The annotation instance used to mark methods for execution time measurement.
+   * @return                     The result of the method invocation.
+   * @throws Throwable           If an error occurs during method invocation.
+   */
+  @Around("@annotation(measureExecutionTime)")
+  public Object logExecutionTime(ProceedingJoinPoint joinPoint, MeasureExecutionTime measureExecutionTime) throws Throwable {
+    // Record the start time of method execution
+    long startTime = System.currentTimeMillis();
+
+    // Proceed with the method execution
+    Object proceed = joinPoint.proceed();
+
+    // Record the end time of method execution
+    long endTime = System.currentTimeMillis();
+
+    // Calculate and log the execution time
+    String message = String.format("{%s} executed in %d ms", joinPoint.getSignature().toShortString(), (endTime - startTime));
+    log.info(message);
+
+    return proceed;
+  }
+}
