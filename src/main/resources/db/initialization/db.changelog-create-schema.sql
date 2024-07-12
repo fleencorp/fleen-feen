@@ -298,3 +298,83 @@ CREATE TABLE follower (
 );
 
 --rollback DROP TABLE IF EXISTS `follower`;
+
+
+
+--changeset alamu:12
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_speaker';
+
+CREATE TABLE stream_speaker (
+  id BIGSERIAL PRIMARY KEY,
+  fleen_stream_id BIGINT NOT NULL,
+  member_id BIGINT NOT NULL,
+  full_name VARCHAR(100) NOT NULL,
+  title VARCHAR(30) NOT NULL,
+  description VARCHAR(1000) NOT NULL,
+
+  CONSTRAINT stream_speaker_fk_fleen_stream_id
+      FOREIGN KEY (fleen_stream_id)
+          REFERENCES fleen_stream (fleen_stream_id)
+          ON DELETE CASCADE,
+  CONSTRAINT stream_speaker_fk_member_id
+      FOREIGN KEY (member_id)
+          REFERENCES member (member_id)
+          ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `stream_speaker`;
+
+
+
+--changeset alamu:13
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'share_contact_request';
+
+CREATE TABLE share_contact_request (
+  share_contact_request_id BIGSERIAL PRIMARY KEY,
+  share_contact_request_status VARCHAR(255) NOT NULL,
+  share_contact_request_type VARCHAR(255) NOT NULL,
+  contact VARCHAR(1000),
+  initiator_id BIGINT NOT NULL,
+  recipient_id BIGINT NOT NULL,
+  initiator_comment VARCHAR(1000),
+  recipient_comment VARCHAR(1000),
+
+  CONSTRAINT share_contact_request_fk_initiator_id
+    FOREIGN KEY (initiator_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE,
+  CONSTRAINT share_contact_request_fk_recipient_id
+    FOREIGN KEY (recipient_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `share_contact_request`;
+
+
+
+--changeset alamu:14
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'blocked_user';
+
+CREATE TABLE blocked_user (
+  blocked_user_id BIGSERIAL PRIMARY KEY,
+  initiator_id BIGINT NOT NULL,
+  recipient_id BIGINT NOT NULL,
+
+  CONSTRAINT blocked_user_fk_initiator_id
+    FOREIGN KEY (initiator_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE,
+  CONSTRAINT blocked_user_fk_recipient_id
+    FOREIGN KEY (recipient_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `blocked_user`;
