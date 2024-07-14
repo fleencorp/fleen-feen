@@ -13,7 +13,9 @@ import org.springframework.context.annotation.PropertySources;
 @NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "token.validity.duration.of")
-@PropertySources(@PropertySource("classpath:token.properties"))
+@PropertySources({
+  @PropertySource("classpath:token.properties")
+})
 public class TokenProperties {
 
   private Long accessToken;

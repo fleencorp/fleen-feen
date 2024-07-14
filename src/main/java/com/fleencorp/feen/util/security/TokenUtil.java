@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,9 @@ import static java.util.Objects.nonNull;
 @Component
 @Getter
 @Setter
-@PropertySource("classpath:application.properties")
+@PropertySources({
+  @PropertySource("classpath:application.properties")
+})
 public class TokenUtil {
 
   private final ObjectMapper mapper;

@@ -12,7 +12,7 @@ import com.fleencorp.feen.model.request.calendar.calendar.DeleteCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.PatchCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.ShareCalendarWithUserRequest;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
-import com.fleencorp.feen.model.response.base.DeleteResponse;
+import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.response.calendar.CreateCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.RetrieveCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.ShareCalendarWithUserResponse;
