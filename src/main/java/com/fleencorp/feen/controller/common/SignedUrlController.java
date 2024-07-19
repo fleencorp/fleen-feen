@@ -1,6 +1,6 @@
 package com.fleencorp.feen.controller.common;
 
-import com.fleencorp.feen.config.external.aws.s3.S3BucketNames;
+import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.constant.http.StatusCodeMessage;
 import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlResponse;

@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEmail;
-import com.fleencorp.feen.converter.ToLowerCase;
+import com.fleencorp.feen.converter.common.ToLowerCase;
 import com.fleencorp.feen.model.dto.security.VerificationCodeDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

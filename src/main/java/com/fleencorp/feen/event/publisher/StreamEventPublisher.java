@@ -1,7 +1,10 @@
 package com.fleencorp.feen.event.publisher;
 
+import com.fleencorp.feen.event.model.PublishMessageRequest;
+import com.fleencorp.feen.event.service.PublisherService;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +19,8 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class StreamEventPublisher {
+@Qualifier("streamEvent-applicationEvent")
+public class StreamEventPublisher implements PublisherService {
 
   private final ApplicationEventPublisher eventPublisher;
 
@@ -28,6 +32,15 @@ public class StreamEventPublisher {
    */
   public StreamEventPublisher(final ApplicationEventPublisher eventPublisher) {
     this.eventPublisher = eventPublisher;
+  }
+
+  @Override
+  public void publishMessage(PublishMessageRequest messageRequest) {
+    Object message = messageRequest.getMessage();
+    switch (message) {
+      case AddCalendarEventAttendeesEvent request -> addNewAttendees(request);
+      default -> {}
+    }
   }
 
   /**

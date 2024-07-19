@@ -2,21 +2,19 @@ package com.fleencorp.feen.model.request.auth;
 
 
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import lombok.AllArgsConstructor;
+import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_VERIFICATION;
+
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class SignUpVerificationRequest extends ProfileRequest {
-
-  private String verificationCode;
-  private VerificationType verificationType;
+public class SignUpVerificationRequest extends SendVerificationCodeRequest {
 
   public static SignUpVerificationRequest of(String verificationCode, String firstName, String lastName, String emailAddress,
       String phoneNumber, VerificationType verificationType) {
@@ -28,5 +26,15 @@ public class SignUpVerificationRequest extends ProfileRequest {
         .phoneNumber(phoneNumber)
         .verificationType(verificationType)
         .build();
+  }
+
+  @Override
+  public String getTemplateName() {
+    return SIGN_UP_VERIFICATION.getTemplateName();
+  }
+
+  @Override
+  public String getMessageTitle() {
+    return SIGN_UP_VERIFICATION.getMessageTitle();
   }
 }

@@ -4,7 +4,7 @@ import com.fleencorp.feen.constant.stream.StreamCreationType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.converter.impl.StringCryptoConverter;
+import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
@@ -70,7 +70,7 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "made_for_kids", nullable = false)
   private Boolean forKids = false;
 
-  @Column(name = "stream_link", nullable = false, updatable = false, length = 1000)
+  @Column(name = "stream_link", length = 1000)
   @Convert(converter = StringCryptoConverter.class)
   private String streamLink;
 

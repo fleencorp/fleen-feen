@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.converter.ToUpperCase;
+import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.util.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fleencorp.feen.config.security.properties.TokenProperties;
+import com.fleencorp.feen.configuration.security.properties.TokenProperties;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.token.TokenType;
 import com.fleencorp.feen.model.security.FleenUser;

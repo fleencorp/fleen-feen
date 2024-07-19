@@ -8,7 +8,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-import static com.fleencorp.fleenhistoria.util.datetime.DateFormatUtil.DATE_TIME;
+import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 

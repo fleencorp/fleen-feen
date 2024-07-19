@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.security;
 
-import com.fleencorp.feen.config.security.properties.TokenProperties;
+import com.fleencorp.feen.configuration.security.properties.TokenProperties;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;

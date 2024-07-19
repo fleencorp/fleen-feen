@@ -2,8 +2,8 @@ package com.fleencorp.feen.model.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEnum;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
-import com.fleencorp.feen.converter.ToUpperCase;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.converter.common.ToUpperCase;
 import com.fleencorp.feen.model.dto.security.VerificationCodeDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,12 +22,12 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public class CompleteSignUpDto extends VerificationCodeDto {
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = ProfileVerificationType.class, message = "{user.verificationType.Type}")
+  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}")
   @ToUpperCase
-  @JsonProperty("profile_verification_type")
-  private String profileVerificationType;
+  @JsonProperty("verification_type")
+  private String verificationType;
 
-  public ProfileVerificationType getActualProfileVerificationType() {
-    return parseEnumOrNull(profileVerificationType, ProfileVerificationType.class);
+  public VerificationType getActualVerificationType() {
+    return parseEnumOrNull(verificationType, VerificationType.class);
   }
 }

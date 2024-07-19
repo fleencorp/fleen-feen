@@ -10,5 +10,4 @@ public class FleenFeenApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(FleenFeenApplication.class, args);
 	}
-
 }

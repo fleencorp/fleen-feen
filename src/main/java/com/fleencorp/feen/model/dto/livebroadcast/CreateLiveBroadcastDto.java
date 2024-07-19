@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static com.fleencorp.feen.converter.impl.ToTitleCaseConverter.toTitleCase;
+import static com.fleencorp.feen.converter.impl.common.ToTitleCaseConverter.toTitleCase;
 import static java.lang.Boolean.parseBoolean;
 
 @SuperBuilder

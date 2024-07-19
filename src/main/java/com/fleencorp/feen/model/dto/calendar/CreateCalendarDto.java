@@ -2,8 +2,8 @@ package com.fleencorp.feen.model.dto.calendar;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.converter.ToLowerCase;
-import com.fleencorp.feen.converter.ToTitleCase;
+import com.fleencorp.feen.converter.common.ToLowerCase;
+import com.fleencorp.feen.converter.common.ToTitleCase;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.validator.CountryExist;
 import com.fleencorp.feen.validator.TimezoneValid;

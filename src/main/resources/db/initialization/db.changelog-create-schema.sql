@@ -11,7 +11,7 @@ CREATE TABLE member (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email_address VARCHAR(50) NOT NULL,
-  phone_number VARCHAR(15) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL,
   password_hash VARCHAR(500) NOT NULL,
   profile_photo_url VARCHAR(1000),
   country VARCHAR(50),

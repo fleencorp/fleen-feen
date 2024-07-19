@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.external.slack;
 
 import com.fleencorp.feen.service.report.ReporterService;
-import com.fleencorp.fleenhistoria.service.external.ReporterService;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;

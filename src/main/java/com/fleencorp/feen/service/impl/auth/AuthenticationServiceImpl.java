@@ -5,17 +5,17 @@ import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
 import com.fleencorp.feen.constant.security.role.RoleType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.event.model.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.verification.*;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
@@ -25,25 +25,23 @@ import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
 import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
 import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
 import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
-import com.fleencorp.feen.model.request.auth.ResendSignUpVerificationCodeRequest;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
 import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
-import com.fleencorp.feen.model.request.mfa.ResendMfaVerificationCodeRequest;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
-import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
+import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.security.TokenService;
+import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -148,12 +146,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Generate OTP for sign-up verification
     String otpCode = generateOtp();
-    ProfileVerificationType profileVerificationType = signUpDto.getActualProfileVerificationType();
-    VerificationType verificationType = getVerificationTypeByProfileVerificationType(profileVerificationType);
+    VerificationType verificationType = signUpDto.getActualVerificationType();
 
     // Prepare and send sign-up verification code request
     SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, verificationType, user);
-    profileRequestPublisher.sendSignUpVerificationCode(signUpVerificationRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(signUpVerificationRequest));
 
     // Save sign-up verification code temporarily
     saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
@@ -162,7 +159,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Return the sign-up response with necessary details
     return SignUpResponse
-      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, profileVerificationType);
+      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, verificationType);
   }
 
   /**
@@ -189,7 +186,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Validate sign-up verification code
     validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
 
-    ProfileVerificationType verificationType = completeSignUpDto.getActualProfileVerificationType();
+    VerificationType verificationType = completeSignUpDto.getActualVerificationType();
 
     // Retrieve member details
     Member member = memberRepository.findByEmailAddress(username)
@@ -220,7 +217,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Send completed sign-up verification request
     CompletedUserSignUpRequest completedUserSignUpRequest = CompletedUserSignUpRequest
         .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
-    profileRequestPublisher.sendCompletedSignUpVerification(completedUserSignUpRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(completedUserSignUpRequest));
 
     return SignUpResponse.of(accessToken, refreshToken);
   }
@@ -241,15 +238,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Generate a new OTP
     String otpCode = generateOtp();
 
-    // Get the actual profile verification type from DTO
-    ProfileVerificationType profileVerificationType = resendSignUpVerificationCodeDto.getActualProfileVerificationType();
+
     // Prepare the request to resend the sign-up verification code
-    VerificationType verificationType = getVerificationTypeByProfileVerificationType(profileVerificationType);
-    ResendSignUpVerificationCodeRequest resendSignUpVerificationCodeRequest = ResendSignUpVerificationCodeRequest
-      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
+    VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
+    SignUpVerificationRequest resendSignUpVerificationCodeRequest = createSignUpVerificationRequest(otpCode, verificationType, user);
 
     // Resend sign-up verification code request
-    profileRequestPublisher.resendSignUpVerificationCode(resendSignUpVerificationCodeRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(resendSignUpVerificationCodeRequest));
     // Save the newly generated verification code temporarily for the user
     saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
 
@@ -274,11 +269,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     String otpCode = generateOtp();
 
     // Prepare the request to resend the MFA verification code
-    ResendMfaVerificationCodeRequest resendMfaVerificationCodeRequest = ResendMfaVerificationCodeRequest
-      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber());
+    MfaVerificationRequest resendMfaVerificationCodeRequest = MfaVerificationRequest
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), resendMfaVerificationCodeDto.getActualVerificationType());
 
     // Resend mfa verification code request
-    profileRequestPublisher.resendMfaVerificationCode(resendMfaVerificationCodeRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(resendMfaVerificationCodeRequest));
     // Save the newly generated verification code temporarily for the user
     saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
 
@@ -418,7 +413,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     ForgotPasswordRequest forgotPasswordRequest = ForgotPasswordRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
     // Publish forgot password code request to external profile request publisher
-    profileRequestPublisher.sendForgotPasswordCode(forgotPasswordRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(forgotPasswordRequest));
     // Save reset password OTP in cache or storage
     saveResetPasswordOtpTemporarily(member.getEmailAddress(), otpCode);
 
@@ -681,7 +676,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param roles             the roles to add to the member
    * @param verificationType  the type of verification used
    */
-  protected void verifyUserAndUpdateSignedUpUserDetailsForNewUser(Member member, List<Role> roles, ProfileVerificationType verificationType) {
+  protected void verifyUserAndUpdateSignedUpUserDetailsForNewUser(Member member, List<Role> roles, VerificationType verificationType) {
     // Add the provided roles to the member
     member.addRole(roles);
     // Verify the user using the specified verification type
@@ -834,7 +829,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Check if the user and their authorities are not null
     if (nonNull(user) && nonNull(user.getAuthorities())) {
       // Retrieve the first role of the user before completing sign-up
-      Role defaultUserRoleBeforeCompletingSignUp = user.authoritiesToRoles().get(0);
+      Role defaultUserRoleBeforeCompletingSignUp = user.authoritiesToRoles().getFirst();
       // Return the role type based on the retrieved role's code
       return RoleType.valueOf(defaultUserRoleBeforeCompletingSignUp.getCode());
     }
@@ -855,7 +850,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Create a pre-verification request with the OTP
     SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, VerificationType.EMAIL, user);
     // Send the sign-up verification code to the user
-    profileRequestPublisher.sendSignUpVerificationCode(signUpVerificationRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(signUpVerificationRequest));
     // Save the OTP code temporarily in the cache
     saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
     // Configure pre-verification authorities based on user role
@@ -964,7 +959,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     if (isMfaTypeByEmailOrPhone(user.getMfaType())) {
       MfaVerificationRequest mfaVerificationRequest = getVerificationTypeAndCreateMfaVerificationRequest(otpCode, user);
       // Send the sign-up verification code to the user
-      profileRequestPublisher.sendMfaVerificationCode(mfaVerificationRequest);
+      profileRequestPublisher.publishMessage(PublishMessageRequest.of(mfaVerificationRequest));
       // Save the OTP code temporarily in the cache
       saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
     }
@@ -1008,29 +1003,6 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Parse the MFA type into a VerificationType enum value
     VerificationType verificationType = parseEnumOrNull(mfaType.name(), VerificationType.class);
-    // Throw an exception if the parsed VerificationType is null (not found)
-    if (isNull(verificationType)) {
-      throw new UnableToCompleteOperationException();
-    }
-
-    return verificationType;
-  }
-
-  /**
-   * Retrieves the corresponding verification type based on the provided profile verification type.
-   *
-   * @param profileVerificationType the profile verification type to retrieve verification type for
-   * @return the VerificationType associated with the profile verification type
-   * @throws UnableToCompleteOperationException if the profile verification type is null or cannot be mapped to a VerificationType
-   */
-  protected VerificationType getVerificationTypeByProfileVerificationType(ProfileVerificationType profileVerificationType) {
-    // Throw an exception if the provided profile verification type is null
-    if (isNull(profileVerificationType)) {
-      throw new UnableToCompleteOperationException();
-    }
-
-    // Parse the profile verification type into a VerificationType enum value
-    VerificationType verificationType = parseEnumOrNull(profileVerificationType.name(), VerificationType.class);
     // Throw an exception if the parsed VerificationType is null (not found)
     if (isNull(verificationType)) {
       throw new UnableToCompleteOperationException();

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.domain.google.oauth2;
 
-import com.fleencorp.feen.converter.impl.StringCryptoConverter;
+import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;

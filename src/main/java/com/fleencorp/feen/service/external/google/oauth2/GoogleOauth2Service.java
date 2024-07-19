@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.external.google.oauth2;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.config.external.google.oauth2.Oauth2Credential;
+import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
 import com.fleencorp.feen.model.domain.google.oauth2.GoogleOauth2Authorization;

@@ -3,8 +3,8 @@ package com.fleencorp.feen.model.domain.user;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
-import com.fleencorp.feen.converter.impl.StringCryptoConverter;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,7 +48,7 @@ public class Member extends FleenFeenEntity {
   @Column(name = "email_address", nullable = false, unique = true, length = 50)
   private String emailAddress;
 
-  @Column(name = "phone_number", nullable = false, unique = true, length = 15)
+  @Column(name = "phone_number", nullable = false, unique = true, length = 20)
   private String phoneNumber;
 
   @Column(name = "password_hash", nullable = false, length = 500)
@@ -137,12 +137,12 @@ public class Member extends FleenFeenEntity {
   /**
    * Verifies the user based on the provided profile verification type.
    *
-   * @param profileVerificationType the type of profile verification (PHONE or EMAIL)
+   * @param verificationType the type of profile verification (PHONE or EMAIL)
    */
-  public void verifyUser(final ProfileVerificationType profileVerificationType) {
-    if (ProfileVerificationType.PHONE == profileVerificationType) {
+  public void verifyUser(final VerificationType verificationType) {
+    if (VerificationType.PHONE == verificationType) {
       setPhoneNumberVerified(true); // Verify phone number
-    } else if (ProfileVerificationType.EMAIL == profileVerificationType) {
+    } else if (VerificationType.EMAIL == verificationType) {
       setEmailAddressVerified(true); // Verify email address
     }
   }
@@ -154,9 +154,9 @@ public class Member extends FleenFeenEntity {
    */
   public void verifyUserMfa(final MfaType mfaType) {
     if (PHONE == mfaType) {
-      verifyUser(ProfileVerificationType.PHONE); // Verify using phone
+      verifyUser(VerificationType.PHONE); // Verify using phone
     } else if (EMAIL == mfaType) {
-      verifyUser(ProfileVerificationType.EMAIL); // Verify using email
+      verifyUser(VerificationType.EMAIL); // Verify using email
     }
   }
 

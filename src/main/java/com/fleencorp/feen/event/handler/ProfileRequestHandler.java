@@ -1,20 +1,186 @@
 package com.fleencorp.feen.event.handler;
 
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.model.message.SmsMessage;
+import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
+import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
+import com.fleencorp.feen.model.request.message.MessageRequest;
+import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
+import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
+import com.fleencorp.feen.repository.message.SmsMessageRepository;
+import com.fleencorp.feen.service.impl.message.TemplateProcessor;
+import com.fleencorp.feen.service.message.EmailMessageService;
+import com.fleencorp.feen.service.message.MobileTextService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+/**
+ * Handles profile request messages, processing them by sending corresponding email or SMS messages.
+ */
+@Component
+@Slf4j
 public class ProfileRequestHandler {
 
+  private final EmailMessageService emailMessageService;
+  private final TemplateProcessor templateProcessor;
+  private final MobileTextService mobileTextService;
+  private final SmsMessageRepository smsMessageRepository;
 
+  /**
+   * Constructs a {@code ProfileRequestHandler} with required services.
+   *
+   * @param emailMessageService    Service for sending email messages.
+   * @param templateProcessor     Processor for handling templates.
+   * @param mobileTextService     Service for sending mobile text messages.
+   * @param smsMessageRepository  Repository for SMS message templates.
+   */
+  public ProfileRequestHandler(
+      EmailMessageService emailMessageService,
+      TemplateProcessor templateProcessor,
+      MobileTextService mobileTextService,
+      SmsMessageRepository smsMessageRepository) {
+    this.emailMessageService = emailMessageService;
+    this.templateProcessor = templateProcessor;
+    this.mobileTextService = mobileTextService;
+    this.smsMessageRepository = smsMessageRepository;
+  }
+
+  /**
+   * Asynchronously handles sending sign-up verification codes based on the verification type (email or phone).
+   *
+   * @param request the sign-up verification request containing details like verification type and recipient information
+   */
   @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
-  public void handleSendSignUpVerificationCode(SignUpVerificationRequest signUpVerificationRequest) {
+  public void handleSendSignUpVerificationCode(SignUpVerificationRequest request) {
+    if (request.getVerificationType() == VerificationType.EMAIL) {
+      sendEmailMessage(request);
+    } else if (request.getVerificationType() == VerificationType.PHONE) {
+      sendSmsMessage(request);
+    }
+  }
 
+  /**
+   * Asynchronously sends a completion email for the user sign-up verification.
+   *
+   * @param request the completed user sign-up request containing email details
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleSendCompletedSignUpVerification(CompletedUserSignUpRequest request) {
+    sendEmailMessage(request);
+  }
+
+  /**
+   * Asynchronously handles sending MFA verification codes via email or SMS based on the verification type.
+   *
+   * @param request the MFA verification request containing the verification type and contact information
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleSendMfaVerificationCode(MfaVerificationRequest request) {
+    if (request.getVerificationType() == VerificationType.EMAIL) {
+      sendEmailMessage(request);
+    } else if (request.getVerificationType() == VerificationType.PHONE) {
+      sendSmsMessage(request);
+    }
+  }
+
+  /**
+   * Asynchronously handles sending MFA setup verification codes via email or SMS based on the verification type.
+   *
+   * @param request the MFA setup verification request containing the verification type and contact information
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleSendMfaSetupVerificationCode(MfaSetupVerificationRequest request) {
+    if (request.getVerificationType() == VerificationType.EMAIL) {
+      sendEmailMessage(request);
+    } else if (request.getVerificationType() == VerificationType.PHONE) {
+      sendSmsMessage(request);
+    }
+  }
+
+  /**
+   * Asynchronously handles sending forgot password verification codes via email or SMS based on the verification type.
+   *
+   * @param request the forgot password verification request containing the verification type and contact information
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleSendForgotPasswordVerificationCode(ForgotPasswordRequest request) {
+    if (request.getVerificationType() == VerificationType.EMAIL) {
+      sendEmailMessage(request);
+    } else if (request.getVerificationType() == VerificationType.PHONE) {
+      sendSmsMessage(request);
+    }
+  }
+
+  /**
+   * Asynchronously handles sending profile update verification codes via email or SMS based on the verification type.
+   *
+   * @param request the profile update verification request containing the verification type and contact information
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleSendProfileUpdateCode(SendVerificationCodeRequest request) {
+    if (request.getVerificationType() == VerificationType.EMAIL) {
+      sendEmailMessage(request);
+    } else if (request.getVerificationType() == VerificationType.PHONE) {
+      sendSmsMessage(request);
+    }
+  }
+
+  /**
+   * Asynchronously handles sending an email message upon successful profile update.
+   *
+   * @param request the message request containing details for sending the email
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleProfileUpdateSuccessful(MessageRequest request) {
+    sendEmailMessage(request);
+  }
+
+  /**
+   * Asynchronously handles sending an email message upon successful password reset.
+   *
+   * @param request the message request containing details for sending the email
+   */
+  @TransactionalEventListener(phase = AFTER_COMMIT)
+  @Async
+  public void handleResetPasswordSuccessful(MessageRequest request) {
+    sendEmailMessage(request);
+  }
+
+  /**
+   * Processes the email message template and sends the email to the specified recipient.
+   *
+   * @param request the message request containing template name, email address, and message title
+   */
+  private void sendEmailMessage(MessageRequest request) {
+    String messageBody = templateProcessor.processTemplate(
+      request.getTemplateName(),
+      request.toMessagePayload());
+    emailMessageService.sendMessage(request.getEmailAddress(), request.getMessageTitle(), messageBody);
+  }
+
+  /**
+   * Processes the SMS message template and sends the SMS to the specified phone number.
+   *
+   * @param request the message request containing template name, phone number, and message payload
+   */
+  private void sendSmsMessage(MessageRequest request) {
+    SmsMessage smsMessage = smsMessageRepository.findByTitle(request.getTemplateName())
+        .orElseThrow(UnableToCompleteOperationException::new);
+    String messageBody = templateProcessor.processTemplateSms(smsMessage.body(), request.toMessagePayload());
+    mobileTextService.sendMessage(request.getPhoneNumber(), messageBody);
   }
 }

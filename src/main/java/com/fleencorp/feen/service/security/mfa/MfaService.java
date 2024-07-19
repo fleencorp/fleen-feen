@@ -18,7 +18,7 @@ public interface MfaService {
 
   SetupMfaResponse setupMfa(FleenUser user, SetupMfaDto mfaTypeDto);
 
-  SetupMfaResponse resendMfaCode(FleenUser user, SetupMfaDto mfaTypeDto);
+  SetupMfaResponse resendMfaSetupCode(FleenUser user, SetupMfaDto mfaTypeDto);
 
   void confirmMfaSetup(FleenUser fleenUser, ConfirmSetupMfaDto dto);
 

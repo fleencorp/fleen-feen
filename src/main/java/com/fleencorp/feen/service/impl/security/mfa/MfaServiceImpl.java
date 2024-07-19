@@ -1,9 +1,10 @@
 package com.fleencorp.feen.service.impl.security.mfa;
 
-import com.fleencorp.feen.config.security.properties.MfaProperties;
+import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.event.model.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.security.mfa.MfaGenerationFailedException;
@@ -14,16 +15,16 @@ import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.security.mfa.ConfirmSetupMfaDto;
 import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.model.other.MfaAuthenticatorSecurityInfo;
-import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.repository.security.MfaRepository;
+import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.security.OtpService;
+import com.fleencorp.feen.service.security.mfa.MfaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -205,7 +206,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public SetupMfaResponse resendMfaCode(FleenUser user, SetupMfaDto dto) {
+  public SetupMfaResponse resendMfaSetupCode(FleenUser user, SetupMfaDto dto) {
     Long userId = user.getId();
     MfaType newMfaType = dto.getActualMfaType();
     // Retrieve member with associated user id
@@ -481,11 +482,11 @@ public class MfaServiceImpl implements MfaService {
     FleenUser user = FleenUser.fromMemberBasic(member);
 
     // Create MFA verification request to send otp code to user
-    MfaVerificationRequest mfaVerificationRequest = MfaVerificationRequest
+    MfaSetupVerificationRequest mfaVerificationRequest = MfaSetupVerificationRequest
         .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
 
     // Send MFA verification code request
-    profileRequestPublisher.sendMfaVerificationCode(mfaVerificationRequest);
+    profileRequestPublisher.publishMessage(PublishMessageRequest.of(mfaVerificationRequest));
 
     // Save OTP or verification code temporarily
     saveMfaSetupOtpOrVerificationCodeTemporarily(member.getEmailAddress(), otpCode, mfaType);
