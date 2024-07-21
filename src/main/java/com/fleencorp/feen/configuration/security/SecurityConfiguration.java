@@ -3,6 +3,7 @@ package com.fleencorp.feen.configuration.security;
 import com.fleencorp.feen.configuration.security.provider.CustomAuthenticationProvider;
 import com.fleencorp.feen.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -55,8 +56,9 @@ public class SecurityConfiguration {
     http
       .authorizeHttpRequests((requests) ->
         requests
-        .requestMatchers(WHITELIST).permitAll()
+        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
         .requestMatchers(WHITELIST_RESOURCES).permitAll()
+        .requestMatchers(WHITELIST).permitAll()
         .anyRequest().authenticated()
       )
       .httpBasic(AbstractHttpConfigurer::disable)

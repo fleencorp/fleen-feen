@@ -2,6 +2,7 @@ package com.fleencorp.feen.configuration.external.aws.sqs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fleencorp.feen.converter.impl.json.TextPlainJsonMessageConverter;
+import io.awspring.cloud.sqs.MessageExecutionThreadFactory;
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import io.awspring.cloud.sqs.listener.acknowledgement.AcknowledgementOrdering;
 import io.awspring.cloud.sqs.listener.acknowledgement.handler.AcknowledgementMode;
@@ -124,12 +125,21 @@ public class AwsSimpleQueueServiceConfig {
     return converter;
   }
 
+  /**
+   *
+   * Configures and provides a ThreadPoolTaskExecutor bean.
+   * This executor will handle the execution of tasks with a fixed thread pool size.
+   * @return the configured ThreadPoolTaskExecutor
+   *
+   * @see <a href="https://velog.io/@junghyeon/Spring-Boot-3.0-Migration">Spring 3.0 Migration</a>
+   */
   @Bean
   public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setThreadFactory(new MessageExecutionThreadFactory());
     executor.setCorePoolSize(50);
     executor.setMaxPoolSize(50);
-    executor.setThreadNamePrefix("sqs-test-listener-");
+    executor.setThreadNamePrefix("sqs-thread-");
     executor.initialize();
     return executor;
   }

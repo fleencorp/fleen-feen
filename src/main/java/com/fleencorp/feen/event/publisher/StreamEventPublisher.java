@@ -24,7 +24,6 @@ public class StreamEventPublisher implements PublisherService {
 
   private final ApplicationEventPublisher eventPublisher;
 
-
   /**
    * Constructs a new StreamEventPublisher with the given event publisher.
    *

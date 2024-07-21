@@ -147,6 +147,7 @@ CREATE TABLE fleen_stream (
   organizer_email VARCHAR(50) NOT NULL,
   organizer_phone VARCHAR(20) NOT NULL,
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
   stream_link VARCHAR(1000) NOT NULL,
   thumbnail_link VARCHAR(1000),
   stream_type VARCHAR(255) DEFAULT 'NONE'

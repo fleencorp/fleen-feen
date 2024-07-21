@@ -18,14 +18,12 @@ import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchReque
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.base.FleenStreamResponse;
 import com.fleencorp.feen.model.response.event.*;
-import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventService;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +59,7 @@ import static java.util.Objects.nonNull;
 public class EventServiceImpl implements EventService {
 
   private final String delegatedAuthorityEmail;
-  private final GoogleCalendarEventService googleCalendarEventService;
+  private final EventUpdateService eventUpdateService;
   private final FleenStreamRepository fleenStreamRepository;
   private final UserFleenStreamRepository userFleenStreamRepository;
   private final CalendarRepository calendarRepository;
@@ -76,7 +74,7 @@ public class EventServiceImpl implements EventService {
   * including Google Calendar event service, FleenStream repository, and Calendar repository.</p>
   *
   * @param delegatedAuthorityEmail the email address used for delegated authority
-  * @param googleCalendarEventService the service for interacting with Google Calendar events
+  * @param eventUpdateService the event service to handle update through services
   * @param fleenStreamRepository the repository for FleenStream operations
   * @param userFleenStreamRepository  the repository for FleenStream operations related to a user profile
   * @param calendarRepository the repository for calendar operations
@@ -86,7 +84,7 @@ public class EventServiceImpl implements EventService {
   */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") String delegatedAuthorityEmail,
-      GoogleCalendarEventService googleCalendarEventService,
+      EventUpdateService eventUpdateService,
       FleenStreamRepository fleenStreamRepository,
       UserFleenStreamRepository userFleenStreamRepository,
       CalendarRepository calendarRepository,
@@ -94,7 +92,7 @@ public class EventServiceImpl implements EventService {
       MemberRepository memberRepository,
       StreamEventPublisher streamEventPublisher) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
-    this.googleCalendarEventService = googleCalendarEventService;
+    this.eventUpdateService = eventUpdateService;
     this.fleenStreamRepository = fleenStreamRepository;
     this.userFleenStreamRepository = userFleenStreamRepository;
     this.calendarRepository = calendarRepository;
@@ -338,19 +336,17 @@ public class EventServiceImpl implements EventService {
     createCalendarEventRequest.getAttendeeOrGuestEmailAddresses().add(eventAttendeeOrGuest);
     // Update the event request with necessary details
     createCalendarEventRequest.update(createCalendarEventRequest, calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
-    // Create the event using an external service (Google Calendar)
-    GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createCalendarEventDto.toFleenStream();
     stream.updateDetails(
-      googleCreateCalendarEventResponse.getEventId(),
-      googleCreateCalendarEventResponse.getEvent().getHtmlLink(),
       user.getFullName(),
       user.getEmailAddress(),
       user.getPhoneNumber());
 
     stream = fleenStreamRepository.save(stream);
+    eventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
+
     return CreateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream));
   }
 
@@ -375,19 +371,17 @@ public class EventServiceImpl implements EventService {
     CreateInstantCalendarEventRequest createInstantCalendarEventRequest = CreateInstantCalendarEventRequest.by(createInstantCalendarEventDto);
     // Update the instant event request with necessary details
     createInstantCalendarEventRequest.update(calendar.getExternalId());
-    // Create the instant event using an external service (Google Calendar)
-    GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createInstantCalendarEventDto.toFleenStream();
     stream.updateDetails(
-      googleCreateInstantCalendarEventResponse.getEventId(),
-      googleCreateInstantCalendarEventResponse.getEvent().getHtmlLink(),
       user.getFullName(),
       user.getEmailAddress(),
       user.getPhoneNumber());
 
     stream = fleenStreamRepository.save(stream);
+    eventUpdateService.createInstantEventInGoogleCalendar(stream, createInstantCalendarEventRequest);
+
     return CreateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream));
   }
 
@@ -415,26 +409,22 @@ public class EventServiceImpl implements EventService {
 
     // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
+    // Update the FleenStream object with the response from Google Calendar
+    stream.update(
+      updateCalendarEventDto.getTitle(),
+      updateCalendarEventDto.getDescription(),
+      updateCalendarEventDto.getTags(),
+      updateCalendarEventDto.getLocation());
+
+    stream = fleenStreamRepository.save(stream);
 
     // Prepare a request to patch the calendar event with updated details
     PatchCalendarEventRequest patchCalendarEventRequest = PatchCalendarEventRequest
-      .of(calendar.getExternalId(),
-          stream.getExternalId(),
-          updateCalendarEventDto.getTitle(),
-          updateCalendarEventDto.getDescription());
-    // Patch the event using an external service (Google Calendar)
-    GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
-    log.info("Event updated: {}", googlePatchCalendarEventResponse);
-
-    // Update the FleenStream object with the response from Google Calendar
-    stream.setExternalId(googlePatchCalendarEventResponse.getEventId());
-    stream.setStreamLink(googlePatchCalendarEventResponse.getEvent().getHtmlLink());
-    stream.update(
+        .of(calendar.getExternalId(),
+            stream.getExternalId(),
             updateCalendarEventDto.getTitle(),
-            updateCalendarEventDto.getDescription(),
-            updateCalendarEventDto.getTags(),
-            updateCalendarEventDto.getLocation());
-    stream = fleenStreamRepository.save(stream);
+            updateCalendarEventDto.getDescription());
+    eventUpdateService.updateEventInGoogleCalendar(stream, patchCalendarEventRequest);
 
     return UpdateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream));
   }
@@ -463,14 +453,14 @@ public class EventServiceImpl implements EventService {
     // Validate if the user is the creator of the event
     validateCreatorOfEvent(stream, user);
 
+    stream.delete();
+    fleenStreamRepository.save(stream);
+
     // Create a request to delete the calendar event
     DeleteCalendarEventRequest deleteCalendarEventRequest = DeleteCalendarEventRequest
-      .of(calendar.getExternalId(),
-          stream.getExternalId());
-
-    // Delete the event using an external service (Google Calendar)
-    GoogleDeleteCalendarEventResponse googleDeleteCalendarEventResponse = googleCalendarEventService.deleteEvent(deleteCalendarEventRequest);
-    log.info("Deleted event: {}", googleDeleteCalendarEventResponse.getEventId());
+        .of(calendar.getExternalId(),
+            stream.getExternalId());
+    eventUpdateService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
 
     return DeleteEventResponse.of(eventId);
   }
@@ -500,17 +490,14 @@ public class EventServiceImpl implements EventService {
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
+    stream.cancel();
+    fleenStreamRepository.save(stream);
+
     // Create a request to cancel the calendar event
     CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest
-      .of(calendar.getExternalId(),
-          stream.getExternalId());
-
-    // Cancel the event using an external service (Google Calendar)
-    GoogleCancelCalendarEventResponse googleCancelCalendarEventResponse = googleCalendarEventService.cancelEvent(cancelCalendarEventRequest);
-    log.info("Cancelled event: {}", googleCancelCalendarEventResponse.getEventId());
-
-    stream.setStreamStatus(CANCELLED);
-    fleenStreamRepository.save(stream);
+        .of(calendar.getExternalId(),
+            stream.getExternalId());
+    eventUpdateService.cancelEventInGoogleCalendar(cancelCalendarEventRequest);
 
     return CancelEventResponse.of(eventId);
   }
@@ -549,12 +536,9 @@ public class EventServiceImpl implements EventService {
           rescheduleCalendarEventDto.getEndDateTime(),
           rescheduleCalendarEventDto.getTimezone());
 
-    // Reschedule the event using an external service (Google Calendar)
-    GoogleRescheduleCalendarEventResponse googleRescheduleCalendarEventResponse =  googleCalendarEventService.rescheduleEvent(rescheduleCalendarEventRequest);
-    log.info("Rescheduled event: {}", googleRescheduleCalendarEventResponse.getEventId());
-
     stream.updateSchedule(rescheduleCalendarEventDto.getStartDateTime(), rescheduleCalendarEventDto.getEndDateTime(), rescheduleCalendarEventDto.getTimezone());
     fleenStreamRepository.save(stream);
+    eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
     return RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream));
   }
@@ -585,24 +569,10 @@ public class EventServiceImpl implements EventService {
     verifyEventIsNotCancelled(stream);
     // Check if the stream is still active and can be joined.
     verifyStreamEndDate(stream.getScheduledEndDate());
-
-    if (stream.getStreamVisibility() == PRIVATE) {
-      throw new CannotJointStreamWithoutApprovalException(eventId);
-    }
-
-    // CHeck if the user is already an attendee
+    // Check if the stream is private
+    checkIfStreamIsPrivate(eventId, stream);
+    // Check if the user is already an attendee
     checkIfUserIsAlreadyAnAttendeeAndThrowError(stream, user.getId());
-
-    // Create a request to add the user as an attendee to the calendar event
-    AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
-            .of(calendar.getExternalId(),
-                stream.getExternalId(),
-                user.getEmailAddress());
-
-    // Add the user as an attendee to the event using an external service (Google Calendar)
-    GoogleAddNewCalendarEventAttendeeResponse googleAddNewCalendarEventAttendeeResponse = googleCalendarEventService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
-    log.info("Attendee join event: {}", googleAddNewCalendarEventAttendeeResponse.getEventId());
-
     // Create a new StreamAttendee entry for the user
     StreamAttendee streamAttendee = createStreamAttendee(stream, user);
     streamAttendee.setStreamAttendeeRequestToJoinStatus(APPROVED);
@@ -611,6 +581,13 @@ public class EventServiceImpl implements EventService {
     stream.getAttendees().add(streamAttendee);
     fleenStreamRepository.save(stream);
     streamAttendeeRepository.save(streamAttendee);
+
+    // Create a request to add the user as an attendee to the calendar event
+    AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
+      .of(calendar.getExternalId(),
+          stream.getExternalId(),
+          user.getEmailAddress());
+    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
 
     return new FleenFeenResponse(eventId);
   }
@@ -640,7 +617,6 @@ public class EventServiceImpl implements EventService {
     verifyEventIsNotCancelled(stream);
     // CHeck if the user is already an attendee
     checkIfUserIsAlreadyAnAttendeeAndThrowError(stream, user.getId());
-
     // Create a new StreamAttendee entry for the user
     StreamAttendee streamAttendee = createStreamAttendeeWithComment(stream, user, requestToJoinEventDto.getComment());
 
@@ -692,11 +668,12 @@ public class EventServiceImpl implements EventService {
       if (processAttendeeRequestToJoinEventDto.getActualJoinStatus() == APPROVED) {
         Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
                 .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
-        // Add attendee to the event by invitation
-        addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getMember().getEmailAddress(), null);
 
         streamAttendeeRepository.save(streamAttendee);
         fleenStreamRepository.save(stream);
+
+        // Add attendee to the event by invitation
+        addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getMember().getEmailAddress(), null);
       }
     }
 
@@ -736,23 +713,20 @@ public class EventServiceImpl implements EventService {
     FleenStream stream = fleenStreamRepository.findById(eventId)
             .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
+    // Retrieve the current or existing status or visibility status of a stream
     StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
-
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
+    // Update the visibility of an event or stream
+    stream.setStreamVisibility(updateEventVisibilityDto.getActualVisibility());
+    fleenStreamRepository.save(stream);
 
     // Create a request to update the event's visibility
     UpdateCalendarEventVisibilityRequest updateCalendarEventVisibilityRequest = UpdateCalendarEventVisibilityRequest
       .of(calendar.getExternalId(),
           stream.getExternalId(),
           updateEventVisibilityDto.getVisibility());
-
-    // Send the request to the Google Calendar service
-    GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.updateEventVisibility(updateCalendarEventVisibilityRequest);
-    log.info("Updated event visibility: {}", googlePatchCalendarEventResponse);
-
-    stream.setStreamVisibility(updateEventVisibilityDto.getActualVisibility());
-    fleenStreamRepository.save(stream);
+    eventUpdateService.updateEventVisibility(updateCalendarEventVisibilityRequest);
 
     sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendar.getExternalId(), stream, currentStreamVisibility);
 
@@ -790,6 +764,11 @@ public class EventServiceImpl implements EventService {
       List<StreamAttendee> streamAttendees = streamAttendeeRepository.findAllByFleenStreamAndStreamAttendeeRequestToJoinStatus(stream, PENDING);
 
       Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(streamAttendees);
+      Set<Long> attendeeIds = streamAttendees.stream()
+          .map(StreamAttendee::getStreamAttendeeId)
+          .collect(Collectors.toSet());
+
+      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, attendeeIds);
 
       // Create an event to add new attendees and publish it
       AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent
@@ -846,8 +825,8 @@ public class EventServiceImpl implements EventService {
 
     Optional<StreamAttendee> existingStreamAttendee = streamAttendeeRepository.findDistinctByEmail(addNewEventAttendeeDto.getEmailAddress());
     if (existingStreamAttendee.isPresent() &&
-            (existingStreamAttendee.get().getStreamAttendeeRequestToJoinStatus() == PENDING ||
-                    existingStreamAttendee.get().getStreamAttendeeRequestToJoinStatus() == DISAPPROVED)) {
+        (existingStreamAttendee.get().getStreamAttendeeRequestToJoinStatus() == PENDING ||
+         existingStreamAttendee.get().getStreamAttendeeRequestToJoinStatus() == DISAPPROVED)) {
       StreamAttendee streamAttendee = existingStreamAttendee.get();
       streamAttendee.setStreamAttendeeRequestToJoinStatus(APPROVED);
       streamAttendee.setOrganizerComment(addNewEventAttendeeDto.getComment());
@@ -1020,6 +999,19 @@ public class EventServiceImpl implements EventService {
   }
 
   /**
+   * Checks if the given stream is private, and if so, throws a {@link CannotJointStreamWithoutApprovalException}.
+   *
+   * @param eventId the ID of the event associated with the stream
+   * @param stream  the {@link FleenStream} object to check for privacy
+   * @throws CannotJointStreamWithoutApprovalException if the stream's visibility is set to PRIVATE
+   */
+  protected void checkIfStreamIsPrivate(Long eventId, final FleenStream stream) {
+    if (stream.getStreamVisibility() == PRIVATE) {
+      throw new CannotJointStreamWithoutApprovalException(eventId);
+    }
+  }
+
+  /**
   * Checks if the user is already an attendee of the given stream.
   *
   * <p>This method checks if the user is already an attendee of the specified stream by filtering the list of attendees.
@@ -1131,9 +1123,7 @@ public class EventServiceImpl implements EventService {
                 attendeeEmailAddress,
                 displayOrAliasName);
 
-    // Add the user as an attendee to the event using an external service (Google Calendar)
-    GoogleAddNewCalendarEventAttendeeResponse googleAddNewCalendarEventAttendeeResponse = googleCalendarEventService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
-    log.info("Added attendee to event: {}", googleAddNewCalendarEventAttendeeResponse);
+    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
   }
 
   /**

@@ -15,6 +15,10 @@ import java.util.concurrent.Executor;
  * @author Yusuf Alamu Musa
  * @version 1.0
  *
+ * @see <a href="https://velog.io/@hyewon0218/%EB%B9%84%EB%8F%99%EA%B8%B0-%EC%B2%98%EB%A6%AC">
+ *   Asynchronous processing</a>
+ * @see <a href="">https://velog.io/@hyewon0218/%EB%A9%80%ED%8B%B0-%EC%8A%A4%EB%A0%88%EB%93%9C%EB%9E%80
+ *   [Operating System] What is multi-threading?</a>
  * @see <a href="https://velog.io/@mk020/Spring-%EC%9D%B4%EB%A9%94%EC%9D%BC-%EC%9D%B8%EC%A6%9D-%EA%B8%B0%EB%8A%A5-%EB%8F%99%EC%8B%9C%EC%97%90-%EC%97%AC%EB%9F%AC-%EC%9C%A0%EC%A0%80%EC%97%90%EA%B2%8C-%EC%9D%B4%EB%A9%94%EC%9D%BC-%EC%9D%B8%EC%A6%9D-%EC%9A%94%EC%B2%AD%EC%9D%B4-%EB%93%A4%EC%96%B4%EC%98%A8%EB%8B%A4%EB%A9%B4-Async-%EB%B9%84%EB%8F%99%EA%B8%B0-%EC%B2%98%EB%A6%AC">
  *   [Spring] Email authentication feature: What if email authentication requests come in from multiple users at the same time? +@Async Asynchronous processing</a>
  */

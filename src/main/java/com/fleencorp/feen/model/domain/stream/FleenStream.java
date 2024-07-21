@@ -70,6 +70,9 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "made_for_kids", nullable = false)
   private Boolean forKids = false;
 
+  @Column(name = "is_deleted", nullable = false)
+  private Boolean isDeleted;
+
   @Column(name = "stream_link", length = 1000)
   @Convert(converter = StringCryptoConverter.class)
   private String streamLink;
@@ -118,9 +121,12 @@ public class FleenStream extends FleenFeenEntity {
     this.location = location;
   }
 
-  public void updateDetails(String externalId, String streamLink, String organizerName, String organizerEmail, String organizerPhone) {
+  public void updateDetails(String externalId, String streamLink) {
     this.externalId = externalId;
     this.streamLink = streamLink;
+  }
+
+  public void updateDetails(String organizerName, String organizerEmail, String organizerPhone) {
     this.organizerName = organizerName;
     this.organizerEmail = organizerEmail;
     this.organizerPhone = organizerPhone;
@@ -130,5 +136,13 @@ public class FleenStream extends FleenFeenEntity {
     this.scheduledStartDate = scheduledStartDate;
     this.scheduledEndDate = scheduledEndDate;
     this.timezone = timezone;
+  }
+
+  public void delete() {
+    this.isDeleted = true;
+  }
+
+  public void cancel() {
+    this.streamStatus = StreamStatus.CANCELLED;
   }
 }
