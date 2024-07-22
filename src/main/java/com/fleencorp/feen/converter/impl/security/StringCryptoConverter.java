@@ -5,13 +5,13 @@ import jakarta.persistence.AttributeConverter;
 import org.springframework.stereotype.Component;
 
 import static java.util.Objects.nonNull;
+
 /**
  * Attribute converter for encrypting and decrypting strings using EncryptionUtils.
  *
- * <p> This converter is used to encrypt and decrypt string attributes when storing them in the database.
+ * <p>This converter is used to encrypt and decrypt string attributes when storing them in the database.
  * It implements {@link AttributeConverter} interface to provide methods for converting strings to encrypted form
- * (for storage) and from encrypted form back to plain text (for retrieval).
- * </p>
+ * (for storage) and from encrypted form back to plain text (for retrieval).</p>
  *
  * @author Yusuf Alamu Musa
  * @version 1.0

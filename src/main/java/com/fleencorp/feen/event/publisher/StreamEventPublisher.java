@@ -1,6 +1,6 @@
 package com.fleencorp.feen.event.publisher;
 
-import com.fleencorp.feen.event.model.PublishMessageRequest;
+import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.service.PublisherService;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import lombok.extern.slf4j.Slf4j;

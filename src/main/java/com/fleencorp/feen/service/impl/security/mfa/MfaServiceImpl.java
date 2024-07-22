@@ -4,7 +4,7 @@ import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.event.model.PublishMessageRequest;
+import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.security.mfa.MfaGenerationFailedException;

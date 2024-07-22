@@ -7,7 +7,7 @@ import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.constant.security.role.RoleType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.event.model.PublishMessageRequest;
+import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;

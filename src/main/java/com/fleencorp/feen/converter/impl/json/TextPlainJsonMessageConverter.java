@@ -10,16 +10,35 @@ import org.springframework.util.MimeType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * A custom message converter that converts messages with "text/plain" MIME type to JSON objects using {@link ObjectMapper}.
+ * This converter extends {@link AbstractMessageConverter} and uses UTF-8 encoding.
+ *
+ * @author Yusuf ALamu Musa
+ * @version 1.0
+ */
 @Slf4j
 public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
 
   private final ObjectMapper objectMapper;
 
+  /**
+   * Constructs a {@link TextPlainJsonMessageConverter} with the specified {@link ObjectMapper}.
+   *
+   * @param objectMapper the {@link ObjectMapper} used for JSON serialization and deserialization.
+   */
   public TextPlainJsonMessageConverter(ObjectMapper objectMapper) {
     super(new MimeType("text", "plain", StandardCharsets.UTF_8));
     this.objectMapper = objectMapper;
   }
 
+  /**
+   * Determines whether this converter can convert the specified class type.
+   * This implementation returns {@code true} for all classes.
+   *
+   * @param clazz the class type to check for conversion support.
+   * @return {@code true} indicating that this converter supports all class types.
+   */
   @Override
   protected boolean supports(@NotNull Class<?> clazz) {
     return true;
@@ -38,8 +57,8 @@ public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
     if (message.getPayload() instanceof String payload) {
       try {
         return objectMapper.readValue(payload, targetClass);
-      } catch (IOException e) {
-        log.error("Unable to convert message", e);
+      } catch (IOException ex) {
+        log.error("Unable to convert message. Reason: {}", ex.getMessage());
         return null;
       }
     }

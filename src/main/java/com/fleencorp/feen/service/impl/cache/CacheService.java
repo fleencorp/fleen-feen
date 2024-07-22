@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fleencorp.feen.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,7 @@ public class CacheService {
 
   private final RedisTemplate<String, Object> redisTemplate;
   private final ObjectMapper mapper;
+  private final JsonUtil jsonUtil;
   private final Map<String, Object> objectsMap = new HashMap<>();
 
   /**
@@ -32,9 +34,13 @@ public class CacheService {
    * @param redisTemplate The RedisTemplate to use for cache operations.
    * @param mapper        The ObjectMapper to use for serialization/deserialization.
    */
-  public CacheService(RedisTemplate<String, Object> redisTemplate, ObjectMapper mapper) {
+  public CacheService(
+      RedisTemplate<String, Object> redisTemplate,
+      ObjectMapper mapper,
+      JsonUtil jsonUtil) {
     this.redisTemplate = redisTemplate;
     this.mapper = mapper;
+    this.jsonUtil = jsonUtil;
   }
 
   /**
@@ -160,11 +166,7 @@ public class CacheService {
   public <T> T get(String key, Class<T> clazz) {
     String value = (String) get(key);
     if (nonNull(value) && nonNull(key) && nonNull(clazz)) {
-      try {
-        return mapper.readValue(value, clazz);
-      } catch (JsonProcessingException ex) {
-        log.error(ex.getMessage(), ex);
-      }
+      return jsonUtil.get(value, clazz);
     }
     return null;
   }

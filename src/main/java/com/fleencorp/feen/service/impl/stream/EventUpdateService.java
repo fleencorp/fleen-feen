@@ -1,5 +1,8 @@
 package com.fleencorp.feen.service.impl.stream;
 
+import com.fleencorp.feen.constant.base.ResultType;
+import com.fleencorp.feen.event.broadcast.BroadcastService;
+import com.fleencorp.feen.event.model.stream.EventStreamCreatedResult;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
@@ -8,6 +11,7 @@ import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventSe
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service implementation for updating events in both the local database and Google Calendar.
@@ -24,6 +28,7 @@ public class EventUpdateService {
 
   private final FleenStreamRepository fleenStreamRepository;
   private final GoogleCalendarEventService googleCalendarEventService;
+  private final BroadcastService broadcastService;
 
   /**
    * Constructs an instance of {@code EventUpdateServiceImpl}.
@@ -33,23 +38,41 @@ public class EventUpdateService {
    */
   public EventUpdateService(
     FleenStreamRepository fleenStreamRepository,
-    GoogleCalendarEventService googleCalendarEventService) {
+    GoogleCalendarEventService googleCalendarEventService,
+    BroadcastService broadcastService) {
     this.fleenStreamRepository = fleenStreamRepository;
     this.googleCalendarEventService = googleCalendarEventService;
+    this.broadcastService = broadcastService;
   }
 
   /**
-   * Asynchronously creates an event in Google Calendar and updates the FleenStream entity with the event details.
+   * Asynchronously creates an event in Google Calendar and updates the FleenStream with the event details.
    *
-   * @param stream the FleenStream entity to update with the new event details
-   * @param createCalendarEventRequest the request object containing the details for the event to be created in Google Calendar
+   * <p>This method uses an external service (Google Calendar) to create an event and updates the given
+   * FleenStream with the event's ID and HTML link. After updating the FleenStream, it saves the stream
+   * to the repository. Additionally, it broadcasts an event creation result using the broadcast service.</p>
+   *
+   * @param stream the FleenStream object to be updated with the event details.
+   * @param createCalendarEventRequest the request object containing details for creating the calendar event.
    */
   @Async
+  @Transactional
   public void createEventInGoogleCalendar(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     // Create an event using an external service (Google Calendar)
     GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
+    // Update the stream with the event ID and HTML link
     stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEvent().getHtmlLink());
     fleenStreamRepository.save(stream);
+
+    // Create an event stream created result
+    EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
+      .of(stream.getMember().getMemberId(),
+          stream.getFleenStreamId(),
+          stream.getExternalId(),
+          stream.getStreamLink(),
+          ResultType.EVENT_STREAM_CREATED);
+    // Broadcast the event creation result
+    broadcastService.broadcastEventCreated(eventStreamCreatedResult);
   }
 
   /**
@@ -59,9 +82,11 @@ public class EventUpdateService {
    * @param createInstantCalendarEventRequest the request object containing the details for the instant event to be created in Google Calendar
    */
   @Async
+  @Transactional
   public void createInstantEventInGoogleCalendar(final FleenStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     // Create an instant event using an external service (Google Calendar)
     GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
+    // Update the stream with the event ID and HTML link
     stream.updateDetails(googleCreateInstantCalendarEventResponse.getEventId(), googleCreateInstantCalendarEventResponse.getEvent().getHtmlLink());
     fleenStreamRepository.save(stream);
   }
@@ -73,9 +98,11 @@ public class EventUpdateService {
    * @param patchCalendarEventRequest the request object containing the details for the event to be updated in Google Calendar
    */
   @Async
+  @Transactional
   public void updateEventInGoogleCalendar(final FleenStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
     // Update the event details using an external service (Google Calendar)
     GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
+    // Update the stream with the event ID and HTML link
     stream.setExternalId(googlePatchCalendarEventResponse.getEventId());
     stream.setStreamLink(googlePatchCalendarEventResponse.getEvent().getHtmlLink());
 

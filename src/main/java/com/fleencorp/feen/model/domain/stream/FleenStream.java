@@ -39,7 +39,7 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "fleen_stream_id", nullable = false, updatable = false, unique = true)
   private Long fleenStreamId;
 
-  @Column(name = "external_id", nullable = false, updatable = false)
+  @Column(name = "external_id")
   private String externalId;
 
   @Column(name = "title", nullable = false, length = 500)

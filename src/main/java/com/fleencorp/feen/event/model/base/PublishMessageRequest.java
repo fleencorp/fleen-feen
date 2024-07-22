@@ -1,4 +1,4 @@
-package com.fleencorp.feen.event.model;
+package com.fleencorp.feen.event.model.base;
 
 import com.fleencorp.feen.constant.queue.MessageType;
 import lombok.*;

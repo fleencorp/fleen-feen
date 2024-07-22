@@ -137,7 +137,7 @@ CREATE TABLE member_role (
 
 CREATE TABLE fleen_stream (
   fleen_stream_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255) NOT NULL,
+  external_id VARCHAR(255),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
   tags VARCHAR(300),
@@ -148,7 +148,7 @@ CREATE TABLE fleen_stream (
   organizer_phone VARCHAR(20) NOT NULL,
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
   is_deleted BOOLEAN NOT NULL DEFAULT false,
-  stream_link VARCHAR(1000) NOT NULL,
+  stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
   stream_type VARCHAR(255) DEFAULT 'NONE'
     NOT NULL CHECK (stream_type IN ('GOOGLE MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
