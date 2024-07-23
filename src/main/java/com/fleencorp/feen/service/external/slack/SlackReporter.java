@@ -13,12 +13,9 @@ import java.io.IOException;
 /**
  * SlackReporter is a service component responsible for sending messages to Slack channels or groups.
  * It uses the Slack API client to post messages.
- * <br/><br/>
  *
- * <p>
- * This class is annotated with {@link Slf4j} to enable logging and {@link Component} to be managed
- * by the Spring framework.
- * </p>
+ * <p>This class is annotated with {@link Slf4j} to enable logging and {@link Component} to be managed
+ * by the Spring framework.</p>
  *
  * @author Yusuf Alamu Musa
  * @version 1.0
@@ -28,8 +25,6 @@ import java.io.IOException;
 public class SlackReporter implements ReporterService {
 
   private final MethodsClient methodsClient;
-
-
 
   /**
    * Constructs a SlackReporter with the specified {@link MethodsClient}.
@@ -49,15 +44,25 @@ public class SlackReporter implements ReporterService {
    */
   @Override
   public void sendMessage(String groupOrChannel, String message) {
-    ChatPostMessageRequest chatPostMessageRequest = ChatPostMessageRequest.builder()
-      .channel(groupOrChannel)
-      .text(message)
-      .build();
-
+    ChatPostMessageRequest chatPostMessageRequest = createMessage(groupOrChannel, message);
     try {
       methodsClient.chatPostMessage(chatPostMessageRequest);
     } catch (SlackApiException | IOException ex) {
-      log.error("Error has occurred: {}", ex.getMessage());
+      log.error("Error has occurred. Reason: {}", ex.getMessage());
     }
+  }
+
+  /**
+   * Creates a {@link ChatPostMessageRequest} with the specified channel and message text.
+   *
+   * @param groupOrChannel the Slack channel or group where the message will be sent
+   * @param message the text of the message to send
+   * @return a {@link ChatPostMessageRequest} object configured with the provided channel and message
+   */
+  protected ChatPostMessageRequest createMessage(String groupOrChannel, String message) {
+    return ChatPostMessageRequest.builder()
+        .channel(groupOrChannel)
+        .text(message)
+        .build();
   }
 }

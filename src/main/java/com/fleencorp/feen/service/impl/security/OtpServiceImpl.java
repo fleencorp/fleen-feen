@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.security;
 
+import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.service.security.OtpService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -99,8 +100,9 @@ public class OtpServiceImpl implements OtpService {
         "otpauth://totp/%s?secret=%s&issuer=%s",
         encodedAccount, encodedSecret, encodedIssuer
       );
-    } catch (Exception e) {
-      throw new RuntimeException("Error encoding URL components", e);
+    } catch (Exception ex) {
+      log.error("Error occurred while generating OTP Auth URI. Reason: {}", ex.getMessage());
+      throw new UnableToCompleteOperationException();
     }
   }
 
@@ -145,7 +147,7 @@ public class OtpServiceImpl implements OtpService {
     try {
       return getQRImageDataURI(googleOTPAuthURL, 300, 300);
     } catch (WriterException | IOException ex) {
-      log.error("Error has occurred: {}", ex.getMessage());
+      log.error("Error has occurred. Reason: {}", ex.getMessage());
     }
     return null;
   }
