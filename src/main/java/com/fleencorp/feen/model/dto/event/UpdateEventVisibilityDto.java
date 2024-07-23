@@ -20,7 +20,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public class UpdateEventVisibilityDto {
 
   @NotNull(message = "{stream.visibility.NotNull}")
-  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}")
+  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("visibility")
   protected String visibility;

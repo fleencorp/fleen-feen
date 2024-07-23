@@ -29,13 +29,13 @@ public class ShareCalendarWithUserDto {
   private String emailAddress;
 
   @NotNull(message = "{calendar.aclScopeType.NotNull}")
-  @ValidEnum(enumClass = AclScopeType.class, message = "{calendar.aclScopeType.Type}")
+  @ValidEnum(enumClass = AclScopeType.class, message = "{calendar.aclScopeType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("acl_scope_type")
   private String aclScopeType;
 
   @NotNull(message = "{calendar.aclRole.NotNull}")
-  @ValidEnum(enumClass = AclRole.class, message = "{calendar.aclRole.Type}")
+  @ValidEnum(enumClass = AclRole.class, message = "{calendar.aclRole.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("acl_role")
   private String aclRole;

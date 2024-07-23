@@ -25,7 +25,7 @@ public class ProcessAttendeeRequestToJoinEventDto {
   private String attendeeUserId;
 
   @NotNull(message = "{event.joinStatus.NotNull}")
-  @ValidEnum(enumClass = StreamAttendeeRequestToJoinStatus.class, message = "{event.joinStatus.Type}")
+  @ValidEnum(enumClass = StreamAttendeeRequestToJoinStatus.class, message = "{event.joinStatus.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("join_status")
   private String joinStatus;

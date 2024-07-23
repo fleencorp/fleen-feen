@@ -17,7 +17,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public class SetupMfaDto {
 
   @NotNull(message = "{user.mfaType.NotNull}")
-  @ValidEnum(enumClass = MfaType.class, message = "{user.mfaType.Type}")
+  @ValidEnum(enumClass = MfaType.class, message = "{user.mfaType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("mfa_type")
   private String mfaType;

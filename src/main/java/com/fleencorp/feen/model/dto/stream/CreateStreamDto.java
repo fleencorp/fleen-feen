@@ -73,13 +73,13 @@ public class CreateStreamDto {
   protected LocalDateTime endDateTime;
 
   @NotNull(message = "{stream.visibility.NotNull}")
-  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}")
+  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("visibility")
   protected String visibility;
 
   @NotNull(message = "{stream.type.NotNull}")
-  @ValidEnum(enumClass = StreamType.class, message = "{stream.type.Type}")
+  @ValidEnum(enumClass = StreamType.class, message = "{stream.type.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("type")
   protected String type;

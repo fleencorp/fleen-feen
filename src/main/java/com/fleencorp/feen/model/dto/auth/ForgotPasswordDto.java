@@ -30,7 +30,7 @@ public class ForgotPasswordDto {
   private String emailAddress;
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}")
+  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("verification_type")
   private String verificationType;
