@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.security;
 
+import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -43,7 +44,7 @@ public class FleenUser implements UserDetails {
   private MfaType mfaType;
 
   public String getFullName() {
-    return firstName + ' ' + lastName;
+    return StringUtil.getFullName(firstName, lastName);
   }
 
   public static FleenUser of(Long userId) {

@@ -79,8 +79,7 @@ public class BaseAdapter {
    * @return ResponseEntity containing the response data
    */
   public <T> ResponseEntity<T> doCall(@NonNull URI uri, @NonNull HttpMethod method,
-                                      @Nullable Map<String, String> headers,
-                                      @Nullable Object body, @NonNull Class<T> responseModel) {
+    @Nullable Map<String, String> headers, @Nullable Object body, @NonNull Class<T> responseModel) {
     // Log the HTTP call details
     log.info(String.format("HTTP call to url=%s with method=%s and body=%s", uri, method.name(),
       getPayloadBodyAsString(body)));

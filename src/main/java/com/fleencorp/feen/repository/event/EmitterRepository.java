@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ *
+ * @see <a href="https://velog.io/@bsangyong93/SSE%EB%A1%9C-%EC%95%8C%EB%A6%BC-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0-feat.Spring-boot">
+ *   Implementing notification functionality with SSE - feat.Spring boot</a>
+ */
 @Component
 public class EmitterRepository {
 

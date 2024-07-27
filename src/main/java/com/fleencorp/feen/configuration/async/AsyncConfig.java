@@ -1,6 +1,7 @@
 package com.fleencorp.feen.configuration.async;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -8,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Configuration class to enable asynchronous method execution.
@@ -25,6 +27,12 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableAsync(proxyTargetClass = true)
 public class AsyncConfig implements AsyncConfigurer {
+
+  private final TaskExecutionProperties taskExecutionProperties;
+
+  public AsyncConfig(TaskExecutionProperties taskExecutionProperties) {
+    this.taskExecutionProperties = taskExecutionProperties;
+  }
 
   @Override
   public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
@@ -64,15 +72,22 @@ public class AsyncConfig implements AsyncConfigurer {
    * not get overwhelmed and maintains a manageable load.</p>
    *
    * @return the configured {@link Executor} instance for managing asynchronous tasks.
+   *
+   * @see <a href="https://velog.io/@gale4739/Spring-Boot-Thread-ThreadPool-Feat.-Async-MDC">
+   *   Spring Boot Thread & ThreadPool (Feat. @Async, MDC)</a>
    */
   @Override
   @Bean()
   public Executor getAsyncExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(10);
-    executor.setMaxPoolSize(20);
-    executor.setQueueCapacity(50);
-    executor.setThreadNamePrefix("async-thread-");
+    executor.setCorePoolSize(taskExecutionProperties.getPool().getCoreSize());
+    executor.setMaxPoolSize(taskExecutionProperties.getPool().getMaxSize());
+    executor.setQueueCapacity(taskExecutionProperties.getPool().getQueueCapacity());
+
+    executor.setThreadNamePrefix(taskExecutionProperties.getThreadNamePrefix());
+    executor.setThreadGroupName("async-thread-group-");
+    executor.setWaitForTasksToCompleteOnShutdown(true);
+    executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
     executor.initialize();
     return executor;
   }

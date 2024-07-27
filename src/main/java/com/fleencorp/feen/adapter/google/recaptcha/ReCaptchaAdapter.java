@@ -41,8 +41,9 @@ public class ReCaptchaAdapter extends BaseAdapter {
    * @param baseUrl    The base URL of the reCAPTCHA service
    * @param secretKey  The secret key used for reCAPTCHA verification
    */
-  protected ReCaptchaAdapter(@Value("${google.recaptcha.base-url}") String baseUrl,
-                             @Value("${google.recaptcha.secret-key}") String secretKey) {
+  protected ReCaptchaAdapter(
+      @Value("${google.recaptcha.base-url}") String baseUrl,
+      @Value("${google.recaptcha.secret-key}") String secretKey) {
     super(baseUrl);
     this.recaptchaSecret = secretKey;
   }
@@ -57,7 +58,6 @@ public class ReCaptchaAdapter extends BaseAdapter {
    * @see <a href="https://developers.google.com/recaptcha/docs/verify">Verifying the user's response</a>
    * @see <a href="https://cloud.google.com/recaptcha-enterprise/docs/create-key-website">Create reCAPTCHA keys for websites</a>
    */
-
   public ReCaptchaResponse verifyRecaptcha(String reCaptchaToken) {
     Map<ApiParameter, String> parameters = new HashMap<>();
     parameters.put(GoogleRecaptchaParameter.SECRET, recaptchaSecret);

@@ -14,10 +14,11 @@ import lombok.Getter;
 @Getter
 public enum ExternalSystemType implements ApiParameter {
 
-  YOUTUBE("YouTube"),
+  CALENDAR_EVENT("Calendar Event"),
   GOOGLE_CALENDAR("Google Calendar"),
   GOOGLE_RECAPTCHA("Google ReCaptcha"),
-  CALENDAR_EVENT("Calendar Event");
+  SLACK("Slack"),
+  YOUTUBE("YouTube");
 
   private final String value;
 

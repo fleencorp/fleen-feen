@@ -69,7 +69,7 @@ public class ProfileRequestQueueHandler {
    * @param request the sign-up verification request containing details like verification type and recipient information
    */
   @Async
-  @SqsListener(value = "${queue.sign-up-verification}")
+//  @SqsListener(value = "${queue.sign-up-verification}")
   public void handleSendSignUpVerificationCode(SignUpVerificationRequest request, Acknowledgement acknowledgement) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
@@ -85,7 +85,7 @@ public class ProfileRequestQueueHandler {
    * @param request the completed user sign-up request containing email details
    */
   @Async
-  @SqsListener(value = "${queue.complete-user-sign-up}")
+//  @SqsListener(value = "${queue.complete-user-sign-up}")
   public void handleSendCompletedSignUpVerification(@Payload CompletedUserSignUpRequest request) {
     sendEmailMessage(request);
   }
@@ -97,7 +97,7 @@ public class ProfileRequestQueueHandler {
    * @param request the forgot password request containing details such as verification type and recipient information
    */
   @Async
-  @SqsListener(value = "${queue.forgot-password}")
+//  @SqsListener(value = "${queue.forgot-password}")
   public void handleSendForgotPasswordVerificationCode(@Payload ForgotPasswordRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
@@ -113,7 +113,7 @@ public class ProfileRequestQueueHandler {
    * @param request the MFA setup verification request containing details such as verification type and recipient information
    */
   @Async
-  @SqsListener(value = "${queue.mfa-setup}")
+//  @SqsListener(value = "${queue.mfa-setup}")
   public void handleSendMfaSetupVerificationCode(@Payload MfaSetupVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
@@ -129,7 +129,7 @@ public class ProfileRequestQueueHandler {
    * @param request the MFA verification request containing details such as verification type and recipient information
    */
   @Async
-  @SqsListener(value = "${queue.mfa-verification}")
+//  @SqsListener(value = "${queue.mfa-verification}")
   public void handleSendMfaVerificationCode(@Payload MfaVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
@@ -145,7 +145,7 @@ public class ProfileRequestQueueHandler {
    * @param request the profile update verification request containing details such as verification type and recipient information
    */
   @Async
-  @SqsListener(value = "${queue.profile-update-verification}")
+//  @SqsListener(value = "${queue.profile-update-verification}")
   public void handleProfileUpdateVerification(@Payload ProfileUpdateVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
@@ -161,7 +161,7 @@ public class ProfileRequestQueueHandler {
    * @param request the reset password success request containing details such as email address and message content
    */
   @Async
-  @SqsListener(value = "${queue.reset-password-success}")
+//  @SqsListener(value = "${queue.reset-password-success}")
   public void handleResetPasswordSuccessful(@Payload ResetPasswordSuccessRequest request) {
     sendEmailMessage(request);
   }
