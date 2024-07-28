@@ -397,7 +397,7 @@ public class GoogleOauth2Service {
    * @return The OAuth 2.0 redirect URI configured in the current OAuth 2.0 credentials.
    */
   private String getRedirectUri() {
-    return oauth2Credential.getRedirectUriList().get(0);
+    return oauth2Credential.getRedirectUriList().getFirst();
   }
 
   /**

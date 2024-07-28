@@ -247,7 +247,7 @@ public class YouTubeLiveBroadcastService {
 
       // Check if the channel and live broadcasts are found and not empty
       if (nonNull(channel) && nonNull(liveBroadcasts) && !liveBroadcasts.isEmpty()) {
-        LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().get(0);
+        LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().getFirst();
         LiveBroadcastSnippet snippet = liveBroadcast.getSnippet();
 
         snippet.setTitle(updateLiveBroadcastRequest.getTitle());
@@ -301,7 +301,7 @@ public class YouTubeLiveBroadcastService {
       // Check if the channel and live broadcasts are found and not empty
       if (nonNull(channel) && nonNull(liveBroadcasts) && !liveBroadcasts.isEmpty()) {
         // Execute the live broadcasts request and get the first item
-        LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().get(0);
+        LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().getFirst();
         LiveBroadcastSnippet snippet = liveBroadcast.getSnippet();
 
         // Set the new scheduled start and end times
@@ -401,7 +401,7 @@ public class YouTubeLiveBroadcastService {
       List<Channel> channels = Optional.of(channelListResponse.getItems()).orElse(emptyList());
 
       if (!channels.isEmpty()) {
-        return channels.get(0);
+        return channels.getFirst();
       }
     } catch (Exception ex) {
       // Log the error and throw an exception if accessing YouTube API fails
