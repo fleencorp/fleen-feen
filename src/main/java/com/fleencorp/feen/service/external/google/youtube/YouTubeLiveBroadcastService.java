@@ -11,6 +11,7 @@ import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastReq
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.JsonObjectParser;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static com.fleencorp.feen.constant.base.ReportMessageType.YOUTUBE;
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart.*;
 import static com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service.getJsonFactory;
@@ -40,17 +42,17 @@ import static java.util.Objects.nonNull;
 /**
  * Service class for managing YouTube Live Broadcasts.
  *
- * <p> This class provides functionalities to interact with YouTube Live Broadcasts,
+ * <p>This class provides functionalities to interact with YouTube Live Broadcasts,
  * enabling operations such as creating, updating, and managing live broadcast events
  * on the YouTube platform. It utilizes the YouTube Data API to perform these operations.</p>
  *
- * <p> The methods in this service class will facilitate integration with YouTube Live,
+ * <p>The methods in this service class will facilitate integration with YouTube Live,
  * allowing applications to handle live streaming events programmatically.</p>
  *
- * <p> Note: This class requires proper authentication and authorization setup to interact
+ * <p>Note: This class requires proper authentication and authorization setup to interact
  * with the YouTube Data API.</p>
  *
- * <p> Dependencies and setup for this service should be properly configured to ensure
+ * <p>Dependencies and setup for this service should be properly configured to ensure
  * seamless integration with the YouTube platform.</p>
  *
  * @author Yusuf Alamu Musa
@@ -68,6 +70,7 @@ import static java.util.Objects.nonNull;
 public class YouTubeLiveBroadcastService {
 
   private final String serviceApiKey;
+  private final ReporterService reporterService;
 
   /**
    * Constructs a YouTubeLiveBroadcastService with the specified API key.
@@ -82,10 +85,13 @@ public class YouTubeLiveBroadcastService {
    * that the service can successfully interact with the YouTube Data API.</p>
    *
    * @param serviceApiKey The YouTube Data API key used for authenticating API requests.
+   * @param reporterService The service used for reporting events.
    */
   public YouTubeLiveBroadcastService(
-      @Value("${youtube.data.api-key}") String serviceApiKey) {
+      @Value("${youtube.data.api-key}") String serviceApiKey,
+      ReporterService reporterService) {
     this.serviceApiKey = serviceApiKey;
+    this.reporterService = reporterService;
   }
 
   /**
@@ -121,16 +127,16 @@ public class YouTubeLiveBroadcastService {
   /**
    * Creates a live broadcast on YouTube using the specified request details.
    *
-   * <p> This method constructs a {@link LiveBroadcast} object using the details provided
+   * <p>This method constructs a {@link LiveBroadcast} object using the details provided
    * in the {@link CreateLiveBroadcastRequest} object. It sets the snippet, content details,
    * status, and thumbnail of the live broadcast.</p>
    *
-   * <p> The method initializes and configures the necessary components of the live broadcast,
+   * <p>The method initializes and configures the necessary components of the live broadcast,
    * including the title, description, scheduled start and end times, channel ID, thumbnail URL,
    * closed captions type, and privacy status. It then inserts the live broadcast using the
    * YouTube Data API.</p>
    *
-   * <p> Upon successful creation, a {@link CreateYouTubeLiveBroadcastResponse} is built with the
+   * <p>Upon successful creation, a {@link CreateYouTubeLiveBroadcastResponse} is built with the
    * live broadcast ID and mapped response details. If an IOException occurs during the API request,
    * the error is logged, and the method returns null.</p>
    *
@@ -203,7 +209,8 @@ public class YouTubeLiveBroadcastService {
               .liveBroadcast(YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse(createdLiveBroadcast))
               .build();
     } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
+      final String errorMessage = String.format("Error occurred while creating live broadcast. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -257,7 +264,8 @@ public class YouTubeLiveBroadcastService {
       }
       log.error("Cannot update live broadcast. Channel or broadcast cannot be found");
     } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
+      final String errorMessage = String.format("Error occurred while updating live broadcast. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -313,7 +321,8 @@ public class YouTubeLiveBroadcastService {
       }
       log.error("Cannot reschedule live broadcast. Channel or broadcast cannot be found");
     } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
+      final String errorMessage = String.format("Error occurred while rescheduling live broadcast. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -349,7 +358,8 @@ public class YouTubeLiveBroadcastService {
       return youTube.liveBroadcasts()
           .update(SNIPPET.getValue(), updateBroadcast);
     } catch (IOException ex) {
-      log.error(ex.getMessage(), ex);
+      final String errorMessage = String.format("Error occurred while live broadcast update request. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -357,12 +367,12 @@ public class YouTubeLiveBroadcastService {
   /**
    * Retrieves the YouTube channel associated with the authenticated user.
    *
-   * <p> This method creates and executes a request to list channels using the 'snippet' part,
+   * <p>This method creates and executes a request to list channels using the 'snippet' part,
    * and sets the request to retrieve channels associated with the authenticated user. It uses
    * the provided {@link YouTube} object to make the request and includes the API key for
    * authentication.</p>
    *
-   * <p> The method handles the response by checking if the list of channels is not empty,
+   * <p>The method handles the response by checking if the list of channels is not empty,
    * and returns the first channel in the list. If no channels are found or if an error
    * occurs during the API request, it logs the error and throws an {@link ExternalSystemException}
    * with a message indicating the failure.</p>
@@ -395,7 +405,9 @@ public class YouTubeLiveBroadcastService {
       }
     } catch (Exception ex) {
       // Log the error and throw an exception if accessing YouTube API fails
-      log.error(ex.getMessage());
+      final String errorMessage = String.format("Error occurred while retrieving YouTube channel. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
+
       throw new ExternalSystemException(ExternalSystemType.YOUTUBE.getValue());
     }
 
@@ -423,13 +435,13 @@ public class YouTubeLiveBroadcastService {
   /**
    * Creates and returns a YouTube request object configured with the provided access token.
    *
-   * <p> This method constructs an instance of {@link YouTube} using the provided access token.
+   * <p>This method constructs an instance of {@link YouTube} using the provided access token.
    * It uses a {@link Builder} to initialize the YouTube object with the necessary
    * transport, JSON factory, and HTTP request initializer. The HTTP request initializer is
    * obtained using the {@link #getHttpRequestInitializer(String)} method, which configures
    * the HTTP request with the provided access token.</p>
    *
-   * <p> The resulting YouTube object can be used to interact with the YouTube Data API,
+   * <p>The resulting YouTube object can be used to interact with the YouTube Data API,
    * enabling operations such as creating, updating, and managing YouTube resources.</p>
    *
    * @param accessToken The access token to be used for authenticating YouTube API requests.
@@ -437,10 +449,6 @@ public class YouTubeLiveBroadcastService {
    *
    * @see <a href="https://developers.google.com/youtube/registering_an_application">
    *   Obtaining authorization credentials</a>
-   * @see <a href="https://kingbbode.tistory.com/8">
-   *   Integrating Google API in Spring Boot (1) Setting up Oauth authentication</a>
-   * @see <a href="https://velog.io/@ssongji/%EC%9C%A0%ED%8A%9C%EB%B8%8C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%81%AC%EB%A1%A4%EB%A7%81-%EB%B0%8F-%EC%8B%9C%EA%B0%81%ED%99%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-1.-YOUTUBE-API-%EC%82%AC%EC%9A%A9-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95">
-   *  YouTube API usage environment settings</a>
    */
   private YouTube createRequest(String accessToken) {
     return new YouTube.Builder(getTransport(), getJsonFactory(), getHttpRequestInitializer(accessToken))
@@ -450,13 +458,15 @@ public class YouTubeLiveBroadcastService {
   /**
    * Creates and returns an {@link HttpRequestInitializer} with the provided access token.
    *
-   * <p> This method constructs an {@link HttpRequestInitializer} that configures an
+   * <p>This method constructs an {@link HttpRequestInitializer} that configures an
    * HTTP request with a JSON parser, sets the headers using the provided access token,
-   * and ensures exceptions are thrown on execution errors. </p>
-   *
+   * and ensures exceptions are thrown on execution errors.</p>
    *
    * @param accessToken The access token to be included in the HTTP request headers.
    * @return An {@link HttpRequestInitializer} configured with the provided access token.
+   *
+   * @see <a href="https://velog.io/@ssongji/%EC%9C%A0%ED%8A%9C%EB%B8%8C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%81%AC%EB%A1%A4%EB%A7%81-%EB%B0%8F-%EC%8B%9C%EA%B0%81%ED%99%94-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-1.-YOUTUBE-API-%EC%82%AC%EC%9A%A9-%ED%99%98%EA%B2%BD-%EC%84%A4%EC%A0%95">
+   *  YouTube API usage environment settings</a>
    */
   private HttpRequestInitializer getHttpRequestInitializer(String accessToken) {
     return httpRequest -> {
@@ -506,6 +516,9 @@ public class YouTubeLiveBroadcastService {
    *
    * @param accessToken The access token to be converted into a bearer token.
    * @return A bearer token constructed from the provided access token.
+   *
+   * @see <a href="https://kingbbode.tistory.com/8">
+   *   Integrating Google API in Spring Boot (1) Setting up Oauth authentication</a>
    */
   private String getBearerToken(String accessToken) {
     return BEARER.concat(" ").concat(accessToken);

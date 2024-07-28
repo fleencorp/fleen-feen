@@ -12,6 +12,7 @@ import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2Autho
 import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.GoogleOauth2AuthorizationRepository;
+import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.googleapis.auth.oauth2.*;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_OAUTH2;
 import static java.util.Objects.nonNull;
 
 /**
@@ -57,22 +59,32 @@ public class GoogleOauth2Service {
 
   private final Oauth2Credential oauth2Credential;
   private final GoogleOauth2AuthorizationRepository googleOauth2AuthorizationRepository;
+  private final ReporterService reporterService;
 
+  /**
+   * Constructs a new GoogleOauth2Service.
+   *
+   * @param oauth2Credential The OAuth2 credentials used for Google authentication.
+   * @param googleOauth2AuthorizationRepository The repository for storing OAuth2 authorization data.
+   * @param reporterService The service used for reporting events.
+   */
   public GoogleOauth2Service(
       final Oauth2Credential oauth2Credential,
-      final GoogleOauth2AuthorizationRepository googleOauth2AuthorizationRepository) {
+      final GoogleOauth2AuthorizationRepository googleOauth2AuthorizationRepository,
+      final ReporterService reporterService) {
     this.oauth2Credential = oauth2Credential;
     this.googleOauth2AuthorizationRepository = googleOauth2AuthorizationRepository;
+    this.reporterService = reporterService;
   }
 
   /**
    * Starts OAuth 2.0 authentication by retrieving the authorization URI.
    *
-   * <p> This method initiates the OAuth 2.0 authentication flow by obtaining the authorization URI
+   * <p>This method initiates the OAuth 2.0 authentication flow by obtaining the authorization URI
    * using {@link #getAuthorizationUri()}. It then constructs and returns a StartOauth2AuthorizationResponse
    * containing the retrieved authorization URI.</p>
    *
-   * <p> The authorization URI is crucial for redirecting users to Google's consent screen, where they
+   * <p>The authorization URI is crucial for redirecting users to Google's consent screen, where they
    * can grant permissions to the application.</p>
    *
    * @return A StartOauth2AuthorizationResponse containing the OAuth 2.0 authorization URI.
@@ -280,13 +292,16 @@ public class GoogleOauth2Service {
             .execute();
       }
     } catch (final TokenResponseException ex) {
-        log.error(ex.getMessage());
+      final String errorMessage = String.format("An error occurred while exchanging Oauth2 authorization code. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
       if (ex.getMessage().contains("invalid_grant")) {
         throw new Oauth2InvalidGrantOrTokenException(authorizationCode);
       }
       throw new Oauth2InvalidAuthorizationException();
     } catch (final IOException ex) {
-        log.error(ex.getMessage());
+      final String errorMessage = String.format("An error occurred while exchanging Oauth2 authorization code. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
+
       throw new ExternalSystemException(ex.getMessage());
     }
     return null;
@@ -315,12 +330,8 @@ public class GoogleOauth2Service {
               oauth2Credential.getClientId(), oauth2Credential.getClientSecret());
       return refreshTokenRequest.execute();
     } catch (final IOException ex) {
-      final String errorMessage = String
-              .format("An error occurred while refreshing token with %s in refreshAccessToken() of %s. Reason: %s",
-                refreshToken,
-                ex.getClass().getName(),
-                ex.getMessage());
-        log.error(errorMessage);
+      final String errorMessage = String.format("An error occurred while refreshing Google Oauth2 token. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
       throw new ExternalSystemException(errorMessage);
     }
   }

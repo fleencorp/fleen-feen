@@ -6,6 +6,7 @@ import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.mapper.external.GoogleCalendarMapper;
 import com.fleencorp.feen.model.request.calendar.calendar.*;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.*;
+import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.AclRule;
 import com.google.api.services.calendar.model.CalendarList;
@@ -18,11 +19,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static java.util.Objects.nonNull;
 
 /**
  * A service class for interacting with Google Calendar to create, update, retrieve, and delete calendar.
- *
  *
  * @author Yusuf Alamu Musa
  * @version 1.0
@@ -35,14 +36,19 @@ import static java.util.Objects.nonNull;
 public class GoogleCalendarService {
 
   private final Calendar service;
+  private final ReporterService reporterService;
 
   /**
    * Constructs a new CalendarService with the specified Google Calendar instance.
    *
    * @param calendar the Google Calendar instance used by this service
+   * @param reporterService The service used for reporting events.
    */
-  public GoogleCalendarService(Calendar calendar) {
+  public GoogleCalendarService(
+      Calendar calendar,
+      ReporterService reporterService) {
     this.service = calendar;
+    this.reporterService = reporterService;
   }
 
   /**
@@ -82,7 +88,8 @@ public class GoogleCalendarService {
               .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
               .build();
     } catch (IOException ex) {
-      log.error("Error occurred while creating calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while creating calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
       throw new UnableToCompleteOperationException();
     }
   }
@@ -121,7 +128,8 @@ public class GoogleCalendarService {
                 .build();
       }
     } catch (IOException ex) {
-      log.error("Error occurred while listing calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while listing calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     return GoogleListCalendarResponse.builder()
             .build();
@@ -155,7 +163,8 @@ public class GoogleCalendarService {
                 .build();
       }
     } catch (IOException ex) {
-      log.error("Error occurred while retrieving calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while retrieving calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     return null;
   }
@@ -193,7 +202,8 @@ public class GoogleCalendarService {
       }
       log.error("Cannot delete. Calendar does not exist or cannot be found. {}", deleteCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
-      log.error("Error occurred while deleting calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while deleting calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -238,7 +248,8 @@ public class GoogleCalendarService {
       }
       log.error("Cannot update. Calendar does not exist or cannot be found. {}", patchCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
-      log.error("Error occurred while patching calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while patching calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -288,7 +299,8 @@ public class GoogleCalendarService {
       }
       log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId());
     } catch (final IOException ex) {
-      log.error("Error occurred while sharing calendar. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while sharing calendar. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
