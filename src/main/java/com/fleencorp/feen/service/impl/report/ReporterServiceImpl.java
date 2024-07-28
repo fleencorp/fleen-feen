@@ -37,6 +37,7 @@ public class ReporterServiceImpl implements ReporterService {
    * @param reportMessageType the type of the report message
    */
   @Override
+  @Async
   public void sendMessage(String message, ReportMessageType reportMessageType) {
     reporterService.sendMessage(message, reportMessageType);
   }
