@@ -9,6 +9,7 @@ import com.fleencorp.feen.mapper.external.GoogleCalendarEventMapper;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
+import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.*;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
+import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
@@ -60,14 +62,19 @@ public class GoogleCalendarEventService {
   private static final String DEFAULT_CONFERENCE_SOLUTION_NAME = "Google Meet";
 
   private final Calendar calendar;
+  private final ReporterService reporterService;
 
   /**
    * Constructs a new CalendarService with the specified Calendar instance.
    *
    * @param calendar  the Calendar instance to be used by this service
+   * @param reporterService The service used for reporting events.
    */
-  public GoogleCalendarEventService(final Calendar calendar) {
+  public GoogleCalendarEventService(
+      final Calendar calendar,
+      final ReporterService reporterService) {
     this.calendar = calendar;
+    this.reporterService = reporterService;
   }
 
   /**
@@ -100,7 +107,8 @@ public class GoogleCalendarEventService {
 
       return GoogleCalendarEventMapper.mapToCalendarEventResponse(events);
     } catch (final IOException ex) {
-      log.error("Error occurred while listing event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error occurred while listing event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     return GoogleListCalendarEventResponse.builder()
             .build();
@@ -207,7 +215,8 @@ public class GoogleCalendarEventService {
         .event(GoogleCalendarEventMapper.mapToEventExpanded(newEvent))
         .build();
     } catch (final IOException ex) {
-      log.error("Error has occurred while creating an event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -250,7 +259,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot cancel event. Event does not exist or cannot be found. {}", cancelCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while cancelling the event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while cancelling the event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -297,7 +307,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot reschedule event. Event does not exist or cannot be found. {}", rescheduleCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while updating the event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while updating the event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -338,7 +349,8 @@ public class GoogleCalendarEventService {
                 .build();
       }
     } catch (final IOException ex) {
-      log.error("Error has occurred while deleting the event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while deleting the event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     return null;
   }
@@ -374,7 +386,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot retrieve event. Event does not exist or cannot be found. {}", eventId);
     } catch (final IOException ex) {
-      log.error("Error has occurred while retrieving the event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while retrieving the event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     return null;
   }
@@ -420,7 +433,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot add new attendee. Event does not exist or cannot be found. {}", addNewEventAttendeeRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while adding an attendee. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while adding an attendee. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -465,7 +479,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot add attendees. Event does not exist or cannot be found. {}", addNewEventAttendeesRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while adding attendees. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while adding attendees. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -513,7 +528,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot patch or update event. Event does not exist or cannot be found. {}", patchCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while patching the event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while patching the event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -539,13 +555,13 @@ public class GoogleCalendarEventService {
               .setSendUpdates(EventSendUpdate.ALL.getValue())
               .execute();
 
-      log.info(event.toPrettyString());
-      return GoogleCreateInstantCalendarEventResponse.builder()
+       return GoogleCreateInstantCalendarEventResponse.builder()
               .eventId(event.getId())
               .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
               .build();
     } catch (final IOException ex) {
-      log.error("Error has occurred while creating an instant event. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while creating an instant event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
@@ -589,7 +605,8 @@ public class GoogleCalendarEventService {
       }
       log.error("Cannot update visibility. Event does not exist or cannot be found. {}", updateCalendarEventVisibilityRequest.getEventId());
     } catch (final IOException ex) {
-      log.error("Error has occurred while update the event visibility. Reason: {}", ex.getMessage());
+      final String errorMessage = String.format("Error has occurred while update the event visibility. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
   }
