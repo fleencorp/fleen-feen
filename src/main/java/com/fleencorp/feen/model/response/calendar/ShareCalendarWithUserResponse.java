@@ -38,7 +38,7 @@ public class ShareCalendarWithUserResponse {
   @JsonProperty("message")
   private String message = "Calendar shared with user successfully";
 
-  public static ShareCalendarWithUserResponse of(Long calendarId, String userEmailAddress, CalendarResponse calendar) {
+  public static ShareCalendarWithUserResponse of(final Long calendarId, final String userEmailAddress, final CalendarResponse calendar) {
     return ShareCalendarWithUserResponse.builder()
             .calendarId(calendarId)
             .calendar(calendar)

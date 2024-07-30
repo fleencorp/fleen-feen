@@ -10,7 +10,7 @@ public class UserNotFoundException extends FleenException {
 
   public static final String MESSAGE = "User does not exist or cannot be found. ID: %s";
 
-  public UserNotFoundException(Object id) {
+  public UserNotFoundException(final Object id) {
     super(String.format(MESSAGE, Objects.toString(id, UNKNOWN)));
   }
 }

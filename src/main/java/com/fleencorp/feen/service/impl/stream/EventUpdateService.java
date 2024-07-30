@@ -37,9 +37,9 @@ public class EventUpdateService {
    * @param googleCalendarEventService the service for interacting with Google Calendar events
    */
   public EventUpdateService(
-    FleenStreamRepository fleenStreamRepository,
-    GoogleCalendarEventService googleCalendarEventService,
-    BroadcastService broadcastService) {
+      final FleenStreamRepository fleenStreamRepository,
+      final GoogleCalendarEventService googleCalendarEventService,
+      final BroadcastService broadcastService) {
     this.fleenStreamRepository = fleenStreamRepository;
     this.googleCalendarEventService = googleCalendarEventService;
     this.broadcastService = broadcastService;
@@ -59,13 +59,13 @@ public class EventUpdateService {
   @Transactional
   public void createEventInGoogleCalendar(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     // Create an event using an external service (Google Calendar)
-    GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
+    final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEvent().getHtmlLink());
     fleenStreamRepository.save(stream);
 
     // Create an event stream created result
-    EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
+    final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
       .of(stream.getMember().getMemberId(),
           stream.getFleenStreamId(),
           stream.getExternalId(),
@@ -85,7 +85,7 @@ public class EventUpdateService {
   @Transactional
   public void createInstantEventInGoogleCalendar(final FleenStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     // Create an instant event using an external service (Google Calendar)
-    GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
+    final GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.updateDetails(googleCreateInstantCalendarEventResponse.getEventId(), googleCreateInstantCalendarEventResponse.getEvent().getHtmlLink());
     fleenStreamRepository.save(stream);
@@ -101,7 +101,7 @@ public class EventUpdateService {
   @Transactional
   public void updateEventInGoogleCalendar(final FleenStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
     // Update the event details using an external service (Google Calendar)
-    GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
+    final GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.setExternalId(googlePatchCalendarEventResponse.getEventId());
     stream.setStreamLink(googlePatchCalendarEventResponse.getEvent().getHtmlLink());
@@ -117,7 +117,7 @@ public class EventUpdateService {
   @Async
   public void deleteEventInGoogleCalendar(final DeleteCalendarEventRequest deleteCalendarEventRequest) {
     // Delete the event using an external service (Google Calendar)
-    GoogleDeleteCalendarEventResponse googleDeleteCalendarEventResponse = googleCalendarEventService.deleteEvent(deleteCalendarEventRequest);
+    final GoogleDeleteCalendarEventResponse googleDeleteCalendarEventResponse = googleCalendarEventService.deleteEvent(deleteCalendarEventRequest);
     log.info("Deleted event: {}", googleDeleteCalendarEventResponse.getEventId());
   }
 
@@ -129,7 +129,7 @@ public class EventUpdateService {
   @Async
   public void cancelEventInGoogleCalendar(final CancelCalendarEventRequest cancelCalendarEventRequest) {
     // Cancel the event using an external service (Google Calendar)
-    GoogleCancelCalendarEventResponse googleCancelCalendarEventResponse = googleCalendarEventService.cancelEvent(cancelCalendarEventRequest);
+    final GoogleCancelCalendarEventResponse googleCancelCalendarEventResponse = googleCalendarEventService.cancelEvent(cancelCalendarEventRequest);
     log.info("Canceled event: {}", googleCancelCalendarEventResponse.getEventId());
   }
 
@@ -141,7 +141,7 @@ public class EventUpdateService {
   @Async
   public void rescheduleEventInGoogleCalendar(final RescheduleCalendarEventRequest rescheduleCalendarEventRequest) {
     // Reschedule the event using an external service (Google Calendar)
-    GoogleRescheduleCalendarEventResponse googleRescheduleCalendarEventResponse = googleCalendarEventService.rescheduleEvent(rescheduleCalendarEventRequest);
+    final GoogleRescheduleCalendarEventResponse googleRescheduleCalendarEventResponse = googleCalendarEventService.rescheduleEvent(rescheduleCalendarEventRequest);
     log.info("Rescheduled event: {}", googleRescheduleCalendarEventResponse.getEventId());
   }
 
@@ -153,7 +153,7 @@ public class EventUpdateService {
   @Async
   public void addNewAttendeeToCalendarEvent(final AddNewEventAttendeeRequest addNewEventAttendeeRequest) {
     // Add a user as an attendee to the event using an external service (Google Calendar)
-    GoogleAddNewCalendarEventAttendeeResponse googleAddNewCalendarEventAttendeeResponse = googleCalendarEventService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+    final GoogleAddNewCalendarEventAttendeeResponse googleAddNewCalendarEventAttendeeResponse = googleCalendarEventService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
     log.info("Attendee join event: {}", googleAddNewCalendarEventAttendeeResponse.getEventId());
   }
 
@@ -166,7 +166,7 @@ public class EventUpdateService {
   @Async
   public void updateEventVisibility(final UpdateCalendarEventVisibilityRequest updateCalendarEventVisibilityRequest) {
     // Update an event visibility using an external service (Google Calendar)
-    GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.updateEventVisibility(updateCalendarEventVisibilityRequest);
+    final GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.updateEventVisibility(updateCalendarEventVisibilityRequest);
     log.info("Updated event visibility: {}", googlePatchCalendarEventResponse);
   }
 

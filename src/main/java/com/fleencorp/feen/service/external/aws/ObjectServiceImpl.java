@@ -26,7 +26,7 @@ public class ObjectServiceImpl implements ObjectService {
    *
    * @param s3Service The S3Service implementation.
    */
-  public ObjectServiceImpl(S3Service s3Service) {
+  public ObjectServiceImpl(final S3Service s3Service) {
     this.s3Service = s3Service;
   }
 
@@ -41,7 +41,7 @@ public class ObjectServiceImpl implements ObjectService {
    * @return the file extension, or {@code null} if none is found
    */
   @Override
-  public String getFileExtension(String filename) {
+  public String getFileExtension(final String filename) {
     return StringUtils.getFilenameExtension(filename);
   }
 
@@ -55,7 +55,7 @@ public class ObjectServiceImpl implements ObjectService {
    * @return the filename without the extension, or the original filename if no extension is found
    */
   @Override
-  public String stripExtension(String filename) {
+  public String stripExtension(final String filename) {
     return StringUtils.stripFilenameExtension(filename);
   }
 
@@ -71,9 +71,9 @@ public class ObjectServiceImpl implements ObjectService {
    * @return the new filename with a random name and the original extension
    */
   @Override
-  public String generateRandomNameForFile(String filename) {
+  public String generateRandomNameForFile(final String filename) {
     // Get the file extension
-    String fileExt = getFileExtension(filename);
+    final String fileExt = getFileExtension(filename);
 
     // Generate a random object key and concatenate with the file extension
     return s3Service

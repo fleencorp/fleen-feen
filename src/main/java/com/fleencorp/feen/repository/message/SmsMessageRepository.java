@@ -37,8 +37,8 @@ public class SmsMessageRepository {
    * @param objectMapper        ObjectMapper instance for JSON deserialization.
    */
   public SmsMessageRepository(
-      @Value("${sms.message.templates-path}") String messageTemplatePath,
-      ObjectMapper objectMapper) {
+      @Value("${sms.message.templates-path}") final String messageTemplatePath,
+      final ObjectMapper objectMapper) {
     this.messageTemplatePath = messageTemplatePath;
     this.objectMapper = objectMapper;
     this.smsMessages = new ArrayList<>();
@@ -55,11 +55,11 @@ public class SmsMessageRepository {
       return smsMessages;
     }
 
-    String value = readResourceFile(messageTemplatePath);
+    final String value = readResourceFile(messageTemplatePath);
     try {
       smsMessages = objectMapper.readValue(value, new TypeReference<>() {});
       return smsMessages;
-    } catch (JsonProcessingException ex) {
+    } catch (final JsonProcessingException ex) {
       log.error(ex.getMessage(), ex);
     }
     return Collections.emptyList();
@@ -71,7 +71,7 @@ public class SmsMessageRepository {
    * @param title The title of the SMS message to find.
    * @return An {@link Optional} containing the {@link SmsMessage} if found, or empty if not found.
    */
-  public Optional<SmsMessage> findByTitle(String title) {
+  public Optional<SmsMessage> findByTitle(final String title) {
     return getSmsMessages()
         .stream()
         .filter(message -> message.title().equalsIgnoreCase(title))

@@ -29,7 +29,7 @@ public enum SlackColor {
    * @param colorCode the hexadecimal color code associated with the color
    * @param label an optional label for the color
    */
-  SlackColor(String label, String colorCode) {
+  SlackColor(final String label, final String colorCode) {
     this.label = label;
     this.colorCode = colorCode;
   }

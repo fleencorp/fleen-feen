@@ -23,8 +23,8 @@ public class CompletedUserSignUpRequest extends MessageRequest {
 
   private ProfileVerificationStatus profileVerificationStatus;
 
-  public static CompletedUserSignUpRequest of(String firstName, String lastName, String emailAddress,
-      String phoneNumber, ProfileVerificationStatus profileVerificationStatus) {
+  public static CompletedUserSignUpRequest of(final String firstName, final String lastName, final String emailAddress,
+                                              final String phoneNumber, final ProfileVerificationStatus profileVerificationStatus) {
     return CompletedUserSignUpRequest.builder()
         .firstName(firstName)
         .lastName(lastName)
@@ -35,7 +35,7 @@ public class CompletedUserSignUpRequest extends MessageRequest {
   }
 
   public Map<String, Object> toMessagePayload() {
-    Map<String, Object> payload = new HashMap<>(super.toMessagePayload());
+    final Map<String, Object> payload = new HashMap<>(super.toMessagePayload());
     payload.put(PROFILE_VERIFICATION_STATUS.getValue(), profileVerificationStatus);
 
     return payload;

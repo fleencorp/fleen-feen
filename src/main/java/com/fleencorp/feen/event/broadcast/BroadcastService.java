@@ -26,8 +26,8 @@ public class BroadcastService {
    * @param streamEventChannelTopic the Redis topic for stream events.
    */
   public BroadcastService(
-      RedisTemplate<String, Object> redisTemplate,
-      @Qualifier("stream-event") ChannelTopic streamEventChannelTopic) {
+      final RedisTemplate<String, Object> redisTemplate,
+      @Qualifier("stream-event") final ChannelTopic streamEventChannelTopic) {
     this.redisTemplate = redisTemplate;
     this.streamEventChannelTopic = streamEventChannelTopic;
   }
@@ -38,7 +38,7 @@ public class BroadcastService {
    * @param eventStreamCreatedResult the result of the event stream creation.
    */
   @Async
-  public void broadcastEventCreated(EventStreamCreatedResult eventStreamCreatedResult) {
+  public void broadcastEventCreated(final EventStreamCreatedResult eventStreamCreatedResult) {
     // Convert and send the eventStreamCreatedResult to the stream event channel topic
     redisTemplate.convertAndSend(streamEventChannelTopic.getTopic(), eventStreamCreatedResult);
   }

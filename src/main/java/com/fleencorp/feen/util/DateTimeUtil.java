@@ -33,7 +33,7 @@ public class DateTimeUtil {
    * @param localDateTime the LocalDateTime object to convert
    * @return a Date object representing the same date and time, or null if the input is null
    */
-  public static Date toDate(LocalDateTime localDateTime) {
+  public static Date toDate(final LocalDateTime localDateTime) {
     if (nonNull(localDateTime)) {
       return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
@@ -51,9 +51,9 @@ public class DateTimeUtil {
    * @return the number of milliseconds since epoch corresponding to the given LocalDateTime,
    *         or 0 if the input dateTime is null
    */
-  public static long toMilliseconds(LocalDateTime dateTime, String timezone) {
+  public static long toMilliseconds(final LocalDateTime dateTime, final String timezone) {
     if (dateTime != null) {
-      ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.of(timezone));
+      final ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.of(timezone));
       return zonedDateTime.toInstant().toEpochMilli();
     }
     return 0;

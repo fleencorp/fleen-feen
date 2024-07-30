@@ -27,9 +27,9 @@ public class MiscController {
   private final MiscService miscService;
 
   public MiscController(
-      EmailService emailService,
-      PhoneService phoneService,
-      MiscService miscService) {
+      final EmailService emailService,
+      final PhoneService phoneService,
+      final MiscService miscService) {
     this.emailService = emailService;
     this.phoneService = phoneService;
     this.miscService = miscService;
@@ -46,8 +46,8 @@ public class MiscController {
   @GetMapping(value = "/email-address/exists/{emailAddress}")
   public EntityExistsResponse emailExists(
     @Parameter(description = "Email address to check for existence")
-      @PathVariable(name = "emailAddress") String emailAddress) {
-    boolean exists = emailService.isEmailAddressExist(emailAddress);
+      @PathVariable(name = "emailAddress") final String emailAddress) {
+    final boolean exists = emailService.isEmailAddressExist(emailAddress);
     return new EntityExistsResponse(exists);
   }
 
@@ -62,8 +62,8 @@ public class MiscController {
   @GetMapping(value = "/phone-number/exists/{phoneNumber}")
   public EntityExistsResponse phoneExists(
     @Parameter(description = "Phone number to check for existence")
-      @PathVariable(name = "phoneNumber") String phoneNumber) {
-    boolean exists = phoneService.isPhoneNumberExist(phoneNumber);
+      @PathVariable(name = "phoneNumber") final String phoneNumber) {
+    final boolean exists = phoneService.isPhoneNumberExist(phoneNumber);
     return new EntityExistsResponse(exists);
   }
 
@@ -78,7 +78,7 @@ public class MiscController {
   @GetMapping(value = "/get-encoded-password/{password}")
   public GetEncodedPasswordResponse getEncodedPasswordResponse(
     @Parameter(description = "Create encoded password of a plain text password")
-      @PathVariable(name = "password") String password) {
+      @PathVariable(name = "password") final String password) {
     return miscService.getEncodedPassword(password);
   }
 

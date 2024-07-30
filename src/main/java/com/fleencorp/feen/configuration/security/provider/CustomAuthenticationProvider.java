@@ -40,8 +40,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
    * @param userDetailsService The service used to load user details.
    * @param passwordEncoder    The encoder used to verify passwords.
    */
-  public CustomAuthenticationProvider(@Lazy UserDetailsService userDetailsService,
-                                      @Lazy PasswordEncoder passwordEncoder) {
+  public CustomAuthenticationProvider(@Lazy final UserDetailsService userDetailsService,
+                                      @Lazy final PasswordEncoder passwordEncoder) {
     this.userDetailsService = userDetailsService;
     this.passwordEncoder = passwordEncoder;
   }
@@ -54,16 +54,16 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
    * @throws AuthenticationException If authentication fails.
    */
   @Override
-  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    String emailAddress = authentication.getName();
-    String password = authentication.getCredentials().toString();
+  public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+    final String emailAddress = authentication.getName();
+    final String password = authentication.getCredentials().toString();
 
     try {
-      UserDetails user = userDetailsService.loadUserByUsername(emailAddress);
+      final UserDetails user = userDetailsService.loadUserByUsername(emailAddress);
       if (passwordEncoder.matches(password, user.getPassword())) {
         return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
       }
-    } catch (UsernameNotFoundException ex) {
+    } catch (final UsernameNotFoundException ex) {
       log.error(ex.getMessage(), ex);
     }
     return new UsernamePasswordAuthenticationToken(emailAddress, password);
@@ -77,7 +77,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
    * @return true if the implementation can process the indicated token type.
    */
   @Override
-  public boolean supports(Class<?> authentication) {
+  public boolean supports(final Class<?> authentication) {
     return authentication.equals(UsernamePasswordAuthenticationToken.class);
   }
 }

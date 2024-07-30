@@ -45,8 +45,8 @@ public class GoogleCalendarService {
    * @param reporterService The service used for reporting events.
    */
   public GoogleCalendarService(
-      Calendar calendar,
-      ReporterService reporterService) {
+      final Calendar calendar,
+      final ReporterService reporterService) {
     this.service = calendar;
     this.reporterService = reporterService;
   }
@@ -63,31 +63,31 @@ public class GoogleCalendarService {
    * @throws UnableToCompleteOperationException the operation cannot be completed
    */
   @MeasureExecutionTime
-  public GoogleCreateCalendarResponse createCalendar(CreateCalendarRequest createCalendarRequest) {
+  public GoogleCreateCalendarResponse createCalendar(final CreateCalendarRequest createCalendarRequest) {
     try {
       // Create a new calendar object and set its properties
-      com.google.api.services.calendar.model.Calendar newCalendar = new com.google.api.services.calendar.model.Calendar();
+      final com.google.api.services.calendar.model.Calendar newCalendar = new com.google.api.services.calendar.model.Calendar();
       newCalendar.setSummary(createCalendarRequest.getTitle());
       newCalendar.setDescription(createCalendarRequest.getDescription());
       newCalendar.setTimeZone(createCalendarRequest.getTimezone());
 
       // Set allowed conference solution types for the new calendar
-      List<String> conferenceSolutionTypes = Arrays.stream(ConferenceSolutionType.values())
+      final List<String> conferenceSolutionTypes = Arrays.stream(ConferenceSolutionType.values())
         .map(ConferenceSolutionType::getValue)
         .toList();
-      ConferenceProperties conferenceProperties = new ConferenceProperties();
+      final ConferenceProperties conferenceProperties = new ConferenceProperties();
       conferenceProperties.setAllowedConferenceSolutionTypes(conferenceSolutionTypes);
       newCalendar.setConferenceProperties(conferenceProperties);
 
       // Insert the new calendar into Google Calendar
-      com.google.api.services.calendar.model.Calendar calendar = service.calendars()
+      final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
               .insert(newCalendar)
               .execute();
       return GoogleCreateCalendarResponse.builder()
               .calendarId(calendar.getId())
               .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
               .build();
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while creating calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
       throw new UnableToCompleteOperationException();
@@ -109,10 +109,10 @@ public class GoogleCalendarService {
    *   CalendarList: list</a>
    *
    */
-  public GoogleListCalendarResponse listCalendars(ListCalendarRequest listCalendarRequest) {
+  public GoogleListCalendarResponse listCalendars(final ListCalendarRequest listCalendarRequest) {
     try {
       // Retrieve calendar list from the Google Calendar service based on request parameters
-      CalendarList calendarList = service.calendarList()
+      final CalendarList calendarList = service.calendarList()
               .list()
               .setPageToken(listCalendarRequest.getPageToken())
               .setShowDeleted(listCalendarRequest.getShowDeleted())
@@ -121,13 +121,13 @@ public class GoogleCalendarService {
 
       if (nonNull(calendarList)) {
         // Get the list of calendar entries from the retrieved calendar list
-        List<CalendarListEntry> calendarListEntries = calendarList.getItems();
+        final List<CalendarListEntry> calendarListEntries = calendarList.getItems();
 
         return GoogleListCalendarResponse.builder()
                 .calendars(GoogleCalendarMapper.mapToCalendarsResponse(calendarListEntries))
                 .build();
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while listing calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
@@ -148,10 +148,10 @@ public class GoogleCalendarService {
    *   Calendars: get</a>
    */
   @MeasureExecutionTime
-  public GoogleRetrieveCalendarResponse retrieveCalendar(RetrieveCalendarRequest retrieveCalendarRequest) {
+  public GoogleRetrieveCalendarResponse retrieveCalendar(final RetrieveCalendarRequest retrieveCalendarRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
-      com.google.api.services.calendar.model.Calendar calendar = service
+      final com.google.api.services.calendar.model.Calendar calendar = service
               .calendars()
               .get(retrieveCalendarRequest.getCalendarId())
               .execute();
@@ -162,7 +162,7 @@ public class GoogleCalendarService {
                 .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
                 .build();
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while retrieving calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
@@ -183,9 +183,9 @@ public class GoogleCalendarService {
    *   Calendars: delete</a>
    */
   @MeasureExecutionTime
-  public GoogleDeleteCalendarResponse deleteCalendar(DeleteCalendarRequest deleteCalendarRequest) {
+  public GoogleDeleteCalendarResponse deleteCalendar(final DeleteCalendarRequest deleteCalendarRequest) {
     try {
-      com.google.api.services.calendar.model.Calendar calendar = service.calendars()
+      final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
               .get(deleteCalendarRequest.getCalendarId())
               .execute();
 

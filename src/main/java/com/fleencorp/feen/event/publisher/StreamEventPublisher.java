@@ -34,10 +34,10 @@ public class StreamEventPublisher implements PublisherService {
   }
 
   @Override
-  public void publishMessage(PublishMessageRequest messageRequest) {
-    Object message = messageRequest.getMessage();
+  public void publishMessage(final PublishMessageRequest messageRequest) {
+    final Object message = messageRequest.getMessage();
     switch (message) {
-      case AddCalendarEventAttendeesEvent request -> addNewAttendees(request);
+      case final AddCalendarEventAttendeesEvent request -> addNewAttendees(request);
       default -> {}
     }
   }

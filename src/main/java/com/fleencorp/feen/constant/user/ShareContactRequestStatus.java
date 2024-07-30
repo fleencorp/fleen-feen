@@ -20,7 +20,7 @@ public enum ShareContactRequestStatus implements ApiParameter {
 
   private final String value;
 
-  ShareContactRequestStatus(String value) {
+  ShareContactRequestStatus(final String value) {
     this.value = value;
   }
 }

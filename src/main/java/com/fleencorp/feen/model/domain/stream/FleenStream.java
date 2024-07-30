@@ -114,25 +114,25 @@ public class FleenStream extends FleenFeenEntity {
     return nonNull(attendees) ? attendees : new HashSet<>();
   }
 
-  public void update(String title, String description, String tags, String location) {
+  public void update(final String title, final String description, final String tags, final String location) {
     this.title = title;
     this.description = description;
     this.tags = tags;
     this.location = location;
   }
 
-  public void updateDetails(String externalId, String streamLink) {
+  public void updateDetails(final String externalId, final String streamLink) {
     this.externalId = externalId;
     this.streamLink = streamLink;
   }
 
-  public void updateDetails(String organizerName, String organizerEmail, String organizerPhone) {
+  public void updateDetails(final String organizerName, final String organizerEmail, final String organizerPhone) {
     this.organizerName = organizerName;
     this.organizerEmail = organizerEmail;
     this.organizerPhone = organizerPhone;
   }
 
-  public void updateSchedule(LocalDateTime scheduledStartDate, LocalDateTime scheduledEndDate, String timezone) {
+  public void updateSchedule(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
     this.scheduledStartDate = scheduledStartDate;
     this.scheduledEndDate = scheduledEndDate;
     this.timezone = timezone;

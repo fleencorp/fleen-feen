@@ -30,8 +30,8 @@ public class StreamEventSubscriber implements MessageListener {
    * @param jsonUtil the utility for JSON operations
    */
   public StreamEventSubscriber(
-      EmitterRepository emitterRepository,
-      JsonUtil jsonUtil) {
+      final EmitterRepository emitterRepository,
+      final JsonUtil jsonUtil) {
     this.emitterRepository = emitterRepository;
     this.jsonUtil = jsonUtil;
   }
@@ -43,13 +43,13 @@ public class StreamEventSubscriber implements MessageListener {
    * @param pattern the pattern of the channel that the message was received from.
    */
   @Override
-  public void onMessage(Message message, byte[] pattern) {
+  public void onMessage(final Message message, final byte[] pattern) {
     // Convert the message body from byte array to string
-    String body = new String(message.getBody());
+    final String body = new String(message.getBody());
     // Deserialize the JSON string into a ResultData object
-    ResultData resultData = getData(body, ResultData.class);
+    final ResultData resultData = getData(body, ResultData.class);
     // Extract the user ID from the ResultData object
-    String userId = resultData.getUserId();
+    final String userId = resultData.getUserId();
     // Process the result based on the user ID and result data
     processResult(userId, resultData, body);
   }
@@ -63,7 +63,7 @@ public class StreamEventSubscriber implements MessageListener {
    * @param <T> the type of the class.
    * @return an object of the specified class type.
    */
-  protected <T> T getData(String value, Class<T> clazz) {
+  protected <T> T getData(final String value, final Class<T> clazz) {
     // Use the jsonUtil to parse the JSON string and convert it to the specified class type
     return jsonUtil.get(value, clazz);
   }
@@ -75,13 +75,13 @@ public class StreamEventSubscriber implements MessageListener {
    * @param emitters the list of SSE emitters.
    * @param dataWithMediaTypes the data to be sent.
    */
-  protected void sendDataToClient(String userId, List<SseEmitter> emitters, Set<ResponseBodyEmitter.DataWithMediaType> dataWithMediaTypes) {
+  protected void sendDataToClient(final String userId, final List<SseEmitter> emitters, final Set<ResponseBodyEmitter.DataWithMediaType> dataWithMediaTypes) {
     try {
       // Iterate over the list of emitters and send the data to each one
-      for (SseEmitter emitter : emitters) {
+      for (final SseEmitter emitter : emitters) {
         emitter.send(dataWithMediaTypes);
       }
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       log.error("Unable to process request. Reason: {}", ex.getMessage());
       // If an IOException occurs, remove the emitter associated with the user ID
       emitterRepository.removeEmitter(userId);
@@ -95,7 +95,7 @@ public class StreamEventSubscriber implements MessageListener {
    * @param data the data to be sent with the event.
    * @return a set of DataWithMediaType objects representing the event.
    */
-  protected Set<ResponseBodyEmitter.DataWithMediaType> buildEventStreamCreatedEvent(String id, Object data) {
+  protected Set<ResponseBodyEmitter.DataWithMediaType> buildEventStreamCreatedEvent(final String id, final Object data) {
     return SseEmitter.event()
         .id(id)
         .data(data)
@@ -103,9 +103,9 @@ public class StreamEventSubscriber implements MessageListener {
         .build();
   }
 
-  protected void processResult(String id, ResultData resultData, String actualData) {
+  protected void processResult(final String id, final ResultData resultData, final String actualData) {
     if (Objects.requireNonNull(resultData.getResultType()) == ResultType.EVENT_STREAM_CREATED) {
-      List<SseEmitter> emitters = emitterRepository.getEmitters(resultData.getUserId());
+      final List<SseEmitter> emitters = emitterRepository.getEmitters(resultData.getUserId());
       sendDataToClient(id, emitters, buildEventStreamCreatedEvent(id, actualData));
     }
   }

@@ -13,17 +13,17 @@ public class MemberServiceImpl implements MemberService, EmailService, PhoneServ
 
   private final MemberRepository memberRepository;
 
-  public MemberServiceImpl(MemberRepository memberRepository) {
+  public MemberServiceImpl(final MemberRepository memberRepository) {
     this.memberRepository = memberRepository;
   }
 
   @Override
-  public boolean isEmailAddressExist(String emailAddress) {
+  public boolean isEmailAddressExist(final String emailAddress) {
     return memberRepository.existsByEmailAddress(emailAddress);
   }
 
   @Override
-  public boolean isPhoneNumberExist(String phoneNumber) {
+  public boolean isPhoneNumberExist(final String phoneNumber) {
     return memberRepository.existsByPhoneNumber(phoneNumber);
   }
 }

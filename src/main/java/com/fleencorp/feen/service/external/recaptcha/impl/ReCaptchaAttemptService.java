@@ -28,7 +28,7 @@ public class ReCaptchaAttemptService {
     attemptsCache = CacheBuilder.newBuilder()
       .expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<>() {
         @Override
-        public Integer load(String key) {
+        public Integer load(final String key) {
           return 0;
         }
       });
@@ -39,7 +39,7 @@ public class ReCaptchaAttemptService {
    * clear or reset the value of any previous reCaptcha attempt to the default value.
    * @param key the cache key that uniquely identifies a user or client
    */
-  public void reCaptchaSucceeded(String key) {
+  public void reCaptchaSucceeded(final String key) {
     attemptsCache.invalidate(key);
   }
 
@@ -47,7 +47,7 @@ public class ReCaptchaAttemptService {
    * Record a failed attempt of the user or client to perform reCaptcha verification
    * @param key the cache key that uniquely identifies a user or client
    */
-  public void reCaptchaFailed(String key) {
+  public void reCaptchaFailed(final String key) {
     int attempts = attemptsCache.getUnchecked(key);
     attempts++;
     attemptsCache.put(key, attempts);
@@ -58,7 +58,7 @@ public class ReCaptchaAttemptService {
    * @param key the cache key that uniquely identifies a user or client
    * @return true or false if the attempts has or has not been exceeded
    */
-  public boolean isBlocked(String key) {
+  public boolean isBlocked(final String key) {
     return attemptsCache.getUnchecked(key) >= MAX_ATTEMPT;
   }
 }

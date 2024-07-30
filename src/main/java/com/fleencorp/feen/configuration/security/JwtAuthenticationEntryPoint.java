@@ -44,7 +44,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
    * @param resolver The handler for resolving authentication exceptions.
    */
   public JwtAuthenticationEntryPoint(
-      @Lazy @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+      @Lazy @Qualifier("handlerExceptionResolver") final HandlerExceptionResolver resolver) {
     this.resolver = resolver;
   }
 
@@ -58,7 +58,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
    * @param authException The authentication exception that occurred.
    */
   @Override
-  public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
+  public void commence(final HttpServletRequest request, final HttpServletResponse response, final AuthenticationException authException) {
     resolver.resolveException(request, response, null, authException);
   }
 }

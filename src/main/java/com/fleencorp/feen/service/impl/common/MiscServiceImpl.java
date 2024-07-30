@@ -14,12 +14,12 @@ public class MiscServiceImpl implements
 
   private final PasswordEncoder passwordEncoder;
 
-  public MiscServiceImpl(PasswordEncoder passwordEncoder) {
+  public MiscServiceImpl(final PasswordEncoder passwordEncoder) {
     this.passwordEncoder = passwordEncoder;
   }
 
   @Override
-  public GetEncodedPasswordResponse getEncodedPassword(String password) {
+  public GetEncodedPasswordResponse getEncodedPassword(final String password) {
     return new GetEncodedPasswordResponse(createEncodedPassword(password), password);
   }
 

@@ -62,11 +62,11 @@ public class JsonUtil {
    * @return The deserialized value associated with the key,
    * or null if the value does not exist or the value could not be deserialized.
    */
-  public <T> T get(String value, Class<T> clazz) {
+  public <T> T get(final String value, final Class<T> clazz) {
     if (nonNull(value) && nonNull(clazz)) {
       try {
         return objectMapper.readValue(value, clazz);
-      } catch (JsonProcessingException ex) {
+      } catch (final JsonProcessingException ex) {
         log.error(ex.getMessage(), ex);
       }
     }

@@ -73,10 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param handlerExceptionResolver The resolver for handling exceptions during filter execution.
    */
   public JwtAuthenticationFilter(
-      TokenUtil tokenUtil,
-      CacheService cacheService,
-      @Lazy EmailService emailService,
-      @Lazy @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
+      final TokenUtil tokenUtil,
+      final CacheService cacheService,
+      @Lazy final EmailService emailService,
+      @Lazy @Qualifier("handlerExceptionResolver") final HandlerExceptionResolver handlerExceptionResolver) {
     this.tokenUtil = tokenUtil;
     this.cacheService = cacheService;
     this.emailService = emailService;
@@ -97,31 +97,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @throws InvalidAuthenticationTokenException if the authentication token is invalid or does not exist in the repository
    */
   @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) {
+  protected void doFilterInternal(@NonNull final HttpServletRequest request, @NonNull final HttpServletResponse response, @NonNull final FilterChain filterChain) {
     try {
       // Extract and validate JWT token
-      String token = extractAndValidateJwtToken(request);
+      final String token = extractAndValidateJwtToken(request);
       if (token == null) {
         filterChain.doFilter(request, response);
         return;
       }
 
       // Retrieve email address from the JWT token
-      String emailAddress = getEmailAddressFromToken(token);
+      final String emailAddress = getEmailAddressFromToken(token);
       if (!StringUtils.isNotEmpty(emailAddress)) {
         filterChain.doFilter(request, response);
         return;
       }
 
       // Validate the JWT token and set authentication details
-      boolean validationSuccessful = handleJwtTokenValidation(token, request);
+      final boolean validationSuccessful = handleJwtTokenValidation(token, request);
       if (!validationSuccessful) {
         throw new InvalidAuthenticationTokenException();
       }
 
       // Continue with the filter chain
       filterChain.doFilter(request, response);
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       handleException(request, response, ex);
     }
   }
@@ -139,15 +139,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param request HTTP servlet request associated with the token validation.
    * @return {@code true} if JWT token validation and authentication succeed, {@code false} otherwise.
    */
-  private boolean handleJwtTokenValidation(String token, HttpServletRequest request) {
+  private boolean handleJwtTokenValidation(final String token, final HttpServletRequest request) {
     try {
       if (isAuthenticationEmpty()) {
-        UserDetails userDetails = extractUserDetailsFromToken(token);
-        String key = getAccessTokenCacheKey(userDetails.getUsername());
-        String savedToken = getTokenFromCache(key);
+        final UserDetails userDetails = extractUserDetailsFromToken(token);
+        final String key = getAccessTokenCacheKey(userDetails.getUsername());
+        final String savedToken = getTokenFromCache(key);
 
         if (isTokenValid(token, userDetails)) {
-          UsernamePasswordAuthenticationToken authentication = createAuthenticationToken(request, userDetails);
+          final UsernamePasswordAuthenticationToken authentication = createAuthenticationToken(request, userDetails);
 
           // Set authentication in SecurityContextHolder based on conditions
           if (shouldSetAuthentication(key, savedToken, userDetails)) {
@@ -159,7 +159,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           }
         }
       }
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       // Log any exceptions as errors
       log.error(ex.getMessage(), ex);
     }
@@ -176,7 +176,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param userDetails User details to validate against the token.
    * @return {@code true} if the token is valid for the given user details, {@code false} otherwise.
    */
-  private boolean isTokenValid(String token, UserDetails userDetails) {
+  private boolean isTokenValid(final String token, final UserDetails userDetails) {
     return tokenUtil.isTokenValid(token, userDetails);
   }
 
@@ -200,7 +200,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param key The key used to retrieve the token from the cache.
    * @return The token associated with the provided key, or {@code null} if the key does not exist in the cache.
    */
-  private String getTokenFromCache(String key) {
+  private String getTokenFromCache(final String key) {
     return (String) cacheService.get(key);
   }
 
@@ -215,8 +215,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @return The created {@code UsernamePasswordAuthenticationToken}.
    */
   private UsernamePasswordAuthenticationToken createAuthenticationToken(
-      HttpServletRequest request, UserDetails userDetails) {
-    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+      final HttpServletRequest request, final UserDetails userDetails) {
+    final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
       userDetails,
       null,
       userDetails.getAuthorities());
@@ -233,8 +233,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param token The token from which to extract user details.
    * @return The {@code UserDetails} extracted from the token.
    */
-  private UserDetails extractUserDetailsFromToken(String token) {
-    TokenPayload details = tokenUtil.convertTokenMapToPayload(token);
+  private UserDetails extractUserDetailsFromToken(final String token) {
+    final TokenPayload details = tokenUtil.convertTokenMapToPayload(token);
     return FleenUser.fromToken(details);
   }
 
@@ -247,7 +247,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param request The HttpServletRequest object from which the Authorization header is extracted.
    * @return The extracted JWT token, or {@code null} if the header is missing or invalid.
    */
-  private String extractAndValidateJwtToken(HttpServletRequest request) {
+  private String extractAndValidateJwtToken(final HttpServletRequest request) {
     // Retrieve Authorization header from the request
     final String header = request.getHeader(AUTHORIZATION);
 
@@ -257,7 +257,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     // Extract and return the JWT token from the header
-    int index = AUTH_HEADER_PREFIX.length() + 1;
+    final int index = AUTH_HEADER_PREFIX.length() + 1;
     return header.substring(index);
   }
 
@@ -271,10 +271,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @return The email address extracted from the token.
    * @throws InvalidAuthenticationTokenException if there is an error extracting the email address from the token.
    */
-  private String getEmailAddressFromToken(String token) {
+  private String getEmailAddressFromToken(final String token) {
     try {
       return tokenUtil.getUsernameFromToken(token);
-    } catch (IllegalArgumentException | ExpiredJwtException | MalformedJwtException | SignatureException ex) {
+    } catch (final IllegalArgumentException | ExpiredJwtException | MalformedJwtException | SignatureException ex) {
       // Log the error
       log.error(ex.getMessage(), ex);
       throw new InvalidAuthenticationTokenException(ex.getMessage());
@@ -292,7 +292,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param userDetails The user details containing the authorities to check against the whitelist.
    * @return {@code true} if authentication should be set, {@code false} otherwise.
    */
-  private boolean shouldSetAuthentication(String key, String savedToken, UserDetails userDetails) {
+  private boolean shouldSetAuthentication(final String key, final String savedToken, final UserDetails userDetails) {
     return (cacheService.exists(key) && nonNull(savedToken)) ||
       isAuthorityWhitelisted(userDetails.getAuthorities());
   }
@@ -309,13 +309,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param response The {@code HttpServletResponse} to send the error response.
    * @param ex       The exception that occurred during the authentication process.
    */
-  private void handleException(HttpServletRequest request, HttpServletResponse response, Exception ex) {
+  private void handleException(final HttpServletRequest request, final HttpServletResponse response, final Exception ex) {
     log.error(ex.getMessage(), ex);
     if (ex instanceof InvalidAuthenticationTokenException) {
       resolver.resolveException(request, response, null, ex);
       return;
     }
-    InvalidAuthenticationException exception = new InvalidAuthenticationException(null);
+    final InvalidAuthenticationException exception = new InvalidAuthenticationException(null);
     resolver.resolveException(request, response, null, exception);
   }
 }

@@ -33,12 +33,12 @@ public class DeleteResponse {
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
   private final String timestamp;
 
-  public DeleteResponse(Object id) {
+  public DeleteResponse(final Object id) {
     this(SUCCESS, true);
     this.id = id;
   }
 
-  public DeleteResponse(String message, boolean status) {
+  public DeleteResponse(final String message, final boolean status) {
     this.message = message;
     this.timestamp = LocalDateTime.now().toString();
     this.statusCode = status ? OK.value() : BAD_REQUEST.value();

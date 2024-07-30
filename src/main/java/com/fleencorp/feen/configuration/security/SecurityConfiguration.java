@@ -51,7 +51,7 @@ public class SecurityConfiguration {
   };
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
 
     http
       .authorizeHttpRequests((requests) ->
@@ -80,8 +80,8 @@ public class SecurityConfiguration {
   }
 
   @Bean
-  public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
-    AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+  public AuthenticationManager authenticationManagerBean(final HttpSecurity http) throws Exception {
+    final AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
     authenticationManagerBuilder.authenticationProvider(authenticationProvider);
 
     return authenticationManagerBuilder.build();

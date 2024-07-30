@@ -25,7 +25,7 @@ public class CountryExistValidator implements ConstraintValidator<CountryExist, 
   *
   * @param service the CountryService to use for checking if a country exists
   */
-  public CountryExistValidator(CountryService service) {
+  public CountryExistValidator(final CountryService service) {
     this.service = service;
   }
 
@@ -35,7 +35,7 @@ public class CountryExistValidator implements ConstraintValidator<CountryExist, 
   * @param constraintAnnotation the annotation instance for a given constraint declaration
   */
   @Override
-  public void initialize(CountryExist constraintAnnotation) {}
+  public void initialize(final CountryExist constraintAnnotation) {}
 
   /**
   * Checks if the given country ID is valid by verifying its existence using the {@link CountryService}.
@@ -49,11 +49,11 @@ public class CountryExistValidator implements ConstraintValidator<CountryExist, 
   * @return true if the country ID exists, false otherwise
   */
   @Override
-  public boolean isValid(String countryId, ConstraintValidatorContext context) {
+  public boolean isValid(final String countryId, final ConstraintValidatorContext context) {
     if (nonNull(countryId)) {
       try {
         return service.isCountryExists(Long.parseLong(countryId));
-      } catch (Exception ignored) {}
+      } catch (final Exception ignored) {}
       return false;
     }
     return true;

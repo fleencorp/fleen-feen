@@ -24,7 +24,7 @@ public enum ResultType implements ApiParameter {
    *
    * @param value the string value associated with the result type
    */
-  ResultType(String value) {
+  ResultType(final String value) {
     this.value = value;
   }
 }

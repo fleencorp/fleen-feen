@@ -14,8 +14,8 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.MFA_SETUP
 @NoArgsConstructor
 public class MfaSetupVerificationRequest extends MfaVerificationRequest {
 
-  public static MfaSetupVerificationRequest of(String verificationCode, String firstName, String lastName, String emailAddress,
-                                          String phoneNumber, VerificationType verificationType) {
+  public static MfaSetupVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
+                                               final String phoneNumber, final VerificationType verificationType) {
     return MfaSetupVerificationRequest.builder()
         .verificationCode(verificationCode)
         .firstName(firstName)

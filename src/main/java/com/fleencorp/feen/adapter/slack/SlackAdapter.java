@@ -46,8 +46,8 @@ public class SlackAdapter {
    * @param methodsClient  The client providing methods for Slack API calls.
    */
   public SlackAdapter(
-      Slack slackClient,
-      MethodsClient methodsClient) {
+      final Slack slackClient,
+      final MethodsClient methodsClient) {
     this.slackClient = slackClient;
     this.methodsClient = methodsClient;
   }
@@ -62,14 +62,14 @@ public class SlackAdapter {
    * @param sendMessageRequest An object containing the details of the message to be sent, including the target URL,
    *                           message title, data map, Slack color, and optional icon emoji.
    */
-  public void sendMessage(SendMessageRequest sendMessageRequest) {
-    String url = sendMessageRequest.getUrl();
-    String title = sendMessageRequest.getTitle();
-    Map<String, Object> data = sendMessageRequest.getData();
-    SlackColor slackColor = sendMessageRequest.getSlackColor();
+  public void sendMessage(final SendMessageRequest sendMessageRequest) {
+    final String url = sendMessageRequest.getUrl();
+    final String title = sendMessageRequest.getTitle();
+    final Map<String, Object> data = sendMessageRequest.getData();
+    final SlackColor slackColor = sendMessageRequest.getSlackColor();
     try {
       slackClient.send(url, createPayloadWithAttachmentsAndFields(title, data, sendMessageRequest.getIconEmoji(), slackColor));
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       log.error("Error sending message to Slack. Reason: {}", ex.getMessage());
     }
   }
@@ -88,8 +88,8 @@ public class SlackAdapter {
    * @param slackColor The {@link SlackColor} to set for the attachments.
    * @return A {@link Payload} object configured with the specified text, attachments, and icon emoji.
    */
-  private Payload createPayloadWithAttachmentsAndFields(String textOrTitle, Map<String, Object> data, String iconEmoji, SlackColor slackColor) {
-    List<Attachment> attachments = createAttachmentsWithFields(data);
+  private Payload createPayloadWithAttachmentsAndFields(final String textOrTitle, final Map<String, Object> data, final String iconEmoji, final SlackColor slackColor) {
+    final List<Attachment> attachments = createAttachmentsWithFields(data);
     setAttachmentsColor(attachments, slackColor);
     return Payload.builder()
         .text(textOrTitle)
@@ -109,8 +109,8 @@ public class SlackAdapter {
    *             field titles, and the values represent field values.
    * @return A list containing a single {@link Attachment} object with the fields set according to the provided data.
    */
-  private List<Attachment> createAttachmentsWithFields(Map<String, Object> data) {
-    Attachment attachment = Attachment
+  private List<Attachment> createAttachmentsWithFields(final Map<String, Object> data) {
+    final Attachment attachment = Attachment
         .builder()
         .fields(createFields(data))
         .build();
@@ -130,8 +130,8 @@ public class SlackAdapter {
    * @see <a href="https://velog.io/@devty/Slack-WebHook-%ED%99%9C%EC%9A%A9%ED%95%98%EA%B8%B0-Request-Caching">
    *   Using Slack WebHook (Request Caching)</a>
    */
-  private Attachment createAttachmentByHttpRequest(SendMessageRequest sendMessageRequest) {
-    Attachment attachment = new Attachment();
+  private Attachment createAttachmentByHttpRequest(final SendMessageRequest sendMessageRequest) {
+    final Attachment attachment = new Attachment();
     attachment.setServiceIcon(sendMessageRequest.getIconEmoji());
     attachment.setColor(sendMessageRequest.getSlackColor().getLabel());
     attachment.setTitle(sendMessageRequest.getTitle());
@@ -155,7 +155,7 @@ public class SlackAdapter {
    * @see <a href="https://velog.io/@gudtjr2949/Spring-Boot-%EA%B3%B5%ED%86%B5-%EC%97%90%EB%9F%AC-%EA%B4%80%EB%A6%AC-Slack-%EC%95%8C%EB%A6%BC-2">
    *   Spring Boot Common Error Management + Slack Notification (2)</a>
    */
-  private List<Field> createFieldsByHttpRequest(HttpServletRequest req) {
+  private List<Field> createFieldsByHttpRequest(final HttpServletRequest req) {
     return List.of(
         Field.builder().title("Request URL").value(req.getRequestURL().toString()).build(),
         Field.builder().title("Request Method").value(req.getMethod()).build(),
@@ -178,7 +178,7 @@ public class SlackAdapter {
    * @see <a href="https://velog.io/@yyy96/spring-aop">
    *   AOP in Practice (feat. Slack Integration)</a>
    */
-  private List<Field> createFields(Map<String, Object> data) {
+  private List<Field> createFields(final Map<String, Object> data) {
     if (nonNull(data)) {
       return data.entrySet()
           .stream()
@@ -201,7 +201,7 @@ public class SlackAdapter {
    * @see <a href="https://velog.io/@ayoung0073/Slack-Bot">
    *   [SpringBoot] Creating a Slack Bot</a>
    */
-  private Field createSlackField(String title, String value) {
+  private Field createSlackField(final String title, final String value) {
     return Field.builder()
         .title(title)
         .value(value)
@@ -218,11 +218,11 @@ public class SlackAdapter {
    * @param attachments A list of Slack attachments to modify.
    * @param slackColor  The color to set on each attachment.
    */
-  private void setAttachmentsColor(List<Attachment> attachments, SlackColor slackColor) {
+  private void setAttachmentsColor(final List<Attachment> attachments, final SlackColor slackColor) {
     // Check if attachments and slackColor are not null before proceeding
     if (nonNull(attachments) && nonNull(slackColor)) {
       // Iterate through each attachment and set its color to the provided slackColor
-      for (Attachment attachment : attachments) {
+      for (final Attachment attachment : attachments) {
         attachment.setColor(slackColor.getColorCode());
       }
     }
@@ -240,11 +240,11 @@ public class SlackAdapter {
    * @see <a href="https://api.slack.com/methods/chat.postMessage">
    *   chat.postMessage</a>
    */
-  public void sendMessage(String channelOrGroup, String message) {
-    ChatPostMessageRequest chatPostMessageRequest = createMessage(channelOrGroup, message);
+  public void sendMessage(final String channelOrGroup, final String message) {
+    final ChatPostMessageRequest chatPostMessageRequest = createMessage(channelOrGroup, message);
     try {
       methodsClient.chatPostMessage(chatPostMessageRequest);
-    } catch (SlackApiException | IOException ex) {
+    } catch (final SlackApiException | IOException ex) {
       log.error("Error has occurred. Reason: {}", ex.getMessage());
     }
   }
@@ -259,7 +259,7 @@ public class SlackAdapter {
    * @see <a href="https://velog.io/@yujinaa/Slack-API-Client-Java%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%B4-Slack%EC%97%90-%EB%A9%94%EC%84%B8%EC%A7%80-%EB%B3%B4%EB%82%B4%EA%B8%B0">
    *   [Slack API] Sending messages to Slack using Java</a>
    */
-  protected ChatPostMessageRequest createMessage(String groupOrChannel, String message) {
+  protected ChatPostMessageRequest createMessage(final String groupOrChannel, final String message) {
     return ChatPostMessageRequest.builder()
         .channel(groupOrChannel)
         .text(message)

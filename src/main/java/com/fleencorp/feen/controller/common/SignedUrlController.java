@@ -29,9 +29,9 @@ public class SignedUrlController {
   private final S3BucketNames s3BucketNames;
 
   public SignedUrlController(
-      ObjectService objectService,
-      S3Service s3Service,
-      S3BucketNames s3BucketNames) {
+      final ObjectService objectService,
+      final S3Service s3Service,
+      final S3BucketNames s3BucketNames) {
     this.objectService = objectService;
     this.s3Service = s3Service;
     this.s3BucketNames = s3BucketNames;
@@ -48,12 +48,12 @@ public class SignedUrlController {
   @GetMapping("/stream-thumbnail")
   public SignedUrlResponse forStreamCoverPhotoOrThumbnail(
     @Parameter(description = "The file or object name", required = true)
-      @RequestParam(name = "file_name") String fileName) {
-    String generatedFileName = objectService.generateRandomNameForFile(fileName);
-    String fileContentType = s3Service.detectContentType(generatedFileName);
-    String bucketName = s3BucketNames.getStreamCoverPhoto();
+      @RequestParam(name = "file_name") final String fileName) {
+    final String generatedFileName = objectService.generateRandomNameForFile(fileName);
+    final String fileContentType = s3Service.detectContentType(generatedFileName);
+    final String bucketName = s3BucketNames.getStreamCoverPhoto();
 
-    String signedUrl = s3Service.generateSignedUrl(bucketName, generatedFileName, fileContentType);
+    final String signedUrl = s3Service.generateSignedUrl(bucketName, generatedFileName, fileContentType);
     return new SignedUrlResponse(signedUrl);
   }
 
@@ -68,12 +68,12 @@ public class SignedUrlController {
   @GetMapping("/profile-photo")
   public SignedUrlResponse forProfilePhoto(
     @Parameter(description = "The file or object name", required = true)
-      @RequestParam(name = "file_name") String fileName) {
-    String generatedFileName = objectService.generateRandomNameForFile(fileName);
-    String fileContentType = s3Service.detectContentType(generatedFileName);
-    String bucketName = s3BucketNames.getUserPhoto();
+      @RequestParam(name = "file_name") final String fileName) {
+    final String generatedFileName = objectService.generateRandomNameForFile(fileName);
+    final String fileContentType = s3Service.detectContentType(generatedFileName);
+    final String bucketName = s3BucketNames.getUserPhoto();
 
-    String signedUrl = s3Service.generateSignedUrl(bucketName, generatedFileName, fileContentType);
+    final String signedUrl = s3Service.generateSignedUrl(bucketName, generatedFileName, fileContentType);
     return new SignedUrlResponse(signedUrl);
   }
 }

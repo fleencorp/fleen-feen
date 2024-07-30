@@ -45,8 +45,8 @@ public class CacheConfiguration {
    * @param credentials the cache properties containing Redis connection details, such as host, port, and credentials.
    * @param mapper      the {@link ObjectMapper} used for JSON serialization and deserialization.
    */
-  public CacheConfiguration(CacheProperties credentials,
-                            ObjectMapper mapper) {
+  public CacheConfiguration(final CacheProperties credentials,
+                            final ObjectMapper mapper) {
     this.credentials = credentials;
     this.mapper = mapper;
   }
@@ -63,7 +63,7 @@ public class CacheConfiguration {
    */
   @Bean
   public JedisConnectionFactory connectionFactory() {
-    RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+    final RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
     configuration.setHostName(credentials.getHost());
     configuration.setPort(credentials.getPort());
     configuration.setPassword(RedisPassword.of(credentials.getPassword()));
@@ -84,7 +84,7 @@ public class CacheConfiguration {
    */
   @Bean
   public RedisCacheConfiguration redisCacheConfiguration() {
-    RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig();
+    final RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig();
     configuration.entryTtl(Duration.ofMinutes(credentials.getTtl()));
     configuration.disableCachingNullValues();
     configuration.usePrefix();
@@ -145,8 +145,8 @@ public class CacheConfiguration {
    */
   @Bean
   @Primary
-  public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory connectionFactory) {
-    RedisTemplate<String, Object> template = new RedisTemplate<>();
+  public RedisTemplate<String, Object> redisTemplate(final JedisConnectionFactory connectionFactory) {
+    final RedisTemplate<String, Object> template = new RedisTemplate<>();
     configurePool(connectionFactory);
     template.setConnectionFactory(connectionFactory);
     template.setKeySerializer(stringSerializer());
@@ -165,7 +165,7 @@ public class CacheConfiguration {
    *
    * @param connectionFactory the {@link JedisConnectionFactory} instance to configure
    */
-  private void configurePool(JedisConnectionFactory connectionFactory) {
+  private void configurePool(final JedisConnectionFactory connectionFactory) {
     if (connectionFactory.getPoolConfig() != null) {
       connectionFactory.getPoolConfig().setMaxTotal(credentials.getMaxTotal());
       connectionFactory.getPoolConfig().setMaxIdle(credentials.getMaxIdle());
@@ -206,8 +206,8 @@ public class CacheConfiguration {
    */
   @Bean
   public RedisMessageListenerContainer redisMessageListenerContainer(
-      RedisConnectionFactory connectionFactory, MessageListenerAdapter messageListenerAdapter) {
-    RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+      final RedisConnectionFactory connectionFactory, final MessageListenerAdapter messageListenerAdapter) {
+    final RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(connectionFactory);
     container.addMessageListener(messageListenerAdapter, channelTopic());
     return container;
@@ -237,7 +237,7 @@ public class CacheConfiguration {
    *   Spring Real-time Chat Implementation (STOMP & Redis Pub/Sub)</a>
    */
   @Bean
-  public MessageListenerAdapter messageListenerAdapter(StreamEventSubscriber subscription) {
+  public MessageListenerAdapter messageListenerAdapter(final StreamEventSubscriber subscription) {
     return new MessageListenerAdapter(subscription, "onMessage");
   }
 }

@@ -17,7 +17,7 @@ public enum MfaSetupStatus implements ApiParameter {
 
   private final String value;
 
-  MfaSetupStatus(String value) {
+  MfaSetupStatus(final String value) {
     this.value = value;
   }
 }

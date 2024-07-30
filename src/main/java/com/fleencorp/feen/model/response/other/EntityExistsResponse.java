@@ -24,11 +24,11 @@ public class EntityExistsResponse {
   @JsonProperty("status_code")
   private Integer statusCode;
 
-  public EntityExistsResponse(boolean exists) {
+  public EntityExistsResponse(final boolean exists) {
     this(exists, true);
   }
 
-  public EntityExistsResponse(boolean exists, boolean status) {
+  public EntityExistsResponse(final boolean exists, final boolean status) {
     this.exists = exists;
     this.timestamp = LocalDateTime.now();
     this.statusCode = status ? OK.value() : BAD_REQUEST.value();

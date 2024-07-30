@@ -1,8 +1,9 @@
-package com.fleencorp.feen.model.domain.user;
+package com.fleencorp.feen.model.domain.share;
 
 import com.fleencorp.feen.constant.user.ShareContactRequestStatus;
 import com.fleencorp.feen.constant.user.ShareContactRequestType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

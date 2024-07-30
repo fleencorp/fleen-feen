@@ -30,7 +30,7 @@ public class AsyncConfig implements AsyncConfigurer {
 
   private final TaskExecutionProperties taskExecutionProperties;
 
-  public AsyncConfig(TaskExecutionProperties taskExecutionProperties) {
+  public AsyncConfig(final TaskExecutionProperties taskExecutionProperties) {
     this.taskExecutionProperties = taskExecutionProperties;
   }
 
@@ -79,7 +79,7 @@ public class AsyncConfig implements AsyncConfigurer {
   @Override
   @Bean()
   public Executor getAsyncExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(taskExecutionProperties.getPool().getCoreSize());
     executor.setMaxPoolSize(taskExecutionProperties.getPool().getMaxSize());
     executor.setQueueCapacity(taskExecutionProperties.getPool().getQueueCapacity());

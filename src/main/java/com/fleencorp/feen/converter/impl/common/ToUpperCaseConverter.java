@@ -18,7 +18,7 @@ public class ToUpperCaseConverter extends StdConverter<String, String> {
    * @return The uppercase version of the input String.
    */
   @Override
-  public String convert(String value) {
+  public String convert(final String value) {
     return value == null
             ? null
             : value.trim().toUpperCase();

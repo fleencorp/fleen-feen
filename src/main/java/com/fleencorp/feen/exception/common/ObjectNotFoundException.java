@@ -19,7 +19,7 @@ public class ObjectNotFoundException extends FleenException {
 
   public static final String MESSAGE = "Object does not exists or cannot be found. File name: %s";
 
-  public ObjectNotFoundException(String objectKeyOrFileName) {
+  public ObjectNotFoundException(final String objectKeyOrFileName) {
     super(format(MESSAGE, Objects.toString(objectKeyOrFileName, UNKNOWN)));
   }
 }

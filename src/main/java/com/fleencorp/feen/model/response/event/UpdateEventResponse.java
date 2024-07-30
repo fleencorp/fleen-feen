@@ -28,7 +28,7 @@ public class UpdateEventResponse extends CreateEventResponse {
   @JsonProperty("message")
   private String message = "Event updated successfully";
 
-  public static UpdateEventResponse of(Long eventId, EventResponse event) {
+  public static UpdateEventResponse of(final Long eventId, final EventResponse event) {
     return UpdateEventResponse.builder()
             .eventId(eventId)
             .event(event)

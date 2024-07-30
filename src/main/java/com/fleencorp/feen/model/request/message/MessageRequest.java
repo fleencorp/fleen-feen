@@ -27,7 +27,7 @@ public class MessageRequest {
   protected String errorMessage;
 
   public Map<String, Object> toMessagePayload() {
-    Map<String, Object> payload = new HashMap<>();
+    final Map<String, Object> payload = new HashMap<>();
     payload.put(FIRST_NAME.getValue(), firstName);
     payload.put(LAST_NAME.getValue(), lastName);
     payload.put(EMAIL_ADDRESS.getValue(), emailAddress);

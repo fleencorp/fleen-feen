@@ -39,9 +39,9 @@ public class TokenServiceImpl implements TokenService {
    * @param tokenProperties properties related to token generation and validation
    */
   public TokenServiceImpl(
-      CacheService cacheService,
-      TokenUtil tokenUtil,
-      TokenProperties tokenProperties) {
+      final CacheService cacheService,
+      final TokenUtil tokenUtil,
+      final TokenProperties tokenProperties) {
     this.cacheService = cacheService;
     this.tokenUtil = tokenUtil;
     this.tokenProperties = tokenProperties;
@@ -54,7 +54,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to access the application or API features
    */
   @Override
-  public String createAccessToken(FleenUser user) {
+  public String createAccessToken(final FleenUser user) {
     return tokenUtil.generateAccessToken(user, ACCESS_TOKEN, null);
   }
 
@@ -65,7 +65,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to access the application or API features
    */
   @Override
-  public String createAccessToken(FleenUser user, AuthenticationStatus authenticationStatus) {
+  public String createAccessToken(final FleenUser user, final AuthenticationStatus authenticationStatus) {
     return tokenUtil.generateAccessToken(user, ACCESS_TOKEN, authenticationStatus);
   }
 
@@ -77,7 +77,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to obtain new access token.
    */
   @Override
-  public String createRefreshToken(FleenUser user) {
+  public String createRefreshToken(final FleenUser user) {
     return tokenUtil.generateRefreshToken(user, REFRESH_TOKEN, null);
   }
 
@@ -90,7 +90,7 @@ public class TokenServiceImpl implements TokenService {
    * @return String the generated reset password token
    */
   @Override
-  public String createResetPasswordToken(FleenUser user) {
+  public String createResetPasswordToken(final FleenUser user) {
     return tokenUtil.generateResetPasswordToken(user, RESET_PASSWORD_TOKEN, null);
   }
 
@@ -102,8 +102,8 @@ public class TokenServiceImpl implements TokenService {
    * @param token the user's token to validate during the requests and process of using the application
    */
   @Override
-  public void saveAccessToken(String subject, String token) {
-    Duration duration = Duration.ofHours(tokenProperties.getAccessToken());
+  public void saveAccessToken(final String subject, final String token) {
+    final Duration duration = Duration.ofHours(tokenProperties.getAccessToken());
     cacheService.set(getAccessTokenCacheKey(subject), token, duration);
   }
 
@@ -114,8 +114,8 @@ public class TokenServiceImpl implements TokenService {
    * @param token the user's token to validate during request and use to get a new token
    */
   @Override
-  public void saveRefreshToken(String subject, String token) {
-    Duration duration = Duration.ofHours(tokenProperties.getRefreshToken());
+  public void saveRefreshToken(final String subject, final String token) {
+    final Duration duration = Duration.ofHours(tokenProperties.getRefreshToken());
     cacheService.set(getRefreshTokenCacheKey(subject), token, duration);
   }
 
@@ -126,8 +126,8 @@ public class TokenServiceImpl implements TokenService {
    * @param token   the reset password token to be saved
    */
   @Override
-  public void saveResetPasswordToken(String subject, String token) {
-    Duration duration = ofHours(toHours(new Date(), tokenUtil.getExpirationDateFromToken(token)));
+  public void saveResetPasswordToken(final String subject, final String token) {
+    final Duration duration = ofHours(toHours(new Date(), tokenUtil.getExpirationDateFromToken(token)));
     cacheService.set(getResetPasswordTokenCacheKey(subject), token, duration);
   }
 

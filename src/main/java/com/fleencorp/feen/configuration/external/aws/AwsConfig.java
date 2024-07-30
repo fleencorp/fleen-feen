@@ -44,9 +44,9 @@ public class AwsConfig {
    * @param regionName AWS region name
    */
   public AwsConfig(
-      @Value("${aws.access.key.id}") String accessKeyId,
-      @Value("${aws.access.key.secret}") String accessKeySecret,
-      @Value("${aws.s3.region.name}") String regionName) {
+      @Value("${aws.access.key.id}") final String accessKeyId,
+      @Value("${aws.access.key.secret}") final String accessKeySecret,
+      @Value("${aws.s3.region.name}") final String regionName) {
     this.accessKeyId = accessKeyId;
     this.accessKeySecret = accessKeySecret;
     this.regionName = regionName;
@@ -58,7 +58,7 @@ public class AwsConfig {
    */
   @Bean
   public AwsCredentialsProvider getAwsCredentialsProvider() {
-    AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKeyId, accessKeySecret);
+    final AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKeyId, accessKeySecret);
     return StaticCredentialsProvider.create(credentials);
   }
 
@@ -126,7 +126,7 @@ public class AwsConfig {
   @Bean
   @Primary
   public S3Presigner s3Presigner() {
-    S3Configuration s3Config = S3Configuration.builder()
+    final S3Configuration s3Config = S3Configuration.builder()
       .chunkedEncodingEnabled(true) // Enable chunked encoding for faster uploads
       .accelerateModeEnabled(true)
       .build();

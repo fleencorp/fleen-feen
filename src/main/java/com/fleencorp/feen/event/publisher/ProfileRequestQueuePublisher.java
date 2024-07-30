@@ -42,8 +42,8 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    * @param sqsAsyncClient  The asynchronous SQS client used for interacting with SQS.
    */
   public ProfileRequestQueuePublisher(
-      SqsQueueNames sqsQueueNames,
-      SqsAsyncClient sqsAsyncClient) {
+      final SqsQueueNames sqsQueueNames,
+      final SqsAsyncClient sqsAsyncClient) {
     this.sqsQueueNames = sqsQueueNames;
     this.sqsTemplate = SqsTemplate.newTemplate(sqsAsyncClient);
   }
@@ -58,8 +58,8 @@ public class ProfileRequestQueuePublisher implements PublisherService {
   @Override
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void publishMessage(PublishMessageRequest messageRequest) {
-    Object message = messageRequest.getMessage();
+  public void publishMessage(final PublishMessageRequest messageRequest) {
+    final Object message = messageRequest.getMessage();
     processAndDeliverMessage(message);
   }
 
@@ -70,15 +70,15 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *                {@link SignUpVerificationRequest}, {@link CompletedUserSignUpRequest},
    *                {@link MfaSetupVerificationRequest}, {@link MfaVerificationRequest}, or {@link ForgotPasswordRequest}
    */
-  protected void processAndDeliverMessage(Object message) {
+  protected void processAndDeliverMessage(final Object message) {
     switch (message) {
-      case SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
-      case CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
-      case MfaSetupVerificationRequest request -> sendMfaSetupVerificationCode(request);
-      case MfaVerificationRequest request -> sendMfaVerificationCode(request);
-      case ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
-      case ProfileUpdateVerificationRequest request -> sendProfileUpdateVerificationCode(request);
-      case ResetPasswordSuccessRequest request -> sendResetPasswordSuccess(request);
+      case final SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
+      case final CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
+      case final MfaSetupVerificationRequest request -> sendMfaSetupVerificationCode(request);
+      case final MfaVerificationRequest request -> sendMfaVerificationCode(request);
+      case final ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
+      case final ProfileUpdateVerificationRequest request -> sendProfileUpdateVerificationCode(request);
+      case final ResetPasswordSuccessRequest request -> sendResetPasswordSuccess(request);
       default -> {}
     }
   }
@@ -88,7 +88,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the request containing the MFA verification details
    */
-  protected void sendMfaVerificationCode(MfaVerificationRequest request) {
+  protected void sendMfaVerificationCode(final MfaVerificationRequest request) {
     sqsTemplate.send(to -> to
       .queue(sqsQueueNames.getMfaVerification())
       .payload(request));
@@ -99,7 +99,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the request containing the MFA setup verification details
    */
-  protected void sendMfaSetupVerificationCode(MfaSetupVerificationRequest request) {
+  protected void sendMfaSetupVerificationCode(final MfaSetupVerificationRequest request) {
     sqsTemplate.send(to -> to
       .queue(sqsQueueNames.getMfaSetup())
       .payload(request));
@@ -110,7 +110,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the request containing the completed user sign-up verification details
    */
-  protected void sendCompletedSignUpVerification(CompletedUserSignUpRequest request) {
+  protected void sendCompletedSignUpVerification(final CompletedUserSignUpRequest request) {
     sqsTemplate.send(to -> to
       .queue(sqsQueueNames.getCompleteUserSignUp())
       .payload(request));
@@ -121,7 +121,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the request containing the forgot password verification details
    */
-  protected void sendForgotPasswordVerificationCode(ForgotPasswordRequest request) {
+  protected void sendForgotPasswordVerificationCode(final ForgotPasswordRequest request) {
     sqsTemplate.send(to -> to
         .queue(sqsQueueNames.getForgotPassword())
         .payload(request));
@@ -132,7 +132,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the request containing the sign-up verification details
    */
-  protected void sendSignUpVerificationCode(SignUpVerificationRequest request) {
+  protected void sendSignUpVerificationCode(final SignUpVerificationRequest request) {
     sqsTemplate.send(to -> to
       .queue(sqsQueueNames.getSignUpVerification())
       .payload(request));
@@ -143,7 +143,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param messageRequest The message request containing the message to be published.
    */
-  protected void sendCreateStreamEventMessage(PublishMessageRequest messageRequest) {
+  protected void sendCreateStreamEventMessage(final PublishMessageRequest messageRequest) {
     sqsTemplate.send(to -> to
       .queue(sqsQueueNames.getCreateStreamEvent())
       .payload(messageRequest.getMessage()));
@@ -154,7 +154,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the profile update verification request to be sent
    */
-  protected void sendProfileUpdateVerificationCode(ProfileUpdateVerificationRequest request) {
+  protected void sendProfileUpdateVerificationCode(final ProfileUpdateVerificationRequest request) {
     sqsTemplate.send(to -> to
         .queue(sqsQueueNames.getProfileUpdateVerification())
         .payload(request));
@@ -165,7 +165,7 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *
    * @param request the reset password success request to be sent
    */
-  protected void sendResetPasswordSuccess(ResetPasswordSuccessRequest request) {
+  protected void sendResetPasswordSuccess(final ResetPasswordSuccessRequest request) {
     sqsTemplate.send(to -> to
         .queue(sqsQueueNames.getResetPasswordSuccess())
         .payload(request));

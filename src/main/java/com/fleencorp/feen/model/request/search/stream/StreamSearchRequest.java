@@ -40,8 +40,8 @@ public class StreamSearchRequest extends SearchRequest {
   @JsonProperty("another_user_id")
   protected Long anotherUserId;
 
-  public StreamVisibility getVisibility(StreamVisibility defaultVisibility) {
-    StreamVisibility actualStreamVisibility = parseEnumOrNull(streamVisibility, StreamVisibility.class);
+  public StreamVisibility getVisibility(final StreamVisibility defaultVisibility) {
+    final StreamVisibility actualStreamVisibility = parseEnumOrNull(streamVisibility, StreamVisibility.class);
     if (nonNull(actualStreamVisibility)) {
       return actualStreamVisibility;
     }

@@ -24,7 +24,7 @@ public class TemplateProcessor {
    *
    * @param templateEngine the SpringTemplateEngine used for processing templates
    */
-  public TemplateProcessor(SpringTemplateEngine templateEngine) {
+  public TemplateProcessor(final SpringTemplateEngine templateEngine) {
     this.templateEngine = templateEngine;
   }
 
@@ -39,8 +39,8 @@ public class TemplateProcessor {
    * @param templateVariables  a map of variables to be used in the template processing
    * @return                   the processed template output as a String
    */
-  public String processTemplate(String templateName, Map<String, Object> templateVariables) {
-    Context thymeleafContext = new Context();
+  public String processTemplate(final String templateName, final Map<String, Object> templateVariables) {
+    final Context thymeleafContext = new Context();
     thymeleafContext.setVariables(templateVariables);
     return templateEngine.process(templateName, thymeleafContext);
   }
@@ -53,8 +53,8 @@ public class TemplateProcessor {
    *                          and values are the actual values to substitute
    * @return the processed SMS template body with placeholders replaced by actual values
    */
-  public String processTemplateSms(String templateBody, Map<String, Object> templateVariables) {
-    StringSubstitutor substitutor = new StringSubstitutor(templateVariables);
+  public String processTemplateSms(final String templateBody, final Map<String, Object> templateVariables) {
+    final StringSubstitutor substitutor = new StringSubstitutor(templateVariables);
     return substitutor.replace(templateBody);
   }
 

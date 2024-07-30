@@ -38,9 +38,9 @@ public class MobileTextServiceImpl implements MobileTextService {
    * @param snsClient The Amazon SNS client used to send SMS messages.
    */
   public MobileTextServiceImpl(
-      @Value("${sms.message.sender-id}") String senderId,
-      @Value("${sms.message.type}") String messageType,
-      SnsClient snsClient) {
+      @Value("${sms.message.sender-id}") final String senderId,
+      @Value("${sms.message.type}") final String messageType,
+      final SnsClient snsClient) {
     this.senderId = senderId;
     this.messageType = messageType;
     this.snsClient = snsClient;
@@ -53,9 +53,9 @@ public class MobileTextServiceImpl implements MobileTextService {
    * @param message     the message content to be sent
    */
   @Override
-  public void sendMessage(String phoneNumber, String message) {
+  public void sendMessage(final String phoneNumber, final String message) {
     try {
-      Map<String, MessageAttributeValue> smsAttributes =
+      final Map<String, MessageAttributeValue> smsAttributes =
           new HashMap<>();
 
       setAttributes(smsAttributes);
@@ -66,7 +66,7 @@ public class MobileTextServiceImpl implements MobileTextService {
           .phoneNumber(phoneNumber)
           .messageAttributes(smsAttributes)
           .build());
-    } catch (RuntimeException ex) {
+    } catch (final RuntimeException ex) {
       log.error(ex.getMessage(), ex);
     }
   }
@@ -76,7 +76,7 @@ public class MobileTextServiceImpl implements MobileTextService {
    *
    * @param smsAttributes a map containing SMS attributes to be set
    */
-  protected void setAttributes(Map<String, MessageAttributeValue> smsAttributes) {
+  protected void setAttributes(final Map<String, MessageAttributeValue> smsAttributes) {
     if (nonNull(smsAttributes)) {
       smsAttributes.put(AWS_SNS_SMS_TYPE, MessageAttributeValue.builder()
           .stringValue(messageType)

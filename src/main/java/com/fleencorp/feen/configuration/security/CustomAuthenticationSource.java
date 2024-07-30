@@ -36,7 +36,7 @@ public class CustomAuthenticationSource implements AuthenticationDetailsSource<H
    * @return The {@link WebAuthenticationDetails} containing custom authentication details.
    */
   @Override
-  public WebAuthenticationDetails buildDetails(HttpServletRequest request) {
+  public WebAuthenticationDetails buildDetails(final HttpServletRequest request) {
     return null;
   }
 }

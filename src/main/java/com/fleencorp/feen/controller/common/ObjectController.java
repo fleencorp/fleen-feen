@@ -28,8 +28,8 @@ public class ObjectController {
   private final S3BucketNames s3BucketNames;
 
   public ObjectController(
-      S3Service s3Service,
-      S3BucketNames s3BucketNames) {
+      final S3Service s3Service,
+      final S3BucketNames s3BucketNames) {
     this.s3Service = s3Service;
     this.s3BucketNames = s3BucketNames;
   }
@@ -45,7 +45,7 @@ public class ObjectController {
   @DeleteMapping(value = "/delete/profile-photo")
   public DeleteResponse deleteProfilePhoto(
     @Parameter(description = "Object key for the profile photo", required = true)
-      @RequestParam(name = "key") String key) {
+      @RequestParam(name = "key") final String key) {
     s3Service.deleteObjectSilent(s3BucketNames.getUserPhoto(), key);
     return new DeleteResponse();
   }
@@ -61,7 +61,7 @@ public class ObjectController {
   @DeleteMapping(value = "/delete/stream-cover-photo")
   public DeleteResponse deleteStreamCoverPhoto(
     @Parameter(description = "Object key for the stream cover photo or thumbnail", required = true)
-      @RequestParam(name = "key") String key) {
+      @RequestParam(name = "key") final String key) {
     s3Service.deleteObjectSilent(s3BucketNames.getStreamCoverPhoto(), key);
     return new DeleteResponse();
   }

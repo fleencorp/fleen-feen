@@ -28,7 +28,7 @@ public class UpdateStreamResponse extends CreateStreamResponse {
   @JsonProperty("message")
   private String message = "Stream updated successfully";
 
-  public static UpdateStreamResponse of(Long streamId, FleenStreamResponse stream) {
+  public static UpdateStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
     return UpdateStreamResponse.builder()
             .streamId(streamId)
             .stream(stream)

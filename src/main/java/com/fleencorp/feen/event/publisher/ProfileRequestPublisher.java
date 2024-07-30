@@ -39,7 +39,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param applicationEventPublisher the event publisher used to publish profile-related events
    */
-  public ProfileRequestPublisher(ApplicationEventPublisher applicationEventPublisher) {
+  public ProfileRequestPublisher(final ApplicationEventPublisher applicationEventPublisher) {
     this.applicationEventPublisher = applicationEventPublisher;
   }
 
@@ -51,16 +51,16 @@ public class ProfileRequestPublisher implements PublisherService {
    */
   @Override
   @Async
-  public void publishMessage(PublishMessageRequest messageRequest) {
-    Object message = messageRequest.getMessage();
+  public void publishMessage(final PublishMessageRequest messageRequest) {
+    final Object message = messageRequest.getMessage();
     switch (message) {
-      case SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
-      case ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
-      case CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
-      case MfaSetupVerificationRequest request -> sendMfaSetupVerificationCode(request);
-      case MfaVerificationRequest request -> sendMfaVerificationCode(request);
-      case ProfileUpdateVerificationRequest request -> sendProfileUpdateVerificationCode(request);
-      case ResetPasswordSuccessRequest request -> sendResetPasswordSuccessMessage(request);
+      case final SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
+      case final ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
+      case final CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
+      case final MfaSetupVerificationRequest request -> sendMfaSetupVerificationCode(request);
+      case final MfaVerificationRequest request -> sendMfaVerificationCode(request);
+      case final ProfileUpdateVerificationRequest request -> sendProfileUpdateVerificationCode(request);
+      case final ResetPasswordSuccessRequest request -> sendResetPasswordSuccessMessage(request);
       default -> {}
     }
   }
@@ -72,7 +72,7 @@ public class ProfileRequestPublisher implements PublisherService {
    * @param signUpVerificationRequest the request containing the details
    *                                  for sending the sign-up verification code.
    */
-  protected void sendSignUpVerificationCode(SignUpVerificationRequest signUpVerificationRequest) {
+  protected void sendSignUpVerificationCode(final SignUpVerificationRequest signUpVerificationRequest) {
     applicationEventPublisher.publishEvent(signUpVerificationRequest);
   }
 
@@ -83,7 +83,7 @@ public class ProfileRequestPublisher implements PublisherService {
    * @param completedUserSignUpRequest the request containing the details
    *                                   for the completed user sign-up.
    */
-  protected void sendCompletedSignUpVerification(CompletedUserSignUpRequest completedUserSignUpRequest) {
+  protected void sendCompletedSignUpVerification(final CompletedUserSignUpRequest completedUserSignUpRequest) {
     applicationEventPublisher.publishEvent(completedUserSignUpRequest);
   }
 
@@ -93,7 +93,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param mfaVerificationRequest the request containing the details for the MFA verification.
    */
-  protected void sendMfaVerificationCode(MfaVerificationRequest mfaVerificationRequest) {
+  protected void sendMfaVerificationCode(final MfaVerificationRequest mfaVerificationRequest) {
     applicationEventPublisher.publishEvent(mfaVerificationRequest);
   }
 
@@ -103,7 +103,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param mfaSetupVerificationRequest the request containing the details for the MFA setup verification.
    */
-  protected void sendMfaSetupVerificationCode(MfaSetupVerificationRequest mfaSetupVerificationRequest) {
+  protected void sendMfaSetupVerificationCode(final MfaSetupVerificationRequest mfaSetupVerificationRequest) {
     applicationEventPublisher.publishEvent(mfaSetupVerificationRequest);
   }
 
@@ -113,7 +113,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param forgotPasswordRequest the request containing the details for the forgot password verification.
    */
-  protected void sendForgotPasswordVerificationCode(ForgotPasswordRequest forgotPasswordRequest) {
+  protected void sendForgotPasswordVerificationCode(final ForgotPasswordRequest forgotPasswordRequest) {
     applicationEventPublisher.publishEvent(forgotPasswordRequest);
   }
 
@@ -122,7 +122,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param profileUpdateVerificationRequest the profile update verification request to be published
    */
-  protected void sendProfileUpdateVerificationCode(ProfileUpdateVerificationRequest profileUpdateVerificationRequest) {
+  protected void sendProfileUpdateVerificationCode(final ProfileUpdateVerificationRequest profileUpdateVerificationRequest) {
     applicationEventPublisher.publishEvent(profileUpdateVerificationRequest);
   }
 
@@ -131,7 +131,7 @@ public class ProfileRequestPublisher implements PublisherService {
    *
    * @param resetPasswordSuccessRequest the request containing details of the reset password success
    */
-  protected void sendResetPasswordSuccessMessage(ResetPasswordSuccessRequest resetPasswordSuccessRequest) {
+  protected void sendResetPasswordSuccessMessage(final ResetPasswordSuccessRequest resetPasswordSuccessRequest) {
     applicationEventPublisher.publishEvent(resetPasswordSuccessRequest);
   }
 }

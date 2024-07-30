@@ -4,7 +4,7 @@ import com.fleencorp.feen.exception.base.FleenException;
 
 public class EncryptionFailedException extends FleenException {
 
-  public EncryptionFailedException(String message) {
+  public EncryptionFailedException(final String message) {
     super(message);
   }
 }

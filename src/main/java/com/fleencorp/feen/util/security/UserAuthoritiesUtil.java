@@ -62,7 +62,7 @@ public class UserAuthoritiesUtil {
    * @param roles The list of role names.
    * @return A list of granted authorities built from the provided role names.
    */
-  public static List<GrantedAuthority> buildAuthorities(List<String> roles) {
+  public static List<GrantedAuthority> buildAuthorities(final List<String> roles) {
     return roles
       .stream()
       .filter(Objects::nonNull)
@@ -76,8 +76,8 @@ public class UserAuthoritiesUtil {
    * @param authorities The collection of authorities to check.
    * @return {@code true} if any of the authorities are allow-listed, otherwise {@code false}.
    */
-  public static boolean isAuthorityWhitelisted(Collection<? extends GrantedAuthority> authorities) {
-    List<String> whitelistedAuthorities = List.of(RESET_PASSWORD_USER.name(), REFRESH_TOKEN_USER.name());
+  public static boolean isAuthorityWhitelisted(final Collection<? extends GrantedAuthority> authorities) {
+    final List<String> whitelistedAuthorities = List.of(RESET_PASSWORD_USER.name(), REFRESH_TOKEN_USER.name());
     return authorities
       .stream()
       .filter(Objects::nonNull)

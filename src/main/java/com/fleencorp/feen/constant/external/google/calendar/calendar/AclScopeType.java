@@ -19,7 +19,7 @@ public enum AclScopeType implements ApiParameter {
 
   private final String value;
 
-  AclScopeType(String value) {
+  AclScopeType(final String value) {
     this.value = value;
   }
 }

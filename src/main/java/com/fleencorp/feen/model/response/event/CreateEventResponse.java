@@ -35,7 +35,7 @@ public class CreateEventResponse {
   @JsonProperty("message")
   protected String message = "Event created successfully";
 
-  public static CreateEventResponse of(Long eventId, EventResponse event) {
+  public static CreateEventResponse of(final Long eventId, final EventResponse event) {
     return CreateEventResponse.builder()
             .eventId(eventId)
             .event(event)

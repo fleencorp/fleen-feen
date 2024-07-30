@@ -48,9 +48,9 @@ public class AwsSimpleQueueServiceConfig {
    * @param region                 The AWS region where SQS queues are located.
    */
   public AwsSimpleQueueServiceConfig(
-      AwsCredentialsProvider awsCredentialsProvider,
-      ObjectMapper objectMapper,
-      @Qualifier("awsRegion") Region region) {
+      final AwsCredentialsProvider awsCredentialsProvider,
+      final ObjectMapper objectMapper,
+      @Qualifier("awsRegion") final Region region) {
     this.awsCredentialsProvider = awsCredentialsProvider;
     this.objectMapper = objectMapper;
     this.region = region;
@@ -80,7 +80,7 @@ public class AwsSimpleQueueServiceConfig {
    * [AWS] Applying Amazon SQS - Setting up Spring SQS and sending messages to AWS SQS</a>
    */
   @Bean("defaultSqsListenerContainerFactory")
-  public SqsMessageListenerContainerFactory<Object> defaultSqsMessageListenerContainerFactory(SqsAsyncClient sqsAsyncClient) {
+  public SqsMessageListenerContainerFactory<Object> defaultSqsMessageListenerContainerFactory(final SqsAsyncClient sqsAsyncClient) {
     return SqsMessageListenerContainerFactory.builder()
         .configure(options -> options
             .acknowledgementMode(AcknowledgementMode.ALWAYS)
@@ -118,9 +118,9 @@ public class AwsSimpleQueueServiceConfig {
     mappingJackson2MessageConverter.setObjectMapper(objectMapper);
     mappingJackson2MessageConverter.setSerializedPayloadClass(String.class);*/
 
-    SqsMessagingMessageConverter converter = new SqsMessagingMessageConverter();
+    final SqsMessagingMessageConverter converter = new SqsMessagingMessageConverter();
     converter.setObjectMapper(objectMapper);
-    TextPlainJsonMessageConverter payloadConverter = new TextPlainJsonMessageConverter(objectMapper);
+    final TextPlainJsonMessageConverter payloadConverter = new TextPlainJsonMessageConverter(objectMapper);
     converter.setPayloadMessageConverter(payloadConverter);
     return converter;
   }
@@ -135,7 +135,7 @@ public class AwsSimpleQueueServiceConfig {
    */
   @Bean
   public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setThreadFactory(new MessageExecutionThreadFactory());
     executor.setCorePoolSize(50);
     executor.setMaxPoolSize(50);

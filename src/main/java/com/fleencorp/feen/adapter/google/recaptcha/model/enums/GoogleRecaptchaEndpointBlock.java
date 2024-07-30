@@ -29,7 +29,7 @@ public enum GoogleRecaptchaEndpointBlock implements EndpointBlock {
    *
    * @param value The endpoint path
    */
-  GoogleRecaptchaEndpointBlock(String value) {
+  GoogleRecaptchaEndpointBlock(final String value) {
     this.value = value;
   }
 

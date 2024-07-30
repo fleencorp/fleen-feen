@@ -22,7 +22,7 @@ public class SendMessageRequest {
   private HttpServletRequest httpRequest;
   private Exception exception;
 
-  public static SendMessageRequest of(String url, String title, Map<String, Object> data, SlackColor slackColor) {
+  public static SendMessageRequest of(final String url, final String title, final Map<String, Object> data, final SlackColor slackColor) {
     return SendMessageRequest.builder()
         .url(url)
         .title(title)
@@ -31,7 +31,7 @@ public class SendMessageRequest {
         .build();
   }
 
-  public static SendMessageRequest of(String url, String title, Map<String, Object> data, SlackColor slackColor, HttpServletRequest httpRequest) {
+  public static SendMessageRequest of(final String url, final String title, final Map<String, Object> data, final SlackColor slackColor, final HttpServletRequest httpRequest) {
     return SendMessageRequest.builder()
         .url(url)
         .title(title)

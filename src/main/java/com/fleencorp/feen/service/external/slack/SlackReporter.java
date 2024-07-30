@@ -40,8 +40,8 @@ public class SlackReporter implements ReporterService {
    * @param slackProperties The {@link SlackProperties} containing configuration details such as webhook URLs and channel IDs.
    */
   public SlackReporter(
-      SlackAdapter slackAdapter,
-      SlackProperties slackProperties) {
+      final SlackAdapter slackAdapter,
+      final SlackProperties slackProperties) {
     this.slackAdapter = slackAdapter;
     this.slackProperties = slackProperties;
   }
@@ -54,7 +54,7 @@ public class SlackReporter implements ReporterService {
    */
   @Override
   @Async
-  public void sendMessage(String message) {
+  public void sendMessage(final String message) {
     slackAdapter.sendMessage(getChannelId(ReportMessageType.GENERAL), message);
   }
 
@@ -69,9 +69,9 @@ public class SlackReporter implements ReporterService {
    */
   @Override
   @Async
-  public void sendMessage(String message, ReportMessageType reportMessageType) {
-    String channelId = getChannelId(reportMessageType);
-    SlackColor slackColor = getColor(reportMessageType);
+  public void sendMessage(final String message, final ReportMessageType reportMessageType) {
+    final String channelId = getChannelId(reportMessageType);
+    final SlackColor slackColor = getColor(reportMessageType);
     slackAdapter.sendMessage(SendMessageRequest.of(channelId, message, null, slackColor));
   }
 
@@ -84,7 +84,7 @@ public class SlackReporter implements ReporterService {
    * @see <a href="https://jsonobject.tistory.com/518">
    *   Sending messages to a Slack channel with Spring Boot, Kotlin</a>
    */
-  protected String getChannelId(ReportMessageType reportMessageType) {
+  protected String getChannelId(final ReportMessageType reportMessageType) {
     // Determine the Slack channel ID based on the type of report message
     return switch (reportMessageType) {
       case ERROR -> slackProperties.getChannelErrorReportId();
@@ -107,7 +107,7 @@ public class SlackReporter implements ReporterService {
    * @see <a href="https://velog.io/@yun8565/Redis-DTO%EB%A5%BC-%EC%A0%80%EC%9E%A5%ED%95%98%EA%B3%A0-%EC%A1%B0%ED%9A%8C%EC%82%AD%EC%A0%9C%ED%95%98%EA%B8%B0-Slack-Webhook-%ED%99%9C%EC%9A%A9%ED%95%98%EA%B8%B0">
    *   [Redis] Save and view/delete DTO + use Slack Webhook</a>
    */
-  protected SlackColor getColor(ReportMessageType reportMessageType) {
+  protected SlackColor getColor(final ReportMessageType reportMessageType) {
     // Determine the Slack color based on the type of report message
     return switch (reportMessageType) {
       case ERROR -> SlackColor.RED;
