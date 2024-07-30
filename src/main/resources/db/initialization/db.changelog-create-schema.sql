@@ -364,21 +364,23 @@ CREATE TABLE share_contact_request (
 --changeset alamu:14
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'blocked_user';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'block_user';
 
-CREATE TABLE blocked_user (
-  blocked_user_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE block_user (
+  block_user_id BIGSERIAL PRIMARY KEY,
   initiator_id BIGINT NOT NULL,
   recipient_id BIGINT NOT NULL,
+  block_status VARCHAR(255) DEFAULT 'BLOCKED'
+      NOT NULL CHECK (block_status IN ('UNBLOCKED', 'BLOCKED')),
 
-  CONSTRAINT blocked_user_fk_initiator_id
+  CONSTRAINT block_user_fk_initiator_id
     FOREIGN KEY (initiator_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE,
-  CONSTRAINT blocked_user_fk_recipient_id
+  CONSTRAINT block_user_fk_recipient_id
     FOREIGN KEY (recipient_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE
 );
 
---rollback DROP TABLE IF EXISTS `blocked_user`;
+--rollback DROP TABLE IF EXISTS `block_user`;
