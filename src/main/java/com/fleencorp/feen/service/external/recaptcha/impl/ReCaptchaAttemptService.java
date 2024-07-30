@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.external.recaptcha.impl;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -20,15 +21,16 @@ public class ReCaptchaAttemptService {
 
   /**
    * When the user performs authentication like login; in order to protect the application from attacks like DDOS or even bots,
-   * a record is saved that contains uniquely identifiable information of the client like an IP address and It's checked to make
+   * a record is saved that contains uniquely identifiable information of the client like an IP address, and It's checked to make
    * sure that the user is not allowed to make unauthorized calls until after a period of time.
    */
   public ReCaptchaAttemptService() {
     super();
     attemptsCache = CacheBuilder.newBuilder()
       .expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<>() {
+        @NotNull
         @Override
-        public Integer load(final String key) {
+        public Integer load(@NotNull final String key) {
           return 0;
         }
       });
