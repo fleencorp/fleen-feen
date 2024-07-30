@@ -65,12 +65,12 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaProperties the properties for MFA configuration.
    */
   public MfaServiceImpl(
-      CacheService cacheService,
-      OtpService otpService,
-      MfaRepository mfaRepository,
-      MemberRepository memberRepository,
-      ProfileRequestPublisher profileRequestPublisher,
-      MfaProperties mfaProperties) {
+      final CacheService cacheService,
+      final OtpService otpService,
+      final MfaRepository mfaRepository,
+      final MemberRepository memberRepository,
+      final ProfileRequestPublisher profileRequestPublisher,
+      final MfaProperties mfaProperties) {
     this.cacheService = cacheService;
     this.otpService = otpService;
     this.mfaRepository = mfaRepository;
@@ -87,9 +87,9 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public EnableOrDisableMfaResponse reEnableMfa(FleenUser user) {
+  public EnableOrDisableMfaResponse reEnableMfa(final FleenUser user) {
     // Retrieve the member associated with the user's email address
-    Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
+    final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(FailedOperationException::new);
 
     // Check if the MFA type is set and MFA is not already enabled
@@ -110,9 +110,9 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public EnableOrDisableMfaResponse disableMfa(FleenUser user) {
+  public EnableOrDisableMfaResponse disableMfa(final FleenUser user) {
     // Retrieve the member associated with the user's email address
-    Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
+    final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
         .orElseThrow(FailedOperationException::new);
 
     // Check if the MFA type is set and MFA is currently enabled
@@ -133,9 +133,9 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public MfaStatusResponse getMfaStatus(FleenUser user) {
+  public MfaStatusResponse getMfaStatus(final FleenUser user) {
     // Retrieve the member associated with the user's ID
-    Member member = memberRepository.findById(user.getId())
+    final Member member = memberRepository.findById(user.getId())
       .orElseThrow(FailedOperationException::new);
 
     // Return a response with the MFA status and type
@@ -164,15 +164,15 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException If the operation to retrieve or update member information fails.
    */
   @Override
-  public SetupMfaResponse setupMfa(FleenUser user, SetupMfaDto dto) {
-    MfaType newMfaType = dto.getActualMfaType();
-    Long userId = user.getId();
+  public SetupMfaResponse setupMfa(final FleenUser user, final SetupMfaDto dto) {
+    final MfaType newMfaType = dto.getActualMfaType();
+    final Long userId = user.getId();
     // Retrieve member with associated user id
-    Member member = memberRepository.findById(userId)
+    final Member member = memberRepository.findById(userId)
       .orElseThrow(FailedOperationException::new);
 
     // Initialize setup response
-    SetupMfaResponse setupMfaResponse = initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(member, newMfaType);
+    final SetupMfaResponse setupMfaResponse = initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(member, newMfaType);
 
     // Check if proposed MFA type is the same as existing MFA type
     if (isProposedMfaTypeToSetSameAsExistingMfaType(newMfaType, member.getMfaType())) {
@@ -206,15 +206,15 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public SetupMfaResponse resendMfaSetupCode(FleenUser user, SetupMfaDto dto) {
-    Long userId = user.getId();
-    MfaType newMfaType = dto.getActualMfaType();
+  public SetupMfaResponse resendMfaSetupCode(final FleenUser user, final SetupMfaDto dto) {
+    final Long userId = user.getId();
+    final MfaType newMfaType = dto.getActualMfaType();
     // Retrieve member with associated user id
-    Member member = memberRepository.findById(userId)
+    final Member member = memberRepository.findById(userId)
       .orElseThrow(FailedOperationException::new);
 
     // Initialize setup response
-    SetupMfaResponse setupMfaResponse = initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(member, newMfaType);
+    final SetupMfaResponse setupMfaResponse = initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(member, newMfaType);
 
     // If the proposed MFA method or type is None or Authenticator, update the setup response
     if (checkIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(newMfaType)) {
@@ -236,11 +236,11 @@ public class MfaServiceImpl implements MfaService {
    * @param confirmSetupMfaDto DTO containing the actual MFA type and verification code.
    */
   @Override
-  public void confirmMfaSetup(FleenUser user, ConfirmSetupMfaDto confirmSetupMfaDto) {
-    String emailAddress = user.getEmailAddress();
-    String username = user.getUsername();
-    MfaType mfaType = confirmSetupMfaDto.getActualMfaType();
-    Member member = memberRepository.findByEmailAddress(emailAddress)
+  public void confirmMfaSetup(final FleenUser user, final ConfirmSetupMfaDto confirmSetupMfaDto) {
+    final String emailAddress = user.getEmailAddress();
+    final String username = user.getUsername();
+    final MfaType mfaType = confirmSetupMfaDto.getActualMfaType();
+    final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(FailedOperationException::new);
 
     // Check and verify the provided MFA type's OTP or verification code
@@ -262,8 +262,8 @@ public class MfaServiceImpl implements MfaService {
    * @param code The verification code for MFA setup validation.
    * @param mfaType The type of MFA for which the code is being validated.
    */
-  protected void validateEmailOrPhoneMfaSetupCode(String username, String code, MfaType mfaType) {
-    String verificationKey = getMfaSetupCacheKey(username, mfaType);
+  protected void validateEmailOrPhoneMfaSetupCode(final String username, final String code, final MfaType mfaType) {
+    final String verificationKey = getMfaSetupCacheKey(username, mfaType);
     validateEmailOrPhoneVerificationCode(verificationKey, code);
     clearMfaSetupOtp(username, mfaType);
   }
@@ -276,7 +276,7 @@ public class MfaServiceImpl implements MfaService {
    * @param verificationKey the key to check for the existence of the verification code and the validity of the code associated with it
    * @param code the code to validate against the code saved and associated with the verification key
    */
-  protected void validateEmailOrPhoneVerificationCode(String verificationKey, String code) {
+  protected void validateEmailOrPhoneVerificationCode(final String verificationKey, final String code) {
     if (!cacheService.exists(verificationKey)) {
       throw new ExpiredVerificationCodeException(code);
     }
@@ -292,7 +292,7 @@ public class MfaServiceImpl implements MfaService {
    * @param username the username of the user for whom the MFA setup OTP is to be cleared.
    * @param mfaType  the type of MFA for which the OTP is to be cleared.
    */
-  protected void clearMfaSetupOtp(String username, MfaType mfaType) {
+  protected void clearMfaSetupOtp(final String username, final MfaType mfaType) {
     // Delete the OTP from the cache for the given username and MFA type
     cacheService.delete(getMfaSetupCacheKey(username, mfaType));
   }
@@ -304,7 +304,7 @@ public class MfaServiceImpl implements MfaService {
    * @param secret The secret key associated with the user for MFA.
    * @return true if the code is valid, false otherwise.
    */
-  protected boolean verifyAuthenticatorOtp(String code, String secret) {
+  protected boolean verifyAuthenticatorOtp(final String code, final String secret) {
     return otpService.validateOtpCode(code, secret);
   }
 
@@ -314,7 +314,7 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaType The MFA type to be checked.
    * @return true if the MFA type is SMS or email, false otherwise.
    */
-  public boolean isPhoneOrEmailMfaType(MfaType mfaType) {
+  public boolean isPhoneOrEmailMfaType(final MfaType mfaType) {
     return MfaType.PHONE == mfaType || EMAIL == mfaType;
   }
 
@@ -324,23 +324,23 @@ public class MfaServiceImpl implements MfaService {
    * @param username The username or email address associated with the MFA setup.
    * @param code The verification code for MFA validation.
    */
-  public void validateEmailOrPhoneMfaVerificationCode(String username, String code) {
-    String verificationKey = getMfaAuthenticationCacheKey(username);
+  public void validateEmailOrPhoneMfaVerificationCode(final String username, final String code) {
+    final String verificationKey = getMfaAuthenticationCacheKey(username);
     validateEmailOrPhoneVerificationCode(verificationKey, code);
   }
 
   @Override
-  public boolean isAuthenticatorMfaType(MfaType mfaType) {
+  public boolean isAuthenticatorMfaType(final MfaType mfaType) {
     return AUTHENTICATOR == mfaType;
   }
 
 
   @Override
-  public void validateAuthenticatorMfaVerificationCode(String otpCode, Long userId) {
-    String secret = mfaRepository.getTwoFaSecret(userId)
+  public void validateAuthenticatorMfaVerificationCode(final String otpCode, final Long userId) {
+    final String secret = mfaRepository.getTwoFaSecret(userId)
       .orElseThrow(MfaVerificationFailed::new);
 
-    boolean isValid = verifyAuthenticatorOtp(otpCode, secret);
+    final boolean isValid = verifyAuthenticatorOtp(otpCode, secret);
     if (!isValid) {
       throw new InvalidVerificationCodeException(otpCode);
     }
@@ -352,7 +352,7 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse the MFA setup response to update
    * @return the updated setup MFA response
    */
-  private SetupMfaResponse completeMfaSetupWithoutVerificationIfProposedAndCurrentMfaTypeIsSame(SetupMfaResponse setupMfaResponse) {
+  private SetupMfaResponse completeMfaSetupWithoutVerificationIfProposedAndCurrentMfaTypeIsSame(final SetupMfaResponse setupMfaResponse) {
     // Enable MFA and set the setup status to COMPLETE
     setupMfaResponse.setEnabled(true);
     setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
@@ -367,7 +367,7 @@ public class MfaServiceImpl implements MfaService {
    * @param member The member for whom MFA setup is being completed.
    * @param mfaType The type of MFA for which the setup is completed.
    */
-  private void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(Member member, MfaType mfaType) {
+  private void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final Member member, final MfaType mfaType) {
     member.setMfaEnabled(true);
     member.setMfaType(mfaType);
     if (mfaType != AUTHENTICATOR) {
@@ -382,7 +382,7 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaType the MFA type to check
    * @return true if the MFA type is not NONE, false otherwise
    */
-  protected boolean isMfaMethodOrTypeNotEmpty(MfaType mfaType) {
+  protected boolean isMfaMethodOrTypeNotEmpty(final MfaType mfaType) {
     return mfaType != MfaType.NONE; // Check if the MFA type is not NONE
   }
 
@@ -393,7 +393,7 @@ public class MfaServiceImpl implements MfaService {
    * @param proposedMfaType the proposed MFA type
    * @return the setup MFA response
    */
-  protected SetupMfaResponse initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(Member member, MfaType proposedMfaType) {
+  protected SetupMfaResponse initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(final Member member, final MfaType proposedMfaType) {
     // Build and return the setup MFA response
     return SetupMfaResponse.builder()
         .emailAddress(member.getEmailAddress())
@@ -411,7 +411,7 @@ public class MfaServiceImpl implements MfaService {
    * @param currentMfaType the current MFA type
    * @return true if the proposed MFA type is the same as the existing one, false otherwise
    */
-  protected boolean isProposedMfaTypeToSetSameAsExistingMfaType(MfaType newMfaType, MfaType currentMfaType) {
+  protected boolean isProposedMfaTypeToSetSameAsExistingMfaType(final MfaType newMfaType, final MfaType currentMfaType) {
     // Check if the proposed MFA type is the same as the existing MFA type and is not AUTHENTICATOR or NONE
     return currentMfaType == newMfaType
         && newMfaType != AUTHENTICATOR
@@ -424,7 +424,7 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaType the MFA type to check
    * @return true if the MFA type is NONE, false otherwise
    */
-  private boolean isMfaMethodOrTypeEmpty(MfaType mfaType) {
+  private boolean isMfaMethodOrTypeEmpty(final MfaType mfaType) {
     return mfaType == MfaType.NONE; // Check if the MFA type is NONE
   }
 
@@ -433,7 +433,7 @@ public class MfaServiceImpl implements MfaService {
    *
    * @param member the member whose MFA type will be reset
    */
-  protected void resetMfaTypeToDefault(Member member) {
+  protected void resetMfaTypeToDefault(final Member member) {
     member.setMfaType(MfaType.NONE);
   }
 
@@ -444,7 +444,7 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse the setup MFA response to update
    * @param newMfaType       the proposed new MFA type
    */
-  protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsEmpty(SetupMfaResponse setupMfaResponse, MfaType newMfaType) {
+  protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsEmpty(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
     if (newMfaType == MfaType.NONE) {
       setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
     }
@@ -457,12 +457,12 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse the response object to update with generated details
    * @param mfaType the type of MFA setup being performed (PHONE, EMAIL, or AUTHENTICATOR)
    */
-  protected void sendMfaVerificationCodeRequestOrGenerateSecretKeyAndQrCode(Member member, SetupMfaResponse setupMfaResponse, MfaType mfaType) {
+  protected void sendMfaVerificationCodeRequestOrGenerateSecretKeyAndQrCode(final Member member, final SetupMfaResponse setupMfaResponse, final MfaType mfaType) {
     switch (mfaType) {
       case EMAIL -> saveAndSendMfaVerificationCodeRequest(member, VerificationType.EMAIL, MfaType.EMAIL);
       case PHONE -> saveAndSendMfaVerificationCodeRequest(member, VerificationType.PHONE, MfaType.PHONE);
       case AUTHENTICATOR -> {
-        MfaAuthenticatorSecurityInfo mfaAuthenticator = generateAuthenticatorSecretDetails();
+        final MfaAuthenticatorSecurityInfo mfaAuthenticator = generateAuthenticatorSecretDetails();
         setupMfaResponse.setSecret(mfaAuthenticator.getSecret());
         setupMfaResponse.setQrCode(mfaAuthenticator.getQrCode());
       }
@@ -476,13 +476,13 @@ public class MfaServiceImpl implements MfaService {
    * @param verificationType the type of verification (e.g., EMAIL or SMS)
    * @param mfaType the MFA type for which the verification code is being sent
    */
-  protected void saveAndSendMfaVerificationCodeRequest(Member member, VerificationType verificationType, MfaType mfaType) {
+  protected void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
     // Generate a random six-digit OTP
-    String otpCode = getRandomSixDigitOtp();
-    FleenUser user = FleenUser.fromMemberBasic(member);
+    final String otpCode = getRandomSixDigitOtp();
+    final FleenUser user = FleenUser.fromMemberBasic(member);
 
     // Create MFA verification request to send otp code to user
-    MfaSetupVerificationRequest mfaVerificationRequest = MfaSetupVerificationRequest
+    final MfaSetupVerificationRequest mfaVerificationRequest = MfaSetupVerificationRequest
         .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
 
     // Send MFA verification code request
@@ -499,8 +499,8 @@ public class MfaServiceImpl implements MfaService {
    * @param otp the OTP or verification code to be saved
    * @param mfaType the MFA type for which the code is being saved
    */
-  protected void saveMfaSetupOtpOrVerificationCodeTemporarily(String username, String otp, MfaType mfaType) {
-    String key = getMfaSetupCacheKey(username, mfaType);
+  protected void saveMfaSetupOtpOrVerificationCodeTemporarily(final String username, final String otp, final MfaType mfaType) {
+    final String key = getMfaSetupCacheKey(username, mfaType);
     cacheService.set(key, otp, Duration.ofMinutes(5));
   }
 
@@ -512,11 +512,11 @@ public class MfaServiceImpl implements MfaService {
    */
   protected MfaAuthenticatorSecurityInfo generateAuthenticatorSecretDetails() {
     // Generate a secret key for the authenticator app
-    String secretKey = generateSecretKey();
+    final String secretKey = generateSecretKey();
     // Generate authentication URI for the authenticator app using the secret key
-    String authUri = getAuthenticatorAuthUri(secretKey);
+    final String authUri = getAuthenticatorAuthUri(secretKey);
     // Generate QR code data URI for displaying in the authenticator app
-    String qrCodeDataUri = getQrImageDataUri(authUri)
+    final String qrCodeDataUri = getQrImageDataUri(authUri)
         .orElseThrow(MfaGenerationFailedException::new);
 
     // Return MFA authenticator security information including QR code and secret key
@@ -539,7 +539,7 @@ public class MfaServiceImpl implements MfaService {
    * @param secretKey the secret key used for generating OTP
    * @return the authenticator app authentication URI
    */
-  protected String getAuthenticatorAuthUri(String secretKey) {
+  protected String getAuthenticatorAuthUri(final String secretKey) {
     return otpService.getOtpAuthURL(secretKey, mfaProperties.getSecretLabel(), mfaProperties.getSecretIssuer());
   }
 
@@ -549,7 +549,7 @@ public class MfaServiceImpl implements MfaService {
    * @param authUri the authentication URI for generating QR code
    * @return an optional containing the QR image data URI, or empty if generation fails
    */
-  protected Optional<String> getQrImageDataUri(String authUri) {
+  protected Optional<String> getQrImageDataUri(final String authUri) {
     return Optional.of(otpService.getQRImageDataURI(authUri));
   }
 
@@ -560,7 +560,7 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse  the setup MFA response to update
    * @param member            the member entity to update with MFA secret
    */
-  protected void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(MfaType mfaType, SetupMfaResponse setupMfaResponse, Member member) {
+  protected void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final MfaType mfaType, final SetupMfaResponse setupMfaResponse, final Member member) {
     if (mfaType == AUTHENTICATOR) {
       member.setMfaSecret(setupMfaResponse.getSecret());
     }
@@ -575,7 +575,7 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse The setup response object to update.
    * @param newMfaType The proposed new MFA type.
    */
-  protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsAuthenticator(SetupMfaResponse setupMfaResponse, MfaType newMfaType) {
+  protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsAuthenticator(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
     if (newMfaType == AUTHENTICATOR) {
       setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
     }
@@ -590,7 +590,7 @@ public class MfaServiceImpl implements MfaService {
    * @param newMfaType The proposed new MFA type to check.
    * @return {@code true} if the new MFA type is Authenticator or None, {@code false} otherwise.
    */
-  protected boolean checkIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(MfaType newMfaType) {
+  protected boolean checkIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(final MfaType newMfaType) {
     return newMfaType == AUTHENTICATOR || newMfaType == MfaType.NONE;
   }
 
@@ -601,7 +601,7 @@ public class MfaServiceImpl implements MfaService {
    * @param newMfaType The proposed new MFA type to check against None or Authenticator.
    * @return The updated SetupMfaResponse reflecting the changes based on the new MFA type.
    */
-  protected SetupMfaResponse updateSetupMfaResponseIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(SetupMfaResponse setupMfaResponse, MfaType newMfaType) {
+  protected SetupMfaResponse updateSetupMfaResponseIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
     // If the new MFA type is None, update the response accordingly
     if (newMfaType == MfaType.NONE) {
       updateMfaSetupResponseIfProposedMfaMethodOrTypeIsEmpty(setupMfaResponse, newMfaType);
@@ -621,7 +621,7 @@ public class MfaServiceImpl implements MfaService {
    * @param verificationCode The OTP or verification code to be validated.
    * @param mfaSecret The secret key for Authenticator MFA type, ignored for other types.
    */
-  protected void checkMfaTypeAndVerifyMfaOtpOrVerificationCode(String username, MfaType mfaType, String verificationCode, String mfaSecret) {
+  protected void checkMfaTypeAndVerifyMfaOtpOrVerificationCode(final String username, final MfaType mfaType, final String verificationCode, final String mfaSecret) {
     // Validate Authenticator MFA code if the MFA type is Authenticator
     if (isAuthenticatorMfaType(mfaType)) {
       validateAuthenticatorMfaCode(verificationCode, mfaSecret);
@@ -640,8 +640,8 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaSecret The secret key associated with the Authenticator MFA method.
    * @throws InvalidVerificationCodeException If the OTP code is invalid or verification fails.
    */
-  protected void validateAuthenticatorMfaCode(String otpCode, String mfaSecret) {
-    boolean isValid = verifyAuthenticatorOtp(otpCode, mfaSecret);
+  protected void validateAuthenticatorMfaCode(final String otpCode, final String mfaSecret) {
+    final boolean isValid = verifyAuthenticatorOtp(otpCode, mfaSecret);
 
     // Throw exception if OTP code is invalid
     if (!isValid) {

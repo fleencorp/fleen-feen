@@ -24,7 +24,7 @@ public class SendVerificationCodeRequest extends MessageRequest {
   protected VerificationType verificationType;
 
   public Map<String, Object> toMessagePayload() {
-    Map<String, Object> payload = new HashMap<>(super.toMessagePayload());
+    final Map<String, Object> payload = new HashMap<>(super.toMessagePayload());
     payload.put(VERIFICATION_CODE.getValue(), verificationCode);
 
     return payload;

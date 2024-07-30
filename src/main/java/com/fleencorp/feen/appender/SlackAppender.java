@@ -57,7 +57,7 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param channelIds a string representing the channel IDs mapping, where each entry is separated by a pair separator
    *                   and each key-value pair is separated by a key-value separator
    */
-  public void setChannelIds(String channelIds) {
+  public void setChannelIds(final String channelIds) {
     // Convert the string to a map and set it to logLevelChannelIdsMap
     this.logLevelChannelIdsMap = StringUtil.strToMap(channelIds);
   }
@@ -68,7 +68,7 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param iconEmojis a string representing the icon emojis mapping, where each entry is separated by a pair separator
    *                   and each key-value pair is separated by a key-value separator
    */
-  public void setIconEmojis(String iconEmojis) {
+  public void setIconEmojis(final String iconEmojis) {
     // Convert the string to a map and set it to logLevelIconEmojisMap
     this.logLevelIconEmojisMap = StringUtil.strToMap(iconEmojis);
   }
@@ -79,11 +79,11 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param loggingEvent the logging event to be appended
    */
   @Override
-  protected void append(ILoggingEvent loggingEvent) {
+  protected void append(final ILoggingEvent loggingEvent) {
     // Create a formatted message from the logging event
     final String message = createMessage(loggingEvent);
     // Build the request body with the message and logging level
-    Map<String, String> body = createBody(message, loggingEvent.getLevel());
+    final Map<String, String> body = createBody(message, loggingEvent.getLevel());
     // Send the request asynchronously
     doCall(body);
   }
@@ -93,7 +93,7 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    *
    * @param body the body of the request as a map of key-value pairs
    */
-  protected void doCall(Map<String, String> body) {
+  protected void doCall(final Map<String, String> body) {
     CompletableFuture.runAsync(() -> restTemplate.postForEntity(API_URL, createRequest(body), String.class))
       .exceptionally(_ -> null);
   }
@@ -105,8 +105,8 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param level the logging level, used to determine the channel and icon emoji
    * @return a map representing the body of the request with text, token, username, channel, and icon emoji
    */
-  protected Map<String, String> createBody(String message, Level level) {
-    Map<String, String> body = new HashMap<>();
+  protected Map<String, String> createBody(final String message, final Level level) {
+    final Map<String, String> body = new HashMap<>();
     body.put("text", message);
     body.put("token", token);
     body.put("username", username);
@@ -122,8 +122,8 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param body the body of the request, represented as a map of key-value pairs
    * @return the configured HttpEntity object containing the request body and headers
    */
-  protected HttpEntity<Map<String, String>> createRequest(Map<String, String> body) {
-    HttpHeaders headers = createHeaders(token);
+  protected HttpEntity<Map<String, String>> createRequest(final Map<String, String> body) {
+    final HttpHeaders headers = createHeaders(token);
     return new HttpEntity<>(body, headers);
   }
 
@@ -133,8 +133,8 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @param token the authorization token to be included in the headers
    * @return the configured HttpHeaders object
    */
-  protected HttpHeaders createHeaders(String token) {
-    HttpHeaders headers = new HttpHeaders();
+  protected HttpHeaders createHeaders(final String token) {
+    final HttpHeaders headers = new HttpHeaders();
     headers.set(AUTHORIZATION, BEARER + token);
     headers.setContentType(APPLICATION_JSON);
 
@@ -175,7 +175,7 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @return the channel ID associated with the specified log level, or null if no channel is found
    */
   protected String getChannelByLevel(final Level level) {
-    String levelStr = getLevel(level);
+    final String levelStr = getLevel(level);
     return switch (levelStr) {
       case "error", "info", "warn" -> getChannel(levelStr);
       default -> null;
@@ -189,7 +189,7 @@ public class SlackAppender extends AppenderBase<ILoggingEvent> {
    * @return the icon emoji associated with the specified log level, or null if no emoji is found
    */
   protected String getIconEmojisByLevel(final Level level) {
-    String levelStr = getLevel(level);
+    final String levelStr = getLevel(level);
     return switch (levelStr) {
       case "error", "info", "warn" -> getIconEmoji(levelStr);
       default -> null;

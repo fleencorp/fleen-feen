@@ -27,7 +27,7 @@ public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
    *
    * @param objectMapper the {@link ObjectMapper} used for JSON serialization and deserialization.
    */
-  public TextPlainJsonMessageConverter(ObjectMapper objectMapper) {
+  public TextPlainJsonMessageConverter(final ObjectMapper objectMapper) {
     super(new MimeType("text", "plain", StandardCharsets.UTF_8));
     this.objectMapper = objectMapper;
   }
@@ -40,7 +40,7 @@ public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
    * @return {@code true} indicating that this converter supports all class types.
    */
   @Override
-  protected boolean supports(@NotNull Class<?> clazz) {
+  protected boolean supports(@NotNull final Class<?> clazz) {
     return true;
   }
 
@@ -53,11 +53,11 @@ public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
    * @return the converted object, or null if conversion fails
    */
   @Override
-  protected Object convertFromInternal(Message<?> message, @NotNull Class<?> targetClass, Object conversionHint) {
-    if (message.getPayload() instanceof String payload) {
+  protected Object convertFromInternal(final Message<?> message, @NotNull final Class<?> targetClass, final Object conversionHint) {
+    if (message.getPayload() instanceof final String payload) {
       try {
         return objectMapper.readValue(payload, targetClass);
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
         log.error("Unable to convert message. Reason: {}", ex.getMessage());
         return null;
       }

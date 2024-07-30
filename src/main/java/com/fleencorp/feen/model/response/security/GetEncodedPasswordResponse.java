@@ -19,7 +19,7 @@ public class GetEncodedPasswordResponse {
   @JsonFormat(shape = STRING, pattern = DateFormatUtil.DATE_TIME)
   private LocalDateTime timestamp;
 
-  public GetEncodedPasswordResponse(String encodedPassword, String rawPassword) {
+  public GetEncodedPasswordResponse(final String encodedPassword, final String rawPassword) {
     this.encodedPassword = encodedPassword;
     this.rawPassword = rawPassword;
     this.timestamp = LocalDateTime.now();

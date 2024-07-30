@@ -50,8 +50,8 @@ public class SignUpResponse {
   @JsonProperty("message")
   private String message = "Sign up successful";
 
-  public static SignUpResponse of(String accessToken, String refreshToken, String emailAddress, String phoneNumber,
-                                  AuthenticationStatus authenticationStatus, VerificationType verificationType) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
+                                  final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
@@ -62,11 +62,11 @@ public class SignUpResponse {
         .build();
   }
 
-  public static SignUpResponse of(String accessToken, String refreshToken) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
   }
 
-  public static SignUpResponse of(String accessToken, String refreshToken, AuthenticationStatus authenticationStatus) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)

@@ -12,7 +12,7 @@ public class VerificationFailedException extends FleenException {
     super(MESSAGE);
   }
 
-  public VerificationFailedException(String message) {
+  public VerificationFailedException(final String message) {
     super(nonNull(message) ? message : MESSAGE);
   }
 }

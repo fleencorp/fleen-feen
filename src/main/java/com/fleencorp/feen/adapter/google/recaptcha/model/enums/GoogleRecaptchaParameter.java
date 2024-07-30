@@ -34,7 +34,7 @@ public enum GoogleRecaptchaParameter implements ApiParameter {
    *
    * @param value The parameter name
    */
-  GoogleRecaptchaParameter(String value) {
+  GoogleRecaptchaParameter(final String value) {
     this.value = value;
   }
 }

@@ -57,12 +57,12 @@ public class ProfileRequestQueueHandler {
    * @param smsMessageRepository  Repository for SMS message templates.
    */
   public ProfileRequestQueueHandler(
-      EmailMessageService emailMessageService,
-      TemplateProcessor templateProcessor,
-      MobileTextService mobileTextService,
-      SmsMessageRepository smsMessageRepository,
-      ReporterService reporterService,
-      JsonUtil jsonUtil) {
+      final EmailMessageService emailMessageService,
+      final TemplateProcessor templateProcessor,
+      final MobileTextService mobileTextService,
+      final SmsMessageRepository smsMessageRepository,
+      final ReporterService reporterService,
+      final JsonUtil jsonUtil) {
     this.emailMessageService = emailMessageService;
     this.templateProcessor = templateProcessor;
     this.mobileTextService = mobileTextService;
@@ -78,8 +78,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.sign-up-verification}")
-  public void handleSendSignUpVerificationCode(SignUpVerificationRequest request, Acknowledgement acknowledgement) {
-    String message = String.format("Sign up verification request: %s", requestToString(request));
+  public void handleSendSignUpVerificationCode(final SignUpVerificationRequest request, final Acknowledgement acknowledgement) {
+    final String message = String.format("Sign up verification request: %s", requestToString(request));
     reportMessage(message);
 
     if (request.getVerificationType() == VerificationType.EMAIL) {
@@ -97,8 +97,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.complete-user-sign-up}")
-  public void handleSendCompletedSignUpVerification(@Payload CompletedUserSignUpRequest request) {
-    String message = String.format("Completed user sign up request: %s", requestToString(request));
+  public void handleSendCompletedSignUpVerification(@Payload final CompletedUserSignUpRequest request) {
+    final String message = String.format("Completed user sign up request: %s", requestToString(request));
     reportMessage(message);
 
     sendEmailMessage(request);
@@ -112,8 +112,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.forgot-password}")
-  public void handleSendForgotPasswordVerificationCode(@Payload ForgotPasswordRequest request) {
-    String message = String.format("Forgot password verification request: %s", requestToString(request));
+  public void handleSendForgotPasswordVerificationCode(@Payload final ForgotPasswordRequest request) {
+    final String message = String.format("Forgot password verification request: %s", requestToString(request));
     reportMessage(message);
 
     if (request.getVerificationType() == VerificationType.EMAIL) {
@@ -131,8 +131,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.mfa-setup}")
-  public void handleSendMfaSetupVerificationCode(@Payload MfaSetupVerificationRequest request) {
-    String message = String.format("Mfa Setup verification request: %s", requestToString(request));
+  public void handleSendMfaSetupVerificationCode(@Payload final MfaSetupVerificationRequest request) {
+    final String message = String.format("Mfa Setup verification request: %s", requestToString(request));
     reportMessage(message);
 
     if (request.getVerificationType() == VerificationType.EMAIL) {
@@ -150,8 +150,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.mfa-verification}")
-  public void handleSendMfaVerificationCode(@Payload MfaVerificationRequest request) {
-    String message = String.format("Mfa verification request: %s", requestToString(request));
+  public void handleSendMfaVerificationCode(@Payload final MfaVerificationRequest request) {
+    final String message = String.format("Mfa verification request: %s", requestToString(request));
     reportMessage(message);
 
     if (request.getVerificationType() == VerificationType.EMAIL) {
@@ -169,8 +169,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.profile-update-verification}")
-  public void handleProfileUpdateVerification(@Payload ProfileUpdateVerificationRequest request) {
-    String message = String.format("Profile update verification request: %s", requestToString(request));
+  public void handleProfileUpdateVerification(@Payload final ProfileUpdateVerificationRequest request) {
+    final String message = String.format("Profile update verification request: %s", requestToString(request));
     reportMessage(message);
 
     if (request.getVerificationType() == VerificationType.EMAIL) {
@@ -188,8 +188,8 @@ public class ProfileRequestQueueHandler {
    */
   @Async
 //  @SqsListener(value = "${queue.reset-password-success}")
-  public void handleResetPasswordSuccessful(@Payload ResetPasswordSuccessRequest request) {
-    String message = String.format("Reset password verification request: %s", requestToString(request));
+  public void handleResetPasswordSuccessful(@Payload final ResetPasswordSuccessRequest request) {
+    final String message = String.format("Reset password verification request: %s", requestToString(request));
     reporterService.sendMessage(message, ReportMessageType.PROFILE_VERIFICATION);
 
     sendEmailMessage(request);
@@ -200,8 +200,8 @@ public class ProfileRequestQueueHandler {
    *
    * @param request the message request containing template name, email address, and message title
    */
-  private void sendEmailMessage(MessageRequest request) {
-    String messageBody = templateProcessor.processTemplate(
+  private void sendEmailMessage(final MessageRequest request) {
+    final String messageBody = templateProcessor.processTemplate(
       request.getTemplateName(),
       request.toMessagePayload());
     emailMessageService.sendMessage(request.getEmailAddress(), request.getMessageTitle(), messageBody);
@@ -212,10 +212,10 @@ public class ProfileRequestQueueHandler {
    *
    * @param request the message request containing template name, phone number, and message payload
    */
-  private void sendSmsMessage(MessageRequest request) {
-    SmsMessage smsMessage = smsMessageRepository.findByTitle(request.getTemplateName())
+  private void sendSmsMessage(final MessageRequest request) {
+    final SmsMessage smsMessage = smsMessageRepository.findByTitle(request.getTemplateName())
       .orElseThrow(UnableToCompleteOperationException::new);
-    String messageBody = templateProcessor.processTemplateSms(smsMessage.body(), request.toMessagePayload());
+    final String messageBody = templateProcessor.processTemplateSms(smsMessage.body(), request.toMessagePayload());
     mobileTextService.sendMessage(request.getPhoneNumber(), messageBody);
   }
 
@@ -224,7 +224,7 @@ public class ProfileRequestQueueHandler {
    *
    * @param message The message to be sent.
    */
-  private void reportMessage(String message) {
+  private void reportMessage(final String message) {
     reporterService.sendMessage(message, ReportMessageType.PROFILE_VERIFICATION);
   }
 
@@ -234,7 +234,7 @@ public class ProfileRequestQueueHandler {
    * @param request The object to be converted.
    * @return The JSON string representation of the object.
    */
-  private String requestToString(Object request) {
+  private String requestToString(final Object request) {
     return jsonUtil.convertToString(request);
   }
 }

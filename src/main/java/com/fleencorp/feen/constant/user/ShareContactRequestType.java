@@ -26,7 +26,7 @@ public enum ShareContactRequestType implements ApiParameter {
 
   private final String value;
 
-  ShareContactRequestType(String value) {
+  ShareContactRequestType(final String value) {
     this.value = value;
   }
 }

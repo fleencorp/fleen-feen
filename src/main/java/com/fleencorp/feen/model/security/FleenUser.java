@@ -47,7 +47,7 @@ public class FleenUser implements UserDetails {
     return StringUtil.getFullName(firstName, lastName);
   }
 
-  public static FleenUser of(Long userId) {
+  public static FleenUser of(final Long userId) {
     return FleenUser.builder()
         .id(userId)
         .build();

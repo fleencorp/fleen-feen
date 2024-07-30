@@ -18,7 +18,7 @@ public enum YouTubeLiveBroadcastVisibility implements ApiParameter {
 
   private final String value;
 
-  YouTubeLiveBroadcastVisibility(String value) {
+  YouTubeLiveBroadcastVisibility(final String value) {
     this.value = value;
   }
 }

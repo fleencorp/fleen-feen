@@ -18,8 +18,8 @@ public class EmitterRepository {
 
   private static final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-  public List<SseEmitter> getEmitters(Object userId) {
-    List<SseEmitter> userEmitters = new ArrayList<>();
+  public List<SseEmitter> getEmitters(final Object userId) {
+    final List<SseEmitter> userEmitters = new ArrayList<>();
     emitters.forEach(
         (id, sseEmitter) -> {
           if (id.startsWith(userId.toString())) {
@@ -31,11 +31,11 @@ public class EmitterRepository {
     return userEmitters;
   }
 
-  public void addEmitter(Object userId, SseEmitter sseEmitter) {
+  public void addEmitter(final Object userId, final SseEmitter sseEmitter) {
     emitters.put(userId.toString(), sseEmitter);
   }
 
-  public void removeEmitter(Object userId) {
+  public void removeEmitter(final Object userId) {
     emitters.remove(userId.toString());
   }
 }

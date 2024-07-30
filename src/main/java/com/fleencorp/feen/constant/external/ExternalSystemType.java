@@ -22,7 +22,7 @@ public enum ExternalSystemType implements ApiParameter {
 
   private final String value;
 
-  ExternalSystemType(String value) {
+  ExternalSystemType(final String value) {
     this.value = value;
   }
 }

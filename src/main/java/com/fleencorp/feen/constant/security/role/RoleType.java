@@ -24,7 +24,7 @@ public enum RoleType {
 
   private final String value;
 
-  RoleType(String value) {
+  RoleType(final String value) {
         this.value = value;
     }
 }

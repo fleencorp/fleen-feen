@@ -10,7 +10,7 @@ public class SlackConfiguration {
 
   private final SlackProperties slackProperties;
 
-  public SlackConfiguration(SlackProperties slackProperties) {
+  public SlackConfiguration(final SlackProperties slackProperties) {
     this.slackProperties = slackProperties;
   }
 

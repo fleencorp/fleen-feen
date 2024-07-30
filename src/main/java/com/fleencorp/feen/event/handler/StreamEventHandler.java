@@ -34,7 +34,7 @@ public class StreamEventHandler {
    *
    * @param googleCalendarEventService the service used to interact with Google Calendar for event-related operations
    */
-  public StreamEventHandler(GoogleCalendarEventService googleCalendarEventService) {
+  public StreamEventHandler(final GoogleCalendarEventService googleCalendarEventService) {
     this.googleCalendarEventService = googleCalendarEventService;
   }
 
@@ -49,17 +49,17 @@ public class StreamEventHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public CompletableFuture<Void> addNewAttendees(AddCalendarEventAttendeesEvent event) {
+  public CompletableFuture<Void> addNewAttendees(final AddCalendarEventAttendeesEvent event) {
     return CompletableFuture.runAsync(() -> {
       // Create a request to add new attendees to the calendar event
-      AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest.builder()
+      final AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest.builder()
               .calendarId(event.getCalendarId())
               .eventId(event.getEventId())
               .attendeesOrGuestsEmailAddresses(new HashSet<>(event.getAttendeesOrGuestsEmailAddresses()))
               .build();
 
       // Call the Google Calendar API Service to add the new attendees to the event
-      GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
+      final GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
       log.info("Added attendees: {}", googleAddNewCalendarEventAttendeesResponse);
     });
   }

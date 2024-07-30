@@ -15,7 +15,7 @@ public class EmailMessage {
   private String htmlText;
   private String plainText;
 
-  public static EmailMessage of(String from, String to, String subject, String htmlText) {
+  public static EmailMessage of(final String from, final String to, final String subject, final String htmlText) {
     return EmailMessage.builder()
         .from(from)
         .to(to)

@@ -25,7 +25,7 @@ public enum TokenClaimField implements ApiParameter {
 
   private final String value;
 
-  TokenClaimField(String value) {
+  TokenClaimField(final String value) {
     this.value = value;
   }
 }

@@ -12,7 +12,7 @@ public enum MessageType implements ApiParameter {
 
   private final String value;
 
-  MessageType(String value) {
+  MessageType(final String value) {
     this.value = value;
   }
 }

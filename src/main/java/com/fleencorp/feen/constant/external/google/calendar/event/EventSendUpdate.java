@@ -18,7 +18,7 @@ public enum EventSendUpdate implements ApiParameter {
 
   private final String value;
 
-  EventSendUpdate(String value) {
+  EventSendUpdate(final String value) {
     this.value = value;
   }
 }

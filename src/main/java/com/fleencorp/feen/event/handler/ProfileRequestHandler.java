@@ -42,10 +42,10 @@ public class ProfileRequestHandler {
    * @param smsMessageRepository  Repository for SMS message templates.
    */
   public ProfileRequestHandler(
-      EmailMessageService emailMessageService,
-      TemplateProcessor templateProcessor,
-      MobileTextService mobileTextService,
-      SmsMessageRepository smsMessageRepository) {
+      final EmailMessageService emailMessageService,
+      final TemplateProcessor templateProcessor,
+      final MobileTextService mobileTextService,
+      final SmsMessageRepository smsMessageRepository) {
     this.emailMessageService = emailMessageService;
     this.templateProcessor = templateProcessor;
     this.mobileTextService = mobileTextService;
@@ -59,7 +59,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendSignUpVerificationCode(SignUpVerificationRequest request) {
+  public void handleSendSignUpVerificationCode(final SignUpVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -74,7 +74,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendCompletedSignUpVerification(CompletedUserSignUpRequest request) {
+  public void handleSendCompletedSignUpVerification(final CompletedUserSignUpRequest request) {
     sendEmailMessage(request);
   }
 
@@ -85,7 +85,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendMfaVerificationCode(MfaVerificationRequest request) {
+  public void handleSendMfaVerificationCode(final MfaVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -100,7 +100,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendMfaSetupVerificationCode(MfaSetupVerificationRequest request) {
+  public void handleSendMfaSetupVerificationCode(final MfaSetupVerificationRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -115,7 +115,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendForgotPasswordVerificationCode(ForgotPasswordRequest request) {
+  public void handleSendForgotPasswordVerificationCode(final ForgotPasswordRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -130,7 +130,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendProfileUpdateCode(SendVerificationCodeRequest request) {
+  public void handleSendProfileUpdateCode(final SendVerificationCodeRequest request) {
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -145,7 +145,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleProfileUpdateSuccessful(MessageRequest request) {
+  public void handleProfileUpdateSuccessful(final MessageRequest request) {
     sendEmailMessage(request);
   }
 
@@ -156,7 +156,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleResetPasswordSuccessful(MessageRequest request) {
+  public void handleResetPasswordSuccessful(final MessageRequest request) {
     sendEmailMessage(request);
   }
 
@@ -165,8 +165,8 @@ public class ProfileRequestHandler {
    *
    * @param request the message request containing template name, email address, and message title
    */
-  private void sendEmailMessage(MessageRequest request) {
-    String messageBody = templateProcessor.processTemplate(
+  private void sendEmailMessage(final MessageRequest request) {
+    final String messageBody = templateProcessor.processTemplate(
       request.getTemplateName(),
       request.toMessagePayload());
     emailMessageService.sendMessage(request.getEmailAddress(), request.getMessageTitle(), messageBody);
@@ -177,10 +177,10 @@ public class ProfileRequestHandler {
    *
    * @param request the message request containing template name, phone number, and message payload
    */
-  private void sendSmsMessage(MessageRequest request) {
-    SmsMessage smsMessage = smsMessageRepository.findByTitle(request.getTemplateName())
+  private void sendSmsMessage(final MessageRequest request) {
+    final SmsMessage smsMessage = smsMessageRepository.findByTitle(request.getTemplateName())
         .orElseThrow(UnableToCompleteOperationException::new);
-    String messageBody = templateProcessor.processTemplateSms(smsMessage.body(), request.toMessagePayload());
+    final String messageBody = templateProcessor.processTemplateSms(smsMessage.body(), request.toMessagePayload());
     mobileTextService.sendMessage(request.getPhoneNumber(), messageBody);
   }
 }

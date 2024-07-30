@@ -22,7 +22,7 @@ public enum TokenType implements ApiParameter {
 
   private final String value;
 
-  TokenType(String value) {
+  TokenType(final String value) {
     this.value = value;
   }
 }

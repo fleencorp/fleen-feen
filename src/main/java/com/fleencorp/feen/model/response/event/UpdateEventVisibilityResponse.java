@@ -32,7 +32,7 @@ public class UpdateEventVisibilityResponse {
   @JsonProperty("message")
   private String message = "Event visibility updated successfully";
 
-  public static UpdateEventVisibilityResponse of(Long eventId, EventResponse event) {
+  public static UpdateEventVisibilityResponse of(final Long eventId, final EventResponse event) {
     return UpdateEventVisibilityResponse.builder()
             .eventId(eventId)
             .event(event)

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.domain.user;
 
+import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
@@ -97,7 +98,7 @@ public class Member extends FleenFeenEntity {
   private Set<Role> roles = new HashSet<>();
 
   public String getFullName() {
-    return firstName + ' ' + lastName;
+    return StringUtil.getFullName(firstName, lastName);
   }
 
   public boolean isMfaDisabled() {

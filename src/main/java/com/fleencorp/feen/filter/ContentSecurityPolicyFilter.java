@@ -100,10 +100,10 @@ public class ContentSecurityPolicyFilter extends OncePerRequestFilter {
    */
   @Override
   protected void doFilterInternal(
-      @NonNull HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
+      @NonNull final HttpServletRequest request, final HttpServletResponse response,
+      final FilterChain filterChain) throws ServletException, IOException {
 
-    String csPolicy = "default-src " + defaultSrc + ";" +
+    final String csPolicy = "default-src " + defaultSrc + ";" +
       "img-src " + imgSrc + ";" +
       "font-src " + fontSrc + ";" +
       "object-src " + objectSrc + ";" +

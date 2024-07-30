@@ -23,7 +23,7 @@ public enum CommonMessageDetails {
   private final String templateName;
   private final String messageTitle;
 
-  CommonMessageDetails(String templateName, String messageTitle) {
+  CommonMessageDetails(final String templateName, final String messageTitle) {
     this.templateName = templateName;
     this.messageTitle = messageTitle;
   }

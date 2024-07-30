@@ -21,7 +21,7 @@ public class TemplateConfiguration {
   private final String mailTemplatesPath;
 
   public TemplateConfiguration(
-      @Value("${email.message.templates.path}") String mailTemplatesPath) {
+      @Value("${email.message.templates.path}") final String mailTemplatesPath) {
     this.mailTemplatesPath = mailTemplatesPath;
   }
 
@@ -39,7 +39,7 @@ public class TemplateConfiguration {
   @Bean
   public ITemplateResolver thymeleafTemplateResolver() {
     // Create a new template resolver for class loader-based template loading
-    ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+    final ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
     // Set the prefix for the email templates path
     templateResolver.setPrefix(mailTemplatesPath);
     // Set the suffix for the email template files
@@ -65,7 +65,7 @@ public class TemplateConfiguration {
   @Bean
   public SpringTemplateEngine thymeleafTemplateEngine() {
     // Create a new instance of SpringTemplateEngine
-    SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+    final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
     // Set the template resolver for the template engine
     templateEngine.setTemplateResolver(thymeleafTemplateResolver());
     // Return the configured template engine

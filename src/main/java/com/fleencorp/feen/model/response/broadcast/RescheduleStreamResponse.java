@@ -30,7 +30,7 @@ public class RescheduleStreamResponse {
   @JsonProperty("message")
   private String message = "Rescheduling of stream successful";
 
-  public static RescheduleStreamResponse of(Long streamId, FleenStreamResponse stream) {
+  public static RescheduleStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
     return RescheduleStreamResponse.builder()
             .streamId(streamId)
             .stream(stream)

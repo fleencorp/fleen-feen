@@ -13,7 +13,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
 
   private final ReCaptchaAdapter reCaptchaAdapter;
 
-  public ReCaptchaServiceImpl(ReCaptchaAdapter reCaptchaAdapter) {
+  public ReCaptchaServiceImpl(final ReCaptchaAdapter reCaptchaAdapter) {
     this.reCaptchaAdapter = reCaptchaAdapter;
   }
 
@@ -25,7 +25,7 @@ public class ReCaptchaServiceImpl implements ReCaptchaService {
    */
   @Override
   @MeasureExecutionTime
-  public ReCaptchaResponse verifyReCaptcha(String reCaptchaToken) {
+  public ReCaptchaResponse verifyReCaptcha(final String reCaptchaToken) {
     return reCaptchaAdapter.verifyRecaptcha(reCaptchaToken);
   }
 }

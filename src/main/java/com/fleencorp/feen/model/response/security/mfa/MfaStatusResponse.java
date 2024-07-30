@@ -28,7 +28,7 @@ public class MfaStatusResponse {
   @JsonProperty("mfa_type")
   private MfaType mfaType;
 
-  public static MfaStatusResponse of(boolean enabled, MfaType mfaType) {
+  public static MfaStatusResponse of(final boolean enabled, final MfaType mfaType) {
     return MfaStatusResponse.builder()
         .enabled(enabled)
         .mfaType(mfaType)

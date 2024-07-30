@@ -41,9 +41,9 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param javaMailSender         the JavaMailSender used for sending emails
    */
   public EmailMessageServiceImpl(
-      @Value("${templates.logo-path}") Resource logoFile,
-      EmailMessageProperties emailMessageProperties,
-      JavaMailSender javaMailSender) {
+      @Value("${templates.logo-path}") final Resource logoFile,
+      final EmailMessageProperties emailMessageProperties,
+      final JavaMailSender javaMailSender) {
     this.logoFile = logoFile;
     this.emailMessageProperties = emailMessageProperties;
     this.mailSender = javaMailSender;
@@ -72,7 +72,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param details the EmailDetails object containing the email body content
    * @throws UnableToCompleteOperationException if a MessagingException occurs while setting the text
    */
-  protected void setEmailBody(MimeMessageHelper helper, EmailMessage details) {
+  protected void setEmailBody(final MimeMessageHelper helper, final EmailMessage details) {
     try {
       // Check if both plain text and HTML text are available
       if (nonNull(details.getPlainText()) && nonNull(details.getHtmlText())) {
@@ -85,7 +85,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
         // Set only plain text if HTML text is not available
         helper.setText(details.getPlainText());
       }
-    } catch (MessagingException ex) {
+    } catch (final MessagingException ex) {
       // Log the exception message and stack trace
       log.error(ex.getMessage(), ex);
       // Throw custom exception if unable to set the email body
@@ -103,10 +103,10 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param details the EmailDetails object containing the email configuration details
    * @return the configured MimeMessageHelper, or null if a MessagingException occurs
    */
-  private MimeMessageHelper createtMimeMessageHelper(MimeMessage message, EmailMessage details) {
+  private MimeMessageHelper createtMimeMessageHelper(final MimeMessage message, final EmailMessage details) {
     try {
       // Initialize MimeMessageHelper with mixed-related multipart mode and UTF-8 encoding
-      MimeMessageHelper helper = new MimeMessageHelper(message, MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
+      final MimeMessageHelper helper = new MimeMessageHelper(message, MULTIPART_MODE_MIXED_RELATED, UTF_8.name());
 
       // Set the sender's email address
       helper.setFrom(details.getFrom());
@@ -116,7 +116,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
       helper.setSubject(details.getSubject());
 
       return helper;
-    } catch (MessagingException ex) {
+    } catch (final MessagingException ex) {
       // Log the exception message and stack trace
       log.error(ex.getMessage(), ex);
       throw new UnableToCompleteOperationException();
@@ -132,7 +132,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param helper the MimeMessageHelper used to set the inline resource
    * @throws MessagingException if there is a problem adding the inline resource
    */
-  protected void setLogo(MimeMessageHelper helper) throws MessagingException {
+  protected void setLogo(final MimeMessageHelper helper) throws MessagingException {
     // Add the logo file as an inline resource
     helper.addInline(LOGO.getValue(), logoFile);
   }
@@ -146,12 +146,12 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param emailMessage the details of the email to be sent
    * @throws UnableToCompleteOperationException if there is an issue with sending the email
    */
-  public void sendMessage(EmailMessage emailMessage) {
+  public void sendMessage(final EmailMessage emailMessage) {
     try {
       // Create a new MIME message
-      MimeMessage message = mailSender.createMimeMessage();
+      final MimeMessage message = mailSender.createMimeMessage();
       // Initialize the MIME message helper with email details
-      MimeMessageHelper helper = createtMimeMessageHelper(message, emailMessage);
+      final MimeMessageHelper helper = createtMimeMessageHelper(message, emailMessage);
       // Set the email message body
       setEmailBody(helper, emailMessage);
       // Set the logo as an inline resource
@@ -159,7 +159,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
 
       // Send the email message
       mailSender.send(message);
-    } catch (MessagingException | MailSendException ex) {
+    } catch (final MessagingException | MailSendException ex) {
       log.error(ex.getMessage(), ex);
       throw new UnableToCompleteOperationException();
     }
@@ -177,9 +177,9 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param htmlText the HTML content of the email body
    */
   @Override
-  public void sendMessage(String from, String to, String subject, String htmlText) {
+  public void sendMessage(final String from, final String to, final String subject, final String htmlText) {
     // Retrieve email details from the message request
-    EmailMessage emailMessage = EmailMessage.of(from, to, subject, htmlText);
+    final EmailMessage emailMessage = EmailMessage.of(from, to, subject, htmlText);
 
     sendMessage(emailMessage);
   }
@@ -195,7 +195,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
    * @param messageBody the plain text message body of the email
    */
   @Override
-  public void sendMessage(String to, String subject, String messageBody) {
+  public void sendMessage(final String to, final String subject, final String messageBody) {
     sendMessage(getOriginEmailAddress(), to, subject, messageBody);
   }
 

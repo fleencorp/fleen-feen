@@ -57,9 +57,9 @@ public class OptionsFilter extends OncePerRequestFilter {
    */
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request,
-      @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain)  throws ServletException, IOException {
+      final HttpServletRequest request,
+      @NonNull final HttpServletResponse response,
+      @NonNull final FilterChain filterChain)  throws ServletException, IOException {
 
     if (OPTIONS.name().equals(request.getMethod())
       && PATH_MATCHER.match(URL_PATTERN, request.getRequestURI())) {

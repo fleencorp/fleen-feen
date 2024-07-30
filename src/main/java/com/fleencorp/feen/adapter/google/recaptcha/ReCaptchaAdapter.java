@@ -42,8 +42,8 @@ public class ReCaptchaAdapter extends BaseAdapter {
    * @param secretKey  The secret key used for reCAPTCHA verification
    */
   protected ReCaptchaAdapter(
-      @Value("${google.recaptcha.base-url}") String baseUrl,
-      @Value("${google.recaptcha.secret-key}") String secretKey) {
+      @Value("${google.recaptcha.base-url}") final String baseUrl,
+      @Value("${google.recaptcha.secret-key}") final String secretKey) {
     super(baseUrl);
     this.recaptchaSecret = secretKey;
   }
@@ -58,13 +58,13 @@ public class ReCaptchaAdapter extends BaseAdapter {
    * @see <a href="https://developers.google.com/recaptcha/docs/verify">Verifying the user's response</a>
    * @see <a href="https://cloud.google.com/recaptcha-enterprise/docs/create-key-website">Create reCAPTCHA keys for websites</a>
    */
-  public ReCaptchaResponse verifyRecaptcha(String reCaptchaToken) {
-    Map<ApiParameter, String> parameters = new HashMap<>();
+  public ReCaptchaResponse verifyRecaptcha(final String reCaptchaToken) {
+    final Map<ApiParameter, String> parameters = new HashMap<>();
     parameters.put(GoogleRecaptchaParameter.SECRET, recaptchaSecret);
     parameters.put(GoogleRecaptchaParameter.RESPONSE, reCaptchaToken);
 
-    URI uri = buildUri(parameters, GoogleRecaptchaEndpointBlock.SITE_VERIFY);
-    ResponseEntity<ReCaptchaResponse> response = doCall(uri, HttpMethod.POST,
+    final URI uri = buildUri(parameters, GoogleRecaptchaEndpointBlock.SITE_VERIFY);
+    final ResponseEntity<ReCaptchaResponse> response = doCall(uri, HttpMethod.POST,
         null, null, ReCaptchaResponse.class);
 
     if (response.getStatusCode().is2xxSuccessful()) {

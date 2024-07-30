@@ -55,9 +55,9 @@ public class TokenUtil {
   private final TokenProperties tokenProperties;
 
   public TokenUtil(
-      ObjectMapper objectMapper,
-      @Value("${jwt.issuer}") String jwtIssuer,
-      @Value("${jwt.secret}") String jwtSecret, TokenProperties tokenProperties) {
+      final ObjectMapper objectMapper,
+      @Value("${jwt.issuer}") final String jwtIssuer,
+      @Value("${jwt.secret}") final String jwtSecret, final TokenProperties tokenProperties) {
     this.mapper = objectMapper;
     this.jwtIssuer = jwtIssuer;
     this.jwtSecret = jwtSecret;
@@ -74,7 +74,7 @@ public class TokenUtil {
    * @return The username associated with the JWT token.
    * @throws io.jsonwebtoken.JwtException If an error occurs during JWT parsing or validation.
    */
-  public String getUsernameFromToken(String token) {
+  public String getUsernameFromToken(final String token) {
     return getClaimFromToken(token, Claims::getSubject);
   }
 
@@ -88,7 +88,7 @@ public class TokenUtil {
    * @return The expiration date of the JWT token.
    * @throws io.jsonwebtoken.JwtException If an error occurs during JWT parsing or validation.
    */
-  public Date getExpirationDateFromToken(String token) {
+  public Date getExpirationDateFromToken(final String token) {
     return getClaimFromToken(token, Claims::getExpiration);
   }
 
@@ -104,7 +104,7 @@ public class TokenUtil {
    * @return The resolved claim value from the token.
    * @throws io.jsonwebtoken.JwtException If an error occurs during JWT parsing or validation.
    */
-  public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+  public <T> T getClaimFromToken(final String token, final Function<Claims, T> claimsResolver) {
     final Claims claims = getClaimsFromToken(token);
     return claimsResolver.apply(claims);
   }
@@ -120,7 +120,7 @@ public class TokenUtil {
    * @return The value of the claim associated with the specified key, or {@code null} if the claim does not exist.
    * @throws io.jsonwebtoken.JwtException If an error occurs during JWT parsing or validation.
    */
-  public Object getClaim(String token, String key) {
+  public Object getClaim(final String token, final String key) {
     final Claims claims = getClaimsFromToken(token);
     return claims.get(key);
   }
@@ -158,7 +158,7 @@ public class TokenUtil {
    * @return A {@link Claims} object containing all claims parsed from the JWT token.
    * @throws io.jsonwebtoken.JwtException if an error occurs during parsing and validation of token
    */
-  private Claims getClaimsFromToken(String token) {
+  private Claims getClaimsFromToken(final String token) {
     return Jwts
         .parser()
         .verifyWith(convertJwtSecretToSecretKey())
@@ -170,15 +170,15 @@ public class TokenUtil {
   /**
    * Retrieves and returns a copy of the token payload as a mutable map.
    */
-  public Map<String, Object> createTokenMapFromClaims(String token) {
+  public Map<String, Object> createTokenMapFromClaims(final String token) {
     return new HashMap<>(getClaimsFromToken(token));
   }
 
   /**
    * Converts a token's claims map into a TokenPayload object using ObjectMapper.
    */
-  public TokenPayload convertTokenMapToPayload(String token) {
-    Map<String, Object> claims = getClaimsFromToken(token);
+  public TokenPayload convertTokenMapToPayload(final String token) {
+    final Map<String, Object> claims = getClaimsFromToken(token);
     return mapper.convertValue(claims, TokenPayload.class);
   }
 
@@ -191,7 +191,7 @@ public class TokenUtil {
    * @param token The JWT token to be checked for expiration.
    * @return {@code true} if the token is expired, {@code false} otherwise.
    */
-  public boolean isTokenExpired(String token) {
+  public boolean isTokenExpired(final String token) {
     final Date expiration = getExpirationDateFromToken(token);
     return expiration.before(new Date());
   }
@@ -206,7 +206,7 @@ public class TokenUtil {
    * @param details The UserDetails containing user information for validation.
    * @return {@code true} if the token is valid for the UserDetails, {@code false} otherwise.
    */
-  public boolean isTokenValid(String token, UserDetails details) {
+  public boolean isTokenValid(final String token, final UserDetails details) {
     final String username = getUsernameFromToken(token);
     return (nonNull(username) && username.equalsIgnoreCase(details.getUsername()) && !isTokenExpired(token));
   }
@@ -223,14 +223,14 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT access token as a {@code String}.
    */
-  public String generateAccessToken(FleenUser user, TokenType tokenType, AuthenticationStatus authenticationStatus) {
-    Map<String, Object> claims = getFreshClaims();
+  public String generateAccessToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
+    final Map<String, Object> claims = getFreshClaims();
     setBasicDetails(claims, user.getId(), authoritiesToList(user.getAuthorities()));
     setUserDetails(user, claims);
     setTokenType(claims, tokenType);
     setAuthenticationStatus(claims, authenticationStatus);
 
-    long tokenExpirationInMilliseconds = durationToMilliseconds(Duration.ofHours(tokenProperties.getAccessToken()));
+    final long tokenExpirationInMilliseconds = durationToMilliseconds(Duration.ofHours(tokenProperties.getAccessToken()));
     return createToken(user.getUsername(), claims, tokenExpirationInMilliseconds);
   }
 
@@ -246,7 +246,7 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT refresh token as a {@code String}.
    */
-  public String generateRefreshToken(FleenUser user, TokenType tokenType, AuthenticationStatus authenticationStatus) {
+  public String generateRefreshToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
     return generateToken(user, tokenType, authenticationStatus, getRefreshTokenAuthorities(), Duration.ofHours(tokenProperties.getRefreshToken()));
   }
 
@@ -262,7 +262,7 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT reset password token as a {@code String}.
    */
-  public String generateResetPasswordToken(FleenUser user, TokenType tokenType, AuthenticationStatus authenticationStatus) {
+  public String generateResetPasswordToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
     return generateToken(user, tokenType, authenticationStatus, getResetPasswordAuthorities(), Duration.ofHours(tokenProperties.getResetPasswordToken()));
   }
 
@@ -279,14 +279,14 @@ public class TokenUtil {
    * @param duration The duration for which the token is valid.
    * @return A signed JWT token as a {@code String}.
    */
-  public String generateToken(FleenUser user, TokenType tokenType, AuthenticationStatus authenticationStatus, List<GrantedAuthority> authorities, Duration duration) {
-    Map<String, Object> claims = getFreshClaims();
+  public String generateToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus, final List<GrantedAuthority> authorities, final Duration duration) {
+    final Map<String, Object> claims = getFreshClaims();
     setBasicDetails(claims, user.getId(), authoritiesToList(authorities));
 
     setTokenType(claims, tokenType);
     setAuthenticationStatus(claims, authenticationStatus);
 
-    long tokenExpirationInMilliseconds = durationToMilliseconds(duration);
+    final long tokenExpirationInMilliseconds = durationToMilliseconds(duration);
     return createToken(user.getUsername(), claims, tokenExpirationInMilliseconds);
   }
 
@@ -308,7 +308,7 @@ public class TokenUtil {
    * @param claims The map containing token claims.
    * @param tokenType The TokenType enum representing the type of token.
    */
-  public void setTokenType(Map<String, Object> claims, TokenType tokenType) {
+  public void setTokenType(final Map<String, Object> claims, final TokenType tokenType) {
     if (nonNull(claims) && nonNull(tokenType)) {
       claims.put(TOKEN_TYPE.getValue(), tokenType.getValue());
     }
@@ -320,7 +320,7 @@ public class TokenUtil {
    * @param claims The map containing token claims.
    * @param authenticationStatus The AuthenticationStatus enum representing the status of authentication.
    */
-  public void setAuthenticationStatus(Map<String, Object> claims, AuthenticationStatus authenticationStatus) {
+  public void setAuthenticationStatus(final Map<String, Object> claims, final AuthenticationStatus authenticationStatus) {
     if (nonNull(claims) && nonNull(authenticationStatus)) {
       claims.put(AUTHENTICATION_STATUS_KEY.getValue(), authenticationStatus);
     }
@@ -334,7 +334,7 @@ public class TokenUtil {
    * @param expirationPeriod The expiration period of the token in milliseconds.
    * @return A JWT token string.
    */
-  public String createToken(String subject, Map<String, Object> claims, long expirationPeriod) {
+  public String createToken(final String subject, final Map<String, Object> claims, final long expirationPeriod) {
     return Jwts.builder()
         .claims(claims)
         .subject(subject)
@@ -355,7 +355,7 @@ public class TokenUtil {
    * @param user The {@code FleenUser} object containing user details to be added to the claims.
    * @param claims The map of claims to which the user details will be added.
    */
-  public void setUserDetails(FleenUser user, Map<String, Object> claims) {
+  public void setUserDetails(final FleenUser user, final Map<String, Object> claims) {
     if (nonNull(claims) && nonNull(user)) {
       claims.put(FIRST_NAME.getValue(), user.getFirstName());
       claims.put(LAST_NAME.getValue(), user.getLastName());
@@ -377,7 +377,7 @@ public class TokenUtil {
    * @param userId The user ID to be added to the claims.
    * @param authorities The array of authorities to be added to the claims.
    */
-  private void setBasicDetails(Map<String, Object> claims, Long userId, String[] authorities) {
+  private void setBasicDetails(final Map<String, Object> claims, final Long userId, final String[] authorities) {
     if (nonNull(claims) && nonNull(userId)) {
       claims.put(USER_ID.getValue(), userId);
     }
@@ -395,7 +395,7 @@ public class TokenUtil {
    * @param authorities The collection of GrantedAuthority objects.
    * @return An array of strings representing the authority names.
    */
-  public String[] authoritiesToList(Collection<? extends GrantedAuthority> authorities) {
+  public String[] authoritiesToList(final Collection<? extends GrantedAuthority> authorities) {
     if (nonNull(authorities)) {
       return authorities
           .stream()

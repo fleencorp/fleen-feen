@@ -19,7 +19,7 @@ public class InvalidReCaptchaException extends FleenException {
 
   public static final String DEFAULT_MESSAGE = "Invalid ReCaptcha!!!";
 
-  public InvalidReCaptchaException(String message) {
+  public InvalidReCaptchaException(final String message) {
     super(StringUtils.isEmpty(message) ? DEFAULT_MESSAGE : message);
   }
 

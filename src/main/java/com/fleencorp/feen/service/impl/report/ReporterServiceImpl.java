@@ -26,7 +26,7 @@ public class ReporterServiceImpl implements ReporterService {
    * @param reporterService the {@code ReporterService} to be used for sending reports, qualified with "slack"
    */
   public ReporterServiceImpl(
-    @Qualifier("slack") ReporterService reporterService) {
+    @Qualifier("slack") final ReporterService reporterService) {
     this.reporterService = reporterService;
   }
 
@@ -38,7 +38,7 @@ public class ReporterServiceImpl implements ReporterService {
    */
   @Override
   @Async
-  public void sendMessage(String message, ReportMessageType reportMessageType) {
+  public void sendMessage(final String message, final ReportMessageType reportMessageType) {
     reporterService.sendMessage(message, reportMessageType);
   }
 
@@ -49,7 +49,7 @@ public class ReporterServiceImpl implements ReporterService {
    */
   @Override
   @Async
-  public void sendMessage(String message) {
+  public void sendMessage(final String message) {
     reporterService.sendMessage(message);
   }
 }

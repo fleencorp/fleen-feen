@@ -44,9 +44,9 @@ public class SimpleCorsFilter implements Filter {
    * @throws ServletException If a servlet-specific error occurs.
    */
   @Override
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 
-    HttpServletResponse response = (HttpServletResponse) res;
+    final HttpServletResponse response = (HttpServletResponse) res;
     setHeaders(response);
     chain.doFilter(req, response);
   }
@@ -58,7 +58,7 @@ public class SimpleCorsFilter implements Filter {
    *
    * @param response The HTTP servlet response.
    */
-  public static void setHeaders(HttpServletResponse response) {
+  public static void setHeaders(final HttpServletResponse response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Credentials", "false");
     response.setHeader("Access-Control-Allow-Methods", "*");

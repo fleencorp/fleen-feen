@@ -13,7 +13,7 @@ public class PublishMessageRequest {
   private Object message;
   private MessageType messageType;
 
-  public static PublishMessageRequest of(Object message) {
+  public static PublishMessageRequest of(final Object message) {
     return PublishMessageRequest.builder()
         .message(message)
         .build();

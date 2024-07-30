@@ -30,7 +30,7 @@ public class ForgotPasswordResponse {
   @JsonProperty("message")
   private String message = "Forgot Password code sent successfully";
 
-  public static ForgotPasswordResponse of(String emailAddress, String phoneNumber) {
+  public static ForgotPasswordResponse of(final String emailAddress, final String phoneNumber) {
     return ForgotPasswordResponse.builder()
         .emailAddress(emailAddress)
         .phoneNumber(phoneNumber)

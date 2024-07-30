@@ -18,7 +18,7 @@ public class ToLowerCaseConverter extends StdConverter<String, String> {
   * @return The lowercase version of the input String.
   */
   @Override
-  public String convert(String value) {
+  public String convert(final String value) {
     return value == null
             ? null
             : value.trim().toLowerCase();

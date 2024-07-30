@@ -35,9 +35,9 @@ public class CacheService {
    * @param mapper        The ObjectMapper to use for serialization/deserialization.
    */
   public CacheService(
-      RedisTemplate<String, Object> redisTemplate,
-      ObjectMapper mapper,
-      JsonUtil jsonUtil) {
+      final RedisTemplate<String, Object> redisTemplate,
+      final ObjectMapper mapper,
+      final JsonUtil jsonUtil) {
     this.redisTemplate = redisTemplate;
     this.mapper = mapper;
     this.jsonUtil = jsonUtil;
@@ -49,7 +49,7 @@ public class CacheService {
    * @param key The key to check.
    * @return true if the key exists, false otherwise.
    */
-  public boolean exists(String key) {
+  public boolean exists(final String key) {
     return Boolean.TRUE.equals(redisTemplate.hasKey(key));
   }
 
@@ -59,7 +59,7 @@ public class CacheService {
    * @param key The key to retrieve the value for.
    * @return The value associated with the key, or null if the key does not exist.
    */
-  public Object get(String key) {
+  public Object get(final String key) {
     return redisTemplate.opsForValue().get(key);
   }
 
@@ -70,7 +70,7 @@ public class CacheService {
    * @param key  The key within the hash to retrieve the value for.
    * @return The value associated with the key within the hash, or null if the key or hash does not exist.
    */
-  public Object getByHash(String hash, String key) {
+  public Object getByHash(final String hash, final String key) {
     return redisTemplate.opsForHash().get(key, hash);
   }
 
@@ -80,7 +80,7 @@ public class CacheService {
    * @param key   The key to set.
    * @param value The value to set for the key.
    */
-  public void set(String key, String value) {
+  public void set(final String key, final String value) {
     redisTemplate.opsForValue().set(key, value);
   }
 
@@ -91,7 +91,7 @@ public class CacheService {
    * @param value    The value to set for the key.
    * @param duration The duration after which the key will expire.
    */
-  public void set(String key, String value, Duration duration) {
+  public void set(final String key, final String value, final Duration duration) {
     set(key, value);
     expire(key, duration);
   }
@@ -104,7 +104,7 @@ public class CacheService {
    * @param value The value to set for the key within the hash.
    */
 
-  public void setByHash(String hash, String key, Object value) {
+  public void setByHash(final String hash, final String key, final Object value) {
     redisTemplate.opsForHash().put(hash, key, value);
   }
 
@@ -114,7 +114,7 @@ public class CacheService {
    * @param key      The key to set the expiration time for.
    * @param duration The duration after which the key will expire.
    */
-  public void expire(String key, Duration duration) {
+  public void expire(final String key, final Duration duration) {
     redisTemplate.expire(key, duration);
   }
 
@@ -123,7 +123,7 @@ public class CacheService {
    *
    * @param key The key to delete.
    */
-  public void delete(String key) {
+  public void delete(final String key) {
     redisTemplate.delete(key);
   }
 
@@ -133,7 +133,7 @@ public class CacheService {
    * @param hash The hash to delete the value from.
    * @param key  The key within the hash to delete.
    */
-  public void deleteByHash(String hash, String key) {
+  public void deleteByHash(final String hash, final String key) {
     redisTemplate.opsForHash().delete(key, hash);
   }
 
@@ -143,12 +143,12 @@ public class CacheService {
    * @param key   The key to set.
    * @param value The value to serialize and set for the key.
    */
-  public void set(String key, Object value) {
+  public void set(final String key, final Object value) {
     if (nonNull(key) && nonNull(value)) {
       try {
-        String jsonString = mapper.writeValueAsString(value);
+        final String jsonString = mapper.writeValueAsString(value);
         set(key, jsonString);
-      } catch (JsonProcessingException ex) {
+      } catch (final JsonProcessingException ex) {
         log.error(ex.getMessage(), ex);
       }
     }
@@ -163,8 +163,8 @@ public class CacheService {
    * @return The deserialized value associated with the key,
    * or null if the key does not exist or the value could not be deserialized.
    */
-  public <T> T get(String key, Class<T> clazz) {
-    String value = (String) get(key);
+  public <T> T get(final String key, final Class<T> clazz) {
+    final String value = (String) get(key);
     if (nonNull(value) && nonNull(key) && nonNull(clazz)) {
       return jsonUtil.get(value, clazz);
     }

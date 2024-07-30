@@ -27,7 +27,7 @@ public enum MessageTemplateField implements ApiParameter {
 
   private final String value;
 
-  MessageTemplateField(String value) {
+  MessageTemplateField(final String value) {
     this.value = value;
   }
 }

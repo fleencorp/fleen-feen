@@ -70,9 +70,9 @@ public class S3Service {
    * @param s3Presigner the S3 presigner used for generating pre-signed URLs
    */
   public S3Service(
-      S3Client amazonS3,
-      S3Presigner s3Presigner,
-      @Qualifier("presignerForRead") S3Presigner s3PresignerForRead) {
+      final S3Client amazonS3,
+      final S3Presigner s3Presigner,
+      @Qualifier("presignerForRead") final S3Presigner s3PresignerForRead) {
     this.amazonS3 = amazonS3;
     this.s3Presigner = s3Presigner;
     this.s3PresignerForRead = s3PresignerForRead;
@@ -86,7 +86,7 @@ public class S3Service {
    * @param httpMethod the HTTP method to be used for accessing the object (e.g., GET, PUT, DELETE)
    * @return a signed URL for accessing the object with the specified HTTP method
    */
-  public String generateSignedUrl(String bucketName, String fileName, SdkHttpMethod httpMethod) {
+  public String generateSignedUrl(final String bucketName, final String fileName, final SdkHttpMethod httpMethod) {
     return generateSignedUrl(bucketName, fileName, httpMethod, 1);
   }
 
@@ -100,8 +100,8 @@ public class S3Service {
    * @param hour the number of hours until the signed URL expires
    * @return a signed URL with the specified expiration time for accessing the object with the specified HTTP method
    */
-  public String generateSignedUrl(String bucketName, String fileName, SdkHttpMethod httpMethod, int hour) {
-    Calendar expirationDate = Calendar.getInstance();
+  public String generateSignedUrl(final String bucketName, final String fileName, final SdkHttpMethod httpMethod, final int hour) {
+    final Calendar expirationDate = Calendar.getInstance();
     expirationDate.setTime(new Date());
     expirationDate.add(Calendar.HOUR, hour);
     return generateSignedUrl(bucketName, fileName, httpMethod, expirationDate.getTime(), hour);
@@ -114,7 +114,7 @@ public class S3Service {
    * @param fileName the name of the object to be uploaded
    * @return a signed URL for uploading the object
    */
-  public String generateSignedUrl(String bucketName, String fileName) {
+  public String generateSignedUrl(final String bucketName, final String fileName) {
     return generateSignedUrl(bucketName, fileName, PUT, 1);
   }
 
@@ -126,7 +126,7 @@ public class S3Service {
    * @param contentType the content type of the object
    * @return a signed URL with additional headers for uploading the object
    */
-  public String generateSignedUrlWithHeaders(String bucketName, String objectKey, String contentType) {
+  public String generateSignedUrlWithHeaders(final String bucketName, final String objectKey, final String contentType) {
     return generateSignedUrlWithHeaders(bucketName, objectKey, contentType, PUT, 1);
   }
 
@@ -138,7 +138,7 @@ public class S3Service {
    * @param contentType the content type of the object
    * @return a signed URL with additional headers and a specific expiration time for uploading the object
    */
-  public String generateSignedUrl(String bucketName, String fileName, String contentType) {
+  public String generateSignedUrl(final String bucketName, final String fileName, final String contentType) {
     return generateSignedUrlWithHeaders(bucketName, fileName, contentType, PUT, 3);
   }
 
@@ -152,7 +152,7 @@ public class S3Service {
    * @param hour the number of hours until the signed URL expires
    * @return a signed URL with additional headers and a specific expiration time for accessing or uploading the object
    */
-  public String generateSignedUrlWithHeaders(String bucketName, String objectKey, String contentType, SdkHttpMethod httpMethod, int hour) {
+  public String generateSignedUrlWithHeaders(final String bucketName, final String objectKey, final String contentType, final SdkHttpMethod httpMethod, final int hour) {
     S3Request s3Request = null;
     switch (httpMethod) {
       case PUT -> s3Request = PutObjectRequest
@@ -169,8 +169,8 @@ public class S3Service {
         .build();
     }
 
-    PresignRequest preSignRequest = buildPreSignRequestWithS3Request(s3Request, httpMethod, hour);
-    PresignedRequest preSignedRequest = buildPresignedRequest(preSignRequest, httpMethod);
+    final PresignRequest preSignRequest = buildPreSignRequestWithS3Request(s3Request, httpMethod, hour);
+    final PresignedRequest preSignedRequest = buildPresignedRequest(preSignRequest, httpMethod);
 
     return nonNull(preSignedRequest) ? preSignedRequest.url().toString() : null;
   }
@@ -182,7 +182,7 @@ public class S3Service {
    * @param objectKey the key of the object in the bucket
    * @return a signed URL for downloading the object
    */
-  public String generateDownloadUrl(String bucketName, String objectKey) {
+  public String generateDownloadUrl(final String bucketName, final String objectKey) {
     return generateDownloadUrl(bucketName, objectKey, 5);
   }
 
@@ -194,20 +194,20 @@ public class S3Service {
    * @param hour the number of hours until the signed URL expires
    * @return a signed URL for downloading the object with a specific expiration time
    */
-  public String generateDownloadUrl(String bucketName, String objectKey, int hour) {
-    GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+  public String generateDownloadUrl(final String bucketName, final String objectKey, final int hour) {
+    final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
       .bucket(bucketName)
       .key(objectKey)
       .responseContentDisposition(generateContentDispositionValue(objectKey))
       .responseExpires(getExpirationDate(hour))
       .build();
 
-    GetObjectPresignRequest objectPresSignedRequest = GetObjectPresignRequest.builder()
+    final GetObjectPresignRequest objectPresSignedRequest = GetObjectPresignRequest.builder()
       .getObjectRequest(getObjectRequest)
       .signatureDuration(ofHours(hour))
       .build();
 
-    PresignedGetObjectRequest presignedGetObjectRequest = s3PresignerForRead.presignGetObject(objectPresSignedRequest);
+    final PresignedGetObjectRequest presignedGetObjectRequest = s3PresignerForRead.presignGetObject(objectPresSignedRequest);
     return presignedGetObjectRequest.url().toString();
   }
 
@@ -224,8 +224,8 @@ public class S3Service {
    * @see <a href="https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/examples-s3-presign.html">Work with Amazon S3 pre-signed URLs</a>
    * @see <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/example_s3_Scenario_PresignedUrl_section.html">Create a presigned URL for Amazon S3 using an AWS SDK</a>
    */
-  public String generateSignedUrl(String bucketName, String objectKey, SdkHttpMethod httpMethod, Date expirationDate, int hour) {
-    Instant expiration = getExpirationDate(expirationDate);
+  public String generateSignedUrl(final String bucketName, final String objectKey, final SdkHttpMethod httpMethod, final Date expirationDate, final int hour) {
+    final Instant expiration = getExpirationDate(expirationDate);
     S3Request s3Request = null;
 
     switch (httpMethod) {
@@ -241,8 +241,8 @@ public class S3Service {
         .build();
     }
 
-    PresignRequest preSignRequest = buildPreSignRequestWithS3Request(s3Request, httpMethod, hour);
-    PresignedRequest preSignedRequest = buildPresignedRequest(preSignRequest, httpMethod);
+    final PresignRequest preSignRequest = buildPreSignRequestWithS3Request(s3Request, httpMethod, hour);
+    final PresignedRequest preSignedRequest = buildPresignedRequest(preSignRequest, httpMethod);
 
     return nonNull(preSignedRequest) ? preSignedRequest.url().toString() : null;
   }
@@ -255,7 +255,7 @@ public class S3Service {
    * @return a signed URL for accessing the existing object
    * @throws ObjectNotFoundException if the specified object does not exist in the bucket
    */
-  public String getObjectSignedUrl(String bucketName, String fileName) {
+  public String getObjectSignedUrl(final String bucketName, final String fileName) {
     if (isObjectExists(bucketName, fileName)) {
       throw new ObjectNotFoundException(fileName);
     }
@@ -269,8 +269,8 @@ public class S3Service {
    * @param extension the file extension to be appended to the randomly generated file name
    * @return a signed URL for uploading the object with the randomly generated file name and the specified extension
    */
-  public String generateObjectSignedUrl(String bucketName, String extension) {
-    String fileName = UUID.randomUUID() + extension;
+  public String generateObjectSignedUrl(final String bucketName, final String extension) {
+    final String fileName = UUID.randomUUID() + extension;
     return generateSignedUrl(bucketName, fileName, PUT);
   }
 
@@ -289,9 +289,9 @@ public class S3Service {
    * @param objectUrl the URL of the object in Amazon S3
    * @return the object key extracted from the URL
    */
-  public String getObjectKeyFromUrl(@NotNull String objectUrl) {
+  public String getObjectKeyFromUrl(@NotNull final String objectUrl) {
     String objectKey = objectUrl.substring(objectUrl.lastIndexOf("/") + 1);
-    int questionMarkIndex = objectKey.lastIndexOf("?");
+    final int questionMarkIndex = objectKey.lastIndexOf("?");
 
     if (questionMarkIndex != -1) {
       objectKey = objectKey.substring(0, questionMarkIndex);
@@ -306,7 +306,7 @@ public class S3Service {
    * @param objectKey the key of the object in the bucket
    * @return a GetObjectRequest for retrieving the specified object
    */
-  public GetObjectRequest getObjectRequest(String bucketName, String objectKey) {
+  public GetObjectRequest getObjectRequest(final String bucketName, final String objectKey) {
     return GetObjectRequest.builder()
       .key(objectKey)
       .bucket(bucketName)
@@ -321,9 +321,9 @@ public class S3Service {
    * @return a DeleteResponse indicating the success of the deletion operation
    * @throws ObjectNotFoundException if the specified object does not exist in the bucket
    */
-  public DeleteResponse deleteObject(@NotNull String bucketName, @NotNull String objectKey) {
+  public DeleteResponse deleteObject(@NotNull final String bucketName, @NotNull final String objectKey) {
     if (isObjectExists(bucketName, objectKey)) {
-      DeleteObjectRequest objectRequest = DeleteObjectRequest
+      final DeleteObjectRequest objectRequest = DeleteObjectRequest
         .builder()
         .bucket(bucketName)
         .key(objectKey)
@@ -343,10 +343,10 @@ public class S3Service {
    * @param objectKey the key of the object to be deleted
    */
   @Async
-  public void deleteObjectSilent(@NotNull String bucketName, @NotNull String objectKey) {
+  public void deleteObjectSilent(@NotNull final String bucketName, @NotNull final String objectKey) {
     try {
       deleteObject(bucketName, objectKey);
-    } catch (ObjectNotFoundException ignored) {}
+    } catch (final ObjectNotFoundException ignored) {}
   }
 
   /**
@@ -355,15 +355,15 @@ public class S3Service {
    * @param bucketName the name of the S3 bucket containing the objects to be deleted
    * @param objectKeys the keys of the objects to be deleted
    */
-  public void deleteMultipleObjects(String bucketName, @NotNull List<String> objectKeys) {
-    List<ObjectIdentifier> identifiers = new ArrayList<>();
-    for (String key : objectKeys) {
-      ObjectIdentifier objectIdentifier = ObjectIdentifier.builder().key(key).build();
+  public void deleteMultipleObjects(final String bucketName, @NotNull final List<String> objectKeys) {
+    final List<ObjectIdentifier> identifiers = new ArrayList<>();
+    for (final String key : objectKeys) {
+      final ObjectIdentifier objectIdentifier = ObjectIdentifier.builder().key(key).build();
       identifiers.add(objectIdentifier);
     }
 
-    Delete deleteObject = Delete.builder().objects(identifiers).build();
-    DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest
+    final Delete deleteObject = Delete.builder().objects(identifiers).build();
+    final DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest
       .builder()
       .bucket(bucketName)
       .delete(deleteObject)
@@ -379,8 +379,8 @@ public class S3Service {
    * @param objectName the key of the object to be moved
    * @param bucketTargetName the name of the target bucket to move the object to
    */
-  public void moveObject(String bucketSourceName, String objectName, String bucketTargetName) {
-    CopyObjectRequest copyObjectRequest = CopyObjectRequest.builder()
+  public void moveObject(final String bucketSourceName, final String objectName, final String bucketTargetName) {
+    final CopyObjectRequest copyObjectRequest = CopyObjectRequest.builder()
       .sourceBucket(bucketSourceName)
       .sourceKey(objectName)
       .destinationBucket(bucketTargetName)
@@ -396,15 +396,15 @@ public class S3Service {
    * @param objectKey the key of the object to check
    * @return true if the object exists in the bucket, false otherwise
    */
-  public boolean isObjectExists(String bucketName, String objectKey) {
+  public boolean isObjectExists(final String bucketName, final String objectKey) {
     if (nonNull(objectKey)) {
       try {
-        HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
+        final HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
           .bucket(bucketName)
           .key(objectKey)
           .build();
         return amazonS3.headObject(headObjectRequest) != null && amazonS3.headObject(headObjectRequest).lastModified() != null;
-      } catch (S3Exception ignored) {}
+      } catch (final S3Exception ignored) {}
     }
     return false;
   }
@@ -415,7 +415,7 @@ public class S3Service {
    * @param objectName the name of the object
    * @return a unique object key
    */
-  public String generateObjectKey(String objectName) {
+  public String generateObjectKey(final String objectName) {
     return (new Date()).getTime() +
             "-" +
             objectName.replaceAll(FILE_NAME_BLACKLISTED_REGEX, FILE_NAME_SEPARATOR);
@@ -428,8 +428,8 @@ public class S3Service {
    * @param filename the name of the object to retrieve
    * @return an object stream representing the requested object
    */
-  public Object getObjectStream(String bucketName, String filename) {
-    ResponseInputStream<GetObjectResponse> object = getObject(bucketName, filename);
+  public Object getObjectStream(final String bucketName, final String filename) {
+    final ResponseInputStream<GetObjectResponse> object = getObject(bucketName, filename);
     return ResponseEntity
             .ok()
             .cacheControl(CacheControl.noCache())
@@ -445,8 +445,8 @@ public class S3Service {
    * @param filename the name of the object to retrieve
    * @return an input stream representing the requested object
    */
-  public Object getObjectInputStream(String bucketName, String filename) {
-    ResponseBytes<GetObjectResponse> objectBytes = amazonS3.getObjectAsBytes(
+  public Object getObjectInputStream(final String bucketName, final String filename) {
+    final ResponseBytes<GetObjectResponse> objectBytes = amazonS3.getObjectAsBytes(
       GetObjectRequest.builder()
         .bucket(bucketName)
         .key(filename)
@@ -463,8 +463,8 @@ public class S3Service {
    * @param objectKey the key of the object to retrieve
    * @return a response input stream representing the requested object, or null if the object does not exist
    */
-  public ResponseInputStream<GetObjectResponse> getObject(String bucketName, String objectKey) {
-    GetObjectRequest objectRequest = GetObjectRequest
+  public ResponseInputStream<GetObjectResponse> getObject(final String bucketName, final String objectKey) {
+    final GetObjectRequest objectRequest = GetObjectRequest
       .builder()
       .key(objectKey)
       .bucket(bucketName)
@@ -483,8 +483,8 @@ public class S3Service {
    * @param objectKey the key of the object to retrieve metadata for
    * @return the metadata of the requested object
    */
-  public HeadObjectResponse getObjectMetaData(String bucketName, String objectKey) {
-    HeadObjectRequest objectRequest = HeadObjectRequest
+  public HeadObjectResponse getObjectMetaData(final String bucketName, final String objectKey) {
+    final HeadObjectRequest objectRequest = HeadObjectRequest
       .builder()
       .key(objectKey)
       .bucket(bucketName)
@@ -501,8 +501,8 @@ public class S3Service {
    * @param objectKey the key of the object to retrieve
    * @return a byte array containing the content of the requested object, or null if the object does not exist
    */
-  public ResponseBytes<GetObjectResponse> getObjectContent(String bucketName, String objectKey) {
-    GetObjectRequest objectRequest = GetObjectRequest
+  public ResponseBytes<GetObjectResponse> getObjectContent(final String bucketName, final String objectKey) {
+    final GetObjectRequest objectRequest = GetObjectRequest
       .builder()
       .key(objectKey)
       .bucket(bucketName)
@@ -523,26 +523,26 @@ public class S3Service {
    * @throws RuntimeException if an error occurs during the upload process
    */
   @Async
-  public void uploadObject(String bucketName, MultipartFile multipartFile, Optional<Map<String, String>> objectMetaData) {
+  public void uploadObject(final String bucketName, final MultipartFile multipartFile, final Optional<Map<String, String>> objectMetaData) {
     try {
-      String originalFileName = requireNonNull(multipartFile.getOriginalFilename());
-      String fileName = now()
+      final String originalFileName = requireNonNull(multipartFile.getOriginalFilename());
+      final String fileName = now()
         .toString()
         .concat(COMMA)
         .concat(originalFileName);
-      File file = convertMultipartFileToFile(multipartFile, fileName);
+      final File file = convertMultipartFileToFile(multipartFile, fileName);
 
-      PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+      final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
         .bucket(bucketName)
         .metadata(new HashMap<>())
         .acl(PUBLIC_READ)
         .build();
-      RequestBody body = RequestBody.fromFile(file);
+      final RequestBody body = RequestBody.fromFile(file);
 
       amazonS3.putObject(putObjectRequest, body);
       Files.delete(file.getAbsoluteFile().toPath());
     }
-    catch (Exception e) {
+    catch (final Exception e) {
       log.error(e.getMessage(), e);
       throw new FileUploadException();
     }
@@ -557,19 +557,19 @@ public class S3Service {
    * @param contentType the content type of the object
    * @throws RuntimeException if an error occurs during the upload process
    */
-  public void uploadObject(String bucketName, byte[] qrCodeImage, String objectKey, String contentType) {
-    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(qrCodeImage)) {
-      long contentLength = qrCodeImage.length;
-      PutObjectRequest request = PutObjectRequest.builder()
+  public void uploadObject(final String bucketName, final byte[] qrCodeImage, final String objectKey, final String contentType) {
+    try (final ByteArrayInputStream inputStream = new ByteArrayInputStream(qrCodeImage)) {
+      final long contentLength = qrCodeImage.length;
+      final PutObjectRequest request = PutObjectRequest.builder()
         .bucket(bucketName)
         .key(objectKey)
         .contentLength(contentLength)
         .contentType(contentType)
         .build();
 
-      RequestBody body = RequestBody.fromInputStream(inputStream, contentLength);
+      final RequestBody body = RequestBody.fromInputStream(inputStream, contentLength);
       amazonS3.putObject(request, body);
-    } catch (IOException e) {
+    } catch (final IOException e) {
       log.error(e.getMessage(), e);
       throw new FileUploadException();
     }
@@ -583,12 +583,12 @@ public class S3Service {
    * @return the converted file
    * @throws RuntimeException if an error occurs during the conversion process
    */
-  private File convertMultipartFileToFile(final MultipartFile multipartFile, String fileName) {
+  private File convertMultipartFileToFile(final MultipartFile multipartFile, final String fileName) {
     final File file = new File(fileName);
 
     try (final FileOutputStream outputStream = new FileOutputStream(file)) {
       outputStream.write(multipartFile.getBytes());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       throw new RuntimeException(e);
     }
     return file;
@@ -600,8 +600,8 @@ public class S3Service {
    * @param url the URL to extract the base URL from
    * @return the base URL
    */
-  public String getBaseUrlFromUrl(@NotNull String url) {
-    int questionMarkIndex = url.indexOf("?");
+  public String getBaseUrlFromUrl(@NotNull final String url) {
+    final int questionMarkIndex = url.indexOf("?");
     if (questionMarkIndex != -1) {
       return url.substring(0, questionMarkIndex);
     } else {
@@ -615,8 +615,8 @@ public class S3Service {
    * @param hour the number of hours until expiration
    * @return the expiration date as an Instant
    */
-  private Instant getExpirationDate(int hour) {
-    Date expirationDate = new Date();
+  private Instant getExpirationDate(final int hour) {
+    final Date expirationDate = new Date();
     long expirationTimeInMillis = expirationDate.getTime();
 
     expirationTimeInMillis += getTimeInMillis(60, 60, hour, 0);
@@ -631,7 +631,7 @@ public class S3Service {
    * @param fileNameOrExtension the file name or extension to detect the content type from
    * @return the detected content type, or null if it cannot be determined
    */
-  public String detectContentType(String fileNameOrExtension) {
+  public String detectContentType(final String fileNameOrExtension) {
     return URLConnection.guessContentTypeFromName(fileNameOrExtension);
   }
 
@@ -641,7 +641,7 @@ public class S3Service {
    * @param objectKey the key of the object
    * @return the generated content disposition value
    */
-  private String generateContentDispositionValue(String objectKey) {
+  private String generateContentDispositionValue(final String objectKey) {
     return "attachment; filename=\"" + objectKey + "\"";
   }
 
@@ -653,7 +653,7 @@ public class S3Service {
    * @param signatureDurationInHour the duration of the signature in hours
    * @return the built pre-signed request
    */
-  private PresignRequest buildPreSignRequestWithS3Request(S3Request s3Request, SdkHttpMethod httpMethod, int signatureDurationInHour) {
+  private PresignRequest buildPreSignRequestWithS3Request(final S3Request s3Request, final SdkHttpMethod httpMethod, final int signatureDurationInHour) {
     return switch (httpMethod) {
       case PUT -> PutObjectPresignRequest
         .builder()
@@ -676,7 +676,7 @@ public class S3Service {
    * @param httpMethod the HTTP method associated with the request
    * @return the built presigned request
    */
-  private PresignedRequest buildPresignedRequest(PresignRequest preSignRequest, SdkHttpMethod httpMethod) {
+  private PresignedRequest buildPresignedRequest(final PresignRequest preSignRequest, final SdkHttpMethod httpMethod) {
     return switch (httpMethod) {
       case PUT -> s3Presigner.presignPutObject((PutObjectPresignRequest) preSignRequest);
       case GET -> s3PresignerForRead.presignGetObject((GetObjectPresignRequest) preSignRequest);

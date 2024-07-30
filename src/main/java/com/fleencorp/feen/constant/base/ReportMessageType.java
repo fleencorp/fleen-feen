@@ -17,7 +17,7 @@ public enum ReportMessageType implements ApiParameter {
 
   private final String value;
 
-  ReportMessageType(String value) {
+  ReportMessageType(final String value) {
     this.value = value;
   }
 }

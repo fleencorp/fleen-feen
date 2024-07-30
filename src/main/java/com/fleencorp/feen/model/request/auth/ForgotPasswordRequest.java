@@ -15,8 +15,8 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.FORGOT_PA
 @NoArgsConstructor
 public class ForgotPasswordRequest extends SendVerificationCodeRequest {
 
-  public static ForgotPasswordRequest of(String verificationCode, String firstName, String lastName, String emailAddress,
-      String phoneNumber, VerificationType verificationType) {
+  public static ForgotPasswordRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
+                                         final String phoneNumber, final VerificationType verificationType) {
     return ForgotPasswordRequest.builder()
         .verificationCode(verificationCode)
         .firstName(firstName)
