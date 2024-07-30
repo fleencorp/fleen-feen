@@ -60,7 +60,7 @@ public class S3Service {
   private final S3Client amazonS3;
   private final S3Presigner s3Presigner;
   private final S3Presigner s3PresignerForRead;
-  private static final String FILE_NAME_BLACKLISTED_REGEX = "[^a-zA-Z0-9\\_]";
+  private static final String FILE_NAME_BLACKLISTED_REGEX = "[^a-zA-Z0-9_]";
   private static final String FILE_NAME_SEPARATOR = "_";
 
   /**

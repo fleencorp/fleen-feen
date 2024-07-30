@@ -54,6 +54,6 @@ public class StreamEventPublisher implements PublisherService {
    * @param addCalendarEventAttendeesEvent The event object containing the details of the attendees to be added.
    */
   public void addNewAttendees(final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent) {
-      this.eventPublisher.publishEvent(addCalendarEventAttendeesEvent);
+    this.eventPublisher.publishEvent(addCalendarEventAttendeesEvent);
   }
 }

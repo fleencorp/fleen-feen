@@ -34,7 +34,6 @@ public class FleenUser implements UserDetails {
   private String emailAddress;
   private String phoneNumber;
   private String password;
-  private Collection<? extends GrantedAuthority> authorities;
   private String firstName;
   private String lastName;
   private String profilePhoto;
@@ -42,6 +41,9 @@ public class FleenUser implements UserDetails {
   private ProfileStatus profileStatus;
   private boolean mfaEnabled;
   private MfaType mfaType;
+
+  @Setter
+  private Collection<? extends GrantedAuthority> authorities;
 
   public String getFullName() {
     return StringUtil.getFullName(firstName, lastName);
@@ -158,29 +160,4 @@ public class FleenUser implements UserDetails {
   public String getUsername() {
         return emailAddress;
     }
-
-  @Override
-  public boolean isAccountNonExpired() {
-        return true;
-    }
-
-  @Override
-  public boolean isAccountNonLocked() {
-        return true;
-    }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-  @Override
-  public boolean isEnabled() {
-        return true;
-    }
-
-  public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
-    this.authorities = authorities;
-  }
-
 }
