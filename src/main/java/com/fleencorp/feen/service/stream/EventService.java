@@ -4,6 +4,7 @@ import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -20,6 +21,8 @@ public interface EventService {
 
   SearchResultView findEventsAttendedWithAnotherUser(CalendarEventSearchRequest searchRequest, FleenUser user);
 
+  SearchResultView findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
+
   RetrieveEventResponse retrieveEvent(Long eventId);
 
   CreateEventResponse createEvent(CreateCalendarEventDto createCalendarEventDto, FleenUser user);
@@ -31,6 +34,8 @@ public interface EventService {
   DeleteEventResponse deleteEvent(Long eventId, FleenUser user);
 
   CancelEventResponse cancelEvent(Long eventId, FleenUser user);
+
+  NotAttendingEventResponse notAttendingEvent(Long eventId, FleenUser user);
 
   RescheduleEventResponse rescheduleEvent(Long eventId, RescheduleCalendarEventDto rescheduleCalendarEventDto, FleenUser user);
 

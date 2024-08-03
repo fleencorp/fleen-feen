@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.mfa;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.MFA_VERIF
 public class MfaVerificationRequest extends SendVerificationCodeRequest {
 
   public static MfaVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
-                                          final String phoneNumber, final VerificationType verificationType) {
+    final String phoneNumber, final VerificationType verificationType) {
     return MfaVerificationRequest.builder()
         .verificationCode(verificationCode)
         .firstName(firstName)
@@ -25,6 +26,11 @@ public class MfaVerificationRequest extends SendVerificationCodeRequest {
         .phoneNumber(phoneNumber)
         .verificationType(verificationType)
         .build();
+  }
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return MessageRequestType.MFA_VERIFICATION;
   }
 
   @Override

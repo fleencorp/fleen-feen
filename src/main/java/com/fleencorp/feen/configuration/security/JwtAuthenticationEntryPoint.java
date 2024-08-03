@@ -19,8 +19,7 @@ import java.io.Serializable;
  * entry point for JWT (JSON Web Token) based authentication. It is used to
  * commence the authentication process when an unauthenticated user attempts
  * to access a secured resource.It is responsible for delegating the handling of
- *  * authentication exceptions to a configured HandlerExceptionResolver.</p>
- *  <br/>
+ * authentication exceptions to a configured HandlerExceptionResolver.</p>
  *
  * <p>This class is annotated with @Component, indicating that it is a
  * Spring component and should be automatically detected and registered during

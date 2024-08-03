@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 /**
  * <p>The CustomAuthenticationProvider class is a Spring Security AuthenticationProvider
  * implementation that performs custom authentication logic.</p>
- * <br/>
  *
  * <p>This class is responsible for authenticating users based on their email address and password.
  * It uses a provided UserDetailsService to load user details and a PasswordEncoder to verify the password.</p>

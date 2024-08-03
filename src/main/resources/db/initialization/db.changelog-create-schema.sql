@@ -53,8 +53,8 @@ CREATE TABLE profile_token (
 
   CONSTRAINT profile_token_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `profile_token`;
@@ -99,8 +99,8 @@ CREATE TABLE google_oauth2_authorization (
 
   CONSTRAINT google_oauth2_authorization_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `google_oauth2_authorization`;
@@ -118,12 +118,12 @@ CREATE TABLE member_role (
 
   CONSTRAINT member_role_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE ,
+      REFERENCES member (member_id)
+        ON DELETE CASCADE ,
   CONSTRAINT member_role_fk_role
     FOREIGN KEY (role_id)
-    REFERENCES role (role_id)
-    ON DELETE CASCADE
+      REFERENCES role (role_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `member_role`;
@@ -168,8 +168,8 @@ CREATE TABLE fleen_stream (
 
   CONSTRAINT fleen_stream_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL
+      REFERENCES member (member_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `fleen_stream`;
@@ -207,6 +207,7 @@ CREATE TABLE stream_attendee (
   stream_attendee_id BIGSERIAL PRIMARY KEY,
   attendee_comment VARCHAR(500),
   organizer_comment VARCHAR(500) NULL,
+  is_attending BOOLEAN NOT NULL DEFAULT false,
   request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
     NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
 
@@ -218,12 +219,12 @@ CREATE TABLE stream_attendee (
 
   CONSTRAINT stream_attendee_fk_member_id
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL,
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
   CONSTRAINT stream_attendee_fk_fleen_stream_id
     FOREIGN KEY (fleen_stream_id)
-    REFERENCES fleen_stream (fleen_stream_id)
-    ON DELETE SET NULL
+      REFERENCES fleen_stream (fleen_stream_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `stream_attendee`;
@@ -248,12 +249,12 @@ CREATE TABLE stream_review (
 
   CONSTRAINT stream_review_fk_member_id
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL,
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
   CONSTRAINT stream_review_fk_fleen_stream_id
     FOREIGN KEY (fleen_stream_id)
-    REFERENCES fleen_stream (fleen_stream_id)
-    ON DELETE SET NULL
+      REFERENCES fleen_stream (fleen_stream_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `stream_review`;
@@ -341,11 +342,12 @@ CREATE TABLE share_contact_request (
   recipient_id BIGINT NOT NULL,
   initiator_comment VARCHAR(1000),
   recipient_comment VARCHAR(1000),
+  is_expected BOOLEAN NOT NULL DEFAULT false,
   share_contact_request_status VARCHAR(255)
-    NOT NULL CHECK (share_contact_request_status IN ('CANCELED', 'CONFIRMED', 'EXPECTED', 'REJECTED', 'SENT')),
-  share_contact_request_type VARCHAR(255)
-    NOT NULL CHECK (share_contact_request_status IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
-      'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_O_X', 'WECHAT', 'WHATSAPP')),
+    CHECK (share_contact_request_status IN ('CANCELED', 'ACCEPTED', 'REJECTED', 'SENT')),
+  contact_type VARCHAR(255)
+    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+      'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
   CONSTRAINT share_contact_request_fk_initiator_id
     FOREIGN KEY (initiator_id)
@@ -384,3 +386,26 @@ CREATE TABLE block_user (
 );
 
 --rollback DROP TABLE IF EXISTS `block_user`;
+
+
+
+--changeset alamu:15
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'contact';
+
+CREATE TABLE contact (
+  contact_id BIGSERIAL PRIMARY KEY,
+  contact VARCHAR(1000),
+  owner_id BIGINT NOT NULL,
+  contact_type VARCHAR(255)
+    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+      'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
+
+   CONSTRAINT contact_fk_owner_id
+     FOREIGN KEY (owner_id)
+       REFERENCES member (member_id)
+         ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `contact`;

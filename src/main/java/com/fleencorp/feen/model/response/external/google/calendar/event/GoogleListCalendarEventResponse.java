@@ -30,4 +30,7 @@ public class GoogleListCalendarEventResponse {
   private String nextSyncToken;
 
 
+  public static GoogleListCalendarEventResponse of() {
+    return new GoogleListCalendarEventResponse();
+  }
 }

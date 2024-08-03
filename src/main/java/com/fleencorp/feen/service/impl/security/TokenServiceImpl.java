@@ -71,7 +71,6 @@ public class TokenServiceImpl implements TokenService {
 
   /**
    * <p>Create a refresh token that can be used to obtain new access token to perform actions on the application or through the API.</p>
-   * <br/>
    *
    * @param user the authenticated user
    * @return the token to use to obtain new access token.
@@ -95,8 +94,7 @@ public class TokenServiceImpl implements TokenService {
   }
 
   /**
-   * <p>Save the authentication access token.</p>
-   * <br/>
+   * Save the authentication access token.
    *
    * @param subject the user's identifier to associate with the access token
    * @param token the user's token to validate during the requests and process of using the application

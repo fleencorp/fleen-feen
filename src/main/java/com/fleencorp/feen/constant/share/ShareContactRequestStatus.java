@@ -1,4 +1,4 @@
-package com.fleencorp.feen.constant.user;
+package com.fleencorp.feen.constant.share;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
@@ -13,8 +13,7 @@ import lombok.Getter;
 public enum ShareContactRequestStatus implements ApiParameter {
 
   CANCELED("Canceled"),
-  CONFIRMED("Confirmed"),
-  EXPECTED("Expected"),
+  ACCEPTED("Confirmed"),
   REJECTED("Rejected"),
   SENT("Sent");
 

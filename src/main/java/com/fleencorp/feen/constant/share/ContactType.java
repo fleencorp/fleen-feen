@@ -1,4 +1,4 @@
-package com.fleencorp.feen.constant.user;
+package com.fleencorp.feen.constant.share;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Getter;
  * @version 1.0
  */
 @Getter
-public enum ShareContactRequestType implements ApiParameter {
+public enum ContactType implements ApiParameter {
 
   EMAIL("Email"),
   FACEBOOK("Facebook"),
@@ -26,7 +26,7 @@ public enum ShareContactRequestType implements ApiParameter {
 
   private final String value;
 
-  ShareContactRequestType(final String value) {
+  ContactType(final String value) {
     this.value = value;
   }
 }

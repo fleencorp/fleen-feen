@@ -12,4 +12,11 @@ public class GoogleDeleteCalendarResponse {
 
   private String calendarId;
   private GoogleCalendarResponse calendar;
+
+  public static GoogleDeleteCalendarResponse of(final String calendarId, final GoogleCalendarResponse calendar) {
+    return GoogleDeleteCalendarResponse.builder()
+      .calendarId(calendarId)
+      .calendar(calendar)
+      .build();
+  }
 }

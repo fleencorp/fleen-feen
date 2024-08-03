@@ -28,7 +28,7 @@ import static software.amazon.awssdk.transfer.s3.SizeConstant.MB;
  */
 @Configuration
 @PropertySources({
-  @PropertySource("classpath:aws.properties")
+  @PropertySource("classpath:properties/aws.properties")
 })
 public class AwsConfig {
 

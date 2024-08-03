@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
 * Enum representing different types of closed captions for live broadcasts.
 *
-* <p> This enum implements {@link ApiParameter} and provides constants for three types of closed captions:</p>
+* <p>This enum implements {@link ApiParameter} and provides constants for three types of closed captions:</p>
 *
 * <p>Each constant has a corresponding value used in API requests and responses.</p>
 *

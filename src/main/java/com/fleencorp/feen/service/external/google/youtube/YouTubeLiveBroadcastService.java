@@ -4,7 +4,6 @@ import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
-import com.fleencorp.feen.mapper.external.YouTubeLiveBroadcastMapper;
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
@@ -30,9 +29,10 @@ import java.util.Optional;
 import static com.fleencorp.feen.constant.base.ReportMessageType.YOUTUBE;
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart.*;
+import static com.fleencorp.feen.mapper.external.YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse;
 import static com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service.getJsonFactory;
 import static com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service.getTransport;
-import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getYouTubeLiveStreamingByBroadcastId;
+import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getYouTubeLiveStreamingLinkByBroadcastId;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
 import static com.google.auth.http.AuthHttpConstants.AUTHORIZATION;
 import static com.google.auth.http.AuthHttpConstants.BEARER;
@@ -75,13 +75,13 @@ public class YouTubeLiveBroadcastService {
   /**
    * Constructs a YouTubeLiveBroadcastService with the specified API key.
    *
-   * <p> This constructor initializes the YouTubeLiveBroadcastService with the provided
+   * <p>This constructor initializes the YouTubeLiveBroadcastService with the provided
    * YouTube Data API key. The API key is injected using the {@link Value} annotation,
    * which retrieves the value from the application properties configured under the key
    * "youtube.data.api-key". This API key is essential for authenticating requests
    * to the YouTube Data API.</p>
    *
-   * <p> The API key should be properly configured in the application properties to ensure
+   * <p>The API key should be properly configured in the application properties to ensure
    * that the service can successfully interact with the YouTube Data API.</p>
    *
    * @param serviceApiKey The YouTube Data API key used for authenticating API requests.
@@ -97,15 +97,15 @@ public class YouTubeLiveBroadcastService {
   /**
    * Creates a live broadcast on YouTube for the specified channel.
    *
-   * <p> This method initializes a {@link YouTube} request object using the provided access token
+   * <p>This method initializes a {@link YouTube} request object using the provided access token
    * from the {@link CreateLiveBroadcastRequest} object. It then retrieves the YouTube channel
    * associated with the authenticated user using the {@link #getChannel(YouTube)} method.</p>
    *
-   * <p> If the channel is successfully retrieved, the method sets the channel ID in the
+   * <p>If the channel is successfully retrieved, the method sets the channel ID in the
    * {@link CreateLiveBroadcastRequest} object and proceeds to create the live broadcast by calling
    * the {@link #createLiveBroadcast(CreateLiveBroadcastRequest, YouTube)} method.</p>
    *
-   * <p> Note: This method throws an {@link IOException} if there is an issue with the YouTube API request.</p>
+   * <p>Note: This method throws an {@link IOException} if there is an issue with the YouTube API request.</p>
    *
    * @param createLiveBroadcastRequest The request object containing details for creating the live broadcast.
    * @return {@link CreateYouTubeLiveBroadcastResponse} containing the broadcast and live-streaming details
@@ -203,11 +203,10 @@ public class YouTubeLiveBroadcastService {
           .execute();
 
       // Build and return the response with the created broadcast details
-      return CreateYouTubeLiveBroadcastResponse.builder()
-              .liveBroadcastId(createdLiveBroadcast.getId())
-              .liveStreamLink(getYouTubeLiveStreamingByBroadcastId(createdLiveBroadcast.getId()))
-              .liveBroadcast(YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse(createdLiveBroadcast))
-              .build();
+      return CreateYouTubeLiveBroadcastResponse
+          .of(createdLiveBroadcast.getId(),
+              getYouTubeLiveStreamingLinkByBroadcastId(createdLiveBroadcast.getId()),
+              mapToLiveBroadcastResponse(createdLiveBroadcast));
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while creating live broadcast. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, YOUTUBE);
@@ -256,11 +255,10 @@ public class YouTubeLiveBroadcastService {
         final YouTube.LiveBroadcasts.Update updateRequest = createUpdateRequest(channel.getId(), liveBroadcast, youTube);
         final LiveBroadcast updatedLiveBroadcast = updateRequest.execute();
 
-        return UpdateYouTubeLiveBroadcastResponse.builder()
-            .liveBroadcastId(liveBroadcast.getId())
-            .liveStreamLink(getYouTubeLiveStreamingByBroadcastId(updatedLiveBroadcast.getId()))
-            .liveBroadcast(YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse(updatedLiveBroadcast))
-            .build();
+        return UpdateYouTubeLiveBroadcastResponse
+          .of(liveBroadcast.getId(),
+            getYouTubeLiveStreamingLinkByBroadcastId(liveBroadcast.getId()),
+            mapToLiveBroadcastResponse(updatedLiveBroadcast));
       }
       log.error("Cannot update live broadcast. Channel or broadcast cannot be found");
     } catch (final IOException ex) {
@@ -313,11 +311,10 @@ public class YouTubeLiveBroadcastService {
         final LiveBroadcast updatedLiveBroadcast = updateRequest.execute();
 
         // Build and return the response with updated live broadcast details
-        return RescheduleYouTubeLiveBroadcastResponse.builder()
-            .liveBroadcastId(updatedLiveBroadcast.getId())
-            .liveStreamLink(getYouTubeLiveStreamingByBroadcastId(updatedLiveBroadcast.getId()))
-            .liveBroadcast(YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse(updatedLiveBroadcast))
-            .build();
+        return RescheduleYouTubeLiveBroadcastResponse
+          .of(updatedLiveBroadcast.getId(),
+            getYouTubeLiveStreamingLinkByBroadcastId(updatedLiveBroadcast.getId()),
+            mapToLiveBroadcastResponse(updatedLiveBroadcast));
       }
       log.error("Cannot reschedule live broadcast. Channel or broadcast cannot be found");
     } catch (final IOException ex) {
@@ -377,7 +374,7 @@ public class YouTubeLiveBroadcastService {
    * occurs during the API request, it logs the error and throws an {@link ExternalSystemException}
    * with a message indicating the failure.</p>
    *
-   * <p> Note: This method assumes that the {@link YouTube} object is properly authenticated
+   * <p>Note: This method assumes that the {@link YouTube} object is properly authenticated
    * and configured with the necessary API credentials.</p>
    *
    * @param youTube The {@link YouTube} object used to make the API request.
@@ -418,11 +415,11 @@ public class YouTubeLiveBroadcastService {
   /**
    * Constructs and returns a comma-separated string of parts required for creating a live broadcast.
    *
-   * <p> This method creates a list of parts needed for creating a YouTube live broadcast,
+   * <p>This method creates a list of parts needed for creating a YouTube live broadcast,
    * including "snippet", "status", and "contentDetails". It then joins these parts into a
    * single comma-separated string using {@link String#join(CharSequence, CharSequence...)}.</p>
    *
-   * <p> The resulting string can be used in API requests that require specifying the parts
+   * <p>The resulting string can be used in API requests that require specifying the parts
    * of a YouTube resource to be included in the response.</p>
    *
    * @return A comma-separated string of parts for creating a live broadcast.
@@ -483,11 +480,11 @@ public class YouTubeLiveBroadcastService {
   /**
    * Creates and returns HTTP headers with the provided access token.
    *
-   * <p> This method constructs an instance of {@link HttpHeaders} and sets the
+   * <p>This method constructs an instance of {@link HttpHeaders} and sets the
    * Authorization header with the bearer token generated from the provided access token.
    * The bearer token is created using the {@link #getBearerToken(String)} method.</p>
    *
-   * <p> The resulting HttpHeaders object can be used to authenticate HTTP requests
+   * <p>The resulting HttpHeaders object can be used to authenticate HTTP requests
    * that require OAuth 2.0 bearer token authentication.</p>
    *
    * @param accessToken The access token to be included in the Authorization header.
@@ -507,11 +504,11 @@ public class YouTubeLiveBroadcastService {
   /**
    * Constructs a bearer token from the provided access token.
    *
-   * <p> This method takes an access token as input and constructs a bearer token
+   * <p>This method takes an access token as input and constructs a bearer token
    * by concatenating the "Bearer" prefix with the access token. The resulting bearer
    * token is used for authorizing API requests that require OAuth 2.0 authentication.</p>
    *
-   * <p> The "Bearer" prefix is a standard convention for OAuth 2.0 token usage, ensuring
+   * <p>The "Bearer" prefix is a standard convention for OAuth 2.0 token usage, ensuring
    * that the access token is correctly formatted for authorization headers in HTTP requests.</p>
    *
    * @param accessToken The access token to be converted into a bearer token.

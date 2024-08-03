@@ -37,4 +37,12 @@ public class BlockUser extends FleenFeenEntity {
   @Enumerated(STRING)
   @Column(name = "block_status", nullable = false)
   private BlockStatus blockStatus = BlockStatus.BLOCKED;
+
+  public static BlockUser of(final Member initiator, final Member recipient, final BlockStatus blockStatus) {
+    return BlockUser.builder()
+      .initiator(initiator)
+      .recipient(recipient)
+      .blockStatus(blockStatus)
+      .build();
+  }
 }

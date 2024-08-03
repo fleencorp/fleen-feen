@@ -16,4 +16,10 @@ public class StartOauth2AuthorizationResponse {
 
   @JsonProperty("authorization_uri")
   private String authorizationUri;
+
+  public static StartOauth2AuthorizationResponse of(final String authorizationUri) {
+    return StartOauth2AuthorizationResponse.builder()
+      .authorizationUri(authorizationUri)
+      .build();
+  }
 }

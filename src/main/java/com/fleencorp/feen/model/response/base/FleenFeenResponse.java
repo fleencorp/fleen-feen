@@ -51,4 +51,8 @@ public class FleenFeenResponse {
     return FleenFeenResponse.builder()
         .build();
   }
+
+  public static FleenFeenResponse of(final Object id) {
+    return new FleenFeenResponse(id);
+  }
 }

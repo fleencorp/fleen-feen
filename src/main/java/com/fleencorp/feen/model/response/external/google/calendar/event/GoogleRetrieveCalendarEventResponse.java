@@ -17,4 +17,12 @@ public class GoogleRetrieveCalendarEventResponse {
 
   @JsonIgnore
   private Event calendarEvent;
+
+  public static GoogleRetrieveCalendarEventResponse of(final String eventId, final Event event, final GoogleCalendarEventResponse calendarEventResponse) {
+    return GoogleRetrieveCalendarEventResponse.builder()
+      .eventId(eventId)
+      .calendarEvent(event)
+      .event(calendarEventResponse)
+      .build();
+  }
 }

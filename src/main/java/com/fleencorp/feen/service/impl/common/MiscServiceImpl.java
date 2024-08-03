@@ -20,7 +20,7 @@ public class MiscServiceImpl implements
 
   @Override
   public GetEncodedPasswordResponse getEncodedPassword(final String password) {
-    return new GetEncodedPasswordResponse(createEncodedPassword(password), password);
+    return GetEncodedPasswordResponse.of(createEncodedPassword(password), password);
   }
 
   @Override

@@ -24,9 +24,11 @@ import java.time.ZoneId;
 import java.util.*;
 
 import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
+import static com.fleencorp.feen.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
 import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * The CalendarService class provides functionality to create events on Google Calendar.
@@ -93,25 +95,24 @@ public class GoogleCalendarEventService {
     try {
       // Retrieve events from the calendar based on the request parameters
       final Events events = calendar.events()
-              .list(listCalendarEventRequest.getCalendarId())
-              .setMaxResults(listCalendarEventRequest.getMaxResultOrLimit())
-              .setTimeMin(toDateTime(listCalendarEventRequest.getFrom()))
-              .setTimeMax(toDateTime(listCalendarEventRequest.getTo()))
-              .setSingleEvents(listCalendarEventRequest.getSingleEvents())
-              .setShowDeleted(listCalendarEventRequest.getShowDeleted())
-              .setOrderBy(listCalendarEventRequest.getOrderBy().getValue())
-              .setQ(listCalendarEventRequest.getQ())
-              .setPageToken(listCalendarEventRequest.getPageToken())
-              .setTimeZone(listCalendarEventRequest.getTimezone())
-              .execute();
+        .list(listCalendarEventRequest.getCalendarId())
+        .setMaxResults(listCalendarEventRequest.getMaxResultOrLimit())
+        .setTimeMin(toDateTime(listCalendarEventRequest.getFrom()))
+        .setTimeMax(toDateTime(listCalendarEventRequest.getTo()))
+        .setSingleEvents(listCalendarEventRequest.getSingleEvents())
+        .setShowDeleted(listCalendarEventRequest.getShowDeleted())
+        .setOrderBy(listCalendarEventRequest.getOrderBy().getValue())
+        .setQ(listCalendarEventRequest.getQ())
+        .setPageToken(listCalendarEventRequest.getPageToken())
+        .setTimeZone(listCalendarEventRequest.getTimezone())
+        .execute();
 
       return GoogleCalendarEventMapper.mapToCalendarEventResponse(events);
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while listing event. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
-    return GoogleListCalendarEventResponse.builder()
-            .build();
+    return GoogleListCalendarEventResponse.of();
   }
 
   /**
@@ -210,10 +211,9 @@ public class GoogleCalendarEventService {
       insert.setSendUpdates(EventSendUpdate.ALL.getValue());
       final Event newEvent = insert.execute();
 
-      return GoogleCreateCalendarEventResponse.builder()
-        .eventId(event.getId())
-        .event(GoogleCalendarEventMapper.mapToEventExpanded(newEvent))
-        .build();
+      if (nonNull(newEvent)) {
+        return GoogleCreateCalendarEventResponse.of(event.getId(), requireNonNull(mapToEventExpanded(newEvent)));
+      }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
@@ -252,10 +252,7 @@ public class GoogleCalendarEventService {
                 .setSendUpdates(EventSendUpdate.ALL.getValue())
                 .execute();
 
-        return GoogleCancelCalendarEventResponse.builder()
-                .eventId(cancelCalendarEventRequest.getEventId())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-                .build();
+        return GoogleCancelCalendarEventResponse.of(cancelCalendarEventRequest.getEventId(), mapToEventExpanded(event));
       }
       log.error("Cannot cancel event. Event does not exist or cannot be found. {}", cancelCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
@@ -296,14 +293,12 @@ public class GoogleCalendarEventService {
         event.setEnd(eventEndDateTime);
 
         // Update the event on the calendar
-          calendar.events().update(calendarId, eventId, event)
-                .setSendUpdates(EventSendUpdate.ALL.getValue())
-                .execute();
+        calendar.events()
+          .update(calendarId, eventId, event)
+          .setSendUpdates(EventSendUpdate.ALL.getValue())
+          .execute();
 
-        return GoogleRescheduleCalendarEventResponse.builder()
-                .eventId(rescheduleCalendarEventRequest.getEventId())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-                .build();
+        return GoogleRescheduleCalendarEventResponse.of(rescheduleCalendarEventRequest.getEventId(), mapToEventExpanded(event));
       }
       log.error("Cannot reschedule event. Event does not exist or cannot be found. {}", rescheduleCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
@@ -339,14 +334,11 @@ public class GoogleCalendarEventService {
       // If the event exists, delete it from the calendar and notify attendees or guests
       if (nonNull(event)) {
           calendar.events()
-                .delete(calendarId, eventId)
-                .setSendUpdates(EventSendUpdate.ALL.getValue())
-                .execute();
+            .delete(calendarId, eventId)
+            .setSendUpdates(EventSendUpdate.ALL.getValue())
+            .execute();
 
-        return GoogleDeleteCalendarEventResponse.builder()
-                .eventId(deleteCalendarEventRequest.getEventId())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-                .build();
+        return GoogleDeleteCalendarEventResponse.of(deleteCalendarEventRequest.getEventId(), mapToEventExpanded(event));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while deleting the event. Reason: %s", ex.getMessage());
@@ -379,11 +371,9 @@ public class GoogleCalendarEventService {
               .execute();
 
       if (nonNull(event)) {
-        return GoogleRetrieveCalendarEventResponse.builder()
-            .calendarEvent(event)
-            .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-            .build();
+        return GoogleRetrieveCalendarEventResponse.of(eventId, event, mapToEventExpanded(event));
       }
+
       log.error("Cannot retrieve event. Event does not exist or cannot be found. {}", eventId);
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while retrieving the event. Reason: %s", ex.getMessage());
@@ -421,15 +411,14 @@ public class GoogleCalendarEventService {
         eventAttendee.setDisplayName(addNewEventAttendeeRequest.getAttendeeAliasOrDisplayName());
         event.getAttendees().add(eventAttendee);
 
-          calendar.events()
-                .update(calendarId, eventId, event)
-                .execute();
+        calendar.events()
+          .update(calendarId, eventId, event)
+          .execute();
 
-        return GoogleAddNewCalendarEventAttendeeResponse.builder()
-                .eventId(addNewEventAttendeeRequest.getEventId())
-                .userEmailAddress(addNewEventAttendeeRequest.getAttendeeEmailAddress())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-                .build();
+        return GoogleAddNewCalendarEventAttendeeResponse
+          .of(addNewEventAttendeeRequest.getEventId(),
+              addNewEventAttendeeRequest.getAttendeeEmailAddress(),
+              mapToEventExpanded(event));
       }
       log.error("Cannot add new attendee. Event does not exist or cannot be found. {}", addNewEventAttendeeRequest.getEventId());
     } catch (final IOException ex) {
@@ -465,17 +454,17 @@ public class GoogleCalendarEventService {
 
       // If the event exists, add the attendees and update the event on the calendar
       if (nonNull(event)) {
+        // Create a list of EventAttendees to be added
         final List<EventAttendee> attendees = addOrInviteAttendeesOrGuests(addNewEventAttendeesRequest.getAttendeesOrGuestsEmailAddresses());
+        // Add new attendees to already existing attendees list
         event.getAttendees().addAll(attendees);
-          calendar.events()
-                .update(calendarId, eventId, event)
-                .setSendUpdates(EventSendUpdate.ALL.getValue())
-                .execute();
+        // Save event with new attendees
+        calendar.events()
+          .update(calendarId, eventId, event)
+          .setSendUpdates(EventSendUpdate.ALL.getValue())
+          .execute();
 
-        return GoogleAddNewCalendarEventAttendeesResponse.builder()
-                .eventId(eventId)
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-                .build();
+        return GoogleAddNewCalendarEventAttendeesResponse.of(eventId, mapToEventExpanded(event));
       }
       log.error("Cannot add attendees. Event does not exist or cannot be found. {}", addNewEventAttendeesRequest.getEventId());
     } catch (final IOException ex) {
@@ -504,27 +493,25 @@ public class GoogleCalendarEventService {
       final String calendarId = patchCalendarEventRequest.getCalendarId();
       final String eventId = patchCalendarEventRequest.getEventId();
 
+      // Create a request to retrieve an event from a calendar
+      final RetrieveCalendarEventRequest retrieveCalendarEventRequest = RetrieveCalendarEventRequest.of(calendarId, eventId);
       // Retrieve the event from the calendar
-      final RetrieveCalendarEventRequest retrieveCalendarEventRequest = RetrieveCalendarEventRequest.builder()
-              .calendarId(calendarId)
-              .eventId(eventId)
-              .build();
       final GoogleRetrieveCalendarEventResponse googleRetrieveCalendarEventResponse = retrieveEvent(retrieveCalendarEventRequest);
 
       // If the event exists, update its title and description and patch it on the calendar
       if (nonNull(googleRetrieveCalendarEventResponse)) {
+        // Retrieve calendar event from the response and set new details
         final Event event = googleRetrieveCalendarEventResponse.getCalendarEvent();
         event.setSummary(patchCalendarEventRequest.getTitle());
         event.setDescription(patchCalendarEventRequest.getDescription());
+
+        // Save event with updated summary, description and other details
         final Event patchedEvent = calendar.events()
                 .patch(calendarId, eventId, event)
                 .setSendUpdates(EventSendUpdate.ALL.getValue())
                 .execute();
 
-        return GooglePatchCalendarEventResponse.builder()
-                .eventId(patchCalendarEventRequest.getEventId())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(patchedEvent))
-                .build();
+        return GooglePatchCalendarEventResponse.of(patchCalendarEventRequest.getEventId(), mapToEventExpanded(patchedEvent));
       }
       log.error("Cannot patch or update event. Event does not exist or cannot be found. {}", patchCalendarEventRequest.getEventId());
     } catch (final IOException ex) {
@@ -555,10 +542,7 @@ public class GoogleCalendarEventService {
               .setSendUpdates(EventSendUpdate.ALL.getValue())
               .execute();
 
-       return GoogleCreateInstantCalendarEventResponse.builder()
-              .eventId(event.getId())
-              .event(GoogleCalendarEventMapper.mapToEventExpanded(event))
-              .build();
+      return GoogleCreateInstantCalendarEventResponse.of(event.getId(), mapToEventExpanded(event));
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while creating an instant event. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
@@ -598,10 +582,7 @@ public class GoogleCalendarEventService {
                 .patch(calendarId, eventId, event)
                 .execute();
 
-        return GooglePatchCalendarEventResponse.builder()
-                .eventId(updateCalendarEventVisibilityRequest.getEventId())
-                .event(GoogleCalendarEventMapper.mapToEventExpanded(patchedEvent))
-                .build();
+        return GooglePatchCalendarEventResponse.of(updateCalendarEventVisibilityRequest.getEventId(), mapToEventExpanded(patchedEvent));
       }
       log.error("Cannot update visibility. Event does not exist or cannot be found. {}", updateCalendarEventVisibilityRequest.getEventId());
     } catch (final IOException ex) {

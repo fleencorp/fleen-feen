@@ -12,4 +12,11 @@ public class GoogleCreateInstantCalendarEventResponse {
 
   private String eventId;
   private GoogleCalendarEventResponse event;
+
+  public static GoogleCreateInstantCalendarEventResponse of(final String eventId, final GoogleCalendarEventResponse event) {
+    return GoogleCreateInstantCalendarEventResponse.builder()
+      .eventId(eventId)
+      .event(event)
+      .build();
+  }
 }

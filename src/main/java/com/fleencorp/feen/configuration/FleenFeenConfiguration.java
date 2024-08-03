@@ -15,12 +15,12 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 @Configuration
 @ComponentScan(basePackages = "com.fleencorp.feen")
 @PropertySources({
-  @PropertySource("classpath:aws.properties"),
-  @PropertySource("classpath:queue.properties"),
-  @PropertySource("classpath:slack.properties"),
-  @PropertySource("classpath:token.properties"),
-  @PropertySource("classpath:google-service-account.properties"),
-  @PropertySource("classpath:google-oauth2-web-client.properties")
+  @PropertySource("classpath:properties/aws.properties"),
+  @PropertySource("classpath:properties/queue.properties"),
+  @PropertySource("classpath:properties/slack.properties"),
+  @PropertySource("classpath:properties/token.properties"),
+  @PropertySource("classpath:properties/google-service-account.properties"),
+  @PropertySource("classpath:properties/google-oauth2-web-client.properties")
 })
 public class FleenFeenConfiguration {
 

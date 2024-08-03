@@ -270,7 +270,7 @@ public class TokenUtil {
    * Generates a token for the given user with specified token type, authentication status, authorities, and duration.
    *
    * <p>This method creates a JWT token for the user. It sets basic details, token type, authentication status,
-   * and expiration duration in the claims map, then signs and returns the token. </p>
+   * and expiration duration in the claims map, then signs and returns the token.</p>
    *
    * @param user The {@code FleenUser} object containing user details.
    * @param tokenType The type of the token, as specified by the {@code TokenType} enum.
@@ -350,7 +350,7 @@ public class TokenUtil {
    *
    * <p>This method adds various user details, such as first name, last name, email address, phone number,
    * profile photo, and profile status, to the provided claims map. Each detail is associated with a
-   * specific key from the {@code TokenClaimField} enum. </p>
+   * specific key from the {@code TokenClaimField} enum.</p>
    *
    * @param user The {@code FleenUser} object containing user details to be added to the claims.
    * @param claims The map of claims to which the user details will be added.
@@ -371,7 +371,7 @@ public class TokenUtil {
    *
    * <p>This method adds the user ID and authorities to the provided claims map. The user ID is
    * associated with the {@code CLAIMS_USER_ID_KEY}, and the authorities are associated with the
-   * {@code CLAIMS_AUTHORITY_KEY}. </p>
+   * {@code CLAIMS_AUTHORITY_KEY}.</p>
    *
    * @param claims The map of claims to which the user ID and authorities will be added.
    * @param userId The user ID to be added to the claims.
@@ -390,7 +390,7 @@ public class TokenUtil {
    * Converts a collection of granted authorities to a list of authority names.
    *
    * <p>This method takes a collection of GrantedAuthority objects, extracts the authority names
-   * from each GrantedAuthority, and returns them as an array of strings. </p>
+   * from each GrantedAuthority, and returns them as an array of strings.</p>
    *
    * @param authorities The collection of GrantedAuthority objects.
    * @return An array of strings representing the authority names.

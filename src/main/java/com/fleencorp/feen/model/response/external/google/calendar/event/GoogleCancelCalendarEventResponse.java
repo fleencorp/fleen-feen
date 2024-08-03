@@ -12,4 +12,11 @@ public class GoogleCancelCalendarEventResponse {
 
   private String eventId;
   private GoogleCalendarEventResponse event;
+
+  public static GoogleCancelCalendarEventResponse of(final String eventId, final GoogleCalendarEventResponse event) {
+    return GoogleCancelCalendarEventResponse.builder()
+      .eventId(eventId)
+      .event(event)
+      .build();
+  }
 }

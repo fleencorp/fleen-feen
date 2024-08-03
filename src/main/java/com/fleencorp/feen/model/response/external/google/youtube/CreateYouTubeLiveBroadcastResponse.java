@@ -13,4 +13,12 @@ public class CreateYouTubeLiveBroadcastResponse {
   private String liveBroadcastId;
   private String liveStreamLink;
   private YouTubeLiveBroadcastResponse liveBroadcast;
+
+  public static CreateYouTubeLiveBroadcastResponse of(final String liveBroadcastId, final String liveStreamLink, final YouTubeLiveBroadcastResponse liveBroadcast) {
+    return CreateYouTubeLiveBroadcastResponse.builder()
+      .liveBroadcastId(liveBroadcastId)
+      .liveStreamLink(liveStreamLink)
+      .liveBroadcast(liveBroadcast)
+      .build();
+  }
 }

@@ -24,4 +24,8 @@ public class GetEncodedPasswordResponse {
     this.rawPassword = rawPassword;
     this.timestamp = LocalDateTime.now();
   }
+
+  public static GetEncodedPasswordResponse of(final String encodedPassword, final String rawPassword) {
+    return new GetEncodedPasswordResponse(encodedPassword, rawPassword);
+  }
 }

@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySources;
 @Configuration
 @ConfigurationProperties(prefix = "queue")
 @PropertySources({
-  @PropertySource("classpath:queue.properties")
+  @PropertySource("classpath:properties/queue.properties")
 })
 public class SqsQueueNames {
   

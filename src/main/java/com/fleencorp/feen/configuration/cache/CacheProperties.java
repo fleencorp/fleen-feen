@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * <p>Configuration properties for Redis cache credentials.
- * These properties are typically used to configure a Redis cache connection.</p><br/>
+ * These properties are typically used to configure a Redis cache connection.</p>
  *
  * <code>jbang springPropertyDocumenter@mikomatic -o generated-docs.md</code>
  *

@@ -204,7 +204,7 @@ public class CalendarServiceImpl implements CalendarService {
     log.info("Deleted calendar: {}", deleteCalendarResponse);
 
       calendarRepository.delete(calendar);
-    return new DeleteResponse(calendarId);
+    return DeleteResponse.of(calendarId);
   }
 
   /**
@@ -228,12 +228,11 @@ public class CalendarServiceImpl implements CalendarService {
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
     // Construct the request for sharing the calendar
-    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest.builder()
-            .emailAddress(shareCalendarWithUserDto.getEmailAddress())
-            .calendarId(calendar.getExternalId())
-            .aclRole(shareCalendarWithUserDto.getActualAclRole())
-            .aclScopeType(shareCalendarWithUserDto.getActualAclScopeType())
-            .build();
+    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest
+      .of(calendar.getExternalId(),
+          shareCalendarWithUserDto.getEmailAddress(),
+          shareCalendarWithUserDto.getActualAclScopeType(),
+          shareCalendarWithUserDto.getActualAclRole());
 
     // Share the calendar with the user using the Google Calendar service
     final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarService.shareCalendarWithUser(shareCalendarWithUserRequest);

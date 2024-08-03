@@ -11,8 +11,7 @@ import static java.util.Objects.nonNull;
 /**
  * <p>Utility class for converting Java objects to JSON strings and vice versa.
  * This class is annotated with Spring's {@link Component} annotation to indicate
- * that it is a Spring-managed component and can be injected into other Spring beans.
- * </p>
+ * that it is a Spring-managed component and can be injected into other Spring beans.</p>
  *
  * <p>The {@link JsonUtil} class contains a single method, {@code convertToString},
  * which takes an object as input and converts it to a JSON string using the provided

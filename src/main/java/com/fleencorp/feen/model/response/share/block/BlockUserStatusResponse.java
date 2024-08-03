@@ -1,10 +1,13 @@
-package com.fleencorp.feen.model.response.share;
+package com.fleencorp.feen.model.response.share.block;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.share.BlockStatus;
 import lombok.*;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Builder
 @Getter
@@ -21,6 +24,7 @@ public class BlockUserStatusResponse {
   @JsonProperty("message")
   private String message;
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("block_status")
   private BlockStatus blockStatus;
 

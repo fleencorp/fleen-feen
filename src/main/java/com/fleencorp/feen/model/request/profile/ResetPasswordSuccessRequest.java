@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.profile;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.model.request.message.MessageRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,11 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.RESET_PAS
 @Setter
 @NoArgsConstructor
 public class ResetPasswordSuccessRequest extends MessageRequest {
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return MessageRequestType.RESET_PASSWORD_SUCCESS;
+  }
 
   @Override
   public String getTemplateName() {

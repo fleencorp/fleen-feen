@@ -19,19 +19,16 @@ import java.io.IOException;
  * HTTP responses. CSP headers help protect web applications from various types
  * of attacks, such as Cross-Site Scripting (XSS) and data injection attacks,
  * by controlling the sources from which certain types of content can be loaded.</p>
- * <br/>
  *
  * <p>The CSP directives are externalized using Spring's @Value annotation,
  * allowing for easy configuration and customization without modifying the Java code.
  * The values are loaded from the properties file, such as csp.properties,
  * and injected into the corresponding fields.</p>
- * <br/>
  *
  * <p>The class includes fields for various CSP directives, such as default-src,
  * img-src, font-src, and others. The directives are concatenated
  * to form a complete CSP policy string, which is then set as the value of the
  * "Content-Security-Policy" header in the HTTP response.</p>
- * <br/>
  *
  * <p>The class also sets other security-related headers, such as "X-Frame-Options"
  * to deny framing, "Strict-Transport-Security" to enforce HTTPS, and
@@ -43,7 +40,7 @@ import java.io.IOException;
 @Component
 @PropertySources(value = {
   @PropertySource(value = "classpath:application.properties"),
-  @PropertySource(value = "classpath:csp.properties")
+  @PropertySource(value = "classpath:properties/csp.properties")
 })
 public class ContentSecurityPolicyFilter extends OncePerRequestFilter {
 

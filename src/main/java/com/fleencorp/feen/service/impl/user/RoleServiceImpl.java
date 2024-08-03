@@ -13,10 +13,10 @@ import java.util.Set;
 /**
  * Implementation of the {@link RoleService} interface.
  *
- * <p> This service handles operations related to roles in the application. It uses
+ * <p>This service handles operations related to roles in the application. It uses
  * the {@link RoleRepository} to interact with the data source.</p>
  *
- * <p> This implementation provides methods to manage and retrieve roles based on
+ * <p>This implementation provides methods to manage and retrieve roles based on
  * specific criteria.</p>
  */
 @Slf4j

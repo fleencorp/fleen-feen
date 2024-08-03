@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  */
 @PropertySources({
   @PropertySource("classpath:application.properties"),
-  @PropertySource("classpath:queue.properties")
+  @PropertySource("classpath:properties/queue.properties")
 })
 @Component
 @Slf4j
