@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.message;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import static com.fleencorp.feen.constant.message.MessageTemplateField.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageRequest {
+public abstract class MessageRequest {
 
   protected String firstName;
   protected String lastName;
@@ -35,6 +36,8 @@ public class MessageRequest {
 
     return payload;
   }
+
+  public abstract MessageRequestType getRequestType();
 
   public String getTemplateName() {
     return null;

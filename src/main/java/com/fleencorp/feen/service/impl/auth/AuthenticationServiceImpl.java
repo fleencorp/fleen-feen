@@ -65,6 +65,7 @@ import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
+import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
@@ -487,9 +488,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws NoRoleAvailableToAssignException if no default roles are available to assign.
    */
   public void configureRolesForNewProfile(final Member member) {
-    if (isNull(member)) {
-      throw new UnableToCompleteOperationException();
-    }
+    // Throw an exception if the provided member is null
+    checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
@@ -519,9 +519,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws UnableToCompleteOperationException if the member is null.
    */
   public void configureStatusesForNewProfile(final Member member) {
-    if (isNull(member)) {
-      throw new UnableToCompleteOperationException();
-    }
+    // Throw an exception if the provided member is null
+    checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Set initial profile status
     member.setProfileStatus(ProfileStatus.INACTIVE);
@@ -538,9 +537,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws UnableToCompleteOperationException If the member is null.
    */
   protected FleenUser initializeAuthenticationAndContext(final Member member) {
-    if (isNull(member)) {
-      throw new UnableToCompleteOperationException();
-    }
+    // Throw an exception if the provided member is null
+    checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Create FleenUser from Member
     final FleenUser user = FleenUser.fromMember(member);
@@ -658,13 +656,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws AlreadySignedUpException if the member is already signed up and active
    */
   private void checkIfSignUpIsAlreadyCompleted(final Member member) {
-    // Check if the member is null
-    if (isNull(member)) {
-      throw new UnableToCompleteOperationException();
-    }
+    // Throw an exception if the provided member is null
+    checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Check if the member status indicates that the member is already signed up
-    if (member.getProfileStatus() != null && ProfileStatus.ACTIVE.equals(member.getProfileStatus())) {
+    if (nonNull(member.getProfileStatus()) && ProfileStatus.ACTIVE == member.getProfileStatus()) {
       throw new AlreadySignedUpException();
     }
   }
@@ -997,16 +993,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   protected VerificationType getVerificationTypeByMfaType(final MfaType mfaType) {
     // Throw an exception if the provided MFA type is null
-    if (isNull(mfaType)) {
-      throw new UnableToCompleteOperationException();
-    }
+    checkIsNull(mfaType, UnableToCompleteOperationException::new);
 
     // Parse the MFA type into a VerificationType enum value
     final VerificationType verificationType = parseEnumOrNull(mfaType.name(), VerificationType.class);
-    // Throw an exception if the parsed VerificationType is null (not found)
-    if (isNull(verificationType)) {
-      throw new UnableToCompleteOperationException();
-    }
+    // Throw an exception if the parsed VerificationType is null
+    checkIsNull(verificationType, UnableToCompleteOperationException::new);
 
     return verificationType;
   }

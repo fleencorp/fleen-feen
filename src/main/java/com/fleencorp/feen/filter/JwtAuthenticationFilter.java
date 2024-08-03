@@ -40,13 +40,11 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
  * authentication in the incoming HTTP requests. The filter extracts the JWT
  * from the Authorization header, validates it, and sets the authentication
  * information in the SecurityContextHolder if the token is valid.</p>
- * <br/>
  *
  * <p>This filter is annotated with @Slf4j for Lombok-generated logging, and
  * {@link Component} to indicate that it is a Spring component and can be automatically
  * discovered and registered in the Spring context. It is designed to be executed
  * once per request, making use of OncePerRequestFilter.</p>
- * <br/>
  *
  * <p>The JwtAuthenticationFilter has dependencies on JwtUtil, CacheService,
  * MemberService, and HandlerExceptionResolver. These dependencies are injected

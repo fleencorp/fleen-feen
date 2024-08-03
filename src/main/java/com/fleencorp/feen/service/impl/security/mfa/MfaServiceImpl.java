@@ -271,7 +271,6 @@ public class MfaServiceImpl implements MfaService {
   /**
    * <p>Validate a code like OTP by checking if it exists in the DB or cache for example {@link CacheService} and confirm if it is equal to the code saved in
    * the store.</p>
-   * <br/>
    *
    * @param verificationKey the key to check for the existence of the verification code and the validity of the code associated with it
    * @param code the code to validate against the code saved and associated with the verification key
@@ -395,13 +394,7 @@ public class MfaServiceImpl implements MfaService {
    */
   protected SetupMfaResponse initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(final Member member, final MfaType proposedMfaType) {
     // Build and return the setup MFA response
-    return SetupMfaResponse.builder()
-        .emailAddress(member.getEmailAddress())
-        .phoneNumber(member.getPhoneNumber())
-        .mfaSetupStatus(MfaSetupStatus.IN_PROGRESS)
-        .mfaType(proposedMfaType)
-        .enabled(false)
-        .build();
+    return SetupMfaResponse.of(member.getEmailAddress(), member.getPhoneNumber(), MfaSetupStatus.IN_PROGRESS, proposedMfaType, false);
   }
 
   /**

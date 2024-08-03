@@ -12,7 +12,7 @@ import org.springframework.context.annotation.PropertySources;
 @Configuration
 @ConfigurationProperties(prefix = "slack")
 @PropertySources({
-  @PropertySource("classpath:slack.properties")
+  @PropertySource("classpath:properties/slack.properties")
 })
 public class SlackProperties {
 

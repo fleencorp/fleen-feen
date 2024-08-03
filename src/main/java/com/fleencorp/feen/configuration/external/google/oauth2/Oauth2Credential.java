@@ -21,7 +21,7 @@ import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.*;
 /**
 * Configuration class for OAuth 2.0 credentials used by web clients.
 *
-* <p> This class represents OAuth 2.0 credentials configuration for web clients,
+* <p>This class represents OAuth 2.0 credentials configuration for web clients,
 * providing properties such as projectId, clientId, clientSecret, authUri, tokenUri,
 * javascriptOrigins, redirectUris, and authProviderX509CertUrl.</p>
 *
@@ -41,7 +41,7 @@ import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.*;
 @Configuration
 @ConfigurationProperties(prefix = "web")
 @PropertySources({
-  @PropertySource("classpath:google-oauth2-web-client.properties")
+  @PropertySource("classpath:properties/google-oauth2-web-client.properties")
 })
 public class Oauth2Credential {
 
@@ -73,7 +73,7 @@ public class Oauth2Credential {
   /**
    * Converts the current object's properties to a GoogleClientSecrets object.
    *
-   * <p> This method creates and populates a GoogleClientSecrets object using the current
+   * <p>This method creates and populates a GoogleClientSecrets object using the current
    * object's properties such as clientId, clientSecret, authUri, tokenUri, redirect URIs,
    * and JavaScript origins.</p>
    *
@@ -82,7 +82,7 @@ public class Oauth2Credential {
    * The resulting GoogleClientSecrets object encapsulates all necessary configuration
    * for OAuth 2.0 authentication with Google services.</p>
    *
-   * <p> The returned GoogleClientSecrets object can be used to configure and initialize
+   * <p>The returned GoogleClientSecrets object can be used to configure and initialize
    * OAuth 2.0 flows within applications requiring Google API access.</p>
    *
    * @return A GoogleClientSecrets object initialized with the current object's properties.

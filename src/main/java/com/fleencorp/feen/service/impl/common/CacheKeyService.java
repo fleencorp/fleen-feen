@@ -15,7 +15,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save an authentication token like JWT.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -26,7 +25,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save an authentication refresh token like JWT.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -47,7 +45,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save a pre-verification token or OTP or code.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -58,7 +55,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save a pre-authentication token or OTP or code.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -69,7 +65,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save a reset password token or OTP or code.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -80,7 +75,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save a MFA setup token or OTP or code.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier
@@ -91,7 +85,6 @@ public class CacheKeyService {
 
   /**
    * <p>Prefix a user's identifier with a predefined key used to save a MFA setup token or OTP or code.</p>
-   * <br/>
    *
    * @param username a user identifier found on the system or is to be registered on the system
    * @return a string concatenation of a predefined prefix and the user's identifier

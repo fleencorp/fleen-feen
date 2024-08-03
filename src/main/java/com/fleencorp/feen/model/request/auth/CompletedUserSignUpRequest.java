@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.auth;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.model.request.message.MessageRequest;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,7 @@ public class CompletedUserSignUpRequest extends MessageRequest {
   private ProfileVerificationStatus profileVerificationStatus;
 
   public static CompletedUserSignUpRequest of(final String firstName, final String lastName, final String emailAddress,
-                                              final String phoneNumber, final ProfileVerificationStatus profileVerificationStatus) {
+    final String phoneNumber, final ProfileVerificationStatus profileVerificationStatus) {
     return CompletedUserSignUpRequest.builder()
         .firstName(firstName)
         .lastName(lastName)
@@ -39,6 +40,11 @@ public class CompletedUserSignUpRequest extends MessageRequest {
     payload.put(PROFILE_VERIFICATION_STATUS.getValue(), profileVerificationStatus);
 
     return payload;
+  }
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return MessageRequestType.COMPLETED_USER_SIGNUP;
   }
 
   @Override

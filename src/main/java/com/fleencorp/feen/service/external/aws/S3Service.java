@@ -330,7 +330,7 @@ public class S3Service {
         .build();
 
       amazonS3.deleteObject(objectRequest);
-      return new DeleteResponse();
+      return DeleteResponse.of();
     }
 
     throw new ObjectNotFoundException(objectKey);

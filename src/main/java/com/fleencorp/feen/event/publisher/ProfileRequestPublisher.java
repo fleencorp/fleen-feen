@@ -54,13 +54,13 @@ public class ProfileRequestPublisher implements PublisherService {
   public void publishMessage(final PublishMessageRequest messageRequest) {
     final Object message = messageRequest.getMessage();
     switch (message) {
-      case final SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
-      case final ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
       case final CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
+      case final ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
       case final MfaSetupVerificationRequest request -> sendMfaSetupVerificationCode(request);
       case final MfaVerificationRequest request -> sendMfaVerificationCode(request);
       case final ProfileUpdateVerificationRequest request -> sendProfileUpdateVerificationCode(request);
       case final ResetPasswordSuccessRequest request -> sendResetPasswordSuccessMessage(request);
+      case final SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
       default -> {}
     }
   }

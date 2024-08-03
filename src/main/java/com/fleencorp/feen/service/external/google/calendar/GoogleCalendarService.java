@@ -3,7 +3,6 @@ package com.fleencorp.feen.service.external.google.calendar;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
-import com.fleencorp.feen.mapper.external.GoogleCalendarMapper;
 import com.fleencorp.feen.model.request.calendar.calendar.*;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.*;
 import com.fleencorp.feen.service.report.ReporterService;
@@ -20,7 +19,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
+import static com.fleencorp.feen.mapper.external.GoogleCalendarMapper.mapToCalendarResponse;
+import static com.fleencorp.feen.mapper.external.GoogleCalendarMapper.mapToCalendarsResponse;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A service class for interacting with Google Calendar to create, update, retrieve, and delete calendar.
@@ -83,15 +85,14 @@ public class GoogleCalendarService {
       final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
               .insert(newCalendar)
               .execute();
-      return GoogleCreateCalendarResponse.builder()
-              .calendarId(calendar.getId())
-              .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
-              .build();
+      if (nonNull(calendar)) {
+        GoogleCreateCalendarResponse.of(calendar.getId(), requireNonNull(mapToCalendarResponse(calendar)));
+      }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while creating calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
-      throw new UnableToCompleteOperationException();
     }
+    throw new UnableToCompleteOperationException();
   }
 
   /**
@@ -123,16 +124,13 @@ public class GoogleCalendarService {
         // Get the list of calendar entries from the retrieved calendar list
         final List<CalendarListEntry> calendarListEntries = calendarList.getItems();
 
-        return GoogleListCalendarResponse.builder()
-                .calendars(GoogleCalendarMapper.mapToCalendarsResponse(calendarListEntries))
-                .build();
+        return GoogleListCalendarResponse.of(mapToCalendarsResponse(calendarListEntries));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while listing calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
-    return GoogleListCalendarResponse.builder()
-            .build();
+    return GoogleListCalendarResponse.of();
   }
 
   /**
@@ -157,10 +155,7 @@ public class GoogleCalendarService {
               .execute();
 
       if (nonNull(calendar)) {
-        return GoogleRetrieveCalendarResponse.builder()
-                .calendarId(calendar.getId())
-                .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
-                .build();
+        return GoogleRetrieveCalendarResponse.of(calendar.getId(), mapToCalendarResponse(calendar));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while retrieving calendar. Reason: %s", ex.getMessage());
@@ -195,10 +190,7 @@ public class GoogleCalendarService {
                 .delete(deleteCalendarRequest.getCalendarId())
                 .execute();
 
-        return GoogleDeleteCalendarResponse.builder()
-                .calendarId(deleteCalendarRequest.getCalendarId())
-                .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
-                .build();
+        return GoogleDeleteCalendarResponse.of(deleteCalendarRequest.getCalendarId(), mapToCalendarResponse(calendar));
       }
       log.error("Cannot delete. Calendar does not exist or cannot be found. {}", deleteCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
@@ -241,10 +233,7 @@ public class GoogleCalendarService {
                 .patch(patchCalendarRequest.getCalendarId(), calendar)
                 .execute();
 
-        return GooglePatchCalendarResponse.builder()
-                .calendarId(patchCalendarRequest.getCalendarId())
-                .calendar(GoogleCalendarMapper.mapToCalendarResponse(patchedCalendar))
-                .build();
+        return GooglePatchCalendarResponse.of(patchCalendarRequest.getCalendarId(), mapToCalendarResponse(patchedCalendar));
       }
       log.error("Cannot update. Calendar does not exist or cannot be found. {}", patchCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
@@ -291,11 +280,10 @@ public class GoogleCalendarService {
                 .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
                 .execute();
 
-        return GoogleShareCalendarWithUserResponse.builder()
-                .calendarId(shareCalendarWithUserRequest.getCalendarId())
-                .userEmailAddress(shareCalendarWithUserRequest.getEmailAddress())
-                .calendar(GoogleCalendarMapper.mapToCalendarResponse(calendar))
-                .build();
+        return GoogleShareCalendarWithUserResponse
+          .of(shareCalendarWithUserRequest.getCalendarId(),
+              shareCalendarWithUserRequest.getEmailAddress(),
+              mapToCalendarResponse(calendar));
       }
       log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId());
     } catch (final IOException ex) {

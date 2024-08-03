@@ -14,7 +14,7 @@ import org.springframework.context.annotation.PropertySources;
 @Configuration
 @ConfigurationProperties(prefix = "token.mfa")
 @PropertySources({
-  @PropertySource("classpath:token.properties")
+  @PropertySource("classpath:properties/token.properties")
 })
 public class MfaProperties {
 

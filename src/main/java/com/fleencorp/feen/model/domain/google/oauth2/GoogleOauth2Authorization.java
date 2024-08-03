@@ -48,4 +48,8 @@ public class GoogleOauth2Authorization extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)
   private Member member;
 
+  public static GoogleOauth2Authorization of(final Member member) {
+    return GoogleOauth2Authorization.builder().member(member).build();
+  }
+
 }

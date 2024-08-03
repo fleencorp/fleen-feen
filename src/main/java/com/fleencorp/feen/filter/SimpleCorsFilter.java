@@ -16,7 +16,6 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
  * Sharing (CORS) by setting the necessary HTTP headers in the response.
  * The filter allows cross-origin requests from any origin and allows
  * all methods and headers.</p>
- * <br/>
  *
  * <p>This filter is annotated with @Slf4j, which is a lombok annotation
  * for generating a logger field. It is also annotated with @Component and

@@ -23,7 +23,6 @@ import static org.springframework.http.HttpMethod.OPTIONS;
  * pre-flight requests, typically associated with Cross-Origin Resource Sharing (CORS) policy.
  * The filter intercepts OPTIONS requests for a specific URL pattern ("/api/**" by default)
  * and sets the required headers to allow cross-origin requests from a web client.</p>
- * <br/>
  *
  * <p>This filter is annotated with @Component and @Order(Ordered.HIGHEST_PRECEDENCE),
  * indicating that it is a Spring component and should be executed first in the filter

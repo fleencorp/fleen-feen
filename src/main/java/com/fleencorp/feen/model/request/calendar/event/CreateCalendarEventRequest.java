@@ -87,8 +87,9 @@ public class CreateCalendarEventRequest {
    * @return the corresponding YouTube visibility value
    */
   public static String getVisibility(final String visibility) {
-    if (nonNull(visibility) && (visibility.equalsIgnoreCase(StreamVisibility.PRIVATE.getValue())
-        || visibility.equalsIgnoreCase(StreamVisibility.PROTECTED.getValue()))) {
+    if (nonNull(visibility) &&
+        (visibility.equalsIgnoreCase(StreamVisibility.PRIVATE.getValue()) ||
+         visibility.equalsIgnoreCase(StreamVisibility.PROTECTED.getValue()))) {
       return StreamVisibility.PRIVATE.getValue();
     } else if (StreamVisibility.PUBLIC.getValue().equals(visibility)) {
       return visibility;

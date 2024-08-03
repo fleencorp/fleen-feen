@@ -143,7 +143,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
 
     // Create a new FleenStream entity based on the DTO and set YouTube response details
-    final FleenStream stream = createLiveBroadcastDto.toFleenStream();
+    final FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
     stream.setStreamLink(createYouTubeLiveBroadcastResponse.getLiveStreamLink());
     stream.setExternalId(createYouTubeLiveBroadcastResponse.getLiveBroadcastId());
 

@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * Enumeration representing the status of authentication.
  *
- * <p> This enum defines two statuses: {@code IN_PROGRESS} and {@code COMPLETED}.
+ * <p>This enum defines two statuses: {@code IN_PROGRESS} and {@code COMPLETED}.
  * Each status has an associated string value describing its state.</p>
  *
  * @author Yusuf Alamu Musa

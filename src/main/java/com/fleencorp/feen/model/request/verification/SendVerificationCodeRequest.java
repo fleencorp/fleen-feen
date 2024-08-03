@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.verification;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.model.request.message.MessageRequest;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,10 @@ public class SendVerificationCodeRequest extends MessageRequest {
     payload.put(VERIFICATION_CODE.getValue(), verificationCode);
 
     return payload;
+  }
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return null;
   }
 }

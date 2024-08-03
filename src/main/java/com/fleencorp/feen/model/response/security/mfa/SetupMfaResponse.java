@@ -49,4 +49,13 @@ public class SetupMfaResponse {
   @JsonProperty("mfa_setup_status")
   private MfaSetupStatus mfaSetupStatus;
 
+  public static SetupMfaResponse of(final String emailAddress, final String phoneNumber, final MfaSetupStatus setupStatus, final MfaType mfaType, final boolean enabled) {
+    return SetupMfaResponse.builder()
+      .emailAddress(emailAddress)
+      .phoneNumber(phoneNumber)
+      .mfaSetupStatus(setupStatus)
+      .mfaType(mfaType)
+      .enabled(enabled)
+      .build();
+  }
 }

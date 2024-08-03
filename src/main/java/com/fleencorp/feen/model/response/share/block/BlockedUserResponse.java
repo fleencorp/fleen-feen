@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.share;
+package com.fleencorp.feen.model.response.share.block;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

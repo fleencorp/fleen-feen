@@ -8,16 +8,12 @@ import org.springframework.stereotype.Component;
 /**
  * <p>The {@link CustomAuthenticationSource} class is a Spring Security {@link AuthenticationDetailsSource}
  * implementation that provides custom authentication details for web-based authentication.</p>
- * <br/>
  *
  * <p>This class is used to build {@link WebAuthenticationDetails} based on the information available in
  * the {@link HttpServletRequest} object.</p>
- * <br/>
  *
- * <p>
- * This class is typically instantiated and managed by the Spring framework, which ensures
- * thread safety by handling the bean lifecycle.
- * </p>
+ * <p>This class is typically instantiated and managed by the Spring framework, which ensures
+ * thread safety by handling the bean lifecycle.</p>
  *
  * @author Yusuf Alamu Musa
  * @version 1.0

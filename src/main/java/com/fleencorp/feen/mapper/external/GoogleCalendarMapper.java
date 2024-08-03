@@ -49,7 +49,7 @@ public class GoogleCalendarMapper {
               .map(GoogleCalendarMapper::mapToReminders)
               .collect(Collectors.toList()))
           .deleted(calendar.getDeleted())
-          .conferenceProperties(GoogleCalendarMapper.mapToConferenceProperties(calendar.getConferenceProperties()))
+          .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
           .build();
     }
     return null;
@@ -71,7 +71,7 @@ public class GoogleCalendarMapper {
           .description(calendar.getDescription())
           .timeZone(calendar.getTimeZone())
           .location(calendar.getLocation())
-          .conferenceProperties(GoogleCalendarMapper.mapToConferenceProperties(calendar.getConferenceProperties()))
+          .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
           .build();
     }
     return null;

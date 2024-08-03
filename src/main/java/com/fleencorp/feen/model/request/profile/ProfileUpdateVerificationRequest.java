@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.request.profile;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,11 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.PROFILE_U
 @Setter
 @NoArgsConstructor
 public class ProfileUpdateVerificationRequest extends SendVerificationCodeRequest {
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return MessageRequestType.PROFILE_UPDATE_VERIFICATION;
+  }
 
   @Override
   public String getTemplateName() {

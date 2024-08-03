@@ -24,7 +24,7 @@ import org.springframework.context.annotation.PropertySources;
 @Configuration
 @ConfigurationProperties(prefix = "aws.s3.bucket")
 @PropertySources({
-  @PropertySource("classpath:aws.properties")
+  @PropertySource("classpath:properties/aws.properties")
 })
 public class S3BucketNames {
 

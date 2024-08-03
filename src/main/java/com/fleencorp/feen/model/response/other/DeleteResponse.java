@@ -47,4 +47,12 @@ public class DeleteResponse {
   public DeleteResponse() {
     this(SUCCESS, true);
   }
+
+  public static DeleteResponse of() {
+    return new DeleteResponse();
+  }
+
+  public static DeleteResponse of(final Object id) {
+    return new DeleteResponse(id);
+  }
 }

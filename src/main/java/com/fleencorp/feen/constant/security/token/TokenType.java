@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
  * Enumeration representing types of tokens used in the application.
  *
- * <p> This enum defines different types of tokens:
+ * <p>This enum defines different types of tokens:
  * {@code ACCESS_TOKEN}, {@code REFRESH_TOKEN}, and {@code RESET_PASSWORD_TOKEN}.
  * Each token type has an associated string value indicating its purpose.</p>
  *

@@ -11,4 +11,14 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 public class RefreshOauth2TokenResponse extends Oauth2AuthorizationResponse {
+
+  public static RefreshOauth2TokenResponse of(final String accessToken, final String refreshToken, final Long expiresIn, final String tokenType, final String scope) {
+    return RefreshOauth2TokenResponse.builder()
+      .accessToken(accessToken)
+      .refreshToken(refreshToken)
+      .accessTokenExpirationTimeInSeconds(expiresIn)
+      .tokenType(tokenType)
+      .scope(scope)
+      .build();
+  }
 }

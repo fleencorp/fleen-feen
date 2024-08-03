@@ -15,4 +15,13 @@ public class ShareCalendarWithUserRequest {
   private String emailAddress;
   private AclScopeType aclScopeType;
   private AclRole aclRole;
+
+  public static ShareCalendarWithUserRequest of(final String calendarId, final String emailAddress, final AclScopeType aclScopeType, final AclRole aclRole) {
+    return ShareCalendarWithUserRequest.builder()
+      .calendarId(calendarId)
+      .emailAddress(emailAddress)
+      .aclScopeType(aclScopeType)
+      .aclRole(aclRole)
+      .build();
+  }
 }

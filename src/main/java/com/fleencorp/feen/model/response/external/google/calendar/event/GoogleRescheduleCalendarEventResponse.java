@@ -12,4 +12,11 @@ public class GoogleRescheduleCalendarEventResponse {
 
   private String eventId;
   private GoogleCalendarEventResponse event;
+
+  public static GoogleRescheduleCalendarEventResponse of(final String eventId, final GoogleCalendarEventResponse event) {
+    return GoogleRescheduleCalendarEventResponse.builder()
+      .eventId(eventId)
+      .event(event)
+      .build();
+  }
 }

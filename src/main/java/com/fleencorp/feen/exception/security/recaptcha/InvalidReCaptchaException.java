@@ -6,8 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serial;
 
 /**
- * <p>The InvalidReCaptchaException class is used to define the exception response message when an invalid captcha token is submitted.
- * </p>
+ * <p>The InvalidReCaptchaException class is used to define the exception response message when an invalid captcha token is submitted.</p>
  *
  * @author Yusuf Alamu Musa
  * @version 1.0

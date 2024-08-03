@@ -13,4 +13,12 @@ public class GoogleAddNewCalendarEventAttendeeResponse {
   private String eventId;
   private String userEmailAddress;
   private GoogleCalendarEventResponse event;
+
+  public static GoogleAddNewCalendarEventAttendeeResponse of(final String eventId, final String userEmailAddress, final GoogleCalendarEventResponse event) {
+    return GoogleAddNewCalendarEventAttendeeResponse.builder()
+      .eventId(eventId)
+      .userEmailAddress(userEmailAddress)
+      .event(event)
+      .build();
+  }
 }

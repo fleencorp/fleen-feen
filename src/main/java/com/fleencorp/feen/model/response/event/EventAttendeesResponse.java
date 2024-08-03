@@ -31,4 +31,9 @@ public class EventAttendeesResponse {
   @Builder.Default
   @JsonProperty("attendees")
   private List<EventAttendeeResponse> attendees = new ArrayList<>();
+
+  public static EventAttendeesResponse of() {
+    return EventAttendeesResponse.builder()
+      .build();
+  }
 }

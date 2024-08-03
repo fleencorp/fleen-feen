@@ -1,14 +1,11 @@
 package com.fleencorp.feen.model.domain.share;
 
-import com.fleencorp.feen.constant.user.ShareContactRequestStatus;
-import com.fleencorp.feen.constant.user.ShareContactRequestType;
+import com.fleencorp.feen.constant.share.ContactType;
+import com.fleencorp.feen.constant.share.ShareContactRequestStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -29,15 +26,19 @@ public class ShareContactRequest extends FleenFeenEntity {
   @Column(name = "share_contact_request_id", nullable = false, updatable = false, unique = true)
   private Long shareContactRequestId;
 
+  @Builder.Default
+  @Column(name = "is_expected", nullable = false)
+  private Boolean isExpected = false;
+
   @Enumerated(STRING)
-  @Column(name = "share_contact_request_status", nullable = false)
+  @Column(name = "share_contact_request_status")
   private ShareContactRequestStatus shareContactRequestStatus;
 
   @Enumerated(STRING)
-  @Column(name = "share_contact_request_type", nullable = false, updatable = false)
-  private ShareContactRequestType shareContactRequestType;
+  @Column(name = "contact_type", updatable = false)
+  private ContactType contactType;
 
-  @Column(name = "contact", updatable = false, length = 1000)
+  @Column(name = "contact", length = 1000)
   private String contact;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
@@ -53,4 +54,11 @@ public class ShareContactRequest extends FleenFeenEntity {
 
   @Column(name = "recipient_comment", length = 1000)
   private String recipientComment;
+
+  public void update(final ShareContactRequestStatus status, final ContactType type, final String contact, final String comment) {
+    this.shareContactRequestStatus = status;
+    this.contactType = type;
+    this.contact = contact;
+    this.initiatorComment = comment;
+  }
 }
