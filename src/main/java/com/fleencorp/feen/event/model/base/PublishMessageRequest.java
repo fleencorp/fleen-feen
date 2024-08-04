@@ -1,6 +1,6 @@
 package com.fleencorp.feen.event.model.base;
 
-import com.fleencorp.feen.constant.queue.MessageType;
+import com.fleencorp.feen.model.request.message.MessageRequest;
 import lombok.*;
 
 @Builder
@@ -11,7 +11,7 @@ import lombok.*;
 public class PublishMessageRequest {
 
   private Object message;
-  private MessageType messageType;
+  private MessageRequest messageType;
 
   public static PublishMessageRequest of(final Object message) {
     return PublishMessageRequest.builder()
