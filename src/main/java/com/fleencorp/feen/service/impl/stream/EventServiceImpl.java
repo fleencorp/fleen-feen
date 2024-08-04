@@ -635,6 +635,9 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
+    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
+      .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+
     final FleenStream stream = fleenStreamRepository.findById(eventId)
       .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
@@ -646,6 +649,9 @@ public class EventServiceImpl implements EventService {
       attendee.setIsAttending(false);
       // Save the updated attendee record
       streamAttendeeRepository.save(attendee);
+      // Create a request that remove the attendee from the Google Calendar event
+      NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
+      eventUpdateService.notAttendingEvent(notAttendingEventRequest);
     }
     return NotAttendingEventResponse.of();
   }
@@ -739,7 +745,6 @@ public class EventServiceImpl implements EventService {
 
     return FleenFeenResponse.of(eventId);
   }
-
 
   /**
    * Requests to join an event.

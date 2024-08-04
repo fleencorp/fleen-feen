@@ -20,7 +20,7 @@ public class ReCaptchaAttemptService {
   private final LoadingCache<String, Integer> attemptsCache;
 
   /**
-   * When the user performs authentication like login; in order to protect the application from attacks like DDOS or even bots,
+   * When the user performs authentication like login.html; in order to protect the application from attacks like DDOS or even bots,
    * a record is saved that contains uniquely identifiable information of the client like an IP address, and It's checked to make
    * sure that the user is not allowed to make unauthorized calls until after a period of time.
    */

@@ -6,6 +6,15 @@ import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
 
+/**
+ * Utility class for exception handling and validation.
+ *
+ * <p>This class provides static methods to perform checks on objects and collections,
+ * ensuring they are not null, and throws custom exceptions if they are.</p>
+ *
+ * @author Yusuf Alamu Musa
+ * @version 1.0
+ */
 public class ExceptionUtil {
 
   /**
