@@ -592,6 +592,42 @@ public class GoogleCalendarEventService {
     throw new UnableToCompleteOperationException();
   }
 
+  @MeasureExecutionTime
+  public GoogleRetrieveCalendarEventResponse notAttendingEvent(final NotAttendingEventRequest notAttendingEventRequest) {
+    try {
+      // Retrieve calendar ID and event ID from the cancellation request
+      final String calendarId = notAttendingEventRequest.getCalendarId();
+      final String eventId = notAttendingEventRequest.getEventId();
+
+      // Retrieve the event from the calendar
+      final Event event = calendar
+        .events()
+        .get(calendarId, eventId)
+        .execute();
+
+      // If the event exists, update its visibility and patch it on the calendar
+      if (nonNull(event)) {
+        String attendeeToRemove = notAttendingEventRequest.getAttendeeEmailAddress();
+        // Iterate and find the attendee's entry to remove from the list by their email address
+        List<EventAttendee> updatedAttendees = event.getAttendees()
+          .stream().filter(attendee -> !attendeeToRemove.equals(attendee.getEmail()))
+          .toList();
+        event.setAttendees(updatedAttendees);
+
+        final Event patchedEvent = calendar.events()
+          .patch(calendarId, eventId, event)
+          .execute();
+
+        return GoogleRetrieveCalendarEventResponse.of(notAttendingEventRequest.getEventId(), event, mapToEventExpanded(patchedEvent));
+      }
+      log.error("Cannot update event. Event does not exist or cannot be found. {}", notAttendingEventRequest.getEventId());
+    } catch (final IOException ex) {
+      final String errorMessage = String.format("Error has occurred while update the event visibility. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
+    }
+    throw new UnableToCompleteOperationException();
+  }
+
   /**
    * Retrieves the default conference solution name.
    *

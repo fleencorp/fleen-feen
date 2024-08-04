@@ -170,4 +170,11 @@ public class EventUpdateService {
     log.info("Updated event visibility: {}", googlePatchCalendarEventResponse);
   }
 
+  @Async
+  public void notAttendingEvent(final NotAttendingEventRequest notAttendingEventRequest) {
+    // Update an event by removing an attendee using an external service (Google Calendar)
+    final GoogleRetrieveCalendarEventResponse googleRetrieveCalendarEventResponse = googleCalendarEventService.notAttendingEvent(notAttendingEventRequest);
+    log.info("Remove attendee from event: {}", googleRetrieveCalendarEventResponse);
+  }
+
 }
