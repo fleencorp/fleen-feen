@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.calendar;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.other.Country;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
@@ -146,6 +148,11 @@ public class CalendarServiceImpl implements CalendarService {
     // Retrieve the country and use the country's code as the calendar code
     final Country country = countryService.getCountry(parseLong(createCalendarDto.getCountry()));
     calendar.setCode(country.getCode());
+
+    Optional<Calendar> existingCalendar = calendarRepository.findDistinctByCodeIgnoreCase(country.getCode());
+    if (existingCalendar.isPresent()) {
+      throw new CalendarAlreadyExistException(country.getCode());
+    }
 
     final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
       .of(createCalendarDto.getTitle(),

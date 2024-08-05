@@ -7,11 +7,11 @@ import java.util.Objects;
 import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
 import static java.lang.String.format;
 
-public class CalendarNotFoundException extends FleenException {
+public class CalendarAlreadyExistException extends FleenException {
 
-  private static final String MESSAGE = "Calendar does not exist or cannot be found. ID: %s";
+  private static final String MESSAGE = "Calendar already exist. ID: %s";
 
-  public CalendarNotFoundException(final Object calendarId) {
+  public CalendarAlreadyExistException(final Object calendarId) {
     super(format(MESSAGE, Objects.toString(calendarId, UNKNOWN)));
   }
 }
