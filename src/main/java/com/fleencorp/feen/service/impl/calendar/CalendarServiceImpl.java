@@ -11,11 +11,9 @@ import com.fleencorp.feen.model.request.calendar.calendar.CreateCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.DeleteCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.PatchCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.ShareCalendarWithUserRequest;
+import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
-import com.fleencorp.feen.model.response.calendar.CreateCalendarResponse;
-import com.fleencorp.feen.model.response.calendar.RetrieveCalendarResponse;
-import com.fleencorp.feen.model.response.calendar.ShareCalendarWithUserResponse;
-import com.fleencorp.feen.model.response.calendar.UpdateCalendarResponse;
+import com.fleencorp.feen.model.response.calendar.*;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleCreateCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
@@ -31,11 +29,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
-import static com.fleencorp.feen.mapper.CalendarMapper.toCalendars;
+import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponses;
+import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.lang.Long.parseLong;
 import static java.util.Objects.nonNull;
 
@@ -71,6 +71,23 @@ public class CalendarServiceImpl implements CalendarService {
   }
 
   /**
+   * Retrieves data required for creating a calendar, including a list of countries and available timezones.
+   *
+   * @return a DataForCreateCalendarResponse object containing a list of countries and a set of timezones
+   */
+  @Override
+  public DataForCreateCalendarResponse getDataForCreateCalendar() {
+    // Fetch a list of countries with a large number of entries (1000 in this case).
+    SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    // Get the countries in the search result
+    List<?> countries = searchResult.getValues();
+    // Get the set of available timezones.
+    Set<String> timezones = getAvailableTimezones();
+    // Return the response object containing both the countries and timezones.
+    return DataForCreateCalendarResponse.of(timezones, countries);
+  }
+
+  /**
   * Finds calendars based on the search criteria provided in the CalendarSearchRequest.
   *
   * @param searchRequest the request containing the search criteria
@@ -87,7 +104,7 @@ public class CalendarServiceImpl implements CalendarService {
       page = calendarRepository.findMany(searchRequest.getPage());
     }
 
-    final List<CalendarResponse> views = toCalendars(page.getContent());
+    final List<CalendarResponse> views = toCalendarResponses(page.getContent());
     return toSearchResult(views, page);
   }
 

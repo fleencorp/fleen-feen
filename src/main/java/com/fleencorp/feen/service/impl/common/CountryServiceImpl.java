@@ -1,12 +1,21 @@
 package com.fleencorp.feen.service.impl.common;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.exception.user.CountryNotFoundException;
 import com.fleencorp.feen.model.domain.other.Country;
+import com.fleencorp.feen.model.request.search.CountrySearchRequest;
+import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponses;
 
 /**
 * Implementation of the {@link CountryService} interface.
@@ -26,6 +35,22 @@ public class CountryServiceImpl implements CountryService {
 
   public CountryServiceImpl(final CountryRepository repository) {
     this.repository = repository;
+  }
+
+  /**
+   * Finds countries based on the provided search request.
+   *
+   * @param searchRequest the request object containing search criteria and pagination information
+   * @return a SearchResultView object containing a list of CountryResponse views and pagination metadata
+ */
+  @Override
+  public SearchResultView findCountries(CountrySearchRequest searchRequest) {
+    // Retrieve a page of Country entities based on the search request.
+    final Page<Country> page = repository.findMany(searchRequest.getPage());
+    // Convert the list of Country entities to a list of CountryResponse views.
+    final List<CountryResponse> views = toCountryResponses(page.getContent());
+    // Convert the list of views and the page metadata to a SearchResultView object.
+    return toSearchResult(views, page);
   }
 
   /**

@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -47,7 +48,6 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.*;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.mapper.StreamAttendeeMapper.toEventAttendeeResponse;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
 import static java.util.Objects.nonNull;
@@ -1086,7 +1086,7 @@ public class EventServiceImpl implements EventService {
     final EventAttendeesResponse eventAttendeesResponse = EventAttendeesResponse.of();
     // Check if the attendees list is not empty and set it to the list of attendees in the response
     if (nonNull(attendees) && !attendees.isEmpty()) {
-      final List<EventAttendeeResponse> attendeesResponses = toEventAttendeeResponse(new ArrayList<>(attendees));
+      final List<EventAttendeeResponse> attendeesResponses = StreamAttendeeMapper.toEventAttendeeResponses(new ArrayList<>(attendees));
       eventAttendeesResponse.setAttendees(attendeesResponses);
     }
     return eventAttendeesResponse;
