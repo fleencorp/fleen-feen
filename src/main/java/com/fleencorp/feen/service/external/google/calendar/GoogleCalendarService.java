@@ -271,14 +271,14 @@ public class GoogleCalendarService {
         final AclRule aclRule = new AclRule();
         final AclRule.Scope scope = new AclRule.Scope();
         scope.setType(shareCalendarWithUserRequest.getAclScopeType().getValue())
-                .setValue(shareCalendarWithUserRequest.getEmailAddress());
+              .setValue(shareCalendarWithUserRequest.getEmailAddress());
 
         aclRule.setScope(scope).setRole(shareCalendarWithUserRequest.getAclRole().getValue());
 
         // Insert the ACL rule to share the calendar with the user
-          service.acl()
-                .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
-                .execute();
+        service.acl()
+              .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
+              .execute();
 
         return GoogleShareCalendarWithUserResponse
           .of(shareCalendarWithUserRequest.getCalendarId(),
