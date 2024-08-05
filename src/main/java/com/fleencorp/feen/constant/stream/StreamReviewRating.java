@@ -22,7 +22,7 @@ public enum StreamReviewRating implements ApiParameter {
 
   private final String value;
 
-  StreamReviewRating(String value) {
+  StreamReviewRating(final String value) {
     this.value = value;
   }
 }

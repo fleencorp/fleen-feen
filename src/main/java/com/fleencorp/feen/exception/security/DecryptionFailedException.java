@@ -4,7 +4,7 @@ import com.fleencorp.feen.exception.base.FleenException;
 
 public class DecryptionFailedException extends FleenException {
 
-  public DecryptionFailedException(String message) {
+  public DecryptionFailedException(final String message) {
     super(message);
   }
 }

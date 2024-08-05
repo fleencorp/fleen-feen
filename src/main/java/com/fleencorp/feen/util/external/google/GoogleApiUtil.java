@@ -32,7 +32,7 @@ public class GoogleApiUtil {
     return null;
   }
 
-  public static String getYouTubeLiveStreamingByBroadcastId(final String broadcastId) {
+  public static String getYouTubeLiveStreamingLinkByBroadcastId(final String broadcastId) {
     return LIVE_STREAMING_BASE_LINK + broadcastId;
   }
 }

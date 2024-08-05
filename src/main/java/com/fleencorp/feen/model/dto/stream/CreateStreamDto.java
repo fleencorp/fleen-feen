@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.converter.ToLowerCase;
-import com.fleencorp.feen.converter.ToTitleCase;
-import com.fleencorp.feen.converter.ToUpperCase;
+import com.fleencorp.feen.converter.common.ToLowerCase;
+import com.fleencorp.feen.converter.common.ToTitleCase;
+import com.fleencorp.feen.converter.common.ToUpperCase;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -73,13 +73,13 @@ public class CreateStreamDto {
   protected LocalDateTime endDateTime;
 
   @NotNull(message = "{stream.visibility.NotNull}")
-  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}")
+  @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("visibility")
   protected String visibility;
 
   @NotNull(message = "{stream.type.NotNull}")
-  @ValidEnum(enumClass = StreamType.class, message = "{stream.type.Type}")
+  @ValidEnum(enumClass = StreamType.class, message = "{stream.type.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("type")
   protected String type;

@@ -23,7 +23,7 @@ public class DeleteEventResponse {
   @JsonProperty("message")
   private String message = "Event deleted successfully";
 
-  public static DeleteEventResponse of(long eventId) {
+  public static DeleteEventResponse of(final long eventId) {
     return DeleteEventResponse.builder()
             .eventId(eventId)
             .build();

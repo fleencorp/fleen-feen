@@ -23,7 +23,7 @@ public enum YouTubeVideoPart implements ApiParameter {
 
   private final String value;
 
-  YouTubeVideoPart(String value) {
+  YouTubeVideoPart(final String value) {
     this.value = value;
   }
 }

@@ -19,7 +19,7 @@ public class YouTubeCategoriesResponse {
 
   private List<YouTubeCategoryResponse> categories;
 
-  public static YouTubeCategoriesResponse of(List<YouTubeCategoryResponse> categories) {
+  public static YouTubeCategoriesResponse of(final List<YouTubeCategoryResponse> categories) {
     return YouTubeCategoriesResponse.builder()
         .categories(categories)
         .build();

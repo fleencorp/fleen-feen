@@ -1,7 +1,7 @@
 package com.fleencorp.feen.aspect.impl;
 
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
-import com.fleencorp.feen.exception.recaptcha.InvalidReCaptchaException;
+import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException;
 import com.fleencorp.feen.service.external.recaptcha.ReCaptchaService;
 import com.fleencorp.feen.service.external.recaptcha.impl.ReCaptchaAttemptService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +31,9 @@ public class ReCaptchaAspect {
   private final String recaptchaScoreThreshold;
 
   public ReCaptchaAspect(
-      ReCaptchaService reCaptchaService,
-      ReCaptchaAttemptService reCaptchaAttemptService,
-      @Value("${google.web.recaptcha-score-threshold}") String recaptchaScoreThreshold) {
+      final ReCaptchaService reCaptchaService,
+      final ReCaptchaAttemptService reCaptchaAttemptService,
+      @Value("${google.web.recaptcha-score-threshold}") final String recaptchaScoreThreshold) {
     this.reCaptchaService = reCaptchaService;
     this.reCaptchaAttemptService = reCaptchaAttemptService;
     this.recaptchaScoreThreshold = recaptchaScoreThreshold;
@@ -51,7 +51,7 @@ public class ReCaptchaAspect {
    * @throws Throwable If an error occurs during reCAPTCHA verification or while executing the target method.
    */
   @Around("@annotation(com.fleencorp.feen.aspect.ReCaptcha)")
-  public Object verifyReCaptcha(ProceedingJoinPoint joinPoint) throws Throwable {
+  public Object verifyReCaptcha(final ProceedingJoinPoint joinPoint) throws Throwable {
     // Check if reCAPTCHA is disabled
     if (isCaptchaDisabled()) {
       // If reCAPTCHA is disabled, proceed with executing the target method
@@ -59,16 +59,16 @@ public class ReCaptchaAspect {
     }
 
     // Get the IP address of the client
-    String ipAddress = getClientIpAddress();
+    final String ipAddress = getClientIpAddress();
 
     // Check if the IP address is blocked due to too many failed reCAPTCHA attempts
     checkIfIpAddressBlocked(ipAddress);
 
     // Extract the reCAPTCHA token from the request
-    String reCaptchaToken = extractReCaptchaToken();
+    final String reCaptchaToken = extractReCaptchaToken();
 
     // Verify the reCAPTCHA token
-    ReCaptchaResponse response = verifyReCaptchaToken(reCaptchaToken);
+    final ReCaptchaResponse response = verifyReCaptchaToken(reCaptchaToken);
 
     // If reCAPTCHA verification is successful, proceed with executing the target method
     if (isReCaptchaValid(response)) {
@@ -99,7 +99,7 @@ public class ReCaptchaAspect {
    * @return The IP address of the client.
    */
   private String getClientIpAddress() {
-    var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    final var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     return request.getRemoteAddr();
   }
 
@@ -110,7 +110,7 @@ public class ReCaptchaAspect {
    * @param ipAddress The IP address to check.
    * @throws InvalidReCaptchaException If the IP address is blocked due to too many failed reCAPTCHA attempts.
    */
-  private void checkIfIpAddressBlocked(String ipAddress) {
+  private void checkIfIpAddressBlocked(final String ipAddress) {
     if (reCaptchaAttemptService.isBlocked(ipAddress)) {
       throw new InvalidReCaptchaException("ReCaptcha attempt failed");
     }
@@ -122,7 +122,7 @@ public class ReCaptchaAspect {
    * @return The reCAPTCHA token extracted from the request header.
    */
   private String extractReCaptchaToken() {
-    var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    final var request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     return request.getHeader(RECAPTCHA_HEADER_KEY);
   }
 
@@ -132,7 +132,7 @@ public class ReCaptchaAspect {
    * @param reCaptchaToken The reCAPTCHA token to verify.
    * @return The response received from verifying the reCAPTCHA token.
    */
-  private ReCaptchaResponse verifyReCaptchaToken(String reCaptchaToken) {
+  private ReCaptchaResponse verifyReCaptchaToken(final String reCaptchaToken) {
     return reCaptchaService.verifyReCaptcha(reCaptchaToken);
   }
 
@@ -142,7 +142,7 @@ public class ReCaptchaAspect {
    * @param response The reCAPTCHA response to validate.
    * @return {@code true} if the reCAPTCHA response is valid, {@code false} otherwise.
    */
-  private boolean isReCaptchaValid(ReCaptchaResponse response) {
+  private boolean isReCaptchaValid(final ReCaptchaResponse response) {
     return response != null && response.isSuccess() && response.getScore() >= getReCaptchaScoreThreshold();
   }
 

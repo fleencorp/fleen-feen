@@ -19,7 +19,7 @@ public enum AclRole implements ApiParameter {
 
   private final String value;
 
-  AclRole(String value) {
+  AclRole(final String value) {
     this.value = value;
   }
 

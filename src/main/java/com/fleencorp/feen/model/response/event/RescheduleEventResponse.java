@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.event;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.FleenStreamResponse;
@@ -13,7 +12,7 @@ import lombok.Builder.Default;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "event_id",
@@ -31,7 +30,7 @@ public class RescheduleEventResponse {
   @JsonProperty("message")
   private String message = "Rescheduling of event successful";
 
-  public static RescheduleEventResponse of(Long eventId, FleenStreamResponse event) {
+  public static RescheduleEventResponse of(final Long eventId, final FleenStreamResponse event) {
     return RescheduleEventResponse.builder()
             .eventId(eventId)
             .event(event)

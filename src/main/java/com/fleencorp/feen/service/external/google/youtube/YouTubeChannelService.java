@@ -70,10 +70,10 @@ public class YouTubeChannelService {
   @MeasureExecutionTime
   public YouTubeCategoriesResponse listCategories() {
     // Initialize a list to store YouTubeCategoryResponse objects
-    List<YouTubeCategoryResponse> youTubeCategoryResponses = new ArrayList<>();
+    final List<YouTubeCategoryResponse> youTubeCategoryResponses = new ArrayList<>();
     try {
       // Create a request to list categories using the 'snippet' and 'id' part
-      YouTube.VideoCategories.List categoryRequest = getYouTube().videoCategories()
+      final YouTube.VideoCategories.List categoryRequest = getYouTube().videoCategories()
           .list(String.join(COMMA,
               ID.getValue(),
               SNIPPET.getValue()));
@@ -81,11 +81,11 @@ public class YouTubeChannelService {
       categoryRequest.setKey(serviceApiKey);
 
       // Execute the request and obtain the response
-      VideoCategoryListResponse categoryListResponse = categoryRequest.execute();
-      List<VideoCategory> categories = Optional.of(categoryListResponse.getItems()).orElse(emptyList());
+      final VideoCategoryListResponse categoryListResponse = categoryRequest.execute();
+      final List<VideoCategory> categories = Optional.of(categoryListResponse.getItems()).orElse(emptyList());
       addYouTubeCategoriesResponse(categories, youTubeCategoryResponses);
 
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       // Log the error and throw an exception if accessing YouTube API fails
       log.error(ex.getMessage());
       throw new ExternalSystemException(ExternalSystemType.YOUTUBE.getValue());
@@ -104,10 +104,10 @@ public class YouTubeChannelService {
    * @param categories         The list of {@link VideoCategory} objects to convert to responses.
    * @param categoriesResponses The list to which {@link YouTubeCategoryResponse} objects will be added.
    */
-  public void addYouTubeCategoriesResponse(List<VideoCategory> categories, List<YouTubeCategoryResponse> categoriesResponses) {
+  public void addYouTubeCategoriesResponse(final List<VideoCategory> categories, final List<YouTubeCategoryResponse> categoriesResponses) {
     if (nonNull(categories) && nonNull(categoriesResponses)) {
       categories.forEach(category -> {
-        YouTubeCategoryResponse youTubeCategoryResponse = new YouTubeCategoryResponse();
+        final YouTubeCategoryResponse youTubeCategoryResponse = new YouTubeCategoryResponse();
         youTubeCategoryResponse.setId(category.getId());
         youTubeCategoryResponse.setKind(category.getKind());
         youTubeCategoryResponse.setName(category.getSnippet().getTitle());

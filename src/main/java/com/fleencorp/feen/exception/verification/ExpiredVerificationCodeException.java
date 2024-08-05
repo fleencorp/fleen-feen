@@ -6,7 +6,7 @@ public class ExpiredVerificationCodeException extends FleenException {
 
   public static final String MESSAGE = "Verification code has expired. Code : %s";
 
-  public ExpiredVerificationCodeException(String code) {
+  public ExpiredVerificationCodeException(final String code) {
     super(String.format(MESSAGE, code));
   }
 }

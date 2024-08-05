@@ -10,7 +10,7 @@ public class InvalidAuthenticationException extends FleenException {
 
   public static final String MESSAGE = "The username or password credential is invalid. ID: %s";
 
-  public InvalidAuthenticationException(String emailAddress) {
+  public InvalidAuthenticationException(final String emailAddress) {
     super(String.format(MESSAGE, Objects.toString(emailAddress, UNKNOWN)));
   }
 }

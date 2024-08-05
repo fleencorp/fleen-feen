@@ -6,7 +6,7 @@ import lombok.Getter;
 /**
 * Enum representing privacy statuses for live broadcasts on YouTube.
 *
-* <p> This enum implements {@link ApiParameter} and provides constants for three privacy statuses:</p>
+* <p>This enum implements {@link ApiParameter} and provides constants for three privacy statuses:</p>
 *
 * <p>Each constant has a corresponding value used in API requests and responses.</p>
 *

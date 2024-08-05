@@ -40,9 +40,19 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "request_to_join_status", nullable = false)
   private StreamAttendeeRequestToJoinStatus streamAttendeeRequestToJoinStatus;
 
+  @Column(name = "is_attending", nullable = false)
+  private Boolean isAttending = false;
+
   @Column(name = "attendee_comment", length = 1000)
   private String attendeeComment;
 
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
+
+  public static StreamAttendee of(final Member member, final FleenStream stream) {
+    return StreamAttendee.builder()
+      .member(member)
+      .fleenStream(stream)
+      .build();
+  }
 }

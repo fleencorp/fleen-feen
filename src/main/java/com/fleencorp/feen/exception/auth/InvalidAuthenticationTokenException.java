@@ -10,7 +10,7 @@ public class InvalidAuthenticationTokenException extends FleenException {
     super(MESSAGE);
   }
 
-  public InvalidAuthenticationTokenException(String message) {
+  public InvalidAuthenticationTokenException(final String message) {
     super(message);
   }
 }

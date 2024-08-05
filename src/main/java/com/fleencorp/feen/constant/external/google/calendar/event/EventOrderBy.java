@@ -17,7 +17,7 @@ public enum EventOrderBy implements ApiParameter {
 
   private final String value;
 
-  EventOrderBy(String value) {
+  EventOrderBy(final String value) {
     this.value = value;
   }
 }

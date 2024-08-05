@@ -27,18 +27,18 @@ public class ExecutionTimeAspect {
    * @throws Throwable           If an error occurs during method invocation.
    */
   @Around("@annotation(measureExecutionTime)")
-  public Object logExecutionTime(ProceedingJoinPoint joinPoint, MeasureExecutionTime measureExecutionTime) throws Throwable {
+  public Object logExecutionTime(final ProceedingJoinPoint joinPoint, final MeasureExecutionTime measureExecutionTime) throws Throwable {
     // Record the start time of method execution
-    long startTime = System.currentTimeMillis();
+    final long startTime = System.currentTimeMillis();
 
     // Proceed with the method execution
-    Object proceed = joinPoint.proceed();
+    final Object proceed = joinPoint.proceed();
 
     // Record the end time of method execution
-    long endTime = System.currentTimeMillis();
+    final long endTime = System.currentTimeMillis();
 
     // Calculate and log the execution time
-    String message = String.format("{%s} executed in %d ms", joinPoint.getSignature().toShortString(), (endTime - startTime));
+    final String message = String.format("{%s} executed in %d ms", joinPoint.getSignature().toShortString(), (endTime - startTime));
     log.info(message);
 
     return proceed;

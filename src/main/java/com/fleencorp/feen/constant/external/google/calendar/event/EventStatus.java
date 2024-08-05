@@ -17,7 +17,7 @@ public enum EventStatus implements ApiParameter {
 
   private final String value;
 
-  EventStatus(String value) {
+  EventStatus(final String value) {
     this.value = value;
   }
 }

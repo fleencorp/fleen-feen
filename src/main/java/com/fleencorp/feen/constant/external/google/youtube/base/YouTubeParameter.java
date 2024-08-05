@@ -23,7 +23,7 @@ public enum YouTubeParameter implements ApiParameter {
 
   private final String value;
 
-  YouTubeParameter(String value) {
+  YouTubeParameter(final String value) {
     this.value = value;
   }
 }

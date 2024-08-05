@@ -12,7 +12,7 @@ public enum AuthenticationStage implements ApiParameter {
 
   private final String value;
 
-  AuthenticationStage(String value) {
+  AuthenticationStage(final String value) {
     this.value = value;
   }
 }

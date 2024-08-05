@@ -12,7 +12,6 @@ import com.fleencorp.feen.model.request.calendar.calendar.DeleteCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.PatchCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.ShareCalendarWithUserRequest;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
-import com.fleencorp.feen.model.response.base.DeleteResponse;
 import com.fleencorp.feen.model.response.calendar.CreateCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.RetrieveCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.ShareCalendarWithUserResponse;
@@ -22,6 +21,7 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
+import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
@@ -204,7 +204,7 @@ public class CalendarServiceImpl implements CalendarService {
     log.info("Deleted calendar: {}", deleteCalendarResponse);
 
       calendarRepository.delete(calendar);
-    return new DeleteResponse(calendarId);
+    return DeleteResponse.of(calendarId);
   }
 
   /**
@@ -228,12 +228,11 @@ public class CalendarServiceImpl implements CalendarService {
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
     // Construct the request for sharing the calendar
-    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest.builder()
-            .emailAddress(shareCalendarWithUserDto.getEmailAddress())
-            .calendarId(calendar.getExternalId())
-            .aclRole(shareCalendarWithUserDto.getActualAclRole())
-            .aclScopeType(shareCalendarWithUserDto.getActualAclScopeType())
-            .build();
+    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest
+      .of(calendar.getExternalId(),
+          shareCalendarWithUserDto.getEmailAddress(),
+          shareCalendarWithUserDto.getActualAclScopeType(),
+          shareCalendarWithUserDto.getActualAclRole());
 
     // Share the calendar with the user using the Google Calendar service
     final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarService.shareCalendarWithUser(shareCalendarWithUserRequest);

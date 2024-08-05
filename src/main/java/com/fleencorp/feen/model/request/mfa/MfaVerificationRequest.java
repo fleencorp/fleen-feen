@@ -1,24 +1,23 @@
 package com.fleencorp.feen.model.request.mfa;
 
+import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.model.request.verification.ResendVerificationCodeRequest;
-import lombok.AllArgsConstructor;
+import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static com.fleencorp.feen.constant.message.CommonMessageDetails.MFA_VERIFICATION;
+
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class MfaVerificationRequest extends ResendVerificationCodeRequest {
+public class MfaVerificationRequest extends SendVerificationCodeRequest {
 
-  private VerificationType verificationType;
-
-  public static MfaVerificationRequest of(String verificationCode, String firstName, String lastName, String emailAddress,
-      String phoneNumber, VerificationType verificationType) {
+  public static MfaVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
+    final String phoneNumber, final VerificationType verificationType) {
     return MfaVerificationRequest.builder()
         .verificationCode(verificationCode)
         .firstName(firstName)
@@ -27,5 +26,20 @@ public class MfaVerificationRequest extends ResendVerificationCodeRequest {
         .phoneNumber(phoneNumber)
         .verificationType(verificationType)
         .build();
+  }
+
+  @Override
+  public MessageRequestType getRequestType() {
+    return MessageRequestType.MFA_VERIFICATION;
+  }
+
+  @Override
+  public String getTemplateName() {
+    return MFA_VERIFICATION.getTemplateName();
+  }
+
+  @Override
+  public String getMessageTitle() {
+    return MFA_VERIFICATION.getMessageTitle();
   }
 }

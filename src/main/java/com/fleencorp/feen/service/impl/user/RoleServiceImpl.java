@@ -13,10 +13,10 @@ import java.util.Set;
 /**
  * Implementation of the {@link RoleService} interface.
  *
- * <p> This service handles operations related to roles in the application. It uses
+ * <p>This service handles operations related to roles in the application. It uses
  * the {@link RoleRepository} to interact with the data source.</p>
  *
- * <p> This implementation provides methods to manage and retrieve roles based on
+ * <p>This implementation provides methods to manage and retrieve roles based on
  * specific criteria.</p>
  */
 @Slf4j
@@ -30,7 +30,7 @@ public class RoleServiceImpl implements RoleService {
    *
    * @param roleRepository The repository used to perform role-related operations.
    */
-  public RoleServiceImpl(RoleRepository roleRepository) {
+  public RoleServiceImpl(final RoleRepository roleRepository) {
     this.roleRepository = roleRepository;
   }
 
@@ -41,7 +41,7 @@ public class RoleServiceImpl implements RoleService {
    * @return A list of {@link Role} objects matching the provided codes.
    */
   @Override
-  public List<Role> findAllByCode(Set<String> codes) {
+  public List<Role> findAllByCode(final Set<String> codes) {
     return roleRepository.findRolesByCode(codes);
   }
 

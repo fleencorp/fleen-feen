@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.security;
 
+import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -33,7 +34,6 @@ public class FleenUser implements UserDetails {
   private String emailAddress;
   private String phoneNumber;
   private String password;
-  private Collection<? extends GrantedAuthority> authorities;
   private String firstName;
   private String lastName;
   private String profilePhoto;
@@ -42,11 +42,14 @@ public class FleenUser implements UserDetails {
   private boolean mfaEnabled;
   private MfaType mfaType;
 
+  @Setter
+  private Collection<? extends GrantedAuthority> authorities;
+
   public String getFullName() {
-    return firstName + ' ' + lastName;
+    return StringUtil.getFullName(firstName, lastName);
   }
 
-  public static FleenUser of(Long userId) {
+  public static FleenUser of(final Long userId) {
     return FleenUser.builder()
         .id(userId)
         .build();
@@ -157,29 +160,4 @@ public class FleenUser implements UserDetails {
   public String getUsername() {
         return emailAddress;
     }
-
-  @Override
-  public boolean isAccountNonExpired() {
-        return true;
-    }
-
-  @Override
-  public boolean isAccountNonLocked() {
-        return true;
-    }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-  @Override
-  public boolean isEnabled() {
-        return true;
-    }
-
-  public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
-    this.authorities = authorities;
-  }
-
 }

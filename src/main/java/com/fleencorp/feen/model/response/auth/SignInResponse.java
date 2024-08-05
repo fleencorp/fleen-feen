@@ -63,11 +63,11 @@ public class SignInResponse {
   @JsonProperty("message")
   private String message = "Sign-in successful";
 
-  public static SignInResponse of(String accessToken, String refreshToken) {
+  public static SignInResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
   }
 
-  public static SignInResponse of(String accessToken, String refreshToken, AuthenticationStatus authenticationStatus) {
+  public static SignInResponse of(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
     return SignInResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
@@ -75,7 +75,7 @@ public class SignInResponse {
         .build();
   }
 
-  public static SignInResponse createDefault(String emailAddress) {
+  public static SignInResponse createDefault(final String emailAddress) {
     return SignInResponse.builder()
         .emailAddress(emailAddress)
         .authenticationStatus(AuthenticationStatus.IN_PROGRESS)

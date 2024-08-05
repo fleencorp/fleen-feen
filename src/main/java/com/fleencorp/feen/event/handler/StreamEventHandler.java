@@ -7,8 +7,6 @@ import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventSe
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.HashSet;
@@ -36,7 +34,7 @@ public class StreamEventHandler {
    *
    * @param googleCalendarEventService the service used to interact with Google Calendar for event-related operations
    */
-  public StreamEventHandler(GoogleCalendarEventService googleCalendarEventService) {
+  public StreamEventHandler(final GoogleCalendarEventService googleCalendarEventService) {
     this.googleCalendarEventService = googleCalendarEventService;
   }
 
@@ -50,19 +48,18 @@ public class StreamEventHandler {
    * @param event the AddCalendarEventAttendeesEvent containing the details for adding new attendees
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   @Async
-  public CompletableFuture<Void> addNewAttendees(AddCalendarEventAttendeesEvent event) {
+  public CompletableFuture<Void> addNewAttendees(final AddCalendarEventAttendeesEvent event) {
     return CompletableFuture.runAsync(() -> {
       // Create a request to add new attendees to the calendar event
-      AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest.builder()
+      final AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest.builder()
               .calendarId(event.getCalendarId())
               .eventId(event.getEventId())
               .attendeesOrGuestsEmailAddresses(new HashSet<>(event.getAttendeesOrGuestsEmailAddresses()))
               .build();
 
       // Call the Google Calendar API Service to add the new attendees to the event
-      GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
+      final GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
       log.info("Added attendees: {}", googleAddNewCalendarEventAttendeesResponse);
     });
   }

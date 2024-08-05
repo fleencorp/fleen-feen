@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.external.google.oauth2.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
@@ -19,7 +18,7 @@ import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "id",
   "id_token",

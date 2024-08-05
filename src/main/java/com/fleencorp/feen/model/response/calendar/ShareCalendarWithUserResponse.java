@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.calendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
@@ -17,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "calendar_id",
@@ -39,7 +38,7 @@ public class ShareCalendarWithUserResponse {
   @JsonProperty("message")
   private String message = "Calendar shared with user successfully";
 
-  public static ShareCalendarWithUserResponse of(Long calendarId, String userEmailAddress, CalendarResponse calendar) {
+  public static ShareCalendarWithUserResponse of(final Long calendarId, final String userEmailAddress, final CalendarResponse calendar) {
     return ShareCalendarWithUserResponse.builder()
             .calendarId(calendarId)
             .calendar(calendar)

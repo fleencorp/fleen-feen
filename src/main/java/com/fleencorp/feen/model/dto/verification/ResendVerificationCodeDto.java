@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEmail;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.base.validator.ValidPhoneNumber;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
-import com.fleencorp.feen.converter.ToLowerCase;
-import com.fleencorp.feen.converter.ToUpperCase;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.converter.common.ToLowerCase;
+import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -32,18 +32,18 @@ public class ResendVerificationCodeDto {
   @JsonProperty("email_address")
   private String emailAddress;
 
-  @Size(min = 4, max = 15, message = "{user.phoneNumber.Size}")
+  @Size(min = 4, max = 20, message = "{user.phoneNumber.Size}")
   @ValidPhoneNumber
   @JsonProperty("phone_number")
   private String phoneNumber;
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = ProfileVerificationType.class, message = "{user.verificationType.Type}")
+  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
   @ToUpperCase
-  @JsonProperty("profile_verification_type")
-  private String profileVerificationType;
+  @JsonProperty("verification_type")
+  private String verificationType;
 
-  public ProfileVerificationType getActualProfileVerificationType() {
-    return parseEnumOrNull(profileVerificationType, ProfileVerificationType.class);
+  public VerificationType getActualVerificationType() {
+    return parseEnumOrNull(verificationType, VerificationType.class);
   }
 }
