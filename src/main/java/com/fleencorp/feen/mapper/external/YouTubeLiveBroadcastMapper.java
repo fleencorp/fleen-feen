@@ -9,12 +9,12 @@ import static java.util.Objects.nonNull;
 * The {@code LiveBroadcastMapper} class provides utility methods to map {@link LiveBroadcast} objects to other
 * representations, such as DTOs or response objects.
 *
-* <p> This class is intended to be used as a helper for converting {@link LiveBroadcast} instances retrieved from the
+* <p>This class is intended to be used as a helper for converting {@link LiveBroadcast} instances retrieved from the
 * YouTube API into application-specific objects that can be returned to clients or used internally.</p>
 *
-* <p> Note: This class currently has no implementation. Future methods for mapping live broadcast data should be added here.</p>
+* <p>Note: This class currently has no implementation. Future methods for mapping live broadcast data should be added here.</p>
 *
-* <p> This class does not currently contain any methods or example usages.</p>
+* <p>This class does not currently contain any methods or example usages.</p>
 *
 * @author Yusuf Alamu Musa
 * @version 1.0
@@ -24,7 +24,7 @@ public class YouTubeLiveBroadcastMapper {
   /**
   * Maps a {@link LiveBroadcast} object to a {@link YouTubeLiveBroadcastResponse}.
   *
-  * <p> This method takes a {@link LiveBroadcast} object as input and converts it into a {@link YouTubeLiveBroadcastResponse}
+  * <p>This method takes a {@link LiveBroadcast} object as input and converts it into a {@link YouTubeLiveBroadcastResponse}
   * object. It extracts relevant fields from the {@link LiveBroadcast} and sets them in the {@link YouTubeLiveBroadcastResponse}
   * using a builder pattern.</p>
   *
@@ -52,7 +52,7 @@ public class YouTubeLiveBroadcastMapper {
   /**
   * Maps a {@link LiveBroadcastStatus} object to a {@link YouTubeLiveBroadcastResponse.LiveBroadcastStatus}.
   *
-  * <p> This method takes a {@link LiveBroadcastStatus} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.LiveBroadcastStatus}
+  * <p>This method takes a {@link LiveBroadcastStatus} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.LiveBroadcastStatus}
   * object. It extracts relevant fields from the {@link LiveBroadcastStatus} and sets them in the {@link YouTubeLiveBroadcastResponse.LiveBroadcastStatus}
   * using a builder pattern.</p>
   *
@@ -73,7 +73,7 @@ public class YouTubeLiveBroadcastMapper {
   /**
   * Maps a {@link LiveBroadcastContentDetails} object to a {@link YouTubeLiveBroadcastResponse.ContentDetails}.
   *
-  * <p> This method takes a {@link LiveBroadcastContentDetails} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.ContentDetails}
+  * <p>This method takes a {@link LiveBroadcastContentDetails} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.ContentDetails}
   * object. It extracts relevant fields from the {@link LiveBroadcastContentDetails} and sets them in the {@link YouTubeLiveBroadcastResponse.ContentDetails}
   * using a builder pattern.</p>
   *
@@ -100,7 +100,7 @@ public class YouTubeLiveBroadcastMapper {
   /**
   * Maps a {@link MonitorStreamInfo} object to a {@link YouTubeLiveBroadcastResponse.MonitorStream}.
   *
-  * <p> This method takes a {@link MonitorStreamInfo} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.MonitorStream}
+  * <p>This method takes a {@link MonitorStreamInfo} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.MonitorStream}
   * object. It extracts relevant fields from the {@link MonitorStreamInfo} and sets them in the {@link YouTubeLiveBroadcastResponse.MonitorStream}
   * using a builder pattern.</p>
   *
@@ -121,7 +121,7 @@ public class YouTubeLiveBroadcastMapper {
   /**
   * Maps a {@link LiveBroadcastSnippet} object to a {@link YouTubeLiveBroadcastResponse.Snippet}.
   *
-  * <p> This method takes a {@link LiveBroadcastSnippet} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.Snippet}
+  * <p>This method takes a {@link LiveBroadcastSnippet} object as input and converts it into a {@link YouTubeLiveBroadcastResponse.Snippet}
   * object. It extracts relevant fields from the {@link LiveBroadcastSnippet} and sets them in the {@link YouTubeLiveBroadcastResponse.Snippet}
   * using a builder pattern.</p>
   *

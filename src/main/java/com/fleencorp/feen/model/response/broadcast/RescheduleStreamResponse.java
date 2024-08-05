@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.FleenStreamResponse;
@@ -13,7 +12,7 @@ import lombok.Builder.Default;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "stream_id",
@@ -31,7 +30,7 @@ public class RescheduleStreamResponse {
   @JsonProperty("message")
   private String message = "Rescheduling of stream successful";
 
-  public static RescheduleStreamResponse of(Long streamId, FleenStreamResponse stream) {
+  public static RescheduleStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
     return RescheduleStreamResponse.builder()
             .streamId(streamId)
             .stream(stream)

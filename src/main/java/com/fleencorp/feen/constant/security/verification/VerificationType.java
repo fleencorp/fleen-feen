@@ -20,7 +20,7 @@ public enum VerificationType implements ApiParameter {
 
   private final String value;
 
-  VerificationType(String value) {
+  VerificationType(final String value) {
     this.value = value;
   }
 }

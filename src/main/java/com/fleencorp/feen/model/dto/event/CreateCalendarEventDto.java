@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEmail;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +20,7 @@ import java.util.List;
 
 import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static com.fleencorp.feen.converter.impl.ToTitleCaseConverter.toTitleCase;
+import static com.fleencorp.feen.converter.impl.common.ToTitleCaseConverter.toTitleCase;
 import static java.lang.Boolean.parseBoolean;
 
 @SuperBuilder
@@ -57,6 +58,12 @@ public class CreateCalendarEventDto extends CreateStreamDto {
 
     @JsonIgnore
     private Boolean isOrganizer;
+  }
+
+  public FleenStream toFleenStream(final Member member) {
+    final FleenStream fleenStream = toFleenStream();
+    fleenStream.setMember(member);
+    return fleenStream;
   }
 
   public FleenStream toFleenStream() {

@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
@@ -40,7 +41,9 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "stream_type",
   "visibility",
   "scheduled_start_date",
-  "scheduled_end_date"
+  "scheduled_end_date",
+  "total_attending",
+  "some_attendees"
 })
 public class FleenStreamResponse extends FleenFeenResponse {
 
@@ -87,4 +90,9 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("scheduled_end_date")
   private LocalDateTime scheduledEndDate;
 
+  @JsonProperty("totalAttending")
+  private long totalAttending;
+
+  @JsonProperty("some_attendees")
+  private List<StreamAttendeeResponse> someAttendees;
 }

@@ -2,10 +2,10 @@ package com.fleencorp.feen.model.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.*;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
-import com.fleencorp.feen.converter.ToLowerCase;
-import com.fleencorp.feen.converter.ToTitleCase;
-import com.fleencorp.feen.converter.ToUpperCase;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.converter.common.ToLowerCase;
+import com.fleencorp.feen.converter.common.ToTitleCase;
+import com.fleencorp.feen.converter.common.ToUpperCase;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.validator.CountryExist;
 import jakarta.validation.constraints.Email;
@@ -48,7 +48,7 @@ public class SignUpDto {
   private String emailAddress;
 
   @NotBlank(message = "{user.phoneNumber.NotBlank}")
-  @Size(min = 4, max = 15, message = "{user.phoneNumber.Size}")
+  @Size(min = 4, max = 20, message = "{user.phoneNumber.Size}")
   @ValidPhoneNumber
   @PhoneNumberAlreadyExist
   @JsonProperty("phone_number")
@@ -71,13 +71,13 @@ public class SignUpDto {
   private String country;
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = ProfileVerificationType.class, message = "{user.verificationType.Type}")
+  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
   @ToUpperCase
-  @JsonProperty("profile_verification_type")
-  private String profileVerificationType;
+  @JsonProperty("verification_type")
+  private String verificationType;
 
-  public ProfileVerificationType getActualProfileVerificationType() {
-    return parseEnumOrNull(profileVerificationType, ProfileVerificationType.class);
+  public VerificationType getActualVerificationType() {
+    return parseEnumOrNull(verificationType, VerificationType.class);
   }
 
   public Member toMember() {

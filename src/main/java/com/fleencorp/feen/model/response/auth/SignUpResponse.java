@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationType;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -43,35 +43,35 @@ public class SignUpResponse {
   private AuthenticationStatus authenticationStatus;
 
   @JsonFormat(shape = STRING)
-  @JsonProperty("profile_verification_type")
-  private ProfileVerificationType profileVerificationType;
+  @JsonProperty("verification_type")
+  private VerificationType verificationType;
 
   @Builder.Default
   @JsonProperty("message")
   private String message = "Sign up successful";
 
-  public static SignUpResponse of(String accessToken, String refreshToken, String emailAddress, String phoneNumber,
-      AuthenticationStatus authenticationStatus, ProfileVerificationType profileVerificationType) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
+                                  final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .emailAddress(emailAddress)
         .phoneNumber(phoneNumber)
         .authenticationStatus(authenticationStatus)
-        .profileVerificationType(profileVerificationType)
+        .verificationType(verificationType)
         .build();
   }
 
-  public static SignUpResponse of(String accessToken, String refreshToken) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
   }
 
-  public static SignUpResponse of(String accessToken, String refreshToken, AuthenticationStatus authenticationStatus) {
+  public static SignUpResponse of(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .authenticationStatus(authenticationStatus)
-        .profileVerificationType(null)
+        .verificationType(null)
         .emailAddress(null)
         .phoneNumber(null)
         .build();

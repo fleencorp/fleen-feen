@@ -13,4 +13,14 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompletedOauth2AuthorizationResponse extends Oauth2AuthorizationResponse {
+
+  public static CompletedOauth2AuthorizationResponse of(final String accessToken, final String refreshToken, final Long expiresIn, final String tokenType, final String scope) {
+    return CompletedOauth2AuthorizationResponse.builder()
+      .accessToken(accessToken)
+      .refreshToken(refreshToken)
+      .accessTokenExpirationTimeInSeconds(expiresIn)
+      .tokenType(tokenType)
+      .scope(scope)
+      .build();
+  }
 }

@@ -96,7 +96,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    */
   @Override
   public SearchResultView findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest) {
-    Page<FleenStream> page;
+    final Page<FleenStream> page;
     if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
       page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
@@ -105,7 +105,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
       page = fleenStreamRepository.findMany(searchRequest.getPage());
     }
 
-    List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
     return toSearchResult(views, page);
   }
 
@@ -136,14 +136,14 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
     // Create a request object to create the live broadcast on YouTube
     final CreateLiveBroadcastRequest createLiveBroadcastRequest = CreateLiveBroadcastRequest.by(createLiveBroadcastDto);
-    GoogleOauth2Authorization googleOauth2Authorization = existingGoogleOauth2Authorization.get();
+    final GoogleOauth2Authorization googleOauth2Authorization = existingGoogleOauth2Authorization.get();
 
     createLiveBroadcastRequest.setAccessTokenForHttpRequest(googleOauth2Authorization.getAccessToken());
     // Create the live broadcast using YouTubeLiveBroadcastService
-    CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
+    final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
 
     // Create a new FleenStream entity based on the DTO and set YouTube response details
-    final FleenStream stream = createLiveBroadcastDto.toFleenStream();
+    final FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
     stream.setStreamLink(createYouTubeLiveBroadcastResponse.getLiveStreamLink());
     stream.setExternalId(createYouTubeLiveBroadcastResponse.getLiveBroadcastId());
 
@@ -174,20 +174,20 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @throws Oauth2InvalidAuthorizationException If the OAuth2 authorization for the user is invalid or missing.
    */
   @Override
-  public UpdateStreamResponse updateLiveBroadcast(Long streamId, UpdateLiveBroadcastDto updateLiveBroadcastDto, FleenUser user) {
-    FleenStream stream = fleenStreamRepository.findById(streamId)
+  public UpdateStreamResponse updateLiveBroadcast(final Long streamId, final UpdateLiveBroadcastDto updateLiveBroadcastDto, final FleenUser user) {
+    final FleenStream stream = fleenStreamRepository.findById(streamId)
         .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
 
     // Check if the OAuth2 authorization exists for the user
-    GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
+    final GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
     // Create an update request using the access token and update details
-    UpdateLiveBroadcastRequest updateLiveBroadcastRequest = UpdateLiveBroadcastRequest
+    final UpdateLiveBroadcastRequest updateLiveBroadcastRequest = UpdateLiveBroadcastRequest
       .of(googleOauth2Authorization.getAccessToken(),
           updateLiveBroadcastDto.getTitle(),
           updateLiveBroadcastDto.getDescription());
 
     // Update the live broadcast using YouTubeLiveBroadcastService
-    UpdateYouTubeLiveBroadcastResponse updateYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.updateLiveBroadcast(updateLiveBroadcastRequest);
+    final UpdateYouTubeLiveBroadcastResponse updateYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.updateLiveBroadcast(updateLiveBroadcastRequest);
     log.info("Updated broadcast: {}", updateYouTubeLiveBroadcastResponse);
 
     // Update the stream entity with new title, description, tags, and location
@@ -222,21 +222,21 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @throws Oauth2InvalidAuthorizationException If the OAuth2 authorization for the user is invalid or missing.
    */
   @Override
-  public RescheduleStreamResponse rescheduleLiveBroadcast(Long streamId, RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, FleenUser user) {
+  public RescheduleStreamResponse rescheduleLiveBroadcast(final Long streamId, final RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, final FleenUser user) {
     // Retrieve the FleenStream entity from the repository based on the stream ID
-    FleenStream stream = fleenStreamRepository.findById(streamId)
+    final FleenStream stream = fleenStreamRepository.findById(streamId)
         .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
 
     // Check if the OAuth2 authorization exists for the user
-    GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
+    final GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
     // Create a request object to reschedule the live broadcast on YouTube
-    RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest
+    final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest
       .of(googleOauth2Authorization.getAccessToken(),
           rescheduleLiveBroadcastDto.getStartDateTime(),
           rescheduleLiveBroadcastDto.getEndDateTime(), null);
 
     // Reschedule the live broadcast using YouTubeLiveBroadcastService
-    RescheduleYouTubeLiveBroadcastResponse rescheduleYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.rescheduleLiveBroadcast(rescheduleLiveBroadcastRequest);
+    final RescheduleYouTubeLiveBroadcastResponse rescheduleYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.rescheduleLiveBroadcast(rescheduleLiveBroadcastRequest);
     log.info("Rescheduled broadcast: {}", rescheduleYouTubeLiveBroadcastResponse);
 
     // Update the schedule of the FleenStream entity with new start and end times and timezone
@@ -259,7 +259,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @return The {@link GoogleOauth2Authorization} entity associated with the specified FleenUser.
    * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the FleenUser.
    */
-  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(FleenUser user) {
+  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(final FleenUser user) {
     // Delegate to verifyAndGetUserOauth2Authorization(Member) method
     return verifyAndGetUserOauth2Authorization(user.toMember());
   }
@@ -275,7 +275,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @return The {@link GoogleOauth2Authorization} entity associated with the specified member.
    * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the member.
    */
-  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(Member member) {
+  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
     // Retrieve the OAuth2 authorization entity associated with the member
     final Optional<GoogleOauth2Authorization> existingGoogleOauth2Authorization = googleOauth2AuthorizationRepository.findByMember(member);
 

@@ -1,0 +1,34 @@
+[
+  {
+    "title": "sign-up-verification",
+    "body": "Hi, kindly use this code {0} to complete the verification process"
+  },
+  {
+    "title": "sign-up-completed",
+    "body": "Your sign up has been completed successfully."
+  },
+  {
+    "title": "mfa-verification",
+    "body": "Hi, use this code {0} to complete the sign-in process."
+  },
+  {
+    "title": "mfa-setup",
+    "body": "Hi, use this code {0} to complete the mfa setup process."
+  },
+  {
+    "title": "forgot-password",
+    "body": "Forgot your password? Use this code {0} to complete the reset."
+  },
+  {
+    "title": "reset-password-successful",
+    "body": "Your password has been successfully reset."
+  },
+  {
+    "title": "profile-update",
+    "body": "Your profile information has been updated."
+  },
+  {
+    "title": "pre-onboarding",
+    "body": "Complete your onboarding process to get started."
+  }
+]

@@ -62,7 +62,7 @@ public class BaseAdapter {
    *
    * @param baseUrl The base URL of the API endpoints
    */
-  protected BaseAdapter(String baseUrl) {
+  protected BaseAdapter(final String baseUrl) {
     this.baseUrl = baseUrl;
     this.restTemplate = new RestTemplateBuilder()
       .requestFactory(SimpleClientHttpRequestFactory::new).build();
@@ -78,15 +78,14 @@ public class BaseAdapter {
    * @param responseModel  The type of the response model
    * @return ResponseEntity containing the response data
    */
-  public <T> ResponseEntity<T> doCall(@NonNull URI uri, @NonNull HttpMethod method,
-                                      @Nullable Map<String, String> headers,
-                                      @Nullable Object body, @NonNull Class<T> responseModel) {
+  public <T> ResponseEntity<T> doCall(@NonNull final URI uri, @NonNull final HttpMethod method,
+                                      @Nullable final Map<String, String> headers, @Nullable final Object body, @NonNull final Class<T> responseModel) {
     // Log the HTTP call details
     log.info(String.format("HTTP call to url=%s with method=%s and body=%s", uri, method.name(),
       getPayloadBodyAsString(body)));
 
     // Set request headers
-    HttpHeaders requestHeaders = getHeaders();
+    final HttpHeaders requestHeaders = getHeaders();
     if (headers != null) {
       headers.forEach(requestHeaders::add);
     }
@@ -100,14 +99,14 @@ public class BaseAdapter {
         .body(getPayloadBodyAsString(body))
         .retrieve()
         .toEntity(responseModel);
-    } catch (HttpStatusCodeException e) {
+    } catch (final HttpStatusCodeException e) {
       // Handle HTTP status code errors
       log.error(String.format(
         "An error occurred while HTTP call to url=%s with method=%s and body=%s: %s", uri,
         method.name(),
         getPayloadBodyAsString(body), e.getMessage()));
-      HttpHeaders errorHeaders = e.getResponseHeaders();
-      String errorBody = e.getResponseBodyAsString();
+      final HttpHeaders errorHeaders = e.getResponseHeaders();
+      final String errorBody = e.getResponseBodyAsString();
 
       return ResponseEntity.status(e.getStatusCode())
         .headers(errorHeaders).body((T) errorBody);
@@ -120,14 +119,14 @@ public class BaseAdapter {
    * @param body The payload body object
    * @return The string representation of the payload body
    */
-  public static String getPayloadBodyAsString(Object body) {
+  public static String getPayloadBodyAsString(final Object body) {
     String payloadAsString = "";
     if (body instanceof String) {
       payloadAsString = (String) body;
     } else {
       try {
         payloadAsString = new ObjectMapper().writeValueAsString(body);
-      } catch (JsonProcessingException ignored) {
+      } catch (final JsonProcessingException ignored) {
       }
     }
     return payloadAsString;
@@ -139,9 +138,9 @@ public class BaseAdapter {
    * @param urlBlocks The additional endpoint blocks
    * @return The initialized UriComponentsBuilder
    */
-  protected UriComponentsBuilder initUriBuilder(EndpointBlock... urlBlocks) {
-    StringBuilder urlBuilder = new StringBuilder(baseUrl);
-    for (EndpointBlock block : urlBlocks) {
+  protected UriComponentsBuilder initUriBuilder(final EndpointBlock... urlBlocks) {
+    final StringBuilder urlBuilder = new StringBuilder(baseUrl);
+    for (final EndpointBlock block : urlBlocks) {
       if (block != null) {
         urlBuilder.append(block.value());
       }
@@ -155,7 +154,7 @@ public class BaseAdapter {
    * @return The HttpHeaders containing the request headers
    */
   protected HttpHeaders getHeaders() {
-    HttpHeaders requestHeaders = new HttpHeaders();
+    final HttpHeaders requestHeaders = new HttpHeaders();
     requestHeaders.setContentType(APPLICATION_JSON);
     return requestHeaders;
   }
@@ -166,8 +165,8 @@ public class BaseAdapter {
    * @param value The authorization value to be included in the header.
    * @return A {@link Map} containing the HTTP header with the authorization value.
    */
-  protected Map<String, String> getAuthHeader(String value) {
-    Map<String, String> headers = new HashMap<>();
+  protected Map<String, String> getAuthHeader(final String value) {
+    final Map<String, String> headers = new HashMap<>();
     headers.put(HttpHeaders.AUTHORIZATION, value);
     return headers;
   }
@@ -178,7 +177,7 @@ public class BaseAdapter {
    * @param token The Bearer token to be included in the authorization header.
    * @return A {@link Map} containing the HTTP header with the Bearer token authorization.
    */
-  protected Map<String, String> getAuthHeaderWithBearerToken(String token) {
+  protected Map<String, String> getAuthHeaderWithBearerToken(final String token) {
     return getAuthHeader(AuthUtil.getBearerToken(token));
   }
 
@@ -188,7 +187,7 @@ public class BaseAdapter {
    * @param object The object to append to the base endpoint path.
    * @return An {@link EndpointBlock} representing the constructed endpoint block.
    */
-  protected EndpointBlock buildPathVar(Object object) {
+  protected EndpointBlock buildPathVar(final Object object) {
     return new BaseEndpointBlock("/" + object);
   }
 
@@ -198,12 +197,12 @@ public class BaseAdapter {
    * @param urlBlocks The additional endpoint blocks
    * @return The built URI
    */
-  protected URI buildUri(EndpointBlock... urlBlocks) {
+  protected URI buildUri(final EndpointBlock... urlBlocks) {
     return initUriBuilder(urlBlocks).build().toUri();
   }
 
-  protected URI buildUri(Map<ApiParameter, String> queryParams, EndpointBlock... urlBlocks) {
-    UriComponentsBuilder uriComponentsBuilder = initUriBuilder(urlBlocks);
+  protected URI buildUri(final Map<ApiParameter, String> queryParams, final EndpointBlock... urlBlocks) {
+    final UriComponentsBuilder uriComponentsBuilder = initUriBuilder(urlBlocks);
     queryParams.forEach((k, v) -> uriComponentsBuilder.queryParam(k.getValue(), v));
     return uriComponentsBuilder.build().toUri();
   }

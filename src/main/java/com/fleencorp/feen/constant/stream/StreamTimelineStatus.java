@@ -18,7 +18,7 @@ public enum StreamTimelineStatus implements ApiParameter {
 
   private final String value;
 
-  StreamTimelineStatus(String value) {
+  StreamTimelineStatus(final String value) {
     this.value = value;
   }
 }

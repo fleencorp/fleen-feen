@@ -19,7 +19,7 @@ public class InitiatePasswordChangeResponse {
   @JsonProperty("access_token")
   public String accessToken;
 
-  public static InitiatePasswordChangeResponse of(String accessToken) {
+  public static InitiatePasswordChangeResponse of(final String accessToken) {
     return InitiatePasswordChangeResponse.builder()
         .accessToken(accessToken)
         .build();

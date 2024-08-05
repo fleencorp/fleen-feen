@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.FleenStreamResponse;
@@ -17,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "stream_id",
@@ -29,7 +28,7 @@ public class UpdateStreamResponse extends CreateStreamResponse {
   @JsonProperty("message")
   private String message = "Stream updated successfully";
 
-  public static UpdateStreamResponse of(Long streamId, FleenStreamResponse stream) {
+  public static UpdateStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
     return UpdateStreamResponse.builder()
             .streamId(streamId)
             .stream(stream)

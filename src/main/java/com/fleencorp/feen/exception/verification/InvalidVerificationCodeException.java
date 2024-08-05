@@ -6,7 +6,7 @@ public class InvalidVerificationCodeException extends FleenException {
 
   public static final String MESSAGE = "Invalid verification code : %s";
 
-  public InvalidVerificationCodeException(String code) {
+  public InvalidVerificationCodeException(final String code) {
     super(String.format(MESSAGE, code));
   }
 }

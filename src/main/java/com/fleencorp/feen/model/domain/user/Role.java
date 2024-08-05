@@ -37,20 +37,20 @@ public class Role extends FleenFeenEntity {
   @Column(name = "description", length = 1000)
   private String description;
 
-  public static Role of(long id) {
+  public static Role of(final long id) {
     return Role.builder()
             .roleId(id)
             .build();
   }
 
-  public static Role of(String title, String code) {
+  public static Role of(final String title, final String code) {
     return Role.builder()
             .title(title)
             .code(code)
             .build();
   }
 
-  public static Role of(String authority) {
+  public static Role of(final String authority) {
     if (nonNull(authority)) {
       return Role
               .builder()

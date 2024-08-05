@@ -1,7 +1,10 @@
 package com.fleencorp.feen.event.publisher;
 
+import com.fleencorp.feen.event.model.base.PublishMessageRequest;
+import com.fleencorp.feen.event.service.PublisherService;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +19,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class StreamEventPublisher {
+@Qualifier("streamEvent-applicationEvent")
+public class StreamEventPublisher implements PublisherService {
 
   private final ApplicationEventPublisher eventPublisher;
-
 
   /**
    * Constructs a new StreamEventPublisher with the given event publisher.
@@ -28,6 +31,15 @@ public class StreamEventPublisher {
    */
   public StreamEventPublisher(final ApplicationEventPublisher eventPublisher) {
     this.eventPublisher = eventPublisher;
+  }
+
+  @Override
+  public void publishMessage(final PublishMessageRequest messageRequest) {
+    final Object message = messageRequest.getMessage();
+    switch (message) {
+      case final AddCalendarEventAttendeesEvent request -> addNewAttendees(request);
+      default -> {}
+    }
   }
 
   /**
@@ -42,6 +54,6 @@ public class StreamEventPublisher {
    * @param addCalendarEventAttendeesEvent The event object containing the details of the attendees to be added.
    */
   public void addNewAttendees(final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent) {
-      this.eventPublisher.publishEvent(addCalendarEventAttendeesEvent);
+    this.eventPublisher.publishEvent(addCalendarEventAttendeesEvent);
   }
 }

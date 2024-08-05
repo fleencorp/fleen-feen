@@ -16,7 +16,6 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
  * Sharing (CORS) by setting the necessary HTTP headers in the response.
  * The filter allows cross-origin requests from any origin and allows
  * all methods and headers.</p>
- * <br/>
  *
  * <p>This filter is annotated with @Slf4j, which is a lombok annotation
  * for generating a logger field. It is also annotated with @Component and
@@ -44,9 +43,9 @@ public class SimpleCorsFilter implements Filter {
    * @throws ServletException If a servlet-specific error occurs.
    */
   @Override
-  public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 
-    HttpServletResponse response = (HttpServletResponse) res;
+    final HttpServletResponse response = (HttpServletResponse) res;
     setHeaders(response);
     chain.doFilter(req, response);
   }
@@ -58,7 +57,7 @@ public class SimpleCorsFilter implements Filter {
    *
    * @param response The HTTP servlet response.
    */
-  public static void setHeaders(HttpServletResponse response) {
+  public static void setHeaders(final HttpServletResponse response) {
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader("Access-Control-Allow-Credentials", "false");
     response.setHeader("Access-Control-Allow-Methods", "*");

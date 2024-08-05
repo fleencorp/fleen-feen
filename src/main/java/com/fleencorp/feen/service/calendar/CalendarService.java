@@ -5,11 +5,11 @@ import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
-import com.fleencorp.feen.model.response.base.DeleteResponse;
 import com.fleencorp.feen.model.response.calendar.CreateCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.RetrieveCalendarResponse;
 import com.fleencorp.feen.model.response.calendar.ShareCalendarWithUserResponse;
 import com.fleencorp.feen.model.response.calendar.UpdateCalendarResponse;
+import com.fleencorp.feen.model.response.other.DeleteResponse;
 
 public interface CalendarService {
 

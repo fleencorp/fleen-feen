@@ -19,9 +19,9 @@ public interface OtpService {
    * @param length Length of the OTP to generate.
    * @return Randomly generated OTP as a string of numeric characters.
    */
-  static String generateOtp(int length) {
-    Random obj = new Random();
-    char[] otp = new char[length];
+  static String generateOtp(final int length) {
+    final Random obj = new Random();
+    final char[] otp = new char[length];
 
     for (int i = 0; i < 6; i++)  {
       otp[i]= (char) (obj.nextInt(10) + 48);

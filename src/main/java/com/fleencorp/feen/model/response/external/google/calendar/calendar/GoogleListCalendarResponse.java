@@ -15,4 +15,14 @@ public class GoogleListCalendarResponse {
 
   @Builder.Default
   private List<GoogleCalendarResponse> calendars = new ArrayList<>();
+
+  public static GoogleListCalendarResponse of(final List<GoogleCalendarResponse> calendars) {
+    return GoogleListCalendarResponse.builder()
+      .calendars(calendars)
+      .build();
+  }
+
+  public static GoogleListCalendarResponse of() {
+    return new GoogleListCalendarResponse();
+  }
 }

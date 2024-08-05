@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.event;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
@@ -17,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "event_id",
@@ -29,7 +28,7 @@ public class UpdateEventResponse extends CreateEventResponse {
   @JsonProperty("message")
   private String message = "Event updated successfully";
 
-  public static UpdateEventResponse of(Long eventId, EventResponse event) {
+  public static UpdateEventResponse of(final Long eventId, final EventResponse event) {
     return UpdateEventResponse.builder()
             .eventId(eventId)
             .event(event)

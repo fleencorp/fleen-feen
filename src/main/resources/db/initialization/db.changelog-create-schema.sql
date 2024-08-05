@@ -11,7 +11,7 @@ CREATE TABLE member (
   first_name VARCHAR(100) NOT NULL,
   last_name VARCHAR(100) NOT NULL,
   email_address VARCHAR(50) NOT NULL,
-  phone_number VARCHAR(15) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL,
   password_hash VARCHAR(500) NOT NULL,
   profile_photo_url VARCHAR(1000),
   country VARCHAR(50),
@@ -53,8 +53,8 @@ CREATE TABLE profile_token (
 
   CONSTRAINT profile_token_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `profile_token`;
@@ -99,8 +99,8 @@ CREATE TABLE google_oauth2_authorization (
 
   CONSTRAINT google_oauth2_authorization_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `google_oauth2_authorization`;
@@ -118,12 +118,12 @@ CREATE TABLE member_role (
 
   CONSTRAINT member_role_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE CASCADE ,
+      REFERENCES member (member_id)
+        ON DELETE CASCADE ,
   CONSTRAINT member_role_fk_role
     FOREIGN KEY (role_id)
-    REFERENCES role (role_id)
-    ON DELETE CASCADE
+      REFERENCES role (role_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `member_role`;
@@ -137,7 +137,7 @@ CREATE TABLE member_role (
 
 CREATE TABLE fleen_stream (
   fleen_stream_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255) NOT NULL,
+  external_id VARCHAR(255),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
   tags VARCHAR(300),
@@ -147,7 +147,8 @@ CREATE TABLE fleen_stream (
   organizer_email VARCHAR(50) NOT NULL,
   organizer_phone VARCHAR(20) NOT NULL,
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
-  stream_link VARCHAR(1000) NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
   stream_type VARCHAR(255) DEFAULT 'NONE'
     NOT NULL CHECK (stream_type IN ('GOOGLE MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
@@ -167,8 +168,8 @@ CREATE TABLE fleen_stream (
 
   CONSTRAINT fleen_stream_fk_member
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL
+      REFERENCES member (member_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `fleen_stream`;
@@ -206,6 +207,7 @@ CREATE TABLE stream_attendee (
   stream_attendee_id BIGSERIAL PRIMARY KEY,
   attendee_comment VARCHAR(500),
   organizer_comment VARCHAR(500) NULL,
+  is_attending BOOLEAN NOT NULL DEFAULT false,
   request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
     NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
 
@@ -217,12 +219,12 @@ CREATE TABLE stream_attendee (
 
   CONSTRAINT stream_attendee_fk_member_id
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL,
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
   CONSTRAINT stream_attendee_fk_fleen_stream_id
     FOREIGN KEY (fleen_stream_id)
-    REFERENCES fleen_stream (fleen_stream_id)
-    ON DELETE SET NULL
+      REFERENCES fleen_stream (fleen_stream_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `stream_attendee`;
@@ -247,12 +249,12 @@ CREATE TABLE stream_review (
 
   CONSTRAINT stream_review_fk_member_id
     FOREIGN KEY (member_id)
-    REFERENCES member (member_id)
-    ON DELETE SET NULL,
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
   CONSTRAINT stream_review_fk_fleen_stream_id
     FOREIGN KEY (fleen_stream_id)
-    REFERENCES fleen_stream (fleen_stream_id)
-    ON DELETE SET NULL
+      REFERENCES fleen_stream (fleen_stream_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `stream_review`;
@@ -315,13 +317,13 @@ CREATE TABLE stream_speaker (
   description VARCHAR(1000) NOT NULL,
 
   CONSTRAINT stream_speaker_fk_fleen_stream_id
-      FOREIGN KEY (fleen_stream_id)
-          REFERENCES fleen_stream (fleen_stream_id)
-          ON DELETE CASCADE,
+    FOREIGN KEY (fleen_stream_id)
+      REFERENCES fleen_stream (fleen_stream_id)
+        ON DELETE CASCADE,
   CONSTRAINT stream_speaker_fk_member_id
-      FOREIGN KEY (member_id)
-          REFERENCES member (member_id)
-          ON DELETE CASCADE
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `stream_speaker`;
@@ -335,13 +337,17 @@ CREATE TABLE stream_speaker (
 
 CREATE TABLE share_contact_request (
   share_contact_request_id BIGSERIAL PRIMARY KEY,
-  share_contact_request_status VARCHAR(255) NOT NULL,
-  share_contact_request_type VARCHAR(255) NOT NULL,
   contact VARCHAR(1000),
   initiator_id BIGINT NOT NULL,
   recipient_id BIGINT NOT NULL,
   initiator_comment VARCHAR(1000),
   recipient_comment VARCHAR(1000),
+  is_expected BOOLEAN NOT NULL DEFAULT false,
+  share_contact_request_status VARCHAR(255)
+    CHECK (share_contact_request_status IN ('CANCELED', 'ACCEPTED', 'REJECTED', 'SENT')),
+  contact_type VARCHAR(255)
+    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+      'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
   CONSTRAINT share_contact_request_fk_initiator_id
     FOREIGN KEY (initiator_id)
@@ -360,21 +366,46 @@ CREATE TABLE share_contact_request (
 --changeset alamu:14
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'blocked_user';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'block_user';
 
-CREATE TABLE blocked_user (
-  blocked_user_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE block_user (
+  block_user_id BIGSERIAL PRIMARY KEY,
   initiator_id BIGINT NOT NULL,
   recipient_id BIGINT NOT NULL,
+  block_status VARCHAR(255) DEFAULT 'BLOCKED'
+      NOT NULL CHECK (block_status IN ('UNBLOCKED', 'BLOCKED')),
 
-  CONSTRAINT blocked_user_fk_initiator_id
+  CONSTRAINT block_user_fk_initiator_id
     FOREIGN KEY (initiator_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE,
-  CONSTRAINT blocked_user_fk_recipient_id
+  CONSTRAINT block_user_fk_recipient_id
     FOREIGN KEY (recipient_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE
 );
 
---rollback DROP TABLE IF EXISTS `blocked_user`;
+--rollback DROP TABLE IF EXISTS `block_user`;
+
+
+
+--changeset alamu:15
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'contact';
+
+CREATE TABLE contact (
+  contact_id BIGSERIAL PRIMARY KEY,
+  contact VARCHAR(1000),
+  owner_id BIGINT NOT NULL,
+  contact_type VARCHAR(255)
+    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+      'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
+
+   CONSTRAINT contact_fk_owner_id
+     FOREIGN KEY (owner_id)
+       REFERENCES member (member_id)
+         ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `contact`;
