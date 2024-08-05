@@ -149,6 +149,7 @@ public class CalendarServiceImpl implements CalendarService {
     final Country country = countryService.getCountry(parseLong(createCalendarDto.getCountry()));
     calendar.setCode(country.getCode());
 
+    // Check no calendar exist with matching country code or else throw an exception
     Optional<Calendar> existingCalendar = calendarRepository.findDistinctByCodeIgnoreCase(country.getCode());
     if (existingCalendar.isPresent()) {
       throw new CalendarAlreadyExistException(country.getCode());
@@ -226,8 +227,9 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Log deletion response from external service
     log.info("Deleted calendar: {}", deleteCalendarResponse);
+    calendar.setIsActive(false);
 
-      calendarRepository.delete(calendar);
+    calendarRepository.save(calendar);
     return DeleteResponse.of(calendarId);
   }
 
