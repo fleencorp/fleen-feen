@@ -5,7 +5,9 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.ZoneId;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toSet;
@@ -73,6 +75,8 @@ public class TimezoneValidValidator implements ConstraintValidator<TimezoneValid
    * @return a {@link Set} of all available timezone IDs in lowercase
    */
   public static Set<String> getAvailableTimezones() {
-    return ZoneId.getAvailableZoneIds();
+    return ZoneId.getAvailableZoneIds()
+      .stream().sorted()
+      .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 }
