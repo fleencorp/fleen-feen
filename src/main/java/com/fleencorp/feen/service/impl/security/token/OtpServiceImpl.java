@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.security;
+package com.fleencorp.feen.service.impl.security.token;
 
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.service.security.OtpService;

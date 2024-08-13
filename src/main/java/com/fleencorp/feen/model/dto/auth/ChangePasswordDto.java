@@ -21,6 +21,7 @@ public class ChangePasswordDto {
   @NotBlank(message = "{user.password.NotBlank}")
   @Size(min = 8, max = 24, message = "{user.password.Size}")
   @ValidPassword
+  @JsonProperty("password")
   private String password;
 
   @NotBlank(message = "{user.confirmPassword.NotBlank}")

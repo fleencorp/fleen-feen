@@ -58,4 +58,8 @@ public class SetupMfaResponse {
       .enabled(enabled)
       .build();
   }
+
+  public void enabled() {
+    this.enabled = true;
+  }
 }
