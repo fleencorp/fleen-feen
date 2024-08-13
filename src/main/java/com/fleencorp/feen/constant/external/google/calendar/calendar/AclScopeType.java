@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.external.google.calendar.calendar;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing types of ACL scopes.
 *
@@ -21,5 +23,9 @@ public enum AclScopeType implements ApiParameter {
 
   AclScopeType(final String value) {
     this.value = value;
+  }
+
+  public static AclScopeType of(final String value) {
+    return parseEnumOrNull(value, AclScopeType.class);
   }
 }

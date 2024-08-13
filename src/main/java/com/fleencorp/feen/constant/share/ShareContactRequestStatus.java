@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.share;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
  * Enum representing the status of a contact share request.
  *
@@ -21,5 +23,9 @@ public enum ShareContactRequestStatus implements ApiParameter {
 
   ShareContactRequestStatus(final String value) {
     this.value = value;
+  }
+
+  public static ShareContactRequestStatus of(final String value) {
+    return parseEnumOrNull(value, ShareContactRequestStatus.class);
   }
 }

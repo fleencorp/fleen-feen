@@ -19,6 +19,7 @@ public enum MessageRequestType implements ApiParameter {
   FORGOT_PASSWORD("Forgot Password"),
   MFA_SETUP_VERIFICATION("MFA Setup Verification"),
   MFA_VERIFICATION("MFA Verification"),
+  PROFILE_UPDATE_SUCCESS("Profile Update Success"),
   PROFILE_UPDATE_VERIFICATION("Profile Update Verification"),
   RESET_PASSWORD_SUCCESS("Reset Password Success"),
   SIGNUP_VERIFICATION("Sign Up Verification"),
@@ -26,7 +27,7 @@ public enum MessageRequestType implements ApiParameter {
 
   private final String value;
 
-  MessageRequestType(String value) {
+  MessageRequestType(final String value) {
     this.value = value;
   }
 }

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -35,6 +36,7 @@ public class Contact extends FleenFeenEntity {
   @Column(name = "contact", length = 1000)
   private String contact;
 
+  @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member owner;

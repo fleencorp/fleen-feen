@@ -11,8 +11,10 @@ public interface CountryService {
 
   Country getCountry(Long id);
 
+  Country getCountryByCode(String code);
+
   CountAllResponse countAll();
 
-  boolean isCountryExists(Long id);
+  boolean isCountryExists(String code);
 
 }

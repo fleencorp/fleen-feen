@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.dto.calendar;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.converter.common.ToLowerCase;
 import com.fleencorp.feen.converter.common.ToTitleCase;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
@@ -41,10 +40,10 @@ public class CreateCalendarDto {
   private String timezone;
 
   @NotBlank(message = "{calendar.country.NotBlank}")
-  @IsNumber
+  @Size(max = 1000, message = "{calendar.country.Size}")
   @CountryExist
-  @JsonProperty("country")
-  private String country;
+  @JsonProperty("country_code")
+  private String countryCode;
 
   public Calendar toCalendar() {
     return Calendar.builder()
@@ -52,6 +51,7 @@ public class CreateCalendarDto {
             .description(description)
             .timezone(timezone)
             .isActive(true)
+            .code(countryCode)
             .build();
   }
 }

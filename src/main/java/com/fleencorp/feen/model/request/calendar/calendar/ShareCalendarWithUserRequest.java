@@ -2,26 +2,31 @@ package com.fleencorp.feen.model.request.calendar.calendar;
 
 import com.fleencorp.feen.constant.external.google.calendar.calendar.AclRole;
 import com.fleencorp.feen.constant.external.google.calendar.calendar.AclScopeType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShareCalendarWithUserRequest {
+public class ShareCalendarWithUserRequest extends CalendarRequest {
 
   private String calendarId;
   private String emailAddress;
   private AclScopeType aclScopeType;
   private AclRole aclRole;
 
-  public static ShareCalendarWithUserRequest of(final String calendarId, final String emailAddress, final AclScopeType aclScopeType, final AclRole aclRole) {
+  public static ShareCalendarWithUserRequest of(final String calendarId, final String emailAddress, final AclScopeType aclScopeType, final AclRole aclRole, final String accessToken) {
     return ShareCalendarWithUserRequest.builder()
       .calendarId(calendarId)
       .emailAddress(emailAddress)
       .aclScopeType(aclScopeType)
       .aclRole(aclRole)
+      .accessToken(accessToken)
       .build();
   }
 }

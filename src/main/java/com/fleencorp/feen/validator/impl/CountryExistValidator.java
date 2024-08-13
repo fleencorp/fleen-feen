@@ -38,21 +38,21 @@ public class CountryExistValidator implements ConstraintValidator<CountryExist, 
   public void initialize(final CountryExist constraintAnnotation) {}
 
   /**
-  * Checks if the given country ID is valid by verifying its existence using the {@link CountryService}.
+  * Checks if the given country code is valid by verifying its existence using the {@link CountryService}.
   *
-  * <p>If the country ID is not null, the method attempts to parse it into a Long and checks if the country
+  * <p>If the country code is not null, the method attempts to parse it into a Long and checks if the country
   * exists using the CountryService. If the parsing fails or the country does not exist, the method returns false.
-  * If the country ID is null, the method returns true, indicating that null values are considered valid.</p>
+  * If the country code is null, the method returns true, indicating that null values are considered valid.</p>
   *
-  * @param countryId the country ID to validate
+  * @param countryCode the country code to validate
   * @param context context in which the constraint is evaluated
-  * @return true if the country ID exists, false otherwise
+  * @return true if the country code exists, false otherwise
   */
   @Override
-  public boolean isValid(final String countryId, final ConstraintValidatorContext context) {
-    if (nonNull(countryId)) {
+  public boolean isValid(final String countryCode, final ConstraintValidatorContext context) {
+    if (nonNull(countryCode)) {
       try {
-        return service.isCountryExists(Long.parseLong(countryId));
+        return service.isCountryExists(countryCode);
       } catch (final Exception ignored) {}
       return false;
     }

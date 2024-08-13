@@ -16,8 +16,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 /**
@@ -56,11 +57,19 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *   [AWS] Applying Amazon SQS - Setting up Spring SQS and sending messages to AWS SQS</a>
    */
   @Override
-  @Async
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Transactional
   public void publishMessage(final PublishMessageRequest messageRequest) {
-    final Object message = messageRequest.getMessage();
-    processAndDeliverMessage(message);
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      // Register a synchronization callback to be executed after the transaction commits
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          // Perform the actual async call after the transaction commits
+          final Object message = messageRequest.getMessage();
+          processAndDeliverMessage(message);
+        }
+      });
+    }
   }
 
   /**
@@ -70,7 +79,8 @@ public class ProfileRequestQueuePublisher implements PublisherService {
    *                {@link SignUpVerificationRequest}, {@link CompletedUserSignUpRequest},
    *                {@link MfaSetupVerificationRequest}, {@link MfaVerificationRequest}, or {@link ForgotPasswordRequest}
    */
-  protected void processAndDeliverMessage(final Object message) {
+  @Async
+  public void processAndDeliverMessage(final Object message) {
     switch (message) {
       case final SignUpVerificationRequest request -> sendSignUpVerificationCode(request);
       case final CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);

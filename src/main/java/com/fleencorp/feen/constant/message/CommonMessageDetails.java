@@ -16,8 +16,9 @@ public enum CommonMessageDetails {
   MFA_VERIFICATION("mfa-verification", "Complete Sign in"),
   MFA_SETUP("mfa-setup", "Complete Multi-Factor Authentication (MFA) Setup"),
   FORGOT_PASSWORD("forgot-password", "Forgot Password"),
-  RESET_PASSWORD_SUCCESSFUL("reset-password-success", "Password Reset Successful"),
+  PROFILE_UPDATE_SUCCESS("profile-update-success", "Profile Update Success"),
   PROFILE_UPDATE_VERIFICATION("profile-update-verification", "Profile Update Verification"),
+  RESET_PASSWORD_SUCCESS("reset-password-success", "Password Reset Success"),
   PRE_ONBOARDING("pre-onboarding", "Complete Onboarding");
 
   private final String templateName;

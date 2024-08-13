@@ -1,10 +1,12 @@
 package com.fleencorp.feen.service.impl.calendar;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
-import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
@@ -21,10 +23,12 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
+import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
+import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
+import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -38,7 +42,6 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponses;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
-import static java.lang.Long.parseLong;
 import static java.util.Objects.nonNull;
 
 /**
@@ -55,6 +58,7 @@ public class CalendarServiceImpl implements CalendarService {
   private final CountryService countryService;
   private final GoogleCalendarService googleCalendarService;
   private final CalendarRepository calendarRepository;
+  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
 
   /**
   * Constructs a new CalendarServiceImpl with the specified GoogleCalendarService and CalendarRepository.
@@ -66,10 +70,12 @@ public class CalendarServiceImpl implements CalendarService {
   public CalendarServiceImpl(
       final GoogleCalendarService googleCalendarService,
       final CountryService countryService,
-      final CalendarRepository calendarRepository) {
+      final CalendarRepository calendarRepository,
+      final Oauth2AuthorizationRepository oauth2AuthorizationRepository) {
     this.googleCalendarService = googleCalendarService;
     this.countryService = countryService;
     this.calendarRepository = calendarRepository;
+    this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
   }
 
   /**
@@ -80,11 +86,11 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public DataForCreateCalendarResponse getDataForCreateCalendar() {
     // Fetch a list of countries with a large number of entries (1000 in this case).
-    SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    final SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
     // Get the countries in the search result
-    List<?> countries = searchResult.getValues();
+    final List<?> countries = searchResult.getValues();
     // Get the set of available timezones.
-    Set<String> timezones = getAvailableTimezones();
+    final Set<String> timezones = getAvailableTimezones();
     // Return the response object containing both the countries and timezones.
     return DataForCreateCalendarResponse.of(timezones, countries);
   }
@@ -142,23 +148,24 @@ public class CalendarServiceImpl implements CalendarService {
   * @return a {@link CreateCalendarResponse} containing the newly created calendar details
   */
   @Override
-  public CreateCalendarResponse createCalendar(final CreateCalendarDto createCalendarDto) {
+  public CreateCalendarResponse createCalendar(final CreateCalendarDto createCalendarDto, final FleenUser user) {
     Calendar calendar = createCalendarDto.toCalendar();
 
-    // Retrieve the country and use the country's code as the calendar code
-    final Country country = countryService.getCountry(parseLong(createCalendarDto.getCountry()));
-    calendar.setCode(country.getCode());
-
     // Check no calendar exist with matching country code or else throw an exception
-    Optional<Calendar> existingCalendar = calendarRepository.findDistinctByCodeIgnoreCase(country.getCode());
+    final Optional<Calendar> existingCalendar = calendarRepository.findDistinctByCodeIgnoreCase(calendar.getCode());
     if (existingCalendar.isPresent()) {
-      throw new CalendarAlreadyExistException(country.getCode());
+      throw new CalendarAlreadyExistException(calendar.getCode());
     }
+
+    // Retrieve user oauth2 authorization details associated with Google Calendar
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
+      .orElseThrow(Oauth2InvalidAuthorizationException::new);
 
     final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
       .of(createCalendarDto.getTitle(),
           createCalendarDto.getDescription(),
-          createCalendarDto.getTimezone());
+          createCalendarDto.getTimezone(),
+          oauth2Authorization.getAccessToken());
 
     // Create a calendar using Google Calendar API Service
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
@@ -181,16 +188,21 @@ public class CalendarServiceImpl implements CalendarService {
   * @throws CalendarNotFoundException if the calendar with the specified ID is not found
   */
   @Override
-  public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto) {
+  public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final FleenUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+
+    // Retrieve user oauth2 authorization details associated with Google Calendar
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
+      .orElseThrow(Oauth2InvalidAuthorizationException::new);
 
     // Prepare request to patch calendar in external service
     final PatchCalendarRequest patchCalendarRequest = PatchCalendarRequest
       .of(calendar.getExternalId(),
           updateCalendarDto.getTitle(),
           updateCalendarDto.getDescription(),
-          updateCalendarDto.getTimezone());
+          updateCalendarDto.getTimezone(),
+          oauth2Authorization.getAccessToken());
 
     // Update the calendar through Google Calendar API Service
     final GooglePatchCalendarResponse googlePatchCalendarResponse = googleCalendarService.patchCalendar(patchCalendarRequest);
@@ -217,12 +229,16 @@ public class CalendarServiceImpl implements CalendarService {
   * @throws CalendarNotFoundException if the calendar with the specified ID is not found
   */
   @Override
-  public DeleteResponse deleteCalendar(final Long calendarId) {
+  public DeleteResponse deleteCalendar(final Long calendarId, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
+    // Retrieve user oauth2 authorization details associated with Google Calendar
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
+      .orElseThrow(Oauth2InvalidAuthorizationException::new);
+
     // Prepare request to delete calendar from external service
-    final DeleteCalendarRequest deleteCalendarRequest = new DeleteCalendarRequest(calendar.getExternalId());
+    final DeleteCalendarRequest deleteCalendarRequest = DeleteCalendarRequest.of(calendar.getExternalId(), oauth2Authorization.getAccessToken());
     final GoogleDeleteCalendarResponse deleteCalendarResponse = googleCalendarService.deleteCalendar(deleteCalendarRequest);
 
     // Log deletion response from external service
@@ -249,16 +265,21 @@ public class CalendarServiceImpl implements CalendarService {
   * @throws CalendarNotFoundException if the calendar with the specified ID is not found
   */
   @Override
-  public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto) {
+  public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+
+    // Retrieve user oauth2 authorization details associated with Google Calendar
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
+      .orElseThrow(Oauth2InvalidAuthorizationException::new);
 
     // Construct the request for sharing the calendar
     final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest
       .of(calendar.getExternalId(),
           shareCalendarWithUserDto.getEmailAddress(),
           shareCalendarWithUserDto.getActualAclScopeType(),
-          shareCalendarWithUserDto.getActualAclRole());
+          shareCalendarWithUserDto.getActualAclRole(),
+          oauth2Authorization.getAccessToken());
 
     // Share the calendar with the user using the Google Calendar service
     final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarService.shareCalendarWithUser(shareCalendarWithUserRequest);

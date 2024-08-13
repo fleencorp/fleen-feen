@@ -44,7 +44,7 @@ public class CountryServiceImpl implements CountryService {
    * @return a SearchResultView object containing a list of CountryResponse views and pagination metadata
  */
   @Override
-  public SearchResultView findCountries(CountrySearchRequest searchRequest) {
+  public SearchResultView findCountries(final CountrySearchRequest searchRequest) {
     // Retrieve a page of Country entities based on the search request.
     final Page<Country> page = repository.findMany(searchRequest.getPage());
     // Convert the list of Country entities to a list of CountryResponse views.
@@ -71,6 +71,23 @@ public class CountryServiceImpl implements CountryService {
   }
 
   /**
+   * Retrieves a Country entity by its unique identifier.
+   *
+   * <p>This method attempts to find a Country entity in the repository using the provided code. If the Country is not found,
+   * a {@link CountryNotFoundException} is thrown.</p>
+   *
+   * @param code the unique identifier of the Country to be retrieved
+   * @return the Country entity associated with the specified code
+   * @throws CountryNotFoundException if no Country is found with the specified code
+   */
+  @Override
+  public Country getCountryByCode(final String code) {
+    return repository
+      .findByCode(code)
+      .orElseThrow(() -> new CountryNotFoundException(code));
+  }
+
+  /**
   * Counts the total number of Country entities in the repository.
   *
   * <p>This method retrieves the total count of Country entities from the repository and returns it wrapped in a
@@ -87,16 +104,15 @@ public class CountryServiceImpl implements CountryService {
   /**
   * Checks if a Country entity exists in the repository by its unique identifier.
   *
-  * <p>This method attempts to find a Country entity in the repository using the provided ID and returns true if
+  * <p>This method attempts to find a Country entity in the repository using the provided code and returns true if
   * the Country is found, otherwise returns false.</p>
   *
-  * @param id the unique identifier of the Country to be checked
+  * @param code the unique identifier of the Country to be checked
   * @return true if the Country exists, false otherwise
   */
   @Override
-  public boolean isCountryExists(final Long id) {
+  public boolean isCountryExists(final String code) {
     return repository
-            .findById(id)
-            .isPresent();
+      .existsByCode(code);
   }
 }

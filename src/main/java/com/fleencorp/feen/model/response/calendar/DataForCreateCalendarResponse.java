@@ -16,7 +16,8 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "timezones"
+  "timezones",
+  "countries"
 })
 public class DataForCreateCalendarResponse {
 
@@ -26,7 +27,10 @@ public class DataForCreateCalendarResponse {
   @JsonProperty("countries")
   private List<?> countries;
 
-  public static DataForCreateCalendarResponse of(Set<String> timezones, List<?> countries) {
+  @Builder.Default
+  private String message = "Data required for creating calendar retrieved successfully";
+
+  public static DataForCreateCalendarResponse of(final Set<String> timezones, final List<?> countries) {
     return DataForCreateCalendarResponse.builder()
       .timezones(timezones)
       .countries(countries)

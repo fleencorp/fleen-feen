@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,6 +22,6 @@ public class TokenPayload {
   private String profilePhoto;
 
   public ProfileStatus getProfileStatus() {
-    return parseEnumOrNull(status, ProfileStatus.class);
+    return ProfileStatus.of(status);
   }
 }

@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -28,6 +26,6 @@ public class ConfirmMfaDto extends VerificationCodeDto {
   private String mfaType;
 
   public MfaType getActualMfaType() {
-    return parseEnumOrNull(getMfaType(), MfaType.class);
+    return MfaType.of(mfaType);
   }
 }

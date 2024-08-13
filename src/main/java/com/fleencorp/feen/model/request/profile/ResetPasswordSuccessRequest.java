@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.feen.constant.message.CommonMessageDetails.RESET_PASSWORD_SUCCESSFUL;
+import static com.fleencorp.feen.constant.message.CommonMessageDetails.RESET_PASSWORD_SUCCESS;
 
 @SuperBuilder
 @Getter
@@ -22,11 +22,11 @@ public class ResetPasswordSuccessRequest extends MessageRequest {
 
   @Override
   public String getTemplateName() {
-    return RESET_PASSWORD_SUCCESSFUL.getTemplateName();
+    return RESET_PASSWORD_SUCCESS.getTemplateName();
   }
 
   @Override
   public String getMessageTitle() {
-    return RESET_PASSWORD_SUCCESSFUL.getMessageTitle();
+    return RESET_PASSWORD_SUCCESS.getMessageTitle();
   }
 }

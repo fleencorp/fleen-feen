@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
-import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventService;
+import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

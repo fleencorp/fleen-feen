@@ -7,8 +7,6 @@ import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -23,6 +21,6 @@ public class SetupMfaDto {
   private String mfaType;
 
   public MfaType getActualMfaType() {
-    return parseEnumOrNull(getMfaType(), MfaType.class);
+    return MfaType.of(mfaType);
   }
 }

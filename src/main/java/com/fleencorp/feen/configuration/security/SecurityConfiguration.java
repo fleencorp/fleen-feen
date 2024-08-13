@@ -47,7 +47,7 @@ public class SecurityConfiguration {
 
   public static final String[] WHITELIST_RESOURCES = {
     "/resources/**",
-    "/static/**"
+    "/gma/static/**"
   };
 
   @Bean
