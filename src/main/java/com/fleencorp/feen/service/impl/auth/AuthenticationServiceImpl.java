@@ -12,6 +12,7 @@ import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
@@ -71,6 +72,7 @@ import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
@@ -213,7 +215,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Validate sign-up verification code
     validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
-
+    // Get verification type associated with sign up operation
     final VerificationType verificationType = completeSignUpDto.getActualVerificationType();
 
     // Retrieve member details
@@ -266,6 +268,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Generate a new OTP
     final String otpCode = generateOtp();
 
+    // Verify if the two provided email addresses is the same
+    validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(resendSignUpVerificationCodeDto.getEmailAddress(), user.getEmailAddress());
 
     // Prepare the request to resend the sign-up verification code
     final VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
@@ -767,6 +771,28 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   }
 
   /**
+   * Validates that the provided email addresses are not null and checks if they match.
+   *
+   * <p>This method ensures that neither requestEmailAddress nor authenticatedUserEmailAddress
+   * is null. If either is null, an UnableToCompleteOperationException is thrown.
+   * It then compares the two email addresses and throws a FailedOperationException if they are not the same.</p>
+   *
+   * @param requestEmailAddress the email address from the request. It must not be null.
+   * @param authenticatedUserEmailAddress the email address of the authenticated user. It must not be null.
+   * @throws UnableToCompleteOperationException if either requestEmailAddress or authenticatedUserEmailAddress is null.
+   * @throws FailedOperationException if requestEmailAddress does not match authenticatedUserEmailAddress.
+   */
+  private void validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(final String requestEmailAddress, final String authenticatedUserEmailAddress) {
+    // Check if either email address is null and throw an exception if so
+    checkIsNullAny(List.of(requestEmailAddress, authenticatedUserEmailAddress), UnableToCompleteOperationException::new);
+
+    // Compare the email addresses and throw an exception if they don't match
+    if (!authenticatedUserEmailAddress.equals(requestEmailAddress)) {
+      throw new FailedOperationException();
+    }
+  }
+
+  /**
    * Saves the MFA verification code temporarily in the cache.
    *
    * <p>Sets the MFA verification code for the specified username in the cache with a temporary
@@ -959,9 +985,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
 
     // Populate the sign-in response object with authentication details
-    signInResponse.setAccessToken(accessToken);
-    signInResponse.setRefreshToken(refreshToken);
-    signInResponse.setPhoneNumber(user.getPhoneNumber());
+    signInResponse.updateDetails(accessToken, refreshToken, user.getPhoneNumber());
   }
 
   /**
@@ -1091,10 +1115,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     signInResponse.setAccessToken(accessToken);
     // Clear the refresh token as it is not used in MFA authentication
     signInResponse.setRefreshToken(null);
-    // Update the user's email address in the sign-in response
-    signInResponse.setEmailAddress(user.getEmailAddress());
-    // Update the user's phone number in the sign-in response
-    signInResponse.setPhoneNumber(user.getPhoneNumber());
+    // Update the user's email address and phone number in the sign-in response
+    signInResponse.updateEmailAndPhone(user.getEmailAddress(), user.getPhoneNumber());
   }
 
   /**
