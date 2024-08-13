@@ -1,8 +1,12 @@
 package com.fleencorp.feen.controller;
 
 import com.fleencorp.feen.model.dto.auth.CompleteSignUpDto;
+import com.fleencorp.feen.model.dto.auth.ResendSignUpVerificationCodeDto;
+import com.fleencorp.feen.model.dto.auth.SignInDto;
 import com.fleencorp.feen.model.dto.auth.SignUpDto;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
+import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
+import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.auth.AuthenticationService;
@@ -37,5 +41,18 @@ public class AuthenticationController {
       @Valid @RequestBody final CompleteSignUpDto completeSignUpDto,
       @AuthenticationPrincipal final FleenUser user) {
     return authenticationService.completeSignUp(completeSignUpDto, user);
+  }
+
+  @PostMapping(value = "/resend-sign-up-verification-code")
+  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(
+      @Valid @RequestBody final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return authenticationService.resendSignUpVerificationCode(resendSignUpVerificationCodeDto, user);
+  }
+
+  @PostMapping(value = "/sign-in")
+  public SignInResponse signIn(
+      @Valid @RequestBody final SignInDto signInDto) {
+    return authenticationService.signIn(signInDto);
   }
 }
