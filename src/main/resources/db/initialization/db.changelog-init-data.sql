@@ -7,12 +7,12 @@
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM role;
 
 INSERT INTO role (title, code) VALUES
-  ('Super Administrator', 'SUPER_ADMINISTRATOR'),
   ('Administrator', 'ADMINISTRATOR'),
-  ('User', 'USER'),
   ('Pre Authenticated User', 'PRE_AUTHENTICATED_USER'),
+  ('Pre Verified User', 'PRE_VERIFIED_USER'),
   ('Refresh Token', 'REFRESH_TOKEN'),
-  ('Pre Verified User', 'PRE_VERIFIED_USER');
+  ('Super Administrator', 'SUPER_ADMINISTRATOR'),
+  ('User', 'USER');
 
 --rollback DELETE FROM role WHERE code IN ('SUPER_ADMINISTRATOR', 'ADMINISTRATOR', 'USER', 'PRE_AUTHENTICATED_USER', 'REFRESH_TOKEN', 'PRE_VERIFIED_USER');
 

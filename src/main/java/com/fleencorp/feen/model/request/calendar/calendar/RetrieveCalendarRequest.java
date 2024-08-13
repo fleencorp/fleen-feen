@@ -10,4 +10,5 @@ import lombok.*;
 public class RetrieveCalendarRequest {
 
   private String calendarId;
+  private String accessToken;
 }

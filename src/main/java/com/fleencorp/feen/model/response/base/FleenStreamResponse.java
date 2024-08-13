@@ -95,4 +95,8 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("some_attendees")
   private List<StreamAttendeeResponse> someAttendees;
+
+  public static void any() {
+    StreamVisibility.PUBLIC.toString();
+  }
 }

@@ -286,7 +286,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     checkIsNullAny(Set.of(recipient, currentUser), UnableToCompleteOperationException::new);
 
     // Check if the recipient's ID matches the current user's ID
-    boolean isSame = Objects.equals(recipient.getMemberId(), currentUser.getMemberId());
+    final boolean isSame = Objects.equals(recipient.getMemberId(), currentUser.getMemberId());
     if (!isSame) {
       throw new CannotProcessShareContactRequestException();
     }

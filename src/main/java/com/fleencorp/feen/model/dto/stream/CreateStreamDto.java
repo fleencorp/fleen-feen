@@ -20,8 +20,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -90,11 +88,11 @@ public class CreateStreamDto {
   protected String isForKids;
 
   public StreamType getActualType() {
-    return parseEnumOrNull(type, StreamType.class);
+    return StreamType.of(type);
   }
 
   public StreamVisibility getActualVisibility() {
-    return parseEnumOrNull(visibility, StreamVisibility.class);
+    return StreamVisibility.of(visibility);
   }
 
 }

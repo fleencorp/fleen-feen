@@ -16,7 +16,7 @@ import lombok.Getter;
 public enum MessageTemplateField implements ApiParameter {
 
   FIRST_NAME("firstName"),
-  VERIFICATION_CODE("code"),
+  VERIFICATION_CODE("verificationCode"),
   COMMENT("comment"),
   EMAIL_ADDRESS("emailAddress"),
   LAST_NAME("lastName"),

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.auth;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -17,6 +18,7 @@ import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
 import com.fleencorp.feen.model.domain.user.Role;
@@ -27,6 +29,8 @@ import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
 import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
 import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.model.request.search.CountrySearchRequest;
+import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
@@ -39,6 +43,7 @@ import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.auth.PasswordService;
+import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
@@ -51,6 +56,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -60,7 +66,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
@@ -77,6 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
   private final AuthenticationManager authenticationManager;
   private final CacheService cacheService;
+  private final CountryService countryService;
   private final MfaService mfaService;
   private final RoleService roleService;
   private final TokenService tokenService;
@@ -88,6 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   public AuthenticationServiceImpl(
       final AuthenticationManager authenticationManager,
       final CacheService cacheService,
+      final CountryService countryService,
       final MfaService mfaService,
       final RoleService roleService,
       final TokenService tokenService,
@@ -97,6 +104,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final ProfileTokenRepository profileTokenRepository) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
+    this.countryService = countryService;
     this.mfaService = mfaService;
     this.roleService = roleService;
     this.tokenService = tokenService;
@@ -112,6 +120,21 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   }
 
   /**
+   * Retrieves data required for creating a calendar, including a list of countries and available timezones.
+   *
+   * @return a DataForCreateCalendarResponse object containing a list of countries and a set of timezones
+   */
+  @Override
+  public DataForSignUpResponse getDataForSignUp() {
+    // Fetch a list of countries with a large number of entries (1000 in this case).
+    final SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    // Get the countries in the search result
+    final List<?> countries = searchResult.getValues();
+    // Return the response object containing both the countries and timezones.
+    return DataForSignUpResponse.of(countries);
+  }
+
+  /**
    * Signs up a new member based on the provided sign-up data.
    * Configures roles and statuses for the new member's profile, encodes the password,
    * saves the member to the repository, initializes authentication and context,
@@ -123,6 +146,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *         authentication status, and profile verification type.
    */
   @Override
+  @Transactional
   public SignUpResponse signUp(final SignUpDto signUpDto) {
     final Member member = signUpDto.toMember();
 
@@ -134,6 +158,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Encode or hash the user's password before saving
     final String password = signUpDto.getPassword();
     encodeOrHashUserPassword(member, password);
+
+    // Set user location details
+    configureUserLocationDetails(member, signUpDto.getCountryCode());
 
     // Save the member to the repository
     memberRepository.save(member);
@@ -494,16 +521,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
         .of(RoleType.USER)
-        .map(RoleType::getValue)
+        .map(RoleType::name)
         .collect(Collectors.toSet());
-
-    // Check if the default roles available to assign to user is not empty
-    if (defaultUserRoles.isEmpty()) {
-      throw new NoRoleAvailableToAssignException();
-    }
 
     // Retrieve roles from the role service and add them to the member
     final List<Role> roles = roleService.findAllByCode(defaultUserRoles);
+    // Check if the default roles available to assign to user is not empty
+    if (roles.isEmpty()) {
+      throw new NoRoleAvailableToAssignException();
+    }
+
     member.getRoles().addAll(roles);
   }
 
@@ -526,6 +553,27 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     member.setProfileStatus(ProfileStatus.INACTIVE);
     // Set initial profile verification status
     member.setVerificationStatus(ProfileVerificationStatus.PENDING);
+  }
+
+  /**
+   * Configures the location details of a given member by setting the country name
+   * based on the provided country code.
+   *
+   * <p>This method retrieves the country details using the country code and sets
+   * the country name in the member's profile.</p>
+   *
+   * @param member the {@link Member} whose location details are to be configured.
+   * @param countryCode the ISO country code used to look up the country details.
+   * @throws UnableToCompleteOperationException if the member is null.
+   */
+  public void configureUserLocationDetails(final Member member, final String countryCode) {
+    // Throw an exception if the provided member is null
+    checkIsNull(List.of(member, countryCode), UnableToCompleteOperationException::new);
+
+    // Get country name and details
+    final Country country = countryService.getCountryByCode(countryCode);
+    // Set user country
+    member.setCountry(country.getTitle());
   }
 
   /**
@@ -994,9 +1042,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   protected VerificationType getVerificationTypeByMfaType(final MfaType mfaType) {
     // Throw an exception if the provided MFA type is null
     checkIsNull(mfaType, UnableToCompleteOperationException::new);
-
     // Parse the MFA type into a VerificationType enum value
-    final VerificationType verificationType = parseEnumOrNull(mfaType.name(), VerificationType.class);
+    final VerificationType verificationType = VerificationType.of(mfaType.name());
     // Throw an exception if the parsed VerificationType is null
     checkIsNull(verificationType, UnableToCompleteOperationException::new);
 

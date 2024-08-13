@@ -7,6 +7,7 @@ import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
 import com.fleencorp.feen.model.response.calendar.*;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
+import com.fleencorp.feen.model.security.FleenUser;
 
 public interface CalendarService {
 
@@ -16,11 +17,11 @@ public interface CalendarService {
 
   RetrieveCalendarResponse findCalendar(Long calendarId);
 
-  CreateCalendarResponse createCalendar(CreateCalendarDto createCalendarDto);
+  CreateCalendarResponse createCalendar(CreateCalendarDto createCalendarDto, FleenUser user);
 
-  UpdateCalendarResponse updateCalendar(Long calendarId, UpdateCalendarDto updateCalendarDto);
+  UpdateCalendarResponse updateCalendar(Long calendarId, UpdateCalendarDto updateCalendarDto, FleenUser user);
 
-  DeleteResponse deleteCalendar(Long calendarId);
+  DeleteResponse deleteCalendar(Long calendarId, FleenUser user);
 
-  ShareCalendarWithUserResponse shareCalendarWithUser(Long calendarId, ShareCalendarWithUserDto shareCalendarWithUserDto);
+  ShareCalendarWithUserResponse shareCalendarWithUser(Long calendarId, ShareCalendarWithUserDto shareCalendarWithUserDto, FleenUser user);
 }

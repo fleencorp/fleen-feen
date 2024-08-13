@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.security.mfa;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enumeration for Multi-Factor Authentication (MFA) types.
 *
@@ -24,5 +26,9 @@ public enum MfaType implements ApiParameter {
 
   MfaType(final String value) {
     this.value = value;
+  }
+
+  public static MfaType of(final String value) {
+    return parseEnumOrNull(value, MfaType.class);
   }
 }

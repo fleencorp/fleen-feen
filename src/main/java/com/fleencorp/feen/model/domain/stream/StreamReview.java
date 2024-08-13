@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.ORDINAL;
 import static jakarta.persistence.FetchType.LAZY;
@@ -35,6 +36,7 @@ public class StreamReview extends FleenFeenEntity {
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
   private FleenStream fleenStream;
 
+  @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;

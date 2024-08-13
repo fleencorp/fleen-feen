@@ -77,7 +77,7 @@ public class AsyncConfig implements AsyncConfigurer {
    *   Spring Boot Thread & ThreadPool (Feat. @Async, MDC)</a>
    */
   @Override
-  @Bean()
+  @Bean
   public Executor getAsyncExecutor() {
     final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(taskExecutionProperties.getPool().getCoreSize());

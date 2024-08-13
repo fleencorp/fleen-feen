@@ -13,8 +13,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -41,7 +39,7 @@ public class SendShareContactRequestDto {
   public ShareContactRequest toShareContactRequest(final Long initiatorId) {
     return ShareContactRequest.builder()
         .isExpected(false)
-        .contactType(parseEnumOrNull(contactType, ContactType.class))
+        .contactType(ContactType.of(contactType))
         .shareContactRequestStatus(ShareContactRequestStatus.SENT)
         .initiator(Member.of(initiatorId))
         .recipient(Member.of(recipientId))

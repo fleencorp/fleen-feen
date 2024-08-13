@@ -650,7 +650,7 @@ public class EventServiceImpl implements EventService {
       // Save the updated attendee record
       streamAttendeeRepository.save(attendee);
       // Create a request that remove the attendee from the Google Calendar event
-      NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
+      final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
       eventUpdateService.notAttendingEvent(notAttendingEventRequest);
     }
     return NotAttendingEventResponse.of();
@@ -1139,7 +1139,7 @@ public class EventServiceImpl implements EventService {
     checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
 
     // Check if the event creator's ID matches the user's ID
-    boolean isSame = Objects.equals(stream.getMember().getMemberId(), user.getId());
+    final boolean isSame = Objects.equals(stream.getMember().getMemberId(), user.getId());
     if (!isSame) {
       throw new FleenStreamNotCreatedByUserException(user.getId());
     }

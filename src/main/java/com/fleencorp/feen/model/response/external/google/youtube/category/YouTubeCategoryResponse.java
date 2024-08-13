@@ -27,4 +27,8 @@ public class YouTubeCategoryResponse {
 
   @JsonProperty("name")
   private String name;
+
+  public static YouTubeCategoryResponse of() {
+    return new YouTubeCategoryResponse();
+  }
 }

@@ -3,7 +3,7 @@ package com.fleencorp.feen.controller.common;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
-import com.fleencorp.feen.service.external.aws.S3Service;
+import com.fleencorp.feen.service.impl.external.aws.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
