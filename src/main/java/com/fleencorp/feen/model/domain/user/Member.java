@@ -18,7 +18,7 @@ import java.util.Set;
 import static com.fleencorp.feen.constant.security.mfa.MfaType.EMAIL;
 import static com.fleencorp.feen.constant.security.mfa.MfaType.PHONE;
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
@@ -93,7 +93,7 @@ public class Member extends FleenFeenEntity {
   private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
 
   @Builder.Default
-  @ManyToMany(fetch = LAZY, targetEntity = Role.class, cascade = CascadeType.ALL)
+  @ManyToMany(fetch = EAGER, targetEntity = Role.class, cascade = CascadeType.ALL)
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 

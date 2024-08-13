@@ -38,6 +38,7 @@ import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
+import com.fleencorp.feen.model.response.security.SignOutResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
@@ -320,14 +321,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the authenticated user to sign out
    */
   @Override
-  @Async
-  public void signOut(final FleenUser user) {
+  public SignOutResponse signOut(final FleenUser user) {
     final String username = user.getUsername();
     // Clear saved authentication tokens including access and refresh token
     clearAuthenticationTokens(username);
     // Clear the security context
-    SecurityContextHolder.getContext().setAuthentication(null);
-    SecurityContextHolder.clearContext();
+    clearUserAuthenticationDetails();
+    return SignOutResponse.of();
   }
 
   /**
@@ -425,6 +425,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws UserNotFoundException if the user with the provided email address is not found in the repository
    */
   @Override
+  @Transactional
   public ForgotPasswordResponse forgotPassword(final ForgotPasswordDto forgotPasswordDto) {
     // Retrieve user's email address from DTO
     final String emailAddress = forgotPasswordDto.getEmailAddress();
@@ -457,20 +458,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Validates the reset password code provided by the user and initiates the password change process.
    *
    * @param resetPasswordDto the DTO containing the reset password information
-   * @param user the authenticated user initiating the password change
    * @return an InitiatePasswordChangeResponse containing the reset password token
    * @throws UserNotFoundException if the user with the provided email address is not found
    * @throws ResetPasswordCodeInvalidException if the reset password code is invalid
    * @throws ResetPasswordCodeExpiredException if the reset password code has expired
    */
   @Override
-  public InitiatePasswordChangeResponse validateResetPasswordCode(final ResetPasswordDto resetPasswordDto, FleenUser user) {
-    final String emailAddress = user.getEmailAddress();
+  public InitiatePasswordChangeResponse verifyResetPasswordCode(final ResetPasswordDto resetPasswordDto) {
+    final String emailAddress = resetPasswordDto.getEmailAddress();
     final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(() -> new UserNotFoundException(emailAddress));
 
     validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
-    user = initializeAuthenticationAndContext(member);
+    FleenUser user = initializeAuthenticationAndContext(member);
     final String resetPasswordToken = tokenService.createResetPasswordToken(user);
 
     clearResetPasswordOtpSavedTemporarily(user.getUsername());
@@ -490,6 +490,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   @Override
   public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final FleenUser user) {
     final String emailAddress = user.getEmailAddress();
+
+    // Check if user has associated reset password access token
+    verifyUserHasResetPasswordToken(emailAddress);
     // Retrieve member from repository or throw exception if not found
     final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(() -> new UserNotFoundException(emailAddress));
@@ -500,6 +503,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     encodeOrHashUserPassword(member, changePasswordDto.getPassword());
     // Save the updated member with the new password
     memberRepository.save(member);
+    // Clear access token associated with reset password operation
+    clearResetPasswordToken(emailAddress);
 
     // Return response indicating successful password change
     return ChangePasswordResponse.of();
@@ -1268,12 +1273,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param username the username of the user
    */
-  protected void clearAuthenticationTokens(final String username) {
+  @Async
+  public void clearAuthenticationTokens(final String username) {
     final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
     final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
+    final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);
 
     // Delete access token from cache if it exists
     if (cacheService.exists(accessTokenCacheKeyKey)) {
+      cacheService.delete(accessTokenCacheKeyKey);
+    }
+
+    // Delete reset password token from cache if it exists
+    if (cacheService.exists(resetPasswordTokenCacheKey)) {
       cacheService.delete(accessTokenCacheKeyKey);
     }
 
@@ -1300,6 +1312,34 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   }
 
   /**
+   * Clears the reset password token associated with the specified email address.
+   *
+   * <p>This method delegates the task of removing the reset password token for the given email address
+   * to the TokenService's clearResetPasswordToken() method.</p>
+   *
+   * @param emailAddress the email address for which the reset password token is to be cleared.
+   */
+  public void clearResetPasswordToken(String emailAddress) {
+    tokenService.clearResetPasswordToken(emailAddress);
+  }
+
+  /**
+   * Verifies if the user has an existing reset password token associated with the specified email address.
+   *
+   * <p>If a reset password token is found for the given email address, this method throws an
+   * {@link InvalidAuthenticationException} to indicate that the user is not authorized to proceed
+   * without clearing the token.</p>
+   *
+   * @param emailAddress the email address to check for an existing reset password token.
+   * @throws InvalidAuthenticationException if a reset password token exists for the given email address.
+   */
+  public void verifyUserHasResetPasswordToken(String emailAddress) {
+    if (!tokenService.isResetPasswordTokenExist(emailAddress)) {
+      throw new InvalidAuthenticationException(emailAddress);
+    }
+  }
+
+  /**
    * Resets the reset password token and its expiry date in the profile token.
    *
    * @param profileToken the profile token to reset
@@ -1313,5 +1353,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       // Save the updated profile token.
       profileTokenRepository.save(profileToken);
     }
+  }
+
+  /**
+   * Clears the user's authentication details from the security context.
+   *
+   * <p>This method removes the current user's authentication details by setting the authentication
+   * in the {@link SecurityContextHolder} to null and then clearing the security context entirely.</p>
+   */
+  protected void clearUserAuthenticationDetails() {
+    SecurityContextHolder.getContext().setAuthentication(null);
+    SecurityContextHolder.clearContext();
   }
 }

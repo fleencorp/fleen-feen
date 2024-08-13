@@ -17,5 +17,9 @@ public interface TokenService {
 
   void saveRefreshToken(String subject, String token);
 
-  void saveResetPasswordToken(String username, String token);
+  void saveResetPasswordToken(String subject, String token);
+
+  void clearResetPasswordToken(String subject);
+
+  boolean isResetPasswordTokenExist(String subject);
 }

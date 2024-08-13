@@ -16,6 +16,7 @@ import com.fleencorp.feen.model.dto.security.mfa.ConfirmSetupMfaDto;
 import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.model.other.MfaAuthenticatorSecurityInfo;
 import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
+import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
@@ -158,13 +159,13 @@ public class MfaServiceImpl implements MfaService {
    * <p>After updating the member's MFA setup details and saving them, the method returns the setup response
    * containing relevant information such as the MFA type, status, and optionally, authentication setup details.</p>
    *
-   * @param user The authenticated user requesting MFA setup.
    * @param dto The DTO containing MFA setup details including the type of MFA to set up.
+   * @param user The authenticated user requesting MFA setup.
    * @return A response containing details of the MFA setup operation, including QR code for authenticator setup.
    * @throws FailedOperationException If the operation to retrieve or update member information fails.
    */
   @Override
-  public SetupMfaResponse setupMfa(final FleenUser user, final SetupMfaDto dto) {
+  public SetupMfaResponse setupMfa(final SetupMfaDto dto, final FleenUser user) {
     final MfaType newMfaType = dto.getActualMfaType();
     final Long userId = user.getId();
     // Retrieve member with associated user id
@@ -200,13 +201,13 @@ public class MfaServiceImpl implements MfaService {
    * Resends the MFA verification code or regenerates the Authenticator secret and QR code
    * based on the proposed MFA method or type.
    *
-   * @param user The FleenUser for whom the MFA setup is being resent.
    * @param dto The SetupMfaDto containing the proposed MFA method or type.
+   * @param user The FleenUser for whom the MFA setup is being resent.
    * @return The SetupMfaResponse reflecting the updated MFA setup details.
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public SetupMfaResponse resendMfaSetupCode(final FleenUser user, final SetupMfaDto dto) {
+  public SetupMfaResponse resendMfaSetupCode(final SetupMfaDto dto, final FleenUser user) {
     final Long userId = user.getId();
     final MfaType newMfaType = dto.getActualMfaType();
     // Retrieve member with associated user id
@@ -232,11 +233,11 @@ public class MfaServiceImpl implements MfaService {
   /**
    * Confirms the setup of MFA for the user based on the provided verification code.
    *
-   * @param user The authenticated FleenUser for whom MFA setup is being confirmed.
    * @param confirmSetupMfaDto DTO containing the actual MFA type and verification code.
+   * @param user The authenticated FleenUser for whom MFA setup is being confirmed.
    */
   @Override
-  public void confirmMfaSetup(final FleenUser user, final ConfirmSetupMfaDto confirmSetupMfaDto) {
+  public ConfirmMfaSetupResponse confirmMfaSetup(final ConfirmSetupMfaDto confirmSetupMfaDto, final FleenUser user) {
     final String emailAddress = user.getEmailAddress();
     final String username = user.getUsername();
     final MfaType mfaType = confirmSetupMfaDto.getActualMfaType();
@@ -249,9 +250,10 @@ public class MfaServiceImpl implements MfaService {
     member.verifyUserMfa(mfaType);
     // Update setup response and set Authenticator secret if applicable
     updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(member, mfaType);
-
     // Save the updated member details
     memberRepository.save(member);
+
+    return ConfirmMfaSetupResponse.of();
   }
 
   /**
@@ -264,7 +266,9 @@ public class MfaServiceImpl implements MfaService {
    */
   protected void validateEmailOrPhoneMfaSetupCode(final String username, final String code, final MfaType mfaType) {
     final String verificationKey = getMfaSetupCacheKey(username, mfaType);
+    // Verify the code through email or phone verification type
     validateEmailOrPhoneVerificationCode(verificationKey, code);
+    // Clear the otp if the verification of the code pass
     clearMfaSetupOtp(username, mfaType);
   }
 
@@ -276,10 +280,11 @@ public class MfaServiceImpl implements MfaService {
    * @param code the code to validate against the code saved and associated with the verification key
    */
   protected void validateEmailOrPhoneVerificationCode(final String verificationKey, final String code) {
+    // Check if the verification code exists
     if (!cacheService.exists(verificationKey)) {
       throw new ExpiredVerificationCodeException(code);
     }
-
+    // Check if the provided verification code is valid and equal to the saved verification code
     if (!cacheService.get(verificationKey).equals(code)) {
       throw new InvalidVerificationCodeException(code);
     }
@@ -328,17 +333,39 @@ public class MfaServiceImpl implements MfaService {
     validateEmailOrPhoneVerificationCode(verificationKey, code);
   }
 
+  /**
+   * Checks if the provided MFA type is an authenticator.
+   *
+   * <p>This method compares the given {@link MfaType} with the predefined {@code AUTHENTICATOR} type
+   * to determine if they are the same.</p>
+   *
+   * @param mfaType the multi-factor authentication type to be checked.
+   * @return {@code true} if the provided MFA type is {@code AUTHENTICATOR}; {@code false} otherwise.
+   */
   @Override
   public boolean isAuthenticatorMfaType(final MfaType mfaType) {
     return AUTHENTICATOR == mfaType;
   }
 
-
+  /**
+   * Validates the multi-factor authentication (MFA) verification code for the authenticator.
+   *
+   * <p>This method retrieves the user's two-factor authentication secret from the repository using the user ID.
+   * If the secret is not found, it throws a {@link MfaVerificationFailed} exception. The provided OTP code
+   * is then validated against the retrieved secret. If the code is invalid, an {@link InvalidVerificationCodeException}
+   * is thrown, including the invalid OTP code.</p>
+   *
+   * @param otpCode the one-time password (OTP) code to be validated.
+   * @param userId the ID of the user whose authenticator code is being verified.
+   * @throws MfaVerificationFailed if the two-factor authentication secret is not found for the user.
+   * @throws InvalidVerificationCodeException if the provided OTP code is invalid.
+   */
   @Override
   public void validateAuthenticatorMfaVerificationCode(final String otpCode, final Long userId) {
     final String secret = mfaRepository.getTwoFaSecret(userId)
       .orElseThrow(MfaVerificationFailed::new);
 
+    // Validate the provided otp code against the multifactor secret key
     final boolean isValid = verifyAuthenticatorOtp(otpCode, secret);
     if (!isValid) {
       throw new InvalidVerificationCodeException(otpCode);
@@ -353,7 +380,7 @@ public class MfaServiceImpl implements MfaService {
    */
   private SetupMfaResponse completeMfaSetupWithoutVerificationIfProposedAndCurrentMfaTypeIsSame(final SetupMfaResponse setupMfaResponse) {
     // Enable MFA and set the setup status to COMPLETE
-    setupMfaResponse.setEnabled(true);
+    setupMfaResponse.enabled();
     setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
     return setupMfaResponse;
   }

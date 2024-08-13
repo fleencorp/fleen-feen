@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.security;
+package com.fleencorp.feen.service.impl.security.token;
 
 import com.fleencorp.feen.configuration.security.properties.TokenProperties;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
@@ -127,6 +127,32 @@ public class TokenServiceImpl implements TokenService {
   public void saveResetPasswordToken(final String subject, final String token) {
     final Duration duration = ofHours(toHours(new Date(), tokenUtil.getExpirationDateFromToken(token)));
     cacheService.set(getResetPasswordTokenCacheKey(subject), token, duration);
+  }
+
+  /**
+   * Clears the reset password token for the specified subject.
+   *
+   * <p>This method removes the reset password token associated with the given subject
+   * from the cache by deleting the corresponding cache entry.</p>
+   *
+   * @param subject the identifier for which the reset password token is to be cleared.
+   */
+  @Override
+  public void clearResetPasswordToken(final String subject) {
+    cacheService.delete(getResetPasswordTokenCacheKey(subject));
+  }
+
+  /**
+   * Checks if a reset password token exists for the specified subject.
+   *
+   * <p>This method verifies whether a reset password token associated with the given subject
+   * is present in the cache by checking the existence of the corresponding cache entry.</p>
+   *
+   * @param subject the identifier for which to check the existence of a reset password token.
+   */
+  @Override
+  public boolean isResetPasswordTokenExist(final String subject) {
+    return cacheService.exists(getResetPasswordTokenCacheKey(subject));
   }
 
 }

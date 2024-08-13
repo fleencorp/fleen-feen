@@ -1,18 +1,14 @@
-package com.fleencorp.feen.controller;
+package com.fleencorp.feen.controller.security;
 
-import com.fleencorp.feen.model.dto.auth.CompleteSignUpDto;
-import com.fleencorp.feen.model.dto.auth.ResendSignUpVerificationCodeDto;
-import com.fleencorp.feen.model.dto.auth.SignInDto;
-import com.fleencorp.feen.model.dto.auth.SignUpDto;
+import com.fleencorp.feen.model.dto.auth.*;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
-import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
+import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,23 +32,21 @@ public class AuthenticationController {
     return authenticationService.signUp(signUpDto);
   }
 
-  @PostMapping(value = "/complete-sign-up")
-  public SignUpResponse completeSignUp(
-      @Valid @RequestBody final CompleteSignUpDto completeSignUpDto,
-      @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.completeSignUp(completeSignUpDto, user);
-  }
-
-  @PostMapping(value = "/resend-sign-up-verification-code")
-  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(
-      @Valid @RequestBody final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto,
-      @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.resendSignUpVerificationCode(resendSignUpVerificationCodeDto, user);
-  }
-
   @PostMapping(value = "/sign-in")
   public SignInResponse signIn(
       @Valid @RequestBody final SignInDto signInDto) {
     return authenticationService.signIn(signInDto);
+  }
+
+  @PostMapping(value = "/forgot-password")
+  public ForgotPasswordResponse forgotPassword(
+      @Valid @RequestBody ForgotPasswordDto forgotPasswordDto) {
+    return authenticationService.forgotPassword(forgotPasswordDto);
+  }
+
+  @PostMapping(value = "/verify-reset-password-code")
+  public InitiatePasswordChangeResponse validateResetPasswordCode(
+      @Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+    return authenticationService.verifyResetPasswordCode(resetPasswordDto);
   }
 }

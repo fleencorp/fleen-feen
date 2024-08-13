@@ -158,6 +158,6 @@ public class FleenUser implements UserDetails {
 
   @Override
   public String getUsername() {
-        return emailAddress;
-    }
+    return emailAddress;
+  }
 }
