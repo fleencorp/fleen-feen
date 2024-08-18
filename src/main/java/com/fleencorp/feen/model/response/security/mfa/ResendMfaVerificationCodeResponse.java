@@ -1,20 +1,21 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import lombok.*;
+import com.fleencorp.feen.model.response.base.ApiResponse;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class ResendMfaVerificationCodeResponse extends FleenFeenResponse {
+public class ResendMfaVerificationCodeResponse extends ApiResponse {
 
-  @Builder.Default
-  @JsonProperty("message")
-  protected String message = "Verification code sent successfully";
+  @Override
+  public String getMessageKey() {
+    return "resend.mfa.verification.code";
+  }
 
   public static ResendMfaVerificationCodeResponse of() {
     return ResendMfaVerificationCodeResponse.builder()

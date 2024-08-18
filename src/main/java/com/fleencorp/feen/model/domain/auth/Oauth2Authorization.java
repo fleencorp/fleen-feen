@@ -28,7 +28,7 @@ public class Oauth2Authorization extends FleenFeenEntity {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "oauth2_authorization_id", nullable = false, updatable = false, unique = true)
-  private Long googleOauthAuthorizationId;
+  private Long oauth2AuthorizationId;
 
   @Convert(converter = StringCryptoConverter.class)
   @Column(name = "access_token")
@@ -56,7 +56,7 @@ public class Oauth2Authorization extends FleenFeenEntity {
   private Oauth2Source oauth2Source;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)
+  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
   public static Oauth2Authorization of(final Member member) {

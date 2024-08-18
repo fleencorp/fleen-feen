@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/verification")
+@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'PRE_VERIFIED_USER', 'PRE_AUTHENTICATED_USER')")
 public class VerificationController {
 
   private final AuthenticationService authenticationService;
@@ -42,14 +43,14 @@ public class VerificationController {
   @PreAuthorize("hasRole('RESET_PASSWORD_USER')")
   @PostMapping(value = "/reset-change-password")
   public ChangePasswordResponse changePassword(
-      @Valid @RequestBody ChangePasswordDto changePasswordDto,
-      @AuthenticationPrincipal FleenUser user) {
+      @Valid @RequestBody final ChangePasswordDto changePasswordDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return authenticationService.changePassword(changePasswordDto, user);
   }
 
   @GetMapping(value = "/sign-out")
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'PRE_VERIFIED_USER', 'PRE_VERIFIED_CONTRIBUTOR','PRE_AUTHENTICATED_USER')")
-  public SignOutResponse signOut(@AuthenticationPrincipal FleenUser user) {
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'PRE_VERIFIED_USER', 'PRE_AUTHENTICATED_USER')")
+  public SignOutResponse signOut(@AuthenticationPrincipal final FleenUser user) {
     return authenticationService.signOut(user);
   }
 }

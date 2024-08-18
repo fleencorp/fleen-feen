@@ -10,6 +10,7 @@ import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +33,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "mfa_type",
   "mfa_enabled"
 })
-public class SignInResponse {
+public class SignInResponse extends ApiResponse {
 
   @JsonProperty("access_token")
   private String accessToken;
@@ -63,9 +64,10 @@ public class SignInResponse {
   @JsonProperty("mfa_enabled")
   private Boolean mfaEnabled;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Sign-in successful";
+  @Override
+  public String getMessageKey() {
+    return "sign.in";
+  }
 
   public static SignInResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
@@ -98,7 +100,7 @@ public class SignInResponse {
    * @param refreshToken the new refresh token.
    * @param phoneNumber the phone number to be updated. It is masked before being assigned.
    */
-  public void updateDetails(String accessToken, String refreshToken, String phoneNumber) {
+  public void updateDetails(final String accessToken, final String refreshToken, final String phoneNumber) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
     this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
@@ -114,7 +116,7 @@ public class SignInResponse {
    * @param emailAddress the email address to be updated. It is masked before being assigned.
    * @param phoneNumber the phone number to be updated. It is masked before being assigned.
    */
-  public void updateEmailAndPhone(String emailAddress, String phoneNumber) {
+  public void updateEmailAndPhone(final String emailAddress, final String phoneNumber) {
     this.emailAddress = MaskedEmailAddress.of(emailAddress);
     this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
   }

@@ -38,7 +38,7 @@ public class Oauth2Util {
    * Validates the OAuth2 scope provided in the states map and returns the corresponding Oauth2Scope enum.
    *
    * <p>This method retrieves the OAuth2 scope string from the provided map using the key defined by
-   * {@link Oauth2AuthenticationRequest#oauth2ScopeKey}. It then converts this string to an Oauth2Scope
+   * {@link Oauth2AuthenticationRequest#oauth2ServiceTypeKey}. It then converts this string to an Oauth2Scope
    * enum using {@link Oauth2ServiceType#of(String)}.</p>
    *
    * <p>If either the scope string or the resulting Oauth2Scope is null, an {@link InvalidOauth2ScopeException}
@@ -49,9 +49,10 @@ public class Oauth2Util {
    * @throws InvalidOauth2ScopeException if the OAuth2 scope is invalid or null.
    */
   public static Oauth2ServiceType validateOauth2ScopeAndReturn(final Map<String, String> states) {
-    final String oauth2ScopeStr = states.get(Oauth2AuthenticationRequest.oauth2ScopeKey);
-    final Oauth2ServiceType oauth2ServiceType = Oauth2ServiceType.of(oauth2ScopeStr);
-    checkIsNullAny(List.of(oauth2ScopeStr, oauth2ServiceType), InvalidOauth2ScopeException::new);
+    final String oauth2ServiceTypeStr = states.get(Oauth2AuthenticationRequest.oauth2ServiceTypeKey);
+    final Oauth2ServiceType oauth2ServiceType = Oauth2ServiceType.of(oauth2ServiceTypeStr);
+
+    checkIsNullAny(List.of(oauth2ServiceTypeStr, oauth2ServiceType), InvalidOauth2ScopeException::new);
     return oauth2ServiceType;
   }
 

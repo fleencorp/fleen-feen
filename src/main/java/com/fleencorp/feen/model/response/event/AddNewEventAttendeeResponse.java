@@ -3,8 +3,8 @@ package com.fleencorp.feen.model.response.event;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.FleenStreamResponse;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
 
 @Builder

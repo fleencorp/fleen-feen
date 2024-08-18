@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.Set;
 
+import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.SERVICE_TYPE;
 import static java.util.Objects.nonNull;
 
 @Builder
@@ -17,7 +18,7 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 public class Oauth2AuthenticationRequest {
 
-  public static final String oauth2ScopeKey = "oauth2Scope";
+  public static final String oauth2ServiceTypeKey = SERVICE_TYPE;
   private Oauth2ServiceType oauth2ServiceType;
   private Set<String> scopes;
 

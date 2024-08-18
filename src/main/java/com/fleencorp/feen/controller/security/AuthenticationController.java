@@ -1,6 +1,9 @@
 package com.fleencorp.feen.controller.security;
 
-import com.fleencorp.feen.model.dto.auth.*;
+import com.fleencorp.feen.model.dto.auth.ForgotPasswordDto;
+import com.fleencorp.feen.model.dto.auth.ResetPasswordDto;
+import com.fleencorp.feen.model.dto.auth.SignInDto;
+import com.fleencorp.feen.model.dto.auth.SignUpDto;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
@@ -40,13 +43,13 @@ public class AuthenticationController {
 
   @PostMapping(value = "/forgot-password")
   public ForgotPasswordResponse forgotPassword(
-      @Valid @RequestBody ForgotPasswordDto forgotPasswordDto) {
+      @Valid @RequestBody final ForgotPasswordDto forgotPasswordDto) {
     return authenticationService.forgotPassword(forgotPasswordDto);
   }
 
   @PostMapping(value = "/verify-reset-password-code")
   public InitiatePasswordChangeResponse validateResetPasswordCode(
-      @Valid @RequestBody ResetPasswordDto resetPasswordDto) {
+      @Valid @RequestBody final ResetPasswordDto resetPasswordDto) {
     return authenticationService.verifyResetPasswordCode(resetPasswordDto);
   }
 }
