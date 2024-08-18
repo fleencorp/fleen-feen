@@ -1,24 +1,27 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import com.fleencorp.feen.model.response.base.ApiResponse;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "message",
+  "message"
 })
-public class ConfirmMfaSetupResponse {
+public class ConfirmMfaSetupResponse extends ApiResponse {
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Mfa setup and confirmation successful";
+  @Override
+  public String getMessageKey() {
+    return "confirm.mfa.setup";
+  }
 
   public static ConfirmMfaSetupResponse of() {
     return new ConfirmMfaSetupResponse();

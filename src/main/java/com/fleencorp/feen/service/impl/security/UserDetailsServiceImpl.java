@@ -25,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
    *
    * @param repository The repository for accessing member data.
    */
-  public UserDetailsServiceImpl(MemberRepository repository) {
+  public UserDetailsServiceImpl(final MemberRepository repository) {
     this.repository = repository;
   }
 
@@ -38,9 +38,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
    */
   @Override
   @Transactional(readOnly = true)
-  public UserDetails loadUserByUsername(String emailAddress) throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(final String emailAddress) throws UsernameNotFoundException {
     // Retrieve the member from the repository by email address
-    Member member = repository
+    final Member member = repository
       .findByEmailAddress(emailAddress)
       .orElseThrow(() -> new UsernameNotFoundException(emailAddress));
 

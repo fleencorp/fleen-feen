@@ -46,6 +46,7 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
@@ -93,6 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final PasswordEncoder passwordEncoder;
   private final ProfileRequestPublisher profileRequestPublisher;
   private final ProfileTokenRepository profileTokenRepository;
+  private final LocalizedResponse localizedResponse;
 
   public AuthenticationServiceImpl(
       final AuthenticationManager authenticationManager,
@@ -104,7 +106,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final MemberRepository memberRepository,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
-      final ProfileTokenRepository profileTokenRepository) {
+      final ProfileTokenRepository profileTokenRepository,
+      final LocalizedResponse localizedResponse) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
     this.countryService = countryService;
@@ -115,6 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
     this.profileTokenRepository = profileTokenRepository;
+    this.localizedResponse = localizedResponse;
   }
 
   @Override
@@ -311,7 +315,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
 
     // Return response indicating the successful initiation of code resend
-    return ResendMfaVerificationCodeResponse.of();
+    return localizedResponse.of(ResendMfaVerificationCodeResponse.of());
   }
 
   /**
@@ -361,7 +365,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveAuthenticationTokensToRepositoryOrCache(username, accessToken, refreshToken);
 
     // Return SignInResponse with access and refresh tokens
-    return SignInResponse.of(accessToken, refreshToken);
+    return localizedResponse.of(SignInResponse.of(accessToken, refreshToken));
   }
 
   /**
@@ -397,19 +401,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle sign-in based on user's profile and MFA settings
     if (isProfileInactiveAndUserYetToBeVerified(user)) {
       handleProfileYetToBeVerified(signInResponse, user);
-      return signInResponse;
+      return localizedResponse.of(signInResponse);
     }
 
     // Handle sign-in based on user's profile with enabled MFA
     if (isMfaEnabledAndMfaTypeSet(user)) {
       handleProfileWithMfaEnabled(signInResponse, user);
-      return signInResponse;
+      return localizedResponse.of(signInResponse);
     }
 
     // Handle verified profile sign-in
     handleProfileThatIsVerified(signInResponse, user, authentication);
 
-    return signInResponse;
+    return localizedResponse.of(signInResponse);
   }
 
   /**
@@ -470,7 +474,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       .orElseThrow(() -> new UserNotFoundException(emailAddress));
 
     validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
-    FleenUser user = initializeAuthenticationAndContext(member);
+    final FleenUser user = initializeAuthenticationAndContext(member);
     final String resetPasswordToken = tokenService.createResetPasswordToken(user);
 
     clearResetPasswordOtpSavedTemporarily(user.getUsername());
@@ -807,7 +811,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationCode the MFA verification code to be saved
    */
   private void saveMfaVerificationCodeTemporarily(final String username, final String verificationCode) {
+    log.info("The verification key before saving the code is {} and the code is {}", getMfaAuthenticationCacheKey(username), verificationCode);
     cacheService.set(getMfaAuthenticationCacheKey(username), verificationCode, Duration.ofMinutes(5));
+
+    if (cacheService.exists(getMfaAuthenticationCacheKey(username))) {
+      log.info("The verification key has been set to {}", cacheService.get(getMfaAuthenticationCacheKey(username)));
+    }
   }
 
   /**
@@ -834,7 +843,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private void validateMfaVerificationOrOtpCode(final String otpCode, final MfaType mfaType, final String username, final Long userId) {
     if (mfaService.isPhoneOrEmailMfaType(mfaType)) {
       // Validate email/phone MFA verification code
-      mfaService.validateEmailOrPhoneMfaVerificationCode(otpCode, username);
+      mfaService.validateEmailOrPhoneMfaVerificationCode(username, otpCode);
     } else if (mfaService.isAuthenticatorMfaType(mfaType)) {
       // Validate authenticator app MFA verification code
       mfaService.validateAuthenticatorMfaVerificationCode(otpCode, userId);
@@ -1319,7 +1328,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param emailAddress the email address for which the reset password token is to be cleared.
    */
-  public void clearResetPasswordToken(String emailAddress) {
+  public void clearResetPasswordToken(final String emailAddress) {
     tokenService.clearResetPasswordToken(emailAddress);
   }
 
@@ -1333,7 +1342,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param emailAddress the email address to check for an existing reset password token.
    * @throws InvalidAuthenticationException if a reset password token exists for the given email address.
    */
-  public void verifyUserHasResetPasswordToken(String emailAddress) {
+  public void verifyUserHasResetPasswordToken(final String emailAddress) {
     if (!tokenService.isResetPasswordTokenExist(emailAddress)) {
       throw new InvalidAuthenticationException(emailAddress);
     }

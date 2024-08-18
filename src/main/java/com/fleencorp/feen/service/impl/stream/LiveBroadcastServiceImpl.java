@@ -13,13 +13,13 @@ import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchReques
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
-import com.fleencorp.feen.model.response.base.FleenStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.CreateStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.UpdateStreamResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;

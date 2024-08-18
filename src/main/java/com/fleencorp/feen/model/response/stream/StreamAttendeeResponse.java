@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.base;
+package com.fleencorp.feen.model.response.stream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

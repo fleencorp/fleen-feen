@@ -6,7 +6,8 @@ import com.fleencorp.feen.model.response.external.google.oauth2.CompletedOauth2A
 import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.fleencorp.feen.util.security.Oauth2Util.toOauth2AuthenticationRequest;
 import static com.fleencorp.feen.util.security.Oauth2Util.validateOauth2ScopeAndReturn;
 
-@Slf4j
 @RestController
-@RequestMapping("/oauth2")
+@RequestMapping("/api/oauth2")
+@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'PRE_AUTHENTICATED_USER')")
 public class Oauth2Controller {
 
   private final GoogleOauth2Service googleOauth2Service;
@@ -38,9 +39,9 @@ public class Oauth2Controller {
 
   @GetMapping("/verify-authorization-code")
   public CompletedOauth2AuthorizationResponse verifyOauth2AuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(
-      @RequestParam(name = "authorization_code") final String authorizationCode,
+      @RequestParam(name = "code") final String authorizationCode,
       @RequestParam(name = "state") final String statesStr,
-      final FleenUser user) {
+      @AuthenticationPrincipal final FleenUser user) {
     final Oauth2ServiceType oauth2ServiceType = validateOauth2ScopeAndReturn(statesStr);
     return googleOauth2Service.verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(authorizationCode, toOauth2AuthenticationRequest(oauth2ServiceType), user);
   }

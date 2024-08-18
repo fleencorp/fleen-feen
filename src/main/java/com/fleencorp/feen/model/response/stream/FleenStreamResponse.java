@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.base;
+package com.fleencorp.feen.model.response.stream;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -95,8 +96,4 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("some_attendees")
   private List<StreamAttendeeResponse> someAttendees;
-
-  public static void any() {
-    StreamVisibility.PUBLIC.toString();
-  }
 }

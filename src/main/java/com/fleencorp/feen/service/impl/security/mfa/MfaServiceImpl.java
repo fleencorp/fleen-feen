@@ -23,11 +23,13 @@ import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.MfaRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.OtpService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -53,6 +55,7 @@ public class MfaServiceImpl implements MfaService {
   private final MfaRepository mfaRepository;
   private final MemberRepository memberRepository;
   private final ProfileRequestPublisher profileRequestPublisher;
+  private final LocalizedResponse localizedResponse;
   private final MfaProperties mfaProperties;
 
   /**
@@ -71,12 +74,14 @@ public class MfaServiceImpl implements MfaService {
       final MfaRepository mfaRepository,
       final MemberRepository memberRepository,
       final ProfileRequestPublisher profileRequestPublisher,
+      final LocalizedResponse localizedResponse,
       final MfaProperties mfaProperties) {
     this.cacheService = cacheService;
     this.otpService = otpService;
     this.mfaRepository = mfaRepository;
     this.memberRepository = memberRepository;
     this.profileRequestPublisher = profileRequestPublisher;
+    this.localizedResponse = localizedResponse;
     this.mfaProperties = mfaProperties;
   }
 
@@ -100,7 +105,7 @@ public class MfaServiceImpl implements MfaService {
     }
 
     // Return a response indicating the result of the MFA enable operation
-    return EnableOrDisableMfaResponse.of();
+    return localizedResponse.of(EnableOrDisableMfaResponse.of());
   }
 
   /**
@@ -123,7 +128,7 @@ public class MfaServiceImpl implements MfaService {
     }
 
     // Return a response indicating the status of the MFA disable operation
-    return EnableOrDisableMfaResponse.of();
+    return localizedResponse.of(EnableOrDisableMfaResponse.of());
   }
 
   /**
@@ -140,7 +145,7 @@ public class MfaServiceImpl implements MfaService {
       .orElseThrow(FailedOperationException::new);
 
     // Return a response with the MFA status and type
-    return MfaStatusResponse.of(member.isMfaEnabled(), member.getMfaType());
+    return localizedResponse.of(MfaStatusResponse.of(member.isMfaEnabled(), member.getMfaType()));
   }
 
   /**
@@ -165,6 +170,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException If the operation to retrieve or update member information fails.
    */
   @Override
+  @Transactional
   public SetupMfaResponse setupMfa(final SetupMfaDto dto, final FleenUser user) {
     final MfaType newMfaType = dto.getActualMfaType();
     final Long userId = user.getId();
@@ -193,7 +199,7 @@ public class MfaServiceImpl implements MfaService {
 
     // Save member changes and return setup response
     memberRepository.save(member);
-    return setupMfaResponse;
+    return localizedResponse.of(setupMfaResponse);
   }
 
 
@@ -227,7 +233,7 @@ public class MfaServiceImpl implements MfaService {
     // Update the setup response with Authenticator secret if applicable
     updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(newMfaType, setupMfaResponse, member);
 
-    return setupMfaResponse;
+    return localizedResponse.of(setupMfaResponse);
   }
 
   /**
@@ -253,7 +259,7 @@ public class MfaServiceImpl implements MfaService {
     // Save the updated member details
     memberRepository.save(member);
 
-    return ConfirmMfaSetupResponse.of();
+    return localizedResponse.of(ConfirmMfaSetupResponse.of());
   }
 
   /**
@@ -267,6 +273,7 @@ public class MfaServiceImpl implements MfaService {
   protected void validateEmailOrPhoneMfaSetupCode(final String username, final String code, final MfaType mfaType) {
     final String verificationKey = getMfaSetupCacheKey(username, mfaType);
     // Verify the code through email or phone verification type
+    log.info("The verification code is {}", code);
     validateEmailOrPhoneVerificationCode(verificationKey, code);
     // Clear the otp if the verification of the code pass
     clearMfaSetupOtp(username, mfaType);
@@ -281,6 +288,7 @@ public class MfaServiceImpl implements MfaService {
    */
   protected void validateEmailOrPhoneVerificationCode(final String verificationKey, final String code) {
     // Check if the verification code exists
+    log.info("The verification key is {}", verificationKey);
     if (!cacheService.exists(verificationKey)) {
       throw new ExpiredVerificationCodeException(code);
     }
@@ -385,7 +393,6 @@ public class MfaServiceImpl implements MfaService {
     return setupMfaResponse;
   }
 
-
   /**
    * Completes Multi-Factor Authentication (MFA) setup for the specified member based on the provided MFA type.
    * Updates the member's MFA details and saves the changes.
@@ -477,7 +484,7 @@ public class MfaServiceImpl implements MfaService {
    * @param setupMfaResponse the response object to update with generated details
    * @param mfaType the type of MFA setup being performed (PHONE, EMAIL, or AUTHENTICATOR)
    */
-  protected void sendMfaVerificationCodeRequestOrGenerateSecretKeyAndQrCode(final Member member, final SetupMfaResponse setupMfaResponse, final MfaType mfaType) {
+  public void sendMfaVerificationCodeRequestOrGenerateSecretKeyAndQrCode(final Member member, final SetupMfaResponse setupMfaResponse, final MfaType mfaType) {
     switch (mfaType) {
       case EMAIL -> saveAndSendMfaVerificationCodeRequest(member, VerificationType.EMAIL, MfaType.EMAIL);
       case PHONE -> saveAndSendMfaVerificationCodeRequest(member, VerificationType.PHONE, MfaType.PHONE);
@@ -496,7 +503,7 @@ public class MfaServiceImpl implements MfaService {
    * @param verificationType the type of verification (e.g., EMAIL or SMS)
    * @param mfaType the MFA type for which the verification code is being sent
    */
-  protected void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
+  public void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
     // Generate a random six-digit OTP
     final String otpCode = getRandomSixDigitOtp();
     final FleenUser user = FleenUser.fromMemberBasic(member);

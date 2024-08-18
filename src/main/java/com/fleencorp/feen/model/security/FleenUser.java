@@ -148,6 +148,8 @@ public class FleenUser implements UserDetails {
       .profilePhotoUrl(profilePhoto)
       .firstName(firstName)
       .lastName(lastName)
+      .emailAddress(emailAddress)
+      .phoneNumber(phoneNumber)
       .build();
   }
 
