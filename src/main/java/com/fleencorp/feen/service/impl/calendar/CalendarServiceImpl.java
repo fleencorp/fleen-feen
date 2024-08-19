@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
+import com.fleencorp.feen.model.request.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.CreateCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.DeleteCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.PatchCalendarRequest;
@@ -22,6 +23,7 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
+import com.fleencorp.feen.model.response.external.google.oauth2.RefreshOauth2TokenResponse;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
@@ -29,6 +31,7 @@ import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarService;
+import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -59,6 +62,7 @@ public class CalendarServiceImpl implements CalendarService {
   private final GoogleCalendarService googleCalendarService;
   private final CalendarRepository calendarRepository;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
+  private final GoogleOauth2Service googleOauth2Service;
 
   /**
   * Constructs a new CalendarServiceImpl with the specified GoogleCalendarService and CalendarRepository.
@@ -66,16 +70,19 @@ public class CalendarServiceImpl implements CalendarService {
   * @param googleCalendarService the service to interact with Google Calendar
   * @param countryService the service for managing and retrieving countries
   * @param calendarRepository the repository to manage calendar data
+  * @param googleOauth2Service the service for interacting with Google oauth2 service
   */
   public CalendarServiceImpl(
       final GoogleCalendarService googleCalendarService,
       final CountryService countryService,
       final CalendarRepository calendarRepository,
-      final Oauth2AuthorizationRepository oauth2AuthorizationRepository) {
+      final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
+      final GoogleOauth2Service googleOauth2Service) {
     this.googleCalendarService = googleCalendarService;
     this.countryService = countryService;
     this.calendarRepository = calendarRepository;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
+    this.googleOauth2Service = googleOauth2Service;
   }
 
   /**
@@ -157,9 +164,16 @@ public class CalendarServiceImpl implements CalendarService {
       throw new CalendarAlreadyExistException(calendar.getCode());
     }
 
+    final Oauth2ServiceType oauth2ServiceType = Oauth2ServiceType.GOOGLE_CALENDAR;
     // Retrieve user oauth2 authorization details associated with Google Calendar
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
       .orElseThrow(Oauth2InvalidAuthorizationException::new);
+
+    final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);
+    authenticationRequest.setRefreshToken(oauth2Authorization.getRefreshToken());
+    authenticationRequest.setOauth2Authorization(oauth2Authorization);
+
+    validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, authenticationRequest, user);
 
     final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
       .of(createCalendarDto.getTitle(),
@@ -289,5 +303,12 @@ public class CalendarServiceImpl implements CalendarService {
             .of(calendarId,
                 shareCalendarWithUserDto.getEmailAddress(),
                 toCalendarResponse(calendar));
+  }
+
+  protected void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
+    if (oauth2Authorization.getTokenExpirationTimeInMilliseconds() < System.currentTimeMillis()) {
+      RefreshOauth2TokenResponse refreshOauth2TokenResponse = googleOauth2Service.refreshUserAccessToken(authenticationRequest, user);
+      oauth2Authorization.setAccessToken(refreshOauth2TokenResponse.getAccessToken());
+    }
   }
 }

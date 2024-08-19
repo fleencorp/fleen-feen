@@ -16,7 +16,6 @@ import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2Autho
 import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
-import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -67,7 +66,6 @@ public class GoogleOauth2Service {
   private final Oauth2Credential oauth2Credential;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final ReporterService reporterService;
-  private final MemberRepository memberRepository;
 
   /**
    * Constructs a new GoogleOauth2Service.
@@ -79,12 +77,10 @@ public class GoogleOauth2Service {
   public GoogleOauth2Service(
       final Oauth2Credential oauth2Credential,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
-      final ReporterService reporterService,
-      final MemberRepository memberRepository) {
+      final ReporterService reporterService) {
     this.oauth2Credential = oauth2Credential;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.reporterService = reporterService;
-    this.memberRepository = memberRepository;
   }
 
   /**
@@ -97,6 +93,7 @@ public class GoogleOauth2Service {
    * <p>The authorization URI is crucial for redirecting users to Google's consent screen, where they
    * can grant permissions to the application.</p>
    *
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return A StartOauth2AuthorizationResponse containing the OAuth 2.0 authorization URI.
    */
   public StartOauth2AuthorizationResponse startOauth2Authentication(final Oauth2AuthenticationRequest authenticationRequest) {
@@ -116,6 +113,7 @@ public class GoogleOauth2Service {
    * <p>If the GoogleAuthorizationCodeFlow instance is not available or any required parameters are missing, this method
    * returns null.</p>
    *
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return The OAuth 2.0 authorization URI, or null if unable to construct the URI.
    */
   @MeasureExecutionTime
@@ -143,6 +141,7 @@ public class GoogleOauth2Service {
    * the CompletedOauth2AuthorizationResponse.</p>
    *
    * @param authorizationCode The OAuth 2.0 authorization code obtained from the authorization callback.
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @param user The FleenUser for whom the OAuth 2.0 authorization is being verified and saved.
    * @return A CompletedOauth2AuthorizationResponse containing authorization details if successful,
    *         or null if the authorization code is invalid or expired.
@@ -153,8 +152,8 @@ public class GoogleOauth2Service {
    final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
    final Member member = user.toMember();
    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
-            .findByMember(member)
-            .orElseGet(() -> Oauth2Authorization.of(member));
+          .findByMember(member)
+          .orElseGet(() -> Oauth2Authorization.of(member));
 
     updateOauth2Authorization(oauth2Authorization, oauth2AuthorizationResponse);
     oauth2Authorization.setServiceType(authenticationRequest.getOauth2ServiceType());
@@ -176,21 +175,53 @@ public class GoogleOauth2Service {
    * the Oauth2Authorization entity with the refreshed access token, refresh token, access token
    * expiration time, token type, and scope. It then returns the RefreshOauth2TokenResponse.</p>
    *
-   * @param refreshToken The OAuth 2.0 refresh token used to obtain a new access token.
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @param user The FleenUser for whom the OAuth 2.0 authorization is being refreshed.
    * @return A RefreshOauth2TokenResponse containing the refreshed OAuth 2.0 access token and other details.
    */
-  public RefreshOauth2TokenResponse refreshUserAccessToken(final String refreshToken, final FleenUser user) {
-    final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(refreshToken);
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
-            .findByMember(user.toMember())
-            .orElseGet(() -> Oauth2Authorization.of(user.toMember()));
-
-    updateOauth2Authorization(oauth2Authorization, oauth2TokenResponse);
-    oauth2AuthorizationRepository.save(oauth2Authorization);
-
-    return oauth2TokenResponse;
+  public RefreshOauth2TokenResponse refreshUserAccessToken(final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
+    final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(authenticationRequest.getRefreshToken());
+    if (nonNull(oauth2TokenResponse)) {
+      final Member member = user.toMember();
+      Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, member);
+      updateOauth2Authorization(oauth2Authorization, oauth2TokenResponse);
+      oauth2AuthorizationRepository.save(oauth2Authorization);
+      return oauth2TokenResponse;
+    }
+    throw new Oauth2InvalidAuthorizationException();
   }
+
+  /**
+   * Retrieves or creates an {@link Oauth2Authorization} based on the provided {@link Oauth2AuthenticationRequest}
+   * and {@link Member}.
+   *
+   * <p>If the {@code authenticationRequest} contains a non-null {@link Oauth2Authorization}, it is returned directly.
+   * Otherwise, if the request specifies an OAuth2 service type, an existing authorization is retrieved from the
+   * {@code oauth2AuthorizationRepository} based on the {@link Member} and service type. If no matching authorization
+   * is found, a new {@link Oauth2Authorization} is created. If neither an authorization nor service type is provided,
+   * the method attempts to retrieve an existing authorization for the {@link Member}; if none is found, a new one is created.</p>
+   *
+   * @param authenticationRequest the authentication request containing OAuth2 details.
+   * @param member the member associated with the authorization.
+   * @return an {@link Oauth2Authorization} instance based on the provided request and member.
+   */
+  protected Oauth2Authorization getOauth2Authorization(final Oauth2AuthenticationRequest authenticationRequest, final Member member) {
+    // Check if the request already contains an OAuth2 authorization
+    if (nonNull(authenticationRequest.getOauth2Authorization())) {
+      return authenticationRequest.getOauth2Authorization();
+    } else if (nonNull(authenticationRequest.getOauth2ServiceType())) {
+      // If no authorization is provided, check for a specific OAuth2 service type and retrieve the authorization if available
+      return oauth2AuthorizationRepository
+        .findByMemberAndServiceType(member, authenticationRequest.getOauth2ServiceType())
+        .orElseGet(() -> Oauth2Authorization.of(member));
+    } else {
+      // If neither an authorization nor a service type is provided, find or create a general OAuth2 authorization for the member
+      return oauth2AuthorizationRepository
+        .findByMember(member)
+        .orElseGet(() -> Oauth2Authorization.of(member));
+    }
+  }
+
 
   /**
    * Updates OAuth 2.0 authorization details in the Oauth2Authorization entity.
@@ -257,6 +288,7 @@ public class GoogleOauth2Service {
    * code, this method returns null.</p>
    *
    * @param authorizationCode The OAuth 2.0 authorization code obtained from the authorization callback.
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return A CompletedOauth2AuthorizationResponse containing authorization details if successful,
    *         or null if the authorization code is invalid or expired.
    */
@@ -281,6 +313,7 @@ public class GoogleOauth2Service {
    * are caught and handled:</p>
    *
    * @param authorizationCode The OAuth 2.0 authorization code obtained from the authorization callback.
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return A TokenResponse containing the OAuth 2.0 access token and optionally a refresh token.
    * @throws Oauth2InvalidGrantOrTokenException If the token request fails due to "invalid_grant".
    * @throws Oauth2InvalidAuthorizationException If the token request fails due to other authorization errors.
@@ -350,6 +383,7 @@ public class GoogleOauth2Service {
    * refresh tokens for long-term access to user data. The approval prompt is set to "force",
    * ensuring that users are prompted to grant access every time.</p>
    *
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return A GoogleAuthorizationCodeFlow.Builder instance configured with OAuth 2.0 authorization settings.
    */
   public GoogleAuthorizationCodeFlow.Builder getAuthorizationCodeFlowBuilder(final Oauth2AuthenticationRequest authenticationRequest) {
@@ -367,6 +401,7 @@ public class GoogleOauth2Service {
    * <p>The returned GoogleAuthorizationCodeFlow encapsulates the OAuth 2.0 authorization flow
    * settings, including transport, JSON factory, client secrets, scopes, access type, and approval prompt.</p>
    *
+   * @param authenticationRequest The Oauth 2.0 authentication request
    * @return A GoogleAuthorizationCodeFlow instance configured with OAuth 2.0 authorization settings.
    */
   public GoogleAuthorizationCodeFlow getGoogleAuthorizationCodeFlow(final Oauth2AuthenticationRequest authenticationRequest) {
