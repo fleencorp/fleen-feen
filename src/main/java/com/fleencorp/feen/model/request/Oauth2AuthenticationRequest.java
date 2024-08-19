@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.request;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.InvalidOauth2ScopeException;
+import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.youtube.YouTubeScopes;
 import lombok.*;
@@ -21,6 +22,8 @@ public class Oauth2AuthenticationRequest {
   public static final String oauth2ServiceTypeKey = SERVICE_TYPE;
   private Oauth2ServiceType oauth2ServiceType;
   private Set<String> scopes;
+  private String refreshToken;
+  private Oauth2Authorization oauth2Authorization;
 
   /**
    * Creates an {@link Oauth2AuthenticationRequest} based on the specified OAuth2 scope.

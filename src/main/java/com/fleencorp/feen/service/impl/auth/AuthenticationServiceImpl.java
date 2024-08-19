@@ -79,6 +79,18 @@ import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthent
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
 
+/**
+ * Implementation of the {@link AuthenticationService} and {@link PasswordService} interfaces.
+ *
+ * <p>This service provides authentication-related functionality, including user authentication,
+ * password management, multi-factor authentication (MFA), and token management. It utilizes
+ * various injected services such as {@link AuthenticationManager}, {@link CacheService},
+ * {@link MfaService}, {@link TokenService}, and {@link MemberRepository} to perform these
+ * operations. Additionally, it manages roles, user profiles, and localized responses.</p>
+ *
+ * <p>Clients of this service can authenticate users, handle password changes, validate MFA codes,
+ * and manage session tokens, among other authentication-related tasks.</p>
+ */
 @Slf4j
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService,
@@ -96,6 +108,28 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final ProfileTokenRepository profileTokenRepository;
   private final LocalizedResponse localizedResponse;
 
+  /**
+   * Constructs an instance of {@link AuthenticationServiceImpl} with the provided dependencies.
+   *
+   * <p>This constructor initializes the service with various components necessary for managing
+   * authentication, such as the {@link AuthenticationManager}, {@link CacheService}, {@link CountryService},
+   * {@link MfaService}, {@link RoleService}, {@link TokenService}, {@link MemberRepository},
+   * {@link PasswordEncoder}, {@link ProfileRequestPublisher}, {@link ProfileTokenRepository},
+   * and {@link LocalizedResponse}. These dependencies are injected to facilitate authentication
+   * operations, including managing user roles, tokens, MFA, and profile-related actions.</p>
+   *
+   * @param authenticationManager the manager responsible for processing authentication requests.
+   * @param cacheService the service handling cache operations.
+   * @param countryService the service providing country-related data and operations.
+   * @param mfaService the service managing multi-factor authentication (MFA).
+   * @param roleService the service managing user roles.
+   * @param tokenService the service handling token generation and validation.
+   * @param memberRepository the repository for accessing and managing {@link Member} entities.
+   * @param passwordEncoder the encoder for processing passwords.
+   * @param profileRequestPublisher the publisher for sending profile-related requests.
+   * @param profileTokenRepository the repository for managing profile-related tokens.
+   * @param localizedResponse the service for handling localized responses.
+   */
   public AuthenticationServiceImpl(
       final AuthenticationManager authenticationManager,
       final CacheService cacheService,
