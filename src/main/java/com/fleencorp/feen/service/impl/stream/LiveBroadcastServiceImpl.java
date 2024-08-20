@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
@@ -129,7 +130,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   @Override
   public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final FleenUser user) {
     // Check if there is a valid OAuth2 authorization for the user
-    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMember(user.toMember());
+    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.YOUTUBE);
     if (existingGoogleOauth2Authorization.isEmpty()) {
       throw new Oauth2InvalidAuthorizationException();
     }
@@ -277,7 +278,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    */
   public Oauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
     // Retrieve the OAuth2 authorization entity associated with the member
-    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMember(member);
+    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(member, Oauth2ServiceType.YOUTUBE);
 
     // Throw exception if no authorization is found
     if (existingGoogleOauth2Authorization.isEmpty()) {
