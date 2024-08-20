@@ -152,7 +152,7 @@ public class GoogleOauth2Service {
    final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
    final Member member = user.toMember();
    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
-          .findByMember(member)
+          .findByMemberAndServiceType(member, authenticationRequest.getOauth2ServiceType())
           .orElseGet(() -> Oauth2Authorization.of(member));
 
     updateOauth2Authorization(oauth2Authorization, oauth2AuthorizationResponse);
@@ -216,9 +216,7 @@ public class GoogleOauth2Service {
         .orElseGet(() -> Oauth2Authorization.of(member));
     } else {
       // If neither an authorization nor a service type is provided, find or create a general OAuth2 authorization for the member
-      return oauth2AuthorizationRepository
-        .findByMember(member)
-        .orElseGet(() -> Oauth2Authorization.of(member));
+      return Oauth2Authorization.of(member);
     }
   }
 
