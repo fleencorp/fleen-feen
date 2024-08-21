@@ -98,7 +98,19 @@ jobs:
       - name: Clean with Maven
         run: ./mvnw clean
 
-      - name: Install dependencies
+      - uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "github",
+              "username": "${{ secrets.USERNAME }}",
+              "password": "${{ secrets.GITHUB_TOKEN }}"
+            }]
+
+      - name: verify settings.xml
+        run: cat ~/.m2/settings.xml
+
+      - name: Install dependencies          
         run: mvn install -DskipTests
 #
 #      - name: Test with Maven
