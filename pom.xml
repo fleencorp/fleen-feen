@@ -275,6 +275,13 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<repositories>
+		<repository>
+			<id>github-packages</id>
+			<url>https://maven.pkg.github.com/fleencorp/api-service</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
