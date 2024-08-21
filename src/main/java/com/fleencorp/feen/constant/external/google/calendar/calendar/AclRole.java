@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.external.google.calendar.calendar;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing roles in Access Control List (ACL).
 *
@@ -21,6 +23,10 @@ public enum AclRole implements ApiParameter {
 
   AclRole(final String value) {
     this.value = value;
+  }
+
+  public static AclRole of(final String value) {
+    return parseEnumOrNull(value, AclRole.class);
   }
 
 }

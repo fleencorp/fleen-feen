@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventService.toLocalDateTime;
+import static com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService.toLocalDateTime;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 

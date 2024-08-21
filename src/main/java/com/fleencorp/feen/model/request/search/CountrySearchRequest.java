@@ -12,4 +12,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 public class CountrySearchRequest extends SearchRequest {
 
+  public static CountrySearchRequest of(final int pageSize) {
+    final CountrySearchRequest searchRequest = new CountrySearchRequest();
+    searchRequest.setPageSize(pageSize);
+    return searchRequest;
+  }
+
 }

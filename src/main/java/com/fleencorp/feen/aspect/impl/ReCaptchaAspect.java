@@ -2,8 +2,8 @@ package com.fleencorp.feen.aspect.impl;
 
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
 import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException;
-import com.fleencorp.feen.service.external.recaptcha.ReCaptchaService;
-import com.fleencorp.feen.service.external.recaptcha.impl.ReCaptchaAttemptService;
+import com.fleencorp.feen.service.impl.external.recaptcha.ReCaptchaService;
+import com.fleencorp.feen.service.impl.external.recaptcha.impl.ReCaptchaAttemptService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

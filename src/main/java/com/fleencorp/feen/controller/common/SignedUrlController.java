@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.http.StatusCodeMessage;
 import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlResponse;
 import com.fleencorp.feen.service.common.ObjectService;
-import com.fleencorp.feen.service.external.aws.S3Service;
+import com.fleencorp.feen.service.impl.external.aws.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

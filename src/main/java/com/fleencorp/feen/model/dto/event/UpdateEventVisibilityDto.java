@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -26,6 +24,6 @@ public class UpdateEventVisibilityDto {
   protected String visibility;
 
   public StreamVisibility getActualVisibility() {
-    return parseEnumOrNull(visibility, StreamVisibility.class);
+    return StreamVisibility.of(visibility);
   }
 }

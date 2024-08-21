@@ -13,7 +13,7 @@ public class NotAttendingEventRequest {
   private String eventId;
   private String attendeeEmailAddress;
 
-  public static NotAttendingEventRequest of(String calendarId, String eventId, String attendeeEmailAddress) {
+  public static NotAttendingEventRequest of(final String calendarId, final String eventId, final String attendeeEmailAddress) {
     return NotAttendingEventRequest.builder()
       .calendarId(calendarId)
       .eventId(eventId)

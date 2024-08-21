@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -28,6 +26,6 @@ public class CompleteSignUpDto extends VerificationCodeDto {
   private String verificationType;
 
   public VerificationType getActualVerificationType() {
-    return parseEnumOrNull(verificationType, VerificationType.class);
+    return VerificationType.of(verificationType);
   }
 }

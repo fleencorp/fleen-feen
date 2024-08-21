@@ -43,7 +43,7 @@ public class StreamAttendeeMapper {
   * @param entries the list of StreamAttendee entities to convert
   * @return a list of corresponding EventAttendeeResponse DTOs, or an empty list if the entries are null or empty
   */
-  public static List<EventAttendeeResponse> toEventAttendeeResponse(final List<StreamAttendee> entries) {
+  public static List<EventAttendeeResponse> toEventAttendeeResponses(final List<StreamAttendee> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .map(StreamAttendeeMapper::toEventAttendeeResponse)

@@ -45,7 +45,7 @@ public class CalendarMapper {
   * @param entries the list of Calendar entities to map
   * @return the list of mapped CalendarResponse DTOs, or an empty list if the input is null or empty
   */
-  public static List<CalendarResponse> toCalendars(final List<Calendar> entries) {
+  public static List<CalendarResponse> toCalendarResponses(final List<Calendar> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .map(CalendarMapper::toCalendarResponse)

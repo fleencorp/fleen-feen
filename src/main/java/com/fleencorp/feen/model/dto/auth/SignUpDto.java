@@ -14,8 +14,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -66,9 +64,10 @@ public class SignUpDto {
   private String confirmPassword;
 
   @NotNull(message = "{user.country.NotNull}")
-  @IsNumber
+  @Size(max = 1000, message = "{user.country.Size}")
   @CountryExist
-  private String country;
+  @JsonProperty("country_code")
+  private String countryCode;
 
   @NotNull(message = "{user.verificationType.NotNull}")
   @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
@@ -77,7 +76,7 @@ public class SignUpDto {
   private String verificationType;
 
   public VerificationType getActualVerificationType() {
-    return parseEnumOrNull(verificationType, VerificationType.class);
+    return VerificationType.of(verificationType);
   }
 
   public Member toMember() {

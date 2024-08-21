@@ -89,7 +89,7 @@
 
         This configuration ensures that logs are written to a rolling file with specified size and time-based rolling policies, and that only warnings and more severe log messages are included.
     -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -105,7 +105,7 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
-    </appender>
+    </appender>-->
 
     <!--
         The <appender> element defines a RollingFileAppender named "FILE_ERROR" which is specifically used for logging error-level messages.
@@ -131,7 +131,7 @@
 
         This configuration ensures that only error-level log messages are written to the file, with logs being rolled over based on size and time, and maintains a specified history and size cap for archived logs.
     -->
-    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+<!--    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/${LOG_ERROR_FILE_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/%d{yyyy-MM, aux}/${LOG_ERROR_FILE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
@@ -147,7 +147,7 @@
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${LOG_PATTERN}</pattern>
         </encoder>
-    </appender>
+    </appender>-->
 
     <!--
         The <appender> element defines an external appender named "EXTERNAL" which is used to send log messages to Slack.
@@ -216,21 +216,21 @@
     -->
     <root level="INFO">
         <springProfile name="default, local">
-            <appender-ref ref="FILE" />
-            <appender-ref ref="FILE_ERROR" />
+<!--            <appender-ref ref="FILE" />
+            <appender-ref ref="FILE_ERROR" />-->
             <appender-ref ref="CONSOLE" />
             <appender-ref ref="ASYNC_EXTERNAL"/>
         </springProfile>
 
         <springProfile name="dev">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE" />
+<!--            <appender-ref ref="FILE" />-->
             <appender-ref ref="ASYNC_EXTERNAL"/>
         </springProfile>
 
         <springProfile name="prod">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE" />
+<!--            <appender-ref ref="FILE" />-->
             <appender-ref ref="ASYNC_EXTERNAL"/>
         </springProfile>
     </root>

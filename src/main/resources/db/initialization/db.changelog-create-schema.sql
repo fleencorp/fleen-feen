@@ -83,10 +83,10 @@ CREATE TABLE role (
 --changeset alamu:4
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'google_oauth2_authorization';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'oauth2_authorization';
 
-CREATE TABLE google_oauth2_authorization (
-  google_oauth2_authorization_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE oauth2_authorization (
+  oauth2_authorization_id BIGSERIAL PRIMARY KEY,
   access_token VARCHAR(1000),
   refresh_token VARCHAR(1000),
   scope VARCHAR(1000),
@@ -94,16 +94,21 @@ CREATE TABLE google_oauth2_authorization (
   token_expiration_time_in_milliseconds BIGINT,
   member_id BIGINT NOT NULL,
 
+  oauth2_service_type VARCHAR(255)
+      NOT NULL CHECK (oauth2_service_type IN ('GOOGLE_CALENDAR', 'YOUTUBE')),
+  oauth2_source VARCHAR(255)
+      NOT NULL CHECK (oauth2_source IN ('GOOGLE')),
+
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT google_oauth2_authorization_fk_member
+  CONSTRAINT oauth2_authorization_fk_member
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE
 );
 
---rollback DROP TABLE IF EXISTS `google_oauth2_authorization`;
+--rollback DROP TABLE IF EXISTS `oauth2_authorization`;
 
 
 

@@ -10,8 +10,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -32,6 +30,6 @@ public class BlockUserDto {
   private String blockStatus;
 
   public BlockStatus getActualBlockStatus() {
-    return parseEnumOrNull(blockStatus, BlockStatus.class);
+    return BlockStatus.of(blockStatus);
   }
 }

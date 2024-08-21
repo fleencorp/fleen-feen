@@ -1,12 +1,17 @@
 package com.fleencorp.feen.model.response.security;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
+import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Builder
 @Getter
@@ -20,11 +25,13 @@ import lombok.Setter;
 })
 public class ForgotPasswordResponse {
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("email_address")
-  private String emailAddress;
+  private MaskedEmailAddress emailAddress;
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("phone_number")
-  private String phoneNumber;
+  private MaskedPhoneNumber phoneNumber;
 
   @Builder.Default
   @JsonProperty("message")
@@ -32,8 +39,8 @@ public class ForgotPasswordResponse {
 
   public static ForgotPasswordResponse of(final String emailAddress, final String phoneNumber) {
     return ForgotPasswordResponse.builder()
-        .emailAddress(emailAddress)
-        .phoneNumber(phoneNumber)
+        .emailAddress(MaskedEmailAddress.of(emailAddress))
+        .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
         .build();
   }
 }

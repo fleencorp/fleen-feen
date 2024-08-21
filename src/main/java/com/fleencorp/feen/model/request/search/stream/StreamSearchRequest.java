@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -43,7 +42,7 @@ public class StreamSearchRequest extends SearchRequest {
   protected Long anotherUserId;
 
   public StreamVisibility getVisibility(final StreamVisibility defaultVisibility) {
-    final StreamVisibility actualStreamVisibility = parseEnumOrNull(streamVisibility, StreamVisibility.class);
+    final StreamVisibility actualStreamVisibility = StreamVisibility.of(streamVisibility);
     if (nonNull(actualStreamVisibility)) {
       return actualStreamVisibility;
     }

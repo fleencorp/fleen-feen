@@ -12,8 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -41,10 +39,10 @@ public class ShareCalendarWithUserDto {
   private String aclRole;
 
   public AclRole getActualAclRole() {
-    return parseEnumOrNull(aclRole, AclRole.class);
+    return AclRole.of(aclRole);
   }
 
   public AclScopeType getActualAclScopeType() {
-    return parseEnumOrNull(aclScopeType, AclScopeType.class);
+    return AclScopeType.of(aclScopeType);
   }
 }

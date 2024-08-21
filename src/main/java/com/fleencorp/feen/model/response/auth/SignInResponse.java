@@ -7,7 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
+import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +33,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "mfa_type",
   "mfa_enabled"
 })
-public class SignInResponse {
+public class SignInResponse extends ApiResponse {
 
   @JsonProperty("access_token")
   private String accessToken;
@@ -38,11 +41,13 @@ public class SignInResponse {
   @JsonProperty("refresh_token")
   private String refreshToken;
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("email_address")
-  private String emailAddress;
+  private MaskedEmailAddress emailAddress;
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("phone_number")
-  private String phoneNumber;
+  private MaskedPhoneNumber phoneNumber;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("authentication_status")
@@ -59,9 +64,10 @@ public class SignInResponse {
   @JsonProperty("mfa_enabled")
   private Boolean mfaEnabled;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Sign-in successful";
+  @Override
+  public String getMessageKey() {
+    return "sign.in";
+  }
 
   public static SignInResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
@@ -77,10 +83,42 @@ public class SignInResponse {
 
   public static SignInResponse createDefault(final String emailAddress) {
     return SignInResponse.builder()
-        .emailAddress(emailAddress)
+        .emailAddress(MaskedEmailAddress.of(emailAddress))
         .authenticationStatus(AuthenticationStatus.IN_PROGRESS)
         .authenticationStage(AuthenticationStage.NONE)
         .mfaEnabled(false)
         .build();
   }
+
+  /**
+   * Updates the access token, refresh token, and phone number details.
+   *
+   * <p>This method sets the provided access token, refresh token, and phone number to the respective fields.
+   * The phone number is masked using the {@link MaskedPhoneNumber#of(String)} method before being assigned.</p>
+   *
+   * @param accessToken the new access token.
+   * @param refreshToken the new refresh token.
+   * @param phoneNumber the phone number to be updated. It is masked before being assigned.
+   */
+  public void updateDetails(final String accessToken, final String refreshToken, final String phoneNumber) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
+  }
+
+  /**
+   * Updates the email address and phone number details.
+   *
+   * <p>This method sets the provided email address and phone number to the respective fields.
+   * Both the email address and phone number are masked using the {@link MaskedEmailAddress#of(String)}
+   * and {@link MaskedPhoneNumber#of(String)} methods before being assigned.</p>
+   *
+   * @param emailAddress the email address to be updated. It is masked before being assigned.
+   * @param phoneNumber the phone number to be updated. It is masked before being assigned.
+   */
+  public void updateEmailAndPhone(final String emailAddress, final String phoneNumber) {
+    this.emailAddress = MaskedEmailAddress.of(emailAddress);
+    this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
+  }
+
 }

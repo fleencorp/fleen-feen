@@ -9,7 +9,9 @@ import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
 import com.fleencorp.feen.model.request.message.MessageRequest;
 import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
-import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest;
+import com.fleencorp.feen.model.request.profile.ProfileUpdateSuccessRequest;
+import com.fleencorp.feen.model.request.profile.ProfileUpdateVerificationRequest;
+import com.fleencorp.feen.model.request.profile.ResetPasswordSuccessRequest;
 import com.fleencorp.feen.repository.message.SmsMessageRepository;
 import com.fleencorp.feen.service.impl.message.TemplateProcessor;
 import com.fleencorp.feen.service.message.EmailMessageService;
@@ -130,7 +132,8 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleSendProfileUpdateCode(final SendVerificationCodeRequest request) {
+  public void handleSendProfileUpdateCode(final ProfileUpdateVerificationRequest request) {
+    log.info("I am likely the culprit");
     if (request.getVerificationType() == VerificationType.EMAIL) {
       sendEmailMessage(request);
     } else if (request.getVerificationType() == VerificationType.PHONE) {
@@ -145,7 +148,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleProfileUpdateSuccessful(final MessageRequest request) {
+  public void handleProfileUpdateSuccessful(final ProfileUpdateSuccessRequest request) {
     sendEmailMessage(request);
   }
 
@@ -156,7 +159,7 @@ public class ProfileRequestHandler {
    */
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
-  public void handleResetPasswordSuccessful(final MessageRequest request) {
+  public void handleResetPasswordSuccessful(final ResetPasswordSuccessRequest request) {
     sendEmailMessage(request);
   }
 
