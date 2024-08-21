@@ -37,7 +37,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
@@ -159,10 +158,10 @@ public class CalendarServiceImpl implements CalendarService {
     Calendar calendar = createCalendarDto.toCalendar();
 
     // Check no calendar exist with matching country code or else throw an exception
-    final Optional<Calendar> existingCalendar = calendarRepository.findDistinctByCodeIgnoreCase(calendar.getCode());
-    if (existingCalendar.isPresent()) {
-      throw new CalendarAlreadyExistException(calendar.getCode());
-    }
+    calendarRepository.findDistinctByCodeIgnoreCase(calendar.getCode())
+      .ifPresent((existingCalendar) -> {
+        throw new CalendarAlreadyExistException(existingCalendar.getCode());
+      });
 
     final Oauth2ServiceType oauth2ServiceType = Oauth2ServiceType.GOOGLE_CALENDAR;
     // Retrieve user oauth2 authorization details associated with Google Calendar
