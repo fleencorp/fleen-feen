@@ -5,14 +5,21 @@ import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2Autho
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompletedOauth2AuthorizationResponse extends Oauth2AuthorizationResponse {
+
+  @Override
+  public String getMessageKey() {
+    return "completed.oauth2.authorization";
+  }
 
   public static CompletedOauth2AuthorizationResponse of(final String accessToken, final String refreshToken, final Long expiresIn, final String tokenType, final String scope) {
     return CompletedOauth2AuthorizationResponse.builder()

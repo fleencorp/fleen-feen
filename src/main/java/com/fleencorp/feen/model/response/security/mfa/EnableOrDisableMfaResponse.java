@@ -1,18 +1,21 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import com.fleencorp.feen.model.response.base.ApiResponse;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Builder
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class EnableOrDisableMfaResponse {
+public class EnableOrDisableMfaResponse extends ApiResponse {
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Mfa status updated successfully";
+  @Override
+  public String getMessageKey() {
+    return "enable.disable.mfa";
+  }
 
   public static EnableOrDisableMfaResponse of() {
     return new EnableOrDisableMfaResponse();

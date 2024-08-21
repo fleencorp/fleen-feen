@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -17,9 +18,9 @@ import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.model.response.base.FleenStreamResponse;
-import com.fleencorp.feen.model.response.base.StreamAttendeeResponse;
 import com.fleencorp.feen.model.response.event.*;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
@@ -47,7 +48,6 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.*;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.mapper.StreamAttendeeMapper.toEventAttendeeResponse;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
 import static java.util.Objects.nonNull;
@@ -650,7 +650,7 @@ public class EventServiceImpl implements EventService {
       // Save the updated attendee record
       streamAttendeeRepository.save(attendee);
       // Create a request that remove the attendee from the Google Calendar event
-      NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
+      final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
       eventUpdateService.notAttendingEvent(notAttendingEventRequest);
     }
     return NotAttendingEventResponse.of();
@@ -1086,7 +1086,7 @@ public class EventServiceImpl implements EventService {
     final EventAttendeesResponse eventAttendeesResponse = EventAttendeesResponse.of();
     // Check if the attendees list is not empty and set it to the list of attendees in the response
     if (nonNull(attendees) && !attendees.isEmpty()) {
-      final List<EventAttendeeResponse> attendeesResponses = toEventAttendeeResponse(new ArrayList<>(attendees));
+      final List<EventAttendeeResponse> attendeesResponses = StreamAttendeeMapper.toEventAttendeeResponses(new ArrayList<>(attendees));
       eventAttendeesResponse.setAttendees(attendeesResponses);
     }
     return eventAttendeesResponse;
@@ -1139,7 +1139,7 @@ public class EventServiceImpl implements EventService {
     checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
 
     // Check if the event creator's ID matches the user's ID
-    boolean isSame = Objects.equals(stream.getMember().getMemberId(), user.getId());
+    final boolean isSame = Objects.equals(stream.getMember().getMemberId(), user.getId());
     if (!isSame) {
       throw new FleenStreamNotCreatedByUserException(user.getId());
     }

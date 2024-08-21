@@ -1,7 +1,7 @@
 package com.fleencorp.feen.mapper;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.response.base.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 
 import java.util.List;
 import java.util.Objects;

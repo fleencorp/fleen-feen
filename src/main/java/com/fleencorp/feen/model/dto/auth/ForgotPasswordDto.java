@@ -12,8 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -36,7 +34,7 @@ public class ForgotPasswordDto {
   private String verificationType;
 
   public VerificationType getActualVerificationType() {
-    return parseEnumOrNull(getVerificationType(), VerificationType.class);
+    return VerificationType.of(verificationType);
   }
 
 }

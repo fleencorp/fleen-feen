@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
+import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -25,13 +28,13 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "mfa_type",
   "mfa_setup_status"
 })
-public class SetupMfaResponse {
+public class SetupMfaResponse extends ApiResponse {
 
   @JsonProperty("email_address")
-  private String emailAddress;
+  private MaskedEmailAddress emailAddress;
 
   @JsonProperty("phone_number")
-  private String phoneNumber;
+  private MaskedPhoneNumber phoneNumber;
 
   @JsonProperty("qr_code")
   private String qrCode;
@@ -49,13 +52,22 @@ public class SetupMfaResponse {
   @JsonProperty("mfa_setup_status")
   private MfaSetupStatus mfaSetupStatus;
 
+  @Override
+  public String getMessageKey() {
+    return "setup.mfa";
+  }
+
   public static SetupMfaResponse of(final String emailAddress, final String phoneNumber, final MfaSetupStatus setupStatus, final MfaType mfaType, final boolean enabled) {
     return SetupMfaResponse.builder()
-      .emailAddress(emailAddress)
-      .phoneNumber(phoneNumber)
+      .emailAddress(MaskedEmailAddress.of(emailAddress))
+      .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
       .mfaSetupStatus(setupStatus)
       .mfaType(mfaType)
       .enabled(enabled)
       .build();
+  }
+
+  public void enabled() {
+    this.enabled = true;
   }
 }

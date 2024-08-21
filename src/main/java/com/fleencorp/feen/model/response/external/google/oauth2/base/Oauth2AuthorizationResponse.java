@@ -3,19 +3,15 @@ package com.fleencorp.feen.model.response.external.google.oauth2.base;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fleencorp.feen.model.response.base.ApiResponse;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
 
 
 @SuperBuilder
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -28,7 +24,7 @@ import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
   "token_type",
   "access_token_expiration_time_in_seconds"
 })
-public class Oauth2AuthorizationResponse {
+public class Oauth2AuthorizationResponse extends ApiResponse {
 
   @JsonProperty("id")
   private Long id;
@@ -54,6 +50,9 @@ public class Oauth2AuthorizationResponse {
   @JsonProperty("scope")
   private String scope;
 
-  @Default
-  private String message = SUCCESS;
+
+  @Override
+  public String getMessageKey() {
+    return "oauth2.authorization";
+  }
 }

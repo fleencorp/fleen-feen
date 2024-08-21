@@ -11,17 +11,18 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCalendarRequest {
+public class CreateCalendarRequest extends CalendarRequest {
 
   private String title;
   private String description;
   private String timezone;
 
-  public static CreateCalendarRequest of(final String title, final String description, final String timezone) {
+  public static CreateCalendarRequest of(final String title, final String description, final String timezone, final String accessToken) {
     return CreateCalendarRequest.builder()
             .title(title)
             .description(description)
             .timezone(timezone)
+            .accessToken(accessToken)
             .build();
   }
 }

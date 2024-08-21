@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.stream;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing different types of streams.
 *
@@ -21,5 +23,9 @@ public enum StreamType implements ApiParameter {
 
   StreamType(final String value) {
     this.value = value;
+  }
+
+  public static StreamType of(final String value) {
+    return parseEnumOrNull(value, StreamType.class);
   }
 }

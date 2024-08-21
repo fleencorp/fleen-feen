@@ -3,7 +3,7 @@ package com.fleencorp.feen.event.handler;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeesRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeesResponse;
-import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarEventService;
+import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

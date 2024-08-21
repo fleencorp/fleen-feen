@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
 
@@ -33,6 +34,7 @@ public class ProfileToken extends FleenFeenEntity {
   @Column(name = "reset_password_token_expiry_date")
   private LocalDateTime resetPasswordTokenExpiryDate;
 
+  @CreatedBy
   @OneToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)
   private Member member;

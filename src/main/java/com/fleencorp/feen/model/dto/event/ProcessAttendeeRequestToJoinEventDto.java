@@ -10,8 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -35,6 +33,6 @@ public class ProcessAttendeeRequestToJoinEventDto {
   protected String comment;
 
   public StreamAttendeeRequestToJoinStatus getActualJoinStatus() {
-    return parseEnumOrNull(joinStatus, StreamAttendeeRequestToJoinStatus.class);
+    return StreamAttendeeRequestToJoinStatus.of(joinStatus);
   }
 }

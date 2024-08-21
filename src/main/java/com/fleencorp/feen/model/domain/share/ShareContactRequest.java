@@ -7,6 +7,7 @@ import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -41,6 +42,7 @@ public class ShareContactRequest extends FleenFeenEntity {
   @Column(name = "contact", length = 1000)
   private String contact;
 
+  @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "initiator_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member initiator;

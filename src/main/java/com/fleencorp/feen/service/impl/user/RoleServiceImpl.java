@@ -47,6 +47,6 @@ public class RoleServiceImpl implements RoleService {
 
   @Override
   public List<Role> getRolesForNewUser() {
-    return roleRepository.findRolesByCode(Set.of(RoleType.USER.getValue()));
+    return roleRepository.findRolesByCode(Set.of(RoleType.USER.name()));
   }
 }

@@ -1,9 +1,10 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.model.domain.google.oauth2.GoogleOauth2Authorization;
+import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
@@ -13,17 +14,17 @@ import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchReques
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
-import com.fleencorp.feen.model.response.base.FleenStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.CreateStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.UpdateStreamResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.oauth2.GoogleOauth2AuthorizationRepository;
+import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
-import com.fleencorp.feen.service.external.google.youtube.YouTubeLiveBroadcastService;
+import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
   private final FleenStreamRepository fleenStreamRepository;
-  private final GoogleOauth2AuthorizationRepository googleOauth2AuthorizationRepository;
+  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
 
   /**
    * Constructs a new instance of LiveBroadcastServiceImpl.
@@ -69,15 +70,15 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    *
    * @param youTubeLiveBroadcastService the service to handle YouTube live broadcasts
    * @param fleenStreamRepository the repository to manage FleenStream data
-   * @param googleOauth2AuthorizationRepository the repository to handle OAuth2 authorization
+   * @param oauth2AuthorizationRepository the repository to handle OAuth2 authorization
    */
   public LiveBroadcastServiceImpl(
       final YouTubeLiveBroadcastService youTubeLiveBroadcastService,
       final FleenStreamRepository fleenStreamRepository,
-      final GoogleOauth2AuthorizationRepository googleOauth2AuthorizationRepository) {
+      final Oauth2AuthorizationRepository oauth2AuthorizationRepository) {
     this.youTubeLiveBroadcastService = youTubeLiveBroadcastService;
     this.fleenStreamRepository = fleenStreamRepository;
-    this.googleOauth2AuthorizationRepository = googleOauth2AuthorizationRepository;
+    this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
   }
 
   /**
@@ -129,16 +130,16 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   @Override
   public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final FleenUser user) {
     // Check if there is a valid OAuth2 authorization for the user
-    final Optional<GoogleOauth2Authorization> existingGoogleOauth2Authorization = googleOauth2AuthorizationRepository.findByMember(user.toMember());
+    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.YOUTUBE);
     if (existingGoogleOauth2Authorization.isEmpty()) {
       throw new Oauth2InvalidAuthorizationException();
     }
 
     // Create a request object to create the live broadcast on YouTube
     final CreateLiveBroadcastRequest createLiveBroadcastRequest = CreateLiveBroadcastRequest.by(createLiveBroadcastDto);
-    final GoogleOauth2Authorization googleOauth2Authorization = existingGoogleOauth2Authorization.get();
+    final Oauth2Authorization oauth2Authorization = existingGoogleOauth2Authorization.get();
 
-    createLiveBroadcastRequest.setAccessTokenForHttpRequest(googleOauth2Authorization.getAccessToken());
+    createLiveBroadcastRequest.setAccessTokenForHttpRequest(oauth2Authorization.getAccessToken());
     // Create the live broadcast using YouTubeLiveBroadcastService
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
 
@@ -179,10 +180,10 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
         .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
 
     // Check if the OAuth2 authorization exists for the user
-    final GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
+    final Oauth2Authorization oauth2Authorization = verifyAndGetUserOauth2Authorization(user);
     // Create an update request using the access token and update details
     final UpdateLiveBroadcastRequest updateLiveBroadcastRequest = UpdateLiveBroadcastRequest
-      .of(googleOauth2Authorization.getAccessToken(),
+      .of(oauth2Authorization.getAccessToken(),
           updateLiveBroadcastDto.getTitle(),
           updateLiveBroadcastDto.getDescription());
 
@@ -228,10 +229,10 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
         .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
 
     // Check if the OAuth2 authorization exists for the user
-    final GoogleOauth2Authorization googleOauth2Authorization = verifyAndGetUserOauth2Authorization(user);
+    final Oauth2Authorization oauth2Authorization = verifyAndGetUserOauth2Authorization(user);
     // Create a request object to reschedule the live broadcast on YouTube
     final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest
-      .of(googleOauth2Authorization.getAccessToken(),
+      .of(oauth2Authorization.getAccessToken(),
           rescheduleLiveBroadcastDto.getStartDateTime(),
           rescheduleLiveBroadcastDto.getEndDateTime(), null);
 
@@ -256,10 +257,10 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * using the Member representation of the provided FleenUser.</p>
    *
    * @param user The FleenUser whose OAuth2 authorization needs to be verified and retrieved.
-   * @return The {@link GoogleOauth2Authorization} entity associated with the specified FleenUser.
+   * @return The {@link Oauth2Authorization} entity associated with the specified FleenUser.
    * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the FleenUser.
    */
-  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(final FleenUser user) {
+  public Oauth2Authorization verifyAndGetUserOauth2Authorization(final FleenUser user) {
     // Delegate to verifyAndGetUserOauth2Authorization(Member) method
     return verifyAndGetUserOauth2Authorization(user.toMember());
   }
@@ -267,17 +268,17 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   /**
    * Verifies and retrieves the OAuth2 authorization details for the specified member.
    *
-   * <p>This method retrieves the {@link GoogleOauth2Authorization} entity associated with the provided member
+   * <p>This method retrieves the {@link Oauth2Authorization} entity associated with the provided member
    * from the repository. If no authorization is found, an {@link Oauth2InvalidAuthorizationException} is thrown.
-   * Otherwise, it returns the retrieved {@link GoogleOauth2Authorization}.</p>
+   * Otherwise, it returns the retrieved {@link Oauth2Authorization}.</p>
    *
    * @param member The member whose OAuth2 authorization needs to be verified and retrieved.
-   * @return The {@link GoogleOauth2Authorization} entity associated with the specified member.
+   * @return The {@link Oauth2Authorization} entity associated with the specified member.
    * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the member.
    */
-  public GoogleOauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
+  public Oauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
     // Retrieve the OAuth2 authorization entity associated with the member
-    final Optional<GoogleOauth2Authorization> existingGoogleOauth2Authorization = googleOauth2AuthorizationRepository.findByMember(member);
+    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(member, Oauth2ServiceType.YOUTUBE);
 
     // Throw exception if no authorization is found
     if (existingGoogleOauth2Authorization.isEmpty()) {

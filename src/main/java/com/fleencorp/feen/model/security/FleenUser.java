@@ -148,6 +148,8 @@ public class FleenUser implements UserDetails {
       .profilePhotoUrl(profilePhoto)
       .firstName(firstName)
       .lastName(lastName)
+      .emailAddress(emailAddress)
+      .phoneNumber(phoneNumber)
       .build();
   }
 
@@ -158,6 +160,6 @@ public class FleenUser implements UserDetails {
 
   @Override
   public String getUsername() {
-        return emailAddress;
-    }
+    return emailAddress;
+  }
 }

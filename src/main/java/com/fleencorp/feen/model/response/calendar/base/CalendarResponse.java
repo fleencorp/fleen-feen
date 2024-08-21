@@ -21,6 +21,7 @@ import lombok.experimental.SuperBuilder;
   "title",
   "timezone",
   "code",
+  "is_active",
   "description",
   "created_on",
   "updated_on"
@@ -38,4 +39,7 @@ public class CalendarResponse extends FleenFeenResponse {
 
   @JsonProperty("code")
   private String code;
+
+  @JsonProperty("is_active")
+  private Boolean isActive;
 }

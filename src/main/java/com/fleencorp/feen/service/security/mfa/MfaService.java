@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.security.mfa;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.model.dto.security.mfa.ConfirmSetupMfaDto;
 import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
+import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
@@ -16,11 +17,11 @@ public interface MfaService {
 
   MfaStatusResponse getMfaStatus(FleenUser user);
 
-  SetupMfaResponse setupMfa(FleenUser user, SetupMfaDto mfaTypeDto);
+  SetupMfaResponse setupMfa(SetupMfaDto mfaTypeDto, FleenUser user);
 
-  SetupMfaResponse resendMfaSetupCode(FleenUser user, SetupMfaDto mfaTypeDto);
+  SetupMfaResponse resendMfaSetupCode(SetupMfaDto mfaTypeDto, FleenUser user);
 
-  void confirmMfaSetup(FleenUser fleenUser, ConfirmSetupMfaDto dto);
+  ConfirmMfaSetupResponse confirmMfaSetup(ConfirmSetupMfaDto dto, FleenUser user);
 
   boolean isPhoneOrEmailMfaType(MfaType mfaType);
 

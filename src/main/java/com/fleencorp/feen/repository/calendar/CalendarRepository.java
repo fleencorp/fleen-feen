@@ -12,12 +12,13 @@ import java.util.Optional;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
 
-  @Query("SELECT cal FROM Calendar cal WHERE cal.createdOn BETWEEN :startDate AND :endDate ORDER BY cal.updatedOn DESC")
+  @Query("SELECT cal FROM Calendar cal WHERE cal.createdOn BETWEEN :startDate AND :endDate AND cal.isActive = true ORDER BY cal.updatedOn DESC")
   Page<Calendar> findByDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
+  @Query("SELECT cal FROM Calendar cal WHERE cal.title = :title AND cal.isActive = true")
   Page<Calendar> findByTitle(@Param("title") String title, Pageable pageable);
 
-  @Query("SELECT cal FROM Calendar cal WHERE cal.calendarId IS NOT NULL ORDER BY cal.updatedOn DESC")
+  @Query("SELECT cal FROM Calendar cal WHERE cal.calendarId IS NOT NULL AND cal.isActive = true ORDER BY cal.updatedOn DESC")
   Page<Calendar> findMany(Pageable pageable);
 
   Optional<Calendar> findDistinctByCodeIgnoreCase(@Param("code") String code);

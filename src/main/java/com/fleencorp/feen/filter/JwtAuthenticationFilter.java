@@ -148,10 +148,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           final UsernamePasswordAuthenticationToken authentication = createAuthenticationToken(request, userDetails);
 
           // Set authentication in SecurityContextHolder based on conditions
-          if (shouldSetAuthentication(key, savedToken, userDetails)) {
-            if (emailService.isEmailAddressExist(userDetails.getUsername())) {
-              SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+          // Extract checks for if user is existing in the record even if the token is valid
+          if (shouldSetAuthentication(key, savedToken, userDetails) &&
+              emailService.isEmailAddressExist(userDetails.getUsername())) {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
           } else {
             return false;
           }

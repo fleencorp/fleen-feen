@@ -6,19 +6,19 @@ import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
-import com.fleencorp.feen.model.response.calendar.CreateCalendarResponse;
-import com.fleencorp.feen.model.response.calendar.RetrieveCalendarResponse;
-import com.fleencorp.feen.model.response.calendar.ShareCalendarWithUserResponse;
-import com.fleencorp.feen.model.response.calendar.UpdateCalendarResponse;
+import com.fleencorp.feen.model.response.calendar.*;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
+import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/calendar")
+@RequestMapping("/api/calendar")
 public class CalendarController {
 
   private final CalendarService calendarService;
@@ -27,37 +27,49 @@ public class CalendarController {
     this.calendarService = calendarService;
   }
 
+  @GetMapping(value = "/data-create-calendar")
+  @Cacheable(value = "data-required-to-create-calendar")
+  public DataForCreateCalendarResponse getDataCreateCalendar() {
+    return calendarService.getDataForCreateCalendar();
+  }
+
   @GetMapping(value = "/entries")
-  public SearchResultView findCalendars(@SearchParam CalendarSearchRequest searchRequest) {
+  public SearchResultView findCalendars(@SearchParam final CalendarSearchRequest searchRequest) {
     return calendarService.findCalendars(searchRequest);
   }
 
   @GetMapping(value = "/detail/{id}")
-  public RetrieveCalendarResponse findCalendar(@PathVariable(name = "id") Long calendarId) {
+  public RetrieveCalendarResponse findCalendar(@PathVariable(name = "id") final Long calendarId) {
     return calendarService.findCalendar(calendarId);
   }
 
   @PostMapping(value = "/create")
-  public CreateCalendarResponse createCalendar(@Valid @RequestBody CreateCalendarDto createCalendarDto) {
-    return calendarService.createCalendar(createCalendarDto);
+  public CreateCalendarResponse createCalendar(
+      @Valid @RequestBody final CreateCalendarDto createCalendarDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return calendarService.createCalendar(createCalendarDto, user);
   }
 
   @PutMapping(value = "/update/{id}")
   public UpdateCalendarResponse updateCalendar(
-      @PathVariable(name = "id") Long calendarId,
-      @Valid @RequestBody UpdateCalendarDto updateCalendarDto) {
-    return calendarService.updateCalendar(calendarId, updateCalendarDto);
+      @PathVariable(name = "id") final Long calendarId,
+      @Valid @RequestBody final UpdateCalendarDto updateCalendarDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return calendarService.updateCalendar(calendarId, updateCalendarDto, user);
   }
 
   @DeleteMapping(value = "/delete/{id}")
-  public DeleteResponse deleteCalendar(@PathVariable(name = "id") Long calendarId) {
-    return calendarService.deleteCalendar(calendarId);
+  public DeleteResponse deleteCalendar(
+      @PathVariable(name = "id") final Long calendarId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return calendarService.deleteCalendar(calendarId, user);
   }
 
   @PutMapping(value = "/share-with-user/{id}")
   public ShareCalendarWithUserResponse shareCalendarWithUser(
-      @PathVariable(name = "id") Long calendarId,
-      @Valid @RequestBody ShareCalendarWithUserDto shareCalendarWithUserDto) {
-    return calendarService.shareCalendarWithUser(calendarId, shareCalendarWithUserDto);
+    @PathVariable(name = "id") final Long calendarId,
+    @Valid @RequestBody final ShareCalendarWithUserDto shareCalendarWithUserDto,
+    @AuthenticationPrincipal final FleenUser user) {
+    return calendarService.shareCalendarWithUser(calendarId, shareCalendarWithUserDto, user);
   }
 }

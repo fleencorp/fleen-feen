@@ -10,8 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @Builder
 @Getter
 @Setter
@@ -41,10 +39,10 @@ public class ProcessShareContactRequestDto {
   protected String comment;
 
   public ShareContactRequestStatus getActualShareContactRequestStatus() {
-    return parseEnumOrNull(shareContactRequestStatus, ShareContactRequestStatus.class);
+    return ShareContactRequestStatus.of(shareContactRequestStatus);
   }
 
   public ContactType getActualContactType() {
-    return parseEnumOrNull(contactType, ContactType.class);
+    return ContactType.of(contactType);
   }
 }

@@ -15,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -49,6 +47,6 @@ public class AddContactDto {
   }
 
   public ContactType getActualContactType() {
-    return parseEnumOrNull(contactType, ContactType.class);
+    return ContactType.of(contactType);
   }
 }

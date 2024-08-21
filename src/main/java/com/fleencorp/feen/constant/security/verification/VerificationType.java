@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.security.verification;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enumeration for Verification Type.
 *
@@ -22,5 +24,9 @@ public enum VerificationType implements ApiParameter {
 
   VerificationType(final String value) {
     this.value = value;
+  }
+
+  public static VerificationType of(final String value) {
+    return parseEnumOrNull(value, VerificationType.class);
   }
 }

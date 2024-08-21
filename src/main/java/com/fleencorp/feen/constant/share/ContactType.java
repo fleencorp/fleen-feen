@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.share;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
  * Enum representing the types of contact share requests.
  *
@@ -28,5 +30,9 @@ public enum ContactType implements ApiParameter {
 
   ContactType(final String value) {
     this.value = value;
+  }
+
+  public static ContactType of(final String value) {
+    return parseEnumOrNull(value, ContactType.class);
   }
 }

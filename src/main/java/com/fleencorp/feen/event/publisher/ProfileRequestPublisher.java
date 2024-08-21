@@ -5,6 +5,7 @@ import com.fleencorp.feen.event.service.PublisherService;
 import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
 import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
+import com.fleencorp.feen.model.request.message.MessageRequest;
 import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
 import com.fleencorp.feen.model.request.profile.ProfileUpdateVerificationRequest;
@@ -12,8 +13,8 @@ import com.fleencorp.feen.model.request.profile.ResetPasswordSuccessRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * A service for publishing profile-related requests as application events.
@@ -50,9 +51,9 @@ public class ProfileRequestPublisher implements PublisherService {
    * @param messageRequest the request containing the message to be published.
    */
   @Override
-  @Async
+  @Transactional
   public void publishMessage(final PublishMessageRequest messageRequest) {
-    final Object message = messageRequest.getMessage();
+    final MessageRequest message = messageRequest.getMessage();
     switch (message) {
       case final CompletedUserSignUpRequest request -> sendCompletedSignUpVerification(request);
       case final ForgotPasswordRequest request -> sendForgotPasswordVerificationCode(request);
@@ -72,7 +73,7 @@ public class ProfileRequestPublisher implements PublisherService {
    * @param signUpVerificationRequest the request containing the details
    *                                  for sending the sign-up verification code.
    */
-  protected void sendSignUpVerificationCode(final SignUpVerificationRequest signUpVerificationRequest) {
+  public void sendSignUpVerificationCode(final SignUpVerificationRequest signUpVerificationRequest) {
     applicationEventPublisher.publishEvent(signUpVerificationRequest);
   }
 

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.auth;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -11,12 +12,14 @@ import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
 import com.fleencorp.feen.model.domain.user.Role;
@@ -27,18 +30,23 @@ import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
 import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
 import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.model.request.search.CountrySearchRequest;
+import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
+import com.fleencorp.feen.model.response.security.SignOutResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.auth.PasswordService;
+import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
@@ -51,6 +59,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -60,16 +69,28 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
 import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
 
+/**
+ * Implementation of the {@link AuthenticationService} and {@link PasswordService} interfaces.
+ *
+ * <p>This service provides authentication-related functionality, including user authentication,
+ * password management, multi-factor authentication (MFA), and token management. It utilizes
+ * various injected services such as {@link AuthenticationManager}, {@link CacheService},
+ * {@link MfaService}, {@link TokenService}, and {@link MemberRepository} to perform these
+ * operations. Additionally, it manages roles, user profiles, and localized responses.</p>
+ *
+ * <p>Clients of this service can authenticate users, handle password changes, validate MFA codes,
+ * and manage session tokens, among other authentication-related tasks.</p>
+ */
 @Slf4j
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService,
@@ -77,6 +98,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
   private final AuthenticationManager authenticationManager;
   private final CacheService cacheService;
+  private final CountryService countryService;
   private final MfaService mfaService;
   private final RoleService roleService;
   private final TokenService tokenService;
@@ -84,19 +106,45 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final PasswordEncoder passwordEncoder;
   private final ProfileRequestPublisher profileRequestPublisher;
   private final ProfileTokenRepository profileTokenRepository;
+  private final LocalizedResponse localizedResponse;
 
+  /**
+   * Constructs an instance of {@link AuthenticationServiceImpl} with the provided dependencies.
+   *
+   * <p>This constructor initializes the service with various components necessary for managing
+   * authentication, such as the {@link AuthenticationManager}, {@link CacheService}, {@link CountryService},
+   * {@link MfaService}, {@link RoleService}, {@link TokenService}, {@link MemberRepository},
+   * {@link PasswordEncoder}, {@link ProfileRequestPublisher}, {@link ProfileTokenRepository},
+   * and {@link LocalizedResponse}. These dependencies are injected to facilitate authentication
+   * operations, including managing user roles, tokens, MFA, and profile-related actions.</p>
+   *
+   * @param authenticationManager the manager responsible for processing authentication requests.
+   * @param cacheService the service handling cache operations.
+   * @param countryService the service providing country-related data and operations.
+   * @param mfaService the service managing multi-factor authentication (MFA).
+   * @param roleService the service managing user roles.
+   * @param tokenService the service handling token generation and validation.
+   * @param memberRepository the repository for accessing and managing {@link Member} entities.
+   * @param passwordEncoder the encoder for processing passwords.
+   * @param profileRequestPublisher the publisher for sending profile-related requests.
+   * @param profileTokenRepository the repository for managing profile-related tokens.
+   * @param localizedResponse the service for handling localized responses.
+   */
   public AuthenticationServiceImpl(
       final AuthenticationManager authenticationManager,
       final CacheService cacheService,
+      final CountryService countryService,
       final MfaService mfaService,
       final RoleService roleService,
       final TokenService tokenService,
       final MemberRepository memberRepository,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
-      final ProfileTokenRepository profileTokenRepository) {
+      final ProfileTokenRepository profileTokenRepository,
+      final LocalizedResponse localizedResponse) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
+    this.countryService = countryService;
     this.mfaService = mfaService;
     this.roleService = roleService;
     this.tokenService = tokenService;
@@ -104,11 +152,27 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
     this.profileTokenRepository = profileTokenRepository;
+    this.localizedResponse = localizedResponse;
   }
 
   @Override
   public PasswordEncoder getPasswordEncoder() {
     return passwordEncoder;
+  }
+
+  /**
+   * Retrieves data required for creating a calendar, including a list of countries and available timezones.
+   *
+   * @return a DataForCreateCalendarResponse object containing a list of countries and a set of timezones
+   */
+  @Override
+  public DataForSignUpResponse getDataForSignUp() {
+    // Fetch a list of countries with a large number of entries (1000 in this case).
+    final SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    // Get the countries in the search result
+    final List<?> countries = searchResult.getValues();
+    // Return the response object containing both the countries and timezones.
+    return DataForSignUpResponse.of(countries);
   }
 
   /**
@@ -123,6 +187,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *         authentication status, and profile verification type.
    */
   @Override
+  @Transactional
   public SignUpResponse signUp(final SignUpDto signUpDto) {
     final Member member = signUpDto.toMember();
 
@@ -134,6 +199,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Encode or hash the user's password before saving
     final String password = signUpDto.getPassword();
     encodeOrHashUserPassword(member, password);
+
+    // Set user location details
+    configureUserLocationDetails(member, signUpDto.getCountryCode());
 
     // Save the member to the repository
     memberRepository.save(member);
@@ -186,7 +254,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Validate sign-up verification code
     validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
-
+    // Get verification type associated with sign up operation
     final VerificationType verificationType = completeSignUpDto.getActualVerificationType();
 
     // Retrieve member details
@@ -239,6 +307,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Generate a new OTP
     final String otpCode = generateOtp();
 
+    // Verify if the two provided email addresses is the same
+    validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(resendSignUpVerificationCodeDto.getEmailAddress(), user.getEmailAddress());
 
     // Prepare the request to resend the sign-up verification code
     final VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
@@ -279,7 +349,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
 
     // Return response indicating the successful initiation of code resend
-    return ResendMfaVerificationCodeResponse.of();
+    return localizedResponse.of(ResendMfaVerificationCodeResponse.of());
   }
 
   /**
@@ -289,14 +359,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the authenticated user to sign out
    */
   @Override
-  @Async
-  public void signOut(final FleenUser user) {
+  public SignOutResponse signOut(final FleenUser user) {
     final String username = user.getUsername();
     // Clear saved authentication tokens including access and refresh token
     clearAuthenticationTokens(username);
     // Clear the security context
-    SecurityContextHolder.getContext().setAuthentication(null);
-    SecurityContextHolder.clearContext();
+    clearUserAuthenticationDetails();
+    return SignOutResponse.of();
   }
 
   /**
@@ -330,7 +399,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveAuthenticationTokensToRepositoryOrCache(username, accessToken, refreshToken);
 
     // Return SignInResponse with access and refresh tokens
-    return SignInResponse.of(accessToken, refreshToken);
+    return localizedResponse.of(SignInResponse.of(accessToken, refreshToken));
   }
 
   /**
@@ -366,19 +435,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle sign-in based on user's profile and MFA settings
     if (isProfileInactiveAndUserYetToBeVerified(user)) {
       handleProfileYetToBeVerified(signInResponse, user);
-      return signInResponse;
+      return localizedResponse.of(signInResponse);
     }
 
     // Handle sign-in based on user's profile with enabled MFA
     if (isMfaEnabledAndMfaTypeSet(user)) {
       handleProfileWithMfaEnabled(signInResponse, user);
-      return signInResponse;
+      return localizedResponse.of(signInResponse);
     }
 
     // Handle verified profile sign-in
     handleProfileThatIsVerified(signInResponse, user, authentication);
 
-    return signInResponse;
+    return localizedResponse.of(signInResponse);
   }
 
   /**
@@ -394,6 +463,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws UserNotFoundException if the user with the provided email address is not found in the repository
    */
   @Override
+  @Transactional
   public ForgotPasswordResponse forgotPassword(final ForgotPasswordDto forgotPasswordDto) {
     // Retrieve user's email address from DTO
     final String emailAddress = forgotPasswordDto.getEmailAddress();
@@ -426,20 +496,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Validates the reset password code provided by the user and initiates the password change process.
    *
    * @param resetPasswordDto the DTO containing the reset password information
-   * @param user the authenticated user initiating the password change
    * @return an InitiatePasswordChangeResponse containing the reset password token
    * @throws UserNotFoundException if the user with the provided email address is not found
    * @throws ResetPasswordCodeInvalidException if the reset password code is invalid
    * @throws ResetPasswordCodeExpiredException if the reset password code has expired
    */
   @Override
-  public InitiatePasswordChangeResponse validateResetPasswordCode(final ResetPasswordDto resetPasswordDto, FleenUser user) {
-    final String emailAddress = user.getEmailAddress();
+  public InitiatePasswordChangeResponse verifyResetPasswordCode(final ResetPasswordDto resetPasswordDto) {
+    final String emailAddress = resetPasswordDto.getEmailAddress();
     final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(() -> new UserNotFoundException(emailAddress));
 
     validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
-    user = initializeAuthenticationAndContext(member);
+    final FleenUser user = initializeAuthenticationAndContext(member);
     final String resetPasswordToken = tokenService.createResetPasswordToken(user);
 
     clearResetPasswordOtpSavedTemporarily(user.getUsername());
@@ -459,6 +528,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   @Override
   public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final FleenUser user) {
     final String emailAddress = user.getEmailAddress();
+
+    // Check if user has associated reset password access token
+    verifyUserHasResetPasswordToken(emailAddress);
     // Retrieve member from repository or throw exception if not found
     final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(() -> new UserNotFoundException(emailAddress));
@@ -469,6 +541,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     encodeOrHashUserPassword(member, changePasswordDto.getPassword());
     // Save the updated member with the new password
     memberRepository.save(member);
+    // Clear access token associated with reset password operation
+    clearResetPasswordToken(emailAddress);
 
     // Return response indicating successful password change
     return ChangePasswordResponse.of();
@@ -494,16 +568,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
         .of(RoleType.USER)
-        .map(RoleType::getValue)
+        .map(RoleType::name)
         .collect(Collectors.toSet());
-
-    // Check if the default roles available to assign to user is not empty
-    if (defaultUserRoles.isEmpty()) {
-      throw new NoRoleAvailableToAssignException();
-    }
 
     // Retrieve roles from the role service and add them to the member
     final List<Role> roles = roleService.findAllByCode(defaultUserRoles);
+    // Check if the default roles available to assign to user is not empty
+    if (roles.isEmpty()) {
+      throw new NoRoleAvailableToAssignException();
+    }
+
     member.getRoles().addAll(roles);
   }
 
@@ -526,6 +600,27 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     member.setProfileStatus(ProfileStatus.INACTIVE);
     // Set initial profile verification status
     member.setVerificationStatus(ProfileVerificationStatus.PENDING);
+  }
+
+  /**
+   * Configures the location details of a given member by setting the country name
+   * based on the provided country code.
+   *
+   * <p>This method retrieves the country details using the country code and sets
+   * the country name in the member's profile.</p>
+   *
+   * @param member the {@link Member} whose location details are to be configured.
+   * @param countryCode the ISO country code used to look up the country details.
+   * @throws UnableToCompleteOperationException if the member is null.
+   */
+  public void configureUserLocationDetails(final Member member, final String countryCode) {
+    // Throw an exception if the provided member is null
+    checkIsNull(List.of(member, countryCode), UnableToCompleteOperationException::new);
+
+    // Get country name and details
+    final Country country = countryService.getCountryByCode(countryCode);
+    // Set user country
+    member.setCountry(country.getTitle());
   }
 
   /**
@@ -719,6 +814,28 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   }
 
   /**
+   * Validates that the provided email addresses are not null and checks if they match.
+   *
+   * <p>This method ensures that neither requestEmailAddress nor authenticatedUserEmailAddress
+   * is null. If either is null, an UnableToCompleteOperationException is thrown.
+   * It then compares the two email addresses and throws a FailedOperationException if they are not the same.</p>
+   *
+   * @param requestEmailAddress the email address from the request. It must not be null.
+   * @param authenticatedUserEmailAddress the email address of the authenticated user. It must not be null.
+   * @throws UnableToCompleteOperationException if either requestEmailAddress or authenticatedUserEmailAddress is null.
+   * @throws FailedOperationException if requestEmailAddress does not match authenticatedUserEmailAddress.
+   */
+  private void validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(final String requestEmailAddress, final String authenticatedUserEmailAddress) {
+    // Check if either email address is null and throw an exception if so
+    checkIsNullAny(List.of(requestEmailAddress, authenticatedUserEmailAddress), UnableToCompleteOperationException::new);
+
+    // Compare the email addresses and throw an exception if they don't match
+    if (!authenticatedUserEmailAddress.equals(requestEmailAddress)) {
+      throw new FailedOperationException();
+    }
+  }
+
+  /**
    * Saves the MFA verification code temporarily in the cache.
    *
    * <p>Sets the MFA verification code for the specified username in the cache with a temporary
@@ -728,7 +845,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationCode the MFA verification code to be saved
    */
   private void saveMfaVerificationCodeTemporarily(final String username, final String verificationCode) {
+    log.info("The verification key before saving the code is {} and the code is {}", getMfaAuthenticationCacheKey(username), verificationCode);
     cacheService.set(getMfaAuthenticationCacheKey(username), verificationCode, Duration.ofMinutes(5));
+
+    if (cacheService.exists(getMfaAuthenticationCacheKey(username))) {
+      log.info("The verification key has been set to {}", cacheService.get(getMfaAuthenticationCacheKey(username)));
+    }
   }
 
   /**
@@ -755,7 +877,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private void validateMfaVerificationOrOtpCode(final String otpCode, final MfaType mfaType, final String username, final Long userId) {
     if (mfaService.isPhoneOrEmailMfaType(mfaType)) {
       // Validate email/phone MFA verification code
-      mfaService.validateEmailOrPhoneMfaVerificationCode(otpCode, username);
+      mfaService.validateEmailOrPhoneMfaVerificationCode(username, otpCode);
     } else if (mfaService.isAuthenticatorMfaType(mfaType)) {
       // Validate authenticator app MFA verification code
       mfaService.validateAuthenticatorMfaVerificationCode(otpCode, userId);
@@ -911,9 +1033,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
 
     // Populate the sign-in response object with authentication details
-    signInResponse.setAccessToken(accessToken);
-    signInResponse.setRefreshToken(refreshToken);
-    signInResponse.setPhoneNumber(user.getPhoneNumber());
+    signInResponse.updateDetails(accessToken, refreshToken, user.getPhoneNumber());
   }
 
   /**
@@ -994,9 +1114,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   protected VerificationType getVerificationTypeByMfaType(final MfaType mfaType) {
     // Throw an exception if the provided MFA type is null
     checkIsNull(mfaType, UnableToCompleteOperationException::new);
-
     // Parse the MFA type into a VerificationType enum value
-    final VerificationType verificationType = parseEnumOrNull(mfaType.name(), VerificationType.class);
+    final VerificationType verificationType = VerificationType.of(mfaType.name());
     // Throw an exception if the parsed VerificationType is null
     checkIsNull(verificationType, UnableToCompleteOperationException::new);
 
@@ -1044,10 +1163,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     signInResponse.setAccessToken(accessToken);
     // Clear the refresh token as it is not used in MFA authentication
     signInResponse.setRefreshToken(null);
-    // Update the user's email address in the sign-in response
-    signInResponse.setEmailAddress(user.getEmailAddress());
-    // Update the user's phone number in the sign-in response
-    signInResponse.setPhoneNumber(user.getPhoneNumber());
+    // Update the user's email address and phone number in the sign-in response
+    signInResponse.updateEmailAndPhone(user.getEmailAddress(), user.getPhoneNumber());
   }
 
   /**
@@ -1199,12 +1316,19 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param username the username of the user
    */
-  protected void clearAuthenticationTokens(final String username) {
+  @Async
+  public void clearAuthenticationTokens(final String username) {
     final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
     final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
+    final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);
 
     // Delete access token from cache if it exists
     if (cacheService.exists(accessTokenCacheKeyKey)) {
+      cacheService.delete(accessTokenCacheKeyKey);
+    }
+
+    // Delete reset password token from cache if it exists
+    if (cacheService.exists(resetPasswordTokenCacheKey)) {
       cacheService.delete(accessTokenCacheKeyKey);
     }
 
@@ -1231,6 +1355,34 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   }
 
   /**
+   * Clears the reset password token associated with the specified email address.
+   *
+   * <p>This method delegates the task of removing the reset password token for the given email address
+   * to the TokenService's clearResetPasswordToken() method.</p>
+   *
+   * @param emailAddress the email address for which the reset password token is to be cleared.
+   */
+  public void clearResetPasswordToken(final String emailAddress) {
+    tokenService.clearResetPasswordToken(emailAddress);
+  }
+
+  /**
+   * Verifies if the user has an existing reset password token associated with the specified email address.
+   *
+   * <p>If a reset password token is found for the given email address, this method throws an
+   * {@link InvalidAuthenticationException} to indicate that the user is not authorized to proceed
+   * without clearing the token.</p>
+   *
+   * @param emailAddress the email address to check for an existing reset password token.
+   * @throws InvalidAuthenticationException if a reset password token exists for the given email address.
+   */
+  public void verifyUserHasResetPasswordToken(final String emailAddress) {
+    if (!tokenService.isResetPasswordTokenExist(emailAddress)) {
+      throw new InvalidAuthenticationException(emailAddress);
+    }
+  }
+
+  /**
    * Resets the reset password token and its expiry date in the profile token.
    *
    * @param profileToken the profile token to reset
@@ -1244,5 +1396,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       // Save the updated profile token.
       profileTokenRepository.save(profileToken);
     }
+  }
+
+  /**
+   * Clears the user's authentication details from the security context.
+   *
+   * <p>This method removes the current user's authentication details by setting the authentication
+   * in the {@link SecurityContextHolder} to null and then clearing the security context entirely.</p>
+   */
+  protected void clearUserAuthenticationDetails() {
+    SecurityContextHolder.getContext().setAuthentication(null);
+    SecurityContextHolder.clearContext();
   }
 }

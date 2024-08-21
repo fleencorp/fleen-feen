@@ -12,6 +12,6 @@ public class CalendarNotFoundException extends FleenException {
   private static final String MESSAGE = "Calendar does not exist or cannot be found. ID: %s";
 
   public CalendarNotFoundException(final Object calendarId) {
-    super(format(CalendarNotFoundException.MESSAGE, Objects.toString(calendarId, UNKNOWN)));
+    super(format(MESSAGE, Objects.toString(calendarId, UNKNOWN)));
   }
 }

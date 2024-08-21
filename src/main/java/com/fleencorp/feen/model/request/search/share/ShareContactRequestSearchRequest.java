@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -24,7 +23,7 @@ public class ShareContactRequestSearchRequest extends SearchRequest {
   private Boolean isExpected;
 
   public ShareContactRequestStatus getActualShareContactRequestStatus(final ShareContactRequestStatus defaultShareContactRequestStatus) {
-    final ShareContactRequestStatus actualShareContactRequestStatus1 = parseEnumOrNull(shareContactRequestStatus, ShareContactRequestStatus.class);
+    final ShareContactRequestStatus actualShareContactRequestStatus1 = ShareContactRequestStatus.of(shareContactRequestStatus);
     if (nonNull(actualShareContactRequestStatus1)) {
       return actualShareContactRequestStatus1;
     }
