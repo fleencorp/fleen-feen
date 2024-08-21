@@ -98,8 +98,8 @@ jobs:
       - name: Clean with Maven
         run: ./mvnw clean
 
-#      - name: Install dependencies
-#        run: mvn install -DskipTests
+      - name: Install dependencies
+        run: mvn install -DskipTests
 #
 #      - name: Test with Maven
 #        env:
