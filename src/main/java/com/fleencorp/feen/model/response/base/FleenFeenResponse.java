@@ -4,14 +4,16 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
-import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
 
 @SuperBuilder
 @Getter
@@ -30,10 +32,6 @@ public class FleenFeenResponse {
   @JsonProperty("id")
   protected Object id;
 
-  @Builder.Default
-  @JsonProperty("message")
-  protected String message = SUCCESS;
-
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
   @JsonProperty("created_on")
   protected LocalDateTime createdOn;
@@ -44,7 +42,6 @@ public class FleenFeenResponse {
 
   public FleenFeenResponse(final Object id) {
     this.id = id;
-    message = SUCCESS;
   }
 
   public static FleenFeenResponse of() {

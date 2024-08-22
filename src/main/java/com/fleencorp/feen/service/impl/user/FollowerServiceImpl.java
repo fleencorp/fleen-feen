@@ -39,8 +39,8 @@ public class FollowerServiceImpl implements FollowerService {
    * @param localizedResponse the service for adding localized message for responses
    */
   public FollowerServiceImpl(
-      FollowerRepository followerRepository,
-      LocalizedResponse localizedResponse) {
+      final FollowerRepository followerRepository,
+      final LocalizedResponse localizedResponse) {
     this.followerRepository = followerRepository;
     this.localizedResponse = localizedResponse;
   }
@@ -54,11 +54,11 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional
-  public FollowUserResponse followUser(Long userId, FleenUser user) {
+  public FollowUserResponse followUser(final Long userId, final FleenUser user) {
     // Create a Member object for the user to be followed
-    Member followed = Member.of(userId);
+    final Member followed = Member.of(userId);
     // Convert the current FleenUser to a Member object representing the follower
-    Member follower = user.toMember();
+    final Member follower = user.toMember();
 
     // Check if the follower is already following the followed user
     followerRepository.findByFollowerAndFollowed(follower, followed)
@@ -67,8 +67,8 @@ public class FollowerServiceImpl implements FollowerService {
         _ -> {},
         // If not already following, create and save a new Follower entity
         () -> {
-        Follower newFollower = Follower.of(follower, followed);
-        followerRepository.save(newFollower);
+          final Follower newFollower = Follower.of(follower, followed);
+          followerRepository.save(newFollower);
       });
 
     // Return a response indicating the follow operation was successful
@@ -84,7 +84,7 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional
-  public UnfollowUserResponse unfollowUser(Long userId, FleenUser user) {
+  public UnfollowUserResponse unfollowUser(final Long userId, final FleenUser user) {
     // Create a Member object for the user to be unfollowed
     final Member followed = Member.of(userId);
     // Convert the current FleenUser to a Member object representing the follower
@@ -107,7 +107,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @return a paginated result containing a list of UserResponse views representing the followers
    */
   @Override
-  public FollowersResponse getFollowers(FleenUser followed, SearchRequest searchRequest) {
+  public FollowersResponse getFollowers(final FleenUser followed, final SearchRequest searchRequest) {
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findByFollowed(followed.toMember(), searchRequest.getPage());
     // Convert the list of followers to UserResponse views
@@ -131,7 +131,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @return a paginated result containing the list of users followed by the given follower
    */
   @Override
-  public FollowingsResponse getUsersFollowing(FleenUser follower, SearchRequest searchRequest) {
+  public FollowingsResponse getUsersFollowing(final FleenUser follower, final SearchRequest searchRequest) {
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findByFollower(follower.toMember(), searchRequest.getPage());
     // Convert the list of followers to UserResponse views
