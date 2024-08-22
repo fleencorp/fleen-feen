@@ -33,7 +33,7 @@ public class Follower extends FleenFeenEntity {
   @JoinColumn(name = "followed_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member followed;
 
-  public static Follower of(Member follower, Member followed) {
+  public static Follower of(final Member follower, final Member followed) {
     return Follower.builder()
       .follower(follower)
       .followed(followed)

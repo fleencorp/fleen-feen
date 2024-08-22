@@ -3,9 +3,9 @@ package com.fleencorp.feen.model.response.calendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
   "user_email_address",
   "calendar"
 })
-public class ShareCalendarWithUserResponse {
+public class ShareCalendarWithUserResponse extends ApiResponse {
 
   @JsonProperty("calendar_id")
   private Long calendarId;
@@ -34,9 +34,10 @@ public class ShareCalendarWithUserResponse {
   @JsonProperty("calendar")
   private CalendarResponse calendar;
 
-  @Default
-  @JsonProperty("message")
-  private String message = "Calendar shared with user successfully";
+  @Override
+  public String getMessageKey() {
+    return "share.calendar.with.user";
+  }
 
   public static ShareCalendarWithUserResponse of(final Long calendarId, final String userEmailAddress, final CalendarResponse calendar) {
     return ShareCalendarWithUserResponse.builder()
