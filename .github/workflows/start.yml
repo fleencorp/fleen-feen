@@ -90,6 +90,7 @@ jobs:
       - name: Create and run script.sh
         run: |
           echo "${{ secrets.SCRIPT_SECRETS }}" | base64 --decode > ./script.sh
+          sed -i 's/\r$//' ./script.sh
           chmod +x script.sh
           source script.sh
 
