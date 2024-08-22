@@ -92,7 +92,7 @@ public class GoogleCalendarService {
               .insert(newCalendar)
               .execute();
       if (nonNull(calendar)) {
-        GoogleCreateCalendarResponse.of(calendar.getId(), requireNonNull(mapToCalendarResponse(calendar)));
+        return GoogleCreateCalendarResponse.of(calendar.getId(), requireNonNull(mapToCalendarResponse(calendar)));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while creating calendar. Reason: %s", ex.getMessage());
@@ -114,7 +114,6 @@ public class GoogleCalendarService {
    *
    * @see <a href="https://developers.google.com/calendar/api/v3/reference/calendarList/list">
    *   CalendarList: list</a>
-   *
    */
   public GoogleListCalendarResponse listCalendars(final ListCalendarRequest listCalendarRequest) {
     try {
@@ -129,7 +128,6 @@ public class GoogleCalendarService {
       if (nonNull(calendarList)) {
         // Get the list of calendar entries from the retrieved calendar list
         final List<CalendarListEntry> calendarListEntries = calendarList.getItems();
-
         return GoogleListCalendarResponse.of(mapToCalendarsResponse(calendarListEntries));
       }
     } catch (final IOException ex) {
@@ -299,6 +297,15 @@ public class GoogleCalendarService {
     throw new UnableToCompleteOperationException();
   }
 
+  /**
+   * Creates and returns a Google Calendar service instance authenticated with the provided access token.
+   *
+   * <p>This method initializes the Google Calendar API client using the given access token. It configures the
+   * HTTP transport, JSON factory, and HTTP request initializer to build a {@link Calendar} service instance.</p>
+   *
+   * @param accessToken the OAuth2 access token used to authenticate the API requests
+   * @return a {@link Calendar} service instance configured for the authenticated user
+   */
   private Calendar getService(final String accessToken) {
     return new Calendar.Builder(GoogleOauth2Service.getTransport(), GoogleOauth2Service.getJsonFactory(), getHttpRequestInitializer(accessToken))
       .setApplicationName(applicationName)

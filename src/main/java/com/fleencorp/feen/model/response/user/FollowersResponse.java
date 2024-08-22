@@ -29,7 +29,7 @@ public class FollowersResponse extends ApiResponse {
     return "followers";
   }
 
-  public static FollowersResponse of(SearchResultView result) {
+  public static FollowersResponse of(final SearchResultView result) {
     return FollowersResponse.builder()
       .result(result)
       .build();

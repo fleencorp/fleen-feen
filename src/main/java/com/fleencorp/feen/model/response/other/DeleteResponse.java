@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.response.other;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,19 +20,21 @@ import static org.springframework.http.HttpStatus.OK;
 @Getter
 @Setter
 @AllArgsConstructor
-public class DeleteResponse {
+public class DeleteResponse extends ApiResponse {
 
   @JsonProperty("id")
   private Object id;
-
-  @JsonProperty("message")
-  private final String message;
 
   @JsonProperty("status_code")
   private Integer statusCode;
 
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
   private final String timestamp;
+
+  @Override
+  public String getMessageKey() {
+    return "delete";
+  }
 
   public DeleteResponse(final Object id) {
     this(SUCCESS, true);
