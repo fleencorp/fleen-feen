@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -23,4 +25,6 @@ public class CalendarSearchRequest extends SearchRequest {
 
   @JsonProperty("show_deleted")
   private Boolean showDeleted;
+
+
 }

@@ -20,7 +20,7 @@ permissions:
   issues: read
   checks: write
   pull-requests: write
-  packages: read
+  packages: write
 
 jobs:
 
@@ -78,7 +78,7 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '22'
           distribution: 'temurin'
           cache: maven
       - run: java --version
@@ -98,8 +98,25 @@ jobs:
       - name: Clean with Maven
         run: ./mvnw clean
 
-#      - name: Install dependencies
-#        run: mvn install -DskipTests
+      - uses: s4u/maven-settings-action@v3.0.0
+        with:
+          servers: |
+            [{
+              "id": "github",
+              "username": "${{ secrets.USERNAME }}",
+              "password": "${{ secrets.PACKAGE_GITHUB_TOKEN }}"
+            },
+            {
+              "id": "github1",
+              "username": "${{ secrets.USERNAME }}",
+              "password": "${{ secrets.PACKAGE_GITHUB_TOKEN }}"
+            }]
+
+      - name: verify settings.xml
+        run: cat ~/.m2/settings.xml
+
+      - name: Install dependencies          
+        run: mvn install -DskipTests
 #
 #      - name: Test with Maven
 #        env:

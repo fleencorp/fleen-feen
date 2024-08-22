@@ -4,6 +4,7 @@ import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
+import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2Source;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
@@ -16,6 +17,7 @@ import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2Autho
 import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -29,11 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
+import static com.fleencorp.base.util.FleenUtil.setIfNonNull;
 import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_OAUTH2;
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
-import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.SERVICE_TYPE;
 import static java.util.Objects.nonNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
 /**
@@ -66,6 +67,7 @@ public class GoogleOauth2Service {
   private final Oauth2Credential oauth2Credential;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final ReporterService reporterService;
+  private final LocalizedResponse localizedResponse;
 
   /**
    * Constructs a new GoogleOauth2Service.
@@ -73,14 +75,17 @@ public class GoogleOauth2Service {
    * @param oauth2Credential The OAuth2 credentials used for Google authentication.
    * @param oauth2AuthorizationRepository The repository for storing OAuth2 authorization data.
    * @param reporterService The service used for reporting events.
+   * @param localizedResponse The service for setting localized message to the responses
    */
   public GoogleOauth2Service(
       final Oauth2Credential oauth2Credential,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
-      final ReporterService reporterService) {
+      final ReporterService reporterService,
+      final LocalizedResponse localizedResponse) {
     this.oauth2Credential = oauth2Credential;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.reporterService = reporterService;
+    this.localizedResponse = localizedResponse;
   }
 
   /**
@@ -98,7 +103,7 @@ public class GoogleOauth2Service {
    */
   public StartOauth2AuthorizationResponse startOauth2Authentication(final Oauth2AuthenticationRequest authenticationRequest) {
     final String authorizationUri = getAuthorizationUri(authenticationRequest);
-    return StartOauth2AuthorizationResponse.of(authorizationUri);
+    return localizedResponse.of(StartOauth2AuthorizationResponse.of(authorizationUri));
   }
 
   /**
@@ -118,11 +123,16 @@ public class GoogleOauth2Service {
    */
   @MeasureExecutionTime
   public String getAuthorizationUri(final Oauth2AuthenticationRequest authenticationRequest) {
+    // Obtain the Google authorization code flow based on the authentication request
     final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = getGoogleAuthorizationCodeFlow(authenticationRequest);
     if (nonNull(googleAuthorizationCodeFlow)) {
+      // Create a new authorization URL using the code flow
       final GoogleAuthorizationCodeRequestUrl googleAuthorizationCodeRequestUrl = googleAuthorizationCodeFlow.newAuthorizationUrl();
-      googleAuthorizationCodeRequestUrl.setState(SERVICE_TYPE.concat("=").concat(authenticationRequest.getOauth2ServiceType().name().toLowerCase()));
+      // Set the state parameter with the service type in the URL
+      googleAuthorizationCodeRequestUrl.setState(authenticationRequest.getServiceTypeState());
+      // Set the redirect URI for the authorization request
       googleAuthorizationCodeRequestUrl.setRedirectUri(getRedirectUri());
+      // Build and return the complete authorization URL
       return googleAuthorizationCodeRequestUrl.build();
     }
     return null;
@@ -149,18 +159,25 @@ public class GoogleOauth2Service {
   @MeasureExecutionTime
   @Transactional
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
-   final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
-   final Member member = user.toMember();
-   final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
-          .findByMemberAndServiceType(member, authenticationRequest.getOauth2ServiceType())
+    // Verify the authorization code and obtain the completed OAuth2 authorization response
+    final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
+    final Member member = user.toMember();
+
+    // Get service type associated with authorization and authorization code
+    final Oauth2ServiceType oauth2ServiceType = authenticationRequest.getOauth2ServiceType();
+    // Retrieve the OAuth2 authorization for the member and service type, or create a new one if not found
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
+          .findByMemberAndServiceType(member, oauth2ServiceType)
           .orElseGet(() -> Oauth2Authorization.of(member));
 
+    // Update the OAuth2 authorization with the details from the authorization response
     updateOauth2Authorization(oauth2Authorization, oauth2AuthorizationResponse);
-    oauth2Authorization.setServiceType(authenticationRequest.getOauth2ServiceType());
-    oauth2Authorization.setOauth2Source(Oauth2Source.GOOGLE);
+    // Set the service type and source for the authorization
+    oauth2Authorization.updateServiceTypeAndSource(oauth2ServiceType, Oauth2Source.GOOGLE);
 
+    // Save the updated OAuth2 authorization in the repository
     oauth2AuthorizationRepository.save(oauth2Authorization);
-    return oauth2AuthorizationResponse;
+    return localizedResponse.of(oauth2AuthorizationResponse);
   }
 
   /**
@@ -179,15 +196,22 @@ public class GoogleOauth2Service {
    * @param user The FleenUser for whom the OAuth 2.0 authorization is being refreshed.
    * @return A RefreshOauth2TokenResponse containing the refreshed OAuth 2.0 access token and other details.
    */
+  @Transactional
   public RefreshOauth2TokenResponse refreshUserAccessToken(final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
+    // Attempt to refresh the user's OAuth2 token using the provided refresh token
     final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(authenticationRequest.getRefreshToken());
+    // If the token response is not null, proceed with updating the authorization
     if (nonNull(oauth2TokenResponse)) {
       final Member member = user.toMember();
-      Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, member);
+      // Retrieve the OAuth2 authorization for the user
+      final Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, member);
+      // Update the authorization with the new token information
       updateOauth2Authorization(oauth2Authorization, oauth2TokenResponse);
+      // Save the updated authorization in the repository
       oauth2AuthorizationRepository.save(oauth2Authorization);
       return oauth2TokenResponse;
     }
+    // Throw an exception if the token response is null
     throw new Oauth2InvalidAuthorizationException();
   }
 
@@ -237,11 +261,11 @@ public class GoogleOauth2Service {
    */
   private void updateOauth2Authorization(final Oauth2Authorization oauth2Authorization, final Oauth2AuthorizationResponse oauth2AuthorizationResponse) {
     if (nonNull(oauth2Authorization) && nonNull(oauth2AuthorizationResponse)) {
-      oauth2Authorization.setAccessToken(oauth2AuthorizationResponse.getAccessToken());
-      oauth2Authorization.setRefreshToken(oauth2AuthorizationResponse.getRefreshToken());
-      oauth2Authorization.setTokenExpirationTimeInMilliseconds(SECONDS.toMillis(oauth2AuthorizationResponse.getAccessTokenExpirationTimeInSeconds()));
-      oauth2Authorization.setScope(oauth2AuthorizationResponse.getScope());
-      oauth2Authorization.setTokenType(oauth2AuthorizationResponse.getTokenType());
+      setIfNonNull(oauth2AuthorizationResponse::getAccessToken, oauth2Authorization::setAccessToken);
+      setIfNonNull(oauth2AuthorizationResponse::getRefreshToken, oauth2Authorization::setRefreshToken);
+      setIfNonNull(oauth2AuthorizationResponse::getScope, oauth2Authorization::setScope);
+      setIfNonNull(oauth2AuthorizationResponse::getTokenType, oauth2Authorization::setTokenType);
+      oauth2Authorization.setTokenExpirationTimeInMilliseconds(oauth2AuthorizationResponse.getAccessTokenExpirationTimeInMilliseconds());
     }
   }
 
@@ -385,7 +409,8 @@ public class GoogleOauth2Service {
    * @return A GoogleAuthorizationCodeFlow.Builder instance configured with OAuth 2.0 authorization settings.
    */
   public GoogleAuthorizationCodeFlow.Builder getAuthorizationCodeFlowBuilder(final Oauth2AuthenticationRequest authenticationRequest) {
-    return new GoogleAuthorizationCodeFlow.Builder(GoogleOauth2Service.getTransport(), GoogleOauth2Service.getJsonFactory(), getClientSecrets(), authenticationRequest.getScopes())
+    return new GoogleAuthorizationCodeFlow.Builder(GoogleOauth2Service.getTransport(), GoogleOauth2Service.getJsonFactory(), getClientSecrets(),
+            authenticationRequest.getScopes())
             .setAccessType("offline")
             .setApprovalPrompt("force");
   }

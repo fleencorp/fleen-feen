@@ -50,6 +50,10 @@ public class Oauth2AuthorizationResponse extends ApiResponse {
   @JsonProperty("scope")
   private String scope;
 
+  public long getAccessTokenExpirationTimeInMilliseconds() {
+    final long currentTimeMillis = System.currentTimeMillis();
+    return currentTimeMillis + (accessTokenExpirationTimeInSeconds * 1000);
+  }
 
   @Override
   public String getMessageKey() {

@@ -642,17 +642,17 @@ public class EventServiceImpl implements EventService {
       .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
     // Find the existing attendee record for the user and event
-    final Optional<StreamAttendee> existingStreamAttendee = streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember());
-    if (existingStreamAttendee.isPresent()) {
-      // If an attendee record exists, update their attendance status to false
-      final StreamAttendee attendee = existingStreamAttendee.get();
-      attendee.setIsAttending(false);
-      // Save the updated attendee record
-      streamAttendeeRepository.save(attendee);
-      // Create a request that remove the attendee from the Google Calendar event
-      final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
-      eventUpdateService.notAttendingEvent(notAttendingEventRequest);
-    }
+    streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember())
+      .ifPresent(streamAttendee -> {
+        // If an attendee record exists, update their attendance status to false
+        streamAttendee.setIsAttending(false);
+        // Save the updated attendee record
+        streamAttendeeRepository.save(streamAttendee);
+        // Create a request that remove the attendee from the Google Calendar event
+        final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress());
+        eventUpdateService.notAttendingEvent(notAttendingEventRequest);
+    });
+
     return NotAttendingEventResponse.of();
   }
 
@@ -811,24 +811,28 @@ public class EventServiceImpl implements EventService {
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
-    final Optional<StreamAttendee> existingStreamAttendee = checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventDto.getAttendeeUserId()));
-    // Check if the attendee has submitted a request and the request is still pending
-    if (existingStreamAttendee.isPresent() && existingStreamAttendee.get().getStreamAttendeeRequestToJoinStatus() == PENDING) {
-      final StreamAttendee streamAttendee = existingStreamAttendee.get();
-      streamAttendee.setStreamAttendeeRequestToJoinStatus(processAttendeeRequestToJoinEventDto.getActualJoinStatus());
-      streamAttendee.setOrganizerComment(processAttendeeRequestToJoinEventDto.getComment());
+    checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventDto.getAttendeeUserId()))
+      .ifPresentOrElse(
+        streamAttendee -> {
+          if (streamAttendee.getStreamAttendeeRequestToJoinStatus() == PENDING) {
+            streamAttendee.setStreamAttendeeRequestToJoinStatus(processAttendeeRequestToJoinEventDto.getActualJoinStatus());
+            streamAttendee.setOrganizerComment(processAttendeeRequestToJoinEventDto.getComment());
 
-      if (processAttendeeRequestToJoinEventDto.getActualJoinStatus() == APPROVED) {
-        final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-            .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+            if (processAttendeeRequestToJoinEventDto.getActualJoinStatus() == APPROVED) {
+              final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
+                .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
 
-        streamAttendeeRepository.save(streamAttendee);
-        fleenStreamRepository.save(stream);
+              streamAttendeeRepository.save(streamAttendee);
+              fleenStreamRepository.save(stream);
 
-        // Add attendee to the event by invitation
-        addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getMember().getEmailAddress(), null);
-      }
-    }
+              // Add attendee to the event by invitation
+              addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getMember().getEmailAddress(), null);
+            }
+          }
+        },
+        () -> {}
+      );
+
 
     return ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream));
   }
@@ -975,20 +979,25 @@ public class EventServiceImpl implements EventService {
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
-    final Optional<StreamAttendee> existingStreamAttendee = streamAttendeeRepository.findDistinctByEmail(addNewEventAttendeeDto.getEmailAddress());
-    if (existingStreamAttendee.isPresent() && isStreamAttendeeRequestPendingOrDisapproved(existingStreamAttendee.get())) {
-      final StreamAttendee streamAttendee = existingStreamAttendee.get();
-      // Approve new attendee request and set organizer comment
-      approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
-      // Add attendee to the event using an external service
-      addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
-      streamAttendeeRepository.save(streamAttendee);
-    } else {
-      // Check if there is a member with attendee's email address from the request and add them as a stream attendee
-      approveAndAddAttendeeToStreamAttendees(stream, addNewEventAttendeeDto);
-      // Add attendee to the event using an external service
-      addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
-    }
+    streamAttendeeRepository.findDistinctByEmail(addNewEventAttendeeDto.getEmailAddress())
+      .ifPresentOrElse(
+        streamAttendee -> {
+          if (isStreamAttendeeRequestPendingOrDisapproved(streamAttendee)) {
+            // Approve new attendee request and set organizer comment
+            approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
+            // Add attendee to the event using an external service
+            addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
+            streamAttendeeRepository.save(streamAttendee);
+          }
+        },
+        () -> {
+          // Check if there is a member with attendee's email address from the request and add them as a stream attendee
+          approveAndAddAttendeeToStreamAttendees(stream, addNewEventAttendeeDto);
+          // Add attendee to the event using an external service
+          addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
+        }
+      );
+
 
     fleenStreamRepository.save(stream);
     return AddNewEventAttendeeResponse.of(eventId, toEventResponse(stream), addNewEventAttendeeDto.getEmailAddress());
@@ -1021,14 +1030,13 @@ public class EventServiceImpl implements EventService {
    */
   protected void approveAndAddAttendeeToStreamAttendees(final FleenStream stream, final AddNewEventAttendeeDto addNewEventAttendeeDto) {
     // Check if the member with the given email address already exists in the repository
-    final Optional<Member> existingMember = memberRepository.findByEmailAddress(addNewEventAttendeeDto.getEmailAddress());
-    // If the member exists, proceed to create and approve the attendee
-    if (existingMember.isPresent()) {
-      final Member member = existingMember.get();
-      final StreamAttendee streamAttendee = createStreamAttendee(stream, FleenUser.of(member.getMemberId()));
-      approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
-      streamAttendeeRepository.save(streamAttendee);
-    }
+    memberRepository.findByEmailAddress(addNewEventAttendeeDto.getEmailAddress())
+      .ifPresent(member -> {
+        // If the member exists, proceed to create and approve the attendee
+        final StreamAttendee streamAttendee = createStreamAttendee(stream, FleenUser.of(member.getMemberId()));
+        approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
+        streamAttendeeRepository.save(streamAttendee);
+      });
   }
 
   /**
@@ -1183,13 +1191,11 @@ public class EventServiceImpl implements EventService {
     checkIsNullAny(Set.of(stream, userId), UnableToCompleteOperationException::new);
 
     // If the user is found as an attendee, throw an exception with the attendee's request to join status
-    final Optional<StreamAttendee> existingStreamAttendee = checkIfUserIsAlreadyAnAttendee(stream, userId);
-
-    // If the user is found as an attendee, throw an exception with the attendee's request to join status
-    if (existingStreamAttendee.isPresent()) {
-      final StreamAttendee streamAttendee = existingStreamAttendee.get();
-      throw new AlreadyRequestedToJoinStreamException(streamAttendee.getStreamAttendeeRequestToJoinStatus().getValue());
-    }
+    checkIfUserIsAlreadyAnAttendee(stream, userId)
+      .ifPresent(streamAttendee -> {
+        // If the user is found as an attendee, throw an exception with the attendee's request to join status
+        throw new AlreadyRequestedToJoinStreamException(streamAttendee.getStreamAttendeeRequestToJoinStatus().getValue());
+      });
   }
 
   /**

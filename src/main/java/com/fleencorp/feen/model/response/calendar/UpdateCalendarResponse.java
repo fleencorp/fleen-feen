@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.calendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import lombok.*;
   "calendar_id",
   "calendar"
 })
-public class UpdateCalendarResponse {
+public class UpdateCalendarResponse extends ApiResponse {
 
   @JsonProperty("calendar_id")
   private Long calendarId;
@@ -28,6 +29,11 @@ public class UpdateCalendarResponse {
   @Builder.Default
   @JsonProperty("message")
   private String message = "Calendar updated successfully";
+
+  @Override
+  public String getMessageKey() {
+    return "update.calendar";
+  }
 
   public static UpdateCalendarResponse of(final Long calendarId, final CalendarResponse calendar) {
     return UpdateCalendarResponse.builder()

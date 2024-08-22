@@ -25,6 +25,12 @@ public class Oauth2AuthenticationRequest {
   private String refreshToken;
   private Oauth2Authorization oauth2Authorization;
 
+  public String getServiceTypeState() {
+    return nonNull(oauth2ServiceType)
+      ? SERVICE_TYPE.concat("=").concat(oauth2ServiceType.name().toLowerCase())
+      : "";
+  }
+
   /**
    * Creates an {@link Oauth2AuthenticationRequest} based on the specified OAuth2 scope.
    *

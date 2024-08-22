@@ -5,12 +5,12 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toSet;
 
 /**
 * Validator class that checks if a given timezone string is valid.
@@ -47,7 +47,7 @@ public class TimezoneValidValidator implements ConstraintValidator<TimezoneValid
   */
   @Override
   public boolean isValid(final String timezone, final ConstraintValidatorContext context) {
-    return !nonNull(timezone) || TimezoneValidValidator.getTimezones().contains(timezone.toLowerCase());
+    return nonNull(timezone) && TimezoneValidValidator.getTimezones().contains(timezone);
   }
 
   /**
@@ -60,9 +60,7 @@ public class TimezoneValidValidator implements ConstraintValidator<TimezoneValid
   * @return a {@link Set} of all available timezone IDs in lowercase
   */
   public static Set<String> getTimezones() {
-    return getAvailableTimezones().stream()
-            .map(String::toLowerCase)
-            .collect(toSet());
+    return new HashSet<>(getAvailableTimezones());
   }
 
   /**

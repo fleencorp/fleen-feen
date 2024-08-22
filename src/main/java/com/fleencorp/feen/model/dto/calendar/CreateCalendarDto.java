@@ -1,22 +1,19 @@
 package com.fleencorp.feen.model.dto.calendar;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.converter.common.ToLowerCase;
 import com.fleencorp.feen.converter.common.ToTitleCase;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.validator.CountryExist;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateCalendarDto {
@@ -35,7 +32,6 @@ public class CreateCalendarDto {
   @NotBlank(message = "{calendar.timezone.NotBlank}")
   @Size(max = 30, message = "{calendar.timezone.Size}")
   @TimezoneValid
-  @ToLowerCase
   @JsonProperty("timezone")
   private String timezone;
 
