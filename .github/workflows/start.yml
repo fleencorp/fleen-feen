@@ -20,7 +20,7 @@ permissions:
   issues: read
   checks: write
   pull-requests: write
-  packages: read
+  packages: write
 
 jobs:
 
@@ -103,6 +103,11 @@ jobs:
           servers: |
             [{
               "id": "github",
+              "username": "${{ secrets.USERNAME }}",
+              "password": "${{ secrets.PACKAGE_GITHUB_TOKEN }}"
+            },
+            {
+              "id": "github1",
               "username": "${{ secrets.USERNAME }}",
               "password": "${{ secrets.PACKAGE_GITHUB_TOKEN }}"
             }]
