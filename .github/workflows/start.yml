@@ -89,9 +89,9 @@ jobs:
 
       - name: Create and run script.sh
         run: |
-          echo "${{ secrets.SCRIPT_SECRETS }}" > script.sh
+          echo "${{ secrets.SCRIPT_SECRETS }}" | base64 --decode > ./script.sh
           chmod +x script.sh
-          source ./script.sh
+          source script.sh
 
       - name: Cache Maven dependencies
         uses: actions/cache@v4
