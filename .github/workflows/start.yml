@@ -69,6 +69,11 @@ jobs:
           redis-version: '7'
       - run: redis-cli ping
 
+      - name: Set up Redis configuration
+        run: |
+          echo "requirepass ${{ secrets.CACHE_PASSWORD }}" > redis.conf
+
+
       - name: Update package lists
         run: sudo apt-get update
 
