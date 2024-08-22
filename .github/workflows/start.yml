@@ -114,20 +114,20 @@ jobs:
 
       - name: Install dependencies          
         run: mvn install -DskipTests
-#
-#      - name: Test with Maven
-#        env:
-#          DB_NAME: test_db
-#          DB_USERNAME: test_user
-#          DB_PASSWORD: test_pass
-#        run: ./mvnw test
-#
-#      - name: Verify with Maven
-#        env:
-#          DB_NAME: test_db
-#          DB_USERNAME: test_user
-#          DB_PASSWORD: test_pass
-#        run: ./mvnw verify
+
+      - name: Test with Maven
+        env:
+          DB_NAME: test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
+        run: ./mvnw test
+
+      - name: Verify with Maven
+        env:
+          DB_NAME: test_db
+          DB_USERNAME: test_user
+          DB_PASSWORD: test_pass
+        run: ./mvnw verify
 
   release:
     runs-on: ubuntu-latest
