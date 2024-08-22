@@ -60,8 +60,8 @@ public class GoogleApiUtil {
       httpRequest.setParser(new JsonObjectParser(GoogleOauth2Service.getJsonFactory()));
       httpRequest.setHeaders(getHeaders(accessToken));
       httpRequest.setThrowExceptionOnExecuteError(true);
-      httpRequest.setConnectTimeout(5000);
-      httpRequest.setReadTimeout(5000);
+      httpRequest.setConnectTimeout(50_000);
+      httpRequest.setReadTimeout(50_000);
 
       httpRequest.executeAsync();
     };
