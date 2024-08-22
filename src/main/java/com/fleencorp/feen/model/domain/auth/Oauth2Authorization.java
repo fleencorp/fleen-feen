@@ -63,4 +63,9 @@ public class Oauth2Authorization extends FleenFeenEntity {
     return Oauth2Authorization.builder().member(member).build();
   }
 
+  public void updateServiceTypeAndSource(final Oauth2ServiceType serviceType, final Oauth2Source oauth2Source) {
+    this.serviceType = serviceType;
+    this.oauth2Source = oauth2Source;
+  }
+
 }
