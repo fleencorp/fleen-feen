@@ -58,9 +58,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Redis
+        uses: shogo82148/actions-setup-redis@v1.33.0
+        with:
+          redis-version: '7'
+      - run: redis-cli ping
 
       - name: Update package lists
         run: sudo apt-get update
@@ -86,16 +93,6 @@ jobs:
       - name: Grant execution permission to mvnw
         run: chmod +x ./mvnw
         shell: bash
-
-      - name: Create and run script.sh
-        run: |
-          echo "${{ secrets.SCRIPT_SECRETS }}" | base64 --decode > ./script.sh
-          sed -i 's/\r$//' ./script.sh  # Convert Windows line endings to Unix format
-          source ./script.sh            # Source the script to export variables
-          echo "Environment variables after sourcing script.sh:"
-          env | grep CACHE               # Optionally, list all CACHE_ environment variables to verify they are set
-          chmod +x ./script.sh
-          ./script.sh
 
       - name: Cache Maven dependencies
         uses: actions/cache@v4
