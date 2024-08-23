@@ -27,7 +27,7 @@ public class Calendar extends FleenFeenEntity {
   @Column(name = "calendar_id", nullable = false, updatable = false, unique = true)
   private Long calendarId;
 
-  @Column(name = "external_id", nullable = false, updatable = false)
+  @Column(name = "external_id", nullable = false)
   private String externalId;
 
   @Column(name = "title", nullable = false, length = 300)

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.ApiResponse;
-import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import lombok.*;
 
 @Builder
@@ -15,26 +14,21 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "calendar_id",
-  "calendar"
+  "calendar_id"
 })
-public class UpdateCalendarResponse extends ApiResponse {
+public class DeletedCalendarResponse extends ApiResponse {
 
   @JsonProperty("calendar_id")
   private Long calendarId;
 
-  @JsonProperty("calendar")
-  private CalendarResponse calendar;
-
   @Override
   public String getMessageKey() {
-    return "update.calendar";
+    return "deleted.calendar";
   }
 
-  public static UpdateCalendarResponse of(final Long calendarId, final CalendarResponse calendar) {
-    return UpdateCalendarResponse.builder()
-            .calendarId(calendarId)
-            .calendar(calendar)
-            .build();
+  public static DeletedCalendarResponse of(Long calendarId) {
+    return DeletedCalendarResponse.builder()
+      .calendarId(calendarId)
+      .build();
   }
 }

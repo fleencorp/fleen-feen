@@ -7,7 +7,6 @@ import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
 import com.fleencorp.feen.model.response.calendar.*;
-import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import jakarta.validation.Valid;
@@ -58,8 +57,15 @@ public class CalendarController {
     return calendarService.updateCalendar(calendarId, updateCalendarDto, user);
   }
 
+  @PutMapping(value = "/reactivate/{id}")
+  public ReactivateCalendarResponse reactivateCalendar(
+      @PathVariable(name = "id") final Long calendarId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return calendarService.reactivateCalendar(calendarId, user);
+  }
+
   @DeleteMapping(value = "/delete/{id}")
-  public DeleteResponse deleteCalendar(
+  public DeletedCalendarResponse deleteCalendar(
       @PathVariable(name = "id") final Long calendarId,
       @AuthenticationPrincipal final FleenUser user) {
     return calendarService.deleteCalendar(calendarId, user);
@@ -67,9 +73,9 @@ public class CalendarController {
 
   @PutMapping(value = "/share-with-user/{id}")
   public ShareCalendarWithUserResponse shareCalendarWithUser(
-    @PathVariable(name = "id") final Long calendarId,
-    @Valid @RequestBody final ShareCalendarWithUserDto shareCalendarWithUserDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "id") final Long calendarId,
+      @Valid @RequestBody final ShareCalendarWithUserDto shareCalendarWithUserDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return calendarService.shareCalendarWithUser(calendarId, shareCalendarWithUserDto, user);
   }
 }

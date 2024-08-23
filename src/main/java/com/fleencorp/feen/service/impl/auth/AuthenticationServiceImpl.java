@@ -845,12 +845,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationCode the MFA verification code to be saved
    */
   private void saveMfaVerificationCodeTemporarily(final String username, final String verificationCode) {
-    log.info("The verification key before saving the code is {} and the code is {}", getMfaAuthenticationCacheKey(username), verificationCode);
     cacheService.set(getMfaAuthenticationCacheKey(username), verificationCode, Duration.ofMinutes(5));
-
-    if (cacheService.exists(getMfaAuthenticationCacheKey(username))) {
-      log.info("The verification key has been set to {}", cacheService.get(getMfaAuthenticationCacheKey(username)));
-    }
   }
 
   /**

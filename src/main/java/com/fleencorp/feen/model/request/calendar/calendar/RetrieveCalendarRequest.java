@@ -1,14 +1,24 @@
 package com.fleencorp.feen.model.request.calendar.calendar;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RetrieveCalendarRequest {
+public class RetrieveCalendarRequest extends CalendarRequest {
 
   private String calendarId;
-  private String accessToken;
+
+  public static RetrieveCalendarRequest of(String calendarId, String accessToken) {
+    return RetrieveCalendarRequest.builder()
+      .calendarId(calendarId)
+      .accessToken(accessToken)
+      .build();
+  }
 }

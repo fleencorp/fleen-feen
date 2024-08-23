@@ -21,7 +21,9 @@ public interface CalendarService {
 
   UpdateCalendarResponse updateCalendar(Long calendarId, UpdateCalendarDto updateCalendarDto, FleenUser user);
 
-  DeleteResponse deleteCalendar(Long calendarId, FleenUser user);
+  ReactivateCalendarResponse reactivateCalendar(Long calendarId, FleenUser user);
+
+  DeletedCalendarResponse deleteCalendar(Long calendarId, FleenUser user);
 
   ShareCalendarWithUserResponse shareCalendarWithUser(Long calendarId, ShareCalendarWithUserDto shareCalendarWithUserDto, FleenUser user);
 }
