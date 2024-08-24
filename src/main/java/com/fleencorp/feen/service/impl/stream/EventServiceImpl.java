@@ -17,7 +17,6 @@ import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
@@ -27,6 +26,7 @@ import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,6 +72,7 @@ public class EventServiceImpl implements EventService {
   private final MemberRepository memberRepository;
   private final StreamEventPublisher streamEventPublisher;
   private static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
+  private final LocalizedResponse localizedResponse;
 
   /**
    * Constructor for the EventServiceImpl class.
@@ -87,6 +88,7 @@ public class EventServiceImpl implements EventService {
    * @param streamAttendeeRepository the repository for managing event or stream attendees
    * @param memberRepository the repository for managing users
    * @param streamEventPublisher the service for publishing stream or event related actions
+   * @param localizedResponse the service for creating localized response message
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
@@ -96,7 +98,8 @@ public class EventServiceImpl implements EventService {
       final CalendarRepository calendarRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final MemberRepository memberRepository,
-      final StreamEventPublisher streamEventPublisher) {
+      final StreamEventPublisher streamEventPublisher,
+      final LocalizedResponse localizedResponse) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.eventUpdateService = eventUpdateService;
     this.fleenStreamRepository = fleenStreamRepository;
@@ -105,6 +108,7 @@ public class EventServiceImpl implements EventService {
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.memberRepository = memberRepository;
     this.streamEventPublisher = streamEventPublisher;
+    this.localizedResponse = localizedResponse;
   }
 
   /**
@@ -712,7 +716,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
-  public FleenFeenResponse joinEvent(final Long eventId, final FleenUser user) {
+  public JoinEventResponse joinEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
         .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
 
@@ -743,7 +747,7 @@ public class EventServiceImpl implements EventService {
             user.getEmailAddress());
     eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
 
-    return FleenFeenResponse.of(eventId);
+    return localizedResponse.of(JoinEventResponse.of(eventId));
   }
 
   /**
@@ -1065,11 +1069,12 @@ public class EventServiceImpl implements EventService {
    * to convert the attendees into a structured response.</p>
    *
    * @param eventId the unique identifier of the event
+   * @param user the authenticated user
    * @return an EventAttendeesResponse DTO containing the list of attendees for the event
    * @throws FleenStreamNotFoundException if the event with the specified eventId is not found
    */
   @Override
-  public EventAttendeesResponse getEventAttendees(final Long eventId) {
+  public EventAttendeesResponse getEventAttendees(final Long eventId, final FleenUser user) {
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
