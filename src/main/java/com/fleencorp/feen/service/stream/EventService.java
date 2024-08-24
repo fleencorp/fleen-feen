@@ -39,7 +39,7 @@ public interface EventService {
 
   RescheduleEventResponse rescheduleEvent(Long eventId, RescheduleCalendarEventDto rescheduleCalendarEventDto, FleenUser user);
 
-  FleenFeenResponse joinEvent(Long eventId, FleenUser user);
+  JoinEventResponse joinEvent(Long eventId, FleenUser user);
 
   RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventDto requestToJoinEventDto, FleenUser user);
 
@@ -49,7 +49,7 @@ public interface EventService {
 
   AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
 
-  EventAttendeesResponse getEventAttendees(Long eventId);
+  EventAttendeesResponse getEventAttendees(Long eventId, FleenUser user);
 
   TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);
 
