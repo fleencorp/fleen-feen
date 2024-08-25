@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.calendar;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
+import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
@@ -250,6 +251,8 @@ public class CalendarServiceImpl implements CalendarService {
     Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
+    // Verify calendar is not already active
+    verifyCalendarIsNotAlreadyActive(calendar);
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
@@ -325,8 +328,7 @@ public class CalendarServiceImpl implements CalendarService {
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.GOOGLE_CALENDAR)
-      .orElseThrow(Oauth2InvalidAuthorizationException::new);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
 
     // Construct the request for sharing the calendar
     final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest
@@ -421,6 +423,19 @@ public class CalendarServiceImpl implements CalendarService {
     if (!(oauth2Authorization.getAccessToken().equals(currentAccessToken))) {
       // Save the updated authorization entity to the repository
       oauth2AuthorizationRepository.save(oauth2Authorization);
+    }
+  }
+
+  /**
+   * Verifies that the given calendar is not already active. If the calendar is active, an exception is thrown.
+   *
+   * @param calendar The calendar to be checked for active status. If the calendar is {@code null} or the active
+   *                 status is not set, the method does nothing.
+   * @throws CalendarAlreadyActiveException if the calendar is already active.
+   */
+  public void verifyCalendarIsNotAlreadyActive(final Calendar calendar) {
+    if (nonNull(calendar) && nonNull(calendar.getIsActive()) && calendar.getIsActive()) {
+      throw new CalendarAlreadyActiveException();
     }
   }
 }
