@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "email_address",
   "phone_number"
 })
-public class ForgotPasswordResponse {
+public class ForgotPasswordResponse extends ApiResponse {
 
   @JsonFormat(shape = STRING)
   @JsonProperty("email_address")
@@ -33,9 +34,10 @@ public class ForgotPasswordResponse {
   @JsonProperty("phone_number")
   private MaskedPhoneNumber phoneNumber;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Forgot Password code sent successfully";
+  @Override
+  public String getMessageKey() {
+    return "forgot.password";
+  }
 
   public static ForgotPasswordResponse of(final String emailAddress, final String phoneNumber) {
     return ForgotPasswordResponse.builder()

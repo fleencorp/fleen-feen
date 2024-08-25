@@ -172,7 +172,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Get the countries in the search result
     final List<?> countries = searchResult.getValues();
     // Return the response object containing both the countries and timezones.
-    return DataForSignUpResponse.of(countries);
+    return localizedResponse.of(DataForSignUpResponse.of(countries));
   }
 
   /**
@@ -249,6 +249,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws NoRoleAvailableToAssignException if no roles are available to assign to the new user
    */
   @Override
+  @Transactional
   public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final FleenUser user) {
     final String username = user.getUsername();
 
@@ -309,6 +310,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Verify if the two provided email addresses is the same
     validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(resendSignUpVerificationCodeDto.getEmailAddress(), user.getEmailAddress());
+    // Check if user is already sign up and profile is active
+    checkIfSignUpIsAlreadyCompleted(user.toMember());
 
     // Prepare the request to resend the sign-up verification code
     final VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
@@ -320,7 +323,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
 
     // Return response indicating the successful initiation of code resend
-    return ResendSignUpVerificationCodeResponse.of();
+    return localizedResponse.of(ResendSignUpVerificationCodeResponse.of());
   }
 
   /**
@@ -489,7 +492,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveResetPasswordOtpTemporarily(member.getEmailAddress(), otpCode);
 
     // Return response with email address and phone number for confirmation
-    return ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber());
+    return localizedResponse.of(ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber()));
   }
 
   /**
@@ -514,7 +517,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     clearResetPasswordOtpSavedTemporarily(user.getUsername());
     tokenService.saveResetPasswordToken(user.getUsername(), resetPasswordToken);
 
-    return InitiatePasswordChangeResponse.of(resetPasswordToken);
+    return localizedResponse.of(InitiatePasswordChangeResponse.of(resetPasswordToken));
   }
 
   /**
@@ -545,7 +548,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     clearResetPasswordToken(emailAddress);
 
     // Return response indicating successful password change
-    return ChangePasswordResponse.of();
+    return localizedResponse.of(ChangePasswordResponse.of());
   }
 
   /**
@@ -567,7 +570,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
-        .of(RoleType.USER)
+        .of(RoleType.PRE_VERIFIED_USER)
         .map(RoleType::name)
         .collect(Collectors.toSet());
 
@@ -755,7 +758,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Check if the member status indicates that the member is already signed up
-    if (nonNull(member.getProfileStatus()) && ProfileStatus.ACTIVE == member.getProfileStatus()) {
+    if (nonNull(member.getProfileStatus()) && ProfileStatus.ACTIVE == member.getProfileStatus()
+      && member.getVerificationStatus() == ProfileVerificationStatus.APPROVED) {
       throw new AlreadySignedUpException();
     }
   }

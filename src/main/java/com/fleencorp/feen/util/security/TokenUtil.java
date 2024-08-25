@@ -363,6 +363,7 @@ public class TokenUtil {
       claims.put(PHONE_NUMBER.getValue(), user.getPhoneNumber());
       claims.put(PROFILE_PHOTO.getValue(), user.getProfilePhoto());
       claims.put(STATUS.getValue(), user.getProfileStatus());
+      claims.put(VERIFICATION_STATUS.getValue(), user.getVerificationStatus());
     }
   }
 

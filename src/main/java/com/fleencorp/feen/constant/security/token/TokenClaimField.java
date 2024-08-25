@@ -20,6 +20,7 @@ public enum TokenClaimField implements ApiParameter {
   PHONE_NUMBER("phoneNumber"),
   PROFILE_PHOTO("profilePhoto"),
   STATUS("status"),
+  VERIFICATION_STATUS("verificationStatus"),
   TOKEN_TYPE("tokenType"),
   USER_ID("userId");
 
