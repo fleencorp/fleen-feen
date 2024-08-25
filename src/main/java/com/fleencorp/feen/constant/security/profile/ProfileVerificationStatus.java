@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.security.profile;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enumeration for Profile Verification Status types.
 *
@@ -24,5 +26,9 @@ public enum ProfileVerificationStatus implements ApiParameter {
 
   ProfileVerificationStatus(final String value) {
     this.value = value;
+  }
+
+  public static ProfileVerificationStatus of(final String value) {
+    return parseEnumOrNull(value, ProfileVerificationStatus.class);
   }
 }

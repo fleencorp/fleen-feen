@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.auth;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 import java.util.List;
@@ -17,13 +18,15 @@ import java.util.List;
   "message",
   "countries"
 })
-public class DataForSignUpResponse {
+public class DataForSignUpResponse extends ApiResponse {
 
   @JsonProperty("countries")
   private List<?> countries;
 
-  @Builder.Default
-  private String message = "Data required for creating sign up retrieved successfully";
+  @Override
+  public String getMessageKey() {
+    return "data.for.sign.up";
+  }
 
   public static DataForSignUpResponse of(final List<?> countries) {
     return DataForSignUpResponse.builder()

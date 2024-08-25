@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.security;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.Role;
 import lombok.*;
@@ -39,6 +40,7 @@ public class FleenUser implements UserDetails {
   private String profilePhoto;
   private String country;
   private ProfileStatus profileStatus;
+  private ProfileVerificationStatus verificationStatus;
   private boolean mfaEnabled;
   private MfaType mfaType;
 
@@ -85,6 +87,7 @@ public class FleenUser implements UserDetails {
     user.setProfilePhoto(member.getProfilePhotoUrl());
     user.setMfaEnabled(member.isMfaEnabled());
     user.setMfaType(member.getMfaType());
+    user.setVerificationStatus(member.getVerificationStatus());
     return user;
   }
 
@@ -124,6 +127,7 @@ public class FleenUser implements UserDetails {
       .authorities(authorities)
       .id(details.getUserId())
       .profileStatus(details.getProfileStatus())
+      .verificationStatus(details.getProfileVerificationStatus())
       .profilePhoto(details.getProfilePhoto())
       .build();
   }
@@ -150,6 +154,8 @@ public class FleenUser implements UserDetails {
       .lastName(lastName)
       .emailAddress(emailAddress)
       .phoneNumber(phoneNumber)
+      .profileStatus(profileStatus)
+      .verificationStatus(verificationStatus)
       .build();
   }
 

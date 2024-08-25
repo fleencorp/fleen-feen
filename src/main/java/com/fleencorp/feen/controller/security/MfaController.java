@@ -34,7 +34,7 @@ public class MfaController {
     return mfaService.getMfaStatus(user);
   }
 
-  @PutMapping(value = "/setup")
+  @PostMapping(value = "/setup")
   public SetupMfaResponse setupMfa(
       @Valid @RequestBody final SetupMfaDto dto,
       @AuthenticationPrincipal final FleenUser user) {
@@ -48,7 +48,7 @@ public class MfaController {
     return mfaService.confirmMfaSetup(dto, user);
   }
 
-  @PutMapping(value = "/resend-setup-code")
+  @PostMapping(value = "/resend-setup-code")
   public SetupMfaResponse resendMfaSetupCode(
       @Valid @RequestBody final SetupMfaDto dto,
       @AuthenticationPrincipal final FleenUser user) {

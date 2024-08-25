@@ -8,6 +8,7 @@ import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -27,7 +28,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "profile_verification_type"
 })
 @ToString
-public class SignUpResponse {
+public class SignUpResponse extends ApiResponse {
 
   @JsonProperty("access_token")
   private String accessToken;
@@ -54,6 +55,11 @@ public class SignUpResponse {
   @Builder.Default
   @JsonProperty("message")
   private String message = "Sign up successful";
+
+  @Override
+  public String getMessageKey() {
+    return "sign.up";
+  }
 
   public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
                                   final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
