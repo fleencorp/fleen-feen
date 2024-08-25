@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.calendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Set;
   "timezones",
   "countries"
 })
-public class DataForCreateCalendarResponse {
+public class DataForCreateCalendarResponse extends ApiResponse {
 
   @JsonProperty("timezones")
   private Set<String> timezones;
@@ -27,8 +28,10 @@ public class DataForCreateCalendarResponse {
   @JsonProperty("countries")
   private List<?> countries;
 
-  @Builder.Default
-  private String message = "Data required for creating calendar retrieved successfully";
+  @Override
+  public String getMessageKey() {
+    return "data.for.create.calendar";
+  }
 
   public static DataForCreateCalendarResponse of(final Set<String> timezones, final List<?> countries) {
     return DataForCreateCalendarResponse.builder()

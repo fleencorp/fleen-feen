@@ -142,7 +142,7 @@ CREATE TABLE member_role (
 
 CREATE TABLE fleen_stream (
   fleen_stream_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255),
+  external_id VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
   tags VARCHAR(300),
@@ -188,7 +188,7 @@ CREATE TABLE fleen_stream (
 
 CREATE TABLE calendar (
   calendar_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255) NOT NULL,
+  external_id VARCHAR(1000),
   title VARCHAR(300) NOT NULL,
   description VARCHAR(1000) NOT NULL,
   timezone VARCHAR(30) NOT NULL,

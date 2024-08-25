@@ -18,7 +18,7 @@ import static com.fleencorp.feen.util.security.Oauth2Util.validateOauth2ScopeAnd
 
 @RestController
 @RequestMapping("/api/oauth2")
-@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'PRE_AUTHENTICATED_USER')")
+@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class Oauth2Controller {
 
   private final GoogleOauth2Service googleOauth2Service;
