@@ -10,14 +10,13 @@ import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/event")
+@RequestMapping(value = "/api/event")
+@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class EventController {
 
   private final EventService eventService;
@@ -26,82 +25,81 @@ public class EventController {
     this.eventService = eventService;
   }
 
+  @GetMapping(value = "/entries")
   public SearchResultView findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest) {
     return eventService.findEvents(searchRequest);
   }
 
-  public SearchResultView findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findEvents(searchRequest, user);
-  }
-
+  @GetMapping(value = "/entries/type")
   public SearchResultView findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       final StreamTimeType streamTimeType) {
     return eventService.findEvents(searchRequest, streamTimeType);
   }
 
-  public SearchResultView findEventAttendees(
-    @PathVariable(name = "id") final Long eventId,
-    @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return eventService.findEventAttendees(eventId, searchRequest);
-  }
-
+  @GetMapping(value = "/detail/{eventId}")
   public RetrieveEventResponse findEvent(
-    @PathVariable(name = "id") final Long eventId) {
+      @PathVariable(name = "eventId") final Long eventId) {
     return eventService.retrieveEvent(eventId);
   }
 
+  @GetMapping(value = "/attendees/{eventId}")
+  public SearchResultView findEventAttendees(
+      @PathVariable(name = "eventId") final Long eventId,
+      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
+    return eventService.findEventAttendees(eventId, searchRequest);
+  }
+
+  @PostMapping(value = "/create")
   public CreateEventResponse createEvent(
-    @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.createEvent(createCalendarEventDto, user);
   }
 
+  @PostMapping(value = "/create/instant")
   public CreateEventResponse createInstantEvent(
-    @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.createInstantEvent(createInstantCalendarEventDto, user);
   }
 
+  @PutMapping(value = "/update/{eventId}")
   public UpdateEventResponse updateEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @Valid @RequestBody final UpdateCalendarEventDto updateCalendarEventDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "eventId") final Long eventId,
+      @Valid @RequestBody final UpdateCalendarEventDto updateCalendarEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.updateEvent(eventId, updateCalendarEventDto, user);
   }
 
-  public CancelEventResponse cancelEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @AuthenticationPrincipal final FleenUser user) {
-    return eventService.cancelEvent(eventId, user);
-  }
-
+  @PutMapping(value = "/not-attending/{eventId}")
   public NotAttendingEventResponse notAttendingEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.notAttendingEvent(eventId, user);
   }
 
+  @PutMapping(value = "/reschedule/{eventId}")
   public RescheduleEventResponse rescheduleEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @Valid @RequestBody final RescheduleCalendarEventDto rescheduleCalendarEventDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "eventId") final Long eventId,
+      @Valid @RequestBody final RescheduleCalendarEventDto rescheduleCalendarEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.rescheduleEvent(eventId, rescheduleCalendarEventDto, user);
   }
 
+  @PostMapping(value = "/join/{eventId}")
   public JoinEventResponse joinEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.joinEvent(eventId, user);
   }
 
+  @PostMapping(value = "/request-to-join/{eventId}")
   public RequestToJoinEventResponse requestToJoinEvent(
-    @PathVariable(name = "id") final Long eventId,
-    @Valid @RequestBody final RequestToJoinEventDto requestToJoinEventDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "eventId") final Long eventId,
+      @Valid @RequestBody final RequestToJoinEventDto requestToJoinEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return eventService.requestToJoinEvent(eventId, requestToJoinEventDto, user);
   }
 

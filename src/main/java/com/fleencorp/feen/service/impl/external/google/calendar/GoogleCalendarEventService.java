@@ -212,7 +212,7 @@ public class GoogleCalendarEventService {
       final Event newEvent = insert.execute();
 
       if (nonNull(newEvent)) {
-        return GoogleCreateCalendarEventResponse.of(event.getId(), requireNonNull(mapToEventExpanded(newEvent)));
+        return GoogleCreateCalendarEventResponse.of(newEvent.getId(), requireNonNull(mapToEventExpanded(newEvent)));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());

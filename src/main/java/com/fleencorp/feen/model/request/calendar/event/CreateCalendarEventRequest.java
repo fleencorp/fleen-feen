@@ -6,6 +6,7 @@ import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,10 @@ public class CreateCalendarEventRequest {
     return true;
   }
 
+  public List<EventAttendeeOrGuest> getAttendeeOrGuests() {
+    return nonNull(attendeeOrGuestEmailAddresses) ? attendeeOrGuestEmailAddresses : new ArrayList<>();
+  }
+
   public static CreateCalendarEventRequest by(final CreateCalendarEventDto dto) {
     final String tags = dto.getTags();
     return CreateCalendarEventRequest.builder()
@@ -61,10 +66,10 @@ public class CreateCalendarEventRequest {
             .description(dto.getDescription())
             .location(dto.getLocation())
             .timezone(dto.getTimezone())
-            .startDateTime(dto.getStartDateTime())
-            .endDateTime(dto.getEndDateTime())
+            .startDateTime(dto.getActualStartDateTime())
+            .endDateTime(dto.getActualEndDateTime())
             .organizerDisplayName(dto.getOrganizerAliasOrDisplayName())
-            .visibility(EventVisibility.valueOf(CreateCalendarEventRequest.getVisibility(dto.getVisibility())))
+            .visibility(EventVisibility.of(getVisibility(dto.getVisibility())))
             .attendeeOrGuestEmailAddresses(dto.getEventAttendeesOrGuests())
             .eventMetaData(Map.of(TAGS.getValue(), tags))
             .build();

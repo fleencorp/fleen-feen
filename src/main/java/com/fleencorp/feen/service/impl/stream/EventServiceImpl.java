@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
@@ -26,6 +27,7 @@ import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +66,7 @@ import static java.util.Objects.nonNull;
 public class EventServiceImpl implements EventService {
 
   private final String delegatedAuthorityEmail;
+  private final CountryService countryService;
   private final EventUpdateService eventUpdateService;
   private final FleenStreamRepository fleenStreamRepository;
   private final UserFleenStreamRepository userFleenStreamRepository;
@@ -81,6 +84,7 @@ public class EventServiceImpl implements EventService {
    * including Google Calendar event service, FleenStream repository, and Calendar repository.</p>
    *
    * @param delegatedAuthorityEmail the email address used for delegated authority
+   * @param countryService the service providing country-related data and operations.
    * @param eventUpdateService the event service to handle update through services
    * @param fleenStreamRepository the repository for FleenStream operations
    * @param userFleenStreamRepository  the repository for FleenStream operations related to a user profile
@@ -92,6 +96,7 @@ public class EventServiceImpl implements EventService {
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      final CountryService countryService,
       final EventUpdateService eventUpdateService,
       final FleenStreamRepository fleenStreamRepository,
       final UserFleenStreamRepository userFleenStreamRepository,
@@ -101,6 +106,7 @@ public class EventServiceImpl implements EventService {
       final StreamEventPublisher streamEventPublisher,
       final LocalizedResponse localizedResponse) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
+    this.countryService = countryService;
     this.eventUpdateService = eventUpdateService;
     this.fleenStreamRepository = fleenStreamRepository;
     this.userFleenStreamRepository = userFleenStreamRepository;
@@ -444,29 +450,28 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public CreateEventResponse createEvent(final CreateCalendarEventDto createCalendarEventDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
-
+    final Calendar calendar = findCalendar(user.getCountry());
+    // Create a Calendar event request
     final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.by(createCalendarEventDto);
 
     // Set event organizer as attendee in Google calendar
+    final String organizerAliasOrDisplayName = createCalendarEventDto.getOrganizerAlias(user.getFullName());
     final EventAttendeeOrGuest eventAttendeeOrGuest = new EventAttendeeOrGuest();
-    eventAttendeeOrGuest.setEmailAddress(user.getEmailAddress());
-    eventAttendeeOrGuest.setAliasOrDisplayName(user.getFullName());
-    eventAttendeeOrGuest.setIsOrganizer(true);
+    eventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
 
     // Add event organizer as an attendee
-    createCalendarEventRequest.getAttendeeOrGuestEmailAddresses().add(eventAttendeeOrGuest);
+    createCalendarEventRequest.getAttendeeOrGuests().add(eventAttendeeOrGuest);
     // Update the event request with necessary details
     createCalendarEventRequest.update(createCalendarEventRequest, calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createCalendarEventDto.toFleenStream(user.toMember());
     stream.updateDetails(
-      user.getFullName(),
+      organizerAliasOrDisplayName,
       user.getEmailAddress(),
       user.getPhoneNumber());
 
+    // Save the event and and add the event in Google Calendar
     stream = fleenStreamRepository.save(stream);
     eventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
@@ -488,8 +493,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public CreateEventResponse createInstantEvent(final CreateInstantCalendarEventDto createInstantCalendarEventDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final CreateInstantCalendarEventRequest createInstantCalendarEventRequest = CreateInstantCalendarEventRequest.by(createInstantCalendarEventDto);
     // Update the instant event request with necessary details
@@ -524,8 +528,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public UpdateEventResponse updateEvent(final Long eventId, final UpdateCalendarEventDto updateCalendarEventDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -567,8 +570,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public DeleteEventResponse deleteEvent(final Long eventId, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -604,8 +606,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public CancelEventResponse cancelEvent(final Long eventId, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -639,8 +640,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-      .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
       .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -677,8 +677,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public RescheduleEventResponse rescheduleEvent(final Long eventId, final RescheduleCalendarEventDto rescheduleCalendarEventDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -690,11 +689,11 @@ public class EventServiceImpl implements EventService {
     final RescheduleCalendarEventRequest rescheduleCalendarEventRequest = RescheduleCalendarEventRequest
         .of(calendar.getExternalId(),
             stream.getExternalId(),
-            rescheduleCalendarEventDto.getStartDateTime(),
-            rescheduleCalendarEventDto.getEndDateTime(),
+            rescheduleCalendarEventDto.getActualStartDateTime(),
+            rescheduleCalendarEventDto.getActualStartDateTime(),
             rescheduleCalendarEventDto.getTimezone());
 
-    stream.updateSchedule(rescheduleCalendarEventDto.getStartDateTime(), rescheduleCalendarEventDto.getEndDateTime(), rescheduleCalendarEventDto.getTimezone());
+    stream.updateSchedule(rescheduleCalendarEventDto.getActualStartDateTime(), rescheduleCalendarEventDto.getActualEndDateTime(), rescheduleCalendarEventDto.getTimezone());
     fleenStreamRepository.save(stream);
     eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
@@ -717,8 +716,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public JoinEventResponse joinEvent(final Long eventId, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -819,10 +817,10 @@ public class EventServiceImpl implements EventService {
       .ifPresentOrElse(
         streamAttendee -> {
           if (streamAttendee.getStreamAttendeeRequestToJoinStatus() == PENDING) {
-            streamAttendee.setStreamAttendeeRequestToJoinStatus(processAttendeeRequestToJoinEventDto.getActualJoinStatus());
-            streamAttendee.setOrganizerComment(processAttendeeRequestToJoinEventDto.getComment());
+            StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinEventDto.getActualJoinStatus();
+            streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinEventDto.getComment());
 
-            if (processAttendeeRequestToJoinEventDto.getActualJoinStatus() == APPROVED) {
+            if (requestToJoinStatus == APPROVED) {
               final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
                 .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
 
@@ -836,7 +834,6 @@ public class EventServiceImpl implements EventService {
         },
         () -> {}
       );
-
 
     return ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream));
   }
@@ -868,8 +865,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventVisibilityDto updateEventVisibilityDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -974,8 +970,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public AddNewEventAttendeeResponse addEventAttendee(final Long eventId, final AddNewEventAttendeeDto addNewEventAttendeeDto, final FleenUser user) {
-    final Calendar calendar = calendarRepository.findDistinctByCodeIgnoreCase(user.getCountry())
-        .orElseThrow(() -> new CalendarNotFoundException(user.getCountry()));
+    final Calendar calendar = findCalendar(user.getCountry());
 
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -1001,7 +996,6 @@ public class EventServiceImpl implements EventService {
           addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
         }
       );
-
 
     fleenStreamRepository.save(stream);
     return AddNewEventAttendeeResponse.of(eventId, toEventResponse(stream), addNewEventAttendeeDto.getEmailAddress());
@@ -1340,5 +1334,23 @@ public class EventServiceImpl implements EventService {
     verifyStreamEndDate(stream.getScheduledEndDate());
     // Verify the event is not cancelled
     verifyEventIsNotCancelled(stream);
+  }
+
+  /**
+   * Finds a {@link Calendar} based on the provided country title.
+   * This method retrieves the country code for the given title using the {@link CountryService}, and then
+   * searches for a {@link Calendar} in the repository using the country code.
+   * If the country title or the calendar is not found, an exception is thrown.
+   *
+   * @param countryTitle The title of the country for which the calendar is to be found.
+   * @return The {@link Calendar} associated with the given country title.
+   * @throws CalendarNotFoundException If no calendar is found for the provided country title or code.
+   */
+  protected Calendar findCalendar(final String countryTitle) {
+    final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
+      .orElseThrow(() -> new CalendarNotFoundException(countryTitle));
+
+    return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
+      .orElseThrow(() -> new CalendarNotFoundException(countryCode));
   }
 }

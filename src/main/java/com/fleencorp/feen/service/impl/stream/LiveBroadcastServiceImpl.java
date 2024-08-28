@@ -233,8 +233,8 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
     // Create a request object to reschedule the live broadcast on YouTube
     final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest
       .of(oauth2Authorization.getAccessToken(),
-          rescheduleLiveBroadcastDto.getStartDateTime(),
-          rescheduleLiveBroadcastDto.getEndDateTime(), null);
+          rescheduleLiveBroadcastDto.getActualStartDateTime(),
+          rescheduleLiveBroadcastDto.getActualEndDateTime(), null);
 
     // Reschedule the live broadcast using YouTubeLiveBroadcastService
     final RescheduleYouTubeLiveBroadcastResponse rescheduleYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.rescheduleLiveBroadcast(rescheduleLiveBroadcastRequest);
@@ -242,9 +242,9 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
     // Update the schedule of the FleenStream entity with new start and end times and timezone
     stream.updateSchedule(
-        rescheduleLiveBroadcastDto.getStartDateTime(),
-        rescheduleLiveBroadcastDto.getEndDateTime(),
-        rescheduleLiveBroadcastDto.getTimezone());
+      rescheduleLiveBroadcastDto.getActualStartDateTime(),
+      rescheduleLiveBroadcastDto.getActualEndDateTime(),
+      rescheduleLiveBroadcastDto.getTimezone());
 
     fleenStreamRepository.save(stream);
     return RescheduleStreamResponse.of(streamId, toFleenStreamResponse(stream));
