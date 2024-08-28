@@ -53,4 +53,9 @@ public class StreamAttendee extends FleenFeenEntity {
       .fleenStream(stream)
       .build();
   }
+
+  public void updateRequestStatusAndSetOrganizerComment(final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final String organizerComment) {
+    this.streamAttendeeRequestToJoinStatus = requestToJoinStatus;
+    this.organizerComment = organizerComment;
+  }
 }

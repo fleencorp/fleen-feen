@@ -79,6 +79,7 @@ public class FleenUser implements UserDetails {
       .password(member.getPassword())
       .authorities(authorities)
       .profileStatus(member.getProfileStatus())
+      .country(member.getCountry())
       .build();
 
     // Set additional properties on the FleenUser object
@@ -129,6 +130,7 @@ public class FleenUser implements UserDetails {
       .profileStatus(details.getProfileStatus())
       .verificationStatus(details.getProfileVerificationStatus())
       .profilePhoto(details.getProfilePhoto())
+      .country(details.getCountry())
       .build();
   }
 

@@ -16,6 +16,7 @@ public enum TokenClaimField implements ApiParameter {
   AUTHORITIES("authorities"),
   FIRST_NAME("firstName"),
   LAST_NAME("lastName"),
+  COUNTRY("country"),
   EMAIL_ADDRESS("emailAddress"),
   PHONE_NUMBER("phoneNumber"),
   PROFILE_PHOTO("profilePhoto"),

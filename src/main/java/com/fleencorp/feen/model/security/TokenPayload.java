@@ -17,6 +17,7 @@ public class TokenPayload {
   private String firstName;
   private String lastName;
   private String phoneNumber;
+  private String country;
   private String sub;
   private String status;
   private String verificationStatus;

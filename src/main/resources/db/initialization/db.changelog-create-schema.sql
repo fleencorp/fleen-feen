@@ -156,7 +156,7 @@ CREATE TABLE fleen_stream (
   stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
   stream_type VARCHAR(255) DEFAULT 'NONE'
-    NOT NULL CHECK (stream_type IN ('GOOGLE MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
+    NOT NULL CHECK (stream_type IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
   stream_creation_type VARCHAR(255) DEFAULT 'INSTANT'
     NOT NULL CHECK (stream_creation_type IN ('INSTANT', 'SCHEDULED')),
   stream_visibility VARCHAR(255) DEFAULT 'PUBLIC'
