@@ -165,7 +165,7 @@ public class CountryServiceImpl implements CountryService {
    */
   @EventListener(ApplicationReadyEvent.class)
   public void saveCountriesToCacheOnStartup() {
-    List<CountryResponse> countries = getCountries();
+    final List<CountryResponse> countries = getCountries();
     saveCountriesToCache(countries);
   }
 
@@ -205,7 +205,7 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Optional<String> getCountryCodeByTitle(final String title) {
-    CountryResponse country = getCountryFromCache(title);
+    final CountryResponse country = getCountryFromCache(title);
     if (nonNull(country)) {
       return Optional.of(country.getCode());
     }

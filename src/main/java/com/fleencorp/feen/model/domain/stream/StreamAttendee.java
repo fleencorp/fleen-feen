@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -29,7 +30,7 @@ public class StreamAttendee extends FleenFeenEntity {
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
   private FleenStream fleenStream;
 
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
+  @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
@@ -54,8 +55,27 @@ public class StreamAttendee extends FleenFeenEntity {
       .build();
   }
 
+  /**
+   * Updates the request status for joining a stream or event and sets the organizer's comment.
+   * This method updates the status of the user's request to join by setting it to the provided
+   * {@link StreamAttendeeRequestToJoinStatus}. It also sets the organizer's comment to the provided string.
+   *
+   * @param requestToJoinStatus The new status of the user's request to join, represented by
+   *                            {@link StreamAttendeeRequestToJoinStatus}.
+   * @param organizerComment The comment provided by the organizer regarding the user's request.
+   */
   public void updateRequestStatusAndSetOrganizerComment(final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final String organizerComment) {
     this.streamAttendeeRequestToJoinStatus = requestToJoinStatus;
     this.organizerComment = organizerComment;
+  }
+
+  /**
+   * Approves the user's attendance for a stream or event.
+   * This method sets the user's request to join status to {@link StreamAttendeeRequestToJoinStatus#APPROVED}
+   * and marks the user as attending by setting {@code isAttending} to {@code true}.
+   */
+  public void approveUserAttendance() {
+    streamAttendeeRequestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
+    isAttending = true;
   }
 }

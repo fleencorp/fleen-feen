@@ -5,7 +5,6 @@ import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
 

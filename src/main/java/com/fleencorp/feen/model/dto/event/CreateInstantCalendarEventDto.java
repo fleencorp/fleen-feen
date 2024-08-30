@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.feen.converter.common.ToLowerCase;
 import com.fleencorp.feen.converter.common.ToTitleCase;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -45,7 +46,7 @@ public class CreateInstantCalendarEventDto {
   @JsonProperty("location")
   protected String location;
 
-  public FleenStream toFleenStream() {
+  public FleenStream toFleenStream(final Member member) {
     return FleenStream.builder()
             .title(title)
             .description(description)
@@ -59,6 +60,8 @@ public class CreateInstantCalendarEventDto {
             .streamCreationType(INSTANT)
             .streamStatus(ACTIVE)
             .forKids(true)
+            .isDeleted(false)
+            .member(member)
             .build();
   }
 }
