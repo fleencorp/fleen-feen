@@ -293,7 +293,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
-    Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
 
     // Prepare request to delete calendar from external service
     final DeleteCalendarRequest deleteCalendarRequest = DeleteCalendarRequest.of(calendar.getExternalId(), oauth2Authorization.getAccessToken());
@@ -343,7 +343,7 @@ public class CalendarServiceImpl implements CalendarService {
     log.info("Shared calendar: {} with user {}", googleShareCalendarWithUserResponse, shareCalendarWithUserDto.getEmailAddress());
 
     // Return share calendar response
-    ShareCalendarWithUserResponse shareCalendarWithUserResponse = ShareCalendarWithUserResponse
+    final ShareCalendarWithUserResponse shareCalendarWithUserResponse = ShareCalendarWithUserResponse
       .of(calendarId,
         shareCalendarWithUserDto.getEmailAddress(),
         toCalendarResponse(calendar));
@@ -363,12 +363,12 @@ public class CalendarServiceImpl implements CalendarService {
    * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
    *         specified user and service type.
    */
-  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType oauth2ServiceType, FleenUser user) {
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
       .orElseThrow(Oauth2InvalidAuthorizationException::new);
 
-    String currentAccessToken = oauth2Authorization.getAccessToken();
+    final String currentAccessToken = oauth2Authorization.getAccessToken();
     // Check access token expiry date and refresh access token if it is expired
     validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, user);
 

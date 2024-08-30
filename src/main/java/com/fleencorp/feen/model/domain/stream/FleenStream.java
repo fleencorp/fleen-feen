@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
@@ -109,7 +110,7 @@ public class FleenStream extends FleenFeenEntity {
   private Member member;
 
   @Default
-  @OneToMany(fetch = LAZY, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
+  @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
   public Set<StreamAttendee> getAttendees() {

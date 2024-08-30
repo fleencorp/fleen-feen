@@ -228,7 +228,7 @@ public class GoogleCalendarService {
       if (nonNull(calendar)) {
         calendar.setSummary(patchCalendarRequest.getTitle());
         calendar.setDescription(patchCalendarRequest.getDescription());
-        calendar.setTimeZone(patchCalendarRequest.getTimezone());;
+        calendar.setTimeZone(patchCalendarRequest.getTimezone());
 
         // Patch the calendar with updated properties
         final com.google.api.services.calendar.model.Calendar patchedCalendar = getService(patchCalendarRequest.getAccessToken())

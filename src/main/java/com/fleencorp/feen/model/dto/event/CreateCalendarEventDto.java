@@ -37,7 +37,7 @@ public class CreateCalendarEventDto extends CreateStreamDto {
   private List<EventAttendeeOrGuest> eventAttendeesOrGuests;
 
   @JsonIgnore
-  public String getOrganizerAlias(String defaultOrganizerAlias) {
+  public String getOrganizerAlias(final String defaultOrganizerAlias) {
     if (nonNull(organizerAliasOrDisplayName) && !organizerAliasOrDisplayName.trim().isBlank()) {
       return organizerAliasOrDisplayName;
     }
@@ -66,7 +66,7 @@ public class CreateCalendarEventDto extends CreateStreamDto {
     @JsonIgnore
     private Boolean isOrganizer;
 
-    public EventAttendeeOrGuest of(String emailAddress, String aliasOrDisplayName) {
+    public EventAttendeeOrGuest of(final String emailAddress, final String aliasOrDisplayName) {
       return of(emailAddress, aliasOrDisplayName, true);
     }
 

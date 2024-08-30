@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
@@ -91,7 +92,11 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("scheduled_end_date")
   private LocalDateTime scheduledEndDate;
 
-  @JsonProperty("totalAttending")
+  @JsonFormat(shape = STRING)
+  @JsonProperty("status")
+  private StreamStatus status;
+
+  @JsonProperty("total_attending")
   private long totalAttending;
 
   @JsonProperty("some_attendees")

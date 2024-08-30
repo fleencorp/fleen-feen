@@ -26,7 +26,7 @@ public class DeletedCalendarResponse extends ApiResponse {
     return "deleted.calendar";
   }
 
-  public static DeletedCalendarResponse of(Long calendarId) {
+  public static DeletedCalendarResponse of(final Long calendarId) {
     return DeletedCalendarResponse.builder()
       .calendarId(calendarId)
       .build();
