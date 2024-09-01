@@ -34,8 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.Optional;
 
-import static com.fleencorp.feen.constant.security.mfa.MfaType.AUTHENTICATOR;
-import static com.fleencorp.feen.constant.security.mfa.MfaType.EMAIL;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getMfaAuthenticationCacheKey;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getMfaSetupCacheKey;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
@@ -288,7 +286,6 @@ public class MfaServiceImpl implements MfaService {
    */
   protected void validateEmailOrPhoneVerificationCode(final String verificationKey, final String code) {
     // Check if the verification code exists
-    log.info("The verification key is {}", verificationKey);
     if (!cacheService.exists(verificationKey)) {
       throw new ExpiredVerificationCodeException(code);
     }
@@ -327,7 +324,7 @@ public class MfaServiceImpl implements MfaService {
    * @return true if the MFA type is SMS or email, false otherwise.
    */
   public boolean isPhoneOrEmailMfaType(final MfaType mfaType) {
-    return MfaType.PHONE == mfaType || EMAIL == mfaType;
+    return MfaType.isPhoneOrEmail(mfaType);
   }
 
   /**
@@ -352,7 +349,7 @@ public class MfaServiceImpl implements MfaService {
    */
   @Override
   public boolean isAuthenticatorMfaType(final MfaType mfaType) {
-    return AUTHENTICATOR == mfaType;
+    return MfaType.isAuthenticator(mfaType);
   }
 
   /**
@@ -403,7 +400,7 @@ public class MfaServiceImpl implements MfaService {
   private void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final Member member, final MfaType mfaType) {
     member.setMfaEnabled(true);
     member.setMfaType(mfaType);
-    if (mfaType != AUTHENTICATOR) {
+    if (MfaType.isNotAuthenticator(mfaType)) {
       member.setMfaSecret(null);
     }
     memberRepository.save(member);
@@ -416,7 +413,7 @@ public class MfaServiceImpl implements MfaService {
    * @return true if the MFA type is not NONE, false otherwise
    */
   protected boolean isMfaMethodOrTypeNotEmpty(final MfaType mfaType) {
-    return mfaType != MfaType.NONE; // Check if the MFA type is not NONE
+    return MfaType.isNotNone(mfaType); // Check if the MFA type is not NONE
   }
 
   /**
@@ -441,8 +438,8 @@ public class MfaServiceImpl implements MfaService {
   protected boolean isProposedMfaTypeToSetSameAsExistingMfaType(final MfaType newMfaType, final MfaType currentMfaType) {
     // Check if the proposed MFA type is the same as the existing MFA type and is not AUTHENTICATOR or NONE
     return currentMfaType == newMfaType
-        && newMfaType != AUTHENTICATOR
-        && currentMfaType != MfaType.NONE;
+        && MfaType.isNotAuthenticator(newMfaType)
+        && MfaType.isNotNone(currentMfaType);
   }
 
   /**
@@ -452,7 +449,7 @@ public class MfaServiceImpl implements MfaService {
    * @return true if the MFA type is NONE, false otherwise
    */
   private boolean isMfaMethodOrTypeEmpty(final MfaType mfaType) {
-    return mfaType == MfaType.NONE; // Check if the MFA type is NONE
+    return MfaType.isNone(mfaType); // Check if the MFA type is NONE
   }
 
   /**
@@ -472,7 +469,7 @@ public class MfaServiceImpl implements MfaService {
    * @param newMfaType       the proposed new MFA type
    */
   protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsEmpty(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
-    if (newMfaType == MfaType.NONE) {
+    if (MfaType.isNone(newMfaType)) {
       setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
     }
   }
@@ -588,7 +585,7 @@ public class MfaServiceImpl implements MfaService {
    * @param member            the member entity to update with MFA secret
    */
   protected void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final MfaType mfaType, final SetupMfaResponse setupMfaResponse, final Member member) {
-    if (mfaType == AUTHENTICATOR) {
+    if (MfaType.isAuthenticator(mfaType)) {
       member.setMfaSecret(setupMfaResponse.getSecret());
     }
   }
@@ -603,7 +600,7 @@ public class MfaServiceImpl implements MfaService {
    * @param newMfaType The proposed new MFA type.
    */
   protected void updateMfaSetupResponseIfProposedMfaMethodOrTypeIsAuthenticator(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
-    if (newMfaType == AUTHENTICATOR) {
+    if (MfaType.isAuthenticator(newMfaType)) {
       setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
     }
   }
@@ -618,7 +615,7 @@ public class MfaServiceImpl implements MfaService {
    * @return {@code true} if the new MFA type is Authenticator or None, {@code false} otherwise.
    */
   protected boolean checkIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(final MfaType newMfaType) {
-    return newMfaType == AUTHENTICATOR || newMfaType == MfaType.NONE;
+    return MfaType.isAuthenticator(newMfaType) || MfaType.isNone(newMfaType);
   }
 
   /**
@@ -630,11 +627,11 @@ public class MfaServiceImpl implements MfaService {
    */
   protected SetupMfaResponse updateSetupMfaResponseIfProposedMfaMethodOrTypeIsEmptyOrAuthenticator(final SetupMfaResponse setupMfaResponse, final MfaType newMfaType) {
     // If the new MFA type is None, update the response accordingly
-    if (newMfaType == MfaType.NONE) {
+    if (MfaType.isNone(newMfaType)) {
       updateMfaSetupResponseIfProposedMfaMethodOrTypeIsEmpty(setupMfaResponse, newMfaType);
     }
     // If the new MFA type is Authenticator, update the response for complete setup
-    else if (newMfaType == AUTHENTICATOR) {
+    else if (MfaType.isAuthenticator(newMfaType)) {
       updateMfaSetupResponseIfProposedMfaMethodOrTypeIsAuthenticator(setupMfaResponse, newMfaType);
     }
     return setupMfaResponse;

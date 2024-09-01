@@ -142,7 +142,7 @@ CREATE TABLE member_role (
 
 CREATE TABLE fleen_stream (
   fleen_stream_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255),
+  external_id VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
   tags VARCHAR(300),
@@ -156,7 +156,7 @@ CREATE TABLE fleen_stream (
   stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
   stream_type VARCHAR(255) DEFAULT 'NONE'
-    NOT NULL CHECK (stream_type IN ('GOOGLE MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
+    NOT NULL CHECK (stream_type IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
   stream_creation_type VARCHAR(255) DEFAULT 'INSTANT'
     NOT NULL CHECK (stream_creation_type IN ('INSTANT', 'SCHEDULED')),
   stream_visibility VARCHAR(255) DEFAULT 'PUBLIC'
@@ -188,7 +188,7 @@ CREATE TABLE fleen_stream (
 
 CREATE TABLE calendar (
   calendar_id BIGSERIAL PRIMARY KEY,
-  external_id VARCHAR(255) NOT NULL,
+  external_id VARCHAR(1000),
   title VARCHAR(300) NOT NULL,
   description VARCHAR(1000) NOT NULL,
   timezone VARCHAR(30) NOT NULL,

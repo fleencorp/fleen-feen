@@ -27,4 +27,15 @@ public enum RoleType {
   RoleType(final String value) {
         this.value = value;
     }
+
+  /**
+   * Checks if the specified {@link RoleType} is PRE_VERIFIED_USER.
+   *
+   * @param roleType the role type to check
+   * @return {@code true} if the {@code roleType} is PRE_VERIFIED_USER; {@code false} otherwise
+   */
+  public static boolean isPreVerified(final RoleType roleType) {
+    return PRE_VERIFIED_USER == roleType;
+  }
+
 }

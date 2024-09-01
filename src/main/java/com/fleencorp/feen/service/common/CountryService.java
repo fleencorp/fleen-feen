@@ -5,6 +5,8 @@ import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
 
+import java.util.Optional;
+
 public interface CountryService {
 
   SearchResultView findCountries(CountrySearchRequest searchRequest);
@@ -17,4 +19,5 @@ public interface CountryService {
 
   boolean isCountryExists(String code);
 
+  Optional<String> getCountryCodeByTitle(String title);
 }

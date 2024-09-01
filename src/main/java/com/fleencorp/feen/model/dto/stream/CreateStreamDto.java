@@ -54,21 +54,20 @@ public class CreateStreamDto {
   @NotBlank(message = "{stream.timezone.NotBlank}")
   @Size(max = 50, message = "{stream.timezone.Size}")
   @TimezoneValid
-  @ToLowerCase
   @JsonProperty("timezone")
   protected String timezone;
 
   @NotNull(message = "{stream.startDateTime.NotNull}")
-  @FutureDate
   @DateTimeValid
+  @FutureDate
   @JsonProperty("start_date_time")
-  protected LocalDateTime startDateTime;
+  protected String startDateTime;
 
   @NotNull(message = "{stream.endDateTime.NotNull}")
-  @FutureDate
   @DateTimeValid
+  @FutureDate
   @JsonProperty("end_date_time")
-  protected LocalDateTime endDateTime;
+  protected String endDateTime;
 
   @NotNull(message = "{stream.visibility.NotNull}")
   @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}", ignoreCase = true)
@@ -93,6 +92,14 @@ public class CreateStreamDto {
 
   public StreamVisibility getActualVisibility() {
     return StreamVisibility.of(visibility);
+  }
+
+  public LocalDateTime getActualStartDateTime() {
+    return LocalDateTime.parse(startDateTime);
+  }
+
+  public LocalDateTime getActualEndDateTime() {
+    return LocalDateTime.parse(endDateTime);
   }
 
 }

@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.external.google.calendar.event;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing visibility options for events.
 *
@@ -19,5 +21,9 @@ public enum EventVisibility implements ApiParameter {
 
   EventVisibility(final String value) {
     this.value = value;
+  }
+
+  public static EventVisibility of(final String value) {
+    return parseEnumOrNull(value, EventVisibility.class);
   }
 }

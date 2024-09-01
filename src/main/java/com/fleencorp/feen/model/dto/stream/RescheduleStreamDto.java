@@ -3,7 +3,6 @@ package com.fleencorp.feen.model.dto.stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.DateTimeValid;
 import com.fleencorp.base.validator.FutureDate;
-import com.fleencorp.feen.converter.common.ToTitleCase;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,19 +25,26 @@ public class RescheduleStreamDto {
   @NotBlank(message = "{stream.timezone.NotBlank}")
   @Size(max = 50, message = "{stream.timezone.Size}")
   @TimezoneValid
-  @ToTitleCase
   @JsonProperty("timezone")
   private String timezone;
 
   @NotNull(message = "{stream.startDateTime.NotNull}")
-  @FutureDate
   @DateTimeValid
+  @FutureDate
   @JsonProperty("start_date_time")
-  private LocalDateTime startDateTime;
+  private String startDateTime;
 
   @NotNull(message = "{stream.endDateTime.NotNull}")
-  @FutureDate
   @DateTimeValid
+  @FutureDate
   @JsonProperty("end_date_time")
-  private LocalDateTime endDateTime;
+  private String endDateTime;
+
+  public LocalDateTime getActualStartDateTime() {
+    return LocalDateTime.parse(startDateTime);
+  }
+
+  public LocalDateTime getActualEndDateTime() {
+    return LocalDateTime.parse(endDateTime);
+  }
 }

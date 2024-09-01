@@ -4,7 +4,7 @@
 --changeset alamu:1
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:1 SELECT count(*) FROM information_schema.tables WHERE table_name = 'member';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'member';
 
 ALTER TABLE member ADD CONSTRAINT unique_email_address UNIQUE (email_address);
 ALTER TABLE member ADD CONSTRAINT unique_phone_number UNIQUE (phone_number);
@@ -17,7 +17,7 @@ ALTER TABLE member ADD CONSTRAINT unique_phone_number UNIQUE (phone_number);
 --changeset alamu:2
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:1 SELECT count(*) FROM information_schema.tables WHERE table_name = 'role';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'role';
 
 ALTER TABLE role ADD CONSTRAINT unique_role_code UNIQUE (code);
 
@@ -28,7 +28,7 @@ ALTER TABLE role ADD CONSTRAINT unique_role_code UNIQUE (code);
 --changeset alamu:3
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:1 SELECT count(*) FROM information_schema.tables WHERE table_name = 'calendar';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'calendar';
 
 ALTER TABLE calendar ADD CONSTRAINT unique_calendar_code UNIQUE (code);
 
@@ -39,7 +39,7 @@ ALTER TABLE calendar ADD CONSTRAINT unique_calendar_code UNIQUE (code);
 --changeset alamu:4
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:1 SELECT count(*) FROM information_schema.tables WHERE table_name = 'country';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'country';
 
 ALTER TABLE country ADD CONSTRAINT unique_country_code UNIQUE (code);
 

@@ -33,6 +33,7 @@ public class FleenStreamMapper {
   public static FleenStreamResponse toFleenStreamResponse(final FleenStream entry) {
     if (nonNull(entry)) {
       return FleenStreamResponse.builder()
+          .id(entry.getFleenStreamId())
           .title(entry.getTitle())
           .description(entry.getDescription())
           .location(entry.getLocation())
@@ -43,6 +44,7 @@ public class FleenStreamMapper {
           .streamType(entry.getStreamType())
           .streamLink(entry.getStreamLink())
           .forKids(entry.getForKids())
+          .status(entry.getStreamStatus())
           .build();
     }
     return null;

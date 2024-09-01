@@ -3,10 +3,10 @@ package com.fleencorp.feen.model.response.event;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
   "event_id",
   "event"
 })
-public class CreateEventResponse {
+public class CreateEventResponse extends ApiResponse {
 
   @JsonProperty("event_id")
   protected Long eventId;
@@ -31,9 +31,10 @@ public class CreateEventResponse {
   @JsonProperty("event")
   protected FleenStreamResponse event;
 
-  @Default
-  @JsonProperty("message")
-  protected String message = "Event created successfully";
+  @Override
+  public String getMessageKey() {
+    return "create.event";
+  }
 
   public static CreateEventResponse of(final Long eventId, final EventResponse event) {
     return CreateEventResponse.builder()

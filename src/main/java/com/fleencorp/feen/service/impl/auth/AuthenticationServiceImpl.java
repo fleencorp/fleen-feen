@@ -172,7 +172,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Get the countries in the search result
     final List<?> countries = searchResult.getValues();
     // Return the response object containing both the countries and timezones.
-    return DataForSignUpResponse.of(countries);
+    return localizedResponse.of(DataForSignUpResponse.of(countries));
   }
 
   /**
@@ -249,6 +249,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws NoRoleAvailableToAssignException if no roles are available to assign to the new user
    */
   @Override
+  @Transactional
   public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final FleenUser user) {
     final String username = user.getUsername();
 
@@ -309,6 +310,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Verify if the two provided email addresses is the same
     validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(resendSignUpVerificationCodeDto.getEmailAddress(), user.getEmailAddress());
+    // Check if user is already sign up and profile is active
+    checkIfSignUpIsAlreadyCompleted(user.toMember());
 
     // Prepare the request to resend the sign-up verification code
     final VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
@@ -320,7 +323,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
 
     // Return response indicating the successful initiation of code resend
-    return ResendSignUpVerificationCodeResponse.of();
+    return localizedResponse.of(ResendSignUpVerificationCodeResponse.of());
   }
 
   /**
@@ -489,7 +492,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveResetPasswordOtpTemporarily(member.getEmailAddress(), otpCode);
 
     // Return response with email address and phone number for confirmation
-    return ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber());
+    return localizedResponse.of(ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber()));
   }
 
   /**
@@ -514,7 +517,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     clearResetPasswordOtpSavedTemporarily(user.getUsername());
     tokenService.saveResetPasswordToken(user.getUsername(), resetPasswordToken);
 
-    return InitiatePasswordChangeResponse.of(resetPasswordToken);
+    return localizedResponse.of(InitiatePasswordChangeResponse.of(resetPasswordToken));
   }
 
   /**
@@ -545,7 +548,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     clearResetPasswordToken(emailAddress);
 
     // Return response indicating successful password change
-    return ChangePasswordResponse.of();
+    return localizedResponse.of(ChangePasswordResponse.of());
   }
 
   /**
@@ -567,7 +570,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
-        .of(RoleType.USER)
+        .of(RoleType.PRE_VERIFIED_USER)
         .map(RoleType::name)
         .collect(Collectors.toSet());
 
@@ -755,7 +758,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Check if the member status indicates that the member is already signed up
-    if (nonNull(member.getProfileStatus()) && ProfileStatus.ACTIVE == member.getProfileStatus()) {
+    if (nonNull(member.getProfileStatus()) && member.isProfileActiveAndApproved()) {
       throw new AlreadySignedUpException();
     }
   }
@@ -845,12 +848,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationCode the MFA verification code to be saved
    */
   private void saveMfaVerificationCodeTemporarily(final String username, final String verificationCode) {
-    log.info("The verification key before saving the code is {} and the code is {}", getMfaAuthenticationCacheKey(username), verificationCode);
     cacheService.set(getMfaAuthenticationCacheKey(username), verificationCode, Duration.ofMinutes(5));
-
-    if (cacheService.exists(getMfaAuthenticationCacheKey(username))) {
-      log.info("The verification key has been set to {}", cacheService.get(getMfaAuthenticationCacheKey(username)));
-    }
   }
 
   /**
@@ -906,11 +904,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   protected void validateProfileIsNotDisabledOrBanned(final ProfileStatus profileStatus) {
     // Check if the profile is disabled
-    if (ProfileStatus.DISABLED == profileStatus) {
+    if (ProfileStatus.isDisabled(profileStatus)) {
       throw new DisabledAccountException();
     }
     // Check if the profile is banned
-    else if (ProfileStatus.BANNED == profileStatus) {
+    else if (ProfileStatus.isBanned(profileStatus)) {
       throw new BannedAccountException();
     }
   }
@@ -933,8 +931,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return boolean true if the user's profile is inactive, and they are yet to be verified, false otherwise
    */
   protected boolean isProfileInactiveAndUserYetToBeVerified(final FleenUser user) {
-    return ProfileStatus.INACTIVE == user.getProfileStatus()
-        && RoleType.PRE_VERIFIED_USER == retrieveRoleForUserYetToCompleteSignUp(user);
+    return ProfileStatus.isInactive(user.getProfileStatus())
+        && RoleType.isPreVerified(retrieveRoleForUserYetToCompleteSignUp(user));
   }
 
   /**
@@ -1000,7 +998,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param roleType the RoleType indicating the user's role
    */
   protected void configureAuthoritiesOrRolesForUserYetToCompleteSignUp(final FleenUser user, final RoleType roleType) {
-    if (requireNonNull(roleType) == RoleType.PRE_VERIFIED_USER) {
+    if (RoleType.isPreVerified(requireNonNull(roleType))) {
       user.setAuthorities(getUserPreVerifiedAuthorities());
     }
   }
@@ -1055,7 +1053,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return true if MFA is enabled and a valid MFA type is set; false otherwise
    */
   protected boolean isMfaEnabledAndMfaTypeSet(final FleenUser user) {
-    return nonNull(user) && user.isMfaEnabled() && user.getMfaType() != MfaType.NONE;
+    return nonNull(user) && user.isMfaEnabled() && MfaType.isNotNone(user.getMfaType());
   }
 
   /**
@@ -1101,7 +1099,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return true if the MFA type is PHONE or EMAIL, false otherwise
    */
   protected boolean isMfaTypeByEmailOrPhone(final MfaType mfaType) {
-    return MfaType.PHONE == mfaType || MfaType.EMAIL == mfaType;
+    return MfaType.isPhoneOrEmail(mfaType);
   }
 
   /**

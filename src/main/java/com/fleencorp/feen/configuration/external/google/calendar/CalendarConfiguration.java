@@ -34,7 +34,6 @@ import java.security.GeneralSecurityException;
 *   Using Google Calendar API with a service account (2)</a>
 * @see <a href="https://sree394.medium.com/leveraging-service-accounts-for-seamless-google-calendar-integration-in-spring-boot-applications-52ee0d65652a">
 *   Leveraging Service Accounts for Seamless Google Calendar Integration in Spring Boot Applications</a>
-*
 * @see <a href="https://developers.google.com/cloud-search/docs/guides/delegation">
 *   Perform Google Workspace domain-wide delegation of authority</a>
 */
@@ -92,6 +91,8 @@ public class CalendarConfiguration {
    *   Google calendar integration with SpringBoot Application using Service Account</a>
    * @see <a href="https://developers.google.com/identity/protocols/oauth2/service-account">
    *   Using OAuth 2.0 for Server to Server Applications - Delegating domain-wide authority to the service account</a>
+   * @see <a href="https://medium.com/iceapple-tech-talks/integration-with-google-calendar-api-using-service-account-1471e6e102c8">
+   *   Integration with Google Calendar API using Service Account</a>
    */
   public GoogleCredentials getGoogleClientCredentialFromServiceAccount() throws IOException {
     return GoogleCredentials

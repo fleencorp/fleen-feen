@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.event;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 @Builder
@@ -15,14 +16,15 @@ import lombok.*;
   "message",
   "event_id"
 })
-public class RequestToJoinEventResponse {
+public class RequestToJoinEventResponse extends ApiResponse {
 
   @JsonProperty("event_id")
   private Long eventId;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Request to join event submitted successfully";
+  @Override
+  public String getMessageKey() {
+    return "request.to.join.event";
+  }
 
   public static RequestToJoinEventResponse of(final Long eventId) {
     return RequestToJoinEventResponse.builder()

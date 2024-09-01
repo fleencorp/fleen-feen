@@ -27,8 +27,7 @@ import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR
 import static com.fleencorp.feen.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
 import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
+import static java.util.Objects.*;
 
 /**
  * The CalendarService class provides functionality to create events on Google Calendar.
@@ -212,7 +211,7 @@ public class GoogleCalendarEventService {
       final Event newEvent = insert.execute();
 
       if (nonNull(newEvent)) {
-        return GoogleCreateCalendarEventResponse.of(event.getId(), requireNonNull(mapToEventExpanded(newEvent)));
+        return GoogleCreateCalendarEventResponse.of(newEvent.getId(), requireNonNull(mapToEventExpanded(newEvent)));
       }
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());
@@ -409,7 +408,10 @@ public class GoogleCalendarEventService {
         final EventAttendee eventAttendee = new EventAttendee();
         eventAttendee.setEmail(addNewEventAttendeeRequest.getAttendeeEmailAddress());
         eventAttendee.setDisplayName(addNewEventAttendeeRequest.getAttendeeAliasOrDisplayName());
-        event.getAttendees().add(eventAttendee);
+        // Create attendee list or register to add attendees
+        initializeEventAttendeeList(event);
+        // Add attendee to the event
+        addAttendee(event, eventAttendee);
 
         calendar.events()
           .update(calendarId, eventId, event)
@@ -456,8 +458,10 @@ public class GoogleCalendarEventService {
       if (nonNull(event)) {
         // Create a list of EventAttendees to be added
         final List<EventAttendee> attendees = addOrInviteAttendeesOrGuests(addNewEventAttendeesRequest.getAttendeesOrGuestsEmailAddresses());
+        // Create attendee list or register to add attendees
+        initializeEventAttendeeList(event);
         // Add new attendees to already existing attendees list
-        event.getAttendees().addAll(attendees);
+        addAttendees(event, attendees);
         // Save event with new attendees
         calendar.events()
           .update(calendarId, eventId, event)
@@ -504,6 +508,7 @@ public class GoogleCalendarEventService {
         final Event event = googleRetrieveCalendarEventResponse.getCalendarEvent();
         event.setSummary(patchCalendarEventRequest.getTitle());
         event.setDescription(patchCalendarEventRequest.getDescription());
+        event.setLocation(patchCalendarEventRequest.getLocation());
 
         // Save event with updated summary, description and other details
         final Event patchedEvent = calendar.events()
@@ -612,11 +617,15 @@ public class GoogleCalendarEventService {
         final List<EventAttendee> updatedAttendees = event.getAttendees()
           .stream().filter(attendee -> !attendeeToRemove.equals(attendee.getEmail()))
           .toList();
+        log.info("Attendee to remove {}", attendeeToRemove);
         event.setAttendees(updatedAttendees);
+        log.info("The updated attendees are {}", updatedAttendees);
 
         final Event patchedEvent = calendar.events()
           .patch(calendarId, eventId, event)
           .execute();
+
+        log.info("The updated event is {}", patchedEvent);
 
         return GoogleRetrieveCalendarEventResponse.of(notAttendingEventRequest.getEventId(), event, mapToEventExpanded(patchedEvent));
       }
@@ -786,6 +795,61 @@ public class GoogleCalendarEventService {
     eventDateTime.setTimeZone(timezone);
 
     return eventDateTime;
+  }
+
+  /**
+   * Initializes the attendee list for the given {@link Event} if it is not already initialized.
+   * This method checks if the provided {@link Event} object is non-null and whether its attendee list is null.
+   * If the attendee list is null, it initializes it as an empty {@link ArrayList}.
+   *
+   * @param event The {@link Event} for which the attendee list is to be initialized.
+   *              If the event or its attendee list is null, the attendee list will be set to an empty list.
+   */
+  private void initializeEventAttendeeList(final Event event) {
+    if (nonNull(event) && isNull(event.getAttendees())) {
+      event.setAttendees(new ArrayList<>());
+    }
+  }
+
+  /**
+   * Adds an attendee to the given {@link Event} if they are not already in the attendee list.
+   * This method first ensures that the attendee list of the event is initialized.
+   * It then checks whether an attendee with the same email address as the provided {@link EventAttendee}
+   * already exists in the list. If no matching attendee is found, the new attendee is added to the list.
+   *
+   * @param event The {@link Event} to which the attendee is to be added. If the event's attendee list is null,
+   *              it will be initialized as an empty list.
+   * @param eventAttendee The {@link EventAttendee} to be added to the event's attendee list.
+   *                      This attendee will only be added if no attendee with the same email exists in the list.
+   */
+  private void addAttendee(final Event event, final EventAttendee eventAttendee) {
+    initializeEventAttendeeList(event);
+    final boolean attendeeExists = event.getAttendees().stream()
+      .anyMatch(existingAttendee -> existingAttendee.getEmail().equalsIgnoreCase(eventAttendee.getEmail()));
+
+    if (!attendeeExists) {
+      event.getAttendees().add(eventAttendee);
+    }
+  }
+
+  /**
+   * Adds a list of attendees to the given {@link Event}, ensuring that each attendee is added
+   * only if they are not already in the attendee list.
+   * This method iterates through the provided list of {@link EventAttendee} objects and adds each one
+   * to the event's attendee list using the {@code addAttendee} method. It first checks if the list of attendees
+   * is non-null and not empty, and then filters out any null attendees before attempting to add them.
+   *
+   * @param event The {@link Event} to which the attendees are to be added. The attendee list of the event
+   *              will be initialized if it is null.
+   * @param eventAttendees A list of {@link EventAttendee} objects to be added to the event.
+   *                       Each attendee will be added only if they are not null and do not already exist in the list.
+   */
+  private void addAttendees(final Event event, final List<EventAttendee> eventAttendees) {
+    if (nonNull(eventAttendees) && !eventAttendees.isEmpty()) {
+      eventAttendees.stream()
+        .filter(Objects::nonNull)
+        .forEach(eventAttendee -> addAttendee(event, eventAttendee));
+    }
   }
 
 }
