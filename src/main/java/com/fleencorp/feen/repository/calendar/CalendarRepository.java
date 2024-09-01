@@ -18,6 +18,9 @@ public interface CalendarRepository extends JpaRepository<Calendar, Long> {
   @Query("SELECT cal FROM Calendar cal WHERE cal.title = :title AND cal.isActive = true")
   Page<Calendar> findByTitle(@Param("title") String title, Pageable pageable);
 
+  @Query("SELECT cal FROM Calendar cal WHERE cal.isActive = :isActive")
+  Page<Calendar> findByIsActive(@Param("isActive") Boolean isActive, Pageable pageable);
+
   @Query("SELECT cal FROM Calendar cal WHERE cal.calendarId IS NOT NULL AND cal.isActive = true ORDER BY cal.updatedOn DESC")
   Page<Calendar> findMany(Pageable pageable);
 

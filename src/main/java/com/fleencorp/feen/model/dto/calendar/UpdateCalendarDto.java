@@ -10,4 +10,5 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 public class UpdateCalendarDto extends CreateCalendarDto {
+
 }

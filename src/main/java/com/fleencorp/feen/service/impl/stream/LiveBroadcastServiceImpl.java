@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
+import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
@@ -99,11 +100,11 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   public SearchResultView findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest) {
     final Page<FleenStream> page;
     if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(), searchRequest.getPage());
+      page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
-      page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), searchRequest.getPage());
+      page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
     } else {
-      page = fleenStreamRepository.findMany(searchRequest.getPage());
+      page = fleenStreamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
     }
 
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
@@ -233,8 +234,8 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
     // Create a request object to reschedule the live broadcast on YouTube
     final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest
       .of(oauth2Authorization.getAccessToken(),
-          rescheduleLiveBroadcastDto.getStartDateTime(),
-          rescheduleLiveBroadcastDto.getEndDateTime(), null);
+          rescheduleLiveBroadcastDto.getActualStartDateTime(),
+          rescheduleLiveBroadcastDto.getActualEndDateTime(), null);
 
     // Reschedule the live broadcast using YouTubeLiveBroadcastService
     final RescheduleYouTubeLiveBroadcastResponse rescheduleYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.rescheduleLiveBroadcast(rescheduleLiveBroadcastRequest);
@@ -242,9 +243,9 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
     // Update the schedule of the FleenStream entity with new start and end times and timezone
     stream.updateSchedule(
-        rescheduleLiveBroadcastDto.getStartDateTime(),
-        rescheduleLiveBroadcastDto.getEndDateTime(),
-        rescheduleLiveBroadcastDto.getTimezone());
+      rescheduleLiveBroadcastDto.getActualStartDateTime(),
+      rescheduleLiveBroadcastDto.getActualEndDateTime(),
+      rescheduleLiveBroadcastDto.getTimezone());
 
     fleenStreamRepository.save(stream);
     return RescheduleStreamResponse.of(streamId, toFleenStreamResponse(stream));

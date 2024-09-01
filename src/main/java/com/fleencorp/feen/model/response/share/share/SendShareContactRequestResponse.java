@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class SendShareContactRequestResponse {
 
+  @Builder.Default
   private String message = "Send Share contact request successful.";
 
   public static SendShareContactRequestResponse of() {

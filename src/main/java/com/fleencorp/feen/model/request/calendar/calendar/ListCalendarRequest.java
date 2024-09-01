@@ -16,5 +16,5 @@ public class ListCalendarRequest extends CalendarRequest {
   private String pageToken;
   private Integer maxResultOrLimit;
   private Boolean showHidden;
-  private Boolean showDeleted;;
+  private Boolean showDeleted;
 }

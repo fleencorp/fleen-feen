@@ -359,10 +359,12 @@ public class TokenUtil {
     if (nonNull(claims) && nonNull(user)) {
       claims.put(FIRST_NAME.getValue(), user.getFirstName());
       claims.put(LAST_NAME.getValue(), user.getLastName());
+      claims.put(COUNTRY.getValue(), user.getCountry());
       claims.put(EMAIL_ADDRESS.getValue(), user.getEmailAddress());
       claims.put(PHONE_NUMBER.getValue(), user.getPhoneNumber());
       claims.put(PROFILE_PHOTO.getValue(), user.getProfilePhoto());
       claims.put(STATUS.getValue(), user.getProfileStatus());
+      claims.put(VERIFICATION_STATUS.getValue(), user.getVerificationStatus());
     }
   }
 

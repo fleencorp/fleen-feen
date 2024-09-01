@@ -35,4 +35,14 @@ public class ProcessAttendeeRequestToJoinEventDto {
   public StreamAttendeeRequestToJoinStatus getActualJoinStatus() {
     return StreamAttendeeRequestToJoinStatus.of(joinStatus);
   }
+
+  /**
+   * Checks if the attendee's request to join status is approved.
+   *
+   * @return {@code true} if the attendee's actual join status is {@link StreamAttendeeRequestToJoinStatus#APPROVED},
+   *         otherwise {@code false}.
+   */
+  public boolean isApproved() {
+    return getActualJoinStatus() == StreamAttendeeRequestToJoinStatus.APPROVED;
+  }
 }

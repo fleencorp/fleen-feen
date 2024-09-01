@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.event;
+package com.fleencorp.feen.model.response.calendar;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,21 +14,21 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "event_id"
+  "calendar_id"
 })
-public class CancelEventResponse extends ApiResponse {
+public class DeletedCalendarResponse extends ApiResponse {
 
-  @JsonProperty("event_id")
-  private Long eventId;
+  @JsonProperty("calendar_id")
+  private Long calendarId;
 
   @Override
   public String getMessageKey() {
-    return "cancel.event";
+    return "deleted.calendar";
   }
 
-  public static CancelEventResponse of(final long eventId) {
-    return builder()
-            .eventId(eventId)
-            .build();
+  public static DeletedCalendarResponse of(final Long calendarId) {
+    return DeletedCalendarResponse.builder()
+      .calendarId(calendarId)
+      .build();
   }
 }

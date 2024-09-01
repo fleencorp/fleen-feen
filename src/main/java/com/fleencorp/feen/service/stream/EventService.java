@@ -5,7 +5,6 @@ import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
 
@@ -39,7 +38,7 @@ public interface EventService {
 
   RescheduleEventResponse rescheduleEvent(Long eventId, RescheduleCalendarEventDto rescheduleCalendarEventDto, FleenUser user);
 
-  FleenFeenResponse joinEvent(Long eventId, FleenUser user);
+  JoinEventResponse joinEvent(Long eventId, FleenUser user);
 
   RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventDto requestToJoinEventDto, FleenUser user);
 
@@ -49,7 +48,9 @@ public interface EventService {
 
   AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
 
-  EventAttendeesResponse getEventAttendees(Long eventId);
+  SearchResultView getEventAttendeeRequestsToJoinEvent(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
+
+  EventAttendeesResponse getEventAttendees(Long eventId, FleenUser user);
 
   TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);
 

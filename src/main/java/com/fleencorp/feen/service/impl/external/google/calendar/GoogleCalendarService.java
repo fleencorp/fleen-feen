@@ -40,22 +40,19 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 public class GoogleCalendarService {
 
-  private final Calendar service;
   private final ReporterService reporterService;
   private final String applicationName;
 
   /**
    * Constructs a new CalendarService with the specified Google Calendar instance.
    *
-   * @param calendar the Google Calendar instance used by this service
+   * @param applicationName the application name to be used in the Calendar service
    * @param reporterService The service used for reporting events.
    */
   public GoogleCalendarService(
       @Value("${application.name}") final String applicationName,
-      final Calendar calendar,
       final ReporterService reporterService) {
     this.applicationName = applicationName;
-    this.service = calendar;
     this.reporterService = reporterService;
   }
 
@@ -184,17 +181,17 @@ public class GoogleCalendarService {
   @MeasureExecutionTime
   public GoogleDeleteCalendarResponse deleteCalendar(final DeleteCalendarRequest deleteCalendarRequest) {
     try {
-      final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
-              .get(deleteCalendarRequest.getCalendarId())
-              .execute();
+      final RetrieveCalendarRequest retrieveCalendarRequest = RetrieveCalendarRequest.of(deleteCalendarRequest.getCalendarId(), deleteCalendarRequest.getAccessToken());
+      final GoogleRetrieveCalendarResponse googleRetrieveCalendarResponse = retrieveCalendar(retrieveCalendarRequest);
 
-      if (nonNull(calendar)) {
+      if (nonNull(googleRetrieveCalendarResponse.getCalendar())) {
         // Delete the calendar from Google Calendar service based on the calendar ID
-        service.calendars()
-                .delete(deleteCalendarRequest.getCalendarId())
-                .execute();
+        getService(deleteCalendarRequest.getAccessToken())
+          .calendars()
+          .delete(deleteCalendarRequest.getCalendarId())
+          .execute();
 
-        return GoogleDeleteCalendarResponse.of(deleteCalendarRequest.getCalendarId(), mapToCalendarResponse(calendar));
+        return GoogleDeleteCalendarResponse.of(deleteCalendarRequest.getCalendarId(), googleRetrieveCalendarResponse.getCalendar());
       }
       log.error("Cannot delete. Calendar does not exist or cannot be found. {}", deleteCalendarRequest.getCalendarId());
     } catch (final IOException ex) {
@@ -222,7 +219,8 @@ public class GoogleCalendarService {
   public GooglePatchCalendarResponse patchCalendar(final PatchCalendarRequest patchCalendarRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
-      final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
+      final com.google.api.services.calendar.model.Calendar calendar = getService(patchCalendarRequest.getAccessToken())
+              .calendars()
               .get(patchCalendarRequest.getCalendarId())
               .execute();
 
@@ -233,7 +231,8 @@ public class GoogleCalendarService {
         calendar.setTimeZone(patchCalendarRequest.getTimezone());
 
         // Patch the calendar with updated properties
-        final com.google.api.services.calendar.model.Calendar patchedCalendar = service.calendars()
+        final com.google.api.services.calendar.model.Calendar patchedCalendar = getService(patchCalendarRequest.getAccessToken())
+                .calendars()
                 .patch(patchCalendarRequest.getCalendarId(), calendar)
                 .execute();
 
@@ -266,7 +265,7 @@ public class GoogleCalendarService {
   public GoogleShareCalendarWithUserResponse shareCalendarWithUser(final ShareCalendarWithUserRequest shareCalendarWithUserRequest) {
     try {
       // Retrieve the calendar from Google Calendar service based on the calendar ID
-      final com.google.api.services.calendar.model.Calendar calendar = service.calendars()
+      final com.google.api.services.calendar.model.Calendar calendar = getService(shareCalendarWithUserRequest.getAccessToken()).calendars()
               .get(shareCalendarWithUserRequest.getCalendarId())
               .execute();
 
@@ -280,7 +279,7 @@ public class GoogleCalendarService {
         aclRule.setScope(scope).setRole(shareCalendarWithUserRequest.getAclRole().getValue());
 
         // Insert the ACL rule to share the calendar with the user
-        service.acl()
+        getService(shareCalendarWithUserRequest.getAccessToken()).acl()
               .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
               .execute();
 

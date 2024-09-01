@@ -18,7 +18,7 @@ import lombok.*;
   "calendar_id",
   "calendar"
 })
-public class UpdateCalendarResponse extends ApiResponse {
+public class ReactivateCalendarResponse extends ApiResponse {
 
   @JsonProperty("calendar_id")
   private Long calendarId;
@@ -28,13 +28,13 @@ public class UpdateCalendarResponse extends ApiResponse {
 
   @Override
   public String getMessageKey() {
-    return "update.calendar";
+    return "reactivate.calendar";
   }
 
-  public static UpdateCalendarResponse of(final Long calendarId, final CalendarResponse calendar) {
-    return UpdateCalendarResponse.builder()
-            .calendarId(calendarId)
-            .calendar(calendar)
-            .build();
+  public static ReactivateCalendarResponse of(final Long calendarId, final CalendarResponse calendar) {
+    return ReactivateCalendarResponse.builder()
+      .calendarId(calendarId)
+      .calendar(calendar)
+      .build();
   }
 }
