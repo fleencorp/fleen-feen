@@ -805,7 +805,7 @@ public class GoogleCalendarEventService {
    * @param event The {@link Event} for which the attendee list is to be initialized.
    *              If the event or its attendee list is null, the attendee list will be set to an empty list.
    */
-  private void initializeEventAttendeeList(Event event) {
+  private void initializeEventAttendeeList(final Event event) {
     if (nonNull(event) && isNull(event.getAttendees())) {
       event.setAttendees(new ArrayList<>());
     }
@@ -824,7 +824,7 @@ public class GoogleCalendarEventService {
    */
   private void addAttendee(final Event event, final EventAttendee eventAttendee) {
     initializeEventAttendeeList(event);
-    boolean attendeeExists = event.getAttendees().stream()
+    final boolean attendeeExists = event.getAttendees().stream()
       .anyMatch(existingAttendee -> existingAttendee.getEmail().equalsIgnoreCase(eventAttendee.getEmail()));
 
     if (!attendeeExists) {

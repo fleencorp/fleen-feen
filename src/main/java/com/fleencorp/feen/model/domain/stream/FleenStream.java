@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.fleencorp.feen.constant.stream.StreamVisibility.PRIVATE;
+import static com.fleencorp.feen.constant.stream.StreamVisibility.PROTECTED;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -181,12 +183,48 @@ public class FleenStream extends FleenFeenEntity {
     this.timezone = timezone;
   }
 
+  /**
+   * Marks the entity as deleted by setting the {@code isDeleted} flag to {@code true}.
+   */
   public void delete() {
     this.isDeleted = true;
   }
 
+  /**
+   * Cancels the stream by setting its status to {@link StreamStatus#CANCELLED}.
+   */
   public void cancel() {
     this.streamStatus = StreamStatus.CANCELLED;
+  }
+
+  /**
+   * Checks if the stream has restricted visibility.
+   *
+   * @return {@code true} if the stream's visibility is either {@link StreamVisibility#PRIVATE}
+   *         or {@link StreamVisibility#PROTECTED}; {@code false} otherwise.
+   */
+  public boolean isPrivate() {
+    return streamVisibility == PRIVATE || streamVisibility == PROTECTED;
+  }
+
+  /**
+   * Checks if the stream visibility is exactly PRIVATE.
+   *
+   * @return {@code true} if the {@code streamVisibility} is PRIVATE; {@code false} otherwise
+   */
+  public boolean isJustPrivate() {
+    return streamVisibility == PRIVATE;
+  }
+
+  /**
+   * Checks if the stream is canceled.
+   * This method returns {@code true} if the stream's status is set to
+   * {@link StreamStatus#CANCELLED}; otherwise, it returns {@code false}.
+   *
+   * @return {@code true} if the stream is canceled; {@code false} otherwise
+   */
+  public boolean isCanceled() {
+    return streamStatus == StreamStatus.CANCELLED;
   }
 
   public static FleenStream of(final Long streamId) {

@@ -225,7 +225,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
       .orElseThrow(() -> new ShareContactRequestNotFoundException(shareContactRequestId));
 
     // Check if the request is already canceled
-    if (shareContactRequest.getShareContactRequestStatus() == ShareContactRequestStatus.CANCELED) {
+    if (ShareContactRequestStatus.isCanceled(shareContactRequest.getShareContactRequestStatus())) {
       throw new ShareContactRequestAlreadyCanceledException();
     }
     // Verify if the request has been accepted or rejected
@@ -253,7 +253,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
 
     // If the status is ACCEPTED, verify the contact
-    if (shareContactRequestStatus == ShareContactRequestStatus.ACCEPTED) {
+    if (ShareContactRequestStatus.isAccepted(shareContactRequestStatus)) {
       verifyContact(contact);
     }
   }
@@ -306,8 +306,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
 
     // Check if the request has not been confirmed or rejected
-    if (!(ShareContactRequestStatus.ACCEPTED == shareContactRequestStatus ||
-          ShareContactRequestStatus.REJECTED == shareContactRequestStatus)) {
+    if (!(ShareContactRequestStatus.isAcceptedOrRejected(shareContactRequestStatus))) {
       throw new ShareContactRequestAlreadyProcessedException();
     }
   }
@@ -326,8 +325,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
 
     // Check if the request has been confirmed or rejected
-    if (shareContactRequestStatus == ShareContactRequestStatus.ACCEPTED ||
-        shareContactRequestStatus == ShareContactRequestStatus.REJECTED) {
+    if (ShareContactRequestStatus.isAcceptedOrRejected(shareContactRequestStatus)) {
       throw new CannotCancelShareContactRequestException();
     }
   }
@@ -347,8 +345,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
 
     // Check if the status is either SENT or CANCELED, which are invalid for acceptance or rejection
-    if (shareContactRequestStatus == ShareContactRequestStatus.SENT ||
-        shareContactRequestStatus == ShareContactRequestStatus.CANCELED) {
+    if (ShareContactRequestStatus.isSentOrCanceled(shareContactRequestStatus)) {
       throw new CannotProcessShareContactRequestException();
     }
   }

@@ -176,6 +176,16 @@ public class Member extends FleenFeenEntity {
     }
   }
 
+  /**
+   * Checks if the profile status is ACTIVE and the profile verification status is APPROVED.
+   *
+   * @return {@code true} if the {@code profileStatus} is ACTIVE and the {@code verificationStatus} is APPROVED;
+   *         {@code false} otherwise
+   */
+  public boolean isProfileActiveAndApproved() {
+    return ProfileStatus.ACTIVE == profileStatus && ProfileVerificationStatus.APPROVED == verificationStatus;
+  }
+
   public static Member of(final Long memberId) {
     return Member.builder()
             .memberId(memberId)

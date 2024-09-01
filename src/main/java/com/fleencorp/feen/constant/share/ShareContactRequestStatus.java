@@ -28,4 +28,45 @@ public enum ShareContactRequestStatus implements ApiParameter {
   public static ShareContactRequestStatus of(final String value) {
     return parseEnumOrNull(value, ShareContactRequestStatus.class);
   }
+
+  /**
+   * Checks if the specified {@link ShareContactRequestStatus} is ACCEPTED.
+   *
+   * @param status the share contact request status to check
+   * @return {@code true} if the {@code status} is ACCEPTED; {@code false} otherwise
+   */
+  public static boolean isAccepted(final ShareContactRequestStatus status) {
+    return status == ACCEPTED;
+  }
+
+  /**
+   * Checks if the specified {@link ShareContactRequestStatus} is CANCELED.
+   *
+   * @param status the share contact request status to check
+   * @return {@code true} if the {@code status} is CANCELED; {@code false} otherwise
+   */
+  public static boolean isCanceled(final ShareContactRequestStatus status) {
+    return status == CANCELED;
+  }
+
+  /**
+   * Checks if the specified {@link ShareContactRequestStatus} is either ACCEPTED or REJECTED.
+   *
+   * @param status the share contact request status to check
+   * @return {@code true} if the {@code status} is either ACCEPTED or REJECTED; {@code false} otherwise
+   */
+  public static boolean isAcceptedOrRejected(final ShareContactRequestStatus status) {
+    return status == ACCEPTED || status == REJECTED;
+  }
+
+  /**
+   * Checks if the specified {@link ShareContactRequestStatus} is either SENT or CANCELED.
+   *
+   * @param status the share contact request status to check
+   * @return {@code true} if the {@code status} is either SENT or CANCELED; {@code false} otherwise
+   */
+  public static boolean isSentOrCanceled(final ShareContactRequestStatus status) {
+    return status == SENT || status == CANCELED;
+  }
+
 }

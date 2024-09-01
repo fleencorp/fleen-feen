@@ -31,4 +31,35 @@ public enum ProfileStatus implements ApiParameter {
   public static ProfileStatus of(final String value) {
     return parseEnumOrNull(value, ProfileStatus.class);
   }
+
+  /**
+   * Checks if the specified {@link ProfileStatus} is DISABLED.
+   *
+   * @param profileStatus the profile status to check
+   * @return {@code true} if the {@code profileStatus} is DISABLED; {@code false} otherwise
+   */
+  public static boolean isDisabled(final ProfileStatus profileStatus) {
+    return profileStatus == DISABLED;
+  }
+
+  /**
+   * Checks if the specified {@link ProfileStatus} is BANNED.
+   *
+   * @param profileStatus the profile status to check
+   * @return {@code true} if the {@code profileStatus} is BANNED; {@code false} otherwise
+   */
+  public static boolean isBanned(final ProfileStatus profileStatus) {
+    return profileStatus == BANNED;
+  }
+
+  /**
+   * Checks if the specified {@link ProfileStatus} is INACTIVE.
+   *
+   * @param profileStatus the profile status to check
+   * @return {@code true} if the {@code profileStatus} is INACTIVE; {@code false} otherwise
+   */
+  public static boolean isInactive(final ProfileStatus profileStatus) {
+    return profileStatus == INACTIVE;
+  }
+
 }

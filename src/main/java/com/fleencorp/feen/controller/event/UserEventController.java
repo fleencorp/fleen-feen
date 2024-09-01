@@ -6,6 +6,7 @@ import com.fleencorp.feen.model.dto.event.AddNewEventAttendeeDto;
 import com.fleencorp.feen.model.dto.event.ProcessAttendeeRequestToJoinEventDto;
 import com.fleencorp.feen.model.dto.event.UpdateEventVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
@@ -51,6 +52,14 @@ public class UserEventController {
       @PathVariable(name = "eventId") final Long eventId,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.cancelEvent(eventId, user);
+  }
+
+  @GetMapping(value = "/attendees/request-to-join/{eventId}")
+  public SearchResultView getAttendeesRequestToJoin(
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user,
+      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
+    return eventService.getEventAttendeeRequestsToJoinEvent(eventId, searchRequest, user);
   }
 
   @PutMapping(value = "/process-join-request/{eventId}")

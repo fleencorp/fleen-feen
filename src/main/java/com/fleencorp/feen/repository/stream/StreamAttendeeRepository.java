@@ -28,6 +28,8 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   Page<StreamAttendee> findByFleenStream(FleenStream fleenStream, Pageable pageable);
 
+  Page<StreamAttendee> findByFleenStreamAndStreamAttendeeRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+
   Optional<StreamAttendee> findByFleenStreamAndMember(FleenStream fleenStream, Member member);
 
   Page<StreamAttendee> findAllByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
