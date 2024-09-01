@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.event;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
@@ -16,10 +15,6 @@ import lombok.*;
   "message"
 })
 public class NotAttendingEventResponse extends ApiResponse {
-
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Not attending request processed successfully";
 
   @Override
   public String getMessageKey() {

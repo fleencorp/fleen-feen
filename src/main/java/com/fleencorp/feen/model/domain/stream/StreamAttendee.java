@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.DISAPPROVED;
+import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
@@ -78,4 +80,25 @@ public class StreamAttendee extends FleenFeenEntity {
     streamAttendeeRequestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
     isAttending = true;
   }
+
+  /**
+   * Determines if the attendee's request to join status is pending.
+   *
+   * @return {@code true} if the attendee's request to join status is {@link StreamAttendeeRequestToJoinStatus#PENDING},
+   *         otherwise {@code false}.
+   */
+  public boolean isPending() {
+    return streamAttendeeRequestToJoinStatus == PENDING;
+  }
+
+  /**
+   * Checks if the status of the stream attendee request is DISAPPROVED.
+   *
+   * @return {@code true} if the {@code streamAttendeeRequestToJoinStatus} is DISAPPROVED; {@code false} otherwise
+   */
+  public boolean isDisapproved() {
+    return streamAttendeeRequestToJoinStatus == DISAPPROVED;
+  }
+
+
 }

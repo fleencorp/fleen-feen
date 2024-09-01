@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
-import lombok.Builder.Default;
 
 @Builder
 @Getter
@@ -26,10 +25,6 @@ public class RescheduleEventResponse extends ApiResponse {
 
   @JsonProperty("event")
   private FleenStreamResponse event;
-
-  @Default
-  @JsonProperty("message")
-  private String message = "Rescheduling of event successful";
 
   @Override
   public String getMessageKey() {

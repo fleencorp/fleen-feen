@@ -758,8 +758,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     checkIsNull(member, UnableToCompleteOperationException::new);
 
     // Check if the member status indicates that the member is already signed up
-    if (nonNull(member.getProfileStatus()) && ProfileStatus.ACTIVE == member.getProfileStatus()
-      && member.getVerificationStatus() == ProfileVerificationStatus.APPROVED) {
+    if (nonNull(member.getProfileStatus()) && member.isProfileActiveAndApproved()) {
       throw new AlreadySignedUpException();
     }
   }
@@ -905,11 +904,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   protected void validateProfileIsNotDisabledOrBanned(final ProfileStatus profileStatus) {
     // Check if the profile is disabled
-    if (ProfileStatus.DISABLED == profileStatus) {
+    if (ProfileStatus.isDisabled(profileStatus)) {
       throw new DisabledAccountException();
     }
     // Check if the profile is banned
-    else if (ProfileStatus.BANNED == profileStatus) {
+    else if (ProfileStatus.isBanned(profileStatus)) {
       throw new BannedAccountException();
     }
   }
@@ -932,8 +931,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return boolean true if the user's profile is inactive, and they are yet to be verified, false otherwise
    */
   protected boolean isProfileInactiveAndUserYetToBeVerified(final FleenUser user) {
-    return ProfileStatus.INACTIVE == user.getProfileStatus()
-        && RoleType.PRE_VERIFIED_USER == retrieveRoleForUserYetToCompleteSignUp(user);
+    return ProfileStatus.isInactive(user.getProfileStatus())
+        && RoleType.isPreVerified(retrieveRoleForUserYetToCompleteSignUp(user));
   }
 
   /**
@@ -999,7 +998,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param roleType the RoleType indicating the user's role
    */
   protected void configureAuthoritiesOrRolesForUserYetToCompleteSignUp(final FleenUser user, final RoleType roleType) {
-    if (requireNonNull(roleType) == RoleType.PRE_VERIFIED_USER) {
+    if (RoleType.isPreVerified(requireNonNull(roleType))) {
       user.setAuthorities(getUserPreVerifiedAuthorities());
     }
   }
@@ -1054,7 +1053,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return true if MFA is enabled and a valid MFA type is set; false otherwise
    */
   protected boolean isMfaEnabledAndMfaTypeSet(final FleenUser user) {
-    return nonNull(user) && user.isMfaEnabled() && user.getMfaType() != MfaType.NONE;
+    return nonNull(user) && user.isMfaEnabled() && MfaType.isNotNone(user.getMfaType());
   }
 
   /**
@@ -1100,7 +1099,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return true if the MFA type is PHONE or EMAIL, false otherwise
    */
   protected boolean isMfaTypeByEmailOrPhone(final MfaType mfaType) {
-    return MfaType.PHONE == mfaType || MfaType.EMAIL == mfaType;
+    return MfaType.isPhoneOrEmail(mfaType);
   }
 
   /**

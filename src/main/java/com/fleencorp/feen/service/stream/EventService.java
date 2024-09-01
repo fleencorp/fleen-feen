@@ -48,6 +48,8 @@ public interface EventService {
 
   AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
 
+  SearchResultView getEventAttendeeRequestsToJoinEvent(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
+
   EventAttendeesResponse getEventAttendees(Long eventId, FleenUser user);
 
   TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);

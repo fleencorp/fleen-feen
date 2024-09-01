@@ -4,13 +4,11 @@ import com.fleencorp.base.constant.base.CacheKeyConstant;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.fleencorp.feen.constant.security.mfa.MfaType.EMAIL;
-
 @Slf4j
 public class CacheKeyService {
 
   public static String getMfaSetupCacheKey(final String username, final MfaType mfaType) {
-    return mfaType == EMAIL ? getEmailMfaSetupCacheKey(username) : getPhoneMfaSetupCacheKey(username);
+    return MfaType.isEmail(mfaType) ? getEmailMfaSetupCacheKey(username) : getPhoneMfaSetupCacheKey(username);
   }
 
   /**
