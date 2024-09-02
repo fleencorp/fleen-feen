@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.feen.constant.stream.StreamCreationType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
@@ -85,8 +85,8 @@ public class FleenStream extends FleenFeenEntity {
   private String thumbnailLink;
 
   @Enumerated(STRING)
-  @Column(name = "stream_type", nullable = false)
-  private StreamType streamType;
+  @Column(name = "stream_source", nullable = false)
+  private StreamSource streamSource;
 
   @Enumerated(STRING)
   @Column(name = "stream_creation_type", nullable = false)

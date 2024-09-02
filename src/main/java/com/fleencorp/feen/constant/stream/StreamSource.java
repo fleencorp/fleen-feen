@@ -6,13 +6,13 @@ import lombok.Getter;
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 /**
-* Enum representing different types of streams.
+* Enum representing different types of streams source.
 *
 * @author Yusuf Alamu Musa
 * @version 1.0
 */
 @Getter
-public enum StreamType implements ApiParameter {
+public enum StreamSource implements ApiParameter {
 
   YOUTUBE_LIVE("YouTube Live"),
   GOOGLE_MEET("Google Meet"),
@@ -21,11 +21,11 @@ public enum StreamType implements ApiParameter {
 
   private final String value;
 
-  StreamType(final String value) {
+  StreamSource(final String value) {
     this.value = value;
   }
 
-  public static StreamType of(final String value) {
-    return parseEnumOrNull(value, StreamType.class);
+  public static StreamSource of(final String value) {
+    return parseEnumOrNull(value, StreamSource.class);
   }
 }

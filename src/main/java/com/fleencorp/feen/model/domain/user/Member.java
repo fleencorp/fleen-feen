@@ -98,6 +98,7 @@ public class Member extends FleenFeenEntity {
   private Set<Role> roles = new HashSet<>();
 
   @Builder.Default
+  @Column(name = "is_internal", nullable = false)
   private boolean isInternal = false;
 
   public String getFullName() {

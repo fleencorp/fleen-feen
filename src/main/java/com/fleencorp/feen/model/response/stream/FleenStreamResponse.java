@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.AllArgsConstructor;
@@ -40,7 +40,7 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "organizer_phone",
   "for_kids",
   "stream_link",
-  "stream_type",
+  "stream_source",
   "visibility",
   "scheduled_start_date",
   "scheduled_end_date",
@@ -77,8 +77,8 @@ public class FleenStreamResponse extends FleenFeenResponse {
   private String streamLink;
 
   @JsonFormat(shape = STRING)
-  @JsonProperty("stream_type")
-  private StreamType streamType;
+  @JsonProperty("stream_source")
+  private StreamSource streamSource;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("visibility")

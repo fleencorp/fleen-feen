@@ -35,7 +35,7 @@ public class EventMapper {
           .scheduledStartDate(entry.getScheduledStartDate())
           .scheduledEndDate(entry.getScheduledEndDate())
           .visibility(entry.getStreamVisibility())
-          .streamType(entry.getStreamType())
+          .streamSource(entry.getStreamSource())
           .streamLink(entry.getStreamLink())
           .forKids(entry.getForKids())
           .build();
