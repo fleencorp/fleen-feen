@@ -44,7 +44,7 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
             .timezone(toTitleCase(timezone))
             .scheduledStartDate(getActualStartDateTime())
             .scheduledEndDate(getActualEndDateTime())
-            .streamType(getActualType())
+            .streamSource(getActualSource())
             .streamVisibility(getActualVisibility())
             .streamCreationType(SCHEDULED)
             .streamStatus(ACTIVE)

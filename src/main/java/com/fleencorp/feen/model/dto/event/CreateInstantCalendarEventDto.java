@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import static com.fleencorp.feen.constant.base.SimpleConstant.NOT_AVAILABLE;
 import static com.fleencorp.feen.constant.stream.StreamCreationType.INSTANT;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static com.fleencorp.feen.constant.stream.StreamType.GOOGLE_MEET;
+import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 
 @Builder
@@ -56,7 +56,7 @@ public class CreateInstantCalendarEventDto {
             .scheduledStartDate(LocalDateTime.now())
             .scheduledEndDate(LocalDateTime.now())
             .streamVisibility(PUBLIC)
-            .streamType(GOOGLE_MEET)
+            .streamSource(GOOGLE_MEET)
             .streamCreationType(INSTANT)
             .streamStatus(ACTIVE)
             .forKids(true)
