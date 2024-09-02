@@ -227,6 +227,27 @@ public class FleenStream extends FleenFeenEntity {
     return streamStatus == StreamStatus.CANCELLED;
   }
 
+  /**
+   * Checks if the current time is within the scheduled start and end dates, indicating the event is ongoing.
+   *
+   * @return {@code true} if the current time is equal to or after the {@code scheduledStartDate}
+   *         and before the {@code scheduledEndDate}; {@code false} otherwise
+   */
+  public boolean isOngoing() {
+    LocalDateTime now = LocalDateTime.now();
+    return (now.isEqual(scheduledStartDate) || now.isAfter(scheduledStartDate)) && now.isBefore(scheduledEndDate);
+  }
+
+  /**
+   * Checks if the current time is after the scheduled end date, indicating the event has ended.
+   *
+   * @return {@code true} if the current time is after the {@code scheduledEndDate}; {@code false} otherwise
+   */
+  public boolean hasEnded() {
+    LocalDateTime now = LocalDateTime.now();
+    return now.isAfter(scheduledEndDate);
+  }
+
   public static FleenStream of(final Long streamId) {
     return FleenStream.builder()
         .fleenStreamId(streamId)
