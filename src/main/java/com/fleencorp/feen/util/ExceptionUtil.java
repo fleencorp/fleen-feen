@@ -1,10 +1,10 @@
 package com.fleencorp.feen.util;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Utility class for exception handling and validation.
@@ -27,7 +27,7 @@ public class ExceptionUtil {
    */
   public static <T> void checkIsNull(final T value, final Supplier<? extends RuntimeException> exception) {
     // Check if the exception supplier is non-null and the value is null
-    if (Objects.nonNull(exception) && isNull(value)) {
+    if (nonNull(exception) && isNull(value)) {
       // Throw the exception provided by the supplier
       throw exception.get();
     }
@@ -52,6 +52,19 @@ public class ExceptionUtil {
     for (final Object value: collection) {
       // Check if the element is null and throw exception if so
       checkIsNull(value, exception);
+    }
+  }
+
+  /**
+   * Throws a runtime exception supplied by the given {@link Supplier} if the specified condition is true.
+   *
+   * @param isTrue the condition to evaluate
+   * @param exceptionSupplier the supplier that provides the exception to be thrown if the condition is true
+   * @throws RuntimeException if {@code isTrue} is {@code true}, the exception provided by {@code exceptionSupplier} is thrown
+   */
+  public static void checkIsTrue(final boolean isTrue, Supplier<? extends RuntimeException> exceptionSupplier) {
+    if (isTrue) {
+      throw exceptionSupplier.get();
     }
   }
 }

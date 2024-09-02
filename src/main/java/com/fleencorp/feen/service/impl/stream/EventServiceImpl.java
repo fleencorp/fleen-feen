@@ -52,8 +52,7 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.feen.util.ExceptionUtil.*;
 import static java.util.Objects.nonNull;
 
 /**
@@ -621,6 +620,8 @@ public class EventServiceImpl implements EventService {
 
     // Validate if the user is the creator of the event
     validateCreatorOfEvent(stream, user);
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
 
     stream.delete();
     fleenStreamRepository.save(stream);
@@ -761,7 +762,7 @@ public class EventServiceImpl implements EventService {
     // Verify event is not canceled
     verifyEventIsNotCancelled(stream);
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Check if the stream is private
     checkIfStreamIsPrivate(eventId, stream);
     // Check if the user is already an attendee
@@ -804,7 +805,7 @@ public class EventServiceImpl implements EventService {
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Check if event is not cancelled
     verifyEventIsNotCancelled(stream);
     // CHeck if the user is already an attendee
@@ -1215,16 +1216,16 @@ public class EventServiceImpl implements EventService {
    * <p>This method checks if the provided stream end date is before the current date and time.
    * If the stream end date is in the past, it throws a FleenStreamNotCreatedByUserException with the end date as a message.</p>
    *
-   * @param streamEndDate the end date and time of the stream to verify
+   * @param stream the stream end date and time to verify
    * @throws UnableToCompleteOperationException if one of the input is invalid
    * @throws StreamAlreadyHappenedException if the stream end date is in the past
    */
-  public void verifyStreamEndDate(final LocalDateTime streamEndDate) {
-    // Throw an exception if the provided end date is null
-    checkIsNull(streamEndDate, UnableToCompleteOperationException::new);
+  public void verifyStreamEndDate(final FleenStream stream) {
+    // Throw an exception if the provided value is null
+    checkIsNull(stream, UnableToCompleteOperationException::new);
 
-    if (streamEndDate.isBefore(LocalDateTime.now())) {
-      throw new StreamAlreadyHappenedException(streamEndDate.toString());
+    if (stream.hasEnded()) {
+      throw new StreamAlreadyHappenedException(stream.getFleenStreamId(), stream.getScheduledEndDate());
     }
   }
 
@@ -1388,7 +1389,7 @@ public class EventServiceImpl implements EventService {
     // Validate if the user is the creator of the event
     validateCreatorOfEvent(stream, user);
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Verify the event is not cancelled
     verifyEventIsNotCancelled(stream);
   }

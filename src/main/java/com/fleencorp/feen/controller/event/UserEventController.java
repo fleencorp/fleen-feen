@@ -54,6 +54,13 @@ public class UserEventController {
     return eventService.cancelEvent(eventId, user);
   }
 
+  @DeleteMapping(value = "/delete/{eventId}")
+  public DeleteEventResponse deleteEvent(
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.deleteEvent(eventId, user);
+  }
+
   @GetMapping(value = "/attendees/request-to-join/{eventId}")
   public SearchResultView getAttendeesRequestToJoin(
       @PathVariable(name = "eventId") final Long eventId,
