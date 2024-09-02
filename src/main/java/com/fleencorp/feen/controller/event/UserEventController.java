@@ -85,7 +85,7 @@ public class UserEventController {
     return eventService.updateEventVisibility(eventId, updateEventVisibilityDto, user);
   }
 
-  @PutMapping(value = "/add-attendee/{eventId}")
+  @PostMapping(value = "/add-attendee/{eventId}")
   public AddNewEventAttendeeResponse addNewEventAttendee(
       @PathVariable(name = "eventId") final Long eventId,
       @Valid @RequestBody final AddNewEventAttendeeDto addNewEventAttendeeDto,

@@ -614,6 +614,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public DeletedEventResponse deleteEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -650,6 +651,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public CancelEventResponse cancelEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -684,6 +686,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -719,6 +722,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException         if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public RescheduleEventResponse rescheduleEvent(final Long eventId, final RescheduleCalendarEventDto rescheduleCalendarEventDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -843,6 +847,7 @@ public class EventServiceImpl implements EventService {
    * @throws CalendarNotFoundException if the calendar associated with event cannot be found or does not exist
    */
   @Override
+  @Transactional
   public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinEventDto processAttendeeRequestToJoinEventDto, final FleenUser user) {
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -900,6 +905,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the stream or event cannot be found or does not exist
    */
   @Override
+  @Transactional
   public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventVisibilityDto updateEventVisibilityDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -908,6 +914,8 @@ public class EventServiceImpl implements EventService {
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
     // Update the visibility of an event or stream
     stream.setStreamVisibility(updateEventVisibilityDto.getActualVisibility());
     fleenStreamRepository.save(stream);
@@ -922,7 +930,7 @@ public class EventServiceImpl implements EventService {
     // Send invitation to attendees that requested to join earlier and whose request is pending because the event or stream was private earlier
     sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendar.getExternalId(), stream, currentStreamVisibility);
 
-    return UpdateEventVisibilityResponse.of(eventId, toEventResponse(stream));
+    return localizedResponse.of(UpdateEventVisibilityResponse.of(eventId, toEventResponse(stream)));
   }
 
   /**

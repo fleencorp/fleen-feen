@@ -52,10 +52,6 @@ public class SignUpResponse extends ApiResponse {
   @JsonProperty("verification_type")
   private VerificationType verificationType;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Sign up successful";
-
   @Override
   public String getMessageKey() {
     return "sign.up";
