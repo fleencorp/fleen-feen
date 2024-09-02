@@ -614,7 +614,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
-  public DeleteEventResponse deleteEvent(final Long eventId, final FleenUser user) {
+  public DeletedEventResponse deleteEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
 
@@ -622,7 +622,7 @@ public class EventServiceImpl implements EventService {
     validateCreatorOfEvent(stream, user);
     // Verify if the event or stream is still ongoing
     checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
-
+    // Update delete status of event
     stream.delete();
     fleenStreamRepository.save(stream);
 
@@ -632,7 +632,7 @@ public class EventServiceImpl implements EventService {
             stream.getExternalId());
     eventUpdateService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
 
-    return DeleteEventResponse.of(eventId);
+    return localizedResponse.of(DeletedEventResponse.of(eventId));
   }
 
   /**
@@ -656,11 +656,13 @@ public class EventServiceImpl implements EventService {
 
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
-
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
+    // Update event status to canceled
     stream.cancel();
     fleenStreamRepository.save(stream);
 
-    // Create a request to cancel the calendar event
+    // Create a request to cancel the calendar event and submit request to external Calendar service
     final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest
         .of(calendar.getExternalId(),
             stream.getExternalId());
@@ -736,7 +738,7 @@ public class EventServiceImpl implements EventService {
     fleenStreamRepository.save(stream);
     eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
-    return RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream));
+    return localizedResponse.of(RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream)));
   }
 
   /**
@@ -869,7 +871,7 @@ public class EventServiceImpl implements EventService {
         () -> {}
       );
 
-    return ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream));
+    return localizedResponse.of(ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream)));
   }
 
   /**
