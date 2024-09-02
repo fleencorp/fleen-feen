@@ -55,7 +55,7 @@ public class UserEventController {
   }
 
   @DeleteMapping(value = "/delete/{eventId}")
-  public DeleteEventResponse deleteEvent(
+  public DeletedEventResponse deleteEvent(
       @PathVariable(name = "eventId") final Long eventId,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.deleteEvent(eventId, user);
