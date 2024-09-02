@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
@@ -20,7 +21,7 @@ import lombok.Builder.Default;
   "event_id",
   "event"
 })
-public class UpdateEventVisibilityResponse {
+public class UpdateEventVisibilityResponse extends ApiResponse {
 
   @JsonProperty("event_id")
   private Long eventId;
@@ -28,9 +29,10 @@ public class UpdateEventVisibilityResponse {
   @JsonProperty("event")
   private FleenStreamResponse event;
 
-  @Default
-  @JsonProperty("message")
-  private String message = "Event visibility updated successfully";
+  @Override
+  public String getMessageKey() {
+    return "update.event.visibility";
+  }
 
   public static UpdateEventVisibilityResponse of(final Long eventId, final EventResponse event) {
     return UpdateEventVisibilityResponse.builder()
