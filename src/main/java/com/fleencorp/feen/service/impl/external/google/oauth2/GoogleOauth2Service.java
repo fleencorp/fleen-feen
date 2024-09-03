@@ -486,4 +486,80 @@ public class GoogleOauth2Service {
   public static JsonFactory getJsonFactory() {
     return GsonFactory.getDefaultInstance();
   }
+
+  /**
+   * Validates the expiry time of the access token associated with the specified OAuth2 service type and user.
+   * If the access token has expired, it attempts to refresh the token. The method will then save the updated
+   * OAuth2 authorization details if a new token has been generated.
+   *
+   * @param oauth2ServiceType The type of the OAuth2 service (e.g., Google Calendar) for which the authorization
+   *                          details are being validated.
+   * @param user              The user whose OAuth2 authorization details are to be validated.
+   * @return The updated {@link Oauth2Authorization} entity containing the authorization details for the specified
+   *         OAuth2 service and user.
+   * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
+   *         specified user and service type.
+   */
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+    // Retrieve user oauth2 authorization details associated with Google Calendar
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
+      .orElseThrow(Oauth2InvalidAuthorizationException::new);
+
+    final String currentAccessToken = oauth2Authorization.getAccessToken();
+    // Check access token expiry date and refresh access token if it is expired
+    validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, user);
+    // Save Oauth2Authorization if new token has been set
+    saveTokenIfAccessTokenUpdated(oauth2Authorization, currentAccessToken);
+
+    return oauth2Authorization;
+  }
+
+  /**
+   * Validates the expiration time of the OAuth2 access token and refreshes it if necessary.
+   *
+   * <p>This method checks if the access token associated with the provided {@link Oauth2Authorization} has expired.
+   * If the token is expired, it attempts to refresh the access token using the stored refresh token. The refreshed
+   * access token and refresh token (if available) are then updated in the {@link Oauth2Authorization} object.</p>
+   *
+   * @param oauth2Authorization the {@link Oauth2Authorization} containing the current access and refresh tokens
+   * @param oauth2ServiceType the type of OAuth2 service being validated, e.g., Google, Facebook
+   * @param user the authenticated user for whom the token validation and refresh are being performed
+   */
+  public void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+    // Create a new authentication request for the specified OAuth2 service type
+    final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);
+    // Set the refresh token in the authentication request
+    authenticationRequest.setRefreshToken(oauth2Authorization.getRefreshToken());
+    // Set the existing OAuth2 authorization in the authentication request
+    authenticationRequest.setOauth2Authorization(oauth2Authorization);
+
+    // Check if the access token has expired
+    if (System.currentTimeMillis() >= oauth2Authorization.getTokenExpirationTimeInMilliseconds()) {
+      // Refresh the access token using the refresh token
+      final Oauth2AuthorizationResponse refreshOauth2TokenResponse = refreshUserAccessToken(authenticationRequest, user);
+      // Update the access token if the refresh response contains a new one
+      setIfNonNull(refreshOauth2TokenResponse::getAccessToken, oauth2Authorization::setAccessToken);
+      // Update the refresh token if the refresh response contains a new one
+      setIfNonNull(refreshOauth2TokenResponse::getRefreshToken, oauth2Authorization::setRefreshToken);
+    }
+  }
+
+  /**
+   * Saves the OAuth2 authorization entity if the access token has been updated.
+   *
+   * <p>This method compares the current access token with the one stored in the provided
+   * {@link Oauth2Authorization} object. If they are different, it persists the updated
+   * authorization entity to the repository.</p>
+   *
+   * @param oauth2Authorization the {@link Oauth2Authorization} entity containing the access token to compare.
+   * @param currentAccessToken  the current access token to compare with the stored one.
+   */
+  public void saveTokenIfAccessTokenUpdated(final Oauth2Authorization oauth2Authorization, final String currentAccessToken) {
+    // Check if the access token has been updated
+    if (!(oauth2Authorization.getAccessToken().equals(currentAccessToken))) {
+      // Save the updated authorization entity to the repository
+      oauth2AuthorizationRepository.save(oauth2Authorization);
+    }
+  }
+
 }

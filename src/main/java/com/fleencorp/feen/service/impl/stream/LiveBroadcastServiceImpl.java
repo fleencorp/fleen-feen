@@ -21,23 +21,30 @@ import com.fleencorp.feen.model.response.broadcast.UpdateStreamResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
+import com.fleencorp.feen.model.response.stream.DataForCreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
+import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
 /**
@@ -58,7 +65,9 @@ import static java.util.Objects.nonNull;
 @Service
 public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
+  private final GoogleOauth2Service googleOauth2Service;
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
+  private final YouTubeChannelService youTubeChannelService;
   private final FleenStreamRepository fleenStreamRepository;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
 
@@ -69,17 +78,36 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * including the YouTubeLiveBroadcastService for creating broadcasts on YouTube, the FleenStreamRepository
    * for managing broadcast data, and the GoogleOauth2AuthorizationRepository for OAuth2 authorization.</p>
    *
+   * @param googleOauth2Service the service for interacting with Google Oauth2 service
    * @param youTubeLiveBroadcastService the service to handle YouTube live broadcasts
+   * @param youTubeChannelService the service for managing YouTube channels and categories
    * @param fleenStreamRepository the repository to manage FleenStream data
    * @param oauth2AuthorizationRepository the repository to handle OAuth2 authorization
    */
   public LiveBroadcastServiceImpl(
+      final GoogleOauth2Service googleOauth2Service,
       final YouTubeLiveBroadcastService youTubeLiveBroadcastService,
+      final YouTubeChannelService youTubeChannelService,
       final FleenStreamRepository fleenStreamRepository,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository) {
+    this.googleOauth2Service = googleOauth2Service;
     this.youTubeLiveBroadcastService = youTubeLiveBroadcastService;
+    this.youTubeChannelService = youTubeChannelService;
     this.fleenStreamRepository = fleenStreamRepository;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
+  }
+
+  /**
+   * Retrieves the data required for creating a stream, including available timezones and YouTube categories.
+   *
+   * @return a {@link DataForCreateStreamResponse} containing the set of available timezones and
+   *         the list of YouTube categories
+   */
+  @Override
+  public DataForCreateStreamResponse getDataForCreateStream() {
+    final Set<String> timezones = getAvailableTimezones();
+    final YouTubeCategoriesResponse categoriesResponse = youTubeChannelService.listCategories();
+    return DataForCreateStreamResponse.of(timezones, categoriesResponse.getCategories());
   }
 
   /**
@@ -129,18 +157,15 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @throws Oauth2InvalidAuthorizationException If the OAuth2 authorization for the user is invalid or missing.
    */
   @Override
+  @Transactional
   public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final FleenUser user) {
     // Check if there is a valid OAuth2 authorization for the user
-    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), Oauth2ServiceType.YOUTUBE);
-    if (existingGoogleOauth2Authorization.isEmpty()) {
-      throw new Oauth2InvalidAuthorizationException();
-    }
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(createLiveBroadcastDto.getOauth2ServiceType(), user);
 
     // Create a request object to create the live broadcast on YouTube
     final CreateLiveBroadcastRequest createLiveBroadcastRequest = CreateLiveBroadcastRequest.by(createLiveBroadcastDto);
-    final Oauth2Authorization oauth2Authorization = existingGoogleOauth2Authorization.get();
-
-    createLiveBroadcastRequest.setAccessTokenForHttpRequest(oauth2Authorization.getAccessToken());
+    // Update access token needed to perform request
+    createLiveBroadcastRequest.updateToken(oauth2Authorization.getAccessToken());
     // Create the live broadcast using YouTubeLiveBroadcastService
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
 
@@ -151,6 +176,18 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
     fleenStreamRepository.save(stream);
     return CreateStreamResponse.of(stream.getFleenStreamId(), toFleenStreamResponse(stream));
+  }
+
+  /**
+   * Validates the expiry time of the access token for the specified OAuth2 service type and user,
+   * or refreshes the token if necessary.
+   *
+   * @param oauth2ServiceType the type of OAuth2 service (e.g., Google, Facebook) to validate or refresh the token for
+   * @param user the user whose access token is being validated or refreshed
+   * @return an {@link Oauth2Authorization} object containing updated authorization details
+   */
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 
   /**
@@ -176,6 +213,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @throws Oauth2InvalidAuthorizationException If the OAuth2 authorization for the user is invalid or missing.
    */
   @Override
+  @Transactional
   public UpdateStreamResponse updateLiveBroadcast(final Long streamId, final UpdateLiveBroadcastDto updateLiveBroadcastDto, final FleenUser user) {
     final FleenStream stream = fleenStreamRepository.findById(streamId)
         .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
@@ -224,6 +262,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @throws Oauth2InvalidAuthorizationException If the OAuth2 authorization for the user is invalid or missing.
    */
   @Override
+  @Transactional
   public RescheduleStreamResponse rescheduleLiveBroadcast(final Long streamId, final RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, final FleenUser user) {
     // Retrieve the FleenStream entity from the repository based on the stream ID
     final FleenStream stream = fleenStreamRepository.findById(streamId)
