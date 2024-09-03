@@ -401,7 +401,9 @@ public class GoogleCalendarEventService {
       final String eventId = addNewEventAttendeeRequest.getEventId();
 
       // Retrieve the event from the calendar
-      final Event event = calendar.events().get(calendarId, eventId).execute();
+      final Event event = calendar.events()
+        .get(calendarId, eventId)
+        .execute();
 
       // If the event exists, add the new attendee and update the event on the calendar
       if (nonNull(event)) {
@@ -415,6 +417,7 @@ public class GoogleCalendarEventService {
 
         calendar.events()
           .update(calendarId, eventId, event)
+          .setSendUpdates(EventSendUpdate.ALL.getValue())
           .execute();
 
         return GoogleAddNewCalendarEventAttendeeResponse
@@ -617,15 +620,11 @@ public class GoogleCalendarEventService {
         final List<EventAttendee> updatedAttendees = event.getAttendees()
           .stream().filter(attendee -> !attendeeToRemove.equals(attendee.getEmail()))
           .toList();
-        log.info("Attendee to remove {}", attendeeToRemove);
         event.setAttendees(updatedAttendees);
-        log.info("The updated attendees are {}", updatedAttendees);
 
         final Event patchedEvent = calendar.events()
           .patch(calendarId, eventId, event)
           .execute();
-
-        log.info("The updated event is {}", patchedEvent);
 
         return GoogleRetrieveCalendarEventResponse.of(notAttendingEventRequest.getEventId(), event, mapToEventExpanded(patchedEvent));
       }

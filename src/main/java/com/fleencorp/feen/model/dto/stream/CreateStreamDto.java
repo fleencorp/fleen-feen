@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.dto.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.*;
-import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.converter.common.ToLowerCase;
 import com.fleencorp.feen.converter.common.ToTitleCase;
@@ -76,18 +76,18 @@ public class CreateStreamDto {
   protected String visibility;
 
   @NotNull(message = "{stream.type.NotNull}")
-  @ValidEnum(enumClass = StreamType.class, message = "{stream.type.Type}", ignoreCase = true)
+  @ValidEnum(enumClass = StreamSource.class, message = "{stream.type.Type}", ignoreCase = true)
   @ToUpperCase
-  @JsonProperty("type")
-  protected String type;
+  @JsonProperty("source")
+  protected String source;
 
   @NotNull(message = "{stream.forKids.NotNull}")
   @ValidBoolean
   @JsonProperty("is_for_kids")
   protected String isForKids;
 
-  public StreamType getActualType() {
-    return StreamType.of(type);
+  public StreamSource getActualSource() {
+    return StreamSource.of(source);
   }
 
   public StreamVisibility getActualVisibility() {

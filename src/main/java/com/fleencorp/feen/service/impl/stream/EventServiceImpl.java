@@ -52,8 +52,7 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.feen.util.ExceptionUtil.*;
 import static java.util.Objects.nonNull;
 
 /**
@@ -615,13 +614,16 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
-  public DeleteEventResponse deleteEvent(final Long eventId, final FleenUser user) {
+  @Transactional
+  public DeletedEventResponse deleteEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
 
     // Validate if the user is the creator of the event
     validateCreatorOfEvent(stream, user);
-
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
+    // Update delete status of event
     stream.delete();
     fleenStreamRepository.save(stream);
 
@@ -631,7 +633,7 @@ public class EventServiceImpl implements EventService {
             stream.getExternalId());
     eventUpdateService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
 
-    return DeleteEventResponse.of(eventId);
+    return localizedResponse.of(DeletedEventResponse.of(eventId));
   }
 
   /**
@@ -649,17 +651,20 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public CancelEventResponse cancelEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
-
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
+    // Update event status to canceled
     stream.cancel();
     fleenStreamRepository.save(stream);
 
-    // Create a request to cancel the calendar event
+    // Create a request to cancel the calendar event and submit request to external Calendar service
     final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest
         .of(calendar.getExternalId(),
             stream.getExternalId());
@@ -681,6 +686,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -716,6 +722,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException         if the event with the specified ID is not found
    */
   @Override
+  @Transactional
   public RescheduleEventResponse rescheduleEvent(final Long eventId, final RescheduleCalendarEventDto rescheduleCalendarEventDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -735,7 +742,7 @@ public class EventServiceImpl implements EventService {
     fleenStreamRepository.save(stream);
     eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
-    return RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream));
+    return localizedResponse.of(RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream)));
   }
 
   /**
@@ -761,7 +768,7 @@ public class EventServiceImpl implements EventService {
     // Verify event is not canceled
     verifyEventIsNotCancelled(stream);
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Check if the stream is private
     checkIfStreamIsPrivate(eventId, stream);
     // Check if the user is already an attendee
@@ -804,7 +811,7 @@ public class EventServiceImpl implements EventService {
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
 
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Check if event is not cancelled
     verifyEventIsNotCancelled(stream);
     // CHeck if the user is already an attendee
@@ -840,6 +847,7 @@ public class EventServiceImpl implements EventService {
    * @throws CalendarNotFoundException if the calendar associated with event cannot be found or does not exist
    */
   @Override
+  @Transactional
   public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinEventDto processAttendeeRequestToJoinEventDto, final FleenUser user) {
     final FleenStream stream = fleenStreamRepository.findById(eventId)
         .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
@@ -868,7 +876,7 @@ public class EventServiceImpl implements EventService {
         () -> {}
       );
 
-    return ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream));
+    return localizedResponse.of(ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream)));
   }
 
   /**
@@ -897,6 +905,7 @@ public class EventServiceImpl implements EventService {
    * @throws FleenStreamNotFoundException if the stream or event cannot be found or does not exist
    */
   @Override
+  @Transactional
   public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventVisibilityDto updateEventVisibilityDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
@@ -905,6 +914,8 @@ public class EventServiceImpl implements EventService {
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
+    // Verify if the event or stream is still ongoing
+    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
     // Update the visibility of an event or stream
     stream.setStreamVisibility(updateEventVisibilityDto.getActualVisibility());
     fleenStreamRepository.save(stream);
@@ -919,7 +930,7 @@ public class EventServiceImpl implements EventService {
     // Send invitation to attendees that requested to join earlier and whose request is pending because the event or stream was private earlier
     sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendar.getExternalId(), stream, currentStreamVisibility);
 
-    return UpdateEventVisibilityResponse.of(eventId, toEventResponse(stream));
+    return localizedResponse.of(UpdateEventVisibilityResponse.of(eventId, toEventResponse(stream)));
   }
 
   /**
@@ -1215,16 +1226,16 @@ public class EventServiceImpl implements EventService {
    * <p>This method checks if the provided stream end date is before the current date and time.
    * If the stream end date is in the past, it throws a FleenStreamNotCreatedByUserException with the end date as a message.</p>
    *
-   * @param streamEndDate the end date and time of the stream to verify
+   * @param stream the stream end date and time to verify
    * @throws UnableToCompleteOperationException if one of the input is invalid
    * @throws StreamAlreadyHappenedException if the stream end date is in the past
    */
-  public void verifyStreamEndDate(final LocalDateTime streamEndDate) {
-    // Throw an exception if the provided end date is null
-    checkIsNull(streamEndDate, UnableToCompleteOperationException::new);
+  public void verifyStreamEndDate(final FleenStream stream) {
+    // Throw an exception if the provided value is null
+    checkIsNull(stream, UnableToCompleteOperationException::new);
 
-    if (streamEndDate.isBefore(LocalDateTime.now())) {
-      throw new StreamAlreadyHappenedException(streamEndDate.toString());
+    if (stream.hasEnded()) {
+      throw new StreamAlreadyHappenedException(stream.getFleenStreamId(), stream.getScheduledEndDate());
     }
   }
 
@@ -1388,7 +1399,7 @@ public class EventServiceImpl implements EventService {
     // Validate if the user is the creator of the event
     validateCreatorOfEvent(stream, user);
     // Check if the stream is still active and can be joined.
-    verifyStreamEndDate(stream.getScheduledEndDate());
+    verifyStreamEndDate(stream);
     // Verify the event is not cancelled
     verifyEventIsNotCancelled(stream);
   }

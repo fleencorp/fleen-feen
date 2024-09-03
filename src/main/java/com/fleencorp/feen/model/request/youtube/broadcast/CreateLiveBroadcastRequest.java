@@ -33,19 +33,40 @@ public class CreateLiveBroadcastRequest {
   private Boolean enableAutoStart;
   private String accessTokenForHttpRequest;
 
-  public static CreateLiveBroadcastRequest by(final CreateLiveBroadcastDto createLiveBroadcastDto) {
+  public static CreateLiveBroadcastRequest by(final CreateLiveBroadcastDto dto) {
     return CreateLiveBroadcastRequest.builder()
-            .title(createLiveBroadcastDto.getTitle())
-            .description(createLiveBroadcastDto.getDescription())
-            .thumbnailUrl(createLiveBroadcastDto.getThumbnailUrl())
-            .scheduledStartDateTime(createLiveBroadcastDto.getActualStartDateTime())
-            .scheduledEndDateTime(createLiveBroadcastDto.getActualEndDateTime())
-            .madeForKids(parseBoolean(createLiveBroadcastDto.getIsForKids()))
-            .privacyStatus(LiveBroadcastPrivacyStatus.valueOf(getVisibility(createLiveBroadcastDto.getVisibility())))
+            .title(dto.getTitle())
+            .description(dto.getDescription())
+            .thumbnailUrl(dto.getThumbnailUrl())
+            .scheduledStartDateTime(dto.getActualStartDateTime())
+            .scheduledEndDateTime(dto.getActualEndDateTime())
+            .madeForKids(parseBoolean(dto.getIsForKids()))
+            .privacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(dto.getVisibility())))
             .enableLowLatencyStreamingOrLowDataStreaming(true)
             .enableAutoStart(false)
             .closedCaptionsType(LiveBroadcastClosedCaptionType.CLOSED_CAPTIONS_DISABLED)
+            .categoryId(dto.getCategoryId())
             .build();
+  }
+
+  public String getLiveStreamFormat() {
+    return "1080p";
+  }
+
+  public String getIngestionType() {
+    return "rtmp";
+  }
+
+  public String getLiveStreamResolution() {
+    return "1080p";
+  }
+
+  public String getLiveStreamFrameRate() {
+    return "60fps";
+  }
+
+  public String getStreamKind() {
+    return "youtube#liveStream";
   }
 
 
@@ -67,5 +88,14 @@ public class CreateLiveBroadcastRequest {
       return visibility;
     }
     return StreamVisibility.PUBLIC.getValue();
+  }
+
+  /**
+   * Updates the access token used for HTTP requests.
+   *
+   * @param accessTokenForHttpRequest the new access token to be set
+   */
+  public void updateToken(final String accessTokenForHttpRequest) {
+    this.accessTokenForHttpRequest = accessTokenForHttpRequest;
   }
 }

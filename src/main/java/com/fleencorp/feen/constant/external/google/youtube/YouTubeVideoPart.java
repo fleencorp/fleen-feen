@@ -16,6 +16,7 @@ import lombok.Getter;
 @Getter
 public enum YouTubeVideoPart implements ApiParameter {
 
+  CDN("cdn"),
   ID("id"),
   SNIPPET("snippet"),
   STATUS("status"),

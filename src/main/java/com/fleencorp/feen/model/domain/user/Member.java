@@ -97,12 +97,33 @@ public class Member extends FleenFeenEntity {
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
+  @Builder.Default
+  @Column(name = "is_internal", nullable = false)
+  private boolean isInternal = false;
+
   public String getFullName() {
     return StringUtil.getFullName(firstName, lastName);
   }
 
+  /**
+   * Checks if multi-factor authentication (MFA) is disabled.
+   *
+   * @return {@code true} if MFA is not enabled; {@code false} otherwise
+   */
   public boolean isMfaDisabled() {
     return !mfaEnabled;
+  }
+
+  /**
+   * Confirms if the email address belongs to the specified origin domain and sets the user as internal if it does.
+   *
+   * @param originDomain the domain to check against the user's email address
+   * @throws NullPointerException if {@code emailAddress} is null
+   */
+  public void confirmAndSetInternalUser(final String originDomain) {
+    if (nonNull(emailAddress) && emailAddress.endsWith(originDomain)) {
+      this.isInternal = true;
+    }
   }
 
   /**
