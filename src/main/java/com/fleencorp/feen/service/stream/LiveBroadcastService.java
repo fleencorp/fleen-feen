@@ -8,9 +8,12 @@ import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchReques
 import com.fleencorp.feen.model.response.broadcast.CreateStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.UpdateStreamResponse;
+import com.fleencorp.feen.model.response.stream.DataForCreateStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface LiveBroadcastService {
+
+  DataForCreateStreamResponse getDataForCreateStream();
 
   SearchResultView findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest);
 

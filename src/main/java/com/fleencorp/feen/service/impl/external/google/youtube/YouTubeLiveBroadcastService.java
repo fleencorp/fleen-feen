@@ -63,6 +63,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class YouTubeLiveBroadcastService {
 
+  private final String applicationName;
   private final String serviceApiKey;
   private final ReporterService reporterService;
 
@@ -78,12 +79,15 @@ public class YouTubeLiveBroadcastService {
    * <p>The API key should be properly configured in the application properties to ensure
    * that the service can successfully interact with the YouTube Data API.</p>
    *
+   * @param applicationName the application name to be used in the YouTube service
    * @param serviceApiKey The YouTube Data API key used for authenticating API requests.
    * @param reporterService The service used for reporting events.
    */
   public YouTubeLiveBroadcastService(
+      @Value("${application.name}") final String applicationName,
       @Value("${youtube.data.api-key}") final String serviceApiKey,
       final ReporterService reporterService) {
+    this.applicationName = applicationName;
     this.serviceApiKey = serviceApiKey;
     this.reporterService = reporterService;
   }
@@ -155,7 +159,17 @@ public class YouTubeLiveBroadcastService {
       snippet.setScheduledStartTime(toDateTime(createLiveBroadcastRequest.getScheduledStartDateTime()));
       snippet.setScheduledEndTime(toDateTime(createLiveBroadcastRequest.getScheduledEndDateTime()));
       snippet.setChannelId(createLiveBroadcastRequest.getChannelId());
+      snippet.set("broadcastSource", "BROADCAST_SOURCE_WEBCAM");
+//      snippet.set("broadcastType", "BROADCAST_SCHEDULED");
+      snippet.set("enableMonitorStream", false);
+      snippet.set("useMasks", true);
       liveBroadcast.setSnippet(snippet);
+      liveBroadcast.set("broadcastSource", "BROADCAST_SOURCE_WEBCAM");
+//      liveBroadcast.set("broadcastType", "BROADCAST_SCHEDULED");
+      liveBroadcast.set("enableMonitorStream", false);
+      liveBroadcast.set("useMasks", true);
+
+
 
       // Set the thumbnail details for the broadcast
       final ThumbnailDetails thumbnailDetails = new ThumbnailDetails();
@@ -168,11 +182,16 @@ public class YouTubeLiveBroadcastService {
       final LiveBroadcastContentDetails liveBroadcastContentDetails = new LiveBroadcastContentDetails();
       liveBroadcastContentDetails.setClosedCaptionsType(createLiveBroadcastRequest.getClosedCaptionsType().getValue());
       liveBroadcast.setContentDetails(liveBroadcastContentDetails);
+      liveBroadcastContentDetails.setMonitorStream(null);
+      liveBroadcastContentDetails.set("broadcastSource", "BROADCAST_SOURCE_WEBCAM");
+//      liveBroadcastContentDetails.set("broadcastType", "BROADCAST_SCHEDULED");
+      liveBroadcastContentDetails.set("enableMonitorStream", false);
+      liveBroadcastContentDetails.set("useMasks", true);
 
       // Set the status for the broadcast
       final LiveBroadcastStatus liveBroadcastStatus = new LiveBroadcastStatus();
       liveBroadcastStatus.setPrivacyStatus(createLiveBroadcastRequest.getPrivacyStatus().getValue());
-      liveBroadcastStatus.setMadeForKids(createLiveBroadcastRequest.getMadeForKids());
+      liveBroadcastStatus.setSelfDeclaredMadeForKids(createLiveBroadcastRequest.getMadeForKids());
       liveBroadcast.setStatus(liveBroadcastStatus);
 
       // Insert the broadcast using the YouTube Data API
@@ -180,6 +199,33 @@ public class YouTubeLiveBroadcastService {
               .liveBroadcasts()
               .insert(getPartsForCreatingLiveBroadcast(), liveBroadcast)
               .execute();
+
+      log.info("Created Broadcast {}", createdLiveBroadcast);
+
+      final LiveStreamSnippet liveStreamSnippet = new LiveStreamSnippet();
+      liveStreamSnippet.setTitle(createLiveBroadcastRequest.getTitle());
+
+      CdnSettings cdnSettings = new CdnSettings();
+      cdnSettings.setFormat(createLiveBroadcastRequest.getLiveStreamFormat());
+      cdnSettings.setIngestionType(createLiveBroadcastRequest.getIngestionType());
+      cdnSettings.setResolution(createLiveBroadcastRequest.getLiveStreamResolution());
+      cdnSettings.setFrameRate(createLiveBroadcastRequest.getLiveStreamFrameRate());
+
+      LiveStream stream = new LiveStream();
+      stream.setSnippet(liveStreamSnippet);
+      stream.setCdn(cdnSettings);
+      stream.setKind(createLiveBroadcastRequest.getStreamKind());
+
+      LiveStream createdStream = youTube.liveStreams()
+        .insert(getPartsForCreatingLiveStream(), stream)
+        .execute();
+
+      LiveBroadcast updatedBroadcast = youTube.liveBroadcasts()
+        .bind(createdLiveBroadcast.getId(), getPartsForBindingLiveStreamWithBroadcast())
+        .setStreamId(createdStream.getId())
+        .execute();
+
+      log.info("Updated broadcast {}", updatedBroadcast);
 
       final Video video = new Video();
       video.setId(createdLiveBroadcast.getId());
@@ -424,6 +470,34 @@ public class YouTubeLiveBroadcastService {
   }
 
   /**
+   * Constructs and returns a comma-separated string of parts required for creating a live stream.
+   *
+   * <p>This method creates a list of parts needed for creating a YouTube live broadcast,
+   * including "snippet" and "cdn". It then joins these parts into a
+   * single comma-separated string using {@link String#join(CharSequence, CharSequence...)}.</p>
+   *
+   * <p>The resulting string can be used in API requests that require specifying the parts
+   * of a YouTube resource to be included in the response.</p>
+   *
+   * @return A comma-separated string of parts for creating a live broadcast.
+   */
+  private String getPartsForCreatingLiveStream() {
+    final List<String> parts = List.of(SNIPPET.getValue(), CDN.getValue());
+    return String.join(COMMA, parts);
+  }
+
+  /**
+   * Constructs a comma-separated string of parts required for binding a live stream with a broadcast.
+   *
+   * @return a comma-separated string of parts, including the ID and content details
+   */
+  private String getPartsForBindingLiveStreamWithBroadcast() {
+    final List<String> parts = List.of(ID.getValue(), CONTENT_DETAILS.getValue());
+    return String.join(COMMA, parts);
+  }
+
+
+  /**
    * Creates and returns a YouTube request object configured with the provided access token.
    *
    * <p>This method constructs an instance of {@link YouTube} using the provided access token.
@@ -443,6 +517,7 @@ public class YouTubeLiveBroadcastService {
    */
   private YouTube createRequest(final String accessToken) {
     return new YouTube.Builder(GoogleOauth2Service.getTransport(), GoogleOauth2Service.getJsonFactory(), getHttpRequestInitializer(accessToken))
+            .setApplicationName(applicationName)
             .build();
   }
 }
