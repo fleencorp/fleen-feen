@@ -52,6 +52,7 @@ import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.RoleService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -107,6 +108,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final ProfileRequestPublisher profileRequestPublisher;
   private final ProfileTokenRepository profileTokenRepository;
   private final LocalizedResponse localizedResponse;
+  private final String originDomain;
 
   /**
    * Constructs an instance of {@link AuthenticationServiceImpl} with the provided dependencies.
@@ -129,6 +131,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param profileRequestPublisher the publisher for sending profile-related requests.
    * @param profileTokenRepository the repository for managing profile-related tokens.
    * @param localizedResponse the service for handling localized responses.
+   * @param originDomain the origin domain used in the app to perform actions
    */
   public AuthenticationServiceImpl(
       final AuthenticationManager authenticationManager,
@@ -141,7 +144,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
       final ProfileTokenRepository profileTokenRepository,
-      final LocalizedResponse localizedResponse) {
+      final LocalizedResponse localizedResponse,
+      @Value("${origin-domain}") final String originDomain) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
     this.countryService = countryService;
@@ -153,6 +157,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.profileRequestPublisher = profileRequestPublisher;
     this.profileTokenRepository = profileTokenRepository;
     this.localizedResponse = localizedResponse;
+    this.originDomain = originDomain;
   }
 
   @Override
@@ -199,6 +204,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Encode or hash the user's password before saving
     final String password = signUpDto.getPassword();
     encodeOrHashUserPassword(member, password);
+    // Validate user email address domain and mark as an internal user
+    member.confirmAndSetInternalUser(originDomain);
 
     // Set user location details
     configureUserLocationDetails(member, signUpDto.getCountryCode());

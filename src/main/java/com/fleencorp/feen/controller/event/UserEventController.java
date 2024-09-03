@@ -54,6 +54,13 @@ public class UserEventController {
     return eventService.cancelEvent(eventId, user);
   }
 
+  @DeleteMapping(value = "/delete/{eventId}")
+  public DeletedEventResponse deleteEvent(
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.deleteEvent(eventId, user);
+  }
+
   @GetMapping(value = "/attendees/request-to-join/{eventId}")
   public SearchResultView getAttendeesRequestToJoin(
       @PathVariable(name = "eventId") final Long eventId,
@@ -78,7 +85,7 @@ public class UserEventController {
     return eventService.updateEventVisibility(eventId, updateEventVisibilityDto, user);
   }
 
-  @PutMapping(value = "/add-attendee/{eventId}")
+  @PostMapping(value = "/add-attendee/{eventId}")
   public AddNewEventAttendeeResponse addNewEventAttendee(
       @PathVariable(name = "eventId") final Long eventId,
       @Valid @RequestBody final AddNewEventAttendeeDto addNewEventAttendeeDto,

@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.feen.constant.stream.StreamCreationType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
@@ -85,8 +85,8 @@ public class FleenStream extends FleenFeenEntity {
   private String thumbnailLink;
 
   @Enumerated(STRING)
-  @Column(name = "stream_type", nullable = false)
-  private StreamType streamType;
+  @Column(name = "stream_source", nullable = false)
+  private StreamSource streamSource;
 
   @Enumerated(STRING)
   @Column(name = "stream_creation_type", nullable = false)
@@ -225,6 +225,27 @@ public class FleenStream extends FleenFeenEntity {
    */
   public boolean isCanceled() {
     return streamStatus == StreamStatus.CANCELLED;
+  }
+
+  /**
+   * Checks if the current time is within the scheduled start and end dates, indicating the event is ongoing.
+   *
+   * @return {@code true} if the current time is equal to or after the {@code scheduledStartDate}
+   *         and before the {@code scheduledEndDate}; {@code false} otherwise
+   */
+  public boolean isOngoing() {
+    LocalDateTime now = LocalDateTime.now();
+    return (now.isEqual(scheduledStartDate) || now.isAfter(scheduledStartDate)) && now.isBefore(scheduledEndDate);
+  }
+
+  /**
+   * Checks if the current time is after the scheduled end date, indicating the event has ended.
+   *
+   * @return {@code true} if the current time is after the {@code scheduledEndDate}; {@code false} otherwise
+   */
+  public boolean hasEnded() {
+    LocalDateTime now = LocalDateTime.now();
+    return now.isAfter(scheduledEndDate);
   }
 
   public static FleenStream of(final Long streamId) {

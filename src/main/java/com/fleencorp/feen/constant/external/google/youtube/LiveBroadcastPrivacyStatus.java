@@ -1,7 +1,10 @@
 package com.fleencorp.feen.constant.external.google.youtube;
 
 import com.fleencorp.base.constant.base.ApiParameter;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import lombok.Getter;
+
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 /**
 * Enum representing privacy statuses for live broadcasts on YouTube.
@@ -24,5 +27,9 @@ public enum LiveBroadcastPrivacyStatus implements ApiParameter {
 
   LiveBroadcastPrivacyStatus(final String value) {
     this.value = value;
+  }
+
+  public static LiveBroadcastPrivacyStatus of(final String value) {
+    return parseEnumOrNull(value, LiveBroadcastPrivacyStatus.class);
   }
 }

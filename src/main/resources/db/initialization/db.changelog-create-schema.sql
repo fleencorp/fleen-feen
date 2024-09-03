@@ -19,6 +19,7 @@ CREATE TABLE member (
   phone_number_verified BOOLEAN DEFAULT FALSE,
   mfa_enabled BOOLEAN DEFAULT FALSE,
   mfa_secret VARCHAR(1000),
+  is_internal BOOLEAN DEFAULT FALSE,
 
   mfa_type VARCHAR(255) DEFAULT 'NONE'
     NOT NULL CHECK (mfa_type IN ('AUTHENTICATOR', 'EMAIL', 'PHONE', 'NONE')),
@@ -155,8 +156,8 @@ CREATE TABLE fleen_stream (
   is_deleted BOOLEAN NOT NULL DEFAULT false,
   stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
-  stream_type VARCHAR(255) DEFAULT 'NONE'
-    NOT NULL CHECK (stream_type IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
+  stream_source VARCHAR(255) DEFAULT 'NONE'
+    NOT NULL CHECK (stream_source IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
   stream_creation_type VARCHAR(255) DEFAULT 'INSTANT'
     NOT NULL CHECK (stream_creation_type IN ('INSTANT', 'SCHEDULED')),
   stream_visibility VARCHAR(255) DEFAULT 'PUBLIC'

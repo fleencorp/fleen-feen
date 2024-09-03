@@ -5,13 +5,11 @@ import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
 import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
-import com.fleencorp.feen.model.request.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.CreateCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.DeleteCalendarRequest;
 import com.fleencorp.feen.model.request.calendar.calendar.PatchCalendarRequest;
@@ -24,10 +22,8 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
-import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
-import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
@@ -41,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.base.util.FleenUtil.setIfNonNull;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponses;
@@ -62,7 +57,6 @@ public class CalendarServiceImpl implements CalendarService {
   private final CountryService countryService;
   private final GoogleCalendarService googleCalendarService;
   private final CalendarRepository calendarRepository;
-  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final GoogleOauth2Service googleOauth2Service;
   private final LocalizedResponse localizedResponse;
 
@@ -72,20 +66,18 @@ public class CalendarServiceImpl implements CalendarService {
   * @param googleCalendarService the service to interact with Google Calendar
   * @param countryService the service for managing and retrieving countries
   * @param calendarRepository the repository to manage calendar data
-  * @param googleOauth2Service the service for interacting with Google oauth2 service
+  * @param googleOauth2Service the service for interacting with Google Oauth2 service
   * @param localizedResponse the service for setting localized message to responses
   */
   public CalendarServiceImpl(
       final GoogleCalendarService googleCalendarService,
       final CountryService countryService,
       final CalendarRepository calendarRepository,
-      final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final GoogleOauth2Service googleOauth2Service,
       final LocalizedResponse localizedResponse) {
     this.googleCalendarService = googleCalendarService;
     this.countryService = countryService;
     this.calendarRepository = calendarRepository;
-    this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.googleOauth2Service = googleOauth2Service;
     this.localizedResponse = localizedResponse;
   }
@@ -351,79 +343,15 @@ public class CalendarServiceImpl implements CalendarService {
   }
 
   /**
-   * Validates the expiry time of the access token associated with the specified OAuth2 service type and user.
-   * If the access token has expired, it attempts to refresh the token. The method will then save the updated
-   * OAuth2 authorization details if a new token has been generated.
+   * Validates the expiry time of the access token for the specified OAuth2 service type and user,
+   * or refreshes the token if necessary.
    *
-   * @param oauth2ServiceType The type of the OAuth2 service (e.g., Google Calendar) for which the authorization
-   *                          details are being validated.
-   * @param user              The user whose OAuth2 authorization details are to be validated.
-   * @return The updated {@link Oauth2Authorization} entity containing the authorization details for the specified
-   *         OAuth2 service and user.
-   * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
-   *         specified user and service type.
+   * @param oauth2ServiceType the type of OAuth2 service (e.g., Google, Facebook) to validate or refresh the token for
+   * @param user the user whose access token is being validated or refreshed
+   * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
-    // Retrieve user oauth2 authorization details associated with Google Calendar
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
-      .orElseThrow(Oauth2InvalidAuthorizationException::new);
-
-    final String currentAccessToken = oauth2Authorization.getAccessToken();
-    // Check access token expiry date and refresh access token if it is expired
-    validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, user);
-
-    // Save Oauth2Authorization if new token has been set
-    saveTokenIfAccessTokenUpdated(oauth2Authorization, currentAccessToken);
-
-    return oauth2Authorization;
-  }
-
-  /**
-   * Validates the expiration time of the OAuth2 access token and refreshes it if necessary.
-   *
-   * <p>This method checks if the access token associated with the provided {@link Oauth2Authorization} has expired.
-   * If the token is expired, it attempts to refresh the access token using the stored refresh token. The refreshed
-   * access token and refresh token (if available) are then updated in the {@link Oauth2Authorization} object.</p>
-   *
-   * @param oauth2Authorization the {@link Oauth2Authorization} containing the current access and refresh tokens
-   * @param oauth2ServiceType the type of OAuth2 service being validated, e.g., Google, Facebook
-   * @param user the authenticated user for whom the token validation and refresh are being performed
-   */
-  protected void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
-    // Create a new authentication request for the specified OAuth2 service type
-    final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);
-    // Set the refresh token in the authentication request
-    authenticationRequest.setRefreshToken(oauth2Authorization.getRefreshToken());
-    // Set the existing OAuth2 authorization in the authentication request
-    authenticationRequest.setOauth2Authorization(oauth2Authorization);
-
-    // Check if the access token has expired
-    if (System.currentTimeMillis() >= oauth2Authorization.getTokenExpirationTimeInMilliseconds()) {
-      // Refresh the access token using the refresh token
-      final Oauth2AuthorizationResponse refreshOauth2TokenResponse = googleOauth2Service.refreshUserAccessToken(authenticationRequest, user);
-      // Update the access token if the refresh response contains a new one
-      setIfNonNull(refreshOauth2TokenResponse::getAccessToken, oauth2Authorization::setAccessToken);
-      // Update the refresh token if the refresh response contains a new one
-      setIfNonNull(refreshOauth2TokenResponse::getRefreshToken, oauth2Authorization::setRefreshToken);
-    }
-  }
-
-  /**
-   * Saves the OAuth2 authorization entity if the access token has been updated.
-   *
-   * <p>This method compares the current access token with the one stored in the provided
-   * {@link Oauth2Authorization} object. If they are different, it persists the updated
-   * authorization entity to the repository.</p>
-   *
-   * @param oauth2Authorization the {@link Oauth2Authorization} entity containing the access token to compare.
-   * @param currentAccessToken  the current access token to compare with the stored one.
-   */
-  public void saveTokenIfAccessTokenUpdated(final Oauth2Authorization oauth2Authorization, final String currentAccessToken) {
-    // Check if the access token has been updated
-    if (!(oauth2Authorization.getAccessToken().equals(currentAccessToken))) {
-      // Save the updated authorization entity to the repository
-      oauth2AuthorizationRepository.save(oauth2Authorization);
-    }
+    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 
   /**

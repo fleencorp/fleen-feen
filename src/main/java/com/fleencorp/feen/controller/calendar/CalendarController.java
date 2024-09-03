@@ -1,4 +1,4 @@
-package com.fleencorp.feen.controller;
+package com.fleencorp.feen.controller.calendar;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;

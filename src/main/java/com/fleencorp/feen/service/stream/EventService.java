@@ -30,7 +30,7 @@ public interface EventService {
 
   UpdateEventResponse updateEvent(Long eventId, UpdateCalendarEventDto updateCalendarEventDto, FleenUser user);
 
-  DeleteEventResponse deleteEvent(Long eventId, FleenUser user);
+  DeletedEventResponse deleteEvent(Long eventId, FleenUser user);
 
   CancelEventResponse cancelEvent(Long eventId, FleenUser user);
 

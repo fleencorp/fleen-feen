@@ -4,6 +4,7 @@ import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.InvalidOauth2ScopeException;
 import com.fleencorp.feen.model.request.Oauth2AuthenticationRequest;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 public class Oauth2Util {
 
   /**
