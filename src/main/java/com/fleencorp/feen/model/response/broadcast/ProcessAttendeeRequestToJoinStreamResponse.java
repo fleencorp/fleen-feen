@@ -5,14 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
-@SuperBuilder
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,21 +18,21 @@ import lombok.experimental.SuperBuilder;
   "stream_id",
   "stream"
 })
-public class CreateStreamResponse extends ApiResponse {
+public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
 
   @JsonProperty("stream_id")
-  protected Long streamId;
+  private Long streamId;
 
   @JsonProperty("stream")
-  protected FleenStreamResponse stream;
+  private FleenStreamResponse stream;
 
   @Override
   public String getMessageKey() {
-    return "create.stream";
+    return "process.attendee.request.to.join.stream";
   }
 
-  public static CreateStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
-    return builder()
+  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
+    return ProcessAttendeeRequestToJoinStreamResponse.builder()
             .streamId(streamId)
             .stream(stream)
             .build();

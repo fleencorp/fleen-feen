@@ -27,4 +27,31 @@ public enum YouTubeVideoPart implements ApiParameter {
   YouTubeVideoPart(final String value) {
     this.value = value;
   }
+
+  /**
+   * Retrieves the value associated with the SNIPPET constant.
+   *
+   * @return the string value of SNIPPET
+   */
+  public static String getSnippet() {
+    return SNIPPET.getValue();
+  }
+
+  /**
+   * Retrieves the value associated with the ID constant.
+   *
+   * @return the string value of ID
+   */
+  public static String getId() {
+    return ID.getValue();
+  }
+
+  /**
+   * Retrieves the value associated with the CONTENT_DETAILS constant.
+   *
+   * @return the string value of CONTENT_DETAILS
+   */
+  public static String getContentDetails() {
+    return CONTENT_DETAILS.getValue();
+  }
 }

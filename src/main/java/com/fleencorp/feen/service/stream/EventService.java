@@ -3,6 +3,8 @@ package com.fleencorp.feen.service.stream;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.*;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
@@ -42,9 +44,9 @@ public interface EventService {
 
   RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventDto requestToJoinEventDto, FleenUser user);
 
-  ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinEventDto processAttendeeRequestToJoinEventDto, FleenUser user);
+  ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, FleenUser user);
 
-  UpdateEventVisibilityResponse updateEventVisibility(Long eventId, UpdateEventVisibilityDto updateEventVisibilityDto, FleenUser user);
+  UpdateEventVisibilityResponse updateEventVisibility(Long eventId, UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, FleenUser user);
 
   AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
 

@@ -80,14 +80,6 @@ public class EventController {
     return eventService.notAttendingEvent(eventId, user);
   }
 
-  @PutMapping(value = "/reschedule/{eventId}")
-  public RescheduleEventResponse rescheduleEvent(
-      @PathVariable(name = "eventId") final Long eventId,
-      @Valid @RequestBody final RescheduleCalendarEventDto rescheduleCalendarEventDto,
-      @AuthenticationPrincipal final FleenUser user) {
-    return eventService.rescheduleEvent(eventId, rescheduleCalendarEventDto, user);
-  }
-
   @PostMapping(value = "/join/{eventId}")
   public JoinEventResponse joinEvent(
       @PathVariable(name = "eventId") final Long eventId,

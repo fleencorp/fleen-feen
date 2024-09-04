@@ -7,6 +7,13 @@ target/
 
 # Ignore script.sh file
 script.sh
+script.bat
+script-dev.sh
+script-dev.bat
+script-staging.sh
+script-staging.bat
+script-prod.sh
+script-prod.bat
 
 ### STS ###
 .apt_generated

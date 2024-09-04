@@ -3,8 +3,9 @@ package com.fleencorp.feen.controller.event;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.event.AddNewEventAttendeeDto;
-import com.fleencorp.feen.model.dto.event.ProcessAttendeeRequestToJoinEventDto;
-import com.fleencorp.feen.model.dto.event.UpdateEventVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.event.RescheduleCalendarEventDto;
+import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
@@ -72,17 +73,25 @@ public class UserEventController {
   @PutMapping(value = "/process-join-request/{eventId}")
   public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(
       @PathVariable(name = "eventId") final Long eventId,
-      @Valid @RequestBody final ProcessAttendeeRequestToJoinEventDto processAttendeeRequestToJoinEventDto,
+      @Valid @RequestBody final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.processAttendeeRequestToJoinEvent(eventId, processAttendeeRequestToJoinEventDto, user);
+    return eventService.processAttendeeRequestToJoinEvent(eventId, processAttendeeRequestToJoinEventOrStreamDto, user);
   }
 
   @PutMapping(value = "/update-visibility/{eventId}")
   public UpdateEventVisibilityResponse updateEventVisibility(
       @PathVariable(name = "eventId") final Long eventId,
-      @Valid @RequestBody final UpdateEventVisibilityDto updateEventVisibilityDto,
+      @Valid @RequestBody final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.updateEventVisibility(eventId, updateEventVisibilityDto, user);
+    return eventService.updateEventVisibility(eventId, updateEventOrStreamVisibilityDto, user);
+  }
+
+  @PutMapping(value = "/reschedule/{eventId}")
+  public RescheduleEventResponse rescheduleEvent(
+      @PathVariable(name = "eventId") final Long eventId,
+      @Valid @RequestBody final RescheduleCalendarEventDto rescheduleCalendarEventDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.rescheduleEvent(eventId, rescheduleCalendarEventDto, user);
   }
 
   @PostMapping(value = "/add-attendee/{eventId}")
