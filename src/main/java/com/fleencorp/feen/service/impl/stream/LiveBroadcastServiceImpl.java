@@ -7,26 +7,31 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationExce
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
+import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
-import com.fleencorp.feen.model.response.broadcast.CreateStreamResponse;
-import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
-import com.fleencorp.feen.model.response.broadcast.UpdateStreamResponse;
+import com.fleencorp.feen.model.response.broadcast.*;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.stream.DataForCreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
@@ -42,8 +47,12 @@ import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.service.impl.stream.EventServiceImpl.getAttendeesGoingToStream;
+import static com.fleencorp.feen.service.impl.stream.EventServiceImpl.toStreamAttendeeResponses;
+import static com.fleencorp.feen.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
@@ -69,7 +78,9 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
   private final YouTubeChannelService youTubeChannelService;
   private final FleenStreamRepository fleenStreamRepository;
+  private final StreamAttendeeRepository streamAttendeeRepository;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
+  private final LocalizedResponse localizedResponse;
 
   /**
    * Constructs a new instance of LiveBroadcastServiceImpl.
@@ -82,19 +93,25 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
    * @param youTubeLiveBroadcastService the service to handle YouTube live broadcasts
    * @param youTubeChannelService the service for managing YouTube channels and categories
    * @param fleenStreamRepository the repository to manage FleenStream data
+   * @param streamAttendeeRepository the repository for managing event or stream attendees
    * @param oauth2AuthorizationRepository the repository to handle OAuth2 authorization
+   * @param localizedResponse the service for creating localized response message
    */
   public LiveBroadcastServiceImpl(
       final GoogleOauth2Service googleOauth2Service,
       final YouTubeLiveBroadcastService youTubeLiveBroadcastService,
       final YouTubeChannelService youTubeChannelService,
       final FleenStreamRepository fleenStreamRepository,
-      final Oauth2AuthorizationRepository oauth2AuthorizationRepository) {
+      final StreamAttendeeRepository streamAttendeeRepository,
+      final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
+      final LocalizedResponse localizedResponse) {
     this.googleOauth2Service = googleOauth2Service;
     this.youTubeLiveBroadcastService = youTubeLiveBroadcastService;
     this.youTubeChannelService = youTubeChannelService;
     this.fleenStreamRepository = fleenStreamRepository;
+    this.streamAttendeeRepository = streamAttendeeRepository;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
+    this.localizedResponse = localizedResponse;
   }
 
   /**
@@ -140,6 +157,25 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   }
 
   /**
+   * Retrieves details about a specific stream, including its attendees and their statuses.
+   *
+   * @param streamId the ID of the stream to retrieve
+   * @return a {@link RetrieveStreamResponse} containing details of the stream, its attendees, and the total count of approved attendees
+   */
+  @Override
+  public RetrieveStreamResponse retrieveStream(final Long streamId) {
+    // Find the stream by its ID
+    final FleenStream stream = findStream(streamId);
+    // Get all event or stream attendees
+    final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream.getAttendees());
+    // Convert the attendees to response objects
+    final Set<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(streamAttendeesGoingToStream);
+    // Count total attendees whose request to join event is approved and are attending the event because they are interested
+    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
+    return localizedResponse.of(RetrieveStreamResponse.of(streamId, toFleenStreamResponse(stream), streamAttendees, totalAttendees));
+  }
+
+  /**
    * Creates a live broadcast on YouTube using the provided details and associates it with a new FleenStream entity.
    *
    * <p>This method first checks if there is a valid OAuth2 authorization for the user. It constructs a
@@ -175,19 +211,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
     stream.setExternalId(createYouTubeLiveBroadcastResponse.getLiveBroadcastId());
 
     fleenStreamRepository.save(stream);
-    return CreateStreamResponse.of(stream.getFleenStreamId(), toFleenStreamResponse(stream));
-  }
-
-  /**
-   * Validates the expiry time of the access token for the specified OAuth2 service type and user,
-   * or refreshes the token if necessary.
-   *
-   * @param oauth2ServiceType the type of OAuth2 service (e.g., Google, Facebook) to validate or refresh the token for
-   * @param user the user whose access token is being validated or refreshed
-   * @return an {@link Oauth2Authorization} object containing updated authorization details
-   */
-  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
-    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
+    return localizedResponse.of(CreateStreamResponse.of(stream.getFleenStreamId(), toFleenStreamResponse(stream)));
   }
 
   /**
@@ -215,8 +239,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   @Override
   @Transactional
   public UpdateStreamResponse updateLiveBroadcast(final Long streamId, final UpdateLiveBroadcastDto updateLiveBroadcastDto, final FleenUser user) {
-    final FleenStream stream = fleenStreamRepository.findById(streamId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
+    final FleenStream stream = findStream(streamId);
 
     // Check if the OAuth2 authorization exists for the user
     final Oauth2Authorization oauth2Authorization = verifyAndGetUserOauth2Authorization(user);
@@ -265,8 +288,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   @Transactional
   public RescheduleStreamResponse rescheduleLiveBroadcast(final Long streamId, final RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, final FleenUser user) {
     // Retrieve the FleenStream entity from the repository based on the stream ID
-    final FleenStream stream = fleenStreamRepository.findById(streamId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
+    final FleenStream stream = findStream(streamId);
 
     // Check if the OAuth2 authorization exists for the user
     final Oauth2Authorization oauth2Authorization = verifyAndGetUserOauth2Authorization(user);
@@ -288,6 +310,62 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
 
     fleenStreamRepository.save(stream);
     return RescheduleStreamResponse.of(streamId, toFleenStreamResponse(stream));
+  }
+
+  /**
+   * Updates the attendance status of a user for a specific event to indicate they are not attending.
+   *
+   * @param eventId the ID of the event
+   * @param user the user who is indicating they are not attending
+   * @return a {@link NotAttendingStreamResponse} indicating the outcome of the operation
+   */
+  @Override
+  @Transactional
+  public NotAttendingStreamResponse notAttendingStream(final Long eventId, final FleenUser user) {
+    // Find the stream by its ID
+    final FleenStream stream = findStream(eventId);
+    // Find the existing attendee record for the user and event
+    streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember())
+      .ifPresent(streamAttendee -> {
+        // If an attendee record exists, update their attendance status to false
+        streamAttendee.setIsNotAttending();
+        // Save the updated attendee record
+        streamAttendeeRepository.save(streamAttendee);
+      });
+    // Build and return the response indicating the user is no longer attending
+    return localizedResponse.of(NotAttendingStreamResponse.of());
+  }
+
+  @Override
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(Long streamId, ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, FleenUser user) {
+    return null;
+  }
+
+  @Override
+  public DeletedStreamResponse deleteStream(Long streamId, FleenUser user) {
+    return null;
+  }
+
+  @Override
+  public SearchResultView getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user) {
+    return null;
+  }
+
+  @Override
+  public UpdateStreamVisibilityResponse updateStreamVisibility(Long streamId, UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, FleenUser user) {
+    return null;
+  }
+
+  /**
+   * Validates the expiry time of the access token for the specified OAuth2 service type and user,
+   * or refreshes the token if necessary.
+   *
+   * @param oauth2ServiceType the type of OAuth2 service (e.g., Google, Facebook) to validate or refresh the token for
+   * @param user the user whose access token is being validated or refreshed
+   * @return an {@link Oauth2Authorization} object containing updated authorization details
+   */
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 
   /**
@@ -319,13 +397,23 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService {
   public Oauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
     // Retrieve the OAuth2 authorization entity associated with the member
     final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(member, Oauth2ServiceType.YOUTUBE);
-
     // Throw exception if no authorization is found
-    if (existingGoogleOauth2Authorization.isEmpty()) {
-      throw new Oauth2InvalidAuthorizationException();
-    }
-
+    checkIsTrue(existingGoogleOauth2Authorization.isEmpty(), Oauth2InvalidAuthorizationException::new);
     // Return the retrieved OAuth2 authorization
     return existingGoogleOauth2Authorization.get();
+  }
+
+  /**
+   * Retrieves a {@link FleenStream} by its identifier.
+   * This method fetches the stream from the repository using the provided event ID.
+   * If the stream with the given ID does not exist, it throws a {@link FleenStreamNotFoundException}.
+   *
+   * @param eventId the ID of the event associated with the stream to be retrieved
+   * @return the {@link FleenStream} associated with the given event ID
+   * @throws FleenStreamNotFoundException if no stream is found with the specified event ID
+   */
+  protected FleenStream findStream(final Long eventId) {
+    return fleenStreamRepository.findById(eventId)
+      .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
   }
 }

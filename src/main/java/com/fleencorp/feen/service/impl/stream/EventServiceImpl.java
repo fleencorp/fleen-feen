@@ -15,6 +15,8 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
@@ -346,10 +348,10 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public RetrieveEventResponse retrieveEvent(final Long eventId) {
-    final FleenStream stream = fleenStreamRepository.findById(eventId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
+    final FleenStream stream = findStream(eventId);
     // Get all event or stream attendees
     final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream.getAttendees());
+    // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(streamAttendeesGoingToStream);
     // Count total attendees whose request to join event is approved and are attending the event because they are interested
     final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
@@ -435,7 +437,7 @@ public class EventServiceImpl implements EventService {
    * @param streamAttendees the set of {@code StreamAttendee} entities to convert.
    * @return a set of {@code StreamAttendeeResponse} objects or an empty set if the input is {@code null}.
    */
-  protected Set<StreamAttendeeResponse> toStreamAttendeeResponses(final Set<StreamAttendee> streamAttendees) {
+  public static Set<StreamAttendeeResponse> toStreamAttendeeResponses(final Set<StreamAttendee> streamAttendees) {
     if (nonNull(streamAttendees)) {
       return streamAttendees
         .stream()
@@ -695,7 +697,7 @@ public class EventServiceImpl implements EventService {
     streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember())
       .ifPresent(streamAttendee -> {
         // If an attendee record exists, update their attendance status to false
-        streamAttendee.setIsAttending(false);
+        streamAttendee.setIsNotAttending();
         // Save the updated attendee record
         streamAttendeeRepository.save(streamAttendee);
         // Create a request that remove the attendee from the Google Calendar event
@@ -807,8 +809,7 @@ public class EventServiceImpl implements EventService {
   @Override
   @Transactional
   public RequestToJoinEventResponse requestToJoinEvent(final Long eventId, final RequestToJoinEventDto requestToJoinEventDto, final FleenUser user) {
-    final FleenStream stream = fleenStreamRepository.findById(eventId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
+    final FleenStream stream = findStream(eventId);
 
     // Check if the stream is still active and can be joined.
     verifyStreamEndDate(stream);
@@ -840,7 +841,7 @@ public class EventServiceImpl implements EventService {
    * external service (Google Calendar).</p>
    *
    * @param eventId                              the ID of the event the attendee wants to join
-   * @param processAttendeeRequestToJoinEventDto the DTO containing the details of the attendee's request
+   * @param processAttendeeRequestToJoinEventOrStreamDto the DTO containing the details of the attendee's request
    * @param user                                 the user who is processing the request
    * @return {@link ProcessAttendeeRequestToJoinEventResponse} a response containing the result of processing the request
    * @throws FleenStreamNotFoundException if the stream or event cannot be found or does not exist
@@ -848,21 +849,20 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   @Transactional
-  public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinEventDto processAttendeeRequestToJoinEventDto, final FleenUser user) {
-    final FleenStream stream = fleenStreamRepository.findById(eventId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
+  public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, final FleenUser user) {
+    final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
-    checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventDto.getAttendeeUserId()))
+    checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventOrStreamDto.getAttendeeUserId()))
       .ifPresentOrElse(
         streamAttendee -> {
           if (streamAttendee.isPending()) {
-            final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinEventDto.getActualJoinStatus();
-            streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinEventDto.getComment());
+            final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinEventOrStreamDto.getActualJoinStatus();
+            streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinEventOrStreamDto.getComment());
 
-            if (processAttendeeRequestToJoinEventDto.isApproved()) {
+            if (processAttendeeRequestToJoinEventOrStreamDto.isApproved()) {
               final Calendar calendar = findCalendar(user.getCountry());
 
               streamAttendeeRepository.save(streamAttendee);
@@ -898,7 +898,7 @@ public class EventServiceImpl implements EventService {
    * event's visibility in the repository and returns a FleenFeenResponse with the event ID.</p>
    *
    * @param eventId                  the ID of the event to update
-   * @param updateEventVisibilityDto the DTO containing the new visibility status
+   * @param updateEventOrStreamVisibilityDto the DTO containing the new visibility status
    * @param user                     the user requesting the update
    * @return {@link UpdateEventVisibilityResponse} containing the event and event details
    * @throws CalendarNotFoundException if the calendar associated with event cannot be found or does not exist
@@ -906,7 +906,7 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   @Transactional
-  public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventVisibilityDto updateEventVisibilityDto, final FleenUser user) {
+  public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = findStream(eventId);
 
@@ -917,14 +917,14 @@ public class EventServiceImpl implements EventService {
     // Verify if the event or stream is still ongoing
     checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
     // Update the visibility of an event or stream
-    stream.setStreamVisibility(updateEventVisibilityDto.getActualVisibility());
+    stream.setStreamVisibility(updateEventOrStreamVisibilityDto.getActualVisibility());
     fleenStreamRepository.save(stream);
 
     // Create a request to update the event's visibility
     final UpdateCalendarEventVisibilityRequest updateCalendarEventVisibilityRequest = UpdateCalendarEventVisibilityRequest
       .of(calendar.getExternalId(),
           stream.getExternalId(),
-          updateEventVisibilityDto.getVisibility());
+          updateEventOrStreamVisibilityDto.getVisibility());
     // Update the event visibility on the Google Calendar Service
     eventUpdateService.updateEventVisibility(updateCalendarEventVisibilityRequest);
     // Send invitation to attendees that requested to join earlier and whose request is pending because the event or stream was private earlier
@@ -1059,9 +1059,9 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public SearchResultView getEventAttendeeRequestsToJoinEvent(final Long eventId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user) {
-    final FleenStream stream = fleenStreamRepository.findById(eventId)
-      .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
-
+    // Find the stream by its ID
+    final FleenStream stream = findStream(eventId);
+    // Validate owner of the event
     validateCreatorOfEvent(stream, user);
 
     final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndStreamAttendeeRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
@@ -1137,9 +1137,9 @@ public class EventServiceImpl implements EventService {
    */
   @Override
   public EventAttendeesResponse getEventAttendees(final Long eventId, final FleenUser user) {
-    final FleenStream stream = fleenStreamRepository.findById(eventId)
-        .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
-
+    // Convert the attendees to response objects
+    final FleenStream stream = findStream(eventId);
+    // Get event attendees
     final EventAttendeesResponse eventAttendeesResponse = getAttendees(stream.getAttendees());
     eventAttendeesResponse.setEventId(eventId);
 
@@ -1446,7 +1446,7 @@ public class EventServiceImpl implements EventService {
    * @return A set of {@link StreamAttendee} objects that are attending the stream.
    *         Returns an empty set if the input set is null or if no attendees are marked as attending.
    */
-  protected Set<StreamAttendee> getAttendeesGoingToStream(final Set<StreamAttendee> streamAttendees) {
+  public static Set<StreamAttendee> getAttendeesGoingToStream(final Set<StreamAttendee> streamAttendees) {
     if (nonNull(streamAttendees)) {
       return streamAttendees.stream()
         .filter(StreamAttendee::getIsAttending)

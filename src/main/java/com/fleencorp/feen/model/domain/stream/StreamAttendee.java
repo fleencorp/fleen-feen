@@ -100,5 +100,13 @@ public class StreamAttendee extends FleenFeenEntity {
     return streamAttendeeRequestToJoinStatus == DISAPPROVED;
   }
 
+  /**
+   * Sets the attendance status of the current user to indicate they are not attending.
+   */
+  public void setIsNotAttending() {
+    // Update the attendance status to false
+    isAttending = false;
+  }
+
 
 }
