@@ -740,8 +740,10 @@ public class EventServiceImpl implements EventService {
             rescheduleCalendarEventDto.getActualStartDateTime(),
             rescheduleCalendarEventDto.getTimezone());
 
+    // Update Stream schedule details and time
     stream.updateSchedule(rescheduleCalendarEventDto.getActualStartDateTime(), rescheduleCalendarEventDto.getActualEndDateTime(), rescheduleCalendarEventDto.getTimezone());
     fleenStreamRepository.save(stream);
+    // Update event schedule details in the Google Calendar service
     eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
     return localizedResponse.of(RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream)));
