@@ -1,43 +1,39 @@
 package com.fleencorp.feen.model.response.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+import lombok.*;
 
-@SuperBuilder
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
   "stream_id",
   "stream"
 })
-public class CreateStreamResponse extends ApiResponse {
+public class UpdateStreamVisibilityResponse extends ApiResponse {
 
   @JsonProperty("stream_id")
-  protected Long streamId;
+  private Long streamId;
 
   @JsonProperty("stream")
-  protected FleenStreamResponse stream;
+  private FleenStreamResponse stream;
 
   @Override
   public String getMessageKey() {
-    return "create.stream";
+    return "update.stream.visibility";
   }
 
-  public static CreateStreamResponse of(final Long streamId, final FleenStreamResponse stream) {
-    return builder()
+  public static UpdateStreamVisibilityResponse of(final Long streamId, final FleenStreamResponse stream) {
+    return UpdateStreamVisibilityResponse.builder()
             .streamId(streamId)
             .stream(stream)
             .build();

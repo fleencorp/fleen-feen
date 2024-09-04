@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.event;
+package com.fleencorp.feen.model.dto.stream;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateEventVisibilityDto {
+public class UpdateEventOrStreamVisibilityDto {
 
   @NotNull(message = "{stream.visibility.NotNull}")
   @ValidEnum(enumClass = StreamVisibility.class, message = "{stream.visibility.Type}", ignoreCase = true)

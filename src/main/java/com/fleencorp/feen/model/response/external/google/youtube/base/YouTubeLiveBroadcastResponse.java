@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.response.external.google.youtube.base;
 
+import com.google.api.client.util.DateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +18,7 @@ public class YouTubeLiveBroadcastResponse {
   private String id;
   private String snippetTitle;
   private String snippetDescription;
-  private String snippetPublishedAt;
+  private DateTime snippetPublishedAt;
   private String snippetChannelId;
   private LiveBroadcastStatus liveBroadcastStatus;
   private ContentDetails contentDetails;
@@ -61,13 +62,13 @@ public class YouTubeLiveBroadcastResponse {
   public static class Snippet {
     private String title;
     private String description;
-    private String publishedAt;
+    private DateTime publishedAt;
     private String channelId;
     private List<String> tags;
-    private String scheduledStartTime;
-    private String scheduledEndTime;
-    private String actualStartTime;
-    private String actualEndTime;
+    private DateTime scheduledStartTime;
+    private DateTime scheduledEndTime;
+    private DateTime actualStartTime;
+    private DateTime actualEndTime;
     private String liveChatId;
   }
 

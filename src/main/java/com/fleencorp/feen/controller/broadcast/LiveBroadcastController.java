@@ -1,7 +1,12 @@
 package com.fleencorp.feen.controller.broadcast;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
+import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.response.broadcast.CreateStreamResponse;
+import com.fleencorp.feen.model.response.broadcast.NotAttendingStreamResponse;
+import com.fleencorp.feen.model.response.broadcast.RetrieveStreamResponse;
 import com.fleencorp.feen.model.response.stream.DataForCreateStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
@@ -29,10 +34,29 @@ public class LiveBroadcastController {
     return liveBroadcastService.getDataForCreateStream();
   }
 
+  @GetMapping(value = "/entries")
+  public SearchResultView findLiveBroadcasts(
+    @SearchParam LiveBroadcastSearchRequest searchRequest) {
+    return liveBroadcastService.findLiveBroadcasts(searchRequest);
+  }
+
+  @GetMapping(value = "/detail/{streamId}")
+  public RetrieveStreamResponse findLiveBroadcast(
+    @PathVariable(name = "streamId") Long streamId) {
+    return liveBroadcastService.retrieveStream(streamId);
+  }
+
   @PostMapping(value = "/create")
   public CreateStreamResponse createLiveStream(
       @Valid @RequestBody CreateLiveBroadcastDto createLiveBroadcastDto,
       @AuthenticationPrincipal FleenUser user) {
     return liveBroadcastService.createLiveBroadcast(createLiveBroadcastDto, user);
+  }
+
+  @PutMapping(value = "/not-attending/{streamId}")
+  public NotAttendingStreamResponse notAttendingEvent(
+    @PathVariable(name = "streamId") final Long streamId,
+    @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.notAttendingStream(streamId, user);
   }
 }
