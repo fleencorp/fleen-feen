@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.event;
+package com.fleencorp.feen.model.dto.stream;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProcessAttendeeRequestToJoinEventDto {
+public class ProcessAttendeeRequestToJoinEventOrStreamDto {
 
   @NotNull(message = "{event.attendeeUserId.NotNull}")
   @IsNumber

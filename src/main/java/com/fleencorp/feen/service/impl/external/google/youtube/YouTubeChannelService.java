@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.external.google.youtube;
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
+import com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoryResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
@@ -19,8 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
-import static com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart.ID;
-import static com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart.SNIPPET;
 import static com.fleencorp.feen.constant.external.google.youtube.base.YouTubeParameter.US;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
@@ -74,8 +73,8 @@ public class YouTubeChannelService {
       // Create a request to list categories using the 'snippet' and 'id' part
       final YouTube.VideoCategories.List categoryRequest = getYouTube().videoCategories()
           .list(String.join(COMMA,
-              ID.getValue(),
-              SNIPPET.getValue()));
+              YouTubeVideoPart.getId(),
+              YouTubeVideoPart.getSnippet()));
       categoryRequest.setRegionCode(US.getValue()); // Set to retrieve categories associated with the specific region
       categoryRequest.setKey(serviceApiKey);
 
