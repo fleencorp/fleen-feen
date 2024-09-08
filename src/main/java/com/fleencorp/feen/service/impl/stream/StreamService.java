@@ -7,6 +7,9 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -19,7 +22,14 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static java.util.Objects.nonNull;
 
+@Service
 public class StreamService {
+
+  private final FleenStreamRepository fleenStreamRepository;
+
+  public StreamService(FleenStreamRepository fleenStreamRepository) {
+    this.fleenStreamRepository = fleenStreamRepository;
+  }
 
   /**
    * Converts a set of {@link StreamAttendee} entities to a set of {@link StreamAttendeeResponse} objects.
@@ -259,6 +269,61 @@ public class StreamService {
         streamAttendee.setStreamAttendeeRequestToJoinStatus(PENDING);
       }
     }
+  }
+
+  /**
+   * Retrieves a {@link FleenStream} by its identifier.
+   * This method fetches the stream from the repository using the provided event ID.
+   * If the stream with the given ID does not exist, it throws a {@link FleenStreamNotFoundException}.
+   *
+   * @param eventId the ID of the event associated with the stream to be retrieved
+   * @return the {@link FleenStream} associated with the given event ID
+   * @throws FleenStreamNotFoundException if no stream is found with the specified event ID
+   */
+  public FleenStream findStream(final Long eventId) {
+    return fleenStreamRepository.findById(eventId)
+      .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
+  }
+
+  /**
+   * Allows a user to join a specific event or stream, identified by its unique ID.
+   *
+   * <p>This method handles the process of a user joining a stream or event by performing a series
+   * of validations and updates. It checks the stream's status, ensures it is not canceled or private,
+   * verifies that the stream is still active, and confirms that the user is not already an attendee.
+   * Upon successful validation, it creates a new {@link StreamAttendee} entry for the user, approves
+   * their attendance, and adds the user to the stream's attendee list.</p>
+   *
+   * <p>The method is annotated with {@code @Transactional} to ensure that the operation is executed
+   * within a transactional context, maintaining data consistency and integrity across all operations
+   * performed during the user's join process.</p>
+   *
+   * @param eventOrStreamId the unique identifier of the event or stream that the user intends to join.
+   * @param user the {@link FleenUser} attempting to join the event or stream. This parameter includes
+   *             the user's identity and any relevant permissions required for the join action.
+   * @return the updated {@link FleenStream} object, reflecting the user's successful addition as an attendee.
+   */
+  @Transactional
+  public FleenStream joinEventOrStream(final Long eventOrStreamId, final FleenUser user) {
+    final FleenStream stream = findStream(eventOrStreamId);
+
+    // Verify event is not canceled
+    verifyEventOrStreamIsNotCancelled(stream);
+    // Check if the stream is still active and can be joined.
+    verifyStreamEndDate(stream);
+    // Check if the stream is private
+    checkIfStreamIsPrivate(eventOrStreamId, stream);
+    // Check if the user is already an attendee
+    checkIfUserIsAlreadyAnAttendeeAndThrowError(stream, user.getId());
+    // Create a new StreamAttendee entry for the user
+    final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
+    streamAttendee.approveUserAttendance();
+
+    // Add the new StreamAttendee to the event's attendees list and save
+    stream.getAttendees().add(streamAttendee);
+    fleenStreamRepository.save(stream);
+
+    return stream;
   }
 
 }

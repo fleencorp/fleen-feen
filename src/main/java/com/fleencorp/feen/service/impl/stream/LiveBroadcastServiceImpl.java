@@ -45,13 +45,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
@@ -106,7 +106,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
       final StreamAttendeeRepository streamAttendeeRepository,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final LocalizedResponse localizedResponse) {
-    super();
+    super(fleenStreamRepository);
     this.eventService = eventService;
     this.googleOauth2Service = googleOauth2Service;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
@@ -345,7 +345,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    * Facilitates a user's action to join a specific live stream.
    *
    * <p>This method enables a user to join a live stream identified by the given stream ID. It delegates
-   * the join operation to the {@link EventService#joinEventOrStream(Long, FleenUser)} method, which
+   * the join operation to the {@link StreamService#joinEventOrStream(Long, FleenUser)} method, which
    * processes the join request based on the business logic defined within the event service. The operation
    * involves updating the user's participation status in the event or stream.</p>
    *
@@ -361,7 +361,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   @Override
   @Transactional
   public JoinStreamResponse joinStream(final Long streamId, final FleenUser user) {
-    eventService.joinEventOrStream(streamId, user);
+    joinEventOrStream(streamId, user);
 
     return localizedResponse.of(JoinStreamResponse.of(streamId));
   }
@@ -558,17 +558,4 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     return existingGoogleOauth2Authorization.get();
   }
 
-  /**
-   * Retrieves a {@link FleenStream} by its identifier.
-   * This method fetches the stream from the repository using the provided event ID.
-   * If the stream with the given ID does not exist, it throws a {@link FleenStreamNotFoundException}.
-   *
-   * @param eventId the ID of the event associated with the stream to be retrieved
-   * @return the {@link FleenStream} associated with the given event ID
-   * @throws FleenStreamNotFoundException if no stream is found with the specified event ID
-   */
-  protected FleenStream findStream(final Long eventId) {
-    return fleenStreamRepository.findById(eventId)
-      .orElseThrow(() -> new FleenStreamNotFoundException(eventId));
-  }
 }
