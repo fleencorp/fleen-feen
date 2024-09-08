@@ -57,8 +57,6 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsTrue;
 import static java.util.Objects.nonNull;
 
 /**
