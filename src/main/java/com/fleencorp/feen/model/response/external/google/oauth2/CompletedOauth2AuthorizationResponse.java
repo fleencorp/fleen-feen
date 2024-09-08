@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class CompletedOauth2AuthorizationResponse extends Oauth2AuthorizationResponse {
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "completed.oauth2.authorization";
   }
 

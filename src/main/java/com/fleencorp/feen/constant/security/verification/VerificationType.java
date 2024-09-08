@@ -29,4 +29,25 @@ public enum VerificationType implements ApiParameter {
   public static VerificationType of(final String value) {
     return parseEnumOrNull(value, VerificationType.class);
   }
+
+  /**
+   * Checks if the given verification type is an email verification.
+   *
+   * @param verificationType the verification type to check
+   * @return {@code true} if the verification type is email; {@code false} otherwise
+   */
+  public static boolean isEmail(final VerificationType verificationType) {
+    return EMAIL == verificationType;
+  }
+
+  /**
+   * Checks if the given verification type is a phone verification.
+   *
+   * @param verificationType the verification type to check
+   * @return {@code true} if the verification type is phone; {@code false} otherwise
+   */
+  public static boolean isPhone(final VerificationType verificationType) {
+    return PHONE == verificationType;
+  }
+
 }

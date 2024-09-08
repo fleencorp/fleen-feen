@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.google.oauth2;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 
 import static java.lang.String.format;
 

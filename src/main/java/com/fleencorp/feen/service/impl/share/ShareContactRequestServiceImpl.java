@@ -24,8 +24,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 

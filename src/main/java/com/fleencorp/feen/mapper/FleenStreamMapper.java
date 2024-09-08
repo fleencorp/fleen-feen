@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.toList;
 */
 public class FleenStreamMapper {
 
+    private FleenStreamMapper() {}
+
   /**
   * Converts a FleenStream entity to a FleenStreamResponse.
   *

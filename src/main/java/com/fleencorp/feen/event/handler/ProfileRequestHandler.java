@@ -62,9 +62,9 @@ public class ProfileRequestHandler {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
   public void handleSendSignUpVerificationCode(final SignUpVerificationRequest request) {
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -88,9 +88,9 @@ public class ProfileRequestHandler {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
   public void handleSendMfaVerificationCode(final MfaVerificationRequest request) {
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -103,9 +103,9 @@ public class ProfileRequestHandler {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
   public void handleSendMfaSetupVerificationCode(final MfaSetupVerificationRequest request) {
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -118,9 +118,9 @@ public class ProfileRequestHandler {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
   public void handleSendForgotPasswordVerificationCode(final ForgotPasswordRequest request) {
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -133,10 +133,9 @@ public class ProfileRequestHandler {
   @TransactionalEventListener(phase = AFTER_COMMIT)
   @Async
   public void handleSendProfileUpdateCode(final ProfileUpdateVerificationRequest request) {
-    log.info("I am likely the culprit");
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }

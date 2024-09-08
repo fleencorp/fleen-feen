@@ -21,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 public class UpdateEventResponse extends CreateEventResponse {
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "update.event";
   }
 

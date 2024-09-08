@@ -1,7 +1,6 @@
 package com.fleencorp.feen.constant.external.google.youtube;
 
 import com.fleencorp.base.constant.base.ApiParameter;
-import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import lombok.Getter;
 
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;

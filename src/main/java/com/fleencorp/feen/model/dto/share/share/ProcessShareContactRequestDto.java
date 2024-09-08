@@ -1,10 +1,10 @@
 package com.fleencorp.feen.model.dto.share.share;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.share.ContactType;
 import com.fleencorp.feen.constant.share.ShareContactRequestStatus;
-import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

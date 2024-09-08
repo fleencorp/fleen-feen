@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.verification;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 
 public class ExpiredVerificationCodeException extends FleenException {
 

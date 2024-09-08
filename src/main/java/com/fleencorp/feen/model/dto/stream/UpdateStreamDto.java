@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.dto.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.converter.common.ToLowerCase;
-import com.fleencorp.feen.converter.common.ToTitleCase;
+import com.fleencorp.base.converter.common.ToLowerCase;
+import com.fleencorp.base.converter.common.ToTitleCase;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;

@@ -1,11 +1,11 @@
 package com.fleencorp.feen.model.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToLowerCase;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.ValidEmail;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.converter.common.ToLowerCase;
-import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -74,8 +74,8 @@ import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
@@ -375,7 +375,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     clearAuthenticationTokens(username);
     // Clear the security context
     clearUserAuthenticationDetails();
-    return SignOutResponse.of();
+    return localizedResponse.of(SignOutResponse.of());
   }
 
   /**

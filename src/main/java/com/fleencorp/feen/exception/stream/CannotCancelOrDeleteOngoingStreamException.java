@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.stream;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 
 import java.util.Objects;
 import java.util.function.Supplier;

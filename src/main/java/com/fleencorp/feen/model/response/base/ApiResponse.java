@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 public abstract class ApiResponse {
 
   @JsonIgnore
-  abstract public String getMessageKey();
+  abstract public String getMessageCode();
 
   @JsonProperty("message")
   protected String message;

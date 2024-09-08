@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.Setter;
 public class EnableOrDisableMfaResponse extends ApiResponse {
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "enable.disable.mfa";
   }
 

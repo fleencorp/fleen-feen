@@ -13,7 +13,10 @@ import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
 @Configuration
-@ComponentScan(basePackages = "com.fleencorp.feen")
+@ComponentScan(basePackages = {
+  "com.fleencorp.feen",
+  "com.fleencorp.base"
+})
 @PropertySources({
   @PropertySource("classpath:properties/aws.properties"),
   @PropertySource("classpath:properties/queue.properties"),

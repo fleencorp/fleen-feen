@@ -1,9 +1,9 @@
 package com.fleencorp.feen.event.subscriber;
 
+import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.model.stream.ResultData;
 import com.fleencorp.feen.repository.event.EmitterRepository;
-import com.fleencorp.feen.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -13,8 +13,9 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -104,7 +105,7 @@ public class StreamEventSubscriber implements MessageListener {
   }
 
   protected void processResult(final String id, final ResultData resultData, final String actualData) {
-    if (Objects.requireNonNull(resultData.getResultType()) == ResultType.EVENT_STREAM_CREATED) {
+    if (requireNonNull(resultData.getResultType()) == ResultType.EVENT_STREAM_CREATED) {
       final List<SseEmitter> emitters = emitterRepository.getEmitters(resultData.getUserId());
       sendDataToClient(id, emitters, buildEventStreamCreatedEvent(id, actualData));
     }

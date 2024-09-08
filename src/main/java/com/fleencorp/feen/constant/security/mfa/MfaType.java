@@ -92,5 +92,14 @@ public enum MfaType implements ApiParameter {
     return !isNone(mfaType);
   }
 
+  /**
+   * Checks if the given MFA type is set to phone.
+   *
+   * @param mfaType the type of multi-factor authentication
+   * @return {@code true} if the MFA type is phone; {@code false} otherwise
+   */
+  public static boolean isPhone(final MfaType mfaType) {
+    return mfaType == PHONE;
+  }
 
 }

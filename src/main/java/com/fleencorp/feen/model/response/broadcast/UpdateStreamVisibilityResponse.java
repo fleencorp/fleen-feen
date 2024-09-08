@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
 
@@ -28,7 +28,7 @@ public class UpdateStreamVisibilityResponse extends ApiResponse {
   private FleenStreamResponse stream;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "update.stream.visibility";
   }
 

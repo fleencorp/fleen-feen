@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Map;
 
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
+
 
 /**
  * Utility class providing helper methods and functionalities related to OAuth2 authentication and authorization.

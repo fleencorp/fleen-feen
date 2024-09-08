@@ -170,10 +170,17 @@ public class EventUpdateService {
     log.info("Updated event visibility: {}", googlePatchCalendarEventResponse);
   }
 
+  /**
+   * Handles the process of marking an attendee as not attending an event.
+   * This involves interacting with an external service (Google Calendar) to update the event details.
+   *
+   * @param notAttendingEventRequest The request containing details about the event and the attendee to be removed.
+   */
   @Async
   public void notAttendingEvent(final NotAttendingEventRequest notAttendingEventRequest) {
-    // Update an event by removing an attendee using an external service (Google Calendar)
+// Call the external service to remove the attendee from the event in Google Calendar
     final GoogleRetrieveCalendarEventResponse googleRetrieveCalendarEventResponse = googleCalendarEventService.notAttendingEvent(notAttendingEventRequest);
+    // Log the response indicating the attendee has been removed from the event
     log.info("Remove attendee from event: {}", googleRetrieveCalendarEventResponse);
   }
 

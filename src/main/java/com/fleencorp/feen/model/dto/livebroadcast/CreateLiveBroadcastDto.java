@@ -16,7 +16,6 @@ import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static com.fleencorp.feen.converter.impl.common.ToTitleCaseConverter.toTitleCase;
 import static java.lang.Boolean.parseBoolean;
 
 @SuperBuilder
@@ -47,7 +46,7 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
             .description(description)
             .tags(tags)
             .location(location)
-            .timezone(toTitleCase(timezone))
+            .timezone(timezone)
             .scheduledStartDate(getActualStartDateTime())
             .scheduledEndDate(getActualEndDateTime())
             .streamSource(getActualSource())
@@ -55,10 +54,11 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
             .streamCreationType(SCHEDULED)
             .streamStatus(ACTIVE)
             .forKids(parseBoolean(isForKids))
+            .isDeleted(false)
             .build();
   }
 
   public Oauth2ServiceType getOauth2ServiceType() {
-    return Oauth2ServiceType.YOUTUBE;
+    return Oauth2ServiceType.youTube();
   }
 }

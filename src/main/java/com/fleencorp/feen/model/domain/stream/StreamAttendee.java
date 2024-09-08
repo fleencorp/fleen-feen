@@ -58,7 +58,7 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   /**
-   * Updates the request status for joining a stream or event and sets the organizer's comment.
+   * Updates the request status for joining a event or stream and sets the organizer's comment.
    * This method updates the status of the user's request to join by setting it to the provided
    * {@link StreamAttendeeRequestToJoinStatus}. It also sets the organizer's comment to the provided string.
    *
@@ -72,7 +72,7 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   /**
-   * Approves the user's attendance for a stream or event.
+   * Approves the user's attendance for a event or stream.
    * This method sets the user's request to join status to {@link StreamAttendeeRequestToJoinStatus#APPROVED}
    * and marks the user as attending by setting {@code isAttending} to {@code true}.
    */

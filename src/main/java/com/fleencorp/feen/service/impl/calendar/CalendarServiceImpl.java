@@ -247,7 +247,7 @@ public class CalendarServiceImpl implements CalendarService {
     verifyCalendarIsNotAlreadyActive(calendar);
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
-    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
 
     // Create a create calendar request to be used in external service
     final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
@@ -285,7 +285,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
-    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
 
     // Prepare request to delete calendar from external service
     final DeleteCalendarRequest deleteCalendarRequest = DeleteCalendarRequest.of(calendar.getExternalId(), oauth2Authorization.getAccessToken());
@@ -320,7 +320,7 @@ public class CalendarServiceImpl implements CalendarService {
             .orElseThrow(() -> new CalendarNotFoundException(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
-    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.GOOGLE_CALENDAR, user);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
 
     // Construct the request for sharing the calendar
     final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest

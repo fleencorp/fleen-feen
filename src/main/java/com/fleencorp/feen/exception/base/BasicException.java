@@ -1,13 +1,14 @@
 package com.fleencorp.feen.exception.base;
 
+import com.fleencorp.base.exception.FleenException;
 import lombok.Getter;
 
 @Getter
-public class BasicException extends FleenLocalizedException {
+public class BasicException extends FleenException {
 
-  protected String messageKey = "basic.exception";
+  protected String messageCode = "basic.exception";
 
-  public BasicException(final Object[] messageArgs) {
-    this.messageArgs = messageArgs;
+  public BasicException(final Object[]...params) {
+    this.params = params;
   }
 }

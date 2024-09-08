@@ -3,10 +3,9 @@ package com.fleencorp.feen.model.response.broadcast;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,7 +31,7 @@ public class CreateStreamResponse extends ApiResponse {
   protected FleenStreamResponse stream;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "create.stream";
   }
 

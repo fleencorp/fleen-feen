@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.security.mfa;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ import lombok.Setter;
 public class ConfirmMfaSetupResponse extends ApiResponse {
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "confirm.mfa.setup";
   }
 

@@ -2,8 +2,12 @@ package com.fleencorp.feen.model.response.external.google.youtube;
 
 import com.fleencorp.feen.model.response.external.google.youtube.base.YouTubeLiveBroadcastResponse;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Builder
+@Getter
+@Setter
 public class UpdateYouTubeLiveBroadcastResponse {
 
   private String liveBroadcastId;

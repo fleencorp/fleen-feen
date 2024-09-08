@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fleencorp.feen.util.JsonUtil;
+import com.fleencorp.base.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

@@ -87,7 +87,7 @@ public class MessageSourceConfiguration {
    * @see <a href="https://velog.io/@mini-boo/DB%EB%A5%BC-%ED%86%B5%ED%95%9C-%EB%8B%A4%EA%B5%AD%EC%96%B4-%EC%A7%80%EC%9B%90-%EA%B8%B0%EB%8A%A5">
    *   Implementation of multilingual support through DB</a>
    */
-  @Bean
+  @Bean("error-message-source")
   public MessageSource errorMessageSource(
       @Value("${spring.messages.error.base-name}") final String baseName,
       @Value("${spring.messages.encoding}") final String encoding) {

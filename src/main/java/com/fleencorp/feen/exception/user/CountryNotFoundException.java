@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.user;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 
 import java.util.Objects;
 

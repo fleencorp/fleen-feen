@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.security.recaptcha;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;

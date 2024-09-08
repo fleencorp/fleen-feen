@@ -1,8 +1,8 @@
 package com.fleencorp.feen.configuration.external.google.calendar;
 
+import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.configuration.external.google.service.account.ServiceAccountDto;
 import com.fleencorp.feen.configuration.external.google.service.account.ServiceAccountProperties;
-import com.fleencorp.feen.util.JsonUtil;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;

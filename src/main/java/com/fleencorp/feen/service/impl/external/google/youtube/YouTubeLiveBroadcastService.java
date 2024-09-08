@@ -5,13 +5,13 @@ import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
 import com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
-import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
-import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
-import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
+import com.fleencorp.feen.model.request.youtube.broadcast.*;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
+import com.fleencorp.feen.service.impl.stream.LiveBroadcastServiceImpl;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.fleencorp.feen.util.external.google.GoogleApiUtil;
 import com.google.api.services.youtube.YouTube;
@@ -69,6 +69,7 @@ public class YouTubeLiveBroadcastService {
   private final String applicationName;
   private final String serviceApiKey;
   private final ReporterService reporterService;
+  private final LiveBroadcastServiceImpl liveBroadcastServiceImpl;
 
   /**
    * Constructs a YouTubeLiveBroadcastService with the specified API key.
@@ -87,12 +88,13 @@ public class YouTubeLiveBroadcastService {
    * @param reporterService The service used for reporting events.
    */
   public YouTubeLiveBroadcastService(
-      @Value("${application.name}") final String applicationName,
-      @Value("${youtube.data.api-key}") final String serviceApiKey,
-      final ReporterService reporterService) {
+    @Value("${application.name}") final String applicationName,
+    @Value("${youtube.data.api-key}") final String serviceApiKey,
+    final ReporterService reporterService, final LiveBroadcastServiceImpl liveBroadcastServiceImpl) {
     this.applicationName = applicationName;
     this.serviceApiKey = serviceApiKey;
     this.reporterService = reporterService;
+    this.liveBroadcastServiceImpl = liveBroadcastServiceImpl;
   }
 
   /**
@@ -165,7 +167,6 @@ public class YouTubeLiveBroadcastService {
               .liveBroadcasts()
               .insert(getPartsForCreatingLiveBroadcast(), liveBroadcast)
               .execute();
-      log.info("Created Broadcast {}", createdLiveBroadcast);
 
       // Create and bind the associated live stream to the created broadcast
       createAssociatedLiveBroadcastStream(createLiveBroadcastRequest, youTube, createdLiveBroadcast);
@@ -191,7 +192,7 @@ public class YouTubeLiveBroadcastService {
    * @return a {@link LiveBroadcastSnippet} populated with the title, description, scheduled start and end times,
    *         and channel ID from the {@code createLiveBroadcastRequest}, or {@code null} if the request is {@code null}
    */
-  private LiveBroadcastSnippet setLiveBroadcastSnippet(CreateLiveBroadcastRequest createLiveBroadcastRequest) {
+  private LiveBroadcastSnippet setLiveBroadcastSnippet(final CreateLiveBroadcastRequest createLiveBroadcastRequest) {
     if (nonNull(createLiveBroadcastRequest)) {
       final LiveBroadcastSnippet snippet = new LiveBroadcastSnippet();
 
@@ -213,7 +214,7 @@ public class YouTubeLiveBroadcastService {
    * @param liveBroadcast the {@link LiveBroadcast} object to be updated with content details and status
    * @param snippet the {@link LiveBroadcastSnippet} object to be updated with thumbnail details
    */
-  private void setBroadcastDetails(CreateLiveBroadcastRequest createLiveBroadcastRequest, LiveBroadcast liveBroadcast, LiveBroadcastSnippet snippet) {
+  private void setBroadcastDetails(final CreateLiveBroadcastRequest createLiveBroadcastRequest, final LiveBroadcast liveBroadcast, final LiveBroadcastSnippet snippet) {
     if (nonNull(liveBroadcast)) {
       // Set the thumbnail details for the broadcast
       final ThumbnailDetails thumbnailDetails = new ThumbnailDetails();
@@ -244,17 +245,17 @@ public class YouTubeLiveBroadcastService {
    * @return a {@link LiveStream} configured with the provided snippet, CDN settings, and kind,
    *         or {@code null} if either the request or snippet is {@code null}
    */
-  private LiveStream createLiveStream(CreateLiveBroadcastRequest createLiveBroadcastRequest, LiveStreamSnippet liveStreamSnippet) {
+  private LiveStream createLiveStream(final CreateLiveBroadcastRequest createLiveBroadcastRequest, final LiveStreamSnippet liveStreamSnippet) {
     if (nonNull(createLiveBroadcastRequest) && nonNull(liveStreamSnippet)) {
       // Create and configure CDN settings for the live stream
-      CdnSettings cdnSettings = new CdnSettings();
+      final CdnSettings cdnSettings = new CdnSettings();
       cdnSettings.setFormat(createLiveBroadcastRequest.getLiveStreamFormat());
       cdnSettings.setIngestionType(createLiveBroadcastRequest.getIngestionType());
       cdnSettings.setResolution(createLiveBroadcastRequest.getLiveStreamResolution());
       cdnSettings.setFrameRate(createLiveBroadcastRequest.getLiveStreamFrameRate());
 
       // Create the live stream and set its snippet and CDN settings
-      LiveStream stream = new LiveStream();
+      final LiveStream stream = new LiveStream();
       stream.setSnippet(liveStreamSnippet);
       stream.setCdn(cdnSettings);
       stream.setKind(createLiveBroadcastRequest.getStreamKind());
@@ -271,24 +272,21 @@ public class YouTubeLiveBroadcastService {
    * @param createLiveBroadcastRequest the request containing the configuration for creating the live broadcast
    * @param youTube the YouTube service instance used to interact with the YouTube API
    * @param createdLiveBroadcast the existing {@link LiveBroadcast} to which the new live stream will be associated
-   * @return a {@link LiveStream} the newly created live stream binding to the Broadcast, or {@code null} if the request is {@code null}
-   *         or the live stream could not be created
    * @throws IOException if an I/O error occurs when interacting with the YouTube API
    */
-  private LiveStream createAssociatedLiveBroadcastStream(CreateLiveBroadcastRequest createLiveBroadcastRequest, YouTube youTube, LiveBroadcast createdLiveBroadcast) throws IOException {
+  private void createAssociatedLiveBroadcastStream(final CreateLiveBroadcastRequest createLiveBroadcastRequest, final YouTube youTube, final LiveBroadcast createdLiveBroadcast) throws IOException {
     if (nonNull(createLiveBroadcastRequest)) {
       // Create a snippet for the live stream using the title from the request
       final LiveStreamSnippet liveStreamSnippet = new LiveStreamSnippet();
       liveStreamSnippet.setTitle(createLiveBroadcastRequest.getTitle());
 
       // Create the live stream using the snippet and the request details
-      LiveStream stream = createLiveStream(createLiveBroadcastRequest, liveStreamSnippet);
+      final LiveStream stream = createLiveStream(createLiveBroadcastRequest, liveStreamSnippet);
       if (nonNull(stream)) {
         // Insert the live stream into YouTube and execute the request
-        LiveStream createdStream = youTube.liveStreams()
+        final LiveStream createdStream = youTube.liveStreams()
           .insert(getPartsForCreatingLiveStream(), stream)
           .execute();
-        log.info("Created Stream {}", createdStream);
 
         // Bind the created live stream to the provided live broadcast and execute the binding
         youTube.liveBroadcasts()
@@ -297,8 +295,6 @@ public class YouTubeLiveBroadcastService {
           .execute();
       }
     }
-    // Return null if the request is null or if the stream could not be created
-    return null;
   }
 
   /**
@@ -311,9 +307,9 @@ public class YouTubeLiveBroadcastService {
    * @param createdLiveBroadcast the existing {@link LiveBroadcast} that will be updated with new details
    * @throws IOException if an I/O error occurs when interacting with the YouTube API
    */
-  private void setAndUpdateLiveBroadcastCategoryAndOtherDetails(CreateLiveBroadcastRequest createLiveBroadcastRequest, YouTube youTube, LiveBroadcast createdLiveBroadcast) throws IOException {
+  private void setAndUpdateLiveBroadcastCategoryAndOtherDetails(final CreateLiveBroadcastRequest createLiveBroadcastRequest, final YouTube youTube, final LiveBroadcast createdLiveBroadcast) throws IOException {
     // Create a Video object and set its ID to match the live broadcast's ID
-    Video video = new Video();
+    final Video video = new Video();
     video.setId(createdLiveBroadcast.getId());
 
     // Create a VideoSnippet object and set the category ID from the request
@@ -324,10 +320,9 @@ public class YouTubeLiveBroadcastService {
     video.setSnippet(videoSnippet);
 
     // Update the live broadcast on YouTube with the new category and details
-    video = youTube.videos()
+    youTube.videos()
       .update(getPartsForUpdatingBroadcastSnippet(), video)
       .execute();
-    log.info("Created Video {}", video);
   }
 
   /**
@@ -365,12 +360,15 @@ public class YouTubeLiveBroadcastService {
         final LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().getFirst();
         final LiveBroadcastSnippet snippet = liveBroadcast.getSnippet();
 
+        // Update the title and description of the live broadcast snippet
         snippet.setTitle(updateLiveBroadcastRequest.getTitle());
         snippet.setDescription(updateLiveBroadcastRequest.getDescription());
 
+        // Execute the update request for the live broadcast
         final LiveBroadcast updatedLiveBroadcast = createUpdateRequest(channel.getId(), liveBroadcast, youTube)
           .execute();
 
+        // Return the response with updated broadcast details
         return UpdateYouTubeLiveBroadcastResponse
           .of(liveBroadcast.getId(),
             getYouTubeLiveStreamingLinkByBroadcastId(liveBroadcast.getId()),
@@ -433,6 +431,80 @@ public class YouTubeLiveBroadcastService {
       log.error("Cannot reschedule live broadcast. Channel or broadcast cannot be found");
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while rescheduling live broadcast. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
+    }
+    throw new UnableToCompleteOperationException();
+  }
+
+  /**
+   * Deletes a live broadcast on YouTube using the provided access token and broadcast ID.
+   * This method measures execution time and reports any errors that occur during the deletion process.
+   *
+   * @param deleteLiveBroadcastRequest The request object containing the access token and broadcast ID for deletion.
+   * @return A DeleteYouTubeLiveBroadcastResponse containing the ID of the deleted broadcast.
+   * @throws UnableToCompleteOperationException If the operation fails due to an IOException or other issues.
+   */
+  @MeasureExecutionTime
+  public DeleteYouTubeLiveBroadcastResponse deleteLiveBroadcast(final DeleteLiveBroadcastRequest deleteLiveBroadcastRequest) {
+    try {
+      // Create a YouTube request using the provided access token
+      final YouTube youTube = createRequest(deleteLiveBroadcastRequest.getAccessTokenForHttpRequest());
+
+      // Execute the delete operation on the specified live broadcast
+      youTube.liveBroadcasts()
+        .delete(deleteLiveBroadcastRequest.getBroadcastId())
+        .execute();
+      // Return a response indicating successful deletion of the broadcast
+      return DeleteYouTubeLiveBroadcastResponse.of(deleteLiveBroadcastRequest.getBroadcastId());
+    } catch (final IOException ex) {
+      final String errorMessage = String.format("Error occurred while deleting live broadcast. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, YOUTUBE);
+    }
+    throw new UnableToCompleteOperationException();
+  }
+
+  /**
+   * Updates the visibility status of a YouTube live broadcast.
+   * This method uses the provided access token to authenticate the request and updates the broadcast's privacy status.
+   *
+   * @param updateLiveBroadcastVisibilityRequest The request containing the access token, broadcast ID, and desired privacy status.
+   * @return An UpdateYouTubeLiveBroadcastResponse containing the updated broadcast details, including its ID, streaming link, and updated broadcast response.
+   * @throws UnableToCompleteOperationException If the operation fails due to an IOException or issues finding the broadcast.
+   */
+  @MeasureExecutionTime
+  public UpdateYouTubeLiveBroadcastResponse updateLiveBroadcastVisibility(final UpdateLiveBroadcastVisibilityRequest updateLiveBroadcastVisibilityRequest) {
+    try {
+      // Create a YouTube request using the provided access token
+      final YouTube youTube = createRequest(updateLiveBroadcastVisibilityRequest.getAccessTokenForHttpRequest());
+      final Channel channel = getChannel(youTube);
+
+      // List live broadcasts based on the broadcast ID
+      final YouTube.LiveBroadcasts.List liveBroadcasts = youTube.liveBroadcasts()
+        .list(YouTubeVideoPart.getSnippet())
+        .setId(updateLiveBroadcastVisibilityRequest.getBroadcastId());
+
+      // Check if the channel and live broadcasts are found and not empty
+      if (nonNull(channel) && nonNull(liveBroadcasts) && !liveBroadcasts.isEmpty()) {
+        // Retrieve the first live broadcast from the list
+        final LiveBroadcast liveBroadcast = liveBroadcasts.execute().getItems().getFirst();
+
+        // Update the broadcast's privacy status
+        final LiveBroadcastStatus liveBroadcastStatus = liveBroadcast.getStatus();
+        liveBroadcastStatus.setPrivacyStatus(updateLiveBroadcastVisibilityRequest.getPrivacyStatus().getValue());
+
+        // Execute the update request for the live broadcast
+        final LiveBroadcast updatedLiveBroadcast = createUpdateRequest(channel.getId(), liveBroadcast, youTube)
+          .execute();
+
+        // Return the response with updated broadcast details
+        return UpdateYouTubeLiveBroadcastResponse
+          .of(liveBroadcast.getId(),
+            getYouTubeLiveStreamingLinkByBroadcastId(liveBroadcast.getId()),
+            mapToLiveBroadcastResponse(updatedLiveBroadcast));
+      }
+      log.error("Cannot update live broadcast visibility. Channel or broadcast cannot be found");
+    } catch (final IOException ex) {
+      final String errorMessage = String.format("Error occurred while updating live broadcast visibility. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, YOUTUBE);
     }
     throw new UnableToCompleteOperationException();
@@ -603,7 +675,7 @@ public class YouTubeLiveBroadcastService {
    * @param parts the list of string elements to be joined
    * @return a single string with all elements of the list joined by commas
    */
-  protected String joinParts(List<String> parts) {
+  protected String joinParts(final List<String> parts) {
     // Joins the list elements using a comma as the separator
     return String.join(COMMA, parts);
   }

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.user.role;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
 
 public class NoRoleAvailableToAssignException extends FleenException {
 

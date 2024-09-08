@@ -3,7 +3,10 @@ package com.fleencorp.feen.controller.event;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
-import com.fleencorp.feen.model.dto.event.*;
+import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.UpdateCalendarEventDto;
+import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
@@ -90,9 +93,9 @@ public class EventController {
   @PostMapping(value = "/request-to-join/{eventId}")
   public RequestToJoinEventResponse requestToJoinEvent(
       @PathVariable(name = "eventId") final Long eventId,
-      @Valid @RequestBody final RequestToJoinEventDto requestToJoinEventDto,
+      @Valid @RequestBody final RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.requestToJoinEvent(eventId, requestToJoinEventDto, user);
+    return eventService.requestToJoinEvent(eventId, requestToJoinEventOrStreamDto, user);
   }
 
 

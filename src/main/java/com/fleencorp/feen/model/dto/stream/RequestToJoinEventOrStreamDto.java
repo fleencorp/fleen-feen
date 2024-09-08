@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.event;
+package com.fleencorp.feen.model.dto.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestToJoinEventDto {
+public class RequestToJoinEventOrStreamDto {
 
   @Size(min = 10, max = 500, message = "{event.comment.Size}")
   @JsonProperty("comment")
