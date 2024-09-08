@@ -51,7 +51,7 @@ import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStat
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
-import static com.fleencorp.feen.util.ExceptionUtil.checkIsTrue;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
