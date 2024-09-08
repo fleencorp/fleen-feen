@@ -31,4 +31,15 @@ public enum ProfileVerificationStatus implements ApiParameter {
   public static ProfileVerificationStatus of(final String value) {
     return parseEnumOrNull(value, ProfileVerificationStatus.class);
   }
+
+  /**
+   * Determines whether the given profile verification status is approved.
+   *
+   * @param profileVerificationStatus the status of the profile verification
+   * @return {@code true} if the status is approved; {@code false} otherwise
+   */
+  public static boolean isApproved(final ProfileVerificationStatus profileVerificationStatus) {
+    return APPROVED == profileVerificationStatus;
+  }
+
 }

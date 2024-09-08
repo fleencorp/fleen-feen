@@ -1,8 +1,8 @@
 package com.fleencorp.feen.controller.common;
 
+import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
-import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.service.common.MiscService;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 
 @RestController
-@RequestMapping(value = "/misc")
+@RequestMapping(value = "/api/misc")
 public class MiscController {
 
   private final EmailService emailService;

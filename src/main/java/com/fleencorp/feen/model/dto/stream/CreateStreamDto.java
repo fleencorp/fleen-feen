@@ -1,12 +1,13 @@
 package com.fleencorp.feen.model.dto.stream;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToLowerCase;
+import com.fleencorp.base.converter.common.ToTitleCase;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.converter.common.ToLowerCase;
-import com.fleencorp.feen.converter.common.ToTitleCase;
-import com.fleencorp.feen.converter.common.ToUpperCase;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,6 +20,8 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -85,6 +88,20 @@ public class CreateStreamDto {
   @ValidBoolean
   @JsonProperty("is_for_kids")
   protected String isForKids;
+
+  @Size(min = 3, max = 100, message = "{event.organizerAliasOrDisplayName.Size}")
+  @JsonProperty("organizer_alias_or_display_name")
+  private String organizerAliasOrDisplayName;
+
+  @JsonIgnore
+  public String getOrganizerAlias(final String defaultOrganizerAlias) {
+    if (nonNull(organizerAliasOrDisplayName) && !organizerAliasOrDisplayName.trim().isBlank()) {
+      return organizerAliasOrDisplayName;
+    }
+    else {
+      return defaultOrganizerAlias;
+    }
+  }
 
   public StreamSource getActualSource() {
     return StreamSource.of(source);

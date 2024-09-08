@@ -2,9 +2,9 @@ package com.fleencorp.feen.model.dto.share;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.share.BlockStatus;
-import com.fleencorp.feen.converter.common.ToUpperCase;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

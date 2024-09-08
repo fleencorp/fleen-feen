@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.*;
 
 @Builder
@@ -20,8 +20,8 @@ public class DeletedStreamResponse extends ApiResponse {
   private Long streamId;
 
   @Override
-  public String getMessageKey() {
-    return "deleted.event";
+  public String getMessageCode() {
+    return "deleted.stream";
   }
 
   public static DeletedStreamResponse of(final long streamId) {

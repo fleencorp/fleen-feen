@@ -29,6 +29,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import static com.fleencorp.base.constant.base.SecurityConstant.AUTH_HEADER_PREFIX;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getAccessTokenCacheKey;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.isAuthorityWhitelisted;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -99,7 +100,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     try {
       // Extract and validate JWT token
       final String token = extractAndValidateJwtToken(request);
-      if (token == null) {
+      if (isNull(token)) {
         filterChain.doFilter(request, response);
         return;
       }
@@ -250,7 +251,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     final String header = request.getHeader(AUTHORIZATION);
 
     // Check if the header is missing or doesn't start with the expected prefix
-    if (header == null || !startsWithIgnoreCase(header, AUTH_HEADER_PREFIX)) {
+    if (isNull(header) || !startsWithIgnoreCase(header, AUTH_HEADER_PREFIX)) {
       return null;
     }
 

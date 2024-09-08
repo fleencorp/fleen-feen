@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.external.google.youtube.base;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing the visibility status of a Google Meet event.
 *
@@ -20,5 +22,9 @@ public enum YouTubeLiveBroadcastVisibility implements ApiParameter {
 
   YouTubeLiveBroadcastVisibility(final String value) {
     this.value = value;
+  }
+
+  public static YouTubeLiveBroadcastVisibility of(final String value) {
+    return parseEnumOrNull(value, YouTubeLiveBroadcastVisibility.class);
   }
 }

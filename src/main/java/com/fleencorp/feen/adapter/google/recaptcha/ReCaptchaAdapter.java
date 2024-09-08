@@ -1,8 +1,8 @@
 package com.fleencorp.feen.adapter.google.recaptcha;
 
+import com.fleencorp.base.adapter.base.BaseAdapter;
 import com.fleencorp.base.constant.base.ApiParameter;
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
-import com.fleencorp.feen.adapter.base.BaseAdapter;
 import com.fleencorp.feen.adapter.google.recaptcha.model.enums.GoogleRecaptchaEndpointBlock;
 import com.fleencorp.feen.adapter.google.recaptcha.model.enums.GoogleRecaptchaParameter;
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
@@ -10,9 +10,12 @@ import com.fleencorp.feen.constant.external.ExternalSystemType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -43,8 +46,10 @@ public class ReCaptchaAdapter extends BaseAdapter {
    */
   protected ReCaptchaAdapter(
       @Value("${google.recaptcha.base-url}") final String baseUrl,
-      @Value("${google.recaptcha.secret-key}") final String secretKey) {
-    super(baseUrl);
+      @Value("${google.recaptcha.secret-key}") final String secretKey,
+      final RestClient restClient) {
+    super(baseUrl, new RestTemplateBuilder()
+      .requestFactory(SimpleClientHttpRequestFactory::new).build(), restClient);
     this.recaptchaSecret = secretKey;
   }
 

@@ -62,4 +62,14 @@ public enum ProfileStatus implements ApiParameter {
     return profileStatus == INACTIVE;
   }
 
+  /**
+   * Checks if the given profile status is active.
+   *
+   * @param profileStatus the status of the profile
+   * @return {@code true} if the profile status is active; {@code false} otherwise
+   */
+  public static boolean isActive(final ProfileStatus profileStatus) {
+    return profileStatus == ACTIVE;
+  }
+
 }

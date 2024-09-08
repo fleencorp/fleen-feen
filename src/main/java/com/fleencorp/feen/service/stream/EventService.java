@@ -2,8 +2,10 @@ package com.fleencorp.feen.service.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
@@ -42,7 +44,7 @@ public interface EventService {
 
   JoinEventResponse joinEvent(Long eventId, FleenUser user);
 
-  RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventDto requestToJoinEventDto, FleenUser user);
+  RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, FleenUser user);
 
   ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, FleenUser user);
 
@@ -57,4 +59,6 @@ public interface EventService {
   TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);
 
   TotalEventsAttendedByUserResponse countTotalEventsAttended(FleenUser user);
+
+  FleenStream joinEventOrStream(Long eventOrStreamId, FleenUser user);
 }

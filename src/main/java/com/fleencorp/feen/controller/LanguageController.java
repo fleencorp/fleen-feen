@@ -1,5 +1,6 @@
 package com.fleencorp.feen.controller;
 
+import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.base.BasicException;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -11,20 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Locale;
 
 @RestController
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/api/test")
 @AllArgsConstructor
 public class LanguageController {
 
   private final MessageSource messageSource;
 
-  @GetMapping("/check-language")
+  @GetMapping("/language")
   public String checkLanguage(@RequestHeader(name = "Accept-Language", required = false) final Locale locale) {
     System.out.println(locale + " is the locale");
     System.out.println("The message is " + messageSource.getMessage("greeting.person", null, locale));
     return messageSource.getMessage("greeting.person", null, locale);
   }
 
-  @GetMapping("/test-error")
+  @GetMapping("/basic-error")
   public String testError() {
     if (true) {
       throw new BasicException(new Object[] {"Yusuf", "Musa"});
@@ -32,5 +33,10 @@ public class LanguageController {
     else {
       return "Hello World!";
     }
+  }
+
+  @GetMapping(value = "/throw-any-error")
+  public Object throwAnyError() {
+    throw new AlreadySignedUpException();
   }
 }

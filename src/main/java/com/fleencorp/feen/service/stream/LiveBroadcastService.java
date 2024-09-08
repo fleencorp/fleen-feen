@@ -1,10 +1,11 @@
 package com.fleencorp.feen.service.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
-import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
@@ -27,6 +28,10 @@ public interface LiveBroadcastService {
   RescheduleStreamResponse rescheduleLiveBroadcast(Long streamId, RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, FleenUser user);
 
   NotAttendingStreamResponse notAttendingStream(Long streamId, FleenUser user);
+
+  JoinStreamResponse joinStream(Long streamId, FleenUser user);
+
+  RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, FleenUser user);
 
   ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(Long streamId, ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, FleenUser user);
 

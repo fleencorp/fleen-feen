@@ -16,9 +16,7 @@ import java.util.List;
 
 import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static com.fleencorp.feen.converter.impl.common.ToTitleCaseConverter.toTitleCase;
 import static java.lang.Boolean.parseBoolean;
-import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -27,24 +25,10 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 public class CreateCalendarEventDto extends CreateStreamDto {
 
-  @Size(min = 3, max = 100, message = "{event.organizerAliasOrDisplayName.Size}")
-  @JsonProperty("organizer_alias_or_display_name")
-  private String organizerAliasOrDisplayName;
-
   @Valid
   @Size(min = 1, max = 5, message = "{event.eventAttendeesOrGuests.Size}")
   @JsonProperty("event_attendees_or_guests")
   private List<EventAttendeeOrGuest> eventAttendeesOrGuests;
-
-  @JsonIgnore
-  public String getOrganizerAlias(final String defaultOrganizerAlias) {
-    if (nonNull(organizerAliasOrDisplayName) && !organizerAliasOrDisplayName.trim().isBlank()) {
-      return organizerAliasOrDisplayName;
-    }
-    else {
-      return defaultOrganizerAlias;
-    }
-  }
 
   @Builder
   @Getter
@@ -91,7 +75,7 @@ public class CreateCalendarEventDto extends CreateStreamDto {
             .description(description)
             .tags(tags)
             .location(location)
-            .timezone(toTitleCase(timezone))
+            .timezone(timezone)
             .scheduledStartDate(getActualStartDateTime())
             .scheduledEndDate(getActualEndDateTime())
             .streamSource(getActualSource())

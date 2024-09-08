@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.other;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class DeleteResponse extends ApiResponse {
   private final String timestamp;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "delete";
   }
 

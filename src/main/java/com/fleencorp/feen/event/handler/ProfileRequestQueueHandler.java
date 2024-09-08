@@ -1,5 +1,6 @@
 package com.fleencorp.feen.event.handler;
 
+import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.constant.base.ReportMessageType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.service.impl.message.TemplateProcessor;
 import com.fleencorp.feen.service.message.EmailMessageService;
 import com.fleencorp.feen.service.message.MobileTextService;
 import com.fleencorp.feen.service.report.ReporterService;
-import com.fleencorp.feen.util.JsonUtil;
 import io.awspring.cloud.sqs.listener.acknowledgement.Acknowledgement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.PropertySource;
@@ -82,9 +82,9 @@ public class ProfileRequestQueueHandler {
     final String message = String.format("Sign up verification request: %s", requestToString(request));
     reportMessage(message);
 
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
     acknowledgement.acknowledge();
@@ -116,9 +116,9 @@ public class ProfileRequestQueueHandler {
     final String message = String.format("Forgot password verification request: %s", requestToString(request));
     reportMessage(message);
 
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -135,9 +135,9 @@ public class ProfileRequestQueueHandler {
     final String message = String.format("Mfa Setup verification request: %s", requestToString(request));
     reportMessage(message);
 
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -154,9 +154,9 @@ public class ProfileRequestQueueHandler {
     final String message = String.format("Mfa verification request: %s", requestToString(request));
     reportMessage(message);
 
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }
@@ -173,9 +173,9 @@ public class ProfileRequestQueueHandler {
     final String message = String.format("Profile update verification request: %s", requestToString(request));
     reportMessage(message);
 
-    if (request.getVerificationType() == VerificationType.EMAIL) {
+    if (VerificationType.isEmail(request.getVerificationType())) {
       sendEmailMessage(request);
-    } else if (request.getVerificationType() == VerificationType.PHONE) {
+    } else if (VerificationType.isPhone(request.getVerificationType())) {
       sendSmsMessage(request);
     }
   }

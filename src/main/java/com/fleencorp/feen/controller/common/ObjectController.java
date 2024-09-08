@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.common;
 
+import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
-import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.service.impl.external.aws.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +20,7 @@ import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/object")
+@RequestMapping(value = "/api/object")
 @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class ObjectController {
 
@@ -51,7 +51,7 @@ public class ObjectController {
   }
 
   @Operation(summary = "Delete a stream's cover photo or thumbnail",
-    description = "Delete the cover photo or thumbnail for a stream or event.")
+    description = "Delete the cover photo or thumbnail for a event or stream.")
   @ApiResponse(responseCode = "200", description = "Stream cover photo or thumbnail deleted successfully",
     content = { @Content(schema = @Schema(implementation = DeleteResponse.class))
   })

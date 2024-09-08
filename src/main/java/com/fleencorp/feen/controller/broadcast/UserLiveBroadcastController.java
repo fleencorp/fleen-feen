@@ -2,11 +2,13 @@ package com.fleencorp.feen.controller.broadcast;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.broadcast.DeletedStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.ProcessAttendeeRequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
 import com.fleencorp.feen.model.response.broadcast.UpdateStreamVisibilityResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
@@ -22,38 +24,46 @@ public class UserLiveBroadcastController {
   
   private final LiveBroadcastService liveBroadcastService;
   
-  public UserLiveBroadcastController(LiveBroadcastService liveBroadcastService) {
+  public UserLiveBroadcastController(final LiveBroadcastService liveBroadcastService) {
     this.liveBroadcastService = liveBroadcastService;
+  }
+
+  @PutMapping(value = "/reschedule/{streamId}")
+  public RescheduleStreamResponse rescheduleStream(
+      @PathVariable(name = "streamId") final Long streamId,
+      @Valid @RequestBody final RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.rescheduleLiveBroadcast(streamId, rescheduleLiveBroadcastDto, user);
   }
 
   @DeleteMapping(value = "/delete/{streamId}")
   public DeletedStreamResponse deleteEvent(
-    @PathVariable(name = "streamId") final Long streamId,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.deleteStream(streamId, user);
   }
 
   @PutMapping(value = "/process-join-request/{streamId}")
   public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinEvent(
-    @PathVariable(name = "streamId") final Long streamId,
-    @Valid @RequestBody final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @Valid @RequestBody final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.processAttendeeRequestToJoinStream(streamId, processAttendeeRequestToJoinEventOrStreamDto, user);
   }
 
   @GetMapping(value = "/attendees/request-to-join/{streamId}")
   public SearchResultView getAttendeesRequestToJoin(
-    @PathVariable(name = "streamId") final Long streamId,
-    @AuthenticationPrincipal final FleenUser user,
-    @SearchParam final StreamAttendeeSearchRequest searchRequest) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user,
+      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
     return liveBroadcastService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
   }
 
   @PutMapping(value = "/update-visibility/{streamId}")
   public UpdateStreamVisibilityResponse updateEventVisibility(
-    @PathVariable(name = "streamId") final Long streamId,
-    @Valid @RequestBody final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @Valid @RequestBody final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto,
+      @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.updateStreamVisibility(streamId, updateEventOrStreamVisibilityDto, user);
   }
 }

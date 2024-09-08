@@ -1,18 +1,15 @@
 package com.fleencorp.feen.model.domain.stream;
 
+import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.stream.StreamCreationType;
-import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamSource;
+import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
@@ -36,6 +33,7 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "fleen_stream")
+@ToString
 public class FleenStream extends FleenFeenEntity {
 
   @Id
@@ -234,7 +232,7 @@ public class FleenStream extends FleenFeenEntity {
    *         and before the {@code scheduledEndDate}; {@code false} otherwise
    */
   public boolean isOngoing() {
-    LocalDateTime now = LocalDateTime.now();
+    final LocalDateTime now = LocalDateTime.now();
     return (now.isEqual(scheduledStartDate) || now.isAfter(scheduledStartDate)) && now.isBefore(scheduledEndDate);
   }
 
@@ -244,7 +242,7 @@ public class FleenStream extends FleenFeenEntity {
    * @return {@code true} if the current time is after the {@code scheduledEndDate}; {@code false} otherwise
    */
   public boolean hasEnded() {
-    LocalDateTime now = LocalDateTime.now();
+    final LocalDateTime now = LocalDateTime.now();
     return now.isAfter(scheduledEndDate);
   }
 

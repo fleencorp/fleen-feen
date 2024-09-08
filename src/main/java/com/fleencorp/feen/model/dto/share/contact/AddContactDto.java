@@ -1,9 +1,9 @@
 package com.fleencorp.feen.model.dto.share.contact;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.share.ContactType;
-import com.fleencorp.feen.converter.common.ToUpperCase;
 import com.fleencorp.feen.model.domain.share.Contact;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.validation.constraints.NotBlank;

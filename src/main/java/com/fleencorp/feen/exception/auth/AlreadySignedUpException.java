@@ -1,22 +1,20 @@
 package com.fleencorp.feen.exception.auth;
 
-import com.fleencorp.feen.exception.base.FleenException;
+import com.fleencorp.base.exception.FleenException;
+import lombok.Getter;
+import lombok.ToString;
 
+@Getter
+@ToString
 public class AlreadySignedUpException extends FleenException {
 
-  public static final String MESSAGE = "This profile is already signed up and has completed the registration process.";
-  private String messageKey;
-  private Object[] params;
+  @Override
+  public String getMessageCode() {
+    return "already.signed.up";
+  }
 
   public AlreadySignedUpException() {
-    super(MESSAGE);
+    super();
   }
-
-  public AlreadySignedUpException(final String message, final Object[] params) {
-    super(message);
-    this.params = params;
-    this.messageKey = message;
-  }
-
 
 }

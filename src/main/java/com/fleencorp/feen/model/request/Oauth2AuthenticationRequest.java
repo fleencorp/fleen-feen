@@ -45,9 +45,9 @@ public class Oauth2AuthenticationRequest {
    */
   public static Oauth2AuthenticationRequest of(final Oauth2ServiceType oauth2ServiceType) {
     if (nonNull(oauth2ServiceType)) {
-      if (oauth2ServiceType == Oauth2ServiceType.GOOGLE_CALENDAR) {
+      if (Oauth2ServiceType.isGoogleCalendar(oauth2ServiceType)) {
         return getGoogleCalendarOauth2AuthenticationRequest();
-      } else if (oauth2ServiceType == Oauth2ServiceType.YOUTUBE) {
+      } else if (Oauth2ServiceType.isYoutube(oauth2ServiceType)) {
         return getYouTubeOauth2AuthenticationRequest();
       }
     }
@@ -64,7 +64,7 @@ public class Oauth2AuthenticationRequest {
    */
   public static Oauth2AuthenticationRequest getGoogleCalendarOauth2AuthenticationRequest() {
     return Oauth2AuthenticationRequest.builder()
-      .oauth2ServiceType(Oauth2ServiceType.GOOGLE_CALENDAR)
+      .oauth2ServiceType(Oauth2ServiceType.googleCalendar())
       .scopes(getCalendarScopes())
       .build();
   }
@@ -79,7 +79,7 @@ public class Oauth2AuthenticationRequest {
    */
   public static Oauth2AuthenticationRequest getYouTubeOauth2AuthenticationRequest() {
     return Oauth2AuthenticationRequest.builder()
-      .oauth2ServiceType(Oauth2ServiceType.YOUTUBE)
+      .oauth2ServiceType(Oauth2ServiceType.youTube())
       .scopes(getYouTubeScopes())
       .build();
   }

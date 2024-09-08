@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.calendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import lombok.*;
 
@@ -27,7 +27,7 @@ public class UpdateCalendarResponse extends ApiResponse {
   private CalendarResponse calendar;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "update.calendar";
   }
 

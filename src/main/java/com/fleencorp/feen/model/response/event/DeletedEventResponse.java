@@ -2,9 +2,8 @@ package com.fleencorp.feen.model.response.event;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.ApiResponse;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.*;
-import lombok.Builder.Default;
 
 @Builder
 @Getter
@@ -21,7 +20,7 @@ public class DeletedEventResponse extends ApiResponse {
   private Long eventId;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "deleted.event";
   }
 

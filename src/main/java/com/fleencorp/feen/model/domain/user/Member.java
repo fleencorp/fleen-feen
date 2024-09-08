@@ -1,11 +1,11 @@
 package com.fleencorp.feen.model.domain.user;
 
+import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.feen.constant.security.mfa.MfaType.EMAIL;
-import static com.fleencorp.feen.constant.security.mfa.MfaType.PHONE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -162,9 +160,9 @@ public class Member extends FleenFeenEntity {
    * @param verificationType the type of profile verification (PHONE or EMAIL)
    */
   public void verifyUser(final VerificationType verificationType) {
-    if (VerificationType.PHONE == verificationType) {
+    if (VerificationType.isPhone(verificationType)) {
       setPhoneNumberVerified(true); // Verify phone number
-    } else if (VerificationType.EMAIL == verificationType) {
+    } else if (VerificationType.isEmail(verificationType)) {
       setEmailAddressVerified(true); // Verify email address
     }
   }
@@ -175,9 +173,9 @@ public class Member extends FleenFeenEntity {
    * @param mfaType the type of MFA (PHONE or EMAIL)
    */
   public void verifyUserMfa(final MfaType mfaType) {
-    if (PHONE == mfaType) {
+    if (MfaType.isPhone(mfaType)) {
       verifyUser(VerificationType.PHONE); // Verify using phone
-    } else if (EMAIL == mfaType) {
+    } else if (MfaType.isEmail(mfaType)) {
       verifyUser(VerificationType.EMAIL); // Verify using email
     }
   }
@@ -204,7 +202,7 @@ public class Member extends FleenFeenEntity {
    *         {@code false} otherwise
    */
   public boolean isProfileActiveAndApproved() {
-    return ProfileStatus.ACTIVE == profileStatus && ProfileVerificationStatus.APPROVED == verificationStatus;
+    return ProfileStatus.isActive(profileStatus) && ProfileVerificationStatus.isApproved(verificationStatus);
   }
 
   public static Member of(final Long memberId) {

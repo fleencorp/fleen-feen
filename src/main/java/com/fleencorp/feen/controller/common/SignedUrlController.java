@@ -1,8 +1,8 @@
 package com.fleencorp.feen.controller.common;
 
+import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.constant.http.StatusCodeMessage;
-import com.fleencorp.feen.exception.base.FleenException;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlResponse;
 import com.fleencorp.feen.service.common.ObjectService;
 import com.fleencorp.feen.service.impl.external.aws.S3Service;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/signed-url")
+@RequestMapping(value = "/api/signed-url")
 @PreAuthorize("isFullyAuthenticated()")
 public class SignedUrlController {
 

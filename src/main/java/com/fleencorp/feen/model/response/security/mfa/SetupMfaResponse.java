@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.model.response.base.ApiResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -53,7 +53,7 @@ public class SetupMfaResponse extends ApiResponse {
   private MfaSetupStatus mfaSetupStatus;
 
   @Override
-  public String getMessageKey() {
+  public String getMessageCode() {
     return "setup.mfa";
   }
 
