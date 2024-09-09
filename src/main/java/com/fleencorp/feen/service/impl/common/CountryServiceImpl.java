@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponse;
 import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -82,10 +83,11 @@ public class CountryServiceImpl implements CountryService {
   * @throws CountryNotFoundException if no Country is found with the specified ID
   */
   @Override
-  public Country getCountry(final Long id) {
-    return repository
+  public CountryResponse getCountry(final Long id) {
+    final Country country = repository
             .findById(id)
             .orElseThrow(() -> new CountryNotFoundException(id));
+    return toCountryResponse(country);
   }
 
   /**
