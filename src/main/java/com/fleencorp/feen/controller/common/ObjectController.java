@@ -3,6 +3,7 @@ package com.fleencorp.feen.controller.common;
 import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.aws.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,12 +27,15 @@ public class ObjectController {
 
   private final S3Service s3Service;
   private final S3BucketNames s3BucketNames;
+  private final LocalizedResponse localizedResponse;
 
   public ObjectController(
       final S3Service s3Service,
-      final S3BucketNames s3BucketNames) {
+      final S3BucketNames s3BucketNames,
+      final LocalizedResponse localizedResponse) {
     this.s3Service = s3Service;
     this.s3BucketNames = s3BucketNames;
+    this.localizedResponse = localizedResponse;
   }
 
   @Operation(summary = "Delete Display or Profile Photo",
@@ -47,7 +51,7 @@ public class ObjectController {
     @Parameter(description = "Object key for the profile photo", required = true)
       @RequestParam(name = "key") final String key) {
     s3Service.deleteObjectSilent(s3BucketNames.getUserPhoto(), key);
-    return new DeleteResponse();
+    return localizedResponse.of(DeleteResponse.of());
   }
 
   @Operation(summary = "Delete a stream's cover photo or thumbnail",
@@ -63,7 +67,7 @@ public class ObjectController {
     @Parameter(description = "Object key for the stream cover photo or thumbnail", required = true)
       @RequestParam(name = "key") final String key) {
     s3Service.deleteObjectSilent(s3BucketNames.getStreamCoverPhoto(), key);
-    return new DeleteResponse();
+    return localizedResponse.of(DeleteResponse.of());
   }
 
 }

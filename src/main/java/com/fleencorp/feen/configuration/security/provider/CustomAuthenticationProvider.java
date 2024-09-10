@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -57,15 +56,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     final String emailAddress = authentication.getName();
     final String password = authentication.getCredentials().toString();
 
-    try {
-      final UserDetails user = userDetailsService.loadUserByUsername(emailAddress);
-      if (passwordEncoder.matches(password, user.getPassword())) {
-        return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-      }
-    } catch (final UsernameNotFoundException ex) {
-      log.error(ex.getMessage(), ex);
+    final UserDetails user = userDetailsService.loadUserByUsername(emailAddress);
+    if (passwordEncoder.matches(password, user.getPassword())) {
+      return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     }
-    return new UsernamePasswordAuthenticationToken(emailAddress, password);
+    return null;
   }
 
   /**
