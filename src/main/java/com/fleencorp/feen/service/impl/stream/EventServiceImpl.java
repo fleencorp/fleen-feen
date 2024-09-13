@@ -486,14 +486,14 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // Set event organizer as attendee in Google calendar
     final String organizerAliasOrDisplayName = createCalendarEventDto.getOrganizerAlias(user.getFullName());
-    final EventAttendeeOrGuest eventAttendeeOrGuest = new EventAttendeeOrGuest();
-    eventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
+    final EventAttendeeOrGuest eventAttendeeOrGuest = EventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
 
     // Add event organizer as an attendee
     createCalendarEventRequest.getAttendeeOrGuests().add(eventAttendeeOrGuest);
     // Update the event request with necessary details
     createCalendarEventRequest.update(createCalendarEventRequest, calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
 
+    log.info("The request is {}", createCalendarEventRequest);
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createCalendarEventDto.toFleenStream(user.toMember());
     stream.updateDetails(
