@@ -9,7 +9,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_empty_oauth2_authorization() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
 
     // ASSERT
     assertNotNull(oauth2Authorization);
@@ -18,7 +18,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_empty_oauth2_authorization_null() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = null;
+    final Oauth2Authorization oauth2Authorization = null;
 
     // ASSERT
     assertNull(oauth2Authorization);
@@ -27,7 +27,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_oauth2_authorization_without_id() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
 
     // ASSERT
     assertNull(oauth2Authorization.getOauth2AuthorizationId());
@@ -36,7 +36,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_oauth2_authorization_with_id() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
     oauth2Authorization.setOauth2AuthorizationId(1L);
 
     // ASSERT
@@ -46,8 +46,8 @@ class Oauth2AuthorizationTest {
   @Test
   void ensure_oauth2_authorization_id_are_equal() {
     // GIVEN
-    long oauth2AuthorizationId = 1L;
-    Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
+    final long oauth2AuthorizationId = 1L;
+    final Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
     oauth2Authorization1.setOauth2AuthorizationId(1L);
 
     // ASSERT
@@ -58,7 +58,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_oauth2_authorization_without_access_token() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
 
     // ASSERT
     assertNull(oauth2Authorization.getAccessToken());
@@ -67,7 +67,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_oauth2_authorization_with_access_token() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
     oauth2Authorization.setAccessToken("accessToken");
 
     // ASSERT
@@ -77,8 +77,8 @@ class Oauth2AuthorizationTest {
   @Test
   void ensure_oauth2_authorization_access_token_are_equal() {
     // GIVEN
-    String accessToken = "accessToken";
-    Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
+    final String accessToken = "accessToken";
+    final Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
     oauth2Authorization1.setAccessToken("accessToken");
 
     // ASSERT
@@ -89,8 +89,8 @@ class Oauth2AuthorizationTest {
   @Test
   void ensure_oauth2_authorization_access_token_are_not_equal() {
     // GIVEN
-    String accessToken = "accessToken";
-    Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
+    final String accessToken = "accessToken";
+    final Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
     oauth2Authorization1.setAccessToken("tokenAccess");
 
     // ASSERT
@@ -100,7 +100,7 @@ class Oauth2AuthorizationTest {
   @Test
   void create_oauth2_authorization_without_refresh_token() {
     // GIVEN
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
 
     // ASSERT
     assertNull(oauth2Authorization.getRefreshToken());
@@ -108,7 +108,7 @@ class Oauth2AuthorizationTest {
 
   @Test
   void create_oauth2_authorization_with_refresh_token() {
-    Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
     oauth2Authorization.setRefreshToken("refreshToken");
 
     assertNotNull(oauth2Authorization.getRefreshToken());
@@ -117,8 +117,8 @@ class Oauth2AuthorizationTest {
   @Test
   void ensure_oauth2_authorization_refresh_token_are_equal() {
     // GIVEN
-    String refreshToken = "refreshToken";
-    Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
+    final String refreshToken = "refreshToken";
+    final Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
     oauth2Authorization1.setRefreshToken(refreshToken);
 
     // ASSERT
@@ -129,8 +129,8 @@ class Oauth2AuthorizationTest {
   @Test
   void ensure_oauth2_authorization_refresh_token_are_not_equal() {
     // GIVEN
-    String refreshToken = "refreshToken";
-    Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
+    final String refreshToken = "refreshToken";
+    final Oauth2Authorization oauth2Authorization1 = new Oauth2Authorization();
     oauth2Authorization1.setRefreshToken("tokenRefresh");
 
     // ASSERT

@@ -133,7 +133,7 @@ public class GoogleCalendarService {
   @Async
   public void shareCalendarWithServiceAccountEmail(final String calendarId, final String calendarCreatorEmailAddress, final String accessToken) {
     if (isInternalEmailOrEmailIsAnOriginEmail(originDomain, calendarCreatorEmailAddress)) {
-      ShareCalendarWithUserRequest scheduleWithUserRequest = ShareCalendarWithUserRequest.of(calendarId, serviceAccountDelegatedAuthorityEmail, accessToken);
+      final ShareCalendarWithUserRequest scheduleWithUserRequest = ShareCalendarWithUserRequest.of(calendarId, serviceAccountDelegatedAuthorityEmail, accessToken);
       shareCalendarWithUser(scheduleWithUserRequest);
     }
   }
