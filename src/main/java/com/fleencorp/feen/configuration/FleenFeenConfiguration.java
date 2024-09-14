@@ -3,7 +3,12 @@ package com.fleencorp.feen.configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fleencorp.base.resolver.impl.SearchParamArgResolver;
 import org.springframework.context.annotation.*;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 import static com.fasterxml.jackson.core.json.JsonWriteFeature.ESCAPE_NON_ASCII;
 import static com.fasterxml.jackson.databind.DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE;
@@ -25,7 +30,23 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
   @PropertySource("classpath:properties/google-service-account.properties"),
   @PropertySource("classpath:properties/google-oauth2-web-client.properties")
 })
-public class FleenFeenConfiguration {
+public class FleenFeenConfiguration implements WebMvcConfigurer {
+
+  private final SearchParamArgResolver queryParamResolver;
+
+  /**
+   * Constructs a new instance of {@code FleenFeenConfiguration}.
+   *
+   * @param queryParamResolver an instance of {@code SearchParamArgResolver} used for resolving
+   *                           search parameters in the application. The {@code @Lazy} annotation
+   *                           indicates that this dependency is injected lazily, meaning it will
+   *                           be created only when it is first needed rather than at application startup.
+   */
+  public FleenFeenConfiguration(
+      @Lazy SearchParamArgResolver queryParamResolver) {
+    this.queryParamResolver = queryParamResolver;
+  }
+
 
   /**
   * Provides an ObjectMapper bean.
@@ -46,5 +67,15 @@ public class FleenFeenConfiguration {
       .addModule(new JavaTimeModule())
       .findAndAddModules()
       .build();
+  }
+
+  /**
+   * Adds a custom argument resolver to the list of argument resolvers.
+   *
+   * @param resolvers The list of argument resolvers to add the custom resolver to
+   */
+  @Override
+  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+    resolvers.add(queryParamResolver);
   }
 }

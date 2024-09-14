@@ -1,13 +1,17 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
+import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +23,9 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -27,8 +33,45 @@ public class StreamService {
 
   private final FleenStreamRepository fleenStreamRepository;
 
+  /**
+   * Constructs a new {@code StreamService} with the specified {@code FleenStreamRepository}.
+   *
+   * <p>This constructor initializes the {@code StreamService} with the provided {@code FleenStreamRepository},
+   * which is used for performing operations related to streams such as fetching and storing stream data.</p>
+   *
+   * @param fleenStreamRepository the repository used to interact with the stream data in the persistence layer.
+   */
   public StreamService(final FleenStreamRepository fleenStreamRepository) {
     this.fleenStreamRepository = fleenStreamRepository;
+  }
+
+  /**
+   * Finds and returns a paginated response of active streams based on the search criteria provided
+   * in the {@code searchRequest}.
+   *
+   * <p>The search is performed based on the parameters in the {@code StreamSearchRequest}.
+   * - If both the start date and end date are provided, it searches for streams within the specified date range.
+   * - If a title is provided, it searches for streams by title.
+   * - If no specific search criteria are provided, all active streams are retrieved.</p>
+   *
+   * <p>The results are returned as a {@code PageAndFleenStreamResponse}, which includes both the list of
+   * streams and pagination details.</p>
+   *
+   * @param searchRequest the request containing search parameters such as start date, end date,
+   *                      title, and pagination information.
+   * @return a {@code PageAndFleenStreamResponse} containing the list of matching streams and pagination data.
+   */
+  protected PageAndFleenStreamResponse findEventsOrStreams(final StreamSearchRequest searchRequest) {
+    final Page<FleenStream> page;
+    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
+      page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
+    } else if (nonNull(searchRequest.getTitle())) {
+      page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
+    } else {
+      page = fleenStreamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
+    }
+
+    return PageAndFleenStreamResponse.of(toFleenStreams(page.getContent()), page);
   }
 
   /**
