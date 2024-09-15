@@ -172,7 +172,8 @@ public class CalendarServiceImpl implements CalendarService {
       .of(createCalendarDto.getTitle(),
           createCalendarDto.getDescription(),
           createCalendarDto.getTimezone(),
-          oauth2Authorization.getAccessToken());
+          oauth2Authorization.getAccessToken(),
+          user.getEmailAddress());
     // Save new calendar
     calendar = calendarRepository.save(calendar);
 
@@ -254,7 +255,8 @@ public class CalendarServiceImpl implements CalendarService {
       .of(calendar.getTitle(),
         calendar.getDescription(),
         calendar.getTimezone(),
-        oauth2Authorization.getAccessToken());
+        oauth2Authorization.getAccessToken(),
+        user.getEmailAddress());
 
     calendar.setIsActive(true);
     // Save updated calendar
