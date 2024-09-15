@@ -6,9 +6,11 @@ import com.fleencorp.feen.mapper.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
+import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponse;
 import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -41,6 +44,7 @@ public class CountryServiceImpl implements CountryService {
 
   private final CountryRepository repository;
   private final CacheService cacheService;
+  private final LocalizedResponse localizedResponse;
 
   /**
    * Constructs a {@link CountryServiceImpl} instance with the specified repository and cache service.
@@ -50,9 +54,11 @@ public class CountryServiceImpl implements CountryService {
    */
   public CountryServiceImpl(
       final CountryRepository repository,
-      final CacheService cacheService) {
+      final CacheService cacheService,
+      final LocalizedResponse localizedResponse) {
     this.repository = repository;
     this.cacheService = cacheService;
+    this.localizedResponse = localizedResponse;
   }
 
   /**
@@ -82,10 +88,11 @@ public class CountryServiceImpl implements CountryService {
   * @throws CountryNotFoundException if no Country is found with the specified ID
   */
   @Override
-  public Country getCountry(final Long id) {
-    return repository
+  public RetrieveCountryResponse getCountry(final Long id) {
+    final Country country = repository
             .findById(id)
             .orElseThrow(() -> new CountryNotFoundException(id));
+    return localizedResponse.of(RetrieveCountryResponse.of(toCountryResponse(country)));
   }
 
   /**
