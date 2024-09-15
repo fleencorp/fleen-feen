@@ -20,6 +20,7 @@ import static java.util.Objects.nonNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class CreateCalendarEventRequest {
 
   private String title;
@@ -75,6 +76,21 @@ public class CreateCalendarEventRequest {
             .build();
   }
 
+  /**
+   * Updates the properties of the provided {@link CreateCalendarEventRequest} object with the specified
+   * calendar details. This method sets the calendar ID or name, the creator's email, and the organizer's
+   * email for the event request, allowing these details to be updated before processing the event creation.
+   *
+   * @param createCalendarEventRequest the request object representing the calendar event to be created.
+   *                                   This object will be updated with the new calendar ID or name, creator email,
+   *                                   and organizer email.
+   * @param calendarIdOrName the identifier or name of the calendar where the event will be created.
+   *                         This value is assigned to the calendar event request to specify the target calendar.
+   * @param creatorEmail the email address of the event creator. This parameter sets the email of the user who is
+   *                     creating the event, which may be used for tracking or authorization purposes.
+   * @param organizerEmail the email address of the event organizer. This email is used to identify the primary
+   *                       organizer of the event, potentially affecting event visibility and access permissions.
+   */
   public void update(final CreateCalendarEventRequest createCalendarEventRequest,
      final String calendarIdOrName, final String creatorEmail, final String organizerEmail) {
     createCalendarEventRequest.setCalendarIdOrName(calendarIdOrName);

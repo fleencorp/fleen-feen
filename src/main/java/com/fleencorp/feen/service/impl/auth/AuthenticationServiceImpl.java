@@ -70,12 +70,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.datetime.DateTimeUtil.addMinutesFromNow;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.generateOtp;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
-import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getPreAuthenticatedAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getUserPreVerifiedAuthorities;
 import static java.util.Objects.*;
@@ -898,8 +898,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws org.springframework.security.core.AuthenticationException if authentication fails
    */
   public Optional<Authentication> authenticate(final String emailAddress, final String password) {
-    final Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
-    return Optional.of(authenticationManager.authenticate(authenticationToken));
+    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
+    authenticationToken = authenticationManager.authenticate(authenticationToken);
+    if (nonNull(authenticationToken)) {
+      return Optional.of(authenticationToken);
+    }
+    return Optional.empty();
   }
 
   /**

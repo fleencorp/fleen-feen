@@ -39,8 +39,8 @@ public class CalendarController {
     return calendarService.findCalendars(searchRequest);
   }
 
-  @GetMapping(value = "/detail/{id}")
-  public RetrieveCalendarResponse findCalendar(@PathVariable(name = "id") final Long calendarId) {
+  @GetMapping(value = "/detail/{calendarId}")
+  public RetrieveCalendarResponse findCalendar(@PathVariable(name = "calendarId") final Long calendarId) {
     return calendarService.findCalendar(calendarId);
   }
 
@@ -51,31 +51,31 @@ public class CalendarController {
     return calendarService.createCalendar(createCalendarDto, user);
   }
 
-  @PutMapping(value = "/update/{id}")
+  @PutMapping(value = "/update/{calendarId}")
   public UpdateCalendarResponse updateCalendar(
-      @PathVariable(name = "id") final Long calendarId,
+      @PathVariable(name = "calendarId") final Long calendarId,
       @Valid @RequestBody final UpdateCalendarDto updateCalendarDto,
       @AuthenticationPrincipal final FleenUser user) {
     return calendarService.updateCalendar(calendarId, updateCalendarDto, user);
   }
 
-  @PutMapping(value = "/reactivate/{id}")
+  @PutMapping(value = "/reactivate/{calendarId}")
   public ReactivateCalendarResponse reactivateCalendar(
-      @PathVariable(name = "id") final Long calendarId,
+      @PathVariable(name = "calendarId") final Long calendarId,
       @AuthenticationPrincipal final FleenUser user) {
     return calendarService.reactivateCalendar(calendarId, user);
   }
 
-  @DeleteMapping(value = "/delete/{id}")
+  @DeleteMapping(value = "/delete/{calendarId}")
   public DeletedCalendarResponse deleteCalendar(
-      @PathVariable(name = "id") final Long calendarId,
+      @PathVariable(name = "calendarId") final Long calendarId,
       @AuthenticationPrincipal final FleenUser user) {
     return calendarService.deleteCalendar(calendarId, user);
   }
 
-  @PutMapping(value = "/share-with-user/{id}")
+  @PutMapping(value = "/share-with-user/{calendarId}")
   public ShareCalendarWithUserResponse shareCalendarWithUser(
-      @PathVariable(name = "id") final Long calendarId,
+      @PathVariable(name = "calendarId") final Long calendarId,
       @Valid @RequestBody final ShareCalendarWithUserDto shareCalendarWithUserDto,
       @AuthenticationPrincipal final FleenUser user) {
     return calendarService.shareCalendarWithUser(calendarId, shareCalendarWithUserDto, user);

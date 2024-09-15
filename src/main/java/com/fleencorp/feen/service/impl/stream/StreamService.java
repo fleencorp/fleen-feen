@@ -27,7 +27,7 @@ public class StreamService {
 
   private final FleenStreamRepository fleenStreamRepository;
 
-  public StreamService(FleenStreamRepository fleenStreamRepository) {
+  public StreamService(final FleenStreamRepository fleenStreamRepository) {
     this.fleenStreamRepository = fleenStreamRepository;
   }
 

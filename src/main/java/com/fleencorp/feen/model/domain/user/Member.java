@@ -119,9 +119,25 @@ public class Member extends FleenFeenEntity {
    * @throws NullPointerException if {@code emailAddress} is null
    */
   public void confirmAndSetInternalUser(final String originDomain) {
-    if (nonNull(emailAddress) && emailAddress.endsWith(originDomain)) {
+    if (isInternalEmailOrEmailIsAnOriginEmail(emailAddress, originDomain)) {
       this.isInternal = true;
     }
+  }
+
+  /**
+   * Checks if the provided email address is an internal email or matches the specified origin domain.
+   * This method verifies whether the given email address belongs to the internal domain by checking
+   * if it ends with the specified origin domain.
+   *
+   * @param originDomain the domain to be checked against, typically representing the internal or
+   *                     organizational domain. This should be a fully qualified domain string (e.g., "@example.com").
+   * @param emailAddress the email address to validate against the origin domain. This address is checked
+   *                     to ensure it belongs to the specified domain.
+   * @return {@code true} if the email address is non-null and ends with the origin domain, indicating
+   *         that it is either an internal email or matches the origin domain; {@code false} otherwise.
+   */
+  public static boolean isInternalEmailOrEmailIsAnOriginEmail(final String originDomain, final String emailAddress) {
+    return (nonNull(emailAddress) && emailAddress.endsWith(originDomain));
   }
 
   /**

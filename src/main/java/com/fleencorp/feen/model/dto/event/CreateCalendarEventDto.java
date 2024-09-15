@@ -23,10 +23,11 @@ import static java.lang.Boolean.parseBoolean;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class CreateCalendarEventDto extends CreateStreamDto {
 
   @Valid
-  @Size(min = 1, max = 5, message = "{event.eventAttendeesOrGuests.Size}")
+  @Size(max = 5, message = "{event.eventAttendeesOrGuests.Size}")
   @JsonProperty("event_attendees_or_guests")
   private List<EventAttendeeOrGuest> eventAttendeesOrGuests;
 
@@ -35,6 +36,7 @@ public class CreateCalendarEventDto extends CreateStreamDto {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
+  @ToString
   public static class EventAttendeeOrGuest {
 
     @NotBlank(message = "{event.eventAttendeesOrGuests.emailAddress.NotBlank}")
@@ -50,11 +52,11 @@ public class CreateCalendarEventDto extends CreateStreamDto {
     @JsonIgnore
     private Boolean isOrganizer;
 
-    public EventAttendeeOrGuest of(final String emailAddress, final String aliasOrDisplayName) {
+    public static EventAttendeeOrGuest of(final String emailAddress, final String aliasOrDisplayName) {
       return of(emailAddress, aliasOrDisplayName, true);
     }
 
-    public EventAttendeeOrGuest of(final String emailAddress, final String aliasOrDisplayName, final Boolean isOrganizer) {
+    public static EventAttendeeOrGuest of(final String emailAddress, final String aliasOrDisplayName, final Boolean isOrganizer) {
       return EventAttendeeOrGuest.builder()
         .emailAddress(emailAddress)
         .aliasOrDisplayName(aliasOrDisplayName)

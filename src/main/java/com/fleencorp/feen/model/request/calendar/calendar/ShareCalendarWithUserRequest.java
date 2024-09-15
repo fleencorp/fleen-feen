@@ -29,4 +29,14 @@ public class ShareCalendarWithUserRequest extends CalendarRequest {
       .accessToken(accessToken)
       .build();
   }
+
+  public static ShareCalendarWithUserRequest of(final String calendarId, final String emailAddress, final String accessToken) {
+    return ShareCalendarWithUserRequest.builder()
+      .calendarId(calendarId)
+      .emailAddress(emailAddress)
+      .accessToken(accessToken)
+      .aclScopeType(AclScopeType.USER)
+      .aclRole(AclRole.READER)
+      .build();
+  }
 }
