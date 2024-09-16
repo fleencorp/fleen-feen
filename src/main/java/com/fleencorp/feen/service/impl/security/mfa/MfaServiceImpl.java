@@ -271,7 +271,6 @@ public class MfaServiceImpl implements MfaService {
   protected void validateEmailOrPhoneMfaSetupCode(final String username, final String code, final MfaType mfaType) {
     final String verificationKey = getMfaSetupCacheKey(username, mfaType);
     // Verify the code through email or phone verification type
-    log.info("The verification code is {}", code);
     validateEmailOrPhoneVerificationCode(verificationKey, code);
     // Clear the otp if the verification of the code pass
     clearMfaSetupOtp(username, mfaType);

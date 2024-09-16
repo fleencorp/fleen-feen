@@ -15,7 +15,8 @@ import lombok.*;
 @JsonPropertyOrder({
   "kind",
   "id",
-  "name"
+  "name",
+  "is_assignable"
 })
 public class YouTubeCategoryResponse {
 
@@ -27,6 +28,9 @@ public class YouTubeCategoryResponse {
 
   @JsonProperty("name")
   private String name;
+
+  @JsonProperty("is_assignable")
+  private boolean isAssignable;
 
   public static YouTubeCategoryResponse of() {
     return new YouTubeCategoryResponse();

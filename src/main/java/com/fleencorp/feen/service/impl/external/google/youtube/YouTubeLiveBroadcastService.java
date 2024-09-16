@@ -11,7 +11,6 @@ import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
-import com.fleencorp.feen.service.impl.stream.LiveBroadcastServiceImpl;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.fleencorp.feen.util.external.google.GoogleApiUtil;
 import com.google.api.services.youtube.YouTube;
@@ -69,7 +68,6 @@ public class YouTubeLiveBroadcastService {
   private final String applicationName;
   private final String serviceApiKey;
   private final ReporterService reporterService;
-  private final LiveBroadcastServiceImpl liveBroadcastServiceImpl;
 
   /**
    * Constructs a YouTubeLiveBroadcastService with the specified API key.
@@ -88,13 +86,12 @@ public class YouTubeLiveBroadcastService {
    * @param reporterService The service used for reporting events.
    */
   public YouTubeLiveBroadcastService(
-    @Value("${application.name}") final String applicationName,
-    @Value("${youtube.data.api-key}") final String serviceApiKey,
-    final ReporterService reporterService, final LiveBroadcastServiceImpl liveBroadcastServiceImpl) {
+      @Value("${application.name}") final String applicationName,
+      @Value("${youtube.data.api-key}") final String serviceApiKey,
+      final ReporterService reporterService) {
     this.applicationName = applicationName;
     this.serviceApiKey = serviceApiKey;
     this.reporterService = reporterService;
-    this.liveBroadcastServiceImpl = liveBroadcastServiceImpl;
   }
 
   /**
@@ -317,6 +314,7 @@ public class YouTubeLiveBroadcastService {
     videoSnippet.setTitle(createLiveBroadcastRequest.getTitle());
     videoSnippet.setDescription(createLiveBroadcastRequest.getDescription());
     videoSnippet.setCategoryId(createLiveBroadcastRequest.getCategoryId());
+
     video.setSnippet(videoSnippet);
 
     // Update the live broadcast on YouTube with the new category and details
@@ -535,6 +533,7 @@ public class YouTubeLiveBroadcastService {
       // Create a new live broadcast object for the update
       final LiveBroadcast updateBroadcast = new LiveBroadcast();
       // Set the ID and snippet for the update broadcast
+      updateBroadcast.setId(liveBroadcast.getId());
       updateBroadcast.setSnippet(snippet);
 
       // Return update request

@@ -23,8 +23,8 @@ public class MfaController {
   private final MfaService mfaService;
 
   public MfaController(
-    final AuthenticationService authenticationService,
-    final MfaService mfaService) {
+      final AuthenticationService authenticationService,
+      final MfaService mfaService) {
     this.authenticationService = authenticationService;
     this.mfaService = mfaService;
   }

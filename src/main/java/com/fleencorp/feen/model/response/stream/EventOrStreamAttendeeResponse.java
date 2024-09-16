@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.event;
+package com.fleencorp.feen.model.response.stream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,7 +18,7 @@ import lombok.*;
   "comment",
   "organizer_comment"
 })
-public class EventAttendeeResponse {
+public class EventOrStreamAttendeeResponse {
 
   @JsonProperty("id")
   private Long id;
