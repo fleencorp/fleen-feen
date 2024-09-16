@@ -21,19 +21,19 @@ public class CountryController {
 
   private final CountryService countryService;
 
-  public CountryController(CountryService countryService) {
+  public CountryController(final CountryService countryService) {
     this.countryService = countryService;
   }
 
   @GetMapping(value = "/entries")
   public SearchResultView findCountries(
-      @SearchParam CountrySearchRequest searchRequest) {
+      @SearchParam final CountrySearchRequest searchRequest) {
     return countryService.findCountries(searchRequest);
   }
 
   @GetMapping(value = "/detail/{countryId}")
   public RetrieveCountryResponse getCountry(
-      @PathVariable(name = "countryId") Long countryId) {
+      @PathVariable(name = "countryId") final Long countryId) {
     return countryService.getCountry(countryId);
   }
 

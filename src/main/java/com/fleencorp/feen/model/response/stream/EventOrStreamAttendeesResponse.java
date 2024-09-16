@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.event;
+package com.fleencorp.feen.model.response.stream;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,22 +20,27 @@ import java.util.List;
   "event_id",
   "attendees"
 })
-public class EventAttendeesResponse extends ApiResponse {
+public class EventOrStreamAttendeesResponse extends ApiResponse {
 
   @JsonProperty("event_id")
-  private long eventId;
+  private Long eventId;
+
+  @JsonProperty("stream_id")
+  private Long streamId;
 
   @Builder.Default
   @JsonProperty("attendees")
-  private List<EventAttendeeResponse> attendees = new ArrayList<>();
+  private List<EventOrStreamAttendeeResponse> attendees = new ArrayList<>();
 
   @Override
   public String getMessageCode() {
-    return "event.attendees";
+    return "event.or.stream.attendees";
   }
 
-  public static EventAttendeesResponse of() {
-    return EventAttendeesResponse.builder()
+  public static EventOrStreamAttendeesResponse of(final Long eventIdOrStreamId) {
+    return EventOrStreamAttendeesResponse.builder()
+      .eventId(eventIdOrStreamId)
+      .streamId(eventIdOrStreamId)
       .build();
   }
 }

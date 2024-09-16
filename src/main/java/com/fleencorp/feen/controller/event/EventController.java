@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/event")
-@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class EventController {
 
   private final EventService eventService;
@@ -54,6 +53,7 @@ public class EventController {
     return eventService.findEventAttendees(eventId, searchRequest);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/create")
   public CreateEventResponse createEvent(
       @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
@@ -61,6 +61,7 @@ public class EventController {
     return eventService.createEvent(createCalendarEventDto, user);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/create/instant")
   public CreateEventResponse createInstantEvent(
       @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
@@ -68,6 +69,7 @@ public class EventController {
     return eventService.createInstantEvent(createInstantCalendarEventDto, user);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PutMapping(value = "/update/{eventId}")
   public UpdateEventResponse updateEvent(
       @PathVariable(name = "eventId") final Long eventId,
@@ -76,6 +78,7 @@ public class EventController {
     return eventService.updateEvent(eventId, updateCalendarEventDto, user);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PutMapping(value = "/not-attending/{eventId}")
   public NotAttendingEventResponse notAttendingEvent(
       @PathVariable(name = "eventId") final Long eventId,
@@ -83,6 +86,7 @@ public class EventController {
     return eventService.notAttendingEvent(eventId, user);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/join/{eventId}")
   public JoinEventResponse joinEvent(
       @PathVariable(name = "eventId") final Long eventId,
@@ -90,6 +94,7 @@ public class EventController {
     return eventService.joinEvent(eventId, user);
   }
 
+  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/request-to-join/{eventId}")
   public RequestToJoinEventResponse requestToJoinEvent(
       @PathVariable(name = "eventId") final Long eventId,
