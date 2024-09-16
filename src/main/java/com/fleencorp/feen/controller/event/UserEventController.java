@@ -9,6 +9,7 @@ import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import jakarta.validation.Valid;
@@ -103,7 +104,7 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/attendees/{eventId}")
-  public EventAttendeesResponse getEventAttendees(
+  public EventOrStreamAttendeesResponse getEventAttendees(
       @PathVariable(name = "eventId") final Long eventId,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.getEventAttendees(eventId, user);

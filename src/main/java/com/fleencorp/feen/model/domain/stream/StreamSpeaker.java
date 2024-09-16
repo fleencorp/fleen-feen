@@ -37,9 +37,9 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Column(name = "full_name", nullable = false)
   private String fullName;
 
-  @Column(name = "title")
+  @Column(name = "title", length = 100)
   private String title;
 
-  @Column(name = "description")
+  @Column(name = "description", length = 1000)
   private String description;
 }
