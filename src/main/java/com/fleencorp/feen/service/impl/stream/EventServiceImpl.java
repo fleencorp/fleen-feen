@@ -2,7 +2,6 @@ package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
@@ -26,6 +25,7 @@ import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchReques
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
@@ -138,19 +138,12 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   @Override
   public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest) {
-    final Page<FleenStream> page;
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
-    } else if (nonNull(searchRequest.getTitle())) {
-      page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
-    } else {
-      page = fleenStreamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
-    }
-
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
+    List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
     setStreamAttendeesAndTotalAttendeesAttending(views);
     getFirst10AttendingInAnyOrder(views);
-    return toSearchResult(views, page);
+
+    return toSearchResult(views, pageAndFleenStreamResponse.getPage());
   }
 
   /**
