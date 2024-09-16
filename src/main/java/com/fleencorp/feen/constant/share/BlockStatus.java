@@ -16,7 +16,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public enum BlockStatus implements ApiParameter {
 
   BLOCKED("Blocked"),
-  UNBLOCK("Unblocked");
+  UNBLOCKED("Unblocked");
 
   private final String value;
 

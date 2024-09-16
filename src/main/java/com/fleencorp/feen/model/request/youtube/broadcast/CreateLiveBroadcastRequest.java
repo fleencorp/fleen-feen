@@ -2,21 +2,24 @@ package com.fleencorp.feen.model.request.youtube.broadcast;
 
 import com.fleencorp.feen.constant.external.google.youtube.LiveBroadcastClosedCaptionType;
 import com.fleencorp.feen.constant.external.google.youtube.LiveBroadcastPrivacyStatus;
-import com.fleencorp.feen.constant.external.google.youtube.base.YouTubeLiveBroadcastVisibility;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import lombok.*;
+import com.fleencorp.feen.model.request.youtube.broadcast.base.LiveBroadcastRequest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 import static java.lang.Boolean.parseBoolean;
 
-@Builder
+@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateLiveBroadcastRequest {
+public class CreateLiveBroadcastRequest extends LiveBroadcastRequest {
 
   private String title;
   private String description;
@@ -31,7 +34,6 @@ public class CreateLiveBroadcastRequest {
   private Boolean madeForKids;
   private Boolean enableLowLatencyStreamingOrLowDataStreaming;
   private Boolean enableAutoStart;
-  private String accessTokenForHttpRequest;
 
   public static CreateLiveBroadcastRequest by(final CreateLiveBroadcastDto dto) {
     return CreateLiveBroadcastRequest.builder()
@@ -69,26 +71,6 @@ public class CreateLiveBroadcastRequest {
     return "youtube#liveStream";
   }
 
-
-  /**
-  * Converts a visibility value from application-specific StreamVisibility to YouTubeLiveBroadcastVisibility format.
-  *
-  * <p>This method is useful for mapping visibility settings between different systems, ensuring consistent handling
-  * of privacy settings across platforms.</p>
-  *
-  * @param visibility the visibility value to convert
-  * @return the corresponding YouTube visibility value
-  */
-  public static String getVisibility(final String visibility) {
-    if (StreamVisibility.PRIVATE.getValue().equalsIgnoreCase(visibility)) {
-      return YouTubeLiveBroadcastVisibility.PRIVATE.getValue();
-    } else if (StreamVisibility.PROTECTED.getValue().equalsIgnoreCase(visibility)) {
-      return YouTubeLiveBroadcastVisibility.UNLISTED.getValue();
-    } else if (StreamVisibility.PUBLIC.getValue().equalsIgnoreCase(visibility)) {
-      return visibility;
-    }
-    return StreamVisibility.PUBLIC.getValue();
-  }
 
   /**
    * Updates the access token used for HTTP requests.

@@ -51,6 +51,36 @@ public class YouTubeChannelService {
   }
 
   /**
+   * Retrieves a list of YouTube categories that can be assigned to a stream.
+   *
+   * <p>This method first calls {@code listCategories()} to obtain all available YouTube categories.
+   * If categories are found, it filters the list to include only those that are assignable.
+   * The filtered list is then set back to the {@code YouTubeCategoriesResponse} object.</p>
+   *
+   * @return a {@code YouTubeCategoriesResponse} containing only the categories that are assignable.
+   *         If no categories are available, an empty or unchanged response is returned.
+   */
+  public YouTubeCategoriesResponse listAssignableCategories() {
+    // Retrieve all available YouTube categories.
+    final YouTubeCategoriesResponse youTubeCategoriesResponse = listCategories();
+
+    // Check if the response is not null and contains categories.
+    if (nonNull(youTubeCategoriesResponse) && youTubeCategoriesResponse.hasCategories()) {
+      // Filter the categories to include only those that are assignable.
+      final List<YouTubeCategoryResponse> assignedCategory = youTubeCategoriesResponse.getCategories()
+        .stream()
+        .filter(YouTubeCategoryResponse::isAssignable)
+        .toList();
+
+      // Set the filtered list of categories back to the response object.
+      youTubeCategoriesResponse.setCategories(assignedCategory);
+    }
+
+    // Return the response with the filtered assignable categories.
+    return youTubeCategoriesResponse;
+  }
+
+  /**
    * Retrieves and lists YouTube categories based on the specified region code.
    *
    * <p>This method initializes a list to store {@link YouTubeCategoryResponse} objects.
@@ -66,7 +96,7 @@ public class YouTubeChannelService {
    * @throws ExternalSystemException If an error occurs while accessing the YouTube API.
    */
   @MeasureExecutionTime
-  public YouTubeCategoriesResponse listCategories() {
+  protected YouTubeCategoriesResponse listCategories() {
     // Initialize a list to store YouTubeCategoryResponse objects
     final List<YouTubeCategoryResponse> youTubeCategoryResponses = new ArrayList<>();
     try {
@@ -109,6 +139,7 @@ public class YouTubeChannelService {
         youTubeCategoryResponse.setId(category.getId());
         youTubeCategoryResponse.setKind(category.getKind());
         youTubeCategoryResponse.setName(category.getSnippet().getTitle());
+        youTubeCategoryResponse.setAssignable(category.getSnippet().getAssignable());
         categoriesResponses.add(youTubeCategoryResponse);
       });
     }
