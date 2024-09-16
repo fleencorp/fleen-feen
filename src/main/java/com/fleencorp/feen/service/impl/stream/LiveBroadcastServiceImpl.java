@@ -3,7 +3,6 @@ package com.fleencorp.feen.service.impl.stream;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
@@ -24,6 +23,7 @@ import com.fleencorp.feen.model.response.broadcast.*;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
@@ -38,23 +38,18 @@ import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
-import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
-import static java.util.Objects.nonNull;
 
 /**
  * Implementation of LiveBroadcastService that handles creating live broadcasts and searching for them.
@@ -151,17 +146,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    */
   @Override
   public SearchResultView findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest) {
-    final Page<FleenStream> page;
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
-    } else if (nonNull(searchRequest.getTitle())) {
-      page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
-    } else {
-      page = fleenStreamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
-    }
-
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
-    return toSearchResult(views, page);
+    final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
+    return toSearchResult(pageAndFleenStreamResponse.getResponses(), pageAndFleenStreamResponse.getPage());
   }
 
   /**
