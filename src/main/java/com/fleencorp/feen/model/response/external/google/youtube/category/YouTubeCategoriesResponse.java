@@ -24,4 +24,8 @@ public class YouTubeCategoriesResponse {
         .categories(categories)
         .build();
   }
+
+  public boolean hasCategories() {
+    return categories != null && !categories.isEmpty();
+  }
 }
