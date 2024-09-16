@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.event;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
@@ -19,7 +20,7 @@ import lombok.*;
   "email_address",
   "event"
 })
-public class AddNewEventAttendeeResponse {
+public class AddNewEventAttendeeResponse extends ApiResponse {
 
   @JsonProperty("event_id")
   private Long eventId;
@@ -30,9 +31,10 @@ public class AddNewEventAttendeeResponse {
   @JsonProperty("event")
   private FleenStreamResponse event;
 
-  @Builder.Default
-  @JsonProperty("message")
-  private String message = "Attendee added successfully";
+  @Override
+  public String getMessageCode() {
+    return "add.new.event.attendee";
+  }
 
   public static AddNewEventAttendeeResponse of(final Long eventId, final EventResponse event, final String emailAddress) {
     return AddNewEventAttendeeResponse.builder()

@@ -17,7 +17,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "blocked_user")
+@Table(name = "block_user")
 public class BlockUser extends FleenFeenEntity {
 
   @Id
