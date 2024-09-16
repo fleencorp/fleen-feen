@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest.getVisibility;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -20,8 +18,9 @@ public class UpdateLiveBroadcastVisibilityRequest extends LiveBroadcastRequest {
   private String broadcastId;
   private LiveBroadcastPrivacyStatus privacyStatus;
 
-  public static UpdateLiveBroadcastVisibilityRequest of(final String broadcastId, final String visibility) {
+  public static UpdateLiveBroadcastVisibilityRequest of(final String accessToken, final String broadcastId, final String visibility) {
     return UpdateLiveBroadcastVisibilityRequest.builder()
+            .accessTokenForHttpRequest(accessToken)
             .broadcastId(broadcastId)
             .privacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(visibility)))
             .build();
