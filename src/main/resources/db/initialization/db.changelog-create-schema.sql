@@ -295,6 +295,9 @@ CREATE TABLE follower (
   follower_id BIGINT NOT NULL,
   followed_id BIGINT NOT NULL,
 
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
   CONSTRAINT follower_fk_follower_id
     FOREIGN KEY (follower_id)
       REFERENCES member (member_id)
@@ -315,12 +318,15 @@ CREATE TABLE follower (
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_speaker';
 
 CREATE TABLE stream_speaker (
-  id BIGSERIAL PRIMARY KEY,
+  stream_speaker_id BIGSERIAL PRIMARY KEY,
   fleen_stream_id BIGINT NOT NULL,
-  member_id BIGINT NOT NULL,
+  member_id BIGINT NULL,
   full_name VARCHAR(100) NOT NULL,
-  title VARCHAR(30) NOT NULL,
-  description VARCHAR(1000) NOT NULL,
+  title VARCHAR(100) NULL,
+  description VARCHAR(1000) NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
   CONSTRAINT stream_speaker_fk_fleen_stream_id
     FOREIGN KEY (fleen_stream_id)
@@ -355,6 +361,9 @@ CREATE TABLE share_contact_request (
     CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
       'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
   CONSTRAINT share_contact_request_fk_initiator_id
     FOREIGN KEY (initiator_id)
       REFERENCES member (member_id)
@@ -379,7 +388,10 @@ CREATE TABLE block_user (
   initiator_id BIGINT NOT NULL,
   recipient_id BIGINT NOT NULL,
   block_status VARCHAR(255) DEFAULT 'BLOCKED'
-      NOT NULL CHECK (block_status IN ('UNBLOCKED', 'BLOCKED')),
+    NOT NULL CHECK (block_status IN ('BLOCKED', 'UNBLOCKED')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
   CONSTRAINT block_user_fk_initiator_id
     FOREIGN KEY (initiator_id)
@@ -407,6 +419,9 @@ CREATE TABLE contact (
   contact_type VARCHAR(255)
     CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
       'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
    CONSTRAINT contact_fk_owner_id
      FOREIGN KEY (owner_id)

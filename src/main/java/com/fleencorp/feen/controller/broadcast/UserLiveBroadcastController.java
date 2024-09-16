@@ -6,10 +6,8 @@ import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.broadcast.DeletedStreamResponse;
-import com.fleencorp.feen.model.response.broadcast.ProcessAttendeeRequestToJoinStreamResponse;
-import com.fleencorp.feen.model.response.broadcast.RescheduleStreamResponse;
-import com.fleencorp.feen.model.response.broadcast.UpdateStreamVisibilityResponse;
+import com.fleencorp.feen.model.response.broadcast.*;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import jakarta.validation.Valid;
@@ -37,10 +35,18 @@ public class UserLiveBroadcastController {
   }
 
   @DeleteMapping(value = "/delete/{streamId}")
-  public DeletedStreamResponse deleteEvent(
+  public DeletedStreamResponse deleteStream(
       @PathVariable(name = "streamId") final Long streamId,
       @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.deleteStream(streamId, user);
+  }
+
+  @GetMapping(value = "/attendees/request-to-join/{streamId}")
+  public SearchResultView getAttendeesRequestToJoin(
+    @PathVariable(name = "streamId") final Long streamId,
+    @AuthenticationPrincipal final FleenUser user,
+    @SearchParam final StreamAttendeeSearchRequest searchRequest) {
+    return liveBroadcastService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
   }
 
   @PutMapping(value = "/process-join-request/{streamId}")
@@ -51,19 +57,30 @@ public class UserLiveBroadcastController {
     return liveBroadcastService.processAttendeeRequestToJoinStream(streamId, processAttendeeRequestToJoinEventOrStreamDto, user);
   }
 
-  @GetMapping(value = "/attendees/request-to-join/{streamId}")
-  public SearchResultView getAttendeesRequestToJoin(
-      @PathVariable(name = "streamId") final Long streamId,
-      @AuthenticationPrincipal final FleenUser user,
-      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return liveBroadcastService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
-  }
-
   @PutMapping(value = "/update-visibility/{streamId}")
-  public UpdateStreamVisibilityResponse updateEventVisibility(
+  public UpdateStreamVisibilityResponse updateStreamVisibility(
       @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto,
       @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.updateStreamVisibility(streamId, updateEventOrStreamVisibilityDto, user);
+  }
+
+  @GetMapping(value = "/attendees/{streamId}")
+  public EventOrStreamAttendeesResponse getStreamAttendees(
+    @PathVariable(name = "streamId") final Long streamId,
+    @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.getStreamAttendees(streamId, user);
+  }
+
+  @GetMapping(value = "/total-by-me")
+  public TotalStreamsCreatedByUserResponse countTotalEventsCreatedByUser(
+    @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.countTotalStreamsByUser(user);
+  }
+
+  @GetMapping(value = "/total-attended-by-me")
+  public TotalStreamsAttendedByUserResponse countTotalEventsAttendedByUser(
+    @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.countTotalStreamsAttended(user);
   }
 }

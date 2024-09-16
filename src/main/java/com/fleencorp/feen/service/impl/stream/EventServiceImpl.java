@@ -10,7 +10,6 @@ import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
-import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -25,6 +24,7 @@ import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -112,7 +112,7 @@ public class EventServiceImpl extends StreamService implements EventService {
       final MemberRepository memberRepository,
       final StreamEventPublisher streamEventPublisher,
       final LocalizedResponse localizedResponse) {
-    super(fleenStreamRepository);
+    super(fleenStreamRepository, streamAttendeeRepository, localizedResponse);
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.countryService = countryService;
     this.eventUpdateService = eventUpdateService;
@@ -335,9 +335,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   @Override
   public SearchResultView findEventAttendees(final Long eventId, final StreamAttendeeSearchRequest searchRequest) {
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStream(FleenStream.of(eventId), searchRequest.getPage());
-    final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(page.getContent());
-    return toSearchResult(views, page);
+    return findEventOrStreamAttendees(eventId, searchRequest);
   }
 
   /**
@@ -449,22 +447,6 @@ public class EventServiceImpl extends StreamService implements EventService {
   }
 
   /**
-   * Converts a list of {@link StreamAttendee} entities into a list of {@link StreamAttendeeResponse} objects.
-   *
-   * <p>This method first converts the list of {@code StreamAttendee} entities into a set to eliminate any duplicate
-   * attendees. It then uses the {@code toStreamAttendeeResponses} method to perform the actual conversion,
-   * and finally returns the result as a list.</p>
-   *
-   * @param streamAttendees the list of {@code StreamAttendee} entities to convert.
-   * @return a list of {@code StreamAttendeeResponse} objects, with duplicates removed.
-   */
-  protected List<StreamAttendeeResponse> toStreamAttendeeResponses(final List<StreamAttendee> streamAttendees) {
-    final Set<StreamAttendee> streamAttendeesSet = new HashSet<>(streamAttendees);
-    final Set<StreamAttendeeResponse> streamAttendeeResponses = toStreamAttendeeResponses(streamAttendeesSet);
-    return new ArrayList<>(streamAttendeeResponses);
-  }
-
-  /**
    * Creates a new event based on the information provided in the CreateCalendarEventDto and associated user details.
    *
    * <p>This method creates a new event by generating a CreateCalendarEventRequest from the provided DTO,
@@ -562,6 +544,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public UpdateEventResponse updateEvent(final Long eventId, final UpdateCalendarEventDto updateCalendarEventDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     FleenStream stream = findStream(eventId);
 
     // Validate if the user is the creator of the event
@@ -604,6 +587,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public DeletedEventResponse deleteEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Validate if the user is the creator of the event
@@ -641,6 +625,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public CancelEventResponse cancelEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
@@ -676,6 +661,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Find the existing attendee record for the user and event
@@ -712,6 +698,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public RescheduleEventResponse rescheduleEvent(final Long eventId, final RescheduleCalendarEventDto rescheduleCalendarEventDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
@@ -780,6 +767,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public RequestToJoinEventResponse requestToJoinEvent(final Long eventId, final RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, final FleenUser user) {
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Check if the stream is still active and can be joined.
@@ -885,6 +873,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Transactional
   public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Retrieve the current or existing status or visibility status of a stream
@@ -988,8 +977,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified eventId is not found
    */
   @Override
+  @Transactional
   public AddNewEventAttendeeResponse addEventAttendee(final Long eventId, final AddNewEventAttendeeDto addNewEventAttendeeDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
+    // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
@@ -1015,7 +1006,7 @@ public class EventServiceImpl extends StreamService implements EventService {
       );
 
     fleenStreamRepository.save(stream);
-    return AddNewEventAttendeeResponse.of(eventId, toEventResponse(stream), addNewEventAttendeeDto.getEmailAddress());
+    return localizedResponse.of(AddNewEventAttendeeResponse.of(eventId, toEventResponse(stream), addNewEventAttendeeDto.getEmailAddress()));
   }
 
   /**
@@ -1113,35 +1104,8 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @throws FleenStreamNotFoundException if the event with the specified eventId is not found
    */
   @Override
-  public EventAttendeesResponse getEventAttendees(final Long eventId, final FleenUser user) {
-    // Convert the attendees to response objects
-    final FleenStream stream = findStream(eventId);
-    // Get event attendees
-    final EventAttendeesResponse eventAttendeesResponse = getAttendees(stream.getAttendees());
-    eventAttendeesResponse.setEventId(eventId);
-
-    return eventAttendeesResponse;
-  }
-
-  /**
-   * Retrieves the list of attendees for a given event and converts them to an EventAttendeesResponse DTO.
-   *
-   * <p>If the provided set of attendees is not null and not empty, it converts each StreamAttendee entity to
-   * an EventAttendeeResponse DTO and sets them in the response object.</p>
-   *
-   * <p>If no attendees are found (either the set is null or empty), it returns an empty EventAttendeesResponse object.</p>
-   *
-   * @param attendees the set of StreamAttendee entities representing the attendees of the event
-   * @return an EventAttendeesResponse DTO containing the list of attendees, or an empty EventAttendeesResponse if there are no attendees
-   */
-  public EventAttendeesResponse getAttendees(final Set<StreamAttendee> attendees) {
-    final EventAttendeesResponse eventAttendeesResponse = EventAttendeesResponse.of();
-    // Check if the attendees list is not empty and set it to the list of attendees in the response
-    if (nonNull(attendees) && !attendees.isEmpty()) {
-      final List<EventAttendeeResponse> attendeesResponses = StreamAttendeeMapper.toEventAttendeeResponses(new ArrayList<>(attendees));
-      eventAttendeesResponse.setAttendees(attendeesResponses);
-    }
-    return eventAttendeesResponse;
+  public EventOrStreamAttendeesResponse getEventAttendees(final Long eventId, final FleenUser user) {
+     return getEventOrStreamAttendees(eventId, user);
   }
 
   /**

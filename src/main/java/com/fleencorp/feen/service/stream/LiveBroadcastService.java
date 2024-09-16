@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.response.broadcast.*;
-import com.fleencorp.feen.model.response.stream.DataForCreateStreamResponse;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface LiveBroadcastService {
@@ -40,4 +40,12 @@ public interface LiveBroadcastService {
   SearchResultView getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
 
   UpdateStreamVisibilityResponse updateStreamVisibility(Long streamId, UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, FleenUser user);
+
+  SearchResultView findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
+
+  EventOrStreamAttendeesResponse getStreamAttendees(Long streamId, FleenUser user);
+
+  TotalStreamsCreatedByUserResponse countTotalStreamsByUser(FleenUser user);
+
+  TotalStreamsAttendedByUserResponse countTotalStreamsAttended(FleenUser user);
 }
