@@ -2,14 +2,11 @@ package com.fleencorp.feen.model.domain.other;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-
+@EqualsAndHashCode
 @SuperBuilder
 @Getter
 @Setter
