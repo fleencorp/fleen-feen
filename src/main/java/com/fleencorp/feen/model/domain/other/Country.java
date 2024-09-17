@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
-@EqualsAndHashCode
+
 @SuperBuilder
 @Getter
 @Setter
