@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
 /**
@@ -57,10 +56,10 @@ public class ContactMapper {
   public static List<ContactResponse> toContactResponses(final List<Contact> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-          .map(ContactMapper::toContactResponse)
           .filter(Objects::nonNull)
+          .map(ContactMapper::toContactResponse)
           .collect(Collectors.toList());
     }
-    return emptyList();
+    return List.of();
   }
 }
