@@ -15,7 +15,7 @@ public class PageAndFleenStreamResponse {
   private List<FleenStreamResponse> responses;
   private Page<?> page;
 
-  public static PageAndFleenStreamResponse of(List<FleenStreamResponse> responses, Page<?> page) {
+  public static PageAndFleenStreamResponse of(final List<FleenStreamResponse> responses, final Page<?> page) {
     return PageAndFleenStreamResponse.builder()
       .responses(responses)
       .page(page)

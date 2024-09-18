@@ -43,7 +43,7 @@ public class FleenFeenConfiguration implements WebMvcConfigurer {
    *                           be created only when it is first needed rather than at application startup.
    */
   public FleenFeenConfiguration(
-      @Lazy SearchParamArgResolver queryParamResolver) {
+      @Lazy final SearchParamArgResolver queryParamResolver) {
     this.queryParamResolver = queryParamResolver;
   }
 
@@ -75,7 +75,7 @@ public class FleenFeenConfiguration implements WebMvcConfigurer {
    * @param resolvers The list of argument resolvers to add the custom resolver to
    */
   @Override
-  public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+  public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(queryParamResolver);
   }
 }

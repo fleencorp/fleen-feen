@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -48,11 +47,11 @@ public class CalendarMapper {
   public static List<CalendarResponse> toCalendarResponses(final List<Calendar> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-          .map(CalendarMapper::toCalendarResponse)
           .filter(Objects::nonNull)
+          .map(CalendarMapper::toCalendarResponse)
           .collect(toList());
     }
-    return emptyList();
+    return List.of();
   }
 
 }

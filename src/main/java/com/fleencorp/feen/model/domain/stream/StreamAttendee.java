@@ -13,6 +13,7 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -49,6 +50,10 @@ public class StreamAttendee extends FleenFeenEntity {
 
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
+
+  public Long getAttendeeMemberId() {
+    return nonNull(member) ? member.getMemberId() : null;
+  }
 
   public static StreamAttendee of(final Member member, final FleenStream stream) {
     return StreamAttendee.builder()

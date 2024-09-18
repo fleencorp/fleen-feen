@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 
@@ -76,6 +77,7 @@ public class BlockUserServiceImpl implements BlockedUserService {
   protected List<BlockedUserResponse> getBlockedUsers(final List<BlockUser> blockUsers) {
     return blockUsers
         .stream()
+        .filter(Objects::nonNull)
         .map(blockUser -> {
           final String fullName = blockUser.getRecipient().getFullName();
           final Long userId = blockUser.getRecipient().getMemberId();

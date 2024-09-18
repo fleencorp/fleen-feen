@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService.toLocalDateTime;
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
 /**
@@ -69,7 +68,7 @@ public class GoogleCalendarEventMapper {
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
     }
-    return emptyList();
+    return List.of();
   }
 
   /**
@@ -270,7 +269,7 @@ public class GoogleCalendarEventMapper {
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
     }
-    return emptyList();
+    return List.of();
   }
 
   /**
@@ -309,7 +308,7 @@ public class GoogleCalendarEventMapper {
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
     }
-    return emptyList();
+    return List.of();
   }
 
   /**

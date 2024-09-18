@@ -99,7 +99,7 @@ public class StreamService {
     if (nonNull(streamAttendees)) {
       return streamAttendees
         .stream()
-        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMember().getMemberId(), attendee.getMember().getFullName()))
+        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getAttendeeMemberId(), attendee.getMember().getFullName()))
         .collect(Collectors.toSet());
     }
     return Set.of();
@@ -122,7 +122,7 @@ public class StreamService {
     checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
 
     // Check if the event creator's ID matches the user's ID
-    final boolean isSame = Objects.equals(stream.getMember().getMemberId(), user.getId());
+    final boolean isSame = Objects.equals(stream.getMemberId(), user.getId());
     if (!isSame) {
       throw new FleenStreamNotCreatedByUserException(user.getId());
     }
@@ -203,7 +203,7 @@ public class StreamService {
     // Find if the user is already an attendee of the stream
     return stream.getAttendees()
       .stream()
-      .filter(attendee -> userId.equals(attendee.getMember().getMemberId()))
+      .filter(attendee -> userId.equals(attendee.getAttendeeMemberId()))
       .findAny();
   }
 
