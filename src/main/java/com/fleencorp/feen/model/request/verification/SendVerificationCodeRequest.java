@@ -3,7 +3,10 @@ package com.fleencorp.feen.model.request.verification;
 import com.fleencorp.feen.constant.message.MessageRequestType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.model.request.message.MessageRequest;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
@@ -16,7 +19,6 @@ import static com.fleencorp.feen.constant.message.MessageTemplateField.VERIFICAT
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class SendVerificationCodeRequest extends MessageRequest {
 
   protected String verificationCode;
