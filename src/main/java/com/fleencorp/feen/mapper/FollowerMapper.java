@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.response.user.UserResponse;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -48,10 +47,10 @@ public class FollowerMapper {
   public static List<UserResponse> toFollowerOrFollowingResponses(final List<Follower> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-        .map(FollowerMapper::toFollowersOrFollowingResponse)
         .filter(Objects::nonNull)
+        .map(FollowerMapper::toFollowersOrFollowingResponse)
         .collect(toList());
     }
-    return emptyList();
+    return List.of();
   }
 }

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
 /**
@@ -16,8 +15,7 @@ import static java.util.Objects.nonNull;
 * @author Yusuf Alamu Musa
 * @version 1.0
 */
-public enum CountryMapper {
-    ;
+public class CountryMapper {
 
   /**
   * Converts a Country entity to a CountryResponse DTO.
@@ -54,11 +52,11 @@ public enum CountryMapper {
   public static List<CountryResponse> toCountryResponses(final List<Country> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-          .map(CountryMapper::toCountryResponse)
           .filter(Objects::nonNull)
+          .map(CountryMapper::toCountryResponse)
           .collect(Collectors.toList());
     }
-    return emptyList();
+    return List.of();
   }
 
 }

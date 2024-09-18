@@ -13,7 +13,7 @@ class FleenFeenEntityTest {
   @Test
   void create_empty_fleen_feen_entity() {
     // GIVEN
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
 
     // ASSERT
     assertNotNull(fleenFeenEntity);
@@ -23,7 +23,7 @@ class FleenFeenEntityTest {
   @Test
   void create_null_fleen_feen_entity() {
     // GIVEN
-    FleenFeenEntity fleenFeenEntity = null;
+    final FleenFeenEntity fleenFeenEntity = null;
 
     // ASSERT
     assertNull(fleenFeenEntity);
@@ -33,8 +33,8 @@ class FleenFeenEntityTest {
   @Test
   void ensure_created_on_are_equal() {
     // GIVEN
-    LocalDateTime createdOn = LocalDateTime.now();
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final LocalDateTime createdOn = LocalDateTime.now();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setCreatedOn(createdOn);
 
     // ASSERT
@@ -45,8 +45,8 @@ class FleenFeenEntityTest {
   @Test
   void ensure_updated_on_are_equal() {
     // GIVEN
-    LocalDateTime updatedOn = LocalDateTime.now();
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final LocalDateTime updatedOn = LocalDateTime.now();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setUpdatedOn(updatedOn);
 
     // ASSERT
@@ -57,8 +57,8 @@ class FleenFeenEntityTest {
   @Test
   void ensure_created_on_are_not_equal() {
     // GIVEN
-    LocalDateTime createdOn = LocalDateTime.now();
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final LocalDateTime createdOn = LocalDateTime.now();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setCreatedOn(LocalDateTime.now());
 
     // ASSERT
@@ -69,8 +69,8 @@ class FleenFeenEntityTest {
   @Test
   void ensure_updated_on_are_not_equal() {
     // GIVEN
-    LocalDateTime updatedOn = LocalDateTime.now();
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final LocalDateTime updatedOn = LocalDateTime.now();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setUpdatedOn(LocalDateTime.now());
 
     // ASSERT
@@ -81,7 +81,7 @@ class FleenFeenEntityTest {
   @Test
   void ensure_created_on_and_updated_on_are_null() {
     // GIVEN
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setCreatedOn(null);
     fleenFeenEntity.setUpdatedOn(null);
 
@@ -94,7 +94,7 @@ class FleenFeenEntityTest {
   @Test
   void ensure_created_on_and_updated_on_are_not_null() {
     // GIVEN
-    FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
+    final FleenFeenEntity fleenFeenEntity = new FleenFeenEntity();
     fleenFeenEntity.setCreatedOn(LocalDateTime.now());
     fleenFeenEntity.setUpdatedOn(LocalDateTime.now());
 

@@ -3,13 +3,15 @@ package com.fleencorp.feen.model.security;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TokenPayload {
 

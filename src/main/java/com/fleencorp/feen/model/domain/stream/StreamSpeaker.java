@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -42,4 +43,14 @@ public class StreamSpeaker extends FleenFeenEntity {
 
   @Column(name = "description", length = 1000)
   private String description;
+
+  public Long getMemberId() {
+    return nonNull(member) ? member.getMemberId() : null;
+  }
+
+  public static StreamSpeaker of(final Long streamSpeakerId) {
+    return StreamSpeaker.builder()
+      .streamSpeakerId(streamSpeakerId)
+      .build();
+  }
 }

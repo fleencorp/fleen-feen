@@ -6,7 +6,6 @@ import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.ConferenceProperties;
 import com.google.api.services.calendar.model.EventReminder;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -122,6 +121,6 @@ public class GoogleCalendarMapper {
           .filter(Objects::nonNull)
           .collect(Collectors.toList());
     }
-    return Collections.emptyList();
+    return List.of();
   }
 }

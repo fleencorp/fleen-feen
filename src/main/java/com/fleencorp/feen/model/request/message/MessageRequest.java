@@ -1,7 +1,10 @@
 package com.fleencorp.feen.model.request.message;
 
 import com.fleencorp.feen.constant.message.MessageRequestType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
@@ -14,7 +17,6 @@ import static com.fleencorp.feen.constant.message.MessageTemplateField.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public abstract class MessageRequest {
 
   protected String firstName;

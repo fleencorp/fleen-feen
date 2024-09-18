@@ -5,13 +5,11 @@ import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2Autho
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompletedOauth2AuthorizationResponse extends Oauth2AuthorizationResponse {

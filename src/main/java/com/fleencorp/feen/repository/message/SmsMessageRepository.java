@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +61,7 @@ public class SmsMessageRepository {
     } catch (final JsonProcessingException ex) {
       log.error(ex.getMessage(), ex);
     }
-    return Collections.emptyList();
+    return List.of();
   }
 
   /**

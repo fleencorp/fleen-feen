@@ -8,6 +8,7 @@ import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,10 +24,10 @@ import static java.lang.Boolean.parseBoolean;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class CreateCalendarEventDto extends CreateStreamDto {
 
   @Valid
+  @NotNull(message = "{event.eventAttendeesOrGuests.NotNull}")
   @Size(max = 5, message = "{event.eventAttendeesOrGuests.Size}")
   @JsonProperty("event_attendees_or_guests")
   private List<EventAttendeeOrGuest> eventAttendeesOrGuests;
@@ -36,7 +37,6 @@ public class CreateCalendarEventDto extends CreateStreamDto {
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
-  @ToString
   public static class EventAttendeeOrGuest {
 
     @NotBlank(message = "{event.eventAttendeesOrGuests.emailAddress.NotBlank}")

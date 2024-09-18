@@ -25,7 +25,6 @@ import static java.util.Objects.nonNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "member", uniqueConstraints = {
   @UniqueConstraint(columnNames = "email_address"),

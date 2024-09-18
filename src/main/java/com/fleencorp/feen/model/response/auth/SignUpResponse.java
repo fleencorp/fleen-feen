@@ -27,7 +27,6 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "authentication_status",
   "profile_verification_type"
 })
-@ToString
 public class SignUpResponse extends ApiResponse {
 
   @JsonProperty("access_token")
@@ -58,7 +57,7 @@ public class SignUpResponse extends ApiResponse {
   }
 
   public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
-                                  final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
+      final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)

@@ -7,7 +7,6 @@ import com.fleencorp.feen.model.request.verification.SendVerificationCodeRequest
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_VERIFICATION;
@@ -16,7 +15,6 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_V
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class SignUpVerificationRequest extends SendVerificationCodeRequest {
 
   public static SignUpVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,

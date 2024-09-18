@@ -24,8 +24,6 @@ import static java.util.Arrays.asList;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class FleenUser implements UserDetails {
 
   @Serial

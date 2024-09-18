@@ -20,7 +20,6 @@ import static java.util.Objects.nonNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class CreateCalendarEventRequest {
 
   private String title;
