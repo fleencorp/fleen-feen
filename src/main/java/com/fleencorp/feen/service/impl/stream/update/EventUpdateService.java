@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.update;
 
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;
@@ -61,7 +61,7 @@ public class EventUpdateService {
     // Create an event using an external service (Google Calendar)
     final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEvent().getHtmlLink());
+    stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEvent().getHangoutLink());
     fleenStreamRepository.save(stream);
 
     // Create an event stream created result
@@ -87,7 +87,7 @@ public class EventUpdateService {
     // Create an instant event using an external service (Google Calendar)
     final GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.updateDetails(googleCreateInstantCalendarEventResponse.getEventId(), googleCreateInstantCalendarEventResponse.getEvent().getHtmlLink());
+    stream.updateDetails(googleCreateInstantCalendarEventResponse.getEventId(), googleCreateInstantCalendarEventResponse.getEvent().getHangoutLink());
     fleenStreamRepository.save(stream);
   }
 
@@ -104,7 +104,7 @@ public class EventUpdateService {
     final GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.setExternalId(googlePatchCalendarEventResponse.getEventId());
-    stream.setStreamLink(googlePatchCalendarEventResponse.getEvent().getHtmlLink());
+    stream.setStreamLink(googlePatchCalendarEventResponse.getEvent().getHangoutLink());
 
     fleenStreamRepository.save(stream);
   }

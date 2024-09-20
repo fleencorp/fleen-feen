@@ -37,11 +37,16 @@ public class SendShareContactRequestDto {
   protected String comment;
 
   public ShareContactRequest toShareContactRequest(final Long initiatorId) {
+    final ShareContactRequest shareContactRequest = toShareContactRequest();
+    shareContactRequest.setInitiator(Member.of(initiatorId));
+    return shareContactRequest;
+  }
+
+  public ShareContactRequest toShareContactRequest() {
     return ShareContactRequest.builder()
         .isExpected(false)
         .contactType(ContactType.of(contactType))
         .shareContactRequestStatus(ShareContactRequestStatus.SENT)
-        .initiator(Member.of(initiatorId))
         .recipient(Member.of(recipientId))
         .initiatorComment(comment)
         .build();
