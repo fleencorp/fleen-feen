@@ -1,8 +1,10 @@
 package com.fleencorp.feen.model.dto.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.base.validator.ValidEmail;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -47,18 +49,28 @@ public class StreamSpeakerDto {
   @JsonProperty("description")
   private String description;
 
+  @Size(max = 50, message = "{user.emailAddress.Size}")
+  @ValidEmail
+  @ToLowerCase
+  private String emailAddress;
+
   private Long getActualStreamSpeakerId() {
     return nonNull(streamSpeakerId) ? Long.parseLong(streamSpeakerId) : null;
   }
 
-  public StreamSpeaker toStreamSpeaker(final FleenStream fleenStream) {
+  public StreamSpeaker toStreamSpeaker(final FleenStream stream) {
+    final StreamSpeaker streamSpeaker = toStreamSpeaker();
+    streamSpeaker.setFleenStream(stream);
+    return streamSpeaker;
+  }
+
+  public StreamSpeaker toStreamSpeaker() {
     return StreamSpeaker.builder()
       .streamSpeakerId(getActualStreamSpeakerId())
       .fullName(fullName)
       .description(description)
       .title(title)
-      .member(Member.of(Long.parseLong(memberId)))
-      .fleenStream(fleenStream)
+      .member(Member.of(memberId))
       .build();
   }
 }

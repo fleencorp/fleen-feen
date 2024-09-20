@@ -6,6 +6,7 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import java.util.List;
 import java.util.Objects;
 
+import static com.fleencorp.feen.model.response.stream.FleenStreamResponse.Organizer;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -46,6 +47,7 @@ public class FleenStreamMapper {
           .streamLink(entry.getStreamLink())
           .forKids(entry.getForKids())
           .status(entry.getStreamStatus())
+          .organizer(Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone()))
           .build();
     }
     return null;

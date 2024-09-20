@@ -35,6 +35,8 @@ import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.stream.base.StreamService;
+import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +53,6 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
-import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
@@ -239,11 +240,11 @@ public class EventServiceImpl extends StreamService implements EventService {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate()) && nonNull(searchRequest.getStreamVisibility())) {
-      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+    if (searchRequest.areAllDatesSet() && nonNull(searchRequest.getStreamVisibility())) {
+      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           streamVisibility, user.toMember(), searchRequest.getPage());
-    } else if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+    } else if (searchRequest.areAllDatesSet()) {
+      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           user.toMember(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle()) && nonNull(searchRequest.getStreamVisibility())) {
       page = userFleenStreamRepository.findByTitleAndUser(searchRequest.getTitle(), streamVisibility, user.toMember(), searchRequest.getPage());
@@ -272,8 +273,8 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEventsAttendedByUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = userFleenStreamRepository.findAttendedByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+    if (searchRequest.areAllDatesSet()) {
+      page = userFleenStreamRepository.findAttendedByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           user.toMember(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
       page = userFleenStreamRepository.findAttendedByTitleAndUser(searchRequest.getTitle(), user.toMember(), searchRequest.getPage());
@@ -931,7 +932,8 @@ public class EventServiceImpl extends StreamService implements EventService {
       final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent
         .of(calendarExternalId,
             stream.getExternalId(),
-            attendeesOrGuestsEmailAddresses);
+            attendeesOrGuestsEmailAddresses,
+            Set.of());
       streamEventPublisher.addNewAttendees(addCalendarEventAttendeesEvent);
     }
   }

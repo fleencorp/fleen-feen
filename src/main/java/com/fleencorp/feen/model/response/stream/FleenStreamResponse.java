@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
+import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -35,9 +34,7 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "timezone",
   "created_on",
   "updated_on",
-  "organizer_name",
-  "organizer_email",
-  "organizer_phone",
+  "organizer",
   "for_kids",
   "stream_link",
   "stream_source",
@@ -61,14 +58,8 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("timezone")
   private String timezone;
 
-  @JsonProperty("organizer_name")
-  private String organizerName;
-
-  @JsonProperty("organizer_email")
-  private String organizerEmail;
-
-  @JsonProperty("organizer_phone")
-  private String organizerPhone;
+  @JsonProperty("organizer")
+  private Organizer organizer;
 
   @JsonProperty("for_kids")
   private Boolean forKids;
@@ -101,4 +92,35 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("some_attendees")
   private List<StreamAttendeeResponse> someAttendees;
+
+  @Builder
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonPropertyOrder({
+    "name",
+    "email",
+    "phone"
+  })
+  public static class Organizer {
+
+    @JsonProperty("name")
+    private String organizerName;
+
+    @JsonProperty("email")
+    private MaskedEmailAddress organizerEmail;
+
+    @JsonProperty("phone")
+    private MaskedPhoneNumber organizerPhone;
+
+    public static Organizer of(final String organizerName, final String organizerEmail, final String organizerPhone) {
+      return Organizer.builder()
+        .organizerName(organizerName)
+        .organizerEmail(MaskedEmailAddress.of(organizerEmail))
+        .organizerPhone(MaskedPhoneNumber.of(organizerPhone))
+        .build();
+    }
+  }
 }

@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.update;
 
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;

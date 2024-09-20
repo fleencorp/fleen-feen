@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.base;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
-import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
@@ -74,7 +73,7 @@ public class StreamService {
    */
   protected PageAndFleenStreamResponse findEventsOrStreams(final StreamSearchRequest searchRequest) {
     final Page<FleenStream> page;
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
+    if (searchRequest.areAllDatesSet()) {
       page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
       page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
@@ -117,7 +116,7 @@ public class StreamService {
    * @throws UnableToCompleteOperationException if one of the input is invalid
    * @throws FleenStreamNotCreatedByUserException if the event was not created by the specified user
    */
-  public void validateCreatorOfEvent(final FleenStream stream, final FleenUser user) {
+  public static void validateCreatorOfEvent(final FleenStream stream, final FleenUser user) {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
 

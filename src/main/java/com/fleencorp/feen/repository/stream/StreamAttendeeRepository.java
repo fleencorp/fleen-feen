@@ -35,4 +35,8 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   Page<StreamAttendee> findAllByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
   long countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
+
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:speakerIds) AND sa.streamAttendeeRequestToJoinStatus IN (:statuses)")
+  Set<StreamAttendee> findAttendeesyEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("speakerIds") Set<Long> speakerIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
+
 }

@@ -7,8 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.DISAPPROVED;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
@@ -51,8 +49,24 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
 
+  /**
+   * Retrieves the member ID of the attendee.
+   *
+   * @return the member ID if the member is not null; otherwise, null.
+   */
   public Long getAttendeeMemberId() {
+    // Return the member ID of the attendee if the member is not null
     return nonNull(member) ? member.getMemberId() : null;
+  }
+
+  /**
+   * Retrieves the full name of the member.
+   *
+   * @return the full name if the member is not null; otherwise, null.
+   */
+  public String getFullName() {
+    // Return the full name of the member if the member is not null
+    return nonNull(member) ? member.getFullName() : null;
   }
 
   public static StreamAttendee of(final Member member, final FleenStream stream) {
@@ -93,7 +107,7 @@ public class StreamAttendee extends FleenFeenEntity {
    *         otherwise {@code false}.
    */
   public boolean isPending() {
-    return streamAttendeeRequestToJoinStatus == PENDING;
+    return StreamAttendeeRequestToJoinStatus.isPending(streamAttendeeRequestToJoinStatus);
   }
 
   /**
@@ -102,7 +116,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return {@code true} if the {@code streamAttendeeRequestToJoinStatus} is DISAPPROVED; {@code false} otherwise
    */
   public boolean isDisapproved() {
-    return streamAttendeeRequestToJoinStatus == DISAPPROVED;
+    return StreamAttendeeRequestToJoinStatus.isDisapproved(streamAttendeeRequestToJoinStatus);
   }
 
   /**
@@ -112,6 +126,5 @@ public class StreamAttendee extends FleenFeenEntity {
     // Update the attendance status to false
     isAttending = false;
   }
-
 
 }

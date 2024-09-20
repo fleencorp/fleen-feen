@@ -252,6 +252,10 @@ public class FleenStream extends FleenFeenEntity {
     return nonNull(member) ? member.getMemberId() : null;
   }
 
+  public boolean isAnEvent() {
+    return streamSource == StreamSource.GOOGLE_MEET;
+  }
+
   public static FleenStream of(final Long streamId) {
     return FleenStream.builder()
         .fleenStreamId(streamId)

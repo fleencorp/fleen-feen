@@ -18,6 +18,7 @@ public class GoogleCalendarEventResponse {
   private String id;
   private String status;
   private String htmlLink;
+  private String hangoutLink;
   private Object created;
   private LocalDateTime createdOn;
   private Object updated;

@@ -135,15 +135,132 @@ public class GoogleCalendarEventService {
   public GoogleCreateCalendarEventResponse createEvent(final CreateCalendarEventRequest createCalendarEventRequest) {
     try {
       final Event event = new Event();
+      // Update event with basic information such as title, description, and visibility
+      updateBasicEventInfo(createCalendarEventRequest, event);
+      // Set the creator and organizer details for the event
+      updateEventCreatorAndOrganizerDetails(createCalendarEventRequest, event);
+      // Add conference details, such as Google Meet, to the event
+      updateEventConferenceDetails(createCalendarEventRequest, event);
+      // Schedule the event by setting its start and end times, and invite attendees or guests
+      updateEventSchedulesAndAttendeesOrGuests(createCalendarEventRequest, event);
+      // Add event reminders and other custom properties (metadata)
+      updateEventReminderAndOtherProperties(createCalendarEventRequest, event);
 
+      // Insert the event into the calendar
+      final Calendar.Events.Insert insertRequest = createInsertRequest(createCalendarEventRequest, event);
+      if (nonNull(insertRequest)) {
+        final Event newEvent = insertRequest.execute();
+        // If the new event is successfully created, return its ID and expanded details
+        if (nonNull(newEvent)) {
+          return GoogleCreateCalendarEventResponse.of(newEvent.getId(), requireNonNull(mapToEventExpanded(newEvent)));
+        }
+      }
+    } catch (final IOException ex) {
+      final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());
+      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
+    }
+    throw new UnableToCompleteOperationException();
+  }
+
+  /**
+   * Creates an insert request to add an event to a calendar.
+   * The event is associated with a specific calendar and additional options like conference data and update settings are configured.
+   *
+   * @param createCalendarEventRequest the request containing calendar and event details.
+   * @param event the event to be inserted into the calendar.
+   * @return a Calendar.Events.Insert request ready to be executed or null if inputs are invalid.
+   * @throws IOException if there is an error creating the insert request.
+   */
+  protected Calendar.Events.Insert createInsertRequest(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) throws IOException {
+    if (nonNull(event) && nonNull(createCalendarEventRequest)) {
+      // Create the insert request for the given calendar and event
+      final Calendar.Events.Insert insert = calendar
+        .events()
+        .insert(createCalendarEventRequest.getCalendarIdOrName(), event);
+
+      // Set the version for conference data (enabling conference support like Google Meet)
+      insert.setConferenceDataVersion(1);
+      // Configure the request to send updates to all event participants
+      insert.setSendUpdates(EventSendUpdate.ALL.getValue());
+      return insert;
+    }
+    return null;
+  }
+
+  /**
+   * Updates the basic event information such as title, description, visibility, and guest permissions.
+   * These basic details are extracted from the request object and applied to the event.
+   *
+   * @param createCalendarEventRequest the request containing basic event information.
+   * @param event the event to be updated with the provided basic details.
+   */
+  protected void updateBasicEventInfo(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) {
+    if (nonNull(event) && nonNull(createCalendarEventRequest)) {
       // Set event details from the request object
       event.setSummary(createCalendarEventRequest.getTitle());
+      // Set the event description from the request
       event.setDescription(createCalendarEventRequest.getDescription());
+      // Set the event visibility (e.g., public, private)
       event.setVisibility(createCalendarEventRequest.getVisibility().getValue());
+      // Configure guest permissions: can guests see each other
       event.setGuestsCanSeeOtherGuests(createCalendarEventRequest.getCanGuestsCanSeeOtherGuests());
+      // Configure guest permissions: can guests invite others
       event.setGuestsCanInviteOthers(createCalendarEventRequest.getCanGuestsInviteOtherGuests());
+      // Set the event location
       event.setLocation(createCalendarEventRequest.getLocation());
+    }
+  }
 
+  /**
+   * Updates the event with reminders and other properties such as metadata.
+   * Custom reminders and extended properties are set based on the provided request.
+   *
+   * @param createCalendarEventRequest the request containing event reminder and metadata details.
+   * @param event the event to be updated with reminders and extended properties.
+   */
+  protected void updateEventReminderAndOtherProperties(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) {
+    // Set event reminders
+    final Event.Reminders reminders = new Event.Reminders()
+            .setUseDefault(false)
+            .setOverrides(createAndReturnEventReminders());
+    event.setReminders(reminders);
+
+    // Set extended properties (additional metadata)
+    event.setExtendedProperties(new Event.ExtendedProperties().setShared(createCalendarEventRequest.getEventMetaData()));
+  }
+
+  /**
+   * Updates the event's schedule and attendees or guests based on the provided request.
+   * Sets the event start and end times, and assigns the list of attendees or guests.
+   *
+   * @param createCalendarEventRequest the request containing event schedule and attendee details.
+   * @param event the event to be updated with the schedule and attendees or guests. Must not be null.
+   */
+  protected void updateEventSchedulesAndAttendeesOrGuests(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) {
+    if (nonNull(event) && nonNull(createCalendarEventRequest)) {
+      // Set event start and end times
+      final EventDateTime eventStartDateTime = createEventDateAndTime(createCalendarEventRequest.getStartDateTime(), createCalendarEventRequest.getTimezone());
+      event.setStart(eventStartDateTime);
+
+      final EventDateTime eventEndDateTime = createEventDateAndTime(createCalendarEventRequest.getEndDateTime(), createCalendarEventRequest.getTimezone());
+      event.setEnd(eventEndDateTime);
+
+      // Set attendees or guests
+      final List<EventAttendee> attendees = addOrInviteAttendeesOrGuests(createCalendarEventRequest.getAttendeeOrGuestEmailAddresses());
+      event.setAttendees(attendees);
+    }
+  }
+
+  /**
+   * Updates the given event with creator and organizer details based on the provided request.
+   * The creator represents the user who created the event, while the organizer typically
+   * represents the main contact for the event.
+   *
+   * @param createCalendarEventRequest the request containing details about the creator and organizer.
+   * @param event the event to be updated with creator and organizer information. Must not be null.
+   */
+  protected void updateEventCreatorAndOrganizerDetails(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) {
+    if (nonNull(event) && nonNull(createCalendarEventRequest)) {
       // Set creator/organizer information
       // The creator is typically the user who directly interacts with your application's interface to create the event.
       // They may or may not be the same as the organizer.
@@ -159,65 +276,46 @@ public class GoogleCalendarEventService {
         .setEmail(createCalendarEventRequest.getOrganizerEmail())
         .setDisplayName(createCalendarEventRequest.getOrganizerDisplayName());
       event.setOrganizer(organizer);
+    }
+  }
 
-      // Set conference details
+  /**
+   * Updates the given event with conference details, including the conference solution and
+   * conference request data. This method ensures that conference settings like solution type
+   * and request IDs are set appropriately for the event.
+   *
+   * @param createCalendarEventRequest the request object containing details about the calendar event
+   *                                   including start time, end time, and timezone.
+   * @param event the event to be updated with the conference data. Must not be null.
+   */
+  private void updateEventConferenceDetails(final CreateCalendarEventRequest createCalendarEventRequest, final Event event) {
+    if (nonNull(event) && nonNull(createCalendarEventRequest)) {
+      // Initialize and set the conference solution name
       final ConferenceSolution conferenceSolution = new ConferenceSolution();
       conferenceSolution.setName(getDefaultConferenceSolutionName());
 
+      // Initialize and set the conference solution key type
       final ConferenceSolutionKey conferenceSolutionKey = new ConferenceSolutionKey();
       conferenceSolutionKey.setType(ConferenceSolutionType.getDefault().getValue());
 
+      // Create and set the conference request ID based on event start/end times and timezone
       final CreateConferenceRequest createConferenceRequest = new CreateConferenceRequest();
       createConferenceRequest.setRequestId(
-          createConferenceRequestId(
+        createConferenceRequestId(
           createCalendarEventRequest.getStartDateTime(),
           createCalendarEventRequest.getEndDateTime(),
           createCalendarEventRequest.getTimezone()
         ));
       createConferenceRequest.setConferenceSolutionKey(conferenceSolutionKey);
 
+      // Initialize conference data with the created request and solution
       final ConferenceData conferenceData = new ConferenceData();
       conferenceData.setCreateRequest(createConferenceRequest);
 
+      // Attach the conference data to the event
       conferenceData.setConferenceSolution(conferenceSolution);
       event.setConferenceData(conferenceData);
-
-      // Set event start and end times
-      final EventDateTime eventStartDateTime = createEventDateAndTime(createCalendarEventRequest.getStartDateTime(), createCalendarEventRequest.getTimezone());
-      event.setStart(eventStartDateTime);
-
-      final EventDateTime eventEndDateTime = createEventDateAndTime(createCalendarEventRequest.getEndDateTime(), createCalendarEventRequest.getTimezone());
-      event.setEnd(eventEndDateTime);
-
-      // Set attendees or guests
-      final List<EventAttendee> attendees = addOrInviteAttendeesOrGuests(createCalendarEventRequest.getAttendeeOrGuestEmailAddresses());
-      event.setAttendees(attendees);
-
-      // Set event reminders
-      final Event.Reminders reminders = new Event.Reminders()
-              .setUseDefault(false)
-              .setOverrides(createAndReturnEventReminders());
-      event.setReminders(reminders);
-
-      // Set extended properties (additional metadata)
-      event.setExtendedProperties(new Event.ExtendedProperties().setShared(createCalendarEventRequest.getEventMetaData()));
-
-      // Insert the event into the calendar
-      final Calendar.Events.Insert insert = calendar
-              .events()
-              .insert(createCalendarEventRequest.getCalendarIdOrName(), event);
-      insert.setConferenceDataVersion(1);
-      insert.setSendUpdates(EventSendUpdate.ALL.getValue());
-      final Event newEvent = insert.execute();
-
-      if (nonNull(newEvent)) {
-        return GoogleCreateCalendarEventResponse.of(newEvent.getId(), requireNonNull(mapToEventExpanded(newEvent)));
-      }
-    } catch (final IOException ex) {
-      final String errorMessage = String.format("Error has occurred while creating an event. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
-    throw new UnableToCompleteOperationException();
   }
 
   /**
@@ -461,10 +559,13 @@ public class GoogleCalendarEventService {
       if (nonNull(event)) {
         // Create a list of EventAttendees to be added
         final List<EventAttendee> attendees = addOrInviteAttendeesOrGuests(addNewEventAttendeesRequest.getAttendeesOrGuestsEmailAddresses());
+        final List<EventAttendee> attendees2 = addOrInviteAttendeesOrGuests(addNewEventAttendeesRequest.getAttendeeOrGuests());
+
         // Create attendee list or register to add attendees
         initializeEventAttendeeList(event);
         // Add new attendees to already existing attendees list
         addAttendees(event, attendees);
+        addAttendees(event, attendees2);
         // Save event with new attendees
         calendar.events()
           .update(calendarId, eventId, event)

@@ -44,8 +44,27 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Column(name = "description", length = 1000)
   private String description;
 
+  /**
+   * Retrieves the member ID.
+   *
+   * @return the member ID if the member is not null; otherwise, null.
+   */
   public Long getMemberId() {
     return nonNull(member) ? member.getMemberId() : null;
+  }
+
+  /**
+   * Retrieves the name of the member.
+   * If the full name is not null or blank, it returns the full name; otherwise, it returns the provided default name.
+   *
+   * @param defaultFullName the default name to return if the full name is null or blank
+   * @return the full name if valid; otherwise, the default name.
+   */
+  public String getName(final String defaultFullName) {
+    if (nonNull(fullName) && !(fullName.trim().isBlank())) {
+      return fullName;
+    }
+    return defaultFullName;
   }
 
   public static StreamSpeaker of(final Long streamSpeakerId) {

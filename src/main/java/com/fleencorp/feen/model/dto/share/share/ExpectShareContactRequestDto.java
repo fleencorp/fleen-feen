@@ -22,11 +22,16 @@ public class ExpectShareContactRequestDto {
   private Long recipientId;
 
   public ShareContactRequest toShareContactRequest(final Long initiatorId) {
+    final ShareContactRequest shareContactRequest = toShareContactRequest();
+    shareContactRequest.setInitiator(Member.of(initiatorId));
+    return shareContactRequest;
+  }
+
+  public ShareContactRequest toShareContactRequest() {
     return ShareContactRequest.builder()
         .isExpected(true)
         .contactType(null)
         .shareContactRequestStatus(null)
-        .initiator(Member.of(initiatorId))
         .recipient(Member.of(recipientId))
         .build();
   }
