@@ -29,9 +29,12 @@ public class StreamReviewTest {
   //equals test
   @Test
   void ensure_equality_of_stream_review() {
+    
+    FleenStream fleenStream = new FleenStream();
+    Member member = new Member();
     // GIVEN
-    final StreamReview streamReview1 = new StreamReview(1L, "streams", new FleenStream(), new Member(), StreamReviewRating.EXCELLENT);
-    final StreamReview streamReview2 = new StreamReview(1L, "streams", new FleenStream(), new Member(), StreamReviewRating.EXCELLENT);
+    final StreamReview streamReview1 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
+    final StreamReview streamReview2 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
 
     // ASSERT
     assertEquals(streamReview1, streamReview2, "Both streams should be equal");
@@ -41,9 +44,12 @@ public class StreamReviewTest {
 //  not equals test
   @Test
   void ensure_non_equality_of_stream_review() {
+    FleenStream fleenStream = new FleenStream();
+    Member member = new Member();
+
     // GIVEN
-    final StreamReview streamReview1 = new StreamReview(2L, "streams", new FleenStream(), new Member(), StreamReviewRating.EXCELLENT);
-    final StreamReview streamReview2 = new StreamReview(1L, "streams", new FleenStream(), new Member(), StreamReviewRating.POOR);
+    final StreamReview streamReview1 = new StreamReview(2L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
+    final StreamReview streamReview2 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.POOR);
 
     // ASSERT
     assertNotEquals(streamReview1, streamReview2, "Both streams should not be equal");
