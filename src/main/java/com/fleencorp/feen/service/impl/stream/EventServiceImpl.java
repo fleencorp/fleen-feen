@@ -15,6 +15,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
@@ -731,15 +732,16 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   @Override
   @Transactional
-  public JoinEventResponse joinEvent(final Long eventId, final FleenUser user) {
+  public JoinEventResponse joinEvent(final Long eventId, final JoinEventOrStreamDto joinEventOrStreamDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = joinEventOrStream(eventId, user);
 
     // Create a request to add the user as an attendee to the calendar event
     final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
-        .of(calendar.getExternalId(),
+        .withComment(calendar.getExternalId(),
             stream.getExternalId(),
-            user.getEmailAddress());
+            user.getEmailAddress(),
+            joinEventOrStreamDto.getComment());
     eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
 
     return localizedResponse.of(JoinEventResponse.of(eventId));
@@ -926,7 +928,8 @@ public class EventServiceImpl extends StreamService implements EventService {
         .map(StreamAttendee::getStreamAttendeeId)
         .collect(Collectors.toSet());
 
-      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, attendeeIds);
+      // Approve users whose request was already pending when the event or stream was private or protected or locked
+      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
 
       // Create an event to add new attendees and publish it
       final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent

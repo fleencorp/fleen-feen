@@ -54,9 +54,13 @@ public class StreamAttendee extends FleenFeenEntity {
    *
    * @return the member ID if the member is not null; otherwise, null.
    */
-  public Long getAttendeeMemberId() {
+  public Long getMemberId() {
     // Return the member ID of the attendee if the member is not null
     return nonNull(member) ? member.getMemberId() : null;
+  }
+
+  public String getEmailAddress() {
+    return nonNull(member) ? member.getEmailAddress() : null;
   }
 
   /**
