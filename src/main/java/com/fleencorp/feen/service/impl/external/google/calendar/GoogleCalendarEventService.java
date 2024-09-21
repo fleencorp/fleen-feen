@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.external.google.calendar;
 
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
+import com.fleencorp.feen.constant.external.google.calendar.event.EventAttendeeDecisionToJoin;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventStatus;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
@@ -508,6 +509,9 @@ public class GoogleCalendarEventService {
         final EventAttendee eventAttendee = new EventAttendee();
         eventAttendee.setEmail(addNewEventAttendeeRequest.getAttendeeEmailAddress());
         eventAttendee.setDisplayName(addNewEventAttendeeRequest.getAttendeeAliasOrDisplayName());
+        eventAttendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
+        eventAttendee.setComment(addNewEventAttendeeRequest.getComment());
+
         // Create attendee list or register to add attendees
         initializeEventAttendeeList(event);
         // Add attendee to the event
@@ -805,7 +809,7 @@ public class GoogleCalendarEventService {
           attendee.setEmail(attendeeOrGuest.getEmailAddress());
           attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
           if (nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
-            attendee.setResponseStatus("accepted");
+            attendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
           }
           attendees.add(attendee);
       });

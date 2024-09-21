@@ -98,7 +98,7 @@ public class StreamService {
     if (nonNull(streamAttendees)) {
       return streamAttendees
         .stream()
-        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getAttendeeMemberId(), attendee.getMember().getFullName()))
+        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getMember().getFullName()))
         .collect(Collectors.toSet());
     }
     return Set.of();
@@ -202,7 +202,7 @@ public class StreamService {
     // Find if the user is already an attendee of the stream
     return stream.getAttendees()
       .stream()
-      .filter(attendee -> userId.equals(attendee.getAttendeeMemberId()))
+      .filter(attendee -> userId.equals(attendee.getMemberId()))
       .findAny();
   }
 

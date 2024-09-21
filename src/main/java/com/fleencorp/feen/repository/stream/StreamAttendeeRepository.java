@@ -24,7 +24,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   @Modifying
   @Query("UPDATE StreamAttendee SET streamAttendeeRequestToJoinStatus = :status WHERE member.memberId IN (:userIds)")
-  void approveAllAttendeeRequestInvitation(@Param("status") StreamAttendeeRequestToJoinStatus status, Set<Long> userIds);
+  void approveAllAttendeeRequestInvitation(@Param("status") StreamAttendeeRequestToJoinStatus status, List<Long> userIds);
 
   Page<StreamAttendee> findByFleenStream(FleenStream fleenStream, Pageable pageable);
 
@@ -36,7 +36,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   long countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
 
-  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:speakerIds) AND sa.streamAttendeeRequestToJoinStatus IN (:statuses)")
-  Set<StreamAttendee> findAttendeesyEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("speakerIds") Set<Long> speakerIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:speakerMemberIds) AND sa.streamAttendeeRequestToJoinStatus IN (:statuses)")
+  Set<StreamAttendee> findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("speakerMemberIds") List<Long> speakerMemberIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
 
 }
