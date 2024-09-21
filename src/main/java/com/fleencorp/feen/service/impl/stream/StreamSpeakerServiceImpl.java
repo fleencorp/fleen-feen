@@ -32,7 +32,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
@@ -331,7 +334,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private Set<Long> getPendingOrDisapprovedAttendeeIds(final Set<StreamAttendee> attendees) {
     // Filter attendees with PENDING or DISAPPROVED status and collect their member IDs
     return attendees.stream()
-      .filter(attendee -> attendee.isDisapproved() || attendee.isDisapproved())
+      .filter(attendee -> attendee.isDisapproved() || attendee.isPending())
       .map(StreamAttendee::getMemberId)
       .collect(Collectors.toSet());
   }
@@ -355,39 +358,37 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   }
 
   /**
-   * Processes pending or disapproved attendees and updates the guest list.
+   * Processes pending or disapproved attendees and adds them to the guest list.
+   * Matches attendees with corresponding speakers, approves attendance, and sets the speaker's full name.
+   * Finally, creates EventAttendeeOrGuest objects and adds them to the guest list.
    *
-   * @param pendingOrDisapprovedAttendeeMemberIds the set of attendee member IDs
-   * @param pendingOrDisapprovedAttendees the set of stream attendees
-   * @param speakers the set of stream speakers
-   * @param guests the list to which new attendees or guests will be added
+   * @param pendingOrDisapprovedAttendeeMemberIds set of member IDs of attendees who are pending or disapproved.
+   * @param pendingOrDisapprovedAttendees set of attendees with pending or disapproved status.
+   * @param speakers set of speakers associated with the event.
+   * @param guests the list of guests to be invited, which will be updated with processed attendees.
    */
   private void processPendingOrDisapprovedAttendeesAndAddToGuestsList(final Set<Long> pendingOrDisapprovedAttendeeMemberIds, final Set<StreamAttendee> pendingOrDisapprovedAttendees, final Set<StreamSpeaker> speakers, final Set<EventAttendeeOrGuest> guests) {
     // Iterate through each attendee ID
     pendingOrDisapprovedAttendeeMemberIds.forEach(memberId -> {
-      // Find the corresponding StreamAttendee
-      final Optional<StreamAttendee> streamAttendee = pendingOrDisapprovedAttendees.stream()
+      // Find the attendee with the matching member ID
+      pendingOrDisapprovedAttendees.stream()
         .filter(attendee -> attendee.getMemberId().equals(memberId))
-        .findFirst();
+        .findFirst()
+        .ifPresent(attendee -> {
+          // Find the corresponding speaker with the same member ID
+          speakers.stream()
+            .filter(speaker -> speaker.getMemberId().equals(memberId))
+            .findFirst()
+            .ifPresent(speaker -> {
+              // Process the attendee and speaker, setting full name and approving attendance
+              String fullName = speaker.getName(attendee.getFullName());
+              speaker.setFullName(fullName);
+              attendee.approveUserAttendance();
 
-      // Find the corresponding StreamSpeaker
-      final Optional<StreamSpeaker> streamSpeaker = speakers.stream()
-        .filter(speaker -> speaker.getMemberId().equals(memberId))
-        .findFirst();
-
-      // If both StreamAttendee and StreamSpeaker are present
-      if (streamAttendee.isPresent() && streamSpeaker.isPresent()) {
-        final StreamSpeaker speaker = streamSpeaker.get();
-        final StreamAttendee attendee = streamAttendee.get();
-        // Update the speaker's full name
-        final String fullName = speaker.getName(attendee.getFullName());
-        speaker.setFullName(fullName);
-        // Update status of all pending or disapproved attendees
-        attendee.approveUserAttendance();
-
-        // Add the attendee or guest to the guest list
-        guests.add(EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName()));
-      }
+              // Add the attendee to the guest list
+              guests.add(EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName()));
+            });
+        });
     });
   }
 
@@ -462,15 +463,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param stream the stream to which the attendees will be added
    */
   private void addNotYetAttendeeMembersAsStreamAttendeesOrGuests(final Set<Long> memberIds, final FleenStream stream) {
-    final Set<StreamAttendee> attendees = new HashSet<>();
-
-    memberIds.forEach(memberId -> {
-      // Create a new StreamAttendee for each non-attendee member
-      final StreamAttendee newAttendee = StreamAttendee.of(Member.of(memberId), stream);
-      newAttendee.approveUserAttendance(); // or appropriate status
-
-      attendees.add(newAttendee);
-    });
+    final Set<StreamAttendee> attendees = memberIds.stream()
+        .map(memberId -> {
+          // Create a new StreamAttendee for each non-attendee member
+          final StreamAttendee newAttendee = StreamAttendee.of(Member.of(memberId), stream);
+          newAttendee.approveUserAttendance(); // or appropriate status
+          return newAttendee;
+        })
+        .collect(Collectors.toSet());
 
     // Save the new StreamAttendee if necessary
     streamAttendeeRepository.saveAll(attendees);
