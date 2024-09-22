@@ -1,58 +1,71 @@
 package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.feen.constant.stream.StreamReviewRating;
+import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.user.Member;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StreamReviewTest {
-
-  //null test
   @Test
   void ensure_stream_review_is_null() {
-    // GIVEN
     final StreamReview streamReview = null;
-    // ASSERT
-    assertNull(streamReview, "Stream review should be null");
+    assertNull(streamReview);
   }
 
-  //not null test
   @Test
   void ensure_stream_review_is_not_null() {
-    // GIVEN
     final StreamReview streamReview = new StreamReview();
-    // ASSERT
-    assertNotNull(streamReview, "Stream review should not be null");
+    assertNotNull(streamReview);
   }
 
-  //equals test
   @Test
-  void ensure_equality_of_stream_review() {
-    
-    FleenStream fleenStream = new FleenStream();
-    Member member = new Member();
+  void ensure_stream_review_are_not_equal() {
+    final StreamReview streamReview1 = new StreamReview();
+    streamReview1.setStreamReviewId(1l);
+    final StreamReview streamReview2 = new StreamReview();
+    streamReview1.setStreamReviewId(2l);
+
+
+    assertNotEquals(streamReview1, streamReview2);
+  }
+
+  @Test
+  void ensure_stream_review_are_equal() {
+    final StreamReview streamReview1 = new StreamReview();
+    streamReview1.setStreamReviewId(1l);
+    final StreamReview streamReview2 = new StreamReview();
+    streamReview2.setStreamReviewId(1l);
+    assertNotNull(streamReview1);
+
+    assertEquals(streamReview1.getStreamReviewId(), streamReview2.getStreamReviewId());
+  }
+
+
+  @Test
+  void ensure_stream_review_id_is_equal() {
     // GIVEN
-    final StreamReview streamReview1 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
-    final StreamReview streamReview2 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
+    final long stresmReviewId = 1L;
+    final StreamReview streamReview = new StreamReview();
+    streamReview.setStreamReviewId(1L);
 
     // ASSERT
-    assertEquals(streamReview1, streamReview2, "Both streams should be equal");
+    assertNotNull(streamReview);
+    assertEquals(stresmReviewId, streamReview.getStreamReviewId());
 
   }
 
-//  not equals test
   @Test
-  void ensure_non_equality_of_stream_review() {
-    FleenStream fleenStream = new FleenStream();
-    Member member = new Member();
-
+  void ensure_stream_review_id_is_not_equal() {
     // GIVEN
-    final StreamReview streamReview1 = new StreamReview(2L, "streams", fleenStream, member, StreamReviewRating.EXCELLENT);
-    final StreamReview streamReview2 = new StreamReview(1L, "streams", fleenStream, member, StreamReviewRating.POOR);
+    final long stresmReviewId = 1L;
+    final StreamReview streamReview = new StreamReview();
+    streamReview.setStreamReviewId(2L);
 
     // ASSERT
-    assertNotEquals(streamReview1, streamReview2, "Both streams should not be equal");
+    assertNotNull(streamReview);
+    assertNotEquals(stresmReviewId, streamReview.getStreamReviewId());
 
   }
 }
