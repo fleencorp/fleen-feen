@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.0</version>
+		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.fleencorp</groupId>
@@ -16,8 +16,8 @@
 	<description>Fleen Feen connects you with the world</description>
 	<properties>
 		<java.version>22</java.version>
-		<aws.java.sdk.version>2.23.19</aws.java.sdk.version>
-		<spring.aws.cloud>3.0.3</spring.aws.cloud>
+		<aws.java.sdk.version>2.28.6</aws.java.sdk.version>
+		<spring.aws.cloud>3.2.0</spring.aws.cloud>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
-			<version>4.19.0</version>
+			<version>4.29.2</version>
 		</dependency>
 		<!--		<dependency>
                     <groupId>org.springframework.boot</groupId>
@@ -138,7 +138,7 @@
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
-			<version>0.12.3</version>
+			<version>0.12.6</version>
 		</dependency>
 		<dependency>
 			<groupId>de.taimos</groupId>
@@ -182,7 +182,7 @@
 		<dependency>
 			<groupId>com.slack.api</groupId>
 			<artifactId>slack-api-client</artifactId>
-			<version>1.39.3</version>
+			<version>1.43.1</version>
 		</dependency>
 
 
@@ -215,6 +215,7 @@
 		<dependency>
 			<groupId>software.amazon.awssdk.crt</groupId>
 			<artifactId>aws-crt</artifactId>
+			<version>0.31.1</version>
 		</dependency>
 
 

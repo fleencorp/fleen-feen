@@ -8,16 +8,16 @@ import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
-import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeeResponse;
-import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
-import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
-import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.model.response.stream.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +28,12 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Service
 public class StreamService {
 
@@ -142,7 +144,7 @@ public class StreamService {
     checkIsNull(stream, UnableToCompleteOperationException::new);
 
     if (stream.hasEnded()) {
-      throw new StreamAlreadyHappenedException(stream.getFleenStreamId(), stream.getScheduledEndDate());
+      throw new StreamAlreadyHappenedException(stream.getStreamId(), stream.getScheduledEndDate());
     }
   }
 
@@ -266,7 +268,7 @@ public class StreamService {
     checkIsNull(stream, UnableToCompleteOperationException::new);
 
     if (stream.isCanceled()) {
-      throw new StreamAlreadyCancelledException(stream.getFleenStreamId());
+      throw new StreamAlreadyCancelledException(stream.getStreamId());
     }
   }
 
@@ -451,6 +453,69 @@ public class StreamService {
       eventOrStreamAttendeesResponse.setAttendees(attendeesResponses);
     }
     return eventOrStreamAttendeesResponse;
+  }
+
+  /**
+   * Determines the status of a user’s request to join various events or streams and updates the response views accordingly.
+   *
+   * <p>This method retrieves the user’s attendance information for a list of event or stream IDs,
+   * maps their join request status to each corresponding event, and updates the provided list of
+   * response views with the appropriate join status.</p>
+   *
+   * <p>The method follows these steps:</p>
+   * <ul>
+   *   <li>Retrieves the attendance records for the specified user and events.</li>
+   *   <li>Maps the event or stream IDs to the user's request-to-join status.</li>
+   *   <li>Iterates over the response views and updates the join status for each event or stream.</li>
+   * </ul>
+   *
+   * @param user The user whose request-to-join status is being determined.
+   * @param responses List of response views (FleenStreamResponse) to be updated with the user’s join status.
+   */
+  protected void determineUserJoinStatusForEventOrStream(final FleenUser user, final List<FleenStreamResponse> responses) {
+    if (nonNull(user) && nonNull(user.toMember()) && nonNull(responses)) {
+      // Extract the event or stream IDs from the search result views
+      final List<Long> eventIds = responses.stream()
+        .filter(Objects::nonNull)
+        .map(FleenFeenResponse::getNumberId)
+        .toList();
+
+      // Retrieve the user's attendance records for the provided event or stream IDs
+      final List<StreamAttendeeSelect> userAttendances = streamAttendeeRepository.findByMemberAndEventOrStreamIds(user.toMember(), eventIds);
+
+      // Map event or stream IDs to the user's request-to-join status
+      final Map<Long, StreamAttendeeRequestToJoinStatus> attendanceStatusMap = userAttendances.stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(StreamAttendeeSelect::getEventOrStreamId, StreamAttendeeSelect::getRequestToJoinStatus));
+
+      // Update each stream's join status in the response views
+      responses.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
+          // Retrieve the attendee status for a specific ID which can be null because the member has not join or requested to join the event or stream
+          final Optional<StreamAttendeeRequestToJoinStatus> existingStatus = Optional.ofNullable(attendanceStatusMap.get(stream.getNumberId()));
+          // If member is an attendee, retrieve the status and set view label
+          if (existingStatus.isPresent()) {
+            final String statusLabel = getJoinStatus(existingStatus.get());
+            stream.setJoinStatus(statusLabel);
+          }
+      });
+    }
+  }
+
+  /**
+   * Determines the schedule status for each FleenStreamResponse in the provided list.
+   * If the list is not null, the method calls updateStreamSchedule on each response
+   * to update its schedule status.
+   *
+   * @param responses the list of FleenStreamResponse objects to update
+   */
+  protected void determineScheduleStatus(final List<FleenStreamResponse> responses) {
+    if (nonNull(responses)) {
+      responses.stream()
+        .filter(Objects::nonNull)
+        .forEach(FleenStreamResponse::updateStreamSchedule);
+    }
   }
 
 }

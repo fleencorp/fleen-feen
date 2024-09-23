@@ -115,6 +115,20 @@ public class FleenStream extends FleenFeenEntity {
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
+  /**
+   * Retrieves the stream ID.
+   *
+   * @return the stream ID as a {@link Long}.
+   */
+  public Long getStreamId() {
+    return fleenStreamId;
+  }
+
+  /**
+   * Retrieves the set of stream attendees.
+   *
+   * @return a {@link Set} of {@link StreamAttendee}, or an empty set if attendees are null.
+   */
   public Set<StreamAttendee> getAttendees() {
     return nonNull(attendees) ? attendees : new HashSet<>();
   }
@@ -248,10 +262,20 @@ public class FleenStream extends FleenFeenEntity {
     return now.isAfter(scheduledEndDate);
   }
 
+  /**
+   * Retrieves the member ID if the member is not null.
+   *
+   * @return the member ID, or null if the member is not available.
+   */
   public Long getMemberId() {
     return nonNull(member) ? member.getMemberId() : null;
   }
 
+  /**
+   * Checks if the stream source is an event hosted via Google Meet.
+   *
+   * @return true if the stream source is Google Meet, false otherwise.
+   */
   public boolean isAnEvent() {
     return streamSource == StreamSource.GOOGLE_MEET;
   }

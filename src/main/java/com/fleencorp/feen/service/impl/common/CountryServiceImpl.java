@@ -20,6 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
@@ -162,7 +163,9 @@ public class CountryServiceImpl implements CountryService {
     if (isNull(countries) || countries.isEmpty()) {
       countries = getCountries();
     }
-    countries.forEach(country -> cacheService.set(getCountryCacheKey(country.getTitle()), country));
+    countries.stream()
+      .filter(Objects::nonNull)
+      .forEach(country -> cacheService.set(getCountryCacheKey(country.getTitle()), country));
   }
 
   /**

@@ -47,9 +47,13 @@ public class StreamReview extends FleenFeenEntity {
   private StreamReviewRating rating;
 
   /**
-   * Retrieves the ordinal value of the rating associated with this review.
+   * Retrieves the rating number based on the rating's ordinal value.
    *
-   * @return the ordinal value of the rating, or null if the rating is not set.
+   * <p>This method returns the rating number as an integer, which is calculated by taking
+   * the ordinal value of the {@code rating} and adding 1 because ordinals in Java Enum start counting from 0.
+   * If the {@code rating} is {@code null}, the method returns {@code null}.</p>
+   *
+   * @return the rating number (ordinal value + 1), or {@code null} if the rating is not set.
    */
   public Integer getRatingNumber() {
     return nonNull(rating) ? rating.ordinal() + 1 : null;
@@ -97,6 +101,6 @@ public class StreamReview extends FleenFeenEntity {
    * @return the stream ID if the stream is not null; otherwise, null.
    */
   public Long getStreamId() {
-    return nonNull(fleenStream) ? fleenStream.getFleenStreamId() : null;
+    return nonNull(fleenStream) ? fleenStream.getStreamId() : null;
   }
 }

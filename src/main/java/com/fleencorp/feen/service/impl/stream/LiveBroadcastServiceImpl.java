@@ -209,7 +209,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     stream = fleenStreamRepository.save(stream);
     liveBroadcastUpdateService.createLiveBroadcastAndStream(stream, createLiveBroadcastRequest);
 
-    return localizedResponse.of(CreateStreamResponse.of(stream.getFleenStreamId(), toFleenStreamResponse(stream)));
+    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), toFleenStreamResponse(stream)));
   }
 
   /**

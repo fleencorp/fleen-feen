@@ -67,7 +67,7 @@ public class EventUpdateService {
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
       .of(stream.getMember().getMemberId(),
-          stream.getFleenStreamId(),
+          stream.getStreamId(),
           stream.getExternalId(),
           stream.getStreamLink(),
           ResultType.EVENT_STREAM_CREATED);

@@ -52,8 +52,14 @@ public class StreamSpeakerDto {
   @Size(max = 50, message = "{user.emailAddress.Size}")
   @ValidEmail
   @ToLowerCase
+  @JsonProperty("email_address")
   private String emailAddress;
 
+  /**
+   * Retrieves the actual stream speaker ID by converting it to a Long.
+   *
+   * @return the stream speaker ID as a {@link Long}, or null if the ID is not set.
+   */
   private Long getActualStreamSpeakerId() {
     return nonNull(streamSpeakerId) ? Long.parseLong(streamSpeakerId) : null;
   }

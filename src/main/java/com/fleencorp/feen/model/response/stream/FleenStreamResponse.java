@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
-import com.fleencorp.feen.constant.stream.StreamSource;
-import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -39,10 +37,13 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "stream_link",
   "stream_source",
   "visibility",
+  "join_status",
   "scheduled_start_date",
   "scheduled_end_date",
+  "schedule_time_type",
   "total_attending",
-  "some_attendees"
+  "some_attendees",
+  "is_private"
 })
 public class FleenStreamResponse extends FleenFeenResponse {
 
@@ -92,6 +93,45 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("some_attendees")
   private List<StreamAttendeeResponse> someAttendees;
+
+  @Builder.Default
+  @JsonProperty("join_status")
+  private String joinStatus = JoinStatus.NOT_JOINED.getValue();
+
+  @JsonProperty("schedule_time_type")
+  private StreamTimeType scheduleTimeType;
+
+  @JsonProperty("is_private")
+  public boolean isPrivate() {
+    return StreamVisibility.isPrivateOrProtected(visibility);
+  }
+
+  /**
+   * Updates the schedule status of this FleenStream by setting the stream time type
+   * based on the current time.
+   */
+  public void updateStreamSchedule() {
+    updateStreamTimeType(LocalDateTime.now());
+  }
+
+  /**
+   * Updates the streamTimeType of this FleenStream based on the provided currentTime.
+   * The stream is considered Upcoming if currentTime is before the scheduled start time,
+   * Live if it is between the scheduled start and end times, and Past if it is after the
+   * scheduled end time.
+   *
+   * @param currentTime the current time to compare against the stream's scheduled start and end times
+   * @throws NullPointerException if currentTime is null
+   */
+  public void updateStreamTimeType(final LocalDateTime currentTime) {
+    if (currentTime.isBefore(this.scheduledStartDate)) {
+      this.scheduleTimeType = StreamTimeType.UPCOMING;
+    } else if (currentTime.isAfter(this.scheduledEndDate)) {
+      this.scheduleTimeType = StreamTimeType.PAST;
+    } else {
+      this.scheduleTimeType = StreamTimeType.LIVE;
+    }
+  }
 
   @Builder
   @Getter
