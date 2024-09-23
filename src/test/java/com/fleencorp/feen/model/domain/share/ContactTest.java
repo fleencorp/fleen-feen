@@ -41,6 +41,7 @@ public class ContactTest {
     // GIVEN
     final Contact contact = new Contact();
     contact.setContactId(1L);
+
     // ASSERT
     assertNull(contact.getContactId());
   }
@@ -83,6 +84,7 @@ public class ContactTest {
     // GIVEN
     final Contact contact = new Contact();
     contact.setContactType(ContactType.FACEBOOK);
+
     // ASSERT
     assertNull(contact.getContactType());
   }
@@ -104,6 +106,7 @@ public class ContactTest {
     // GIVEN
     ContactType contactType1 = ContactType.FACEBOOK;
     final Contact contact1 = new Contact();
+
     final ContactType contactType2 = ContactType.INSTAGRAM;
     contact1.setContactType(contactType2);
 
@@ -126,6 +129,7 @@ public class ContactTest {
     // GIVEN
     final Contact contact = new Contact();
     contact.setContact("contact");
+
     // ASSERT
     assertNull(contact.getContact());
   }
@@ -147,6 +151,7 @@ public class ContactTest {
     // GIVEN
     String contact1 = "contact1";
     final Contact contact = new Contact();
+
     String contact2 = "contact2";
     contact.setContact(contact1);
 
@@ -192,12 +197,11 @@ public class ContactTest {
     Member owner1 = new Member();
     final Contact contact1 = new Contact();
     contact1.setOwner(owner1);
+
     Member owner2 = new Member();
 
     // ASSERT
     assertNotNull(contact1);
     assertNotEquals(owner2, contact1.getOwner());
   }
-
-
 }
