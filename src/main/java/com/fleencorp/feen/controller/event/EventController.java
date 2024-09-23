@@ -30,8 +30,9 @@ public class EventController {
 
   @GetMapping(value = "/entries")
   public SearchResultView findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest) {
-    return eventService.findEvents(searchRequest);
+      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.findEvents(searchRequest, user);
   }
 
   @GetMapping(value = "/entries/type")
@@ -91,7 +92,7 @@ public class EventController {
   @PostMapping(value = "/join/{eventId}")
   public JoinEventResponse joinEvent(
       @PathVariable(name = "eventId") final Long eventId,
-      @Valid @RequestBody JoinEventOrStreamDto joinEventOrStreamDto,
+      @Valid @RequestBody final JoinEventOrStreamDto joinEventOrStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.joinEvent(eventId, joinEventOrStreamDto, user);
   }

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.mapper;
 
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
@@ -41,6 +42,7 @@ public class StreamSpeakerMapper {
   public static StreamSpeakerResponse toStreamSpeakerResponse(final StreamSpeaker entry) {
     if (nonNull(entry)) {
       return StreamSpeakerResponse.builder()
+        .speakerId(entry.getStreamSpeakerId())
         .memberId(entry.getMemberId())
         .title(entry.getTitle())
         .description(entry.getDescription())
@@ -55,11 +57,11 @@ public class StreamSpeakerMapper {
       return StreamSpeakerResponse.builder()
         .memberId(entry.getMemberId())
         .fullName(entry.getFullName())
+        .emailAddress(MaskedEmailAddress.of(entry.getEmailAddress()))
         .build();
     }
     return null;
   }
-
 
   /**
    * Converts a {@link Set} of {@link StreamSpeaker} entities to a {@link Set} of {@link StreamSpeakerResponse} DTOs.

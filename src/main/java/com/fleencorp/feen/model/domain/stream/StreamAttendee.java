@@ -59,6 +59,13 @@ public class StreamAttendee extends FleenFeenEntity {
     return nonNull(member) ? member.getMemberId() : null;
   }
 
+  /**
+   * Retrieves the email address of the associated member.
+   * This method returns the email address of the member if the {@code member} object is not {@code null}.
+   * If the member is {@code null}, the method returns {@code null}.
+   *
+   * @return the email address of the member, or {@code null} if the member is not available.
+   */
   public String getEmailAddress() {
     return nonNull(member) ? member.getEmailAddress() : null;
   }

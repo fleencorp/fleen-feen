@@ -507,11 +507,8 @@ public class GoogleCalendarEventService {
       // If the event exists, add the new attendee and update the event on the calendar
       if (nonNull(event)) {
         final EventAttendee eventAttendee = new EventAttendee();
-        eventAttendee.setEmail(addNewEventAttendeeRequest.getAttendeeEmailAddress());
-        eventAttendee.setDisplayName(addNewEventAttendeeRequest.getAttendeeAliasOrDisplayName());
-        eventAttendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
-        eventAttendee.setComment(addNewEventAttendeeRequest.getComment());
-
+        // Set attendee basic details including name and email
+        updateNewAttendeeBasicInfo(addNewEventAttendeeRequest, eventAttendee);
         // Create attendee list or register to add attendees
         initializeEventAttendeeList(event);
         // Add attendee to the event
@@ -533,6 +530,26 @@ public class GoogleCalendarEventService {
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();
+  }
+
+  /**
+   * Updates the basic information of a new event attendee based on the provided request data.
+   *
+   * @param addNewEventAttendeeRequest the request containing details of the new attendee.
+   * @param eventAttendee the {@link EventAttendee} object to be updated.
+   */
+  private static void updateNewAttendeeBasicInfo(final AddNewEventAttendeeRequest addNewEventAttendeeRequest, final EventAttendee eventAttendee) {
+    // Check if both the request and the event attendee are not null
+    if (nonNull(addNewEventAttendeeRequest) && nonNull(eventAttendee)) {
+      // Set the email address of the event attendee
+      eventAttendee.setEmail(addNewEventAttendeeRequest.getAttendeeEmailAddress());
+      // Set the display name of the event attendee
+      eventAttendee.setDisplayName(addNewEventAttendeeRequest.getAttendeeAliasOrDisplayName());
+      // Set the response status to accepted
+      eventAttendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
+      // Set any additional comment for the event attendee
+      eventAttendee.setComment(addNewEventAttendeeRequest.getComment());
+    }
   }
 
   /**
@@ -705,6 +722,13 @@ public class GoogleCalendarEventService {
     throw new UnableToCompleteOperationException();
   }
 
+  /**
+   * Handles the process of marking an attendee as not attending an event.
+   *
+   * @param notAttendingEventRequest the request containing information about the event and attendee.
+   * @return a response object containing details of the updated event.
+   * @throws UnableToCompleteOperationException if the operation cannot be completed.
+   */
   @MeasureExecutionTime
   public GoogleRetrieveCalendarEventResponse notAttendingEvent(final NotAttendingEventRequest notAttendingEventRequest) {
     try {
@@ -713,13 +737,13 @@ public class GoogleCalendarEventService {
       final String eventId = notAttendingEventRequest.getEventId();
 
       // Retrieve the event from the calendar
-      final Event event = calendar
-        .events()
-        .get(calendarId, eventId)
-        .execute();
+      final RetrieveCalendarEventRequest retrieveCalendarEventRequest =  RetrieveCalendarEventRequest.of(calendarId, eventId);
+      final GoogleRetrieveCalendarEventResponse retrieveCalendarEventResponse = retrieveEvent(retrieveCalendarEventRequest);
 
       // If the event exists, update its visibility and patch it on the calendar
-      if (nonNull(event)) {
+      if (nonNull(retrieveCalendarEventResponse)) {
+        // Extract the retrieved calendar from the response
+        final Event event = retrieveCalendarEventResponse.getCalendarEvent();
         final String attendeeToRemove = notAttendingEventRequest.getAttendeeEmailAddress();
         // Iterate and find the attendee's entry to remove from the list by their email address
         final List<EventAttendee> updatedAttendees = event.getAttendees()
@@ -800,22 +824,49 @@ public class GoogleCalendarEventService {
   private List<EventAttendee> addOrInviteAttendeesOrGuests(final List<CreateCalendarEventDto.EventAttendeeOrGuest> attendeeOrGuests) {
     final List<EventAttendee> attendees = new ArrayList<>();
     if (nonNull(attendeeOrGuests)) {
-      attendeeOrGuests
-        .stream()
+      attendeeOrGuests.stream()
         .filter(Objects::nonNull)
         .forEach(attendeeOrGuest -> {
           final EventAttendee attendee = new EventAttendee();
-          attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());
-          attendee.setEmail(attendeeOrGuest.getEmailAddress());
-          attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
-          if (nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
-            attendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
-          }
+          // Set attendee basic details like email and display name
+          updateAttendeeBasicInfo(attendeeOrGuest, attendee);
+          // Set response status to accepted if the attendee is the organizer
+          determineIfAttendeeIsOrganizer(attendee);
           attendees.add(attendee);
       });
     }
 
     return attendees;
+  }
+
+  /**
+   * Determines if the given attendee is an organizer and updates their response status accordingly.
+   *
+   * @param attendee the {@link EventAttendee} to check for organizer status.
+   */
+  private static void determineIfAttendeeIsOrganizer(final EventAttendee attendee) {
+    // Check if the attendee is not null and is marked as an organizer
+    if (nonNull(attendee) && nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
+      // Set the response status to accepted if the attendee is an organizer
+      attendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
+    }
+  }
+
+  /**
+   * Updates the basic information of an attendee based on the provided attendee or guest data.
+   *
+   * @param attendeeOrGuest the source data containing attendee or guest information.
+   * @param attendee the {@link EventAttendee} object to be updated.
+   */
+  private static void updateAttendeeBasicInfo(final CreateCalendarEventDto.EventAttendeeOrGuest attendeeOrGuest, final EventAttendee attendee) {
+    if (nonNull(attendeeOrGuest) && nonNull(attendee)) {
+      // Set the display name from the attendee or guest data
+      attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());
+      // Set the email address from the attendee or guest data
+      attendee.setEmail(attendeeOrGuest.getEmailAddress());
+      // Set the organizer status from the attendee or guest data
+      attendee.setOrganizer(attendeeOrGuest.getIsOrganizer());
+    }
   }
 
   /**

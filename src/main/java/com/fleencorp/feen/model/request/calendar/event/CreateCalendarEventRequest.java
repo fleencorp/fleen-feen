@@ -52,7 +52,7 @@ public class CreateCalendarEventRequest {
   }
 
   public boolean getCanGuestsCanSeeOtherGuests() {
-    return true;
+    return false;
   }
 
   public List<EventAttendeeOrGuest> getAttendeeOrGuests() {

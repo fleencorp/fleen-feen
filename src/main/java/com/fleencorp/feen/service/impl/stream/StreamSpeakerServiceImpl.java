@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
@@ -28,18 +27,17 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.StreamSpeakerService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.*;
 import static com.fleencorp.feen.mapper.StreamSpeakerMapper.toStreamSpeakerResponses;
 import static com.fleencorp.feen.mapper.StreamSpeakerMapper.toStreamSpeakerResponsesByMember;
 import static com.fleencorp.feen.service.impl.stream.base.StreamService.validateCreatorOfEvent;
@@ -56,6 +54,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Service
 public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
@@ -186,15 +185,53 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Check if the event or stream with the given ID exists, throw exception if not
     final FleenStream stream = getAndVerifyStreamDetails(eventOrStreamId, user);
     // Convert the DTO to a set of StreamSpeaker entities, associating them with the specified event or stream
-    final Set<StreamSpeaker> speakers = dto.toStreamSpeakers(FleenStream.of(eventOrStreamId));
+    final Set<StreamSpeaker> newSpeakers = dto.toStreamSpeakers(FleenStream.of(eventOrStreamId));
     // Ensure all member IDs in the speakers are valid and exist
-    checkIfNonNullMemberIdsExists(speakers);
+    checkIfNonNullMemberIdsExists(newSpeakers);
+    // Process the speakers by checking for existing entries in the database
+    final Set<StreamSpeaker> updatedSpeakers = new HashSet<>();
+    // Check if a user is already a speaker and update their details or info
+    checkIfMemberIsAlreadyASpeakerAndUpdateInfo(newSpeakers, stream, updatedSpeakers);
+
     // Check if speakers are not already attendees and send invitations if needed
-    checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers, dto.getSpeakers());
-    // Save the updated speakers to the repository
-    streamSpeakerRepository.saveAll(speakers);
+    checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers, dto.getSpeakers());
+    // Check if the list or set of speakers is not empty
+    if (!updatedSpeakers.isEmpty()) {
+      // Save the updated speakers to the repository
+      streamSpeakerRepository.saveAll(updatedSpeakers);
+    }
     // Return a response indicating that the speakers have been successfully updated
     return localizedResponse.of(UpdateStreamSpeakerResponse.of());
+  }
+
+  /**
+   * Checks if the member is already a speaker for the given stream, and updates speaker info if necessary.
+   * Adds new speakers if they do not already exist.
+   *
+   * @param newSpeakers the set of new {@link StreamSpeaker} instances to check.
+   * @param stream the {@link FleenStream} for which the speakers are being updated.
+   * @param updatedSpeakers the set of {@link StreamSpeaker} instances that have been updated or added.
+   */
+  protected void checkIfMemberIsAlreadyASpeakerAndUpdateInfo(final Set<StreamSpeaker> newSpeakers, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
+    for (final StreamSpeaker newSpeaker : newSpeakers) {
+      // Check if the speaker already exists for the stream
+      final Optional<StreamSpeaker> existingSpeaker = streamSpeakerRepository.findByFleenStreamAndMember(stream, newSpeaker.getMember());
+      if (existingSpeaker.isPresent()) {
+        // Update the existing speaker details if needed
+        final StreamSpeaker speaker = existingSpeaker.get();
+        speaker.update(newSpeaker.getFullName(), newSpeaker.getTitle(), newSpeaker.getDescription());
+
+        if (nonNull(updatedSpeakers)) {
+          updatedSpeakers.add(speaker);
+        }
+      } else {
+        // If no existing speaker, add the new speaker to the set
+        newSpeaker.setFleenStream(stream);
+        if (nonNull(updatedSpeakers)) {
+          updatedSpeakers.add(newSpeaker);
+        }
+      }
+    }
   }
 
   /**
@@ -212,8 +249,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     getAndVerifyStreamDetails(eventOrStreamId, user);
     // Get all stream speakers from dto
     final Set<StreamSpeaker> speakers = dto.toStreamSpeakers();
+
+    // Check if the list or set of speakers is not empty
+    if (!speakers.isEmpty()) {
     // Delete all speakers requested
-    streamSpeakerRepository.deleteAll(speakers);
+      streamSpeakerRepository.deleteAll(speakers);
+    }
 
     return localizedResponse.of(DeleteStreamSpeakerResponse.of());
   }
@@ -234,13 +275,17 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     if (nonNull(speakers) && !speakers.isEmpty()) {
       // Extract member IDs from the speakers and collect them into a set
       final Set<Long> memberIds = speakers.stream()
+        .filter(Objects::nonNull)
         .map(StreamSpeaker::getMemberId)
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
-      // Count the number of members found in the repository matching the member IDs
-      final long totalMembersFound = memberRepository.countByIds(memberIds);
 
-      // Validate that the number of found members matches the number of unique member IDs
-      checkIsTrue(totalMembersFound != speakers.size(), FailedOperationException::new);
+      if (!memberIds.isEmpty()) {
+        // Count the number of members found in the repository matching the member IDs
+        final long totalMembersFound = memberRepository.countByIds(memberIds);
+        // Validate that the number of found members matches the number of unique member IDs
+        checkIsTrue(totalMembersFound != speakers.size(), FailedOperationException::new);
+      }
     }
   }
 
@@ -255,19 +300,23 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   protected void checkIfSpeakerIsNotAnAttendeeAndSendInvitation(final FleenStream stream, final Set<StreamSpeaker> speakers, final Set<StreamSpeakerDto> speakersDto) {
     // Initialize a list to hold attendees or guests that require invitations
     final Set<EventAttendeeOrGuest> guests = new HashSet<>();
-    final Long eventOrStreamId = stream.getFleenStreamId();
+    // Get id associated with stream
+    final Long eventOrStreamId = stream.getStreamId();
 
     // Get the member IDs of the current speakers
     final Set<Long> speakerWithMemberIds = getSpeakerMemberIds(speakers);
     // Filter out speakers that do not have member IDs
     final Set<StreamSpeakerDto> speakersWithNoMemberIds = filterSpeakersWithoutIds(speakersDto);
+
     // Find attendees associated with the event/stream by matching speaker member IDs
-    final Set<StreamAttendee> pendingOrDisapprovedAttendees = findAttendees(eventOrStreamId, speakerWithMemberIds);
+    final Set<StreamAttendee> allAttendees = findAttendees(eventOrStreamId, speakerWithMemberIds);
+    // Extract disapproved or pending attendee from all the attendees
+    final Set<StreamAttendee> pendingOrDisapprovedAttendees = getDisapprovedOrPendingAttendees(allAttendees);
 
     // Get the IDs of attendees who are either pending or disapproved
     final Set<Long> pendingOrDisapprovedAttendeeMemberIds = getPendingOrDisapprovedAttendeeIds(pendingOrDisapprovedAttendees);
     // Identify speakers who are not attendees
-    final Set<Long> notYetAttendeeMemberIds = getNonAttendeeMemberIds(speakerWithMemberIds, pendingOrDisapprovedAttendees);
+    final Set<Long> notYetAttendeeMemberIds = getNonAttendeeMemberIds(speakerWithMemberIds, allAttendees);
 
     // Process attendees who are pending or disapproved
     processPendingOrDisapprovedAttendeesAndAddToGuestsList(pendingOrDisapprovedAttendeeMemberIds, pendingOrDisapprovedAttendees, speakers, guests);
@@ -293,6 +342,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Map each speaker to its member ID and collect them into a set
     return speakers.stream()
       .map(StreamSpeaker::getMemberId)
+      .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
 
@@ -314,15 +364,29 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    *
    * @param eventOrStreamId   the ID of the event or stream
    * @param speakerMemberIds  the set of member IDs to search for
-   * @return a set of attendees with pending or disapproved statuses
+   * @return a set of attendees with approved, disapproved or pending statuses
    */
   private Set<StreamAttendee> findAttendees(final Long eventOrStreamId, final Set<Long> speakerMemberIds) {
     // Retrieve attendees with PENDING or DISAPPROVED statuses for the given event or stream ID
     return streamAttendeeRepository.findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(
       eventOrStreamId,
       new ArrayList<>(speakerMemberIds),
-      List.of(StreamAttendeeRequestToJoinStatus.PENDING, StreamAttendeeRequestToJoinStatus.DISAPPROVED)
+      List.of(APPROVED, DISAPPROVED, PENDING)
     );
+  }
+
+  /**
+   * Retrieves the set of attendees who are either in a PENDING or DISAPPROVED status
+   * from the provided set of {@link StreamAttendee} objects.
+   *
+   * @param streamAttendees the set of {@link StreamAttendee} objects to filter.
+   * @return a set of {@link StreamAttendee} objects where the status is either PENDING or DISAPPROVED.
+   */
+  private Set<StreamAttendee> getDisapprovedOrPendingAttendees(final Set<StreamAttendee> streamAttendees) {
+    // Retrieve attendees with PENDING or DISAPPROVED statuses for the given event or stream ID
+    return streamAttendees.stream()
+      .filter(streamAttendee -> streamAttendee.isPending() || streamAttendee.isDisapproved())
+      .collect(Collectors.toSet());
   }
 
   /**
@@ -334,8 +398,10 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private Set<Long> getPendingOrDisapprovedAttendeeIds(final Set<StreamAttendee> attendees) {
     // Filter attendees with PENDING or DISAPPROVED status and collect their member IDs
     return attendees.stream()
+      .filter(Objects::nonNull)
       .filter(attendee -> attendee.isDisapproved() || attendee.isPending())
       .map(StreamAttendee::getMemberId)
+      .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
 
@@ -349,10 +415,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private Set<Long> getNonAttendeeMemberIds(final Set<Long> speakerMemberIds, final Set<StreamAttendee> attendees) {
     // Collect all attendee member IDs into a set
     final Set<Long> allAttendeeIds = attendees.stream()
+      .filter(Objects::nonNull)
       .map(StreamAttendee::getMemberId)
+      .filter(Objects::nonNull)
       .collect(Collectors.toSet());
+
     // Filter speaker IDs to include only those that are not in the attendee list
     return speakerMemberIds.stream()
+      .filter(Objects::nonNull)
       .filter(speakerMemberId -> !allAttendeeIds.contains(speakerMemberId))
       .collect(Collectors.toSet());
   }
@@ -369,24 +439,28 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   private void processPendingOrDisapprovedAttendeesAndAddToGuestsList(final Set<Long> pendingOrDisapprovedAttendeeMemberIds, final Set<StreamAttendee> pendingOrDisapprovedAttendees, final Set<StreamSpeaker> speakers, final Set<EventAttendeeOrGuest> guests) {
     // Iterate through each attendee ID
-    pendingOrDisapprovedAttendeeMemberIds.forEach(memberId -> {
+    pendingOrDisapprovedAttendeeMemberIds.stream()
+      .filter(Objects::nonNull)
+      .forEach(memberId -> {
       // Find the attendee with the matching member ID
       pendingOrDisapprovedAttendees.stream()
+        .filter(Objects::nonNull)
         .filter(attendee -> attendee.getMemberId().equals(memberId))
         .findFirst()
         .ifPresent(attendee -> {
           // Find the corresponding speaker with the same member ID
           speakers.stream()
+            .filter(Objects::nonNull)
             .filter(speaker -> speaker.getMemberId().equals(memberId))
             .findFirst()
             .ifPresent(speaker -> {
               // Process the attendee and speaker, setting full name and approving attendance
-              String fullName = speaker.getName(attendee.getFullName());
+              final String fullName = speaker.getName(attendee.getFullName());
               speaker.setFullName(fullName);
               attendee.approveUserAttendance();
 
               // Add the attendee to the guest list
-              guests.add(EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName()));
+              guests.add(EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName(), false));
             });
         });
     });
@@ -402,7 +476,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Retrieve all members by their IDs
     final Set<Member> members = memberRepository.findAllByIds(memberIds);
     // Add each member to the guest list
-    members.forEach(member -> guests.add(EventAttendeeOrGuest.of(member.getEmailAddress(), member.getFullName())));
+    members.forEach(member -> guests.add(EventAttendeeOrGuest.of(member.getEmailAddress(), member.getFullName(), false)));
   }
 
   /**
@@ -413,14 +487,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   private void addSpeakersWithNoMemberIdsToGuestList(final Set<StreamSpeakerDto> speakers, final Set<EventAttendeeOrGuest> guests) {
     // Add each speaker to the guest list
-    speakers.forEach(speaker -> guests.add(EventAttendeeOrGuest.of(speaker.getEmailAddress(), speaker.getFullName())));
-  }
-
-  private Set<EventAttendeeOrGuest> getSpeakersWithNoIds(final Set<StreamSpeakerDto> speakers, final Set<EventAttendeeOrGuest> guests) {
-    // Add each speaker to the guest list
-    return speakers.stream()
-      .map(speaker -> EventAttendeeOrGuest.of(speaker.getEmailAddress(), speaker.getFullName()))
-      .collect(Collectors.toSet());
+    speakers.stream()
+      .filter(Objects::nonNull)
+      .forEach(speaker -> guests.add(EventAttendeeOrGuest.of(speaker.getEmailAddress(), speaker.getFullName(), false)));
   }
 
   /**
@@ -435,7 +504,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param guests a set of attendees or guests that require invitations
    */
   private void sendInvitationToNewAttendeesOrGuests(final FleenStream stream, final Member ownerOfEventOrStream, final Set<EventAttendeeOrGuest> guests) {
-    if (nonNull(stream) && stream.isAnEvent()) {
+    if (nonNull(stream) && stream.isAnEvent() && nonNull(guests) && !guests.isEmpty()) {
       // Find the calendar based on the event or stream owner's country
       final Calendar calendar = findCalendar(ownerOfEventOrStream.getCountry());
 
@@ -462,8 +531,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param memberIds the set of member IDs to be added as attendees
    * @param stream the stream to which the attendees will be added
    */
-  private void addNotYetAttendeeMembersAsStreamAttendeesOrGuests(final Set<Long> memberIds, final FleenStream stream) {
+  protected void addNotYetAttendeeMembersAsStreamAttendeesOrGuests(final Set<Long> memberIds, final FleenStream stream) {
     final Set<StreamAttendee> attendees = memberIds.stream()
+        .filter(Objects::nonNull)
         .map(memberId -> {
           // Create a new StreamAttendee for each non-attendee member
           final StreamAttendee newAttendee = StreamAttendee.of(Member.of(memberId), stream);
@@ -523,6 +593,5 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     return stream;
   }
-
 
 }

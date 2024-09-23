@@ -15,9 +15,9 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventService {
 
-  SearchResultView findEvents(CalendarEventSearchRequest searchRequest);
-
   SearchResultView findEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
+
+  SearchResultView findMyEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
 
   SearchResultView findEvents(CalendarEventSearchRequest searchRequest, StreamTimeType streamTimeType);
 

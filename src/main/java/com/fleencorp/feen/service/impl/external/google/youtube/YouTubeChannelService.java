@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
@@ -134,7 +135,9 @@ public class YouTubeChannelService {
    */
   public void addYouTubeCategoriesResponse(final List<VideoCategory> categories, final List<YouTubeCategoryResponse> categoriesResponses) {
     if (nonNull(categories) && nonNull(categoriesResponses)) {
-      categories.forEach(category -> {
+      categories.stream()
+        .filter(Objects::nonNull)
+        .forEach(category -> {
         final YouTubeCategoryResponse youTubeCategoryResponse = YouTubeCategoryResponse.of();
         youTubeCategoryResponse.setId(category.getId());
         youTubeCategoryResponse.setKind(category.getKind());

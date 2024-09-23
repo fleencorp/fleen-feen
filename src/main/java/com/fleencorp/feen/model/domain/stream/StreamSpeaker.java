@@ -67,6 +67,19 @@ public class StreamSpeaker extends FleenFeenEntity {
     return defaultFullName;
   }
 
+  /**
+   * Updates the speaker's information with the provided full name, title, and description.
+   *
+   * @param fullName the updated full name of the speaker.
+   * @param title the updated title of the speaker.
+   * @param description the updated description of the speaker.
+   */
+  public void update(final String fullName, final String title, final String description) {
+    this.fullName = fullName;
+    this.title = title;
+    this.description = description;
+  }
+
   public static StreamSpeaker of(final Long streamSpeakerId) {
     return StreamSpeaker.builder()
       .streamSpeakerId(streamSpeakerId)

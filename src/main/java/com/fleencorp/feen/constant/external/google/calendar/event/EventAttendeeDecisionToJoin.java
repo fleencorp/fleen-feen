@@ -25,7 +25,7 @@ public enum EventAttendeeDecisionToJoin implements ApiParameter {
    *
    * @param value the value representing the attendee's decision.
    */
-  EventAttendeeDecisionToJoin(String value) {
+  EventAttendeeDecisionToJoin(final String value) {
     this.value = value;
   }
 
