@@ -1,29 +1,34 @@
 package com.fleencorp.feen.service.impl.stream;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
+import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
 import static java.util.Objects.nonNull;
@@ -32,17 +37,23 @@ import static java.util.Objects.nonNull;
 public class StreamService {
 
   private final FleenStreamRepository fleenStreamRepository;
+  private final StreamAttendeeRepository streamAttendeeRepository;
+  private final LocalizedResponse localizedResponse;
 
   /**
-   * Constructs a new {@code StreamService} with the specified {@code FleenStreamRepository}.
+   * Constructs a new instance of {@code StreamService} with the specified repositories.
    *
-   * <p>This constructor initializes the {@code StreamService} with the provided {@code FleenStreamRepository},
-   * which is used for performing operations related to streams such as fetching and storing stream data.</p>
-   *
-   * @param fleenStreamRepository the repository used to interact with the stream data in the persistence layer.
+   * @param fleenStreamRepository The repository used for managing {@code FleenStream} entities.
+   * @param streamAttendeeRepository The repository used for managing {@code StreamAttendee} entities.
+   * @param localizedResponse the service for creating localized response message
    */
-  public StreamService(final FleenStreamRepository fleenStreamRepository) {
+  public StreamService(
+      final FleenStreamRepository fleenStreamRepository,
+      final StreamAttendeeRepository streamAttendeeRepository,
+      final LocalizedResponse localizedResponse) {
     this.fleenStreamRepository = fleenStreamRepository;
+    this.streamAttendeeRepository = streamAttendeeRepository;
+    this.localizedResponse = localizedResponse;
   }
 
   /**
@@ -367,6 +378,80 @@ public class StreamService {
     fleenStreamRepository.save(stream);
 
     return stream;
+  }
+
+  /**
+   * Converts a list of {@link StreamAttendee} entities into a list of {@link StreamAttendeeResponse} objects.
+   *
+   * <p>This method first converts the list of {@code StreamAttendee} entities into a set to eliminate any duplicate
+   * attendees. It then uses the {@code toStreamAttendeeResponses} method to perform the actual conversion,
+   * and finally returns the result as a list.</p>
+   *
+   * @param streamAttendees the list of {@code StreamAttendee} entities to convert.
+   * @return a list of {@code StreamAttendeeResponse} objects, with duplicates removed.
+   */
+  protected List<StreamAttendeeResponse> toStreamAttendeeResponses(final List<StreamAttendee> streamAttendees) {
+    final Set<StreamAttendee> streamAttendeesSet = new HashSet<>(streamAttendees);
+    final Set<StreamAttendeeResponse> streamAttendeeResponses = toStreamAttendeeResponses(streamAttendeesSet);
+    return new ArrayList<>(streamAttendeeResponses);
+  }
+
+  /**
+   * Finds attendees for a given event or stream based on the specified search request.
+   *
+   * @param eventOrStreamId The ID of the event or stream whose attendees are to be found.
+   * @param searchRequest The request containing search parameters such as pagination information.
+   * @return A {@code SearchResultView} containing the list of stream attendees and pagination details.
+   */
+  protected SearchResultView findEventOrStreamAttendees(final Long eventOrStreamId, final StreamAttendeeSearchRequest searchRequest) {
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
+    final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(page.getContent());
+    return toSearchResult(views, page);
+  }
+
+  /**
+   * Retrieves the list of attendees for a given event identified by eventOrStreamId and converts them to an EventAttendeesResponse DTO.
+   *
+   * <p>If the event with the specified eventOrStreamId is not found in the database, a FleenStreamNotFoundException is thrown.</p>
+   *
+   * <p>The method fetches the event details from the database using the eventOrStreamId and then delegates to getAttendees method
+   * to convert the attendees into a structured response.</p>
+   *
+   * @param eventOrStreamId the unique identifier of the event or stream
+   * @param user the authenticated user
+   * @return an EventAttendeesResponse DTO containing the list of attendees for the event
+   * @throws FleenStreamNotFoundException if the event with the specified eventOrStreamId is not found
+   */
+  public EventOrStreamAttendeesResponse getEventOrStreamAttendees(final Long eventOrStreamId, final FleenUser user) {
+    // Convert the attendees to response objects
+    final FleenStream stream = findStream(eventOrStreamId);
+    // Get event attendees
+    final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = getAttendees(eventOrStreamId, stream.getAttendees());
+    eventOrStreamAttendeesResponse.setEventId(eventOrStreamId);
+
+    return localizedResponse.of(eventOrStreamAttendeesResponse);
+  }
+
+  /**
+   * Retrieves the list of attendees for a given event and converts them to an EventAttendeesResponse DTO.
+   *
+   * <p>If the provided set of attendees is not null and not empty, it converts each StreamAttendee entity to
+   * an EventAttendeeResponse DTO and sets them in the response object.</p>
+   *
+   * <p>If no attendees are found (either the set is null or empty), it returns an empty EventAttendeesResponse object.</p>
+   *
+   * @param eventOrStreamId the unique identifier of the event or stream
+   * @param attendees the set of StreamAttendee entities representing the attendees of the event
+   * @return an EventAttendeesResponse DTO containing the list of attendees, or an empty EventAttendeesResponse if there are no attendees
+   */
+  public EventOrStreamAttendeesResponse getAttendees(final Long eventOrStreamId, final Set<StreamAttendee> attendees) {
+    final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = EventOrStreamAttendeesResponse.of(eventOrStreamId);
+    // Check if the attendees list is not empty and set it to the list of attendees in the response
+    if (nonNull(attendees) && !attendees.isEmpty()) {
+      final List<EventOrStreamAttendeeResponse> attendeesResponses = StreamAttendeeMapper.toEventAttendeeResponses(new ArrayList<>(attendees));
+      eventOrStreamAttendeesResponse.setAttendees(attendeesResponses);
+    }
+    return eventOrStreamAttendeesResponse;
   }
 
 }
