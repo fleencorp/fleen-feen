@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -64,11 +63,11 @@ public class FleenStreamMapper {
   public static List<FleenStreamResponse> toFleenStreams(final List<FleenStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-          .map(FleenStreamMapper::toFleenStreamResponse)
           .filter(Objects::nonNull)
+          .map(FleenStreamMapper::toFleenStreamResponse)
           .collect(toList());
     }
-    return emptyList();
+    return List.of();
   }
 
 }

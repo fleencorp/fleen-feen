@@ -139,7 +139,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest) {
     final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
-    List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
+    final List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
     setStreamAttendeesAndTotalAttendeesAttending(views);
     getFirst10AttendingInAnyOrder(views);
 

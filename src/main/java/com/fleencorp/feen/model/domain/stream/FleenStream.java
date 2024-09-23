@@ -8,8 +8,11 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
@@ -33,7 +36,6 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "fleen_stream")
-@ToString
 public class FleenStream extends FleenFeenEntity {
 
   @Id
@@ -244,6 +246,10 @@ public class FleenStream extends FleenFeenEntity {
   public boolean hasEnded() {
     final LocalDateTime now = LocalDateTime.now();
     return now.isAfter(scheduledEndDate);
+  }
+
+  public Long getMemberId() {
+    return nonNull(member) ? member.getMemberId() : null;
   }
 
   public static FleenStream of(final Long streamId) {
