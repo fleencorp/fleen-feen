@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeeResponse;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -27,7 +26,7 @@ public class StreamAttendeeMapper {
   public static EventOrStreamAttendeeResponse toEventAttendeeResponse(final StreamAttendee entry) {
     if (nonNull(entry)) {
       return EventOrStreamAttendeeResponse.builder()
-          .id(entry.getMember().getMemberId())
+          .id(entry.getAttendeeMemberId())
           .name(entry.getMember().getFullName())
           .displayPhoto(entry.getMember().getProfilePhotoUrl())
           .comment(entry.getAttendeeComment())
@@ -46,10 +45,10 @@ public class StreamAttendeeMapper {
   public static List<EventOrStreamAttendeeResponse> toEventAttendeeResponses(final List<StreamAttendee> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
-          .map(StreamAttendeeMapper::toEventAttendeeResponse)
           .filter(Objects::nonNull)
+          .map(StreamAttendeeMapper::toEventAttendeeResponse)
           .collect(toList());
     }
-    return emptyList();
+    return List.of();
   }
 }
