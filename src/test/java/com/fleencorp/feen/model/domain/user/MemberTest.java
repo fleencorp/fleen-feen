@@ -11,113 +11,128 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MemberTest {
+
   @DisplayName("Create empty member")
   @Test
   void create_empty_member() {
+    // GIVEN
     final Member member = new Member();
+
+    // ASSERT
     assertNotNull(member);
   }
 
-  @DisplayName("Null member")
+  @DisplayName("Create a member null")
   @Test
   void create_null_member() {
+    // GIVEN
     final Member member = null;
+
+    // ASSERT
     assertNull(member);
   }
 
-  @DisplayName("Ensure MemberId is not null")
+  @DisplayName("Ensure Member Id is not null")
   @Test
-  void ensure_memberid_is_not_null() {
-//    GIVEN
+  void ensure_member_id_is_not_null() {
+    // GIVEN
     Member member = new Member();
     member.setMemberId(1L);
-//    ASSERT
+
+    // ASSERT
     assertNotNull(member.getMemberId());
   }
-  @DisplayName("Ensure MemberId is null")
+  @DisplayName("Ensure Member Id is null")
   @Test
-  void ensure_memberid_is_null() {
-//    GIVEN
+  void ensure_member_id_is_null() {
+    // GIVEN
     Member member = new Member();
     member.setMemberId(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getMemberId());
   }
-  @DisplayName("Ensure MemberId is equal")
+  @DisplayName("Ensure Member Ids is equal")
   @Test
-  void ensure_memberid_is_equal() {
-//    GIVEN
+  void ensure_member_ids_are_equal() {
+    // GIVEN
     Member member1 = new Member();
     member1.setMemberId(1L);
 
     Member member2 = new Member();
     member2.setMemberId(1L);
-//    ASSERT
+
+    // ASSERT
     assertEquals(member1.getMemberId(), member2.getMemberId());
   }
-  @DisplayName("Ensure MemberId is not equal")
+  @DisplayName("Ensure Member Ids are not equal")
   @Test
-  void ensure_memberid_is_not_equal() {
-//    GIVEN
+  void ensure_member_ids_are_not_equal() {
+    // GIVEN
     Member member1 = new Member();
     member1.setMemberId(1L);
 
     Member member2 = new Member();
     member2.setMemberId(2L);
-//    ASSERT
+
+    // ASSERT
     assertNotEquals(member1.getMemberId(), member2.getMemberId());
   }
 
   @DisplayName("Ensure first name is not null")
   @Test
-  void ensure_firstname_is_not_null() {
-//    GIVEN
+  void ensure_first_name_is_not_null() {
+    // GIVEN
     Member member = new Member();
-    member.setFirstName("test");
-//    ASSERT
+    member.setFirstName("John");
+
+    // ASSERT
     assertNotNull(member.getFirstName());
   }
+
   @DisplayName("Ensure first name is null")
   @Test
-  void ensure_firstname_is_null() {
-//    GIVEN
+  void ensure_first_name_is_null() {
+    // GIVEN
     Member member = new Member();
     member.setFirstName(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getFirstName());
   }
-  @DisplayName("Ensure first name is equal")
-  @Test
-  void ensure_firstname_is_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setFirstName("test1");
 
-    Member member2 = new Member();
-    member2.setFirstName("test1");
-//    ASSERT
-    assertEquals(member1.getFirstName(), member2.getFirstName());
+  @DisplayName("Ensure first names are equal")
+  @Test
+  void ensure_first_names_are_equal() {
+    // GIVEN
+    final String firstName = "John";
+    Member member = new Member();
+    member.setFirstName("John");
+
+    // ASSERT
+    assertEquals(member.getFirstName(), firstName);
   }
-  @DisplayName("Ensure first name is not equal")
-  @Test
-  void ensure_firstname_is_not_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setFirstName("test1");
 
-    Member member2 = new Member();
-    member2.setFirstName("test");
-//    ASSERT
-    assertNotEquals(member1.getFirstName(), member2.getFirstName());
+  @DisplayName("Ensure first name are not equal")
+  @Test
+  void ensure_first_names_are_not_equal() {
+    // GIVEN
+    String firstName = "John";
+    Member member = new Member();
+    member.setFirstName("Conor");
+
+    // ASSERT
+    assertNotEquals(member.getFirstName(), firstName);
   }
 
   @DisplayName("Ensure last name is not null")
   @Test
-  void ensure_lastname_is_not_null() {
-//    GIVEN
+  void ensure_last_name_is_not_null() {
+    // GIVEN
     Member member = new Member();
     member.setLastName("test");
-//    ASSERT
+
+    // ASSERT
     assertNotNull(member.getLastName());
   }
   @DisplayName("Ensure last name is null")
