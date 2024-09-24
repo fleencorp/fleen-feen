@@ -93,12 +93,18 @@ public class CreateStreamDto {
   @JsonProperty("organizer_alias_or_display_name")
   private String organizerAliasOrDisplayName;
 
+  /**
+   * Retrieves the organizer's alias or display name. If it is not set or is blank, returns a default value.
+   *
+   * @param defaultOrganizerAlias The fallback alias to return if the organizer's alias or display name is not provided.
+   * @return The organizer's alias or display name, or the provided default value if not available.
+   */
   @JsonIgnore
   public String getOrganizerAlias(final String defaultOrganizerAlias) {
+    // Check if organizerAliasOrDisplayName is set and not blank
     if (nonNull(organizerAliasOrDisplayName) && !organizerAliasOrDisplayName.trim().isBlank()) {
       return organizerAliasOrDisplayName;
-    }
-    else {
+    } else {
       return defaultOrganizerAlias;
     }
   }
