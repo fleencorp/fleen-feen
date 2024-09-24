@@ -17,7 +17,7 @@ public interface LiveBroadcastService {
 
   DataForCreateStreamResponse getDataForCreateStream();
 
-  SearchResultView findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest);
+  SearchResultView findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest, FleenUser user);
 
   RetrieveStreamResponse retrieveStream(Long streamId);
 

@@ -29,20 +29,20 @@ public class AddStreamSpeakerDto {
   private Set<StreamSpeakerDto> speakers;
 
   /**
-   * Converts a collection of {@link StreamSpeakerDto} objects to a set of {@link StreamSpeaker} entities.
+   * Converts a list of StreamSpeakerDto objects to a set of StreamSpeaker objects associated with a given FleenStream.
    *
-   * <p>This method iterates over the collection of {@code StreamSpeakerDto} objects, converts each {@code StreamSpeakerDto}
-   * to a {@code StreamSpeaker} entity using its {@code toStreamSpeaker} method, and adds the resulting entities to a {@code HashSet}.
-   * The resulting set of {@code StreamSpeaker} entities is then returned.</p>
-   *
-   * @return a {@link Set} of {@link StreamSpeaker} entities corresponding to the provided {@link StreamSpeakerDto} objects
+   * @param stream the FleenStream to which the speakers will be associated.
+   * @return a Set of StreamSpeaker objects created from the provided speaker DTOs.
    */
-  public Set<StreamSpeaker> toStreamSpeakers(final FleenStream fleenStream) {
+  public Set<StreamSpeaker> toStreamSpeakers(final FleenStream stream) {
     final Set<StreamSpeaker> streamSpeakers = new HashSet<>();
 
+    // Iterate through each StreamSpeakerDto in the speakers list
     for (final StreamSpeakerDto speakerDto : speakers) {
-      streamSpeakers.add(speakerDto.toStreamSpeaker(fleenStream));
+      // Convert the StreamSpeakerDto to a StreamSpeaker and add it to the set
+      streamSpeakers.add(speakerDto.toStreamSpeaker(stream));
     }
+    // Return the set of StreamSpeaker objects
     return streamSpeakers;
   }
 }

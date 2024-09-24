@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.UpdateCalendarEventDto;
+import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
@@ -29,8 +30,9 @@ public class EventController {
 
   @GetMapping(value = "/entries")
   public SearchResultView findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest) {
-    return eventService.findEvents(searchRequest);
+      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.findEvents(searchRequest, user);
   }
 
   @GetMapping(value = "/entries/type")
@@ -90,8 +92,9 @@ public class EventController {
   @PostMapping(value = "/join/{eventId}")
   public JoinEventResponse joinEvent(
       @PathVariable(name = "eventId") final Long eventId,
+      @Valid @RequestBody final JoinEventOrStreamDto joinEventOrStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.joinEvent(eventId, user);
+    return eventService.joinEvent(eventId, joinEventOrStreamDto, user);
   }
 
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")

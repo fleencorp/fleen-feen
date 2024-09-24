@@ -1,8 +1,11 @@
 package com.fleencorp.feen.mapper;
 
+import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,10 +42,22 @@ public class StreamSpeakerMapper {
   public static StreamSpeakerResponse toStreamSpeakerResponse(final StreamSpeaker entry) {
     if (nonNull(entry)) {
       return StreamSpeakerResponse.builder()
+        .speakerId(entry.getStreamSpeakerId())
         .memberId(entry.getMemberId())
         .title(entry.getTitle())
         .description(entry.getDescription())
         .fullName(entry.getFullName())
+        .build();
+    }
+    return null;
+  }
+
+  public static StreamSpeakerResponse toStreamSpeakerResponseByMember(final Member entry) {
+    if (nonNull(entry)) {
+      return StreamSpeakerResponse.builder()
+        .memberId(entry.getMemberId())
+        .fullName(entry.getFullName())
+        .emailAddress(MaskedEmailAddress.of(entry.getEmailAddress()))
         .build();
     }
     return null;
@@ -66,5 +81,25 @@ public class StreamSpeakerMapper {
         .collect(Collectors.toSet());
     }
     return Set.of();
+  }
+
+  /**
+   * Converts a list of members to a list of {@link StreamSpeakerResponse} objects.
+   *
+   * <p>This method processes a list of {@link Member} objects, filtering out any null entries,
+   * and maps each non-null {@link Member} to a {@link StreamSpeakerResponse} using the
+   * {@link StreamSpeakerMapper#toStreamSpeakerResponseByMember(Member)} method.</p>
+   *
+   * @param entries the list of {@link Member} objects to be converted
+   * @return a list of {@link StreamSpeakerResponse} objects, or an empty list if the input is null
+   */
+  public static List<StreamSpeakerResponse> toStreamSpeakerResponsesByMember(final List<Member> entries) {
+    if (nonNull(entries)) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(StreamSpeakerMapper::toStreamSpeakerResponseByMember)
+        .toList();
+    }
+    return List.of();
   }
 }

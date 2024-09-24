@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.update;
 
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;
@@ -68,7 +68,7 @@ public class LiveBroadcastUpdateService {
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
       .of(stream.getMember().getMemberId(),
-        stream.getFleenStreamId(),
+        stream.getStreamId(),
         stream.getExternalId(),
         stream.getStreamLink(),
         ResultType.EVENT_STREAM_CREATED);

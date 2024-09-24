@@ -29,4 +29,7 @@ public class Country extends FleenFeenEntity {
 
   @Column(name = "code", nullable = false, length = 5)
   private String code;
+
+  @Column(name = "timezone", nullable = false, length = 100)
+  private String timezone;
 }

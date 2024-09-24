@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
@@ -52,11 +51,9 @@ public class StreamEventHandler {
   public CompletableFuture<Void> addNewAttendees(final AddCalendarEventAttendeesEvent event) {
     return CompletableFuture.runAsync(() -> {
       // Create a request to add new attendees to the calendar event
-      final AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest.builder()
-              .calendarId(event.getCalendarId())
-              .eventId(event.getEventId())
-              .attendeesOrGuestsEmailAddresses(new HashSet<>(event.getAttendeesOrGuestsEmailAddresses()))
-              .build();
+      final AddNewEventAttendeesRequest addNewEventAttendeesRequest = AddNewEventAttendeesRequest
+        .of(event.getCalendarId(), event.getEventId(), event.getAttendeesOrGuestsEmailAddresses(), event.getAttendeeOrGuests());
+
 
       // Call the Google Calendar API Service to add the new attendees to the event
       final GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);

@@ -40,6 +40,10 @@ public class FleenFeenResponse {
   @JsonProperty("updated_on")
   protected LocalDateTime updatedOn;
 
+  public Long getNumberId() {
+    return (Long) id;
+  }
+
   public FleenFeenResponse(final Object id) {
     this.id = id;
   }

@@ -47,6 +47,19 @@ public class TimezoneValidValidator implements ConstraintValidator<TimezoneValid
   */
   @Override
   public boolean isValid(final String timezone, final ConstraintValidatorContext context) {
+    return nonNull(timezone) && isTimezoneValid(timezone);
+  }
+
+  /**
+   * Checks if the provided timezone is valid.
+   *
+   * <p>This method verifies that the input timezone is non-null and is part of the
+   * valid timezones recognized by the {@link TimezoneValidValidator}.</p>
+   *
+   * @param timezone The timezone string to validate.
+   * @return {@code true} if the timezone is valid and non-null; {@code false} otherwise.
+   */
+  public static boolean isTimezoneValid(final String timezone) {
     return nonNull(timezone) && TimezoneValidValidator.getTimezones().contains(timezone);
   }
 

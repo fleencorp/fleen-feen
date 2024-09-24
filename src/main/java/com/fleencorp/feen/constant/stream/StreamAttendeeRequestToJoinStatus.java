@@ -38,4 +38,24 @@ public enum StreamAttendeeRequestToJoinStatus implements ApiParameter {
     return APPROVED == status;
   }
 
+  /**
+   * Checks if the given status indicates that the request to join the stream is pending.
+   *
+   * @param status the status of the request to join
+   * @return {@code true} if the status is pending; {@code false} otherwise
+   */
+  public static boolean isPending(final StreamAttendeeRequestToJoinStatus status) {
+    return PENDING == status;
+  }
+
+  /**
+   * Checks if the given status indicates that the request to join the stream has been disapproved.
+   *
+   * @param status the status of the request to join
+   * @return {@code true} if the status is disapproved; {@code false} otherwise
+   */
+  public static boolean isDisapproved(final StreamAttendeeRequestToJoinStatus status) {
+    return DISAPPROVED == status;
+  }
+
 }

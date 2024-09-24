@@ -35,6 +35,7 @@ import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
+import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
@@ -215,6 +216,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Initialize authentication and set context for the new member
     final FleenUser user = initializeAuthenticationAndContext(member);
+    // Set user timezone after authentication
+    setUserTimezoneAfterAuthentication(user);
 
     // Generate access and refresh tokens for the authenticated user
     final String accessToken = tokenService.createAccessToken(user);
@@ -283,6 +286,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     final FleenUser newUser = initializeAuthenticationAndContext(member);
     // Clear temporary sign-up verification code
     clearSignUpVerificationCodeSavedTemporarily(username);
+    // Set user timezone after authentication
+    setUserTimezoneAfterAuthentication(user);
 
     // Generate access and refresh tokens
     final String accessToken = tokenService.createAccessToken(newUser, AuthenticationStatus.COMPLETED);
@@ -398,6 +403,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Initialize authentication and context for the authenticated user
     final FleenUser authenticatedUser = initializeAuthenticationAndContext(member);
+    // Set user timezone after authentication
+    setUserTimezoneAfterAuthentication(authenticatedUser);
 
     // Create access and refresh tokens for the authenticated user
     final String accessToken = tokenService.createAccessToken(authenticatedUser, AuthenticationStatus.COMPLETED);
@@ -435,7 +442,10 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     final Authentication authentication = authenticate(emailAddress, password)
       .orElseThrow(() -> new InvalidAuthenticationException(emailAddress));
 
+    // Retrieve the user from the Authentication Object
     final FleenUser user = (FleenUser) authentication.getPrincipal();
+    // Set user timezone after authentication
+    setUserTimezoneAfterAuthentication(user);
 
     // Validate profile status before proceeding
     validateProfileIsNotDisabledOrBanned(user.getProfileStatus());
@@ -1416,5 +1426,28 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   protected void clearUserAuthenticationDetails() {
     SecurityContextHolder.getContext().setAuthentication(null);
     SecurityContextHolder.clearContext();
+  }
+
+  /**
+   * Sets the user's timezone after successful authentication based on the user's country.
+   *
+   * <p>If the provided user is not null, the method retrieves the country information
+   * from the cache using the user's country code. If the country information is found,
+   * it updates the user's timezone based on the corresponding country data.</p>
+   *
+   * @param user the {@link FleenUser} object representing the authenticated user.
+   *             If the user is {@code null}, the method will not attempt to set the timezone.
+   */
+  protected void setUserTimezoneAfterAuthentication(final FleenUser user) {
+    // Check if the user is not null before proceeding
+    if (nonNull(user)) {
+      // Retrieve the country information from the cache based on the user's country code
+      final Optional<CountryResponse> existingCountry = countryService.getCountryFromCache(user.getCountry());
+      // If the country information is present, set the user's timezone
+      if (existingCountry.isPresent()) {
+        final CountryResponse country = existingCountry.get();
+        user.setTimezone(country.getTimezone());
+      }
+    }
   }
 }
