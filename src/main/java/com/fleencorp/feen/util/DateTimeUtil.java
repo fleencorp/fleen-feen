@@ -4,7 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import static java.util.Objects.nonNull;
@@ -58,5 +60,72 @@ public class DateTimeUtil {
     }
     return 0;
   }
+
+  /**
+   * Retrieves the timezone abbreviation for a given LocalDateTime and timezone.
+   *
+   * @param localDateTime the date and time to be converted.
+   * @param timezone the timezone ID to be used for conversion (e.g., "America/New_York").
+   * @return the abbreviation of the timezone (e.g., "EST", "PST").
+   */
+  public static String getTimezoneAbbreviation(final LocalDateTime localDateTime, final String timezone) {
+    // Convert LocalDateTime to ZonedDateTime using the provided timezone
+    final ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(timezone));
+    // Create a DateTimeFormatter that includes the short timezone (abbreviation)
+    final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("zzz");
+
+    // Format ZonedDateTime to get the timezone abbreviation
+    return zonedDateTime.format(formatter);
+  }
+
+  /**
+   * Retrieves the GMT offset for a given LocalDateTime and timezone in the format "(UTC+HH:mm)".
+   *
+   * @param localDateTime the date and time to be converted.
+   * @param timezone the timezone ID to be used for conversion (e.g., "Asia/Dubai").
+   * @return the GMT offset formatted as "(UTC+HH:mm)".
+   */
+  public static String getGmtOffset(final LocalDateTime localDateTime, final String timezone) {
+    // Convert LocalDateTime to ZonedDateTime using the provided timezone
+    final ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(timezone));
+
+    // Get the offset from UTC
+    final ZoneOffset offset = zonedDateTime.getOffset();
+
+    // Calculate hours and minutes from total seconds
+    final int oneHour = 3600; // 1 hour in seconds;
+    final int totalSeconds = offset.getTotalSeconds();
+    final int hours = totalSeconds / oneHour;
+    final int minutes = Math.abs((totalSeconds % oneHour) / 60);
+
+    // Format the offset as a string
+    final String offsetString = String.format("UTC%s%02d:%02d",
+      hours >= 0 ? "+" : "-",
+      Math.abs(hours),
+      minutes);
+
+    return "(" + offsetString + ")";
+  }
+
+  /**
+   * Converts a LocalDateTime from one timezone to another.
+   *
+   * @param dateTime the {@link LocalDateTime} to be converted.
+   * @param fromTimezone the original timezone of the dateTime.
+   * @param toTimezone the target timezone to which the dateTime should be converted.
+   * @return the {@link LocalDateTime} in the target timezone.
+   */
+  public static LocalDateTime convertToTimezone(final LocalDateTime dateTime, final String fromTimezone, final String toTimezone) {
+    if (nonNull(dateTime) && nonNull(fromTimezone) && nonNull(toTimezone)) {
+      // Convert the LocalDateTime to ZonedDateTime in the original timezone
+      final ZonedDateTime zonedDateTime = dateTime.atZone(ZoneId.of(fromTimezone));
+      // Convert the ZonedDateTime to the target timezone
+      final ZonedDateTime targetZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.of(toTimezone));
+      // Return the converted LocalDateTime in the target timezone
+      return targetZonedDateTime.toLocalDateTime();
+    }
+    return LocalDateTime.now();
+  }
+
 
 }

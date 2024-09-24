@@ -32,7 +32,7 @@ public class UserEventController {
   public SearchResultView findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findEvents(searchRequest, user);
+    return eventService.findMyEvents(searchRequest, user);
   }
 
   @GetMapping(value = "/attended-by-me")

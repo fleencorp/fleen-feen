@@ -38,8 +38,17 @@ public class GoogleApiUtil {
     return null;
   }
 
+  /**
+   * Generates a YouTube live streaming link using the given broadcast ID.
+   *
+   * <p>This method concatenates the base YouTube live streaming URL with the provided
+   * broadcast ID to form the complete link for accessing the live stream.
+   *
+   * @param broadcastId the unique identifier of the YouTube broadcast
+   * @return the full URL to the YouTube live stream associated with the broadcast ID
+   */
   public static String getYouTubeLiveStreamingLinkByBroadcastId(final String broadcastId) {
-    return LIVE_STREAMING_BASE_LINK + broadcastId;
+    return LIVE_STREAMING_BASE_LINK.getValue() + broadcastId;
   }
 
   /**

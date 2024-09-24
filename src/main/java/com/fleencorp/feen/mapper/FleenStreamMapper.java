@@ -6,6 +6,7 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import java.util.List;
 import java.util.Objects;
 
+import static com.fleencorp.feen.model.response.stream.FleenStreamResponse.Organizer;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -34,18 +35,17 @@ public class FleenStreamMapper {
   public static FleenStreamResponse toFleenStreamResponse(final FleenStream entry) {
     if (nonNull(entry)) {
       return FleenStreamResponse.builder()
-          .id(entry.getFleenStreamId())
+          .id(entry.getStreamId())
           .title(entry.getTitle())
           .description(entry.getDescription())
           .location(entry.getLocation())
-          .timezone(entry.getTimezone())
-          .scheduledStartDate(entry.getScheduledStartDate())
-          .scheduledEndDate(entry.getScheduledEndDate())
+          .schedule(FleenStreamResponse.Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
           .visibility(entry.getStreamVisibility())
           .streamSource(entry.getStreamSource())
           .streamLink(entry.getStreamLink())
           .forKids(entry.getForKids())
           .status(entry.getStreamStatus())
+          .organizer(Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone()))
           .build();
     }
     return null;

@@ -225,4 +225,13 @@ public class Member extends FleenFeenEntity {
             .memberId(memberId)
             .build();
   }
+
+  public static Member of(final String memberId) {
+    if (nonNull(memberId)) {
+      return Member.builder()
+        .memberId(Long.parseLong(memberId))
+        .build();
+    }
+    return null;
+  }
 }

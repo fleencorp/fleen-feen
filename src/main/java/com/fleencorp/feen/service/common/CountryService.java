@@ -4,6 +4,7 @@ import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.service.BasicCountryService;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
+import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
 
@@ -18,6 +19,8 @@ public interface CountryService extends BasicCountryService {
   Country getCountryByCode(String code);
 
   CountAllResponse countAll();
+
+  Optional<CountryResponse> getCountryFromCache(String title);
 
   Optional<String> getCountryCodeByTitle(String title);
 }

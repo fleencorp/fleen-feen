@@ -37,6 +37,7 @@ public class FleenUser implements UserDetails {
   private String lastName;
   private String profilePhoto;
   private String country;
+  private String timezone;
   private ProfileStatus profileStatus;
   private ProfileVerificationStatus verificationStatus;
   private boolean mfaEnabled;

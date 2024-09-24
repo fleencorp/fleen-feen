@@ -34,6 +34,8 @@ import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
+import com.fleencorp.feen.service.impl.stream.base.StreamService;
+import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -145,9 +148,16 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    * @return a SearchResultView containing the search results
    */
   @Override
-  public SearchResultView findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest) {
-    final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
-    return toSearchResult(pageAndFleenStreamResponse.getResponses(), pageAndFleenStreamResponse.getPage());
+  public SearchResultView findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest, final FleenUser user) {
+    final PageAndFleenStreamResponse pageAndResponse = findEventsOrStreams(searchRequest);
+    final List<FleenStreamResponse> views = pageAndResponse.getResponses();
+    // Determine the user's join status for each event or stream
+    determineUserJoinStatusForEventOrStream(views, user);
+    // Determine schedule status whether live, past or upcoming
+    determineScheduleStatus(views);
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
+    return toSearchResult(pageAndResponse.getResponses(), pageAndResponse.getPage());
   }
 
   /**
@@ -207,7 +217,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     stream = fleenStreamRepository.save(stream);
     liveBroadcastUpdateService.createLiveBroadcastAndStream(stream, createLiveBroadcastRequest);
 
-    return localizedResponse.of(CreateStreamResponse.of(stream.getFleenStreamId(), toFleenStreamResponse(stream)));
+    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), toFleenStreamResponse(stream)));
   }
 
   /**

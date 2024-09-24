@@ -15,6 +15,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
@@ -35,6 +36,8 @@ import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.stream.base.StreamService;
+import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +54,6 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
-import static com.fleencorp.base.util.FleenUtil.areNotEmpty;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
@@ -126,23 +128,37 @@ public class EventServiceImpl extends StreamService implements EventService {
   }
 
   /**
-   * Finds events based on the search criteria provided in the CalendarEventSearchRequest.
+   * Finds events or streams based on the search request and user context, then returns a search result view.
+   * This method performs the following tasks:
    *
-   * <p>This method retrieves events from the FleenStream repository based on the specified
-   * search criteria such as start date, end date, or event title. It then maps the retrieved
-   * events to FleenStreamResponse objects and returns a SearchResultView containing the
-   * search results.</p>
+   * <p>Finds events or streams matching the search criteria provided in the search request.
+   * Retrieves the event or stream IDs from the search results.
+   * Determines the user's join status for each event or stream based on their attendance records.
+   * Sets attendee details and total attendee count for each event or stream.
+   * Fetches the first 10 attendees for each event or stream in any order.
+   * Converts the results to a SearchResultView, including pagination details.</p>
    *
-   * @param searchRequest the request containing the search criteria
-   * @return a SearchResultView containing the search results
+   * @param searchRequest The search request containing the filters and criteria for finding events or streams.
+   * @param user The user performing the search, used to determine the user's join status for the events or streams.
+   * @return SearchResultView The result of the search, including event or stream details and pagination information.
    */
   @Override
-  public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest) {
+  public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+    // Find events or streams based on the search request
     final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
+    // Get the list of event or stream views from the search result
     final List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
+    // Determine the user's join status for each event or stream
+    determineUserJoinStatusForEventOrStream(views, user);
+    // Determine schedule status whether live, past or upcoming
+    determineScheduleStatus(views);
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
+    // Set the attendees and total attendee count for each event or stream
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Get the first 10 attendees for each event or stream
     getFirst10AttendingInAnyOrder(views);
-
+    // Convert the views and pagination details to a SearchResultView and return
     return toSearchResult(views, pageAndFleenStreamResponse.getPage());
   }
 
@@ -159,6 +175,8 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
     final Page<FleenStream> page;
+
+    // Determine the appropriate page of events based on the stream time type
     if (StreamTimeType.isUpcoming(streamTimeType)) {
       page = getUpcomingEvents(searchRequest);
     } else if (StreamTimeType.isPast(streamTimeType)) {
@@ -167,9 +185,13 @@ public class EventServiceImpl extends StreamService implements EventService {
       page = getLiveEvents(searchRequest);
     }
 
+    // Convert the page content to FleenStreamResponse objects
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set attendees and their total count for the retrieved events
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Retrieve the first 10 attendees for display purposes
     getFirst10AttendingInAnyOrder(views);
+    // Return the constructed SearchResultView object
     return toSearchResult(views, page);
   }
 
@@ -235,27 +257,38 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return a view of the search results containing the matching events
    */
   @Override
-  public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public SearchResultView findMyEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate()) && nonNull(searchRequest.getStreamVisibility())) {
-      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+    if (searchRequest.areAllDatesSet() && nonNull(searchRequest.getStreamVisibility())) {
+      // Filter by date range and visibility, if both are set
+      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           streamVisibility, user.toMember(), searchRequest.getPage());
-    } else if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+    } else if (searchRequest.areAllDatesSet()) {
+      // Filter by date range, if only dates are set
+      page = userFleenStreamRepository.findByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           user.toMember(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle()) && nonNull(searchRequest.getStreamVisibility())) {
+      // Filter by title and visibility, if both are set
       page = userFleenStreamRepository.findByTitleAndUser(searchRequest.getTitle(), streamVisibility, user.toMember(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
+      // Filter by title, if only the title is set
       page = userFleenStreamRepository.findByTitleAndUser(searchRequest.getTitle(), user.toMember(), searchRequest.getPage());
     } else {
+      // Retrieve all events for the user, if no other filters apply
       page = userFleenStreamRepository.findManyByMe(user.toMember(), searchRequest.getPage());
     }
 
+    // Convert the event streams to response views
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
+    // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
+    // Return the search result view with event data and pagination details
     return toSearchResult(views, page);
   }
 
@@ -272,18 +305,26 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEventsAttendedByUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
-    if (areNotEmpty(searchRequest.getStartDate(), searchRequest.getEndDate())) {
-      page = userFleenStreamRepository.findAttendedByDateBetweenAndUser(searchRequest.getStartDate().atStartOfDay(), searchRequest.getEndDate().atStartOfDay(),
+
+    if (searchRequest.areAllDatesSet()) {
+      // Filter by date range if both start and end dates are set
+      page = userFleenStreamRepository.findAttendedByDateBetweenAndUser(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(),
           user.toMember(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
+      // Filter by title if the title is provided
       page = userFleenStreamRepository.findAttendedByTitleAndUser(searchRequest.getTitle(), user.toMember(), searchRequest.getPage());
     } else {
+      // Retrieve all attended events if no other filters are applied
       page = userFleenStreamRepository.findAttendedByUser(user.toMember(), searchRequest.getPage());
     }
 
+    // Convert the event streams to response views
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
+    // Return the search result view with event data and pagination details
     return toSearchResult(views, page);
   }
 
@@ -302,16 +343,22 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEventsAttendedWithAnotherUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
-    // Retrieve events attended together by the current user and another user
+
     if (nonNull(searchRequest.getAnotherUserId())) {
+      // Retrieve events attended together by the current user and another user
       page = userFleenStreamRepository.findEventsAttendedTogether(user.toMember(), Member.of(searchRequest.getAnotherUserId()), searchRequest.getPage());
     } else {
+      // Return an empty result if anotherUserId is not provided
       page = new PageImpl<>(List.of());
     }
 
+    // Convert the event streams to response views
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
+    // Return the search result view with event data and pagination details
     return toSearchResult(views, page);
   }
 
@@ -365,12 +412,14 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   protected void setStreamAttendeesAndTotalAttendeesAttending(final List<FleenStreamResponse> streams) {
     if (nonNull(streams)) {
-      streams.forEach(stream -> {
-        final Long streamId = Long.parseLong(stream.getId().toString());
-        // Count total attendees whose request to join event is approved and are attending the event because they are interested
-        final long totalAttendees = streamAttendeeRepository.
-            countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true);
-        stream.setTotalAttending(totalAttendees);
+      streams.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
+          final Long streamId = Long.parseLong(stream.getId().toString());
+          // Count total attendees whose request to join event is approved and are attending the event because they are interested
+          final long totalAttendees = streamAttendeeRepository.
+              countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true);
+          stream.setTotalAttending(totalAttendees);
       });
     }
   }
@@ -385,7 +434,9 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   protected void getFirst10AttendingInAnyOrder(final List<FleenStreamResponse> streams) {
     if (nonNull(streams)) {
-      streams.forEach(stream -> {
+      streams.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
         final Long streamId = Long.parseLong(stream.getId().toString());
         // Create a pageable request to get the first 10 attendees
         final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM);
@@ -480,7 +531,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     stream = fleenStreamRepository.save(stream);
     eventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
-    return localizedResponse.of(CreateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream)));
+    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
   }
 
   /**
@@ -516,7 +567,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     stream = fleenStreamRepository.save(stream);
     eventUpdateService.createInstantEventInGoogleCalendar(stream, createInstantCalendarEventRequest);
 
-    return localizedResponse.of(CreateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream)));
+    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
   }
 
   /**
@@ -560,7 +611,7 @@ public class EventServiceImpl extends StreamService implements EventService {
             updateCalendarEventDto.getLocation());
     eventUpdateService.updateEventInGoogleCalendar(stream, patchCalendarEventRequest);
 
-    return localizedResponse.of(UpdateEventResponse.of(stream.getFleenStreamId(), toEventResponse(stream)));
+    return localizedResponse.of(UpdateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
   }
 
   /**
@@ -730,15 +781,16 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   @Override
   @Transactional
-  public JoinEventResponse joinEvent(final Long eventId, final FleenUser user) {
+  public JoinEventResponse joinEvent(final Long eventId, final JoinEventOrStreamDto joinEventOrStreamDto, final FleenUser user) {
     final Calendar calendar = findCalendar(user.getCountry());
     final FleenStream stream = joinEventOrStream(eventId, user);
 
     // Create a request to add the user as an attendee to the calendar event
     final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
-        .of(calendar.getExternalId(),
+        .withComment(calendar.getExternalId(),
             stream.getExternalId(),
-            user.getEmailAddress());
+            user.getEmailAddress(),
+            joinEventOrStreamDto.getComment());
     eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
 
     return localizedResponse.of(JoinEventResponse.of(eventId));
@@ -925,13 +977,15 @@ public class EventServiceImpl extends StreamService implements EventService {
         .map(StreamAttendee::getStreamAttendeeId)
         .collect(Collectors.toSet());
 
-      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, attendeeIds);
+      // Approve users whose request was already pending when the event or stream was private or protected or locked
+      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
 
       // Create an event to add new attendees and publish it
       final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent
         .of(calendarExternalId,
             stream.getExternalId(),
-            attendeesOrGuestsEmailAddresses);
+            attendeesOrGuestsEmailAddresses,
+            Set.of());
       streamEventPublisher.addNewAttendees(addCalendarEventAttendeesEvent);
     }
   }
