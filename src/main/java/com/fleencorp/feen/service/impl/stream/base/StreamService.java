@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
 
 @Slf4j
@@ -469,10 +471,10 @@ public class StreamService {
    *   <li>Iterates over the response views and updates the join status for each event or stream.</li>
    * </ul>
    *
-   * @param user The user whose request-to-join status is being determined.
    * @param responses List of response views (FleenStreamResponse) to be updated with the user’s join status.
+   * @param user The user whose request-to-join status is being determined.
    */
-  protected void determineUserJoinStatusForEventOrStream(final FleenUser user, final List<FleenStreamResponse> responses) {
+  protected void determineUserJoinStatusForEventOrStream(final List<FleenStreamResponse> responses, final FleenUser user) {
     if (nonNull(user) && nonNull(user.toMember()) && nonNull(responses)) {
       // Extract the event or stream IDs from the search result views
       final List<Long> eventIds = responses.stream()
@@ -517,5 +519,77 @@ public class StreamService {
         .forEach(FleenStreamResponse::updateStreamSchedule);
     }
   }
+
+  /**
+   * Adjusts the schedule of a collection of stream responses to the user's timezone.
+   *
+   * <p>For each stream in the collection, this method compares the stream's timezone with the user's timezone.
+   * If the timezones differ, the stream's schedule is converted to the user's timezone. Otherwise, an empty
+   * schedule is set.</p>
+   *
+   * @param responses The collection of {@link FleenStreamResponse} objects containing the stream schedules.
+   * @param user      The {@link FleenUser} whose timezone is used for comparison and conversion.
+   */
+  protected void setOtherScheduleBasedOnUserTimezone(final Collection<FleenStreamResponse> responses, final FleenUser user) {
+    if (nonNull(responses) && !responses.isEmpty() && nonNull(user)) {
+      responses.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
+          // Get the stream's original timezone
+          final String streamTimezone = stream.getSchedule().getTimezone();
+          // Get the user's timezone
+          final String userTimezone = user.getTimezone();
+
+          // Check if the event's timezone and user's timezone are different
+          if (!streamTimezone.equalsIgnoreCase(userTimezone)) {
+            // Convert the stream's schedule to the user's timezone
+            final FleenStreamResponse.Schedule otherSchedule = createSchedule(stream, userTimezone);
+            // Set the converted dates and user's timezone in the stream's other schedule
+            stream.setOtherSchedule(otherSchedule);
+          } else {
+            // If the timezones are the same, set an empty schedule
+            stream.setOtherSchedule(FleenStreamResponse.Schedule.of());
+          }
+      });
+    }
+  }
+
+  /**
+   * Creates a schedule for the given stream in the user's timezone.
+   *
+   * <p>This method takes a {@link FleenStreamResponse} object and the user's timezone,
+   * then converts the stream's start and end dates from the stream's timezone to
+   * the user's timezone. The converted schedule is returned in the form of a
+   * {@link FleenStreamResponse.Schedule}.</p>
+   *
+   * @param stream       The {@link FleenStreamResponse} object containing the stream schedule
+   *                     with the original timezone and dates.
+   * @param userTimezone The timezone of the user to which the schedule should be converted.
+   *                     This must be a valid timezone string (e.g., "America/New_York").
+   * @return A {@link FleenStreamResponse.Schedule} object containing the start and end dates
+   *         converted to the user's timezone. If the stream or user's timezone is null,
+   *         an empty schedule is returned.
+   */
+  protected FleenStreamResponse.Schedule createSchedule(final FleenStreamResponse stream, final String userTimezone) {
+    if (nonNull(stream) && nonNull(userTimezone)) {
+      // Get the stream's original timezone
+      final String streamTimezone = stream.getSchedule().getTimezone();
+
+      // Retrieve the start and end dates from the stream's schedule
+      final LocalDateTime startDate = stream.getSchedule().getStartDate();
+      final LocalDateTime endDate = stream.getSchedule().getEndDate();
+
+      // Convert the stream's start date to the user's timezone
+      final LocalDateTime userStartDate = convertToTimezone(startDate, streamTimezone, userTimezone);
+      // Convert the stream's end date to the user's timezone
+      final LocalDateTime userEndDate = convertToTimezone(endDate, streamTimezone, userTimezone);
+      // Return the schedule with the dates in the user's timezone
+      return FleenStreamResponse.Schedule.of(userStartDate, userEndDate, userTimezone);
+    }
+    // If the stream or userTimezone is null, return an empty schedule
+    return FleenStreamResponse.Schedule.of();
+  }
+
+
 
 }

@@ -149,9 +149,11 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Get the list of event or stream views from the search result
     final List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
     // Determine the user's join status for each event or stream
-    determineUserJoinStatusForEventOrStream(user, views);
+    determineUserJoinStatusForEventOrStream(views, user);
     // Determine schedule status whether live, past or upcoming
     determineScheduleStatus(views);
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
     // Set the attendees and total attendee count for each event or stream
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Get the first 10 attendees for each event or stream
@@ -173,6 +175,8 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
     final Page<FleenStream> page;
+
+    // Determine the appropriate page of events based on the stream time type
     if (StreamTimeType.isUpcoming(streamTimeType)) {
       page = getUpcomingEvents(searchRequest);
     } else if (StreamTimeType.isPast(streamTimeType)) {
@@ -181,9 +185,13 @@ public class EventServiceImpl extends StreamService implements EventService {
       page = getLiveEvents(searchRequest);
     }
 
+    // Convert the page content to FleenStreamResponse objects
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set attendees and their total count for the retrieved events
     setStreamAttendeesAndTotalAttendeesAttending(views);
+    // Retrieve the first 10 attendees for display purposes
     getFirst10AttendingInAnyOrder(views);
+    // Return the constructed SearchResultView object
     return toSearchResult(views, page);
   }
 
@@ -274,6 +282,8 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // Convert the event streams to response views
     final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
     // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees in any order

@@ -199,8 +199,13 @@ public class CountryServiceImpl implements CountryService {
    * @return The {@link CountryResponse} for the given title if it exists in the cache;
    *         {@code null} if no cached data is found for the specified key.
    */
-  protected CountryResponse getCountryFromCache(final String title) {
-    return cacheService.get(getCountryCacheKey(title), CountryResponse.class);
+  @Override
+  public Optional<CountryResponse> getCountryFromCache(final String title) {
+    final CountryResponse country = cacheService.get(getCountryCacheKey(title), CountryResponse.class);
+    if (nonNull(country)) {
+      return Optional.of(country);
+    }
+    return Optional.empty();
   }
 
   /**
@@ -215,11 +220,8 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Optional<String> getCountryCodeByTitle(final String title) {
-    final CountryResponse country = getCountryFromCache(title);
-    if (nonNull(country)) {
-      return Optional.of(country.getCode());
-    }
-    return Optional.empty();
+    final Optional<CountryResponse> existingCountry = getCountryFromCache(title);
+    return existingCountry.map(CountryResponse::getCode);
   }
 
   /**

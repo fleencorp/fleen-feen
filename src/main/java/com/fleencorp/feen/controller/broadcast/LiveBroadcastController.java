@@ -36,8 +36,9 @@ public class LiveBroadcastController {
 
   @GetMapping(value = "/entries")
   public SearchResultView findLiveBroadcasts(
-      @SearchParam final LiveBroadcastSearchRequest searchRequest) {
-    return liveBroadcastService.findLiveBroadcasts(searchRequest);
+      @SearchParam final LiveBroadcastSearchRequest searchRequest,
+      @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.findLiveBroadcasts(searchRequest, user);
   }
 
   @GetMapping(value = "/detail/{streamId}")
