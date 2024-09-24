@@ -130,172 +130,182 @@ class MemberTest {
   void ensure_last_name_is_not_null() {
     // GIVEN
     Member member = new Member();
-    member.setLastName("test");
+    member.setLastName("Connor");
 
     // ASSERT
     assertNotNull(member.getLastName());
   }
+
   @DisplayName("Ensure last name is null")
   @Test
   void ensure_lastname_is_null() {
-//    GIVEN
+    // GIVEN
     Member member = new Member();
     member.setLastName(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getLastName());
   }
-  @DisplayName("Ensure last name is equal")
-  @Test
-  void ensure_lastname_is_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setLastName("test1");
 
-    Member member2 = new Member();
-    member2.setLastName("test1");
-//    ASSERT
-    assertEquals(member1.getLastName(), member2.getLastName());
+  @DisplayName("Ensure last names are equal")
+  @Test
+  void ensure_last_names_are_equal() {
+    // GIVEN
+    String lastName = "John";
+    Member member = new Member();
+    member.setLastName("John");
+
+    // ASSERT
+    assertEquals(member.getLastName(), lastName);
   }
-  @DisplayName("Ensure last name is not equal")
-  @Test
-  void ensure_lastname_is_not_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setLastName("test1");
 
-    Member member2 = new Member();
-    member2.setLastName("test");
-//    ASSERT
-    assertNotEquals(member1.getLastName(), member2.getLastName());
+  @DisplayName("Ensure last names are not equal")
+  @Test
+  void ensure_last_names_are_not_equal() {
+    // GIVEN
+    String lastName = "Connor";
+    Member member = new Member();
+    member.setLastName("Frank");
+
+    // ASSERT
+    assertNotEquals(member.getLastName(), lastName);
   }
 
   @DisplayName("Ensure email address is not null")
   @Test
-  void ensure_emailaddress_is_not_null() {
-//    GIVEN
+  void ensure_email_address_is_not_null() {
+    // GIVEN
     Member member = new Member();
-    member.setEmailAddress("test@gmail.com");
-//    ASSERT
+    member.setEmailAddress("john@fleencorp.com");
+
+    // ASSERT
     assertNotNull(member.getEmailAddress());
   }
+
   @DisplayName("Ensure email address is null")
   @Test
-  void ensure_emailaddress_is_null() {
-//    GIVEN
+  void ensure_email_address_is_null() {
+    // GIVEN
     Member member = new Member();
     member.setEmailAddress(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getEmailAddress());
   }
-  @DisplayName("Ensure email address is equal")
-  @Test
-  void ensure_emailaddress_is_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setEmailAddress("test1@gmail.com");
 
-    Member member2 = new Member();
-    member2.setEmailAddress("test1@gmail.com");
-//    ASSERT
-    assertEquals(member1.getEmailAddress(), member2.getEmailAddress());
+  @DisplayName("Ensure email addresses are equal")
+  @Test
+  void ensure_email_addresses_are_equal() {
+    // GIVEN
+    String emailAddress = "connor@fleencorp.com";
+    Member member = new Member();
+    member.setEmailAddress("connor@fleencorp.com");
+
+    // ASSERT
+    assertEquals(member.getEmailAddress(), emailAddress);
   }
-  @DisplayName("Ensure email address is not equal")
-  @Test
-  void ensure_emailaddress_is_not_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setEmailAddress("test1@gmail.com");
 
-    Member member2 = new Member();
-    member2.setEmailAddress("test@gmail.com");
-//    ASSERT
-    assertNotEquals(member1.getEmailAddress(), member2.getEmailAddress());
+  @DisplayName("Ensure email addresses are not equal")
+  @Test
+  void ensure_email_addresses_are_not_equal() {
+    // GIVEN
+    String emailAddress = "connor@fleencorp.com";
+    Member member = new Member();
+    member.setEmailAddress("john@gmail.com");
+
+    // ASSERT
+    assertNotEquals(member.getEmailAddress(), emailAddress);
   }
 
   @DisplayName("Ensure phone number is not null")
   @Test
-  void ensure_phonenumber_is_not_null() {
-//    GIVEN
+  void ensure_phone_number_is_not_null() {
+    // GIVEN
     Member member = new Member();
     member.setPhoneNumber("123456789");
-//    ASSERT
+
+    // ASSERT
     assertNotNull(member.getPhoneNumber());
   }
+
   @DisplayName("Ensure phone number is null")
   @Test
-  void ensure_phonenumber_is_null() {
-//    GIVEN
+  void ensure_phone_number_is_null() {
+    // GIVEN
     Member member = new Member();
     member.setPhoneNumber(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getPhoneNumber());
   }
-  @DisplayName("Ensure phone number is equal")
-  @Test
-  void ensure_phonenumber_is_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setPhoneNumber("123456789");
 
-    Member member2 = new Member();
-    member2.setPhoneNumber("123456789");
-//    ASSERT
-    assertEquals(member1.getPhoneNumber(), member2.getPhoneNumber());
+  @DisplayName("Ensure phone numbers are equal")
+  @Test
+  void ensure_phone_number_are_equal() {
+    // GIVEN
+    String phoneNumber = "123456789";
+    Member member = new Member();
+    member.setPhoneNumber("123456789");
+
+    // ASSERT
+    assertEquals(member.getPhoneNumber(), phoneNumber);
   }
-  @DisplayName("Ensure phone number is not equal")
-  @Test
-  void ensure_phonenumber_is_not_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setPhoneNumber("123456789");
 
-    Member member2 = new Member();
-    member2.setPhoneNumber("123456799");
-//    ASSERT
-    assertNotEquals(member1.getPhoneNumber(), member2.getPhoneNumber());
+  @DisplayName("Ensure phone numbers are not equal")
+  @Test
+  void ensure_phone_numbers_are_not_equal() {
+    // GIVEN
+    String phoneNumber = "987654321";
+    Member member = new Member();
+    member.setPhoneNumber("123456789");
+
+    // ASSERT
+    assertNotEquals(member.getPhoneNumber(), phoneNumber);
   }
 
   @DisplayName("Ensure password is not null")
   @Test
   void ensure_password_is_not_null() {
-//    GIVEN
+    // GIVEN
     Member member = new Member();
     member.setPassword("123456");
-//    ASSERT
+    // ASSERT
     assertNotNull(member.getPassword());
   }
+
   @DisplayName("Ensure password is null")
   @Test
   void ensure_password_is_null() {
-//    GIVEN
+    // GIVEN
     Member member = new Member();
     member.setPassword(null);
-//    ASSERT
+
+    // ASSERT
     assertNull(member.getPassword());
   }
-  @DisplayName("Ensure password is equal")
-  @Test
-  void ensure_password_is_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setPassword("123456");
 
-    Member member2 = new Member();
-    member2.setPassword("123456");
-//    ASSERT
-    assertEquals(member1.getPassword(), member2.getPassword());
+  @DisplayName("Ensure passwords are equal")
+  @Test
+  void ensure_passwords_are_equal() {
+    // GIVEN
+    String password = "123456";
+    Member member = new Member();
+    member.setPassword("123456");
+
+    // ASSERT
+    assertEquals(member.getPassword(), password);
   }
-  @DisplayName("Ensure password is not equal")
-  @Test
-  void ensure_password_is_not_equal() {
-//    GIVEN
-    Member member1 = new Member();
-    member1.setPassword("123456");
 
-    Member member2 = new Member();
-    member2.setPassword("12345");
-//    ASSERT
-    assertNotEquals(member1.getPassword(), member2.getPassword());
+  @DisplayName("Ensure passwords are not equal")
+  @Test
+  void ensure_passwords_are_not_equal() {
+    // GIVEN
+    String password = "1234567";
+    Member member = new Member();
+    member.setPassword("123456");
+
+    // ASSERT
+    assertNotEquals(member.getPassword(), password);
   }
 
   @DisplayName("Ensure password is not null")
