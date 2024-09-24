@@ -33,6 +33,7 @@ public class CountryMapper {
           .id(entry.getCountryId())
           .title(entry.getTitle())
           .code(entry.getCode())
+          .timezone(entry.getTimezone())
           .createdOn(entry.getCreatedOn())
           .updatedOn(entry.getUpdatedOn())
           .build();

@@ -2,6 +2,7 @@ package com.fleencorp.feen.mapper;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.response.event.base.EventResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 
 import static java.util.Objects.nonNull;
 
@@ -31,9 +32,7 @@ public class EventMapper {
           .title(entry.getTitle())
           .description(entry.getDescription())
           .location(entry.getLocation())
-          .timezone(entry.getTimezone())
-          .scheduledStartDate(entry.getScheduledStartDate())
-          .scheduledEndDate(entry.getScheduledEndDate())
+          .schedule(FleenStreamResponse.Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
           .visibility(entry.getStreamVisibility())
           .streamSource(entry.getStreamSource())
           .streamLink(entry.getStreamLink())

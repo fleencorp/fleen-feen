@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
   "id",
   "title",
   "code",
+  "timezone",
   "created_on",
   "updated_on",
   "message"
@@ -31,4 +32,7 @@ public class CountryResponse extends FleenFeenResponse {
 
   @JsonProperty("code")
   private String code;
+
+  @JsonProperty("timezone")
+  private String timezone;
 }

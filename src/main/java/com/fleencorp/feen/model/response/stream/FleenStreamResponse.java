@@ -8,6 +8,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.util.DateTimeUtil;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -16,6 +17,8 @@ import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
+import static com.fleencorp.feen.util.DateTimeUtil.getTimezoneAbbreviation;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -29,7 +32,8 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "title",
   "description",
   "location",
-  "timezone",
+  "schedule",
+  "other_schedule",
   "created_on",
   "updated_on",
   "organizer",
@@ -38,12 +42,12 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "stream_source",
   "visibility",
   "join_status",
-  "scheduled_start_date",
-  "scheduled_end_date",
   "schedule_time_type",
   "total_attending",
   "some_attendees",
-  "is_private"
+  "is_private",
+  "schedule",
+  "other_schedule"
 })
 public class FleenStreamResponse extends FleenFeenResponse {
 
@@ -55,9 +59,6 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("location")
   private String location;
-
-  @JsonProperty("timezone")
-  private String timezone;
 
   @JsonProperty("organizer")
   private Organizer organizer;
@@ -76,13 +77,11 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("visibility")
   private StreamVisibility visibility;
 
-  @JsonFormat(shape = STRING, pattern = DATE_TIME)
-  @JsonProperty("scheduled_start_date")
-  private LocalDateTime scheduledStartDate;
+  @JsonProperty("schedule")
+  private Schedule schedule;
 
-  @JsonFormat(shape = STRING, pattern = DATE_TIME)
-  @JsonProperty("scheduled_end_date")
-  private LocalDateTime scheduledEndDate;
+  @JsonProperty("other_schedule")
+  private Schedule otherSchedule;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("status")
@@ -124,9 +123,9 @@ public class FleenStreamResponse extends FleenFeenResponse {
    * @throws NullPointerException if currentTime is null
    */
   public void updateStreamTimeType(final LocalDateTime currentTime) {
-    if (currentTime.isBefore(this.scheduledStartDate)) {
+    if (currentTime.isBefore(this.schedule.startDate)) {
       this.scheduleTimeType = StreamTimeType.UPCOMING;
-    } else if (currentTime.isAfter(this.scheduledEndDate)) {
+    } else if (currentTime.isAfter(this.schedule.endDate)) {
       this.scheduleTimeType = StreamTimeType.PAST;
     } else {
       this.scheduleTimeType = StreamTimeType.LIVE;
@@ -160,6 +159,88 @@ public class FleenStreamResponse extends FleenFeenResponse {
         .organizerName(organizerName)
         .organizerEmail(MaskedEmailAddress.of(organizerEmail))
         .organizerPhone(MaskedPhoneNumber.of(organizerPhone))
+        .build();
+    }
+  }
+
+  @Builder
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonPropertyOrder({
+    "start_date",
+    "end_date",
+    "timezone",
+    "abbreviated_timezone",
+    "gmt_offset"
+  })
+  public static class Schedule {
+
+    @JsonFormat(shape = STRING, pattern = DATE_TIME)
+    @JsonProperty("start_date")
+    private LocalDateTime startDate;
+
+    @JsonFormat(shape = STRING, pattern = DATE_TIME)
+    @JsonProperty("end_date")
+    private LocalDateTime endDate;
+
+    @JsonProperty("timezone")
+    private String timezone;
+
+    @JsonProperty("is_schedule_set")
+    private boolean isScheduleSet;
+
+    /**
+     * Retrieves the abbreviated timezone for the stream's start date.
+     *
+     * @return The abbreviated timezone (e.g., "PST") if both startDate and timezone are not null; {@code null} otherwise.
+     */
+    @JsonProperty("abbreviated_timezone")
+    public String getAbbreviatedTimezone() {
+      return nonNull(startDate) && nonNull(timezone)
+        ? getTimezoneAbbreviation(startDate, timezone)
+        : null;
+    }
+
+    /**
+     * Retrieves the GMT offset for the stream's start date.
+     *
+     * @return The GMT offset in the format "(UTC+/-XX:XX)" if both startDate and timezone are not null; {@code null} otherwise.
+     */
+    @JsonProperty("gmt_offset")
+    public String getGmtOffset() {
+      return nonNull(startDate) && nonNull(timezone)
+        ? DateTimeUtil.getGmtOffset(startDate, timezone)
+        : null;
+    }
+
+    /**
+     * Creates and returns a new Schedule instance with the provided start date, end date, and timezone.
+     *
+     * @param scheduledStartDate The scheduled start date of the event.
+     * @param scheduledEndDate The scheduled end date of the event.
+     * @param timezone The timezone in which the event is scheduled.
+     * @return A Schedule object with the provided details and a flag indicating the schedule is set.
+     */
+    public static Schedule of(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
+      return Schedule.builder()
+        .startDate(scheduledStartDate)
+        .endDate(scheduledEndDate)
+        .timezone(timezone)
+        .isScheduleSet(true)
+        .build();
+    }
+
+    /**
+     * Creates and returns a new Schedule instance with default settings.
+     *
+     * @return A Schedule object with the schedule set flag as false, indicating no schedule details are provided.
+     */
+    public static Schedule of() {
+      return Schedule.builder()
+        .isScheduleSet(false)
         .build();
     }
   }
