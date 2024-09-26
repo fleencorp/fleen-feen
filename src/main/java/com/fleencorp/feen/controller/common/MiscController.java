@@ -1,11 +1,10 @@
 package com.fleencorp.feen.controller.common;
 
 import com.fleencorp.base.exception.FleenException;
-import com.fleencorp.base.service.EmailService;
-import com.fleencorp.base.service.PhoneService;
 import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.service.common.MiscService;
+import com.fleencorp.feen.service.user.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,17 +21,14 @@ import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 @RequestMapping(value = "/api/misc")
 public class MiscController {
 
-  private final EmailService emailService;
-  private final PhoneService phoneService;
   private final MiscService miscService;
+  private final MemberService memberService;
 
   public MiscController(
-      final EmailService emailService,
-      final PhoneService phoneService,
+      final MemberService memberService,
       final MiscService miscService) {
-    this.emailService = emailService;
-    this.phoneService = phoneService;
     this.miscService = miscService;
+    this.memberService = memberService;
   }
 
   @Operation(summary = "Check If Email Address Exists",
@@ -47,8 +43,7 @@ public class MiscController {
   public EntityExistsResponse emailExists(
     @Parameter(description = "Email address to check for existence")
       @PathVariable(name = "emailAddress") final String emailAddress) {
-    final boolean exists = emailService.isEmailAddressExist(emailAddress);
-    return new EntityExistsResponse(exists);
+    return memberService.isMemberEmailAddressExists(emailAddress);
   }
 
   @Operation(summary = "Check If Phone Number Exists",
@@ -63,8 +58,7 @@ public class MiscController {
   public EntityExistsResponse phoneExists(
     @Parameter(description = "Phone number to check for existence")
       @PathVariable(name = "phoneNumber") final String phoneNumber) {
-    final boolean exists = phoneService.isPhoneNumberExist(phoneNumber);
-    return new EntityExistsResponse(exists);
+    return memberService.isMemberPhoneNumberExists(phoneNumber);
   }
 
   @Operation(summary = "Encode a password eligible plain text",
