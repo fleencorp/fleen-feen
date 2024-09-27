@@ -20,6 +20,7 @@ public class TokenPayload {
   private String lastName;
   private String phoneNumber;
   private String country;
+  private String timezone;
   private String sub;
   private String status;
   private String verificationStatus;

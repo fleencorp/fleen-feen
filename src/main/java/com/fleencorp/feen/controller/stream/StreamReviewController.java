@@ -9,6 +9,7 @@ import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewRespons
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.StreamReviewService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,7 @@ public class StreamReviewController {
     return streamReviewService.findReviews(eventOrStreamId, searchRequest);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @PostMapping(value = "/add/{eventOrStreamId}")
   public AddStreamReviewResponse addReview(
       @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
@@ -44,6 +46,7 @@ public class StreamReviewController {
     return streamReviewService.addReview(eventOrStreamId, addStreamReviewDto, user);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @DeleteMapping(value = "/delete/{reviewId}")
   public DeleteStreamReviewResponse deleteReview(
       @PathVariable(name = "reviewId") final Long reviewId,

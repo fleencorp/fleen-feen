@@ -44,8 +44,9 @@ public class EventController {
 
   @GetMapping(value = "/detail/{eventId}")
   public RetrieveEventResponse findEvent(
-      @PathVariable(name = "eventId") final Long eventId) {
-    return eventService.retrieveEvent(eventId);
+      @PathVariable(name = "eventId") final Long eventId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return eventService.retrieveEvent(eventId, user);
   }
 
   @GetMapping(value = "/attendees/{eventId}")

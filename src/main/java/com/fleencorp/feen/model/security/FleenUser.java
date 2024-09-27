@@ -130,6 +130,7 @@ public class FleenUser implements UserDetails {
       .verificationStatus(details.getProfileVerificationStatus())
       .profilePhoto(details.getProfilePhoto())
       .country(details.getCountry())
+      .timezone(details.getTimezone())
       .build();
   }
 

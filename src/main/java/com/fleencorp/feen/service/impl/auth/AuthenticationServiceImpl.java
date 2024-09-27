@@ -18,7 +18,9 @@ import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
-import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.feen.exception.verification.ResetPasswordCodeExpiredException;
+import com.fleencorp.feen.exception.verification.ResetPasswordCodeInvalidException;
+import com.fleencorp.feen.exception.verification.VerificationFailedException;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
@@ -50,6 +52,7 @@ import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
+import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.RoleService;
 import lombok.extern.slf4j.Slf4j;
@@ -96,7 +99,7 @@ import static java.util.Objects.*;
 @Slf4j
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService,
-    PasswordService {
+    PasswordService, VerificationService {
 
   private final AuthenticationManager authenticationManager;
   private final CacheService cacheService;
@@ -161,6 +164,21 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.originDomain = originDomain;
   }
 
+  /**
+   * Retrieves the cache service instance.
+   *
+   * @return the {@link CacheService} instance used for managing cache operations.
+   */
+  @Override
+  public CacheService getCacheService() {
+    return cacheService;
+  }
+
+  /**
+   * Retrieves the password encoder instance.
+   *
+   * @return the {@link PasswordEncoder} used for encoding passwords.
+   */
   @Override
   public PasswordEncoder getPasswordEncoder() {
     return passwordEncoder;
@@ -700,39 +718,6 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     tokenService.saveAccessToken(username, accessToken);
     // Save the refresh token for the username using the JWT service.
     tokenService.saveRefreshToken(username, refreshToken);
-  }
-
-  /**
-   * Validates the provided verification code against the stored code.
-   *
-   * <p>This method checks if the verification key is null, if the key exists in the cache,
-   * and if the stored code matches the provided code. It throws appropriate exceptions if
-   * validation fails.</p>
-   *
-   * @param verificationKey the key used to retrieve the verification code from the cache
-   * @param code            the verification code to validate
-   * @throws VerificationFailedException    if the verification key is null
-   * @throws ExpiredVerificationCodeException if the verification key does not exist in the cache
-   * @throws InvalidVerificationCodeException if the stored code does not match the provided code
-   */
-  protected void validateVerificationCode(final String verificationKey, final String code) {
-    // Check if the verification key is null
-    if (isNull(verificationKey)) {
-      throw new VerificationFailedException();
-    }
-
-    // Check if the verification key exists in the cache
-    if (!(cacheService.exists(verificationKey))) {
-      throw new ExpiredVerificationCodeException(code);
-    }
-
-    // Retrieve the existing code from the cache
-    final String existingCode = (String) cacheService.get(verificationKey);
-
-    // Check if the existing code is null or does not match the provided code
-    if (!(nonNull(existingCode) && existingCode.equals(code))) {
-      throw new InvalidVerificationCodeException(code);
-    }
   }
 
   /**

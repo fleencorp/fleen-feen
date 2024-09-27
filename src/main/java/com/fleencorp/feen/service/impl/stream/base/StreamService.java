@@ -5,7 +5,6 @@ import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.stream.*;
-import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
@@ -32,6 +31,7 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.mapper.StreamAttendeeMapper.toEventAttendeeResponses;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
 
@@ -77,14 +77,19 @@ public class StreamService {
    */
   protected PageAndFleenStreamResponse findEventsOrStreams(final StreamSearchRequest searchRequest) {
     final Page<FleenStream> page;
+
+    // If both start and end dates are set, search by date range
     if (searchRequest.areAllDatesSet()) {
       page = fleenStreamRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), StreamStatus.ACTIVE, searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle())) {
+      // If title is set, search by stream title
       page = fleenStreamRepository.findByTitle(searchRequest.getTitle(), StreamStatus.ACTIVE, searchRequest.getPage());
     } else {
+      // Default to searching for active streams without specific filters
       page = fleenStreamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
     }
 
+    // Return the response with a list of FleenStreams and pagination info
     return PageAndFleenStreamResponse.of(toFleenStreams(page.getContent()), page);
   }
 
@@ -99,12 +104,15 @@ public class StreamService {
    * @return a set of {@code StreamAttendeeResponse} objects or an empty set if the input is {@code null}.
    */
   public Set<StreamAttendeeResponse> toStreamAttendeeResponses(final Set<StreamAttendee> streamAttendees) {
+    // Check if the streamAttendees set is not null
     if (nonNull(streamAttendees)) {
+      // Convert each StreamAttendee into a StreamAttendeeResponse and collect into a set
       return streamAttendees
         .stream()
-        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getMember().getFullName()))
+        .map(attendee -> StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getFullName()))
         .collect(Collectors.toSet());
     }
+    // Return an empty set if the input set is null
     return Set.of();
   }
 
@@ -145,6 +153,7 @@ public class StreamService {
     // Throw an exception if the provided value is null
     checkIsNull(stream, UnableToCompleteOperationException::new);
 
+    // Check if the stream has already ended and throw an exception if true
     if (stream.hasEnded()) {
       throw new StreamAlreadyHappenedException(stream.getStreamId(), stream.getScheduledEndDate());
     }
@@ -173,7 +182,7 @@ public class StreamService {
       .ifPresent(streamAttendee -> {
         // If the user is found as an attendee, throw an exception with the attendee's request to join status
         throw new AlreadyRequestedToJoinStreamException(streamAttendee.getStreamAttendeeRequestToJoinStatus().getValue());
-      });
+    });
   }
 
   /**
@@ -322,6 +331,7 @@ public class StreamService {
    */
   public void setAttendeeRequestToJoinPendingIfStreamIsPrivate(final StreamAttendee streamAttendee, final FleenStream stream) {
     if (nonNull(streamAttendee)) {
+      // If the stream is private, set the request-to-join status to pending
       if (stream.isPrivate()) {
         streamAttendee.setStreamAttendeeRequestToJoinStatus(PENDING);
       }
@@ -394,8 +404,11 @@ public class StreamService {
    * @return a list of {@code StreamAttendeeResponse} objects, with duplicates removed.
    */
   protected List<StreamAttendeeResponse> toStreamAttendeeResponses(final List<StreamAttendee> streamAttendees) {
+    // Fetch a paginated list of stream attendees for the given stream ID
     final Set<StreamAttendee> streamAttendeesSet = new HashSet<>(streamAttendees);
+    // Convert the list of StreamAttendee entities to StreamAttendeeResponse views
     final Set<StreamAttendeeResponse> streamAttendeeResponses = toStreamAttendeeResponses(streamAttendeesSet);
+    // Convert to a search result view, including the attendees and pagination details
     return new ArrayList<>(streamAttendeeResponses);
   }
 
@@ -407,8 +420,11 @@ public class StreamService {
    * @return A {@code SearchResultView} containing the list of stream attendees and pagination details.
    */
   protected SearchResultView findEventOrStreamAttendees(final Long eventOrStreamId, final StreamAttendeeSearchRequest searchRequest) {
+    // Retrieve paginated list of attendees associated with the given event or stream
     final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
+    // Convert the list of attendees to response objects
     final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(page.getContent());
+    // Return the search result view containing the attendees and pagination info
     return toSearchResult(views, page);
   }
 
@@ -451,7 +467,7 @@ public class StreamService {
     final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = EventOrStreamAttendeesResponse.of(eventOrStreamId);
     // Check if the attendees list is not empty and set it to the list of attendees in the response
     if (nonNull(attendees) && !attendees.isEmpty()) {
-      final List<EventOrStreamAttendeeResponse> attendeesResponses = StreamAttendeeMapper.toEventAttendeeResponses(new ArrayList<>(attendees));
+      final List<EventOrStreamAttendeeResponse> attendeesResponses = toEventAttendeeResponses(new ArrayList<>(attendees));
       eventOrStreamAttendeesResponse.setAttendees(attendeesResponses);
     }
     return eventOrStreamAttendeesResponse;
@@ -477,18 +493,13 @@ public class StreamService {
   protected void determineUserJoinStatusForEventOrStream(final List<FleenStreamResponse> responses, final FleenUser user) {
     if (nonNull(user) && nonNull(user.toMember()) && nonNull(responses)) {
       // Extract the event or stream IDs from the search result views
-      final List<Long> eventIds = responses.stream()
-        .filter(Objects::nonNull)
-        .map(FleenFeenResponse::getNumberId)
-        .toList();
+      final List<Long> eventIds = extractAndGetEventOrStreamIds(responses);
 
       // Retrieve the user's attendance records for the provided event or stream IDs
       final List<StreamAttendeeSelect> userAttendances = streamAttendeeRepository.findByMemberAndEventOrStreamIds(user.toMember(), eventIds);
 
       // Map event or stream IDs to the user's request-to-join status
-      final Map<Long, StreamAttendeeRequestToJoinStatus> attendanceStatusMap = userAttendances.stream()
-        .filter(Objects::nonNull)
-        .collect(Collectors.toMap(StreamAttendeeSelect::getEventOrStreamId, StreamAttendeeSelect::getRequestToJoinStatus));
+      final Map<Long, StreamAttendeeRequestToJoinStatus> attendanceStatusMap = groupAttendeeStatusByEventOrStreamId(userAttendances);
 
       // Update each stream's join status in the response views
       responses.stream()
@@ -503,6 +514,45 @@ public class StreamService {
           }
       });
     }
+  }
+
+  /**
+   * Extracts and returns a list of event or stream IDs from a list of FleenStreamResponse objects.
+   * The method filters out any null responses and retrieves the numeric ID of each non-null response.
+   *
+   * @param responses A list of FleenStreamResponse objects from which to extract event or stream IDs.
+   * @return A list of event or stream IDs. If the input list is null, an empty list is returned.
+   */
+  protected static List<Long> extractAndGetEventOrStreamIds(List<FleenStreamResponse> responses) {
+    // Filter null responses and map to the corresponding event or stream ID
+    if (nonNull(responses)) {
+      return responses.stream()
+        .filter(Objects::nonNull)
+        .map(FleenFeenResponse::getNumberId)
+        .toList();
+    }
+    // Return an empty list if the input list is null
+    return List.of();
+  }
+
+  /**
+   * Groups attendee request-to-join statuses by the event or stream ID.
+   * This method processes a list of user attendances, filters out any null values,
+   * and maps the event or stream ID to the corresponding request-to-join status.
+   *
+   * @param userAttendances A list of user attendances with event or stream data.
+   * @return A map where the key is the event or stream ID and the value is the request-to-join status.
+   *         If the input list is null or empty, an empty map is returned.
+   */
+  protected static Map<Long, StreamAttendeeRequestToJoinStatus> groupAttendeeStatusByEventOrStreamId(List<StreamAttendeeSelect> userAttendances) {
+    // Filter null values and map event/stream ID to request-to-join status
+    if (nonNull(userAttendances) && !userAttendances.isEmpty()) {
+      return userAttendances.stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(StreamAttendeeSelect::getEventOrStreamId, StreamAttendeeSelect::getRequestToJoinStatus));
+    }
+    // Return an empty map if the input list is null or empty
+    return Map.of();
   }
 
   /**

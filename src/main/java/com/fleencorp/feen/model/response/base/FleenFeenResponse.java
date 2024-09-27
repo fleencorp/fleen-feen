@@ -1,9 +1,6 @@
 package com.fleencorp.feen.model.response.base;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +37,7 @@ public class FleenFeenResponse {
   @JsonProperty("updated_on")
   protected LocalDateTime updatedOn;
 
+  @JsonIgnore
   public Long getNumberId() {
     return (Long) id;
   }
