@@ -13,6 +13,7 @@ import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerRespo
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.StreamSpeakerService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,7 @@ public class StreamSpeakerController {
     return streamSpeakerService.getSpeakers(eventOrStreamId);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @PostMapping(value = "/add/{eventOrStreamId}")
   public AddStreamSpeakerResponse addStreamSpeaker(
       @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
@@ -46,6 +48,7 @@ public class StreamSpeakerController {
     return streamSpeakerService.addSpeakers(eventOrStreamId, addStreamSpeakerDto, user);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @PutMapping(value = "/update/{eventOrStreamId}")
   public UpdateStreamSpeakerResponse updateStreamSpeaker(
       @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
@@ -54,6 +57,7 @@ public class StreamSpeakerController {
     return streamSpeakerService.updateSpeakers(eventOrStreamId, updateStreamSpeakerDto, user);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @DeleteMapping(value = "/delete/{eventOrStreamId}")
   public DeleteStreamSpeakerResponse deleteStreamSpeaker(
       @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,

@@ -27,7 +27,7 @@ public interface EventService {
 
   SearchResultView findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
 
-  RetrieveEventResponse retrieveEvent(Long eventId);
+  RetrieveEventResponse retrieveEvent(Long eventId, FleenUser user);
 
   CreateEventResponse createEvent(CreateCalendarEventDto createCalendarEventDto, FleenUser user);
 

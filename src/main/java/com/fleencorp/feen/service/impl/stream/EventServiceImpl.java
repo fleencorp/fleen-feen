@@ -386,19 +386,30 @@ public class EventServiceImpl extends StreamService implements EventService {
    * object into a FleenStreamResponse for external presentation.</p>
    *
    * @param eventId the ID of the event to retrieve
+   * @param user the authenticated user
    * @return {@link RetrieveEventResponse} containing the event details
    * @throws FleenStreamNotFoundException if the event with the specified ID is not found
    */
   @Override
-  public RetrieveEventResponse retrieveEvent(final Long eventId) {
+  public RetrieveEventResponse retrieveEvent(final Long eventId, final FleenUser user) {
     final FleenStream stream = findStream(eventId);
     // Get all event or stream attendees
     final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream.getAttendees());
     // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(streamAttendeesGoingToStream);
+    // The Stream converted to a response
+    final FleenStreamResponse streamResponse = toFleenStreamResponse(stream);
+
+    if (nonNull(streamResponse)) {
+      final List<FleenStreamResponse> streams = List.of(streamResponse);
+      // Determine schedule status whether live, past or upcoming
+      determineScheduleStatus(streams);
+      // Set other schedule details if user timezone is different
+      setOtherScheduleBasedOnUserTimezone(streams, user);
+    }
     // Count total attendees whose request to join event is approved and are attending the event because they are interested
     final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
-    return localizedResponse.of(RetrieveEventResponse.of(eventId, toFleenStreamResponse(stream), streamAttendees, totalAttendees));
+    return localizedResponse.of(RetrieveEventResponse.of(eventId, streamResponse, streamAttendees, totalAttendees));
   }
 
   /**
@@ -461,12 +472,16 @@ public class EventServiceImpl extends StreamService implements EventService {
    *         and request-to-join status. Returns an empty set if the input is null or empty.
    */
   protected Set<StreamAttendeeResponse> toStreamAttendeeResponsesWithStatus(final Set<StreamAttendee> streamAttendees) {
+    // Convert each StreamAttendee entity to StreamAttendeeResponse and include request-to-join status
     if (nonNull(streamAttendees)) {
-      return streamAttendees
-          .stream()
+      return streamAttendees.stream()
+          .filter(Objects::nonNull)
           .map(attendee -> {
-            final Long attendeeUserId = attendee.getMember().getMemberId();
-            final String fullName = attendee.getMember().getFullName();
+            // Map each StreamAttendee to a StreamAttendeeResponse including request-to-join status
+            final Long attendeeUserId = attendee.getMemberId();
+            final String fullName = attendee.getFullName();
+
+            // Return a new StreamAttendeeResponse with ID, user ID, full name, and request-to-join status
             return StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendeeUserId, fullName, attendee.getStreamAttendeeRequestToJoinStatus());
           })
           .collect(Collectors.toSet());
@@ -878,7 +893,7 @@ public class EventServiceImpl extends StreamService implements EventService {
               // Save the updated attendee details
               streamAttendeeRepository.save(streamAttendee);
               // Add attendee to the event by invitation
-              addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getMember().getEmailAddress(), null);
+              addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getEmailAddress(), null);
             }
           }
         },
@@ -973,9 +988,7 @@ public class EventServiceImpl extends StreamService implements EventService {
       final List<StreamAttendee> streamAttendees = streamAttendeeRepository.findAllByFleenStreamAndStreamAttendeeRequestToJoinStatus(stream, PENDING);
 
       final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(streamAttendees);
-      final Set<Long> attendeeIds = streamAttendees.stream()
-        .map(StreamAttendee::getStreamAttendeeId)
-        .collect(Collectors.toSet());
+      final Set<Long> attendeeIds = getAttendeeIds(streamAttendees);
 
       // Approve users whose request was already pending when the event or stream was private or protected or locked
       streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
@@ -991,6 +1004,23 @@ public class EventServiceImpl extends StreamService implements EventService {
   }
 
   /**
+   * Retrieves the set of attendee IDs from a list of StreamAttendee objects.
+   *
+   * @param attendees List of StreamAttendees from which the IDs will be extracted.
+   * @return A set of attendee IDs.
+   */
+  protected Set<Long> getAttendeeIds(List<StreamAttendee> attendees) {
+    // Stream over the list of StreamAttendees
+    if (nonNull(attendees)) {
+      // Map each StreamAttendee to its StreamAttendeeId and collect the IDs into a set
+      return attendees.stream()
+        .map(StreamAttendee::getStreamAttendeeId)
+        .collect(Collectors.toSet());
+    }
+    return Set.of();
+  }
+
+  /**
    * Retrieves email addresses of attendees from a list of StreamAttendee objects.
    *
    * <p>This method filters out null StreamAttendee objects, retrieves the email addresses of the
@@ -1003,7 +1033,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     if (nonNull(streamAttendees)) {
       return streamAttendees.stream()
           .filter(Objects::nonNull)
-          .map(attendee -> attendee.getMember().getEmailAddress())
+          .map(StreamAttendee::getEmailAddress)
           .collect(Collectors.toSet());
     }
     return Collections.emptySet();

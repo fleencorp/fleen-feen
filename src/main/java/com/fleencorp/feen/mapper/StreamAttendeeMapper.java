@@ -27,7 +27,7 @@ public class StreamAttendeeMapper {
     if (nonNull(entry)) {
       return EventOrStreamAttendeeResponse.builder()
           .id(entry.getMemberId())
-          .name(entry.getMember().getFullName())
+          .name(entry.getFullName())
           .displayPhoto(entry.getMember().getProfilePhotoUrl())
           .comment(entry.getAttendeeComment())
           .organizerComment(entry.getOrganizerComment())
