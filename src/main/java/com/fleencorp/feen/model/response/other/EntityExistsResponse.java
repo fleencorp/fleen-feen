@@ -1,9 +1,15 @@
 package com.fleencorp.feen.model.response.other;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -12,17 +18,37 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
+@SuperBuilder
 @Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class EntityExistsResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+  "message",
+  "exists",
+  "timestamp"
+})
+public class EntityExistsResponse extends ApiResponse {
 
-  private boolean exists;
+  @JsonProperty("exists")
+  protected boolean exists;
 
+  @JsonProperty("timestamp")
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
-  private LocalDateTime timestamp;
+  protected LocalDateTime timestamp;
 
   @JsonProperty("status_code")
-  private Integer statusCode;
+  protected Integer statusCode;
+
+  protected static Integer getActualStatusCode(boolean status) {
+    return status ? OK.value() : BAD_REQUEST.value();
+  }
+
+  @Override
+  public String getMessageCode() {
+    return "";
+  }
 
   public EntityExistsResponse(final boolean exists) {
     this(exists, true);
