@@ -99,7 +99,7 @@ public class MfaServiceImpl implements MfaService {
     // Check if the MFA type is set and MFA is not already enabled
     if (isMfaMethodOrTypeNotEmpty(member.getMfaType()) && member.isMfaDisabled()) {
       // Enable two-factor authentication (2FA) for the user
-      mfaRepository.reEnableTwoFa(user.getId());
+      mfaRepository.enableOrDisableTwoFa(user.toMember(), true);
     }
 
     // Return a response indicating the result of the MFA enable operation
@@ -122,7 +122,7 @@ public class MfaServiceImpl implements MfaService {
     // Check if the MFA type is set and MFA is currently enabled
     if (isMfaMethodOrTypeNotEmpty(member.getMfaType()) && member.isMfaEnabled()) {
       // Disable two-factor authentication (2FA) for the user
-      mfaRepository.disableTwoFa(user.getId());
+      mfaRepository.enableOrDisableTwoFa(user.toMember(), false);
     }
 
     // Return a response indicating the status of the MFA disable operation

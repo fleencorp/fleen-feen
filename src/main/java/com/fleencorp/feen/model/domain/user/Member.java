@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.EAGER;
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
@@ -90,7 +90,7 @@ public class Member extends FleenFeenEntity {
   private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
 
   @Builder.Default
-  @ManyToMany(fetch = EAGER, targetEntity = Role.class, cascade = CascadeType.ALL)
+  @ManyToMany(fetch = LAZY, targetEntity = Role.class, cascade = CascadeType.ALL)
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
@@ -98,7 +98,14 @@ public class Member extends FleenFeenEntity {
   @Column(name = "is_internal", nullable = false)
   private boolean isInternal = false;
 
+  /**
+   * Retrieves the full name by concatenating the first name and last name.
+   * Uses a utility method from StringUtil to handle the concatenation.
+   *
+   * @return A string representing the full name of the user, constructed from first and last name.
+   */
   public String getFullName() {
+    // Concatenate first name and last name to form the full name
     return StringUtil.getFullName(firstName, lastName);
   }
 
@@ -218,6 +225,38 @@ public class Member extends FleenFeenEntity {
    */
   public boolean isProfileActiveAndApproved() {
     return ProfileStatus.isActive(profileStatus) && ProfileVerificationStatus.isApproved(verificationStatus);
+  }
+
+  /**
+   * Updates the user's email address and marks it as verified.
+   *
+   * @param emailAddress the new email address to set.
+   */
+  public void updateAndVerifyEmail(final String emailAddress) {
+    // Set the new email address
+    this.emailAddress = emailAddress;
+    // Mark the email address as verified
+    emailAddressVerified = true;
+  }
+
+  /**
+   * Updates the user's phone number and marks it as verified.
+   *
+   * @param phoneNumber the new phone number to set.
+   */
+  public void updateAndVerifyPhone(final String phoneNumber) {
+    // Set the new phone number
+    this.phoneNumber = phoneNumber;
+    // Mark the phone number as verified
+    phoneNumberVerified = true;
+  }
+
+  /**
+   * Deletes the user's profile photo by setting the profile photo URL to null.
+   */
+  public void deleteProfilePhoto() {
+    // Remove the profile photo by nullifying the URL
+    this.profilePhotoUrl = null;
   }
 
   public static Member of(final Long memberId) {
