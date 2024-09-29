@@ -13,13 +13,8 @@ public interface MfaRepository extends JpaRepository<Member, Long> {
 
   @Modifying
   @Transactional
-  @Query("UPDATE Member m SET m.mfaEnabled = true WHERE m.memberId = :memberId")
-  void reEnableTwoFa(@Param("memberId") Long memberId);
-
-  @Modifying
-  @Transactional
-  @Query("UPDATE Member m SET m.mfaEnabled = false WHERE m.memberId = :memberId")
-  void disableTwoFa(@Param("memberId") Long memberId);
+  @Query("UPDATE Member m SET m.mfaEnabled = :status WHERE m = :member")
+  void enableOrDisableTwoFa(@Param("member") Member member, @Param("status") boolean status);
 
   @Query("SELECT m.mfaSecret FROM Member m WHERE m.emailAddress = :emailAddress")
   Optional<String> getTwoFaSecret(@Param("emailAddress") Long emailAddress);

@@ -18,7 +18,7 @@ import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_V
 public class SignUpVerificationRequest extends SendVerificationCodeRequest {
 
   public static SignUpVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
-    final String phoneNumber, final VerificationType verificationType) {
+      final String phoneNumber, final VerificationType verificationType) {
     return SignUpVerificationRequest.builder()
         .verificationCode(verificationCode)
         .firstName(firstName)
