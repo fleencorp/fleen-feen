@@ -27,6 +27,13 @@ import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.impl.external.aws.S3Service;
 import com.fleencorp.feen.service.security.VerificationService;
+import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
+import com.fleencorp.feen.model.response.common.EmailAddressNotExistsResponse;
+import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
+import com.fleencorp.feen.model.response.common.PhoneNumberNotExistsResponse;
+import com.fleencorp.feen.model.response.other.EntityExistsResponse;
+import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.user.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -112,6 +119,26 @@ public class MemberServiceImpl implements MemberService,
   }
 
   /**
+   * Checks if a member's email address exists in the system.
+   *
+   * <p>This method verifies the existence of the given email address
+   * by calling {@link #isEmailAddressExist(String)}. Depending on whether
+   * the email address exists or not, it returns a localized response
+   * indicating the result.
+   *
+   * @param emailAddress the email address to check for existence
+   * @return an {@link EntityExistsResponse} containing a localized response
+   *         indicating whether the email address exists or not
+   */
+  @Override
+  public EntityExistsResponse isMemberEmailAddressExists(String emailAddress) {
+    boolean exists = isEmailAddressExist(emailAddress);
+    return exists
+      ? localizedResponse.of(EmailAddressExistsResponse.of(true))
+      : localizedResponse.of(EmailAddressNotExistsResponse.of(false));
+  }
+
+  /**
    * Checks if a member with the specified email address exists in the repository.
    *
    * @param emailAddress the email address to check.
@@ -120,6 +147,26 @@ public class MemberServiceImpl implements MemberService,
   @Override
   public boolean isEmailAddressExist(final String emailAddress) {
     return memberRepository.existsByEmailAddress(emailAddress);
+  }
+
+  /**
+   * Checks if a member's phone number exists in the system.
+   *
+   * <p>This method verifies the existence of the given phone number
+   * by calling {@link #isPhoneNumberExist(String)}. Based on the existence
+   * of the phone number, it returns a localized response indicating
+   * the result.
+   *
+   * @param phoneNumber the phone number to check for existence
+   * @return an {@link EntityExistsResponse} containing a localized response
+   *         indicating whether the phone number exists or not
+   */
+  @Override
+  public EntityExistsResponse isMemberPhoneNumberExists(String phoneNumber) {
+    boolean exists = isPhoneNumberExist(phoneNumber);
+    return exists
+      ? localizedResponse.of(PhoneNumberExistsResponse.of(true))
+      : localizedResponse.of(PhoneNumberNotExistsResponse.of(false));
   }
 
   /**
