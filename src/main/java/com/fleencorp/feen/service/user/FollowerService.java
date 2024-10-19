@@ -1,19 +1,20 @@
 package com.fleencorp.feen.service.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.model.dto.social.follow.FollowOrUnfollowUserDto;
 import com.fleencorp.feen.model.response.user.FollowUserResponse;
-import com.fleencorp.feen.model.response.user.FollowersResponse;
-import com.fleencorp.feen.model.response.user.FollowingsResponse;
 import com.fleencorp.feen.model.response.user.UnfollowUserResponse;
+import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
+import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface FollowerService {
 
-  FollowUserResponse followUser(Long userId, FleenUser follower);
+  FollowUserResponse followUser(FollowOrUnfollowUserDto followUserDto, FleenUser follower);
 
-  UnfollowUserResponse unfollowUser(Long userId, FleenUser follower);
+  UnfollowUserResponse unfollowUser(FollowOrUnfollowUserDto unfollowUserDto, FleenUser follower);
 
-  FollowersResponse getFollowers(FleenUser followed, SearchRequest searchRequest);
+  FollowerSearchResult getFollowers(SearchRequest searchRequest, FleenUser followed);
 
-  FollowingsResponse getUsersFollowing(FleenUser follower, SearchRequest searchRequest);
+  FollowingSearchResult getFollowings(SearchRequest searchRequest, FleenUser user);
 }

@@ -1,10 +1,10 @@
 package com.fleencorp.feen.controller.country;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
+import com.fleencorp.feen.model.search.country.CountrySearchResult;
 import com.fleencorp.feen.service.common.CountryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +26,7 @@ public class CountryController {
   }
 
   @GetMapping(value = "/entries")
-  public SearchResultView findCountries(
+  public CountrySearchResult findCountries(
       @SearchParam final CountrySearchRequest searchRequest) {
     return countryService.findCountries(searchRequest);
   }

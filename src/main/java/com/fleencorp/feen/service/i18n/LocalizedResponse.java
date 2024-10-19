@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
+import java.util.function.Supplier;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -119,6 +121,67 @@ public class LocalizedResponse {
       return response;
     }
     return null;
+  }
+
+  /**
+   * Updates the message in the provided {@link FleenFeenResponse} (or any subclass of {@link ApiResponse})
+   * with a localized message corresponding to its message key, and optionally replaces placeholders with the specified parameters.
+   *
+   * <p>This method retrieves the localized message for the given {@link FleenFeenResponse} based on its message key,
+   * using the provided parameters to replace placeholders in the message if applicable. The response's message field is then updated
+   * with the localized message. If the {@code response} or its {@code messageCode} is {@code null}, the method returns {@code null}.</p>
+   *
+   * <p>If the {@code params} are {@code null}, they are replaced with an empty array to prevent issues during message formatting.</p>
+   *
+   * @param <T>      the type of the response, which extends {@link ApiResponse}.
+   * @param response the {@link FleenFeenResponse} object (or subclass of {@link ApiResponse}) whose message field should be updated.
+   * @param params   the parameters to replace placeholders in the localized message, or {@code null} if no parameters are needed.
+   * @return the updated {@link FleenFeenResponse} with the localized message, or {@code null} if the input response or message code is {@code null}.
+   */
+  public <T extends ApiResponse> T of(final T response, Object[] params) {
+    if (nonNull(response) && nonNull(response.getMessageCode())) {
+      if (isNull(params)) {
+        params = new Object[] {};
+      }
+      final String message = getMessage(response.getMessageCode(), params);
+      response.setMessage(message);
+      return response;
+    }
+    return null;
+  }
+
+  /**
+   * Returns a Supplier that provides a response with its message field set based on the message code,
+   * if the response and its message code are not null. The message is retrieved using the
+   * {@code getMessage} method.
+   *
+   * <p>The response is supplied via the {@code responseSupplier}, and the modification occurs
+   * when the returned Supplier is invoked. This allows deferred execution, where the response
+   * is not created or modified until the Supplier's {@code get()} method is called.</p>
+   *
+   * @param <T> The type of the ApiResponse being handled.
+   * @param responseSupplier A Supplier that provides the ApiResponse to be processed. The supplier
+   *                         must not be null, and it must return a non-null response for processing
+   *                         to occur.
+   * @return A Supplier that, when invoked, returns the processed response with the message set
+   *         if a valid message code is present, or {@code null} if the input supplier is null
+   *         or provides a null response.
+   * @throws NullPointerException if the {@code responseSupplier} is null.
+   */
+  public <T extends ApiResponse> Supplier<T> of(final Supplier<T> responseSupplier) {
+    return () -> {
+      if (nonNull(responseSupplier) && nonNull(responseSupplier.get())) {
+        final T response = responseSupplier.get();
+
+        if (nonNull(response) && nonNull(response.getMessageCode())) {
+          final String message = getMessage(response.getMessageCode());
+          response.setMessage(message);
+        }
+
+        return response;
+      }
+      return null;
+    };
   }
 
   /**

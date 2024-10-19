@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.stream;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.*;
 import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
@@ -10,22 +9,24 @@ import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
-import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
+import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.event.EventSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventService {
 
-  SearchResultView findEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
 
-  SearchResultView findMyEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findMyEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
 
-  SearchResultView findEvents(CalendarEventSearchRequest searchRequest, StreamTimeType streamTimeType);
+  EventSearchResult findEvents(CalendarEventSearchRequest searchRequest, StreamTimeType streamTimeType);
 
-  SearchResultView findEventsAttendedByUser(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEventsAttendedByUser(CalendarEventSearchRequest searchRequest, FleenUser user);
 
-  SearchResultView findEventsAttendedWithAnotherUser(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEventsAttendedWithAnotherUser(CalendarEventSearchRequest searchRequest, FleenUser user);
 
-  SearchResultView findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
+  StreamAttendeeSearchResult findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
 
   RetrieveEventResponse retrieveEvent(Long eventId, FleenUser user);
 
@@ -53,9 +54,9 @@ public interface EventService {
 
   AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
 
-  SearchResultView getEventAttendeeRequestsToJoinEvent(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
+  RequestToJoinSearchResult getEventAttendeeRequestsToJoinEvent(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
 
-  EventOrStreamAttendeesResponse getEventAttendees(Long eventId, FleenUser user);
+  StreamAttendeeSearchResult getEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
 
   TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);
 

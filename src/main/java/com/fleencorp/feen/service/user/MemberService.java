@@ -2,9 +2,9 @@ package com.fleencorp.feen.service.user;
 
 
 import com.fleencorp.feen.model.dto.user.profile.*;
+import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.model.response.user.profile.*;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 
 
 public interface MemberService {

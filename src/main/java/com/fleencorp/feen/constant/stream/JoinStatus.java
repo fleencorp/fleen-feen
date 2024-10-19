@@ -1,6 +1,7 @@
 package com.fleencorp.feen.constant.stream;
 
 import com.fleencorp.base.constant.base.ApiParameter;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import lombok.Getter;
 
 /**
@@ -42,5 +43,37 @@ public enum JoinStatus implements ApiParameter {
       case APPROVED -> JOINED.getValue();
       case DISAPPROVED -> DISAPPROVED.getValue();
     };
+  }
+
+  /**
+   * Retrieves the appropriate status label for a given join status.
+   *
+   * <p>This method returns a user-friendly status string for the provided
+   * {@link ChatSpaceRequestToJoinStatus}. Based on the status, it will return:
+   * "Pending" for PENDING, "Joined" for APPROVED, and "Disapproved" for DISAPPROVED.</p>
+   *
+   * @param joinStatus the {@link ChatSpaceRequestToJoinStatus} to get the status label for
+   * @return the corresponding status string for the given join status
+   */
+  public static String getJoinStatus(final ChatSpaceRequestToJoinStatus joinStatus) {
+    return switch (joinStatus) {
+      case PENDING -> PENDING.getValue();
+      case APPROVED -> JOINED.getValue();
+      case DISAPPROVED -> DISAPPROVED.getValue();
+    };
+  }
+
+  /**
+   * Checks if the provided join status indicates that it is not approved.
+   *
+   * <p>This method returns {@code true} if the given {@code joinStatus} string is
+   * not equivalent to the "Joined" status, meaning the user has not been approved.
+   * Otherwise, it returns {@code false}.</p>
+   *
+   * @param joinStatus the status string to check
+   * @return {@code true} if the status is not "Joined", {@code false} otherwise
+   */
+  public static boolean isNotApproved(final String joinStatus) {
+    return !(JOINED.getValue().equals(joinStatus));
   }
 }

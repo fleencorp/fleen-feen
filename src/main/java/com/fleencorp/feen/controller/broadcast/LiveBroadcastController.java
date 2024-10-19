@@ -1,6 +1,5 @@
 package com.fleencorp.feen.controller.broadcast;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
@@ -8,6 +7,8 @@ import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.response.broadcast.*;
+import com.fleencorp.feen.model.search.broadcast.LiveBroadcastSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import jakarta.validation.Valid;
@@ -35,7 +36,7 @@ public class LiveBroadcastController {
   }
 
   @GetMapping(value = "/entries")
-  public SearchResultView findLiveBroadcasts(
+  public LiveBroadcastSearchResult findLiveBroadcasts(
       @SearchParam final LiveBroadcastSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.findLiveBroadcasts(searchRequest, user);
@@ -48,7 +49,7 @@ public class LiveBroadcastController {
   }
 
   @GetMapping(value = "/attendees/{streamId}")
-  public SearchResultView findStreamAttendees(
+  public StreamAttendeeSearchResult findStreamAttendees(
     @PathVariable(name = "streamId") final Long streamId,
     @SearchParam final StreamAttendeeSearchRequest searchRequest) {
     return liveBroadcastService.findStreamAttendees(streamId, searchRequest);

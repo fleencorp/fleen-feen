@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.stream;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
@@ -11,13 +10,16 @@ import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchReques
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.response.broadcast.*;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
+import com.fleencorp.feen.model.search.broadcast.LiveBroadcastSearchResult;
+import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface LiveBroadcastService {
 
   DataForCreateStreamResponse getDataForCreateStream();
 
-  SearchResultView findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest, FleenUser user);
+  LiveBroadcastSearchResult findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest, FleenUser user);
 
   RetrieveStreamResponse retrieveStream(Long streamId);
 
@@ -37,13 +39,13 @@ public interface LiveBroadcastService {
 
   DeletedStreamResponse deleteStream(Long streamId, FleenUser user);
 
-  SearchResultView getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
+  RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
 
   UpdateStreamVisibilityResponse updateStreamVisibility(Long streamId, UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, FleenUser user);
 
-  SearchResultView findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
+  StreamAttendeeSearchResult findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
 
-  EventOrStreamAttendeesResponse getStreamAttendees(Long streamId, FleenUser user);
+  EventOrStreamAttendeesResponse getStreamAttendees(Long streamId, StreamAttendeeSearchRequest streamAttendeeSearchRequest, FleenUser user);
 
   TotalStreamsCreatedByUserResponse countTotalStreamsByUser(FleenUser user);
 

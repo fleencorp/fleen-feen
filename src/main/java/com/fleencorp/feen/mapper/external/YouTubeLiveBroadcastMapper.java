@@ -21,6 +21,8 @@ import static java.util.Objects.nonNull;
 */
 public class YouTubeLiveBroadcastMapper {
 
+  private YouTubeLiveBroadcastMapper() {}
+
   /**
   * Maps a {@link LiveBroadcast} object to a {@link YouTubeLiveBroadcastResponse}.
   *

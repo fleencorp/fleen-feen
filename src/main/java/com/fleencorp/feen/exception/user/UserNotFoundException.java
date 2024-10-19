@@ -2,15 +2,20 @@ package com.fleencorp.feen.exception.user;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
+import java.util.function.Supplier;
 
 public class UserNotFoundException extends FleenException {
 
-  public static final String MESSAGE = "User does not exist or cannot be found. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "user.not.found";
+  }
 
-  public UserNotFoundException(final Object id) {
-    super(String.format(MESSAGE, Objects.toString(id, UNKNOWN)));
+  public UserNotFoundException(final Object...params) {
+    super(params);
+  }
+
+  public static Supplier<UserNotFoundException> of(final Object memberId) {
+    return () -> new UserNotFoundException(memberId);
   }
 }

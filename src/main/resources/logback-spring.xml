@@ -183,6 +183,7 @@
 
         This configuration allows log messages to be processed asynchronously, reducing the impact on the application's performance, and ensures that only messages at the INFO level or higher are sent to Slack.
     -->
+
     <appender name="ASYNC_EXTERNAL" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="EXTERNAL" />
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">

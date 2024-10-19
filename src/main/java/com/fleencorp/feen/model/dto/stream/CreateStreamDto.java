@@ -3,14 +3,15 @@ package com.fleencorp.feen.model.dto.stream;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToLowerCase;
+import com.fleencorp.base.converter.common.ToSentenceCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
+import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
+import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
+import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -39,11 +43,12 @@ public class CreateStreamDto {
 
   @NotBlank(message = "{stream.description.NotBlank}")
   @Size(max = 3000, message = "{stream.description.Size}")
+  @ToSentenceCase
   @JsonProperty("description")
   protected String description;
 
-  @NotEmpty(message = "{stream.tags.NotBlank}")
-  @Size(min = 1, max = 300, message = "{stream.tags.Size}")
+  @NotBlank(message = "{tags.NotBlank}")
+  @Size(min = 1, max = 300, message = "{tags.Size}")
   @ToLowerCase
   @JsonProperty("tags")
   protected String tags;
@@ -123,6 +128,24 @@ public class CreateStreamDto {
 
   public LocalDateTime getActualEndDateTime() {
     return LocalDateTime.parse(endDateTime);
+  }
+
+  public FleenStream toFleenStream() {
+    return FleenStream.builder()
+      .title(title)
+      .description(description)
+      .tags(tags)
+      .location(location)
+      .timezone(timezone)
+      .scheduledStartDate(getActualStartDateTime())
+      .scheduledEndDate(getActualEndDateTime())
+      .streamSource(getActualSource())
+      .streamVisibility(getActualVisibility())
+      .streamCreationType(SCHEDULED)
+      .streamStatus(ACTIVE)
+      .forKids(parseBoolean(isForKids))
+      .isDeleted(false)
+      .build();
   }
 
 }

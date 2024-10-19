@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 
-import static com.fleencorp.feen.model.dto.aws.VerifyEmailIdentityDto.isEmailValid;
-
 @Service
 public class SesService {
 
@@ -54,13 +52,11 @@ public class SesService {
   public VerifyEmailIdentityResponse verifyEmailIdentity(final VerifyEmailIdentityDto verifyEmailIdentityDto) {
     if (verifyEmailIdentityDto.isEmailsValid()) {
       for (final String email : verifyEmailIdentityDto.getEmailAddresses()) {
-        if (isEmailValid(email)) {
-          final VerifyEmailIdentityRequest request = VerifyEmailIdentityRequest.builder()
-            .emailAddress(email)
-            .build();
+        final VerifyEmailIdentityRequest request = VerifyEmailIdentityRequest.builder()
+          .emailAddress(email)
+          .build();
 
-          sesClient.verifyEmailIdentity(request);
-        }
+        sesClient.verifyEmailIdentity(request);
       }
     }
     return localizedResponse.of(VerifyEmailIdentityResponse.of());

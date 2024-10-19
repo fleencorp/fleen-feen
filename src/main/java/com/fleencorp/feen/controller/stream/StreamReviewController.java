@@ -1,11 +1,11 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.stream.AddStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
+import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.StreamReviewService;
 import jakarta.validation.Valid;
@@ -24,14 +24,14 @@ public class StreamReviewController {
   }
 
   @GetMapping(value = "/mine")
-  public SearchResultView findReviews(
+  public StreamReviewSearchResult findReviews(
       @SearchParam final SearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return streamReviewService.findReviews(searchRequest, user);
   }
 
   @GetMapping(value = "/detail/{eventOrStreamId}")
-  public SearchResultView findReviews(
+  public StreamReviewSearchResult findReviews(
     @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
     final SearchRequest searchRequest) {
     return streamReviewService.findReviews(eventOrStreamId, searchRequest);

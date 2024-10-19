@@ -1,6 +1,5 @@
 package com.fleencorp.feen.controller.stream;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.stream.AddStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.DeleteStreamSpeakerDto;
@@ -10,6 +9,7 @@ import com.fleencorp.feen.model.response.stream.speaker.AddStreamSpeakerResponse
 import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.GetStreamSpeakersResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
+import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.StreamSpeakerService;
 import jakarta.validation.Valid;
@@ -28,7 +28,7 @@ public class StreamSpeakerController {
   }
 
   @GetMapping(value = "/find-speakers")
-  public SearchResultView findStreamSpeakers(
+  public StreamSpeakerSearchResult findStreamSpeakers(
       @SearchParam final StreamSpeakerSearchRequest searchRequest) {
     return streamSpeakerService.findSpeakers(searchRequest);
   }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.*;
+import org.springframework.data.domain.Page;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,9 @@ import java.util.List;
 @JsonPropertyOrder({
   "message",
   "event_id",
-  "attendees"
+  "stream_id",
+  "attendees",
+  "page"
 })
 public class EventOrStreamAttendeesResponse extends ApiResponse {
 
@@ -31,6 +34,9 @@ public class EventOrStreamAttendeesResponse extends ApiResponse {
   @Builder.Default
   @JsonProperty("attendees")
   private List<EventOrStreamAttendeeResponse> attendees = new ArrayList<>();
+
+  @JsonProperty("page")
+  private Page<?> page;
 
   @Override
   public String getMessageCode() {

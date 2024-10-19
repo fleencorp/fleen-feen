@@ -17,22 +17,24 @@ import static java.util.stream.Collectors.toList;
 */
 public class CalendarMapper {
 
+  private CalendarMapper() {}
+
   /**
   * Maps a Calendar entity to a CalendarResponse DTO.
   *
-  * @param calendar the Calendar entity to map
+  * @param entry the Calendar entity to map
   * @return the mapped CalendarResponse DTO, or null if the input is null
   */
-  public static CalendarResponse toCalendarResponse(final Calendar calendar) {
-    if (nonNull(calendar)) {
+  public static CalendarResponse toCalendarResponse(final Calendar entry) {
+    if (nonNull(entry)) {
       return CalendarResponse.builder()
-          .id(calendar.getCalendarId())
-          .title(calendar.getTitle())
-          .description(calendar.getDescription())
-          .timezone(calendar.getTimezone())
-          .code(calendar.getCode())
-          .createdOn(calendar.getCreatedOn())
-          .updatedOn(calendar.getUpdatedOn())
+          .id(entry.getCalendarId())
+          .title(entry.getTitle())
+          .description(entry.getDescription())
+          .timezone(entry.getTimezone())
+          .code(entry.getCode())
+          .createdOn(entry.getCreatedOn())
+          .updatedOn(entry.getUpdatedOn())
           .build();
     }
     return null;

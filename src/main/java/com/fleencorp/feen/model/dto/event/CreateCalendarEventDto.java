@@ -15,10 +15,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
-import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static java.lang.Boolean.parseBoolean;
-
 @SuperBuilder
 @Getter
 @Setter
@@ -69,24 +65,6 @@ public class CreateCalendarEventDto extends CreateStreamDto {
     final FleenStream fleenStream = toFleenStream();
     fleenStream.setMember(member);
     return fleenStream;
-  }
-
-  public FleenStream toFleenStream() {
-    return FleenStream.builder()
-            .title(title)
-            .description(description)
-            .tags(tags)
-            .location(location)
-            .timezone(timezone)
-            .scheduledStartDate(getActualStartDateTime())
-            .scheduledEndDate(getActualEndDateTime())
-            .streamSource(getActualSource())
-            .streamVisibility(getActualVisibility())
-            .streamCreationType(SCHEDULED)
-            .streamStatus(ACTIVE)
-            .forKids(parseBoolean(isForKids))
-            .isDeleted(false)
-            .build();
   }
 
 }

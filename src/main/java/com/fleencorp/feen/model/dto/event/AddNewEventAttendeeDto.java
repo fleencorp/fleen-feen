@@ -27,7 +27,7 @@ public class AddNewEventAttendeeDto {
   @JsonProperty("alias_or_display_name")
   private String aliasOrDisplayName;
 
-  @Size(min = 10, max = 500, message = "{event.comment.Size}")
+  @Size(min = 10, max = 500, message = "{comment.Size}")
   @JsonProperty("comment")
   protected String comment;
 }

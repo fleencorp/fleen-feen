@@ -5,13 +5,19 @@ import com.fleencorp.feen.event.broadcast.BroadcastService;
 import com.fleencorp.feen.event.model.stream.EventStreamCreatedResult;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
+import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService;
+import com.fleencorp.feen.service.impl.external.google.chat.GoogleChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
+import static java.util.Objects.requireNonNull;
+
 
 /**
  * Service implementation for updating events in both the local database and Google Calendar.
@@ -29,20 +35,28 @@ public class EventUpdateService {
   private final FleenStreamRepository fleenStreamRepository;
   private final GoogleCalendarEventService googleCalendarEventService;
   private final BroadcastService broadcastService;
+  private final GoogleChatService googleChatService;
 
   /**
-   * Constructs an instance of {@code EventUpdateServiceImpl}.
+   * Constructs an instance of {@link EventUpdateService} with the provided dependencies.
    *
-   * @param fleenStreamRepository the repository for managing FleenStream entities
-   * @param googleCalendarEventService the service for interacting with Google Calendar events
+   * <p>This constructor initializes the service with necessary repositories and
+   * services required for handling event updates.</p>
+   *
+   * @param fleenStreamRepository        The repository for managing FleenStream entities.
+   * @param broadcastService             The service responsible for broadcasting messages.
+   * @param googleCalendarEventService   The service for managing Google Calendar events.
+   * @param googleChatService            The service for interacting with Google Chat.
    */
   public EventUpdateService(
       final FleenStreamRepository fleenStreamRepository,
+      final BroadcastService broadcastService,
       final GoogleCalendarEventService googleCalendarEventService,
-      final BroadcastService broadcastService) {
+      final GoogleChatService googleChatService) {
     this.fleenStreamRepository = fleenStreamRepository;
-    this.googleCalendarEventService = googleCalendarEventService;
     this.broadcastService = broadcastService;
+    this.googleCalendarEventService = googleCalendarEventService;
+    this.googleChatService = googleChatService;
   }
 
   /**
@@ -61,18 +75,53 @@ public class EventUpdateService {
     // Create an event using an external service (Google Calendar)
     final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEvent().getHangoutLink());
+    stream.updateDetails(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEventLinkOrUri());
     fleenStreamRepository.save(stream);
+    // Set the event ID from the created event to to be reused
+    createCalendarEventRequest.update(googleCreateCalendarEventResponse.getEventId(), googleCreateCalendarEventResponse.getEventLinkOrUri());
 
-    // Create an event stream created result
-    final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
-      .of(stream.getMember().getMemberId(),
-          stream.getStreamId(),
-          stream.getExternalId(),
-          stream.getStreamLink(),
-          ResultType.EVENT_STREAM_CREATED);
-    // Broadcast the event creation result
-    broadcastService.broadcastEventCreated(eventStreamCreatedResult);
+    broadcastEventOrStreamCreated(stream);
+
+    // Adds the organizer or another specified individual as an attendee or guest of the event
+    addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(
+      createCalendarEventRequest.getCalendarIdOrName(),
+      googleCreateCalendarEventResponse.getEventId(),
+      createCalendarEventRequest.getOrganizerEmail(),
+      createCalendarEventRequest.getOrganizerDisplayName()
+    );
+  }
+
+  /**
+   * Creates a Google Calendar event for the given stream and announces it in the associated chat space.
+   *
+   * <p>This method first creates an event in Google Calendar using the provided {@link CreateCalendarEventRequest},
+   * and then sends an announcement message with event details to the associated chat space.</p>
+   *
+   * @param stream                    The FleenStream instance containing event and chat space details.
+   * @param createCalendarEventRequest The request containing details for creating the Google Calendar event.
+   */
+  @Async
+  @Transactional
+  public void createEventInGoogleCalendarAndAnnounceInSpace(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+    // Create event in Google Calendar
+    createEventInGoogleCalendar(stream, createCalendarEventRequest);
+
+    // Prepare the request to send a calendar event message to the chat space
+    final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
+      stream.getSpaceIdOrName(),
+      requireNonNull(toFleenStreamResponse(stream))
+    );
+
+    // Send the event message to the chat space
+    googleChatService.createCalendarEventMessageAndSendToChatSpace(googleChatSpaceMessageRequest);
+
+    // Create add new attendee request to add the organizer as an attendee of the event
+    addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(
+      createCalendarEventRequest.getCalendarIdOrName(),
+      createCalendarEventRequest.getEventId(),
+      createCalendarEventRequest.getCreatorEmail(),
+      createCalendarEventRequest.getOrganizerDisplayName()
+    );
   }
 
   /**
@@ -178,10 +227,49 @@ public class EventUpdateService {
    */
   @Async
   public void notAttendingEvent(final NotAttendingEventRequest notAttendingEventRequest) {
-// Call the external service to remove the attendee from the event in Google Calendar
+    // Call the external service to remove the attendee from the event in Google Calendar
     final GoogleRetrieveCalendarEventResponse googleRetrieveCalendarEventResponse = googleCalendarEventService.notAttendingEvent(notAttendingEventRequest);
     // Log the response indicating the attendee has been removed from the event
     log.info("Remove attendee from event: {}", googleRetrieveCalendarEventResponse);
+  }
+
+  /**
+   * Adds the organizer or another specified individual as an attendee or guest of the event
+   * based on the provided event and organizer details.
+   *
+   * @param calendarId         the ID of the calendar where the event is scheduled
+   * @param eventId            the ID of the event where the organizer will be added as an attendee
+   * @param organizerEmail     the email address of the organizer or individual to be added
+   * @param organizerDisplayName the display name of the organizer or individual to be added
+   */
+  protected void addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(final String calendarId, final String eventId, final String organizerEmail, final String organizerDisplayName) {
+    // Create a request object to add the organizer as an attendee of the event
+    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.of(
+      calendarId,
+      eventId,
+      organizerEmail,
+      organizerDisplayName
+    );
+    // Call the external service (e.g., Google Calendar) to add the organizer as an attendee
+    addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+  }
+
+  /**
+   * Broadcasts an event or stream creation notification to notify listeners or external systems.
+   * It creates an event stream created result and sends it using the broadcast service.
+   *
+   * @param stream the event or stream object that has been created and will be broadcasted
+   */
+  protected void broadcastEventOrStreamCreated(final FleenStream stream) {
+    // Create an event stream created result
+    final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
+      .of(stream.getMember().getMemberId(),
+        stream.getStreamId(),
+        stream.getExternalId(),
+        stream.getStreamLink(),
+        ResultType.EVENT_STREAM_CREATED);
+    // Broadcast the event creation result
+    broadcastService.broadcastEventCreated(eventStreamCreatedResult);
   }
 
 }

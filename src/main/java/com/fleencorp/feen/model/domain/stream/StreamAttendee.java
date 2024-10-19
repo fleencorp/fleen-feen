@@ -37,7 +37,7 @@ public class StreamAttendee extends FleenFeenEntity {
 
   @Enumerated(STRING)
   @Column(name = "request_to_join_status", nullable = false)
-  private StreamAttendeeRequestToJoinStatus streamAttendeeRequestToJoinStatus;
+  private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
 
   @Builder.Default
   @Column(name = "is_attending", nullable = false)
@@ -97,7 +97,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @param organizerComment The comment provided by the organizer regarding the user's request.
    */
   public void updateRequestStatusAndSetOrganizerComment(final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final String organizerComment) {
-    this.streamAttendeeRequestToJoinStatus = requestToJoinStatus;
+    this.requestToJoinStatus = requestToJoinStatus;
     this.organizerComment = organizerComment;
   }
 
@@ -107,7 +107,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * and marks the user as attending by setting {@code isAttending} to {@code true}.
    */
   public void approveUserAttendance() {
-    streamAttendeeRequestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
+    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
     isAttending = true;
   }
 
@@ -118,7 +118,7 @@ public class StreamAttendee extends FleenFeenEntity {
    *         otherwise {@code false}.
    */
   public boolean isPending() {
-    return StreamAttendeeRequestToJoinStatus.isPending(streamAttendeeRequestToJoinStatus);
+    return StreamAttendeeRequestToJoinStatus.isPending(requestToJoinStatus);
   }
 
   /**
@@ -127,7 +127,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return {@code true} if the {@code streamAttendeeRequestToJoinStatus} is DISAPPROVED; {@code false} otherwise
    */
   public boolean isDisapproved() {
-    return StreamAttendeeRequestToJoinStatus.isDisapproved(streamAttendeeRequestToJoinStatus);
+    return StreamAttendeeRequestToJoinStatus.isDisapproved(requestToJoinStatus);
   }
 
   /**
