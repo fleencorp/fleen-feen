@@ -19,7 +19,7 @@ public class EmailAddressExistsResponse extends EntityExistsResponse {
     return "email.address.exists";
   }
 
-  public static EmailAddressExistsResponse of(boolean exists) {
+  public static EmailAddressExistsResponse of(final boolean exists) {
     return EmailAddressExistsResponse.builder()
       .statusCode(getActualStatusCode(true))
       .timestamp(LocalDateTime.now())
