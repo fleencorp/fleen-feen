@@ -23,6 +23,8 @@ import static java.util.Objects.nonNull;
 */
 public class GoogleCalendarEventMapper {
 
+  private GoogleCalendarEventMapper() {}
+
   /**
   * Maps the {@link Events} object from the Google Calendar API to a {@link GoogleListCalendarEventResponse} object.
   *

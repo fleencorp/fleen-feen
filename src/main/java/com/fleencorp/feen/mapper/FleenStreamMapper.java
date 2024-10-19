@@ -1,12 +1,14 @@
 package com.fleencorp.feen.mapper;
 
+import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.other.Organizer;
+import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.model.response.stream.FleenStreamResponse.Organizer;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -39,10 +41,12 @@ public class FleenStreamMapper {
           .title(entry.getTitle())
           .description(entry.getDescription())
           .location(entry.getLocation())
-          .schedule(FleenStreamResponse.Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
+          .schedule(Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
           .visibility(entry.getStreamVisibility())
           .streamSource(entry.getStreamSource())
-          .streamLink(entry.getStreamLink())
+          .streamLink(nonNull(entry.getStreamLink()) ? MaskedStreamLinkUri.of(entry.getStreamLink(), entry.getStreamSource()) : null)
+          .streamLinkUnmasked(entry.getStreamLink())
+          .streamLinkNotMasked(entry.getStreamLink())
           .forKids(entry.getForKids())
           .status(entry.getStreamStatus())
           .organizer(Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone()))
@@ -50,6 +54,18 @@ public class FleenStreamMapper {
     }
     return null;
   }
+
+  /**
+   * Converts the given {@link FleenStream} instance to its corresponding
+   * {@link FleenStreamResponse}. This method serves as an alias for {@code toFleenStreamResponse}.
+   *
+   * @param entry the {@link FleenStream} instance to be converted.
+   * @return the corresponding {@link FleenStreamResponse} for the provided {@link FleenStream}.
+   */
+  public static FleenStreamResponse toEventResponse(final FleenStream entry) {
+    return toFleenStreamResponse(entry);
+  }
+
 
   /**
   * Converts a list of FleenStream entities to a list of FleenStreamResponse DTOs.
@@ -60,7 +76,7 @@ public class FleenStreamMapper {
   * @param entries the list of FleenStream entities to convert
   * @return a list of FleenStreamResponse DTOs, or an empty list if the input is null or empty
   */
-  public static List<FleenStreamResponse> toFleenStreams(final List<FleenStream> entries) {
+  public static List<FleenStreamResponse> toFleenStreamResponses(final List<FleenStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .filter(Objects::nonNull)

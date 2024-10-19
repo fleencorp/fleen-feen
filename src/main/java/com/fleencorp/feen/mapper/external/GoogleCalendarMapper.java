@@ -20,6 +20,8 @@ import static java.util.Objects.nonNull;
 */
 public class GoogleCalendarMapper {
 
+  private GoogleCalendarMapper() {}
+
   /**
   * Maps a {@link CalendarListEntry} object to a {@link GoogleCalendarResponse} object.
   *

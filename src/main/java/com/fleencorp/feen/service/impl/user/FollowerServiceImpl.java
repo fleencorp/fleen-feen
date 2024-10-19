@@ -1,9 +1,17 @@
 package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.response.user.*;
+import com.fleencorp.feen.model.dto.social.follow.FollowOrUnfollowUserDto;
+import com.fleencorp.feen.model.response.user.FollowUserResponse;
+import com.fleencorp.feen.model.response.user.UnfollowUserResponse;
+import com.fleencorp.feen.model.response.user.UserResponse;
+import com.fleencorp.feen.model.search.social.follower.follower.EmptyFollowerSearchResult;
+import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
+import com.fleencorp.feen.model.search.social.follower.following.EmptyFollowingSearchResult;
+import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
@@ -13,9 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.FollowerMapper.toFollowerOrFollowingResponses;
+import static com.fleencorp.feen.mapper.FollowerMapper.toFollowerResponses;
+import static com.fleencorp.feen.mapper.FollowerMapper.toFollowingResponses;
+import static java.util.Objects.isNull;
 
 /**
  * Implementation of the {@link FollowerService} interface, providing services related to followers.
@@ -46,22 +58,73 @@ public class FollowerServiceImpl implements FollowerService {
   }
 
   /**
+   * Retrieves a paginated list of followers for a given user.
+   *
+   * @param searchRequest the search request containing pagination details
+   * @param user the user whose followers are to be retrieved
+   * @return a paginated result containing a list of UserResponse views representing the followers
+   */
+  @Override
+  public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final FleenUser user) {
+    // Retrieve a paginated list of followers based on the given follower and search request
+    final Page<Follower> page = followerRepository.findFollowersByUser(user.toMember(), searchRequest.getPage());
+    // Convert the list of followers to UserResponse views
+    final List<UserResponse> views = toFollowerResponses(page.getContent());
+    // Return a search result view with the followers responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(FollowerSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyFollowerSearchResult.of(toSearchResult(List.of(), page)))
+    );
+  }
+
+  /**
+   * Retrieves a paginated list of users that are being followed by the specified user.
+   *
+   * <p>This method takes a `FleenUser` object representing the follower and a `SearchRequest`
+   * object that contains pagination details. It queries the `followerRepository` to find
+   * the users followed by the provided `follower`.</p>
+   *
+   * <p>The retrieved list of followers is then converted into `UserResponse` views, and the method
+   * returns a paginated search result encapsulating these views.</p>
+   *
+   * @param searchRequest the search request containing pagination details
+   * @param user the user who is following others
+   * @return a paginated result containing the list of users followed by the given follower
+   */
+  @Override
+  public FollowingSearchResult getFollowings(final SearchRequest searchRequest, final FleenUser user) {
+    // Retrieve a paginated list of followers based on the given follower and search request
+    final Page<Follower> page = followerRepository.findByFollowing(user.toMember(), searchRequest.getPage());
+    // Convert the list of followers to UserResponse views
+    final List<UserResponse> views = toFollowingResponses(page.getContent());
+    // Return a search result view with the followings responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(FollowingSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyFollowingSearchResult.of(toSearchResult(List.of(), page)))
+    );
+  }
+
+  /**
    * Handles the process of a user following another user.
    *
-   * @param userId the ID of the user to be followed
+   * @param followUserDto the dto containing ID of the user to be followed
    * @param user the user who is following
    * @return a response object indicating the outcome of the follow operation
    */
   @Override
   @Transactional
-  public FollowUserResponse followUser(final Long userId, final FleenUser user) {
+  public FollowUserResponse followUser(final FollowOrUnfollowUserDto followUserDto, final FleenUser user) {
     // Create a Member object for the user to be followed
-    final Member followed = Member.of(userId);
+    final Member followed = Member.of(followUserDto.getActualMemberId());
+    // Verify user cannot follow itself
+    verifyUserCannotFollowOrUnfollowSelf(followUserDto.getActualMemberId(), user.getId());
     // Convert the current FleenUser to a Member object representing the follower
     final Member follower = user.toMember();
 
     // Check if the follower is already following the followed user
-    followerRepository.findByFollowerAndFollowed(follower, followed)
+    followerRepository.findByFollowingAndFollowed(follower, followed)
       .ifPresentOrElse(
         // If already following, do nothing
         _ -> {},
@@ -78,20 +141,22 @@ public class FollowerServiceImpl implements FollowerService {
   /**
    * Handles the process of a user unfollowing another user.
    *
-   * @param userId the ID of the user to be unfollowed
+   * @param unfollowUserDto the dto containing ID of the user to be unfollowed
    * @param user   the user who is unfollowing
    * @return a response object indicating the outcome of the unfollow operation
    */
   @Override
   @Transactional
-  public UnfollowUserResponse unfollowUser(final Long userId, final FleenUser user) {
+  public UnfollowUserResponse unfollowUser(final FollowOrUnfollowUserDto unfollowUserDto, final FleenUser user) {
     // Create a Member object for the user to be unfollowed
-    final Member followed = Member.of(userId);
+    final Member followed = Member.of(unfollowUserDto.getActualMemberId());
+    // Verify user cannot unfollow itself
+    verifyUserCannotFollowOrUnfollowSelf(unfollowUserDto.getActualMemberId(), user.getId());
     // Convert the current FleenUser to a Member object representing the follower
     final Member follower = user.toMember();
 
     // Check if the follower is currently following the followed user
-    followerRepository.findByFollowerAndFollowed(follower, followed)
+    followerRepository.findByFollowingAndFollowed(follower, followed)
       // If a follower relationship exists, delete it
       .ifPresent(followerRepository::delete);
 
@@ -100,43 +165,23 @@ public class FollowerServiceImpl implements FollowerService {
   }
 
   /**
-   * Retrieves a paginated list of followers for a given user.
+   * Verifies that a user cannot follow or unfollow themselves, and throws a {@link FailedOperationException}
+   * if the operation is invalid.
    *
-   * @param followed the user whose followers are to be retrieved
-   * @param searchRequest the search request containing pagination details
-   * @return a paginated result containing a list of UserResponse views representing the followers
+   * <p>This method checks if either the provided {@code memberId} or {@code userId} is {@code null},
+   * or if they are equal, indicating the user is attempting to follow or unfollow themselves.
+   * If either condition is met, a {@link FailedOperationException} is thrown.</p>
+   *
+   * @param memberId the ID of the member being followed or unfollowed
+   * @param userId   the ID of the user attempting the follow or unfollow operation
+   * @throws FailedOperationException if the user attempts to follow or unfollow themselves,
+   *                                  or if either {@code memberId} or {@code userId} is {@code null}
    */
-  @Override
-  public FollowersResponse getFollowers(final FleenUser followed, final SearchRequest searchRequest) {
-    // Retrieve a paginated list of followers based on the given follower and search request
-    final Page<Follower> page = followerRepository.findByFollowed(followed.toMember(), searchRequest.getPage());
-    // Convert the list of followers to UserResponse views
-    final List<UserResponse> views = toFollowerOrFollowingResponses(page.getContent());
-    // Return the paginated search result containing the UserResponse views
-    return localizedResponse.of(FollowersResponse.of(toSearchResult(views, page)));
-  }
-
-  /**
-   * Retrieves a paginated list of users that are being followed by the specified user.
-   *
-   * <p>This method takes a `FleenUser` object representing the follower and a `SearchRequest`
-   * object that contains pagination details. It queries the `followerRepository` to find
-   * the users followed by the provided `follower`.</p>
-   *
-   * <p>The retrieved list of followers is then converted into `UserResponse` views, and the method
-   * returns a paginated search result encapsulating these views.</p>
-   *
-   * @param follower the user who is following others
-   * @param searchRequest the search request containing pagination details
-   * @return a paginated result containing the list of users followed by the given follower
-   */
-  @Override
-  public FollowingsResponse getUsersFollowing(final FleenUser follower, final SearchRequest searchRequest) {
-    // Retrieve a paginated list of followers based on the given follower and search request
-    final Page<Follower> page = followerRepository.findByFollower(follower.toMember(), searchRequest.getPage());
-    // Convert the list of followers to UserResponse views
-    final List<UserResponse> views = toFollowerOrFollowingResponses(page.getContent());
-    // Return the paginated search result containing the UserResponse views
-    return localizedResponse.of(FollowingsResponse.of(toSearchResult(views, page)));
+  public void verifyUserCannotFollowOrUnfollowSelf(final Long memberId, final Long userId) {
+    if (isNull(memberId) || isNull(userId)) {
+      throw new FailedOperationException();
+    } else if (Objects.equals(memberId, userId)) {
+      throw new FailedOperationException();
+    }
   }
 }

@@ -17,6 +17,8 @@ import static java.util.stream.Collectors.toList;
 */
 public class StreamAttendeeMapper {
 
+  private StreamAttendeeMapper() {}
+
   /**
   * Converts a StreamAttendee entity to an EventAttendeeResponse DTO.
   *

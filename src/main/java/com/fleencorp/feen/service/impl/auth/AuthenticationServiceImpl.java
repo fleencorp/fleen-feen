@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.auth;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -43,6 +42,7 @@ import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
+import com.fleencorp.feen.model.search.country.CountrySearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
@@ -192,9 +192,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   @Override
   public DataForSignUpResponse getDataForSignUp() {
     // Fetch a list of countries with a large number of entries (1000 in this case).
-    final SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    final CountrySearchResult searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
     // Get the countries in the search result
-    final List<?> countries = searchResult.getValues();
+    final List<?> countries = searchResult.getResult().getValues();
     // Return the response object containing both the countries and timezones.
     return localizedResponse.of(DataForSignUpResponse.of(countries));
   }

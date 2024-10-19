@@ -1,7 +1,7 @@
 package com.fleencorp.feen.mapper;
 
-import com.fleencorp.feen.model.domain.share.Contact;
-import com.fleencorp.feen.model.response.share.contact.ContactResponse;
+import com.fleencorp.feen.model.domain.social.Contact;
+import com.fleencorp.feen.model.response.social.contact.ContactResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,17 +28,18 @@ public class ContactMapper {
    * <p>This method takes a {@code Contact} object and maps its fields to a {@code ContactResponse} object.
    * If the input {@code Contact} is {@code null}, this method returns {@code null}.</p>
    *
-   * @param contact the {@code Contact} entity to be converted.
+   * @param entry the {@code Contact} entity to be converted.
    * @return the corresponding {@code ContactResponse} DTO, or {@code null} if the input is {@code null}.
    */
-  public static ContactResponse toContactResponse(final Contact contact) {
-    if (nonNull(contact)) {
+  public static ContactResponse toContactResponse(final Contact entry) {
+    if (nonNull(entry)) {
       return ContactResponse.builder()
-          .id(contact.getContactId())
-          .contactType(contact.getContactType())
-          .contact(contact.getContact())
-          .createdOn(contact.getCreatedOn())
-          .updatedOn(contact.getUpdatedOn())
+          .id(entry.getContactId())
+          .contactType(entry.getContactType())
+          .contactTypeLabel(nonNull(entry.getContactType()) ? entry.getContactType().getValue() : null)
+          .contact(entry.getContact())
+          .createdOn(entry.getCreatedOn())
+          .updatedOn(entry.getUpdatedOn())
           .build();
     }
     return null;

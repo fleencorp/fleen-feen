@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.stream;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.model.dto.stream.AddStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.DeleteStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.UpdateStreamSpeakerDto;
@@ -9,11 +8,12 @@ import com.fleencorp.feen.model.response.stream.speaker.AddStreamSpeakerResponse
 import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.GetStreamSpeakersResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
+import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface StreamSpeakerService {
 
-  SearchResultView findSpeakers(StreamSpeakerSearchRequest searchRequest);
+  StreamSpeakerSearchResult findSpeakers(StreamSpeakerSearchRequest searchRequest);
 
   GetStreamSpeakersResponse getSpeakers(Long eventOrStreamId);
 

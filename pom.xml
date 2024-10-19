@@ -127,12 +127,9 @@
 			<version>1.35.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.apis</groupId>
-			<artifactId>google-api-services-chat</artifactId>
-			<version>v1-rev20230905-2.0.0</version>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-chat</artifactId>
 		</dependency>
-
-
 
 
 
@@ -261,10 +258,6 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-<!--		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>google-cloud-chat</artifactId>
-		</dependency>-->
 	</dependencies>
 
 	<dependencyManagement>
@@ -283,13 +276,13 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-<!--			<dependency>
+			<dependency>
 				<groupId>com.google.cloud</groupId>
 				<artifactId>libraries-bom</artifactId>
 				<version>26.42.0</version>
 				<type>pom</type>
 				<scope>import</scope>
-			</dependency>-->
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

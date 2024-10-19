@@ -1,6 +1,5 @@
 package com.fleencorp.feen.controller.event;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.event.AddNewEventAttendeeDto;
 import com.fleencorp.feen.model.dto.event.RescheduleCalendarEventDto;
@@ -9,7 +8,9 @@ import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
-import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
+import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.event.EventSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import jakarta.validation.Valid;
@@ -29,21 +30,21 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/entries")
-  public SearchResultView findEvents(
+  public EventSearchResult findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.findMyEvents(searchRequest, user);
   }
 
   @GetMapping(value = "/attended-by-me")
-  public SearchResultView findEventsAttendedByUser(
+  public EventSearchResult findEventsAttendedByUser(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.findEventsAttendedByUser(searchRequest, user);
   }
 
   @GetMapping(value = "/attended-with-user")
-  public SearchResultView findEventsAttendedWithAnotherUser(
+  public EventSearchResult findEventsAttendedWithAnotherUser(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.findEventsAttendedWithAnotherUser(searchRequest, user);
@@ -64,7 +65,7 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/attendees/request-to-join/{eventId}")
-  public SearchResultView getAttendeesRequestToJoin(
+  public RequestToJoinSearchResult getAttendeesRequestToJoin(
       @PathVariable(name = "eventId") final Long eventId,
       @AuthenticationPrincipal final FleenUser user,
       @SearchParam final StreamAttendeeSearchRequest searchRequest) {
@@ -104,10 +105,11 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/attendees/{eventId}")
-  public EventOrStreamAttendeesResponse getEventAttendees(
+  public StreamAttendeeSearchResult getEventAttendees(
       @PathVariable(name = "eventId") final Long eventId,
+      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.getEventAttendees(eventId, user);
+    return eventService.getEventAttendees(eventId, streamAttendeeSearchRequest, user);
   }
 
   @GetMapping(value = "/total-by-me")

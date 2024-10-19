@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
-import com.fleencorp.feen.model.response.event.base.EventResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
 
@@ -33,7 +32,7 @@ public class UpdateEventVisibilityResponse extends ApiResponse {
     return "update.event.visibility";
   }
 
-  public static UpdateEventVisibilityResponse of(final Long eventId, final EventResponse event) {
+  public static UpdateEventVisibilityResponse of(final Long eventId, final FleenStreamResponse event) {
     return UpdateEventVisibilityResponse.builder()
             .eventId(eventId)
             .event(event)

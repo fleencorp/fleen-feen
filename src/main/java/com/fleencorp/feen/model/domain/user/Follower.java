@@ -27,16 +27,16 @@ public class Follower extends FleenFeenEntity {
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "follower_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member follower;
+  private Member following;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "followed_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member followed;
 
-  public static Follower of(final Member follower, final Member followed) {
+  public static Follower of(final Member follower, final Member following) {
     return Follower.builder()
-      .follower(follower)
-      .followed(followed)
+      .following(follower)
+      .followed(following)
       .build();
   }
 }

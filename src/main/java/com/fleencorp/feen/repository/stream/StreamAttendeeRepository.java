@@ -1,6 +1,7 @@
 package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -21,26 +22,35 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query("SELECT DISTINCT sa FROM StreamAttendee sa WHERE sa.member.emailAddress = :emailAddress")
   Optional<StreamAttendee> findDistinctByEmail(@Param("emailAddress") String emailAddress);
 
-  List<StreamAttendee> findAllByFleenStreamAndStreamAttendeeRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus);
+  List<StreamAttendee> findAllByFleenStreamAndRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus);
 
   @Modifying
-  @Query("UPDATE StreamAttendee SET streamAttendeeRequestToJoinStatus = :status WHERE member.memberId IN (:userIds)")
+  @Query("UPDATE StreamAttendee SET requestToJoinStatus = :status WHERE member.memberId IN (:userIds)")
   void approveAllAttendeeRequestInvitation(@Param("status") StreamAttendeeRequestToJoinStatus status, List<Long> userIds);
 
   Page<StreamAttendee> findByFleenStream(FleenStream fleenStream, Pageable pageable);
 
-  Page<StreamAttendee> findByFleenStreamAndStreamAttendeeRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.fleenStream.streamSource = :streamSource")
+  Page<StreamAttendee> findByFleenStreamAndStreamSource(FleenStream fleenStream, StreamSource streamSource, Pageable pageable);
+
+  Page<StreamAttendee> findByFleenStreamAndRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
 
   Optional<StreamAttendee> findByFleenStreamAndMember(FleenStream fleenStream, Member member);
 
-  Page<StreamAttendee> findAllByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
+  Page<StreamAttendee> findAllByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
-  long countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
+  long countByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
 
-  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:memberIds) AND sa.streamAttendeeRequestToJoinStatus IN (:statuses)")
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:memberIds) AND sa.requestToJoinStatus IN (:statuses)")
   Set<StreamAttendee> findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("memberIds") List<Long> speakerMemberIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.streamAttendeeRequestToJoinStatus) " +
+  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.requestToJoinStatus) " +
     "FROM StreamAttendee sa LEFT JOIN sa.member m LEFT JOIN sa.fleenStream fs WHERE m = :member AND fs.fleenStreamId IN (:ids)")
   List<StreamAttendeeSelect> findByMemberAndEventOrStreamIds(Member member, @Param("ids") List<Long> eventOrStreamIds);
+
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.member = :member")
+  Optional<StreamAttendee> findAttendeeByStreamAndUser(@Param("fleenStream") FleenStream fleenStream, @Param("member") Member member);
+
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.isAttending = true")
+  Set<StreamAttendee> findAttendeesGoingToStream(@Param("fleenStream") FleenStream fleenStream);
 }

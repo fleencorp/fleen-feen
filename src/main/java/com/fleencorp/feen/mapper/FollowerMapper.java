@@ -23,32 +23,83 @@ public class FollowerMapper {
   private FollowerMapper() {}
 
   /**
-   * Converts a {@link Follower} entity to a {@link UserResponse} DTO.
+   * Converts a {@link Follower} object into a {@link UserResponse} object.
    *
-   * @param follower the {@link Follower} entity to convert
-   * @return a {@link UserResponse} representing the follower's details, or {@code null} if the {@link Follower} is {@code null}
+   * <p>This method takes a {@link Follower} instance and maps its associated followed member's
+   * ID and full name to create a corresponding {@link UserResponse}. If the provided
+   * {@link Follower} is {@code null}, the method returns {@code null}.</p>
+   *
+   * @param entry the {@link Follower} object to be converted into a {@link UserResponse}.
+   * @return a {@link UserResponse} containing the member ID and full name of the followed member,
+   *         or {@code null} if the input {@link Follower} is {@code null}.
    */
-  public static UserResponse toFollowersOrFollowingResponse(final Follower follower) {
-    if (nonNull(follower)) {
+  public static UserResponse toFollowerResponse(final Follower entry) {
+    if (nonNull(entry)) {
       return UserResponse.builder()
-        .userId(follower.getFollower().getMemberId())
-        .fullName(follower.getFollower().getFullName())
+        .userId(entry.getFollowed().getMemberId())
+        .fullName(entry.getFollowed().getFullName())
         .build();
     }
     return null;
   }
 
   /**
-   * Converts a list of {@link Follower} entities to a list of {@link UserResponse} DTOs.
+   * Converts a {@link Follower} object into a {@link UserResponse} object.
    *
-   * @param entries the list of {@link Follower} entities to convert
-   * @return a list of {@link UserResponse} DTOs, or an empty list if the input list is {@code null} or empty
+   * <p>This method takes a {@link Follower} instance and maps its associated following member's
+   * ID and full name to create a corresponding {@link UserResponse}. If the provided
+   * {@link Follower} is {@code null}, the method returns {@code null}.</p>
+   *
+   * @param entry the {@link Follower} object to be converted into a {@link UserResponse}.
+   * @return a {@link UserResponse} containing the member ID and full name of the following member,
+   *         or {@code null} if the input {@link Follower} is {@code null}.
    */
-  public static List<UserResponse> toFollowerOrFollowingResponses(final List<Follower> entries) {
+  public static UserResponse toFollowingResponse(final Follower entry) {
+    if (nonNull(entry)) {
+      return UserResponse.builder()
+        .userId(entry.getFollowing().getMemberId())
+        .fullName(entry.getFollowing().getFullName())
+        .build();
+    }
+    return null;
+  }
+
+  /**
+   * Converts a list of {@link Follower} entries into a list of {@link UserResponse} objects.
+   *
+   * <p>This method processes the provided list of {@link Follower} entries, filtering out any {@code null} entries,
+   * and mapping each valid {@link Follower} to a corresponding {@link UserResponse} using the {@link FollowerMapper}.
+   * If the input list is {@code null} or empty, an empty list is returned.</p>
+   *
+   * @param entries the list of {@link Follower} entries to be converted, which may contain {@code null} values.
+   * @return a list of {@link UserResponse} objects corresponding to the non-null {@link Follower} entries,
+   *         or an empty list if the input is {@code null} or empty.
+   */
+  public static List<UserResponse> toFollowerResponses(final List<Follower> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(FollowerMapper::toFollowersOrFollowingResponse)
+        .map(FollowerMapper::toFollowerResponse)
+        .collect(toList());
+    }
+    return List.of();
+  }
+
+  /**
+   * Converts a list of {@link Follower} entries into a list of {@link UserResponse} objects.
+   *
+   * <p>This method processes the provided list of {@link Follower} entries, filtering out any {@code null} entries,
+   * and mapping each valid {@link Follower} to a corresponding {@link UserResponse} using the {@link FollowerMapper}.
+   * If the input list is {@code null} or empty, an empty list is returned.</p>
+   *
+   * @param entries the list of {@link Follower} entries to be converted, which may contain {@code null} values.
+   * @return a list of {@link UserResponse} objects corresponding to the non-null {@link Follower} entries, or an empty list if the input is {@code null} or empty.
+   */
+  public static List<UserResponse> toFollowingResponses(final List<Follower> entries) {
+    if (nonNull(entries) && !entries.isEmpty()) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(FollowerMapper::toFollowingResponse)
         .collect(toList());
     }
     return List.of();

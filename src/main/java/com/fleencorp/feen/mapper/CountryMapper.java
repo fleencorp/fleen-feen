@@ -17,6 +17,8 @@ import static java.util.Objects.nonNull;
 */
 public class CountryMapper {
 
+  private CountryMapper() {}
+
   /**
   * Converts a Country entity to a CountryResponse DTO.
   *

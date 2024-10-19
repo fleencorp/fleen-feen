@@ -37,7 +37,6 @@ public class GoogleApiConfiguration {
   protected final ServiceAccountProperties serviceAccountProperties;
   protected final JsonUtil jsonUtil;
 
-
   /**
    * Constructor for setting up common Google API configuration details.
    *
@@ -70,11 +69,28 @@ public class GoogleApiConfiguration {
    * @see <a href="https://medium.com/iceapple-tech-talks/integration-with-google-calendar-api-using-service-account-1471e6e102c8">
    *   Integration with Google Calendar API using Service Account</a>
    */
-  public GoogleCredentials getGoogleClientCredentialFromServiceAccount(Collection<String> scopes) throws IOException {
+  public GoogleCredentials getGoogleClientCredentialFromServiceAccount(final Collection<String> scopes) throws IOException {
+    return getGoogleClientCredentialFromServiceAccountBase(scopes)
+      .createDelegated(delegatedAuthorityEmail);
+  }
+
+  /**
+   * Retrieves Google client credentials from a service account file.
+   *
+   * <p>This method reads the service account credentials from an input stream and
+   * creates a scoped {@link GoogleCredentials} instance based on the provided
+   * scopes. The credentials are used to authenticate requests to Google services
+   * that require OAuth 2.0 authentication.</p>
+   *
+   * @param scopes a collection of scopes required for the authentication.
+   * @return a {@link GoogleCredentials} object scoped with the provided permissions.
+   * @throws IOException if there is an error reading the service account credentials
+   *         from the input stream.
+   */
+  public GoogleCredentials getGoogleClientCredentialFromServiceAccountBase(final Collection<String> scopes) throws IOException {
     return GoogleCredentials
       .fromStream(getServiceAccountInputStream())
-      .createScoped(scopes)
-      .createDelegated(delegatedAuthorityEmail);
+      .createScoped(scopes);
   }
 
   /**
@@ -111,7 +127,7 @@ public class GoogleApiConfiguration {
    * @return HttpCredentialsAdapter configured with Google client credentials.
    * @throws IOException If an I/O exception occurs while creating HttpCredentialsAdapter.
    */
-  public HttpCredentialsAdapter getHttpCredentialsAdapter(Collection<String> scopes) throws IOException {
+  public HttpCredentialsAdapter getHttpCredentialsAdapter(final Collection<String> scopes) throws IOException {
     return new HttpCredentialsAdapter(getGoogleClientCredentialFromServiceAccount(scopes));
   }
 

@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.common;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.exception.user.CountryNotFoundException;
 import com.fleencorp.feen.mapper.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
@@ -8,6 +7,8 @@ import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
+import com.fleencorp.feen.model.search.country.CountrySearchResult;
+import com.fleencorp.feen.model.search.country.EmptyCountrySearchResult;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponse;
 import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponses;
@@ -48,10 +50,18 @@ public class CountryServiceImpl implements CountryService {
   private final LocalizedResponse localizedResponse;
 
   /**
-   * Constructs a {@link CountryServiceImpl} instance with the specified repository and cache service.
+   * Constructs a new instance of the {@link CountryServiceImpl}.
    *
-   * @param repository The repository used for accessing country data.
-   * @param cacheService The service used for caching country data.
+   * <p>This constructor initializes the service with the required dependencies:
+   * {@link CountryRepository}, {@link CacheService}, and {@link LocalizedResponse}.</p>
+   *
+   * <p>These dependencies are injected to handle various operations such as
+   * country repository interactions, caching operations, and localized responses
+   * for user feedback.</p>
+   *
+   * @param repository the {@link CountryRepository} used for country data retrieval and management
+   * @param cacheService the service for caching country data
+   * @param localizedResponse the service for creating localized responses
    */
   public CountryServiceImpl(
       final CountryRepository repository,
@@ -66,16 +76,20 @@ public class CountryServiceImpl implements CountryService {
    * Finds countries based on the provided search request.
    *
    * @param searchRequest the request object containing search criteria and pagination information
-   * @return a SearchResultView object containing a list of CountryResponse views and pagination metadata
+   * @return a CountrySearchResult object containing a list of CountryResponse views and pagination metadata
  */
   @Override
-  public SearchResultView findCountries(final CountrySearchRequest searchRequest) {
+  public CountrySearchResult findCountries(final CountrySearchRequest searchRequest) {
     // Retrieve a page of Country entities based on the search request.
     final Page<Country> page = repository.findMany(searchRequest.getPage());
     // Convert the list of Country entities to a list of CountryResponse views.
     final List<CountryResponse> views = toCountryResponses(page.getContent());
-    // Convert the list of views and the page metadata to a SearchResultView object.
-    return toSearchResult(views, page);
+    // Return a search result view with the country responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(CountrySearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyCountrySearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -90,9 +104,10 @@ public class CountryServiceImpl implements CountryService {
   */
   @Override
   public RetrieveCountryResponse getCountry(final Long countryId) {
-    final Country country = repository
-            .findById(countryId)
-            .orElseThrow(() -> new CountryNotFoundException(countryId));
+    // Find country based on ID or throw an exception if it can't be found
+    final Country country = repository.findById(countryId)
+            .orElseThrow(CountryNotFoundException.of(countryId));
+    // Return a localized response containing details of country
     return localizedResponse.of(RetrieveCountryResponse.of(toCountryResponse(country)));
   }
 
@@ -108,9 +123,8 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Country getCountryByCode(final String code) {
-    return repository
-      .findByCode(code)
-      .orElseThrow(() -> new CountryNotFoundException(code));
+    return repository.findByCode(code)
+      .orElseThrow(CountryNotFoundException.of(code));
   }
 
   /**
@@ -123,8 +137,10 @@ public class CountryServiceImpl implements CountryService {
   */
   @Override
   public CountAllResponse countAll() {
+    // Count the total number of countries in the repository
     final long total = repository.count();
-    return CountAllResponse.of(total);
+    // Return a localized response containing the total count of countries
+    return localizedResponse.of(CountAllResponse.of(total));
   }
 
   /**
@@ -138,8 +154,8 @@ public class CountryServiceImpl implements CountryService {
   */
   @Override
   public boolean isCountryExists(final String code) {
-    return repository
-      .existsByCode(code);
+    // Check if a country exist with a 3 letter code exists in the repository
+    return repository.existsByCode(code);
   }
 
   /**
@@ -160,9 +176,12 @@ public class CountryServiceImpl implements CountryService {
    *                  or empty, the method will fetch the countries from the data source using {@link #getCountries()}.
    */
   protected void saveCountriesToCache(List<CountryResponse> countries) {
+    // If the list of countries is null or empty, retrieve the countries
     if (isNull(countries) || countries.isEmpty()) {
       countries = getCountries();
     }
+
+    // Filter out null country entries and save each valid country to the cache
     countries.stream()
       .filter(Objects::nonNull)
       .forEach(country -> cacheService.set(getCountryCacheKey(country.getTitle()), country));
@@ -201,10 +220,13 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Optional<CountryResponse> getCountryFromCache(final String title) {
+    // Retrieve the country from the cache using the generated cache key
     final CountryResponse country = cacheService.get(getCountryCacheKey(title), CountryResponse.class);
+    // Check if the country was found in the cache and return it wrapped in an Optional
     if (nonNull(country)) {
       return Optional.of(country);
     }
+    // Return an empty Optional if the country is not found
     return Optional.empty();
   }
 
@@ -220,7 +242,9 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Optional<String> getCountryCodeByTitle(final String title) {
+    // Retrieve the country response from the cache
     final Optional<CountryResponse> existingCountry = getCountryFromCache(title);
+    // If the country is found, return the code as an Optional
     return existingCountry.map(CountryResponse::getCode);
   }
 

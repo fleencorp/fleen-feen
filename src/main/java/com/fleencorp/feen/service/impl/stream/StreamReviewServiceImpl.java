@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamReview;
@@ -9,6 +8,8 @@ import com.fleencorp.feen.model.dto.stream.AddStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
+import com.fleencorp.feen.model.search.stream.review.EmptyStreamReviewSearchResult;
+import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamReviewRepository;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.StreamReviewMapper.toStreamReviewResponses;
 import static com.fleencorp.feen.mapper.StreamReviewMapper.toStreamReviewResponsesMore;
@@ -70,14 +72,19 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    *
    * @param eventOrStreamId the ID of the event or stream whose reviews are being retrieved
    * @param searchRequest contains pagination and other search parameters for fetching the reviews
-   * @return a {@link SearchResultView} containing the paginated list of reviews in response format
+   * @return a {@link StreamReviewSearchResult} containing the paginated list of reviews in response format
    */
   @Override
-  public SearchResultView findReviews(final Long eventOrStreamId, final SearchRequest searchRequest) {
+  public StreamReviewSearchResult findReviews(final Long eventOrStreamId, final SearchRequest searchRequest) {
     final Page<StreamReview> page = streamReviewRepository.findByStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
     final List<StreamReviewResponse> views = toStreamReviewResponsesMore(page.getContent());
 
-    return toSearchResult(views, page);
+    // Return a search result view with the review responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -88,14 +95,19 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    *
    * @param searchRequest contains pagination and search parameters for retrieving the reviews
    * @param user the user whose reviews are being retrieved
-   * @return a {@link SearchResultView} containing the paginated list of reviews in response format
+   * @return a {@link StreamReviewSearchResult} containing the paginated list of reviews in response format
    */
   @Override
-  public SearchResultView findReviews(final SearchRequest searchRequest, final FleenUser user) {
+  public StreamReviewSearchResult findReviews(final SearchRequest searchRequest, final FleenUser user) {
     final Page<StreamReview> page = streamReviewRepository.findByMember(user.toMember(), searchRequest.getPage());
     final List<StreamReviewResponse> views = toStreamReviewResponses(page.getContent());
 
-    return toSearchResult(views, page);
+    // Return a search result view with the review responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
