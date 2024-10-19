@@ -135,8 +135,77 @@ CREATE TABLE member_role (
 --rollback DROP TABLE IF EXISTS `member_role`;
 
 
+--changeset alamu:6
 
--- changeset alamu:6
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'chat_space';
+
+CREATE TABLE chat_space (
+  chat_space_id BIGSERIAL PRIMARY KEY,
+  external_id_or_name VARCHAR(1000),
+  title VARCHAR(500) NOT NULL,
+  description VARCHAR(3000) NOT NULL,
+  tags VARCHAR(300) NULL,
+  guidelines_or_rules VARCHAR(3000) NOT NULL,
+  space_link VARCHAR(1000),
+
+  member_id BIGINT NOT NULL,
+  space_visibility VARCHAR(255) DEFAULT 'PUBLIC'
+    NOT NULL CHECK (space_visibility IN ('PUBLIC', 'PRIVATE')),
+  is_active BOOLEAN DEFAULT TRUE NOT NULL,
+  is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
+  total_members BIGINT DEFAULT 0 NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT chat_space_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `chat_space`;
+
+
+
+--changeset alamu:7
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'chat_space_member';
+
+CREATE TABLE chat_space_member (
+  chat_space_member_id BIGSERIAL PRIMARY KEY,
+  parent_external_id_or_name VARCHAR(1000),
+  external_id_or_name VARCHAR(1000),
+  chat_space_id BIGINT NOT NULL,
+  member_id BIGINT NOT NULL,
+  role VARCHAR(255) DEFAULT 'MEMBER'
+    NOT NULL CHECK (role IN ('MEMBER', 'ADMIN')),
+  request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
+    NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
+  member_comment VARCHAR(1000) NULL,
+  space_admin_comment VARCHAR(1000) NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT chat_space_member_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT chat_space_member_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `chat_space_member`;
+
+
+
+-- changeset alamu:8
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'fleen_stream';
@@ -146,16 +215,24 @@ CREATE TABLE fleen_stream (
   external_id VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
-  tags VARCHAR(300),
+  tags VARCHAR(300) NULL,
   location VARCHAR(100) NOT NULL,
   timezone VARCHAR(30) NOT NULL,
   organizer_name VARCHAR(100) NOT NULL,
   organizer_email VARCHAR(50) NOT NULL,
   organizer_phone VARCHAR(20) NOT NULL,
-  made_for_kids BOOLEAN NOT NULL DEFAULT false,
-  is_deleted BOOLEAN NOT NULL DEFAULT false,
   stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
+
+  made_for_kids BOOLEAN NOT NULL DEFAULT false,
+  is_deleted BOOLEAN NOT NULL DEFAULT false,
+  total_attendees BIGINT DEFAULT 0 NOT NULL,
+
+  other_details VARCHAR(3000) NULL,
+  other_link VARCHAR(1000) NULL,
+  group_or_organization_name VARCHAR(500) NULL,
+
+
   stream_source VARCHAR(255) DEFAULT 'NONE'
     NOT NULL CHECK (stream_source IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
   stream_creation_type VARCHAR(255) DEFAULT 'INSTANT'
@@ -168,6 +245,7 @@ CREATE TABLE fleen_stream (
   scheduled_end_date TIMESTAMP NOT NULL,
 
   member_id BIGINT NOT NULL,
+  chat_space_id BIGINT NULL,
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -175,14 +253,18 @@ CREATE TABLE fleen_stream (
   CONSTRAINT fleen_stream_fk_member
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+  CONSTRAINT fleen_stream_fk_chat_space
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `fleen_stream`;
 
 
 
--- changeset alamu:7
+-- changeset alamu:9
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'calendar';
@@ -204,15 +286,15 @@ CREATE TABLE calendar (
 
 
 
--- changeset alamu:8
+-- changeset alamu:10
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_attendee';
 
 CREATE TABLE stream_attendee (
   stream_attendee_id BIGSERIAL PRIMARY KEY,
-  attendee_comment VARCHAR(500),
-  organizer_comment VARCHAR(500) NULL,
+  attendee_comment VARCHAR(1000) NULL,
+  organizer_comment VARCHAR(1000) NULL,
   is_attending BOOLEAN NOT NULL DEFAULT false,
   request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
     NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
@@ -237,7 +319,7 @@ CREATE TABLE stream_attendee (
 
 
 
--- changeset alamu:9
+-- changeset alamu:11
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_review';
@@ -267,7 +349,7 @@ CREATE TABLE stream_review (
 
 
 
--- changeset alamu:10
+-- changeset alamu:12
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'country';
@@ -286,7 +368,7 @@ CREATE TABLE country (
 
 
 
---changeset alamu:11
+--changeset alamu:13
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'follower';
@@ -313,7 +395,7 @@ CREATE TABLE follower (
 
 
 
---changeset alamu:12
+--changeset alamu:14
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_speaker';
@@ -343,7 +425,7 @@ CREATE TABLE stream_speaker (
 
 
 
---changeset alamu:13
+--changeset alamu:15
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'share_contact_request';
@@ -379,7 +461,7 @@ CREATE TABLE share_contact_request (
 
 
 
---changeset alamu:14
+--changeset alamu:16
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'block_user';
@@ -408,7 +490,7 @@ CREATE TABLE block_user (
 
 
 
---changeset alamu:15
+--changeset alamu:17
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'contact';
@@ -418,7 +500,7 @@ CREATE TABLE contact (
   contact VARCHAR(1000),
   owner_id BIGINT NOT NULL,
   contact_type VARCHAR(255)
-    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+    NOT NULL CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
       'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

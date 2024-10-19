@@ -1,18 +1,18 @@
 package com.fleencorp.feen.service.common;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.service.BasicCountryService;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
+import com.fleencorp.feen.model.search.country.CountrySearchResult;
 
 import java.util.Optional;
 
 public interface CountryService extends BasicCountryService {
 
-  SearchResultView findCountries(CountrySearchRequest searchRequest);
+  CountrySearchResult findCountries(CountrySearchRequest searchRequest);
 
   RetrieveCountryResponse getCountry(Long countryId);
 

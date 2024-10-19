@@ -509,20 +509,23 @@ public class GoogleCalendarEventService {
         final EventAttendee eventAttendee = new EventAttendee();
         // Set attendee basic details including name and email
         updateNewAttendeeBasicInfo(addNewEventAttendeeRequest, eventAttendee);
+        // Set the response status to accepted
+        eventAttendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
         // Create attendee list or register to add attendees
         initializeEventAttendeeList(event);
         // Add attendee to the event
         addAttendee(event, eventAttendee);
 
+        // Send notifications to all attendees if necessary
         calendar.events()
           .update(calendarId, eventId, event)
           .setSendUpdates(EventSendUpdate.ALL.getValue())
           .execute();
 
-        return GoogleAddNewCalendarEventAttendeeResponse
-          .of(addNewEventAttendeeRequest.getEventId(),
-              addNewEventAttendeeRequest.getAttendeeEmailAddress(),
-              mapToEventExpanded(event));
+        return GoogleAddNewCalendarEventAttendeeResponse.of(
+          addNewEventAttendeeRequest.getEventId(), addNewEventAttendeeRequest.getAttendeeEmailAddress(),
+          mapToEventExpanded(event)
+        );
       }
       log.error("Cannot add new attendee. Event does not exist or cannot be found. {}", addNewEventAttendeeRequest.getEventId());
     } catch (final IOException ex) {
@@ -978,10 +981,13 @@ public class GoogleCalendarEventService {
    *                      This attendee will only be added if no attendee with the same email exists in the list.
    */
   private void addAttendee(final Event event, final EventAttendee eventAttendee) {
+    // Check if there are existence or non-existence list of attendees and initialize one
     initializeEventAttendeeList(event);
+    // Filter to check if the attendee already exist in the list of registered attendees
     final boolean attendeeExists = event.getAttendees().stream()
       .anyMatch(existingAttendee -> existingAttendee.getEmail().equalsIgnoreCase(eventAttendee.getEmail()));
 
+    // If attendee does not exists in the list of attendees, add it to the list
     if (!attendeeExists) {
       event.getAttendees().add(eventAttendee);
     }

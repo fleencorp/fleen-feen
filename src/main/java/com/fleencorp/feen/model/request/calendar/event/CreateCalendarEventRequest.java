@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.request.calendar.event;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
+import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,8 @@ public class CreateCalendarEventRequest {
   private EventVisibility visibility;
   private List<EventAttendeeOrGuest> attendeeOrGuestEmailAddresses;
   private String calendarIdOrName;
+  private String eventId;
+  private String eventLinkOrUri;
 
   @Builder.Default
   private Map<String, String> eventMetaData = new HashMap<>();
@@ -60,19 +63,24 @@ public class CreateCalendarEventRequest {
   }
 
   public static CreateCalendarEventRequest by(final CreateCalendarEventDto dto) {
+    final CreateCalendarEventRequest createCalendarEventRequest = bySuper(dto);
+    createCalendarEventRequest.setAttendeeOrGuestEmailAddresses(dto.getEventAttendeesOrGuests());
+    return createCalendarEventRequest;
+  }
+
+  public static CreateCalendarEventRequest bySuper(final CreateStreamDto dto) {
     final String tags = dto.getTags();
     return CreateCalendarEventRequest.builder()
-            .title(dto.getTitle())
-            .description(dto.getDescription())
-            .location(dto.getLocation())
-            .timezone(dto.getTimezone())
-            .startDateTime(dto.getActualStartDateTime())
-            .endDateTime(dto.getActualEndDateTime())
-            .organizerDisplayName(dto.getOrganizerAliasOrDisplayName())
-            .visibility(EventVisibility.of(getVisibility(dto.getVisibility())))
-            .attendeeOrGuestEmailAddresses(dto.getEventAttendeesOrGuests())
-            .eventMetaData(Map.of(TAGS.getValue(), tags))
-            .build();
+      .title(dto.getTitle())
+      .description(dto.getDescription())
+      .location(dto.getLocation())
+      .timezone(dto.getTimezone())
+      .startDateTime(dto.getActualStartDateTime())
+      .endDateTime(dto.getActualEndDateTime())
+      .organizerDisplayName(dto.getOrganizerAliasOrDisplayName())
+      .visibility(EventVisibility.of(getVisibility(dto.getVisibility())))
+      .eventMetaData(Map.of(TAGS.getValue(), tags))
+      .build();
   }
 
   /**
@@ -80,9 +88,6 @@ public class CreateCalendarEventRequest {
    * calendar details. This method sets the calendar ID or name, the creator's email, and the organizer's
    * email for the event request, allowing these details to be updated before processing the event creation.
    *
-   * @param createCalendarEventRequest the request object representing the calendar event to be created.
-   *                                   This object will be updated with the new calendar ID or name, creator email,
-   *                                   and organizer email.
    * @param calendarIdOrName the identifier or name of the calendar where the event will be created.
    *                         This value is assigned to the calendar event request to specify the target calendar.
    * @param creatorEmail the email address of the event creator. This parameter sets the email of the user who is
@@ -90,11 +95,21 @@ public class CreateCalendarEventRequest {
    * @param organizerEmail the email address of the event organizer. This email is used to identify the primary
    *                       organizer of the event, potentially affecting event visibility and access permissions.
    */
-  public void update(final CreateCalendarEventRequest createCalendarEventRequest,
-     final String calendarIdOrName, final String creatorEmail, final String organizerEmail) {
-    createCalendarEventRequest.setCalendarIdOrName(calendarIdOrName);
-    createCalendarEventRequest.setCreatorEmail(creatorEmail);
-    createCalendarEventRequest.setOrganizerEmail(organizerEmail);
+  public void update(final String calendarIdOrName, final String creatorEmail, final String organizerEmail) {
+    this.calendarIdOrName = calendarIdOrName;
+    this.creatorEmail = creatorEmail;
+    this.organizerEmail = organizerEmail;
+  }
+
+  /**
+   * Updates the details of an event by setting the event ID and its associated link or URI.
+   *
+   * @param eventId the unique identifier of the event
+   * @param eventLinkOrUri the link or URI related to the event
+   */
+  public void update(final String eventId, final String eventLinkOrUri) {
+    this.eventId = eventId;
+    this.eventLinkOrUri = eventLinkOrUri;
   }
 
   /**

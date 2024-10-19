@@ -20,8 +20,6 @@ public class TotalStreamsAttendedByUserResponse {
   private Long totalCount;
 
   public static TotalStreamsAttendedByUserResponse of(final Long totalCount) {
-    return TotalStreamsAttendedByUserResponse.builder()
-        .totalCount(totalCount)
-        .build();
+    return new TotalStreamsAttendedByUserResponse(totalCount);
   }
 }

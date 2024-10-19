@@ -45,7 +45,7 @@ public class SignedUrlController {
   @ApiResponse(responseCode = "500", description = StatusCodeMessage.RESPONSE_500,
     content = { @Content(schema = @Schema(implementation = FleenException.class))
   })
-  @GetMapping("/stream-thumbnail")
+  @GetMapping("/stream-cover-photo-thumbnail")
   public SignedUrlResponse forStreamCoverPhotoOrThumbnail(
     @Parameter(description = "The file or object name", required = true)
       @RequestParam(name = "file_name") final String fileName) {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
-import com.fleencorp.feen.model.response.event.base.EventResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
 
@@ -36,7 +35,7 @@ public class AddNewEventAttendeeResponse extends ApiResponse {
     return "add.new.event.attendee";
   }
 
-  public static AddNewEventAttendeeResponse of(final Long eventId, final EventResponse event, final String emailAddress) {
+  public static AddNewEventAttendeeResponse of(final Long eventId, final FleenStreamResponse event, final String emailAddress) {
     return AddNewEventAttendeeResponse.builder()
             .eventId(eventId)
             .emailAddress(emailAddress)

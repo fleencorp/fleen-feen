@@ -6,13 +6,11 @@ import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.*;
 import lombok.Builder.Default;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
@@ -70,13 +68,6 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "organizer_phone", nullable = false, updatable = false, length = 20)
   private String organizerPhone;
 
-  @Default
-  @Column(name = "made_for_kids", nullable = false)
-  private Boolean forKids = false;
-
-  @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted;
-
   @Column(name = "stream_link", length = 1000)
   @Convert(converter = StringCryptoConverter.class)
   private String streamLink;
@@ -106,6 +97,15 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "scheduled_end_date", nullable = false)
   private LocalDateTime scheduledEndDate;
 
+  @Column(name = "other_details", length = 3000)
+  private String otherDetails;
+
+  @Column(name = "other_link", length = 1000)
+  private String otherLink;
+
+  @Column(name = "group_or_organization_name", length = 1000)
+  private String groupOrOrganizationName;
+
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -114,6 +114,22 @@ public class FleenStream extends FleenFeenEntity {
   @Default
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
   private Set<StreamAttendee> attendees = new HashSet<>();
+
+  @CreatedBy
+  @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
+  @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
+  private ChatSpace chatSpace;
+
+  @Default
+  @Column(name = "made_for_kids", nullable = false)
+  private Boolean forKids = false;
+
+  @Column(name = "is_deleted", nullable = false)
+  private Boolean isDeleted;
+
+  @Builder.Default
+  @Column(name = "total_attendees", nullable = false)
+  private Long totalAttendees = 0L;
 
   /**
    * Retrieves the stream ID.
@@ -131,6 +147,10 @@ public class FleenStream extends FleenFeenEntity {
    */
   public Set<StreamAttendee> getAttendees() {
     return nonNull(attendees) ? attendees : new HashSet<>();
+  }
+
+  public String getSpaceIdOrName() {
+    return nonNull(chatSpace) ? chatSpace.getExternalIdOrName() : null;
   }
 
   /**
@@ -278,6 +298,20 @@ public class FleenStream extends FleenFeenEntity {
    */
   public boolean isAnEvent() {
     return streamSource == StreamSource.GOOGLE_MEET;
+  }
+
+  /**
+   * Increments the total number of members in the event or stream by one.
+   */
+  public void increaseTotalAttendees() {
+    totalAttendees++;
+  }
+
+  /**
+   * Decrements the total number of attendees in the event or stream by one.
+   */
+  public void decreaseTotalAttendees() {
+    totalAttendees--;
   }
 
   public static FleenStream of(final Long streamId) {

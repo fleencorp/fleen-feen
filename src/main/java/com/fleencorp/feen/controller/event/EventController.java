@@ -1,6 +1,5 @@
 package com.fleencorp.feen.controller.event;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
@@ -11,6 +10,8 @@ import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
+import com.fleencorp.feen.model.search.event.EventSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import jakarta.validation.Valid;
@@ -29,14 +30,14 @@ public class EventController {
   }
 
   @GetMapping(value = "/entries")
-  public SearchResultView findEvents(
+  public EventSearchResult findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.findEvents(searchRequest, user);
   }
 
   @GetMapping(value = "/entries/type")
-  public SearchResultView findEvents(
+  public EventSearchResult findEvents(
       @SearchParam final CalendarEventSearchRequest searchRequest,
       final StreamTimeType streamTimeType) {
     return eventService.findEvents(searchRequest, streamTimeType);
@@ -50,7 +51,7 @@ public class EventController {
   }
 
   @GetMapping(value = "/attendees/{eventId}")
-  public SearchResultView findEventAttendees(
+  public StreamAttendeeSearchResult findEventAttendees(
       @PathVariable(name = "eventId") final Long eventId,
       @SearchParam final StreamAttendeeSearchRequest searchRequest) {
     return eventService.findEventAttendees(eventId, searchRequest);

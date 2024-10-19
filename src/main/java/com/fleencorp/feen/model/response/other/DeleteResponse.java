@@ -1,7 +1,9 @@
 package com.fleencorp.feen.model.response.other;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +22,13 @@ import static org.springframework.http.HttpStatus.OK;
 @Getter
 @Setter
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+  "message",
+  "id",
+  "status_code",
+  "timestamp"
+})
 public class DeleteResponse extends ApiResponse {
 
   @JsonProperty("id")
@@ -29,6 +38,7 @@ public class DeleteResponse extends ApiResponse {
   private Integer statusCode;
 
   @JsonFormat(shape = STRING, pattern = DATE_TIME)
+  @JsonProperty("timestamp")
   private final String timestamp;
 
   @Override
