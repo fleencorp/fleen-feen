@@ -19,7 +19,7 @@ public class PhoneNumberNotExistsResponse extends EntityExistsResponse {
     return "phone.number.not.exists";
   }
 
-  public static PhoneNumberNotExistsResponse of(boolean exists) {
+  public static PhoneNumberNotExistsResponse of(final boolean exists) {
     return PhoneNumberNotExistsResponse.builder()
       .statusCode(getActualStatusCode(exists))
       .timestamp(LocalDateTime.now())

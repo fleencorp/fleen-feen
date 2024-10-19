@@ -414,11 +414,11 @@ public class GoogleChatService {
   public GoogleRemoveChatSpaceMemberResponse removeMember(final RemoveChatSpaceMemberRequest removeChatSpaceMemberRequest) {
     try {
       // Create a request to retrieve and check if a member exists before deleting
-      RetrieveChatSpaceMemberRequest retrieveChatSpaceMemberRequest = RetrieveChatSpaceMemberRequest.of(
+      final RetrieveChatSpaceMemberRequest retrieveChatSpaceMemberRequest = RetrieveChatSpaceMemberRequest.of(
         removeChatSpaceMemberRequest.getMemberSpaceIdOrName(),
         removeChatSpaceMemberRequest.getMemberSpaceIdOrName());
       // Attempt to retrieve chat space member
-      GoogleChatSpaceMemberResponse chatSpaceMemberResponse = retrieveMember(retrieveChatSpaceMemberRequest);
+      final GoogleChatSpaceMemberResponse chatSpaceMemberResponse = retrieveMember(retrieveChatSpaceMemberRequest);
 
       if (nonNull(chatSpaceMemberResponse)) {
         // Verify the space exists
