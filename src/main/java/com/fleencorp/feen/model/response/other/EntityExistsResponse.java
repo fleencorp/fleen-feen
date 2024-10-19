@@ -41,7 +41,7 @@ public class EntityExistsResponse extends ApiResponse {
   @JsonProperty("status_code")
   protected Integer statusCode;
 
-  protected static Integer getActualStatusCode(boolean status) {
+  protected static Integer getActualStatusCode(final boolean status) {
     return status ? OK.value() : BAD_REQUEST.value();
   }
 
