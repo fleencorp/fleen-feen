@@ -1,8 +1,11 @@
 package com.fleencorp.feen.service.user;
 
+
 import com.fleencorp.feen.model.dto.user.profile.*;
+import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.model.response.user.profile.*;
 import com.fleencorp.feen.model.security.FleenUser;
+
 
 public interface MemberService {
 
@@ -31,4 +34,8 @@ public interface MemberService {
   UpdateProfileStatusResponse updateProfileInactive(FleenUser user);
 
   RemoveProfilePhotoResponse removeProfilePhoto(FleenUser user);
+
+  EntityExistsResponse isMemberEmailAddressExists(String emailAddress);
+
+  EntityExistsResponse isMemberPhoneNumberExists(String phoneNumber);
 }
