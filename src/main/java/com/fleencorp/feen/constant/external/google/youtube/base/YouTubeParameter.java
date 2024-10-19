@@ -26,4 +26,13 @@ public enum YouTubeParameter implements ApiParameter {
   YouTubeParameter(final String value) {
     this.value = value;
   }
+
+  /**
+   * Retrieves the base link for live streaming.
+   *
+   * @return the live streaming base link as a string
+   */
+  public static String liveStreamLink() {
+    return LIVE_STREAMING_BASE_LINK.getValue();
+  }
 }

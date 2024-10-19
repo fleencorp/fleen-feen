@@ -1,23 +1,32 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
+import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.*;
+import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +36,13 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
+import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponses;
 import static com.fleencorp.feen.mapper.StreamAttendeeMapper.toEventAttendeeResponses;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
@@ -39,21 +51,34 @@ import static java.util.Objects.nonNull;
 @Service
 public class StreamService {
 
+  private final MiscService miscService;
   private final FleenStreamRepository fleenStreamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final LocalizedResponse localizedResponse;
+  private static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
+  protected static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_SEARCH = 100;
 
   /**
-   * Constructs a new instance of {@code StreamService} with the specified repositories.
+   * Constructs a new instance of the {@link StreamService}.
    *
-   * @param fleenStreamRepository The repository used for managing {@code FleenStream} entities.
-   * @param streamAttendeeRepository The repository used for managing {@code StreamAttendee} entities.
-   * @param localizedResponse the service for creating localized response message
+   * <p>This constructor initializes the service with the required dependencies:
+   * {@link MiscService}, {@link FleenStreamRepository}, {@link StreamAttendeeRepository}, and
+   * {@link LocalizedResponse}.</p>
+   *
+   * <p>Each of these dependencies is injected to handle various operations such as miscellaneous tasks,
+   * stream repository interactions, attendee management, and localized responses for users.</p>
+   *
+   * @param miscService the {@link MiscService} used for handling miscellaneous tasks
+   * @param fleenStreamRepository the repository for handling operations on {@link FleenStream}
+   * @param streamAttendeeRepository the repository for managing event attendees
+   * @param localizedResponse the service for creating localized responses
    */
   public StreamService(
+      final MiscService miscService,
       final FleenStreamRepository fleenStreamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final LocalizedResponse localizedResponse) {
+    this.miscService = miscService;
     this.fleenStreamRepository = fleenStreamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.localizedResponse = localizedResponse;
@@ -90,7 +115,7 @@ public class StreamService {
     }
 
     // Return the response with a list of FleenStreams and pagination info
-    return PageAndFleenStreamResponse.of(toFleenStreams(page.getContent()), page);
+    return PageAndFleenStreamResponse.of(toFleenStreamResponses(page.getContent()), page);
   }
 
   /**
@@ -181,7 +206,7 @@ public class StreamService {
     checkIfUserIsAlreadyAnAttendee(stream, userId)
       .ifPresent(streamAttendee -> {
         // If the user is found as an attendee, throw an exception with the attendee's request to join status
-        throw new AlreadyRequestedToJoinStreamException(streamAttendee.getStreamAttendeeRequestToJoinStatus().getValue());
+        throw new AlreadyRequestedToJoinStreamException(streamAttendee.getRequestToJoinStatus().getValue());
     });
   }
 
@@ -213,10 +238,7 @@ public class StreamService {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, userId), UnableToCompleteOperationException::new);
     // Find if the user is already an attendee of the stream
-    return stream.getAttendees()
-      .stream()
-      .filter(attendee -> userId.equals(attendee.getMemberId()))
-      .findAny();
+    return streamAttendeeRepository.findAttendeeByStreamAndUser(stream, Member.of(userId));
   }
 
   /**
@@ -306,16 +328,14 @@ public class StreamService {
    * This method filters the input set of attendees to include only those whose {@code isAttending} property is {@code true}.
    * If the input set is null, an empty set is returned.
    *
-   * @param streamAttendees A set of {@link StreamAttendee} objects to be filtered.
-   *                        Each attendee's attendance status is checked to determine if they are attending the stream.
+   * @param stream The stream to use to search for attendees.
+   *               Each attendee's attendance status is checked to determine if they are attending the stream.
    * @return A set of {@link StreamAttendee} objects that are attending the stream.
    *         Returns an empty set if the input set is null or if no attendees are marked as attending.
    */
-  public Set<StreamAttendee> getAttendeesGoingToStream(final Set<StreamAttendee> streamAttendees) {
-    if (nonNull(streamAttendees)) {
-      return streamAttendees.stream()
-        .filter(StreamAttendee::getIsAttending)
-        .collect(Collectors.toSet());
+  public Set<StreamAttendee> getAttendeesGoingToStream(final FleenStream stream) {
+    if (nonNull(stream)) {
+      return streamAttendeeRepository.findAttendeesGoingToStream(stream);
     }
     return new HashSet<>();
   }
@@ -333,7 +353,7 @@ public class StreamService {
     if (nonNull(streamAttendee)) {
       // If the stream is private, set the request-to-join status to pending
       if (stream.isPrivate()) {
-        streamAttendee.setStreamAttendeeRequestToJoinStatus(PENDING);
+        streamAttendee.setRequestToJoinStatus(PENDING);
       }
     }
   }
@@ -371,9 +391,11 @@ public class StreamService {
    * @return the updated {@link FleenStream} object, reflecting the user's successful addition as an attendee.
    */
   @Transactional
-  public FleenStream joinEventOrStream(final Long eventOrStreamId, final FleenUser user) {
+  public FleenStream verifyDetailsAndTryToJoinEventOrStream(final Long eventOrStreamId, final FleenUser user) {
     final FleenStream stream = findStream(eventOrStreamId);
 
+    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
+    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
     // Verify event is not canceled
     verifyEventOrStreamIsNotCancelled(stream);
     // Check if the stream is still active and can be joined.
@@ -387,7 +409,8 @@ public class StreamService {
     streamAttendee.approveUserAttendance();
 
     // Add the new StreamAttendee to the event's attendees list and save
-    stream.getAttendees().add(streamAttendee);
+    streamAttendeeRepository.save(streamAttendee);
+    // Save the fleen stream to the repository
     fleenStreamRepository.save(stream);
 
     return stream;
@@ -417,15 +440,19 @@ public class StreamService {
    *
    * @param eventOrStreamId The ID of the event or stream whose attendees are to be found.
    * @param searchRequest The request containing search parameters such as pagination information.
-   * @return A {@code SearchResultView} containing the list of stream attendees and pagination details.
+   * @return A {@code StreamAttendeeSearchResult} containing the list of stream attendees and pagination details.
    */
-  protected SearchResultView findEventOrStreamAttendees(final Long eventOrStreamId, final StreamAttendeeSearchRequest searchRequest) {
+  protected StreamAttendeeSearchResult findEventOrStreamAttendees(final Long eventOrStreamId, final StreamAttendeeSearchRequest searchRequest) {
     // Retrieve paginated list of attendees associated with the given event or stream
     final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
     // Convert the list of attendees to response objects
     final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(page.getContent());
-    // Return the search result view containing the attendees and pagination info
-    return toSearchResult(views, page);
+    // Return a search result view with the attendees responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(StreamAttendeeSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -437,16 +464,20 @@ public class StreamService {
    * to convert the attendees into a structured response.</p>
    *
    * @param eventOrStreamId the unique identifier of the event or stream
-   * @param user the authenticated user
+   * @param searchRequest the search request use to filter the attendees result
+   * @param streamSource the source for which fleen streams will be filtered
    * @return an EventAttendeesResponse DTO containing the list of attendees for the event
    * @throws FleenStreamNotFoundException if the event with the specified eventOrStreamId is not found
    */
-  public EventOrStreamAttendeesResponse getEventOrStreamAttendees(final Long eventOrStreamId, final FleenUser user) {
+  public EventOrStreamAttendeesResponse getEventOrStreamAttendees(final Long eventOrStreamId, final StreamAttendeeSearchRequest searchRequest, final StreamSource streamSource) {
     // Convert the attendees to response objects
     final FleenStream stream = findStream(eventOrStreamId);
+    // Perform a search and retrieve the page and search result of attendees
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndStreamSource(stream, streamSource, searchRequest.getPage());
     // Get event attendees
-    final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = getAttendees(eventOrStreamId, stream.getAttendees());
+    final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = getAttendees(eventOrStreamId, page.getContent());
     eventOrStreamAttendeesResponse.setEventId(eventOrStreamId);
+    eventOrStreamAttendeesResponse.setPage(page);
 
     return localizedResponse.of(eventOrStreamAttendeesResponse);
   }
@@ -463,7 +494,7 @@ public class StreamService {
    * @param attendees the set of StreamAttendee entities representing the attendees of the event
    * @return an EventAttendeesResponse DTO containing the list of attendees, or an empty EventAttendeesResponse if there are no attendees
    */
-  public EventOrStreamAttendeesResponse getAttendees(final Long eventOrStreamId, final Set<StreamAttendee> attendees) {
+  public EventOrStreamAttendeesResponse getAttendees(final Long eventOrStreamId, final Collection<StreamAttendee> attendees) {
     final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = EventOrStreamAttendeesResponse.of(eventOrStreamId);
     // Check if the attendees list is not empty and set it to the list of attendees in the response
     if (nonNull(attendees) && !attendees.isEmpty()) {
@@ -491,16 +522,47 @@ public class StreamService {
    * @param user The user whose request-to-join status is being determined.
    */
   protected void determineUserJoinStatusForEventOrStream(final List<FleenStreamResponse> responses, final FleenUser user) {
-    if (nonNull(user) && nonNull(user.toMember()) && nonNull(responses)) {
+    if (isUserAndResponsesValid(responses, user)) {
       // Extract the event or stream IDs from the search result views
       final List<Long> eventIds = extractAndGetEventOrStreamIds(responses);
-
       // Retrieve the user's attendance records for the provided event or stream IDs
       final List<StreamAttendeeSelect> userAttendances = streamAttendeeRepository.findByMemberAndEventOrStreamIds(user.toMember(), eventIds);
-
       // Map event or stream IDs to the user's request-to-join status
       final Map<Long, StreamAttendeeRequestToJoinStatus> attendanceStatusMap = groupAttendeeStatusByEventOrStreamId(userAttendances);
 
+      // Update each stream's join status in the response views
+      updateJoinStatusInResponses(responses, attendanceStatusMap);
+    }
+  }
+
+  /**
+   * Validates that the user and the list of responses are not null.
+   *
+   * <p>This method checks if the user, the member object derived from the user, and the list of
+   * responses are all non-null to ensure the data is valid for further processing.</p>
+   *
+   * @param responses The list of FleenStreamResponse objects to be validated.
+   * @param user The FleenUser object to be validated.
+   * @return true if the user, user's member, and the responses are non-null; otherwise false.
+   */
+  protected boolean isUserAndResponsesValid(final Collection<FleenStreamResponse> responses, final FleenUser user) {
+    // Check if user is non-null, user's member is non-null, and responses list is non-null
+    return nonNull(user) && nonNull(user.toMember()) && nonNull(responses);
+  }
+
+  /**
+   * Updates the join status of each stream response based on the provided attendance status map.
+   *
+   * <p>This method iterates over a list of FleenStreamResponse objects and updates their join status
+   * according to the corresponding status found in the provided attendanceStatusMap.
+   * If a stream response is non-null and has a corresponding status in the map,
+   * the join status is updated with a label derived from the status.</p>
+   *
+   * @param responses A list of FleenStreamResponse objects representing the streams to be updated.
+   * @param attendanceStatusMap A map containing attendance status keyed by stream number IDs.
+   */
+  protected void updateJoinStatusInResponses(final List<FleenStreamResponse> responses, final Map<Long, StreamAttendeeRequestToJoinStatus> attendanceStatusMap) {
+    if (nonNull(responses) && nonNull(attendanceStatusMap)) {
       // Update each stream's join status in the response views
       responses.stream()
         .filter(Objects::nonNull)
@@ -508,10 +570,14 @@ public class StreamService {
           // Retrieve the attendee status for a specific ID which can be null because the member has not join or requested to join the event or stream
           final Optional<StreamAttendeeRequestToJoinStatus> existingStatus = Optional.ofNullable(attendanceStatusMap.get(stream.getNumberId()));
           // If member is an attendee, retrieve the status and set view label
-          if (existingStatus.isPresent()) {
-            final String statusLabel = getJoinStatus(existingStatus.get());
+          existingStatus.ifPresent(status -> {
+            // Get the status label based on the user's join status
+            final String statusLabel = getJoinStatus(status);
+            // Set the join status for the chatSpace
             stream.setJoinStatus(statusLabel);
-          }
+            // Disable and reset the unmasked link if the user's join status is not approved
+            stream.disableAndResetUnmaskedLinkIfNotApproved();
+          });
       });
     }
   }
@@ -523,7 +589,7 @@ public class StreamService {
    * @param responses A list of FleenStreamResponse objects from which to extract event or stream IDs.
    * @return A list of event or stream IDs. If the input list is null, an empty list is returned.
    */
-  protected static List<Long> extractAndGetEventOrStreamIds(List<FleenStreamResponse> responses) {
+  protected static List<Long> extractAndGetEventOrStreamIds(final List<FleenStreamResponse> responses) {
     // Filter null responses and map to the corresponding event or stream ID
     if (nonNull(responses)) {
       return responses.stream()
@@ -544,7 +610,7 @@ public class StreamService {
    * @return A map where the key is the event or stream ID and the value is the request-to-join status.
    *         If the input list is null or empty, an empty map is returned.
    */
-  protected static Map<Long, StreamAttendeeRequestToJoinStatus> groupAttendeeStatusByEventOrStreamId(List<StreamAttendeeSelect> userAttendances) {
+  protected static Map<Long, StreamAttendeeRequestToJoinStatus> groupAttendeeStatusByEventOrStreamId(final List<StreamAttendeeSelect> userAttendances) {
     // Filter null values and map event/stream ID to request-to-join status
     if (nonNull(userAttendances) && !userAttendances.isEmpty()) {
       return userAttendances.stream()
@@ -581,7 +647,7 @@ public class StreamService {
    * @param user      The {@link FleenUser} whose timezone is used for comparison and conversion.
    */
   protected void setOtherScheduleBasedOnUserTimezone(final Collection<FleenStreamResponse> responses, final FleenUser user) {
-    if (nonNull(responses) && !responses.isEmpty() && nonNull(user)) {
+    if (isUserAndResponsesValid(responses, user)) {
       responses.stream()
         .filter(Objects::nonNull)
         .forEach(stream -> {
@@ -593,12 +659,12 @@ public class StreamService {
           // Check if the event's timezone and user's timezone are different
           if (!streamTimezone.equalsIgnoreCase(userTimezone)) {
             // Convert the stream's schedule to the user's timezone
-            final FleenStreamResponse.Schedule otherSchedule = createSchedule(stream, userTimezone);
+            final Schedule otherSchedule = createSchedule(stream, userTimezone);
             // Set the converted dates and user's timezone in the stream's other schedule
             stream.setOtherSchedule(otherSchedule);
           } else {
             // If the timezones are the same, set an empty schedule
-            stream.setOtherSchedule(FleenStreamResponse.Schedule.of());
+            stream.setOtherSchedule(Schedule.of());
           }
       });
     }
@@ -610,17 +676,17 @@ public class StreamService {
    * <p>This method takes a {@link FleenStreamResponse} object and the user's timezone,
    * then converts the stream's start and end dates from the stream's timezone to
    * the user's timezone. The converted schedule is returned in the form of a
-   * {@link FleenStreamResponse.Schedule}.</p>
+   * {@link Schedule}.</p>
    *
    * @param stream       The {@link FleenStreamResponse} object containing the stream schedule
    *                     with the original timezone and dates.
    * @param userTimezone The timezone of the user to which the schedule should be converted.
    *                     This must be a valid timezone string (e.g., "America/New_York").
-   * @return A {@link FleenStreamResponse.Schedule} object containing the start and end dates
+   * @return A {@link Schedule} object containing the start and end dates
    *         converted to the user's timezone. If the stream or user's timezone is null,
    *         an empty schedule is returned.
    */
-  protected FleenStreamResponse.Schedule createSchedule(final FleenStreamResponse stream, final String userTimezone) {
+  protected Schedule createSchedule(final FleenStreamResponse stream, final String userTimezone) {
     if (nonNull(stream) && nonNull(userTimezone)) {
       // Get the stream's original timezone
       final String streamTimezone = stream.getSchedule().getTimezone();
@@ -634,12 +700,172 @@ public class StreamService {
       // Convert the stream's end date to the user's timezone
       final LocalDateTime userEndDate = convertToTimezone(endDate, streamTimezone, userTimezone);
       // Return the schedule with the dates in the user's timezone
-      return FleenStreamResponse.Schedule.of(userStartDate, userEndDate, userTimezone);
+      return Schedule.of(userStartDate, userEndDate, userTimezone);
     }
     // If the stream or userTimezone is null, return an empty schedule
-    return FleenStreamResponse.Schedule.of();
+    return Schedule.of();
   }
 
+  /**
+   * Updates the request status of a StreamAttendee based on the provided DTO.
+   *
+   * <p>This method retrieves the desired join status from the given DTO and updates
+   * the corresponding StreamAttendee's request status. It also sets any comments
+   * provided by the organizer.</p>
+   *
+   * @param streamAttendee The StreamAttendee whose request status is to be updated.
+   * @param processAttendeeRequestToJoinDto The DTO containing the new join status and comments.
+   */
+  protected void updateAttendeeRequestStatus(final StreamAttendee streamAttendee, final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinDto) {
+    // Retrieve the requested status for the attendee to join the stream
+    final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinDto.getActualJoinStatus();
+    // Update the attendee's request status and set any organizer comments
+    streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinDto.getComment());
+  }
+
+  /**
+   * Increases the total number of attendees or guests for a given event stream and saves the updated stream.
+   *
+   * @param stream The event stream where the number of attendees or guests is to be increased.
+   */
+  protected FleenStream increaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
+    // Increase total attendees or guests in the event
+    stream.increaseTotalAttendees();
+    // Save the updated stream to the repository
+    return fleenStreamRepository.save(stream);
+  }
+
+  /**
+   * Decreases the total number of attendees or guests for a given event stream and saves the updated stream.
+   *
+   * @param stream The event stream where the number of attendees or guests is to be decreased.
+   */
+  protected void decreaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
+    // Decrease total attendees or guests in the event
+    stream.decreaseTotalAttendees();
+    // Save the updated stream to the repository
+    fleenStreamRepository.save(stream);
+  }
+
+  /**
+   * Determines and sets various statuses and details for events or streams based on the user's context.
+   *
+   * <p>This method evaluates and updates the provided list of {@link FleenStreamResponse} objects
+   * by determining the user's join status, the schedule status (live, past, or upcoming), and
+   * adjusts schedule details based on the user's timezone.</p>
+   *
+   * @param views the list of event or stream responses to update with status and details.
+   * @param user the user whose context will be used to adjust the statuses and schedule details.
+   */
+  public void determineDifferentStatusesAndDetailsOfEventOrStreamBasedOnUser(final List<FleenStreamResponse> views, final FleenUser user) {
+    // Determine the user's join status for each event or stream
+    determineUserJoinStatusForEventOrStream(views, user);
+    // Determine schedule status whether live, past or upcoming
+    determineScheduleStatus(views);
+    // Set other schedule details if user timezone is different
+    setOtherScheduleBasedOnUserTimezone(views, user);
+  }
+
+  /**
+   * Sets the number of attendees for each stream in the provided list of {@link FleenStreamResponse} objects.
+   *
+   * <p>This method iterates over a list of {@link FleenStreamResponse} instances, calculates the total number of attendees
+   * who have been approved to join and are attending each event, and updates the total attending count for each stream.
+   * The count is based on the data retrieved from the `streamAttendeeRepository.</p>
+   *
+   * @param streams the list of {@link FleenStreamResponse} objects whose attendee counts are to be updated.
+   */
+  public void setStreamAttendeesAndTotalAttendeesAttending(final List<FleenStreamResponse> streams) {
+    if (nonNull(streams)) {
+      streams.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
+          final Long streamId = Long.parseLong(stream.getId().toString());
+          // Count total attendees whose request to join event is approved and are attending the event because they are interested
+          final long totalAttendees = streamAttendeeRepository.
+            countByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true);
+          stream.setTotalAttending(totalAttendees);
+      });
+    }
+  }
+
+  /**
+   * Retrieves and sets the first 10 attendees (or fewer if not enough attendees) for each stream in the provided list of {@link FleenStreamResponse} objects.
+   *
+   * <p>This method iterates over a list of {@link FleenStreamResponse} instances, retrieves up to 10 attendees who have been approved
+   * to join and are attending each event, and updates the list of attendees for each stream. The retrieval is done in an arbitrary order.</p>
+   *
+   * @param streams the list of {@link FleenStreamResponse} objects whose attendee lists are to be updated.
+   */
+  public void getFirst10AttendingInAnyOrder(final List<FleenStreamResponse> streams) {
+    if (nonNull(streams)) {
+      streams.stream()
+        .filter(Objects::nonNull)
+        .forEach(stream -> {
+          final Long streamId = Long.parseLong(stream.getId().toString());
+          // Create a pageable request to get the first 10 attendees
+          final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM);
+          // Fetch attendees who are approved and attending the event
+          final Page<StreamAttendee> page = streamAttendeeRepository
+            .findAllByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true, pageable);
+          // Convert the list of stream attendees to list of stream attendee responses
+          final List<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(page.getContent());
+          stream.setSomeAttendees(streamAttendees);
+      });
+    }
+  }
+
+  /**
+   * Registers the organizer of an event as an attendee and automatically approves their attendance.
+   *
+   * @param stream The event the organizer is managing.
+   * @param user   The organizer's user account.
+   */
+  @Transactional
+  public void registerAndApproveOrganizerOfEventAsAnAttendee(final FleenStream stream, final FleenUser user) {
+    // Add the organizer as an attendee of the event
+    final StreamAttendee streamAttendee = StreamAttendee.of(user.toMember(), stream);
+    // Approve the organizer's request to join automatically
+    streamAttendee.approveUserAttendance();
+    // Save attendee to the repository
+    streamAttendeeRepository.save(streamAttendee);
+  }
+
+  /**
+   * Increments the attendee count for the provided stream and returns the corresponding
+   * {@link FleenStreamResponse}. If the response is non-null, it ensures the attendee
+   * count is incremented exactly once.
+   *
+   * @param stream the {@link FleenStream} instance for which the attendee count will be incremented.
+   * @return the updated {@link FleenStreamResponse} with the attendee count incremented.
+   */
+  public FleenStreamResponse incrementAttendeeBecauseOfOrganizerAndGetResponse(final FleenStream stream) {
+    final FleenStreamResponse response = toFleenStreamResponse(stream);
+    if (nonNull(response)) {
+      response.incrementAttendeesOrGuestsAttendingJustOnce();
+    }
+    return response;
+  }
+
+  /**
+   * Verifies if the user is the author, creator, or owner attempting to perform an action.
+   *
+   * <p>This method delegates the verification to the {@link MiscService} to check if the user
+   * is the owner, creator, or author of a given resource, such as a chat space or event.
+   * If the user matches the role of the owner, author, or creator, the action will be restricted,
+   * potentially resulting in an exception being thrown.</p>
+   *
+   * <p>Use this method to ensure that unauthorized actions, like modifying or deleting resources
+   * by the resource's owner, are properly controlled.</p>
+   *
+   * @param owner the {@link Member} representing the owner, author, or creator of the resource
+   * @param user the {@link FleenUser} attempting to perform an action
+   *
+   * @throws FailedOperationException if the user is the author, creator, or owner of the resource
+   */
+  protected void verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(final Member owner, final FleenUser user) {
+    miscService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(owner, user);
+  }
 
 
 }

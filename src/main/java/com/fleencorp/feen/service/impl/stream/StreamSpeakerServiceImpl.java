@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
@@ -18,6 +17,8 @@ import com.fleencorp.feen.model.dto.stream.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.model.response.stream.speaker.*;
+import com.fleencorp.feen.model.search.stream.speaker.EmptyStreamSpeakerSearchResult;
+import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
@@ -36,6 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.*;
 import static com.fleencorp.feen.mapper.StreamSpeakerMapper.toStreamSpeakerResponses;
@@ -102,18 +104,22 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * Searches for speakers based on the provided search criteria.
    *
    * @param searchRequest the search request containing filtering criteria and pagination information
-   * @return a SearchResultView containing the list of speakers matching the search criteria
+   * @return a StreamSpeakerSearchResult containing the list of speakers matching the search criteria
    */
   @Override
-  public SearchResultView findSpeakers(final StreamSpeakerSearchRequest searchRequest) {
+  public StreamSpeakerSearchResult findSpeakers(final StreamSpeakerSearchRequest searchRequest) {
     // Extract the name, full name, username, or email address from the search request
     final String nameOrFullNameOrUsernameOrEmailAddress = searchRequest.getUserIdOrName();
     // Retrieve a paginated list of Member entities matching the search criteria
     final Page<Member> page = memberRepository.findAllByEmailAddressOrFirstNameOrLastName(nameOrFullNameOrUsernameOrEmailAddress, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = toStreamSpeakerResponsesByMember(page.getContent());
-    // Return the search results, including the list of speaker responses and pagination details
-    return toSearchResult(views, page);
+    // Return a search result view with the speaker responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**

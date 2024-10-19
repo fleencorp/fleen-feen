@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.calendar;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
@@ -22,6 +21,9 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
+import com.fleencorp.feen.model.search.calendar.CalendarSearchResult;
+import com.fleencorp.feen.model.search.calendar.EmptyCalendarSearchResult;
+import com.fleencorp.feen.model.search.country.CountrySearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
@@ -37,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
 import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponses;
@@ -90,9 +93,9 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public DataForCreateCalendarResponse getDataForCreateCalendar() {
     // Fetch a list of countries with a large number of entries (1000 in this case).
-    final SearchResultView searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    final CountrySearchResult searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
     // Get the countries in the search result
-    final List<?> countries = searchResult.getValues();
+    final List<?> countries = searchResult.getResult().getValues();
     // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
     // Return the response object containing both the countries and timezones.
@@ -103,10 +106,10 @@ public class CalendarServiceImpl implements CalendarService {
   * Finds calendars based on the search criteria provided in the CalendarSearchRequest.
   *
   * @param searchRequest the request containing the search criteria
-  * @return a SearchResultView containing the search results
+  * @return a CalendarSearchResult containing the search results
   */
   @Override
-  public SearchResultView findCalendars(final CalendarSearchRequest searchRequest) {
+  public CalendarSearchResult findCalendars(final CalendarSearchRequest searchRequest) {
     final Page<Calendar> page;
     if (searchRequest.areAllDatesSet()) {
       page = calendarRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), searchRequest.getPage());
@@ -119,7 +122,12 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     final List<CalendarResponse> views = toCalendarResponses(page.getContent());
-    return toSearchResult(views, page);
+    // Return a search result view with the calendar responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(CalendarSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyCalendarSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**

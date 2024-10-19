@@ -4,15 +4,24 @@ import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
 public interface FollowerRepository extends JpaRepository<Follower, Long> {
 
-  Optional<Follower> findByFollowerAndFollowed(Member follower, Member followed);
+  Optional<Follower> findByFollowingAndFollowed(Member follower, Member followed);
 
-  Page<Follower> findByFollowed(Member followed, Pageable pageable);
+  // Finding followers of a user (users who follow the given user)
+  @EntityGraph(attributePaths = {"followed"})
+  @Query("SELECT f FROM Follower f WHERE f.followed = :member")
+  Page<Follower> findFollowersByUser(@Param("member") Member member, Pageable pageable);
 
-  Page<Follower> findByFollower(Member member, Pageable pageable);
+  // Finding users the given user is following
+  @EntityGraph(attributePaths = {"following"})
+  @Query("SELECT f FROM Follower f WHERE f.following = :member")
+  Page<Follower> findByFollowing(@Param("member") Member member, Pageable pageable);
 }

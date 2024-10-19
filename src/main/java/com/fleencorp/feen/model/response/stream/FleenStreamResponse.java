@@ -1,14 +1,11 @@
 package com.fleencorp.feen.model.response.stream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
-import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
+import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.model.other.Organizer;
+import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.util.DateTimeUtil;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -16,8 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
-import static com.fleencorp.feen.util.DateTimeUtil.getTimezoneAbbreviation;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -66,8 +61,12 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("for_kids")
   private Boolean forKids;
 
+  @JsonFormat(shape = STRING)
   @JsonProperty("stream_link")
-  private String streamLink;
+  private MaskedStreamLinkUri streamLink;
+
+  @JsonIgnore
+  private String streamLinkUnmasked;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("stream_source")
@@ -105,6 +104,18 @@ public class FleenStreamResponse extends FleenFeenResponse {
     return StreamVisibility.isPrivateOrProtected(visibility);
   }
 
+  @JsonProperty("stream_link_unmasked")
+  public String getStreamLinkUnmasked() {
+    disableAndResetUnmaskedLinkIfNotApproved();
+    return streamLinkUnmasked;
+  }
+
+  /**
+   * For the purpose of use in Chat Space where an event is created and is available for member of the space to join.
+   */
+  @JsonIgnore
+  public String streamLinkNotMasked;
+
   /**
    * Updates the schedule status of this FleenStream by setting the stream time type
    * based on the current time.
@@ -123,125 +134,36 @@ public class FleenStreamResponse extends FleenFeenResponse {
    * @throws NullPointerException if currentTime is null
    */
   public void updateStreamTimeType(final LocalDateTime currentTime) {
-    if (currentTime.isBefore(this.schedule.startDate)) {
+    if (currentTime.isBefore(this.schedule.getStartDate())) {
       this.scheduleTimeType = StreamTimeType.UPCOMING;
-    } else if (currentTime.isAfter(this.schedule.endDate)) {
+    } else if (currentTime.isAfter(this.schedule.getStartDate())) {
       this.scheduleTimeType = StreamTimeType.PAST;
     } else {
       this.scheduleTimeType = StreamTimeType.LIVE;
     }
   }
 
-  @Builder
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonPropertyOrder({
-    "name",
-    "email",
-    "phone"
-  })
-  public static class Organizer {
+  /**
+   * Increments the total number of attendees or guests by one. This method is designed to ensure
+   * that the count is increased just once per invocation.
+   */
+  public void incrementAttendeesOrGuestsAttendingJustOnce() {
+    totalAttending++;
+  }
 
-    @JsonProperty("name")
-    private String organizerName;
-
-    @JsonProperty("email")
-    private MaskedEmailAddress organizerEmail;
-
-    @JsonProperty("phone")
-    private MaskedPhoneNumber organizerPhone;
-
-    public static Organizer of(final String organizerName, final String organizerEmail, final String organizerPhone) {
-      return Organizer.builder()
-        .organizerName(organizerName)
-        .organizerEmail(MaskedEmailAddress.of(organizerEmail))
-        .organizerPhone(MaskedPhoneNumber.of(organizerPhone))
-        .build();
+  /**
+   * Disables and resets the unmasked stream link if the join status is not approved.
+   *
+   * <p>This method checks the current join status, and if it is not approved,
+   * it resets the unmasked stream link to {@code null} to ensure the user
+   * does not have access to the unmasked link.</p>
+   *
+   * <p>This operation ensures that users without approval cannot access unmasked stream links.</p>
+   */
+  public void disableAndResetUnmaskedLinkIfNotApproved() {
+    if (nonNull(joinStatus) && JoinStatus.isNotApproved(joinStatus)) {
+      streamLinkUnmasked = null;
     }
   }
 
-  @Builder
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @JsonInclude(JsonInclude.Include.NON_NULL)
-  @JsonPropertyOrder({
-    "start_date",
-    "end_date",
-    "timezone",
-    "abbreviated_timezone",
-    "gmt_offset"
-  })
-  public static class Schedule {
-
-    @JsonFormat(shape = STRING, pattern = DATE_TIME)
-    @JsonProperty("start_date")
-    private LocalDateTime startDate;
-
-    @JsonFormat(shape = STRING, pattern = DATE_TIME)
-    @JsonProperty("end_date")
-    private LocalDateTime endDate;
-
-    @JsonProperty("timezone")
-    private String timezone;
-
-    @JsonProperty("is_schedule_set")
-    private boolean isScheduleSet;
-
-    /**
-     * Retrieves the abbreviated timezone for the stream's start date.
-     *
-     * @return The abbreviated timezone (e.g., "PST") if both startDate and timezone are not null; {@code null} otherwise.
-     */
-    @JsonProperty("abbreviated_timezone")
-    public String getAbbreviatedTimezone() {
-      return nonNull(startDate) && nonNull(timezone)
-        ? getTimezoneAbbreviation(startDate, timezone)
-        : null;
-    }
-
-    /**
-     * Retrieves the GMT offset for the stream's start date.
-     *
-     * @return The GMT offset in the format "(UTC+/-XX:XX)" if both startDate and timezone are not null; {@code null} otherwise.
-     */
-    @JsonProperty("gmt_offset")
-    public String getGmtOffset() {
-      return nonNull(startDate) && nonNull(timezone)
-        ? DateTimeUtil.getGmtOffset(startDate, timezone)
-        : null;
-    }
-
-    /**
-     * Creates and returns a new Schedule instance with the provided start date, end date, and timezone.
-     *
-     * @param scheduledStartDate The scheduled start date of the event.
-     * @param scheduledEndDate The scheduled end date of the event.
-     * @param timezone The timezone in which the event is scheduled.
-     * @return A Schedule object with the provided details and a flag indicating the schedule is set.
-     */
-    public static Schedule of(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
-      return Schedule.builder()
-        .startDate(scheduledStartDate)
-        .endDate(scheduledEndDate)
-        .timezone(timezone)
-        .isScheduleSet(true)
-        .build();
-    }
-
-    /**
-     * Creates and returns a new Schedule instance with default settings.
-     *
-     * @return A Schedule object with the schedule set flag as false, indicating no schedule details are provided.
-     */
-    public static Schedule of() {
-      return Schedule.builder()
-        .isScheduleSet(false)
-        .build();
-    }
-  }
 }

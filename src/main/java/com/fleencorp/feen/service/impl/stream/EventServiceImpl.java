@@ -10,6 +10,7 @@ import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamExce
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -28,13 +29,21 @@ import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.search.broadcast.request.EmptyRequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.event.EmptyEventSearchResult;
+import com.fleencorp.feen.model.search.event.EventSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
+import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
+import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
@@ -43,8 +52,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,13 +61,13 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
+import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
-import static com.fleencorp.feen.mapper.EventMapper.toEventResponse;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreams;
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toEventResponse;
+import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponses;
 import static java.util.Objects.nonNull;
 
 /**
@@ -77,52 +84,59 @@ public class EventServiceImpl extends StreamService implements EventService {
   private final String delegatedAuthorityEmail;
   private final CountryService countryService;
   private final EventUpdateService eventUpdateService;
-  private final FleenStreamRepository fleenStreamRepository;
-  private final UserFleenStreamRepository userFleenStreamRepository;
   private final CalendarRepository calendarRepository;
-  private final StreamAttendeeRepository streamAttendeeRepository;
+  private final ChatSpaceMemberRepository chatSpaceMemberRepository;
+  private final FleenStreamRepository fleenStreamRepository;
   private final MemberRepository memberRepository;
-  private final StreamEventPublisher streamEventPublisher;
-  private static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
+  private final StreamAttendeeRepository streamAttendeeRepository;
+  private final UserFleenStreamRepository userFleenStreamRepository;
   private final LocalizedResponse localizedResponse;
+  private final StreamEventPublisher streamEventPublisher;
 
   /**
-   * Constructor for the EventServiceImpl class.
+   * Constructs an instance of {@code EventServiceImpl} with the provided dependencies.
    *
-   * <p>Initializes an instance of EventServiceImpl with the necessary dependencies,
-   * including Google Calendar event service, FleenStream repository, and Calendar repository.</p>
+   * <p>This constructor initializes the service with various repository and service classes, along with
+   * configuration parameters. It also invokes the superclass constructor to set up the repositories
+   * related to streams and attendees, and initializes fields related to event updates, chat space members,
+   * and country services.</p>
    *
-   * @param delegatedAuthorityEmail the email address used for delegated authority
-   * @param countryService the service providing country-related data and operations.
-   * @param eventUpdateService the event service to handle update through services
-   * @param fleenStreamRepository the repository for FleenStream operations
-   * @param userFleenStreamRepository  the repository for FleenStream operations related to a user profile
-   * @param calendarRepository the repository for calendar operations
-   * @param streamAttendeeRepository the repository for managing event or stream attendees
-   * @param memberRepository the repository for managing users
-   * @param streamEventPublisher the service for publishing event or stream related actions
-   * @param localizedResponse the service for creating localized response message
+   * @param delegatedAuthorityEmail The email address used for delegated authority in Google services
+   * @param countryService Service for handling country-related operations
+   * @param miscService the service for managing miscellaneous actions
+   * @param eventUpdateService Service for handling event updates
+   * @param calendarRepository Repository for managing calendar entities
+   * @param chatSpaceMemberRepository Repository for handling chat space members
+   * @param fleenStreamRepository Repository for managing stream entities
+   * @param memberRepository Repository for managing members
+   * @param userFleenStreamRepository Repository for managing user-fleen stream associations
+   * @param streamAttendeeRepository Repository for managing stream attendees
+   * @param streamEventPublisher Publisher for stream-related events
+   * @param localizedResponse Service for creating localized responses
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
       final CountryService countryService,
+      final MiscService miscService,
       final EventUpdateService eventUpdateService,
-      final FleenStreamRepository fleenStreamRepository,
-      final UserFleenStreamRepository userFleenStreamRepository,
       final CalendarRepository calendarRepository,
-      final StreamAttendeeRepository streamAttendeeRepository,
+      final ChatSpaceMemberRepository chatSpaceMemberRepository,
+      final FleenStreamRepository fleenStreamRepository,
       final MemberRepository memberRepository,
+      final UserFleenStreamRepository userFleenStreamRepository,
+      final StreamAttendeeRepository streamAttendeeRepository,
       final StreamEventPublisher streamEventPublisher,
       final LocalizedResponse localizedResponse) {
-    super(fleenStreamRepository, streamAttendeeRepository, localizedResponse);
+    super(miscService,fleenStreamRepository, streamAttendeeRepository, localizedResponse);
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.countryService = countryService;
     this.eventUpdateService = eventUpdateService;
-    this.fleenStreamRepository = fleenStreamRepository;
-    this.userFleenStreamRepository = userFleenStreamRepository;
     this.calendarRepository = calendarRepository;
-    this.streamAttendeeRepository = streamAttendeeRepository;
+    this.chatSpaceMemberRepository = chatSpaceMemberRepository;
+    this.fleenStreamRepository = fleenStreamRepository;
     this.memberRepository = memberRepository;
+    this.streamAttendeeRepository = streamAttendeeRepository;
+    this.userFleenStreamRepository = userFleenStreamRepository;
     this.streamEventPublisher = streamEventPublisher;
     this.localizedResponse = localizedResponse;
   }
@@ -140,26 +154,26 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param searchRequest The search request containing the filters and criteria for finding events or streams.
    * @param user The user performing the search, used to determine the user's join status for the events or streams.
-   * @return SearchResultView The result of the search, including event or stream details and pagination information.
+   * @return EventSearchResult The result of the search, including event or stream details and pagination information.
    */
   @Override
-  public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     // Find events or streams based on the search request
     final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
     // Get the list of event or stream views from the search result
     final List<FleenStreamResponse> views = pageAndFleenStreamResponse.getResponses();
-    // Determine the user's join status for each event or stream
-    determineUserJoinStatusForEventOrStream(views, user);
-    // Determine schedule status whether live, past or upcoming
-    determineScheduleStatus(views);
-    // Set other schedule details if user timezone is different
-    setOtherScheduleBasedOnUserTimezone(views, user);
+    // Determine statuses like schedule, join status, schedules and timezones
+    determineDifferentStatusesAndDetailsOfEventOrStreamBasedOnUser(views, user);
     // Set the attendees and total attendee count for each event or stream
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Get the first 10 attendees for each event or stream
     getFirst10AttendingInAnyOrder(views);
-    // Convert the views and pagination details to a SearchResultView and return
-    return toSearchResult(views, pageAndFleenStreamResponse.getPage());
+    // Return a search result view with the events responses and pagination details
+    return handleSearchResult(
+      pageAndFleenStreamResponse.getPage(),
+      localizedResponse.of(EventSearchResult.of(toSearchResult(views, pageAndFleenStreamResponse.getPage()))),
+      localizedResponse.of(EmptyEventSearchResult.of(toSearchResult(List.of(), pageAndFleenStreamResponse.getPage())))
+    );
   }
 
   /**
@@ -170,10 +184,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param searchRequest the search request containing search criteria
    * @param streamTimeType the type of events to retrieve (upcoming, past, or live)
-   * @return a SearchResultView containing the events matching the search criteria
+   * @return a EventSearchResult containing the events matching the search criteria
    */
   @Override
-  public SearchResultView findEvents(final CalendarEventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
+  public EventSearchResult findEvents(final CalendarEventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
     final Page<FleenStream> page;
 
     // Determine the appropriate page of events based on the stream time type
@@ -186,13 +200,17 @@ public class EventServiceImpl extends StreamService implements EventService {
     }
 
     // Convert the page content to FleenStreamResponse objects
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final List<FleenStreamResponse> views = toFleenStreamResponses(page.getContent());
     // Set attendees and their total count for the retrieved events
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees for display purposes
     getFirst10AttendingInAnyOrder(views);
-    // Return the constructed SearchResultView object
-    return toSearchResult(views, page);
+    // Return a search result view with the events responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(EventSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyEventSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -254,10 +272,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param searchRequest the request object containing the search criteria
    * @param user the user performing the search
-   * @return a view of the search results containing the matching events
+   * @return a EventSearchResult of the search results containing the matching events
    */
   @Override
-  public SearchResultView findMyEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findMyEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 
@@ -281,15 +299,19 @@ public class EventServiceImpl extends StreamService implements EventService {
     }
 
     // Convert the event streams to response views
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final List<FleenStreamResponse> views = toFleenStreamResponses(page.getContent());
     // Set other schedule details if user timezone is different
     setOtherScheduleBasedOnUserTimezone(views, user);
     // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
-    // Return the search result view with event data and pagination details
-    return toSearchResult(views, page);
+    // Return a search result view with the event responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(EventSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyEventSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -300,10 +322,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param searchRequest the request containing search criteria such as date range and title
    * @param user the user whose attended events are to be found
-   * @return a SearchResultView containing the events that match the search criteria
+   * @return a EventSearchResult containing the events that match the search criteria
    */
   @Override
-  public SearchResultView findEventsAttendedByUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEventsAttendedByUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
 
     if (searchRequest.areAllDatesSet()) {
@@ -319,13 +341,17 @@ public class EventServiceImpl extends StreamService implements EventService {
     }
 
     // Convert the event streams to response views
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final List<FleenStreamResponse> views = toFleenStreamResponses(page.getContent());
     // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
-    // Return the search result view with event data and pagination details
-    return toSearchResult(views, page);
+    // Return a search result view with the events responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(EventSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyEventSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -338,10 +364,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param searchRequest the search criteria containing another user ID, if specified
    * @param user the current FleenUser for whom events are being searched
-   * @return a SearchResultView containing the list of events attended with another user
+   * @return a EventSearchResult containing the list of events attended with another user
    */
   @Override
-  public SearchResultView findEventsAttendedWithAnotherUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEventsAttendedWithAnotherUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
 
     if (nonNull(searchRequest.getAnotherUserId())) {
@@ -353,13 +379,17 @@ public class EventServiceImpl extends StreamService implements EventService {
     }
 
     // Convert the event streams to response views
-    final List<FleenStreamResponse> views = toFleenStreams(page.getContent());
+    final List<FleenStreamResponse> views = toFleenStreamResponses(page.getContent());
     // Set the attendees and total number of attendees for each event
     setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees in any order
     getFirst10AttendingInAnyOrder(views);
-    // Return the search result view with event data and pagination details
-    return toSearchResult(views, page);
+    // Return a search result view with the events responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(EventSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyEventSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**
@@ -371,10 +401,11 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param eventId       the ID of the event whose attendees are to be found.
    * @param searchRequest the search request containing pagination and other search criteria.
-   * @return a {@link SearchResultView} containing the list of attendees and pagination details.
+   * @return a {@link StreamAttendeeSearchResult} containing the list of attendees and pagination details.
    */
   @Override
-  public SearchResultView findEventAttendees(final Long eventId, final StreamAttendeeSearchRequest searchRequest) {
+  public StreamAttendeeSearchResult findEventAttendees(final Long eventId, final StreamAttendeeSearchRequest searchRequest) {
+    searchRequest.setPageSize(DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_SEARCH);
     return findEventOrStreamAttendees(eventId, searchRequest);
   }
 
@@ -394,11 +425,11 @@ public class EventServiceImpl extends StreamService implements EventService {
   public RetrieveEventResponse retrieveEvent(final Long eventId, final FleenUser user) {
     final FleenStream stream = findStream(eventId);
     // Get all event or stream attendees
-    final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream.getAttendees());
+    final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream);
     // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(streamAttendeesGoingToStream);
     // The Stream converted to a response
-    final FleenStreamResponse streamResponse = toFleenStreamResponse(stream);
+    final FleenStreamResponse streamResponse = toEventResponse(stream);
 
     if (nonNull(streamResponse)) {
       final List<FleenStreamResponse> streams = List.of(streamResponse);
@@ -408,57 +439,8 @@ public class EventServiceImpl extends StreamService implements EventService {
       setOtherScheduleBasedOnUserTimezone(streams, user);
     }
     // Count total attendees whose request to join event is approved and are attending the event because they are interested
-    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
+    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
     return localizedResponse.of(RetrieveEventResponse.of(eventId, streamResponse, streamAttendees, totalAttendees));
-  }
-
-  /**
-   * Sets the number of attendees for each stream in the provided list of {@link FleenStreamResponse} objects.
-   *
-   * <p>This method iterates over a list of {@link FleenStreamResponse} instances, calculates the total number of attendees
-   * who have been approved to join and are attending each event, and updates the total attending count for each stream.
-   * The count is based on the data retrieved from the `streamAttendeeRepository.</p>
-   *
-   * @param streams the list of {@link FleenStreamResponse} objects whose attendee counts are to be updated.
-   */
-  protected void setStreamAttendeesAndTotalAttendeesAttending(final List<FleenStreamResponse> streams) {
-    if (nonNull(streams)) {
-      streams.stream()
-        .filter(Objects::nonNull)
-        .forEach(stream -> {
-          final Long streamId = Long.parseLong(stream.getId().toString());
-          // Count total attendees whose request to join event is approved and are attending the event because they are interested
-          final long totalAttendees = streamAttendeeRepository.
-              countByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true);
-          stream.setTotalAttending(totalAttendees);
-      });
-    }
-  }
-
-  /**
-   * Retrieves and sets the first 10 attendees (or fewer if not enough attendees) for each stream in the provided list of {@link FleenStreamResponse} objects.
-   *
-   * <p>This method iterates over a list of {@link FleenStreamResponse} instances, retrieves up to 10 attendees who have been approved
-   * to join and are attending each event, and updates the list of attendees for each stream. The retrieval is done in an arbitrary order.</p>
-   *
-   * @param streams the list of {@link FleenStreamResponse} objects whose attendee lists are to be updated.
-   */
-  protected void getFirst10AttendingInAnyOrder(final List<FleenStreamResponse> streams) {
-    if (nonNull(streams)) {
-      streams.stream()
-        .filter(Objects::nonNull)
-        .forEach(stream -> {
-        final Long streamId = Long.parseLong(stream.getId().toString());
-        // Create a pageable request to get the first 10 attendees
-        final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM);
-        // Fetch attendees who are approved and attending the event
-        final Page<StreamAttendee> page = streamAttendeeRepository
-            .findAllByFleenStreamAndStreamAttendeeRequestToJoinStatusAndIsAttending(FleenStream.of(streamId), APPROVED, true, pageable);
-        // Convert the list of stream attendees to list of stream attendee responses
-        final List<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(page.getContent());
-        stream.setSomeAttendees(streamAttendees);
-      });
-    }
   }
 
   /**
@@ -476,17 +458,34 @@ public class EventServiceImpl extends StreamService implements EventService {
     if (nonNull(streamAttendees)) {
       return streamAttendees.stream()
           .filter(Objects::nonNull)
-          .map(attendee -> {
-            // Map each StreamAttendee to a StreamAttendeeResponse including request-to-join status
-            final Long attendeeUserId = attendee.getMemberId();
-            final String fullName = attendee.getFullName();
-
-            // Return a new StreamAttendeeResponse with ID, user ID, full name, and request-to-join status
-            return StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendeeUserId, fullName, attendee.getStreamAttendeeRequestToJoinStatus());
-          })
+          .map(this::mapToStreamAttendeeResponse)
           .collect(Collectors.toSet());
     }
     return Set.of();
+  }
+
+  /**
+   * Maps a {@link StreamAttendee} object to a {@link StreamAttendeeResponse}.
+   *
+   * <p>This method extracts relevant information from the given StreamAttendee
+   * and constructs a corresponding StreamAttendeeResponse object.</p>
+   *
+   * @param attendee The StreamAttendee object to be mapped.
+   *
+   * @return A StreamAttendeeResponse containing the mapped information.
+   */
+  protected StreamAttendeeResponse mapToStreamAttendeeResponse(final StreamAttendee attendee) {
+    // Extract the attendee's user ID and full name from the StreamAttendee object.
+    final Long attendeeUserId = attendee.getMemberId();
+    final String fullName = attendee.getFullName();
+
+    // Create and return a new StreamAttendeeResponse object populated with the attendee's details.
+    return StreamAttendeeResponse.of(
+      attendee.getStreamAttendeeId(),
+      attendeeUserId,
+      fullName,
+      attendee.getRequestToJoinStatus()
+    );
   }
 
   /**
@@ -521,6 +520,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public CreateEventResponse createEvent(final CreateCalendarEventDto createCalendarEventDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Create a Calendar event request
     final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.by(createCalendarEventDto);
@@ -532,21 +532,24 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Add event organizer as an attendee
     createCalendarEventRequest.getAttendeeOrGuests().add(eventAttendeeOrGuest);
     // Update the event request with necessary details
-    createCalendarEventRequest.update(createCalendarEventRequest, calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
+    createCalendarEventRequest.update(calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
 
-    log.info("The request is {}", createCalendarEventRequest);
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createCalendarEventDto.toFleenStream(user.toMember());
     stream.updateDetails(
       organizerAliasOrDisplayName,
       user.getEmailAddress(),
-      user.getPhoneNumber());
+      user.getPhoneNumber()
+    );
 
-    // Save the event and and add the event in Google Calendar
-    stream = fleenStreamRepository.save(stream);
+    // Increase attendees count, save the event and and add the event in Google Calendar
+    stream = increaseTotalAttendeesOrGuestsAndSave(stream);
+    // Register the organizer of the event as an attendee or guest
+    registerAndApproveOrganizerOfEventAsAnAttendee(stream, user);
+    // Create and add event in Calendar through external service
     eventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
-    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
+    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), incrementAttendeeBecauseOfOrganizerAndGetResponse(stream)));
   }
 
   /**
@@ -565,6 +568,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public CreateEventResponse createInstantEvent(final CreateInstantCalendarEventDto createInstantCalendarEventDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
 
     final CreateInstantCalendarEventRequest createInstantCalendarEventRequest = CreateInstantCalendarEventRequest.by(createInstantCalendarEventDto);
@@ -580,9 +584,10 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // Save stream and create event in Google Calendar Event Service externally
     stream = fleenStreamRepository.save(stream);
+    // Create and add event in Calendar through external service
     eventUpdateService.createInstantEventInGoogleCalendar(stream, createInstantCalendarEventRequest);
 
-    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
+    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), incrementAttendeeBecauseOfOrganizerAndGetResponse(stream)));
   }
 
   /**
@@ -602,6 +607,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public UpdateEventResponse updateEvent(final Long eventId, final UpdateCalendarEventDto updateCalendarEventDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     FleenStream stream = findStream(eventId);
@@ -618,12 +624,13 @@ public class EventServiceImpl extends StreamService implements EventService {
     stream = fleenStreamRepository.save(stream);
 
     // Prepare a request to patch the calendar event with updated details
-    final PatchCalendarEventRequest patchCalendarEventRequest = PatchCalendarEventRequest
-        .of(calendar.getExternalId(),
-            stream.getExternalId(),
-            updateCalendarEventDto.getTitle(),
-            updateCalendarEventDto.getDescription(),
-            updateCalendarEventDto.getLocation());
+    final PatchCalendarEventRequest patchCalendarEventRequest = PatchCalendarEventRequest.of(
+      calendar.getExternalId(),
+      stream.getExternalId(),
+      updateCalendarEventDto.getTitle(),
+      updateCalendarEventDto.getDescription(),
+      updateCalendarEventDto.getLocation()
+    );
     eventUpdateService.updateEventInGoogleCalendar(stream, patchCalendarEventRequest);
 
     return localizedResponse.of(UpdateEventResponse.of(stream.getStreamId(), toEventResponse(stream)));
@@ -645,6 +652,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public DeletedEventResponse deleteEvent(final Long eventId, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
@@ -658,9 +666,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     fleenStreamRepository.save(stream);
 
     // Create a request to delete the calendar event
-    final DeleteCalendarEventRequest deleteCalendarEventRequest = DeleteCalendarEventRequest
-        .of(calendar.getExternalId(),
-            stream.getExternalId());
+    final DeleteCalendarEventRequest deleteCalendarEventRequest = DeleteCalendarEventRequest.of(
+      calendar.getExternalId(),
+      stream.getExternalId()
+    );
     eventUpdateService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
 
     return localizedResponse.of(DeletedEventResponse.of(eventId));
@@ -683,6 +692,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public CancelEventResponse cancelEvent(final Long eventId, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
@@ -696,9 +706,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     fleenStreamRepository.save(stream);
 
     // Create a request to cancel the calendar event and submit request to external Calendar service
-    final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest
-        .of(calendar.getExternalId(),
-            stream.getExternalId());
+    final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest.of(
+      calendar.getExternalId(),
+      stream.getExternalId()
+    );
     eventUpdateService.cancelEventInGoogleCalendar(cancelCalendarEventRequest);
 
     return localizedResponse.of(CancelEventResponse.of(eventId));
@@ -719,15 +730,20 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public NotAttendingEventResponse notAttendingEvent(final Long eventId, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
+    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
+    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
     // Find the existing attendee record for the user and event
     streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember())
       .ifPresent(streamAttendee -> {
         // If an attendee record exists, update their attendance status to false
         streamAttendee.setIsNotAttending();
+        // Decrease the total number of attendees to event
+        decreaseTotalAttendeesOrGuestsAndSave(stream);
         // Save the updated attendee record
         streamAttendeeRepository.save(streamAttendee);
         // Create a request that remove the attendee from the Google Calendar event
@@ -756,6 +772,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public RescheduleEventResponse rescheduleEvent(final Long eventId, final RescheduleCalendarEventDto rescheduleCalendarEventDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
@@ -764,12 +781,13 @@ public class EventServiceImpl extends StreamService implements EventService {
     verifyStreamDetails(stream, user);
 
     // Prepare a request to reschedule the calendar event with the new schedule details
-    final RescheduleCalendarEventRequest rescheduleCalendarEventRequest = RescheduleCalendarEventRequest
-        .of(calendar.getExternalId(),
-            stream.getExternalId(),
-            rescheduleCalendarEventDto.getActualStartDateTime(),
-            rescheduleCalendarEventDto.getActualStartDateTime(),
-            rescheduleCalendarEventDto.getTimezone());
+    final RescheduleCalendarEventRequest rescheduleCalendarEventRequest = RescheduleCalendarEventRequest.of(
+      calendar.getExternalId(),
+      stream.getExternalId(),
+      rescheduleCalendarEventDto.getActualStartDateTime(),
+      rescheduleCalendarEventDto.getActualStartDateTime(),
+      rescheduleCalendarEventDto.getTimezone()
+    );
 
     // Update Stream schedule details and time
     stream.updateSchedule(rescheduleCalendarEventDto.getActualStartDateTime(), rescheduleCalendarEventDto.getActualEndDateTime(), rescheduleCalendarEventDto.getTimezone());
@@ -777,7 +795,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Update event schedule details in the Google Calendar service
     eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
 
-    return localizedResponse.of(RescheduleEventResponse.of(eventId, toFleenStreamResponse(stream)));
+    return localizedResponse.of(RescheduleEventResponse.of(eventId, toEventResponse(stream)));
   }
 
   /**
@@ -797,32 +815,55 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public JoinEventResponse joinEvent(final Long eventId, final JoinEventOrStreamDto joinEventOrStreamDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
-    final FleenStream stream = joinEventOrStream(eventId, user);
+    // Verify the event or stream details and attempt to join the event or stream
+    final FleenStream stream = verifyDetailsAndTryToJoinEventOrStream(eventId, user);
 
     // Create a request to add the user as an attendee to the calendar event
-    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
-        .withComment(calendar.getExternalId(),
-            stream.getExternalId(),
-            user.getEmailAddress(),
-            joinEventOrStreamDto.getComment());
-    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+    createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinEventOrStreamDto.getComment());
 
     return localizedResponse.of(JoinEventResponse.of(eventId));
   }
 
   /**
-   * Requests to join an event.
+   * Creates a new event attendee request and sends an invitation to the specified attendee.
    *
-   * <p>This method allows a user to request to join a specified event. It first verifies if the event can still be joined,
-   * checks if the user is already an attendee, and then creates a new StreamAttendee entry. If the event is public, the request
-   * to join status is set to approved immediately. Otherwise, it remains pending until approved.</p>
+   * <p>This method constructs an {@code AddNewEventAttendeeRequest} using the provided
+   * calendar ID, event or stream ID, attendee email address, and an optional comment.
+   * The newly created request is then sent to the {@code eventUpdateService} to add
+   * the attendee to the calendar event.</p>
    *
-   * @param eventId               the ID of the event to join
-   * @param requestToJoinEventOrStreamDto the dto containing details about user's request to join event
-   * @param user                  the user requesting to join the event
-   * @return {@link RequestToJoinEventResponse} response containing the event ID and message
-   * @throws FleenStreamNotFoundException f the event is not found
+   * @param calendarExternalId The external ID of the calendar to which the event belongs.
+   * @param eventOrStreamExternalId The external ID of the event or stream.
+   * @param attendeeEmailAddress The email address of the attendee to invite.
+   * @param comment An optional comment regarding the attendee invitation.
+   */
+  protected void createNewEventAttendeeRequestAndSendInvitation(final String calendarExternalId, final String eventOrStreamExternalId, final String attendeeEmailAddress, final String comment) {
+    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
+      .withComment(calendarExternalId,
+        eventOrStreamExternalId,
+        attendeeEmailAddress,
+        comment);
+
+    // Send an invitation to the user in the Calendar & Event API
+    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+  }
+
+  /**
+   * Handles a request for a user to join an event or stream.
+   *
+   * <p>This method performs several checks and operations to process a user's request to join
+   * a specific event or stream identified by the event ID. It verifies whether the user is eligible
+   * to join, checks if the event is still active and not canceled, and ensures that the user is not
+   * already an attendee. If the event is private, the user's join status will be set to pending.</p>
+   *
+   * <p>The method also handles cases where the event is linked to a chat space, ensuring
+   * that the user is a member of that space and automatically approves their request if applicable.</p>
+   *
+   * @param eventId the ID of the event or stream the user is requesting to join
+   * @param requestToJoinEventOrStreamDto the DTO containing the user's request details, such as a comment
+   * @param user the {@link FleenUser} who is requesting to join the event or stream
    */
   @Override
   @Transactional
@@ -830,6 +871,8 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
+    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
+    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
     // Check if the stream is still active and can be joined.
     verifyStreamEndDate(stream);
     // Check if event is not cancelled
@@ -838,13 +881,18 @@ public class EventServiceImpl extends StreamService implements EventService {
     checkIfUserIsAlreadyAnAttendeeAndThrowError(stream, user.getId());
     // Create a new StreamAttendee entry for the user
     final StreamAttendee streamAttendee = createStreamAttendeeWithComment(stream, user, requestToJoinEventOrStreamDto.getComment());
-
     // If the event is private, set the request to join status to pending
     setAttendeeRequestToJoinPendingIfStreamIsPrivate(streamAttendee, stream);
+    // Check if the attendee is a member of a chat space if there is one associated with the event and approve their join request
+    final boolean isMemberPartOfChatSpace = approveAttendeeRequestToJoinIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(stream, streamAttendee);
 
     // Add the new StreamAttendee to the event's attendees list and save
-    stream.getAttendees().add(streamAttendee);
+    streamAttendeeRepository.save(streamAttendee);
+    // Save the stream to the repository
     fleenStreamRepository.save(stream);
+
+    // Verify if the attendee is a member of the chat space and send invitation
+    checkIfAttendeeIsMemberOfChatSpaceAndSendInvitation(isMemberPartOfChatSpace, stream.getExternalId(), requestToJoinEventOrStreamDto.getComment(), user);
 
     return localizedResponse.of(RequestToJoinEventResponse.of(eventId));
   }
@@ -871,37 +919,83 @@ public class EventServiceImpl extends StreamService implements EventService {
   public ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, final FleenUser user) {
     // Retrieve the event (FleenStream) using the event ID
     final FleenStream stream = findStream(eventId);
-
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
     // Check if the user is already an attendee and process accordingly
     checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventOrStreamDto.getAttendeeUserId()))
       .ifPresentOrElse(
-        streamAttendee -> {
-          // If the attendee's request is pending, proceed with processing
-          if (streamAttendee.isPending()) {
-            // Get the requested status for joining the event
-            final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinEventOrStreamDto.getActualJoinStatus();
-            // Update the attendee's request status and set any organizer comments
-            streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinEventOrStreamDto.getComment());
-
-            // If the request is approved, handle the external calendar invitation
-            if (processAttendeeRequestToJoinEventOrStreamDto.isApproved()) {
-              // Retrieve the calendar for the user's country
-              final Calendar calendar = findCalendar(user.getCountry());
-              // Save the updated attendee details
-              streamAttendeeRepository.save(streamAttendee);
-              // Add attendee to the event by invitation
-              addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), streamAttendee.getEmailAddress(), null);
-            }
-          }
-        },
+        streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinEventOrStreamDto, user),
         () -> {}
       );
 
     // Return a localized response with the processed event details
-    return localizedResponse.of(ProcessAttendeeRequestToJoinEventResponse.of(eventId, toFleenStreamResponse(stream)));
+    return localizedResponse.of(ProcessAttendeeRequestToJoinEventResponse.of(eventId, toEventResponse(stream)));
+  }
+
+  /**
+   * Processes the attendee's request to join a stream or event.
+   *
+   * <p>This method checks whether the request is still pending. If the request is pending, it updates the request status
+   * and adds any organizer comments. If the request is approved, it handles the necessary steps to invite the attendee
+   * to the associated calendar event by calling {@code handleApprovedRequest}.</p>
+   *
+   * @param stream The stream or event the attendee has requested to join.
+   * @param attendee The stream attendee whose request is being processed.
+   * @param processRequestToJoinDto DTO containing the actual join status and optional organizer comment.
+   * @param user The user processing the request.
+   */
+  protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinEventOrStreamDto processRequestToJoinDto,
+      final FleenUser user) {
+    // Check if the attendee's request is still pending
+    if (!attendee.isPending()) {
+      return;
+    }
+
+    // Get the requested status for joining the event
+    final StreamAttendeeRequestToJoinStatus joinStatus = processRequestToJoinDto.getActualJoinStatus();
+    // Update the attendee's request status and set any organizer comments
+    attendee.updateRequestStatusAndSetOrganizerComment(joinStatus, processRequestToJoinDto.getComment());
+    // If the request is approved, proceed with handling the calendar invitation
+    checkIfRequestToJoinApproveDAndHandleApproval(processRequestToJoinDto.isApproved(), stream, attendee, user);
+  }
+
+  /**
+   * Checks if the request to join has been approved and handles the approval process.
+   *
+   * <p>This method verifies if the request to join a stream or event has been approved. If the request is approved,
+   * it proceeds to handle the approval by adding the attendee to the event through {@code handleApprovedRequest}.</p>
+   *
+   * @param isApproved Indicates whether the request to join has been approved.
+   * @param stream The stream or event that the attendee is requesting to join.
+   * @param attendee The stream attendee whose request is being evaluated.
+   * @param user The user responsible for handling the request.
+   */
+  protected void checkIfRequestToJoinApproveDAndHandleApproval(final boolean isApproved, final FleenStream stream, final StreamAttendee attendee, final FleenUser user) {
+    if (isApproved) {
+      // If the request is approved, proceed with handling the approval
+      handleApprovedRequest(stream, attendee, user);
+    }
+  }
+
+  /**
+   * Handles the process of approving a stream attendee's request and adding them to the associated event.
+   *
+   * <p>This method saves the attendee information in the repository and adds the attendee to the calendar event linked to the stream.
+   * It retrieves the calendar based on the user's country, saves the attendee details, and then sends an invitation to the event using
+   * the attendee's email address.</p>
+   *
+   * @param stream The stream to which the attendee has been approved to join.
+   * @param attendee The attendee whose request has been approved.
+   * @param user The user approving the request, used to retrieve the relevant calendar.
+   */
+  protected void handleApprovedRequest(final FleenStream stream, final StreamAttendee attendee, final FleenUser user) {
+    // Retrieve the calendar based on the user's country
+    final Calendar calendar = findCalendar(user.getCountry());
+    // Save the attendee details in the repository
+    streamAttendeeRepository.save(attendee);
+    // Add the attendee to the event associated with the stream
+    addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), attendee.getEmailAddress(), null);
   }
 
   /**
@@ -932,10 +1026,10 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public UpdateEventVisibilityResponse updateEventVisibility(final Long eventId, final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
-
     // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event
@@ -943,20 +1037,51 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Verify if the event or stream is still ongoing
     checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(eventId));
     // Update the visibility of an event or stream
-    stream.setStreamVisibility(updateEventOrStreamVisibilityDto.getActualVisibility());
-    fleenStreamRepository.save(stream);
-
-    // Create a request to update the event's visibility
-    final UpdateCalendarEventVisibilityRequest updateCalendarEventVisibilityRequest = UpdateCalendarEventVisibilityRequest
-      .of(calendar.getExternalId(),
-          stream.getExternalId(),
-          updateEventOrStreamVisibilityDto.getVisibility());
-    // Update the event visibility on the Google Calendar Service
-    eventUpdateService.updateEventVisibility(updateCalendarEventVisibilityRequest);
+    updateStreamVisibility(stream, updateEventOrStreamVisibilityDto.getActualVisibility());
+    // Create a request to update the event's visibility and initiate update
+    updateCalendarEventVisibility(calendar, stream, updateEventOrStreamVisibilityDto);
     // Send invitation to attendees that requested to join earlier and whose request is pending because the event or stream was private earlier
     sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendar.getExternalId(), stream, currentStreamVisibility);
 
     return localizedResponse.of(UpdateEventVisibilityResponse.of(eventId, toEventResponse(stream)));
+  }
+
+  /**
+   * Updates the visibility of the given stream.
+   *
+   * <p>This method sets a new visibility status for the provided {@code FleenStream}. Once the visibility is updated,
+   * the stream's state is saved in the repository to persist the change.</p>
+   *
+   * @param stream The stream whose visibility is being updated.
+   * @param newVisibility The new visibility status to apply to the stream.
+   */
+  protected void updateStreamVisibility(final FleenStream stream, final StreamVisibility newVisibility) {
+    // Update the visibility of an event or stream
+    stream.setStreamVisibility(newVisibility);
+    // Save the updated stream in the repository
+    fleenStreamRepository.save(stream);
+  }
+
+  /**
+   * Updates the visibility of a calendar event associated with a stream.
+   *
+   * <p>This method updates the visibility of a Google Calendar event for a specific stream. It creates a request to modify
+   * the visibility settings based on the provided {@code UpdateEventOrStreamVisibilityDto} and then sends this request
+   * to the event update service.</p>
+   *
+   * @param calendar The calendar where the event is hosted.
+   * @param stream The stream associated with the event whose visibility is being updated.
+   * @param dto The DTO containing the visibility update information.
+   */
+  protected void updateCalendarEventVisibility(final Calendar calendar, final FleenStream stream, final UpdateEventOrStreamVisibilityDto dto) {
+    // Create a request to update the Calendar event's visibility
+    final UpdateCalendarEventVisibilityRequest request = UpdateCalendarEventVisibilityRequest.of(
+      calendar.getExternalId(),
+      stream.getExternalId(),
+      dto.getVisibility()
+    );
+    // Update the event visibility on the Google Calendar Service
+    eventUpdateService.updateEventVisibility(request);
   }
 
   /**
@@ -984,23 +1109,55 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // If the stream visibility is PUBLIC, and it was previously PRIVATE or PROTECTED
     if (StreamVisibility.isPublic(currentStreamVisibility) && StreamVisibility.isPrivateOrProtected(previousStreamVisibility)) {
-      // Retrieve all pending attendees for the stream
-      final List<StreamAttendee> streamAttendees = streamAttendeeRepository.findAllByFleenStreamAndStreamAttendeeRequestToJoinStatus(stream, PENDING);
-
-      final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(streamAttendees);
-      final Set<Long> attendeeIds = getAttendeeIds(streamAttendees);
-
-      // Approve users whose request was already pending when the event or stream was private or protected or locked
-      streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
-
-      // Create an event to add new attendees and publish it
-      final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent
-        .of(calendarExternalId,
-            stream.getExternalId(),
-            attendeesOrGuestsEmailAddresses,
-            Set.of());
-      streamEventPublisher.addNewAttendees(addCalendarEventAttendeesEvent);
+      // Process pending attendees and send invitations
+      processPendingAttendees(calendarExternalId, stream);
     }
+  }
+
+  /**
+   * Processes all pending attendee requests for a specific stream and approves them.
+   *
+   * <p>This method retrieves all attendees with a pending request to join the specified stream.
+   * It then approves their requests and adds them to the corresponding calendar event using
+   * their email addresses.</p>
+   *
+   * @param calendarExternalId The external ID of the calendar associated with the stream.
+   * @param stream The stream for which pending attendees are being processed.
+   */
+  protected void processPendingAttendees(final String calendarExternalId, final FleenStream stream) {
+    // Retrieve all pending attendees for the specified stream
+    final List<StreamAttendee> pendingAttendees = streamAttendeeRepository.findAllByFleenStreamAndRequestToJoinStatus(stream, PENDING);
+
+    // Extract email addresses and IDs of the pending attendees or guests
+    final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(pendingAttendees);
+    final Set<Long> attendeeIds = getAttendeeIds(pendingAttendees);
+
+    // Approve all pending requests
+    streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
+    // Add attendees to the calendar event
+    addNewAttendeesToCalendar(calendarExternalId, stream, attendeesOrGuestsEmailAddresses);
+  }
+
+  /**
+   * Adds new attendees to a calendar event associated with a specified stream.
+   *
+   * <p>This method creates an event to add attendees to a calendar based on their email addresses
+   * and publishes it through the event publisher.</p>
+   *
+   * @param calendarExternalId The external ID of the calendar to which attendees are being added.
+   * @param stream The stream associated with the calendar event.
+   * @param attendeesOrGuestsEmailAddresses A set of email addresses of the attendees or guests to be added.
+   */
+  protected void addNewAttendeesToCalendar(final String calendarExternalId, final FleenStream stream, final Set<String> attendeesOrGuestsEmailAddresses) {
+    // Create an event object containing the details of the attendees to be added
+    final AddCalendarEventAttendeesEvent addAttendeesEvent = AddCalendarEventAttendeesEvent.of(
+      calendarExternalId,
+      stream.getExternalId(),
+      attendeesOrGuestsEmailAddresses,
+      Set.of()
+    );
+    // Publish the event to add the new attendees to the calendar
+    streamEventPublisher.addNewAttendees(addAttendeesEvent);
   }
 
   /**
@@ -1009,7 +1166,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @param attendees List of StreamAttendees from which the IDs will be extracted.
    * @return A set of attendee IDs.
    */
-  protected Set<Long> getAttendeeIds(List<StreamAttendee> attendees) {
+  protected Set<Long> getAttendeeIds(final List<StreamAttendee> attendees) {
     // Stream over the list of StreamAttendees
     if (nonNull(attendees)) {
       // Map each StreamAttendee to its StreamAttendeeId and collect the IDs into a set
@@ -1056,76 +1213,67 @@ public class EventServiceImpl extends StreamService implements EventService {
   @Override
   @Transactional
   public AddNewEventAttendeeResponse addEventAttendee(final Long eventId, final AddNewEventAttendeeDto addNewEventAttendeeDto, final FleenUser user) {
+    // Find the calendar associated with the user's country
     final Calendar calendar = findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = findStream(eventId);
 
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
+    // Handle the request to add the attendee to the event
+    handleAttendeeRequest(calendar, stream, addNewEventAttendeeDto);
 
-    streamAttendeeRepository.findDistinctByEmail(addNewEventAttendeeDto.getEmailAddress())
-      .ifPresentOrElse(
-        streamAttendee -> {
-          if (isStreamAttendeeRequestPendingOrDisapproved(streamAttendee)) {
-            // Approve new attendee request and set organizer comment
-            approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
-            // Add attendee to the event using an external service
-            addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
-            streamAttendeeRepository.save(streamAttendee);
-          }
-        },
-        () -> {
-          // Check if there is a member with attendee's email address from the request and add them as a stream attendee
-          approveAndAddAttendeeToStreamAttendees(stream, addNewEventAttendeeDto);
-          // Add attendee to the event using an external service
-          addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
-        }
-      );
-
+    // Save stream to the repository
     fleenStreamRepository.save(stream);
+    // Return a localized response with the details of the added attendee
     return localizedResponse.of(AddNewEventAttendeeResponse.of(eventId, toEventResponse(stream), addNewEventAttendeeDto.getEmailAddress()));
   }
 
   /**
-   * Retrieves a paginated list of attendee requests with a status of {@code PENDING} to join a specific event identified by its {@code eventId}.
-   * The method first validates that the provided {@link FleenUser} is the creator of the event to ensure that only authorized users can access
-   * the attendee requests.
+   * Handles a request to add a new attendee to a stream by checking if the attendee already exists.
    *
-   * <p>After validation, it fetches the {@link StreamAttendee} objects with a status of {@code PENDING} associated with the event based on the
-   * provided search criteria encapsulated in {@link StreamAttendeeSearchRequest}. The list of {@link StreamAttendee} objects is then converted
-   * into a list of {@link StreamAttendeeResponse} objects and wrapped in a {@link SearchResultView}, which includes pagination information.</p>
+   * <p>This method searches for an existing attendee based on the provided email address. If an attendee
+   * is found, it processes the existing attendee's request. If no attendee is found, it approves the
+   * new attendee and sends an invitation to join the stream.</p>
    *
-   * @param eventId The ID of the event for which attendee requests are being fetched.
-   * @param searchRequest A {@link StreamAttendeeSearchRequest} object containing the search criteria and pagination details.
-   * @param user The {@link FleenUser} object representing the user making the request, which is validated as the creator of the event.
-   * @return A {@link SearchResultView} object containing a list of {@link StreamAttendeeResponse} objects with a status of {@code PENDING}
-   *         and pagination information.
-   * @throws FleenStreamNotFoundException if no event with the given {@code eventId} is found.
+   * @param calendar The calendar associated with the stream where the attendee is to be added.
+   * @param stream The stream for which the attendee request is being handled.
+   * @param addNewEventAttendeeDto The DTO containing the information of the attendee to be added.
    */
-  @Override
-  public SearchResultView getEventAttendeeRequestsToJoinEvent(final Long eventId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user) {
-    // Find the stream by its ID
-    final FleenStream stream = findStream(eventId);
-    // Validate owner of the event
-    validateCreatorOfEvent(stream, user);
-
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndStreamAttendeeRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
-    final List<StreamAttendeeResponse> views = toStreamAttendeeResponsesWithStatus(page.getContent());
-    return toSearchResult(views, page);
+  protected void handleAttendeeRequest(final Calendar calendar, final FleenStream stream, final AddNewEventAttendeeDto addNewEventAttendeeDto) {
+    // Find an existing stream attendee by their email address
+    streamAttendeeRepository.findDistinctByEmail(addNewEventAttendeeDto.getEmailAddress())
+      .ifPresentOrElse(
+        // If an existing attendee is found, process their request
+        streamAttendee -> processExistingAttendee(calendar, stream, streamAttendee, addNewEventAttendeeDto),
+        // If no existing attendee is found, approve and add the new attendee to the stream
+        () -> approveAndAddAttendeeToStreamAttendeesAndSendInvitation(calendar, stream, addNewEventAttendeeDto)
+      );
   }
 
   /**
-   * Checks if the request status of a given {@link StreamAttendee} is either pending or disapproved.
+   * Processes an existing attendee for the specified stream by approving their request and adding them to the event.
    *
-   * <p>This method evaluates the request-to-join status of a {@link StreamAttendee} and returns true if the status
-   * is either {@code PENDING} or {@code DISAPPROVED}. It can be used to determine if further action is needed
-   * for the given attendee's request.</p>
+   * <p>This method checks if the request status of the existing attendee is either pending or disapproved.
+   * If so, it approves the attendee's request, sets the organizer's comment, and adds the attendee to the
+   * event using the external service. Finally, it saves the updated attendee information to the repository.</p>
    *
-   * @param streamAttendee the {@link StreamAttendee} whose request status is to be checked.
-   * @return {@code true} if the request status is {@code PENDING} or {@code DISAPPROVED}, {@code false} otherwise.
+   * @param calendar The calendar associated with the stream where the attendee is to be added.
+   * @param stream The stream that the attendee is associated with.
+   * @param streamAttendee The existing stream attendee whose request is being processed.
+   * @param addNewEventAttendeeDto The DTO containing the information of the attendee to be added.
    */
-  protected boolean isStreamAttendeeRequestPendingOrDisapproved(final StreamAttendee streamAttendee) {
-    return streamAttendee.isPending() || streamAttendee.isDisapproved();
+  protected void processExistingAttendee(final Calendar calendar, final FleenStream stream, final StreamAttendee streamAttendee,
+      final AddNewEventAttendeeDto addNewEventAttendeeDto) {
+      // Check if the stream attendee's request is pending or disapproved
+    if (isStreamAttendeeRequestPendingOrDisapproved(streamAttendee)) {
+      // Approve the attendee request and set the organizer comment
+      approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
+      // Add the attendee to the event using the external service
+      addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
+      // Save the updated stream attendee information to the repository
+      streamAttendeeRepository.save(streamAttendee);
+    }
   }
 
   /**
@@ -1147,7 +1295,72 @@ public class EventServiceImpl extends StreamService implements EventService {
         final StreamAttendee streamAttendee = createStreamAttendee(stream, FleenUser.of(member.getMemberId()));
         approveAttendeeRequestAndSetOrganizerComment(streamAttendee, addNewEventAttendeeDto.getComment());
         streamAttendeeRepository.save(streamAttendee);
-      });
+    });
+  }
+
+  /**
+   * Approves the attendee and adds them to the stream's attendees, then sends an invitation.
+   *
+   * <p>This method first approves the attendee and adds them to the list of attendees for the specified
+   * {@code FleenStream}. After the attendee is successfully added, it sends an invitation by adding them
+   * to the corresponding event using an external service.</p>
+   *
+   * @param calendar The calendar associated with the stream where the attendee is to be added.
+   * @param stream The stream to which the attendee is being added.
+   * @param addNewEventAttendeeDto The DTO containing the information of the attendee to be added.
+   */
+  protected void approveAndAddAttendeeToStreamAttendeesAndSendInvitation(final Calendar calendar, final FleenStream stream, final AddNewEventAttendeeDto addNewEventAttendeeDto) {
+    // Approve the attendee and add them to the stream's attendees list
+    approveAndAddAttendeeToStreamAttendees(stream, addNewEventAttendeeDto);
+    // Add attendee to the event using an external service
+    addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewEventAttendeeDto.getEmailAddress(), addNewEventAttendeeDto.getAliasOrDisplayName());
+  }
+
+  /**
+   * Retrieves a paginated list of attendee requests with a status of {@code PENDING} to join a specific event identified by its {@code eventId}.
+   * The method first validates that the provided {@link FleenUser} is the creator of the event to ensure that only authorized users can access
+   * the attendee requests.
+   *
+   * <p>After validation, it fetches the {@link StreamAttendee} objects with a status of {@code PENDING} associated with the event based on the
+   * provided search criteria encapsulated in {@link StreamAttendeeSearchRequest}. The list of {@link StreamAttendee} objects is then converted
+   * into a list of {@link StreamAttendeeResponse} objects and wrapped in a {@link SearchResultView}, which includes pagination information.</p>
+   *
+   * @param eventId The ID of the event for which attendee requests are being fetched.
+   * @param searchRequest A {@link StreamAttendeeSearchRequest} object containing the search criteria and pagination details.
+   * @param user The {@link FleenUser} object representing the user making the request, which is validated as the creator of the event.
+   * @return A {@link RequestToJoinSearchResult} object containing a list of {@link StreamAttendeeResponse} objects with a status of {@code PENDING}
+   *         and pagination information.
+   * @throws FleenStreamNotFoundException if no event with the given {@code eventId} is found.
+   */
+  @Override
+  public RequestToJoinSearchResult getEventAttendeeRequestsToJoinEvent(final Long eventId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user) {
+    // Find the stream by its ID
+    final FleenStream stream = findStream(eventId);
+    // Validate owner of the event
+    validateCreatorOfEvent(stream, user);
+
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
+    final List<StreamAttendeeResponse> views = toStreamAttendeeResponsesWithStatus(page.getContent());
+    // Return a search result view with the attendee responses and pagination details
+    return handleSearchResult(
+      page,
+      localizedResponse.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
+      localizedResponse.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
+    );
+  }
+
+  /**
+   * Checks if the request status of a given {@link StreamAttendee} is either pending or disapproved.
+   *
+   * <p>This method evaluates the request-to-join status of a {@link StreamAttendee} and returns true if the status
+   * is either {@code PENDING} or {@code DISAPPROVED}. It can be used to determine if further action is needed
+   * for the given attendee's request.</p>
+   *
+   * @param streamAttendee the {@link StreamAttendee} whose request status is to be checked.
+   * @return {@code true} if the request status is {@code PENDING} or {@code DISAPPROVED}, {@code false} otherwise.
+   */
+  protected boolean isStreamAttendeeRequestPendingOrDisapproved(final StreamAttendee streamAttendee) {
+    return streamAttendee.isPending() || streamAttendee.isDisapproved();
   }
 
   /**
@@ -1162,7 +1375,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   protected void approveAttendeeRequestAndSetOrganizerComment(final StreamAttendee streamAttendee, final String comment) {
     if (nonNull(streamAttendee)) {
-      streamAttendee.setStreamAttendeeRequestToJoinStatus(APPROVED);
+      streamAttendee.setRequestToJoinStatus(APPROVED);
       streamAttendee.setOrganizerComment(comment);
     }
   }
@@ -1177,12 +1390,20 @@ public class EventServiceImpl extends StreamService implements EventService {
    *
    * @param eventId the unique identifier of the event
    * @param user the authenticated user
-   * @return an EventAttendeesResponse DTO containing the list of attendees for the event
+   * @return an StreamAttendeeSearchResult containing the search result list of attendees for the event or stream
    * @throws FleenStreamNotFoundException if the event with the specified eventId is not found
    */
   @Override
-  public EventOrStreamAttendeesResponse getEventAttendees(final Long eventId, final FleenUser user) {
-     return getEventOrStreamAttendees(eventId, user);
+  public StreamAttendeeSearchResult getEventAttendees(final Long eventId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user) {
+    searchRequest.setPageSize(DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_SEARCH);
+
+    final EventOrStreamAttendeesResponse eventOrStreamAttendeesResponse = getEventOrStreamAttendees(eventId, searchRequest, searchRequest.googleMeet());
+    // Return a search result view with the attendees responses and pagination details
+    return handleSearchResult(
+      eventOrStreamAttendeesResponse.getPage(),
+      localizedResponse.of(StreamAttendeeSearchResult.of(toSearchResult(eventOrStreamAttendeesResponse.getAttendees(), eventOrStreamAttendeesResponse.getPage()))),
+      localizedResponse.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), eventOrStreamAttendeesResponse.getPage())))
+    );
   }
 
   /**
@@ -1229,13 +1450,58 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   public void addAttendeeToEvent(final String calendarExternalId, final String streamExternalId, final String attendeeEmailAddress, final String displayOrAliasName) {
     // Create a request to add the user as an attendee to the calendar event
-    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest
-      .of(calendarExternalId,
-          streamExternalId,
-          attendeeEmailAddress,
-          displayOrAliasName);
+    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.of(
+      calendarExternalId,
+      streamExternalId,
+      attendeeEmailAddress,
+      displayOrAliasName);
 
     eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+  }
+
+  /**
+   * Checks if the attendee is a member of the chat space and sends an invitation if they are.
+   *
+   * <p>This method verifies whether the attendee is a member of the chat space. If the attendee
+   * is a member, it calls {@code createNewEventAttendeeRequestAndSendInvitation} to create an
+   * event attendee request and send an invitation to the specified attendee.</p>
+   *
+   * @param isAttendeeMemberOfChatSpace A boolean indicating if the attendee is a member of the chat space.
+   * @param eventOrStreamExternalId The external ID of the event or stream.
+   * @param comment An optional comment for the attendee invitation.
+   * @param user The user to add as an event attendee
+   */
+  protected void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitation(final boolean isAttendeeMemberOfChatSpace, final String eventOrStreamExternalId,
+      final String comment, final FleenUser user) {
+    if (isAttendeeMemberOfChatSpace) {
+      // Find calendar associated with user's country
+      final Calendar calendar = findCalendar(user.getCountry());
+      // Create add event attendee to Calendar Event and send invitation
+      createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), eventOrStreamExternalId, user.getEmailAddress(), comment);
+    }
+  }
+
+  /**
+   * Approves the attendee's request to join a stream if the stream is linked to a chat space and the attendee is a member of the chat space.
+   *
+   * <p>This method checks whether the provided stream has an associated chat space. If so, it verifies if the attendee is a member
+   * of the chat space by searching for an existing chat space member. If the attendee is found to be a member, the method returns {@code true};
+   * otherwise, it returns {@code false}.</p>
+   *
+   * @param fleenStream The stream entity which may be associated with a chat space.
+   * @param streamAttendee The attendee whose membership in the chat space is being evaluated.
+   * @return {@code true} if the stream has a chat space and the attendee is a member of that chat space; {@code false} otherwise.
+   */
+  protected boolean approveAttendeeRequestToJoinIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(final FleenStream fleenStream, final StreamAttendee streamAttendee) {
+    // Check if the stream has an associated chat space with a valid ID
+    if (nonNull(fleenStream.getChatSpace()) && nonNull(fleenStream.getChatSpace().getChatSpaceId())) {
+      // Find if the attendee is a member of the chat space
+      final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberRepository.findByChatSpaceAndMember(fleenStream.getChatSpace(), streamAttendee.getMember());
+      // Return true if a member exists, otherwise false
+      return existingChatSpaceMember.isPresent();
+    }
+    // Return false if there's no chat space or no valid chat space ID
+    return false;
   }
 
   /**
@@ -1249,9 +1515,11 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @throws CalendarNotFoundException If no calendar is found for the provided country title or code.
    */
   protected Calendar findCalendar(final String countryTitle) {
+    // Retrieve the country code based on the provided country title.
     final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
       .orElseThrow(() -> new CalendarNotFoundException(countryTitle));
 
+    // Attempt to find a calendar associated with the retrieved country code.
     return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
       .orElseThrow(() -> new CalendarNotFoundException(countryCode));
   }

@@ -3,14 +3,17 @@ package com.fleencorp.feen.configuration.external.google.api.chat;
 import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.configuration.external.google.api.GoogleApiConfiguration;
 import com.fleencorp.feen.configuration.external.google.service.account.ServiceAccountProperties;
-import com.google.api.services.chat.v1.HangoutsChat;
-import com.google.api.services.chat.v1.HangoutsChatScopes;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.chat.v1.ChatServiceClient;
+import com.google.chat.v1.ChatServiceSettings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.List;
+
+import static com.fleencorp.feen.constant.base.external.google.chat.HangoutsChatScopes.*;
 
 /**
  * Configuration class for setting up Google Hangouts Chat integration.
@@ -43,17 +46,54 @@ public class ChatConfiguration extends GoogleApiConfiguration {
   }
 
   /**
-   * Creates a HangoutsChat instance for interacting with Google Hangouts Chat API.
+   * Creates and returns a client for interacting with the chat service.
    *
-   * @return A configured HangoutsChat instance.
-   * @throws GeneralSecurityException if security credentials are invalid or compromised.
-   * @throws IOException if there's an error with I/O operations.
+   * <p>This method configures a {@link ChatServiceClient} using the chat service settings.
+   * The settings include credentials obtained from a service account with specific
+   * scopes required for chat operations, such as managing chat spaces, memberships,
+   * and deleting chats.</p>
+   *
+   * <p>The client returned can be used to perform various chat-related
+   * operations within the defined scopes.</p>
+   *
+   * @return a {@link ChatServiceClient} instance configured with the required credentials
+   *         and scopes for interacting with the chat service.
+   * @throws IOException if an error occurs while retrieving the credentials or creating
+   *         the {@code ChatServiceClient}.
    */
   @Bean
-  public HangoutsChat getHangoutsChat() throws GeneralSecurityException, IOException {
-    return new HangoutsChat.Builder(getHttpTransport(), getJsonFactory(), getHttpCredentialsAdapter(HangoutsChatScopes.all()))
-      .setApplicationName(applicationName)
+  public ChatServiceClient chatService() throws IOException {
+    final ChatServiceSettings settings = ChatServiceSettings.newBuilder()
+      .setCredentialsProvider(FixedCredentialsProvider.create(getGoogleClientCredentialFromServiceAccount(
+        List.of(CHAT_SPACES, CHAT_SPACES_CREATE,
+                CHAT_MEMBERSHIPS, CHAT_MEMBERSHIPS_APP,
+                CHAT_MEMBERSHIPS_READONLY, CHAT_DELETE))))
       .build();
+    return ChatServiceClient.create(settings);
+  }
+
+  /**
+   * Creates and returns a client for interacting with the chat service as a bot.
+   *
+   * <p>This method configures a {@link ChatServiceClient} using the chat service settings,
+   * which include credentials obtained from a service account with specific scopes
+   * necessary for bot operations in chat spaces.</p>
+   *
+   * <p>The client allows the bot to manage
+   * chat spaces, send messages, and interact with chat bots within the defined scopes.</p>
+   *
+   * @return a {@link ChatServiceClient} instance configured with the required credentials
+   *         and scopes for bot-related operations in the chat service.
+   * @throws IOException if an error occurs while retrieving the credentials or creating
+   *         the {@code ChatServiceClient}.
+   */
+  @Bean("chatBot")
+  public ChatServiceClient chatServiceBot() throws IOException {
+    final ChatServiceSettings settings = ChatServiceSettings.newBuilder()
+      .setCredentialsProvider(FixedCredentialsProvider.create(getGoogleClientCredentialFromServiceAccountBase(
+        List.of(CHAT_SPACES, CHAT_MESSAGES, CHAT_BOT))))
+      .build();
+    return ChatServiceClient.create(settings);
   }
 
 }

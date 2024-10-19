@@ -129,10 +129,12 @@ public class RestExceptionHandler {
    *
    * @param input  the input string in lower camel case format.
    * @return the converted string in snake case format.
-   * @throws NullPointerException if the input string is {@code null}.
    */
   public static String toSnakeCase(final String input) {
-    return LOWER_CAMEL.to(LOWER_UNDERSCORE, input);
+    if (nonNull(input)) {
+      return LOWER_CAMEL.to(LOWER_UNDERSCORE, input);
+    }
+    return null;
   }
 
 }

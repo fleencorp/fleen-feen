@@ -1,6 +1,7 @@
 package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.constant.stream.StreamStatus;
+import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,4 +44,6 @@ public interface FleenStreamRepository extends JpaRepository<FleenStream, Long> 
           "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
   Page<FleenStream> findLiveEventsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, Pageable pageable);
 
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL ORDER BY fs.updatedOn DESC")
+  Page<FleenStream> findByChatSpace(ChatSpace chatSpace, Pageable pageable);
 }

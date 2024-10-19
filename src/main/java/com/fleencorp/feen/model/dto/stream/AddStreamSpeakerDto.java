@@ -24,7 +24,7 @@ public class AddStreamSpeakerDto {
 
   @Valid
   @NotNull(message = "{speaker.speakers.NotNull}")
-  @Size(max = 5, message = "{speaker.speakers.Size}")
+  @Size(max = 10, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
   private Set<StreamSpeakerDto> speakers;
 
