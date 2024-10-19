@@ -18,7 +18,7 @@ public class EmailAddressNotExistsResponse extends EmailAddressExistsResponse {
     return "email.address.not.exists";
   }
 
-  public static EmailAddressNotExistsResponse of(boolean exists) {
+  public static EmailAddressNotExistsResponse of(final boolean exists) {
     return EmailAddressNotExistsResponse.builder()
       .statusCode(getActualStatusCode(true))
       .timestamp(LocalDateTime.now())
