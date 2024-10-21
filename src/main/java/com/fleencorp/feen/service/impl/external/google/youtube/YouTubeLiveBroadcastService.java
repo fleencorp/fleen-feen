@@ -4,7 +4,7 @@ import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
 import com.fleencorp.feen.constant.external.google.youtube.YouTubeVideoPart;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.request.youtube.broadcast.*;
 import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;

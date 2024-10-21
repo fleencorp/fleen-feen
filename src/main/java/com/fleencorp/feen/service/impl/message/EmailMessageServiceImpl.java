@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.message;
 
 import com.fleencorp.feen.configuration.message.EmailMessageProperties;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.message.EmailMessage;
 import com.fleencorp.feen.service.message.EmailMessageService;
 import jakarta.mail.MessagingException;

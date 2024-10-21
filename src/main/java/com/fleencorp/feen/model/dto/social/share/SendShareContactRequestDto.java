@@ -44,7 +44,7 @@ public class SendShareContactRequestDto {
     return ShareContactRequest.builder()
         .isExpected(false)
         .contactType(ContactType.of(contactType))
-        .shareContactRequestStatus(ShareContactRequestStatus.SENT)
+        .requestStatus(ShareContactRequestStatus.SENT)
         .recipient(Member.of(recipientId))
         .initiatorComment(comment)
         .build();
@@ -52,5 +52,9 @@ public class SendShareContactRequestDto {
 
   public Long getActualRecipientId() {
     return Long.parseLong(recipientId);
+  }
+
+  public Member getRecipient() {
+    return Member.of(recipientId);
   }
 }

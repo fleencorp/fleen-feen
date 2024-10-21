@@ -140,7 +140,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public RetrieveCalendarResponse findCalendar(final Long calendarId) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+            .orElseThrow(CalendarNotFoundException.of(calendarId));
     return localizedResponse.of(RetrieveCalendarResponse.of(calendarId, toCalendarResponse(calendar)));
   }
 
@@ -169,7 +169,7 @@ public class CalendarServiceImpl implements CalendarService {
     // Check no calendar exist with matching country code or else throw an exception
     calendarRepository.findDistinctByCodeIgnoreCase(calendar.getCode())
       .ifPresent((existingCalendar) -> {
-        throw new CalendarAlreadyExistException(existingCalendar.getCode());
+        throw CalendarAlreadyExistException.of(existingCalendar.getCode());
       });
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
@@ -207,7 +207,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Transactional
   public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final FleenUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+            .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
@@ -250,7 +250,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Transactional
   public ReactivateCalendarResponse reactivateCalendar(final Long calendarId, final FleenUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Verify calendar is not already active
     verifyCalendarIsNotAlreadyActive(calendar);
@@ -291,7 +291,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Transactional
   public DeletedCalendarResponse deleteCalendar(final Long calendarId, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+            .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
@@ -327,7 +327,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(() -> new CalendarNotFoundException(calendarId));
+            .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);

@@ -4,9 +4,8 @@ import com.fleencorp.base.exception.FleenException;
 
 public class ShareContactRequestAlreadyProcessedException extends FleenException {
 
-  private static final String MESSAGE = "Share contact request already processed";
-
-  public ShareContactRequestAlreadyProcessedException() {
-    super(MESSAGE);
+  @Override
+  public String getMessageCode() {
+    return "share.contact.request.already.processed";
   }
 }

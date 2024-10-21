@@ -2,16 +2,20 @@ package com.fleencorp.feen.exception.stream;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
-import static java.lang.String.format;
+import java.util.function.Supplier;
 
 public class FleenStreamNotFoundException extends FleenException {
 
-  private static final String MESSAGE = "Stream or event does not exist or cannot be found. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "fleen.stream.not.found";
+  }
 
-  public FleenStreamNotFoundException(final Object streamId) {
-    super(format(FleenStreamNotFoundException.MESSAGE, Objects.toString(streamId, UNKNOWN)));
+  public FleenStreamNotFoundException(final Object...params) {
+    super(params);
+  }
+
+  public static Supplier<FleenStreamNotFoundException> of(final Object streamId) {
+    return () -> new FleenStreamNotFoundException(streamId);
   }
 }

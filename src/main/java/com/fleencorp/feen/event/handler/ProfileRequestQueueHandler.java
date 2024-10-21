@@ -3,7 +3,7 @@ package com.fleencorp.feen.event.handler;
 import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.constant.base.ReportMessageType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.message.SmsMessage;
 import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
 import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;

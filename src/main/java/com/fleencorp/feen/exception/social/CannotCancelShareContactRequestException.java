@@ -4,9 +4,8 @@ import com.fleencorp.base.exception.FleenException;
 
 public class CannotCancelShareContactRequestException extends FleenException {
 
-  private static final String MESSAGE = "Cannot cancel share contact request";
-
-  public CannotCancelShareContactRequestException() {
-    super(MESSAGE);
+  @Override
+  public String getMessageCode() {
+    return "cannot.cancel.share.contact.request";
   }
 }

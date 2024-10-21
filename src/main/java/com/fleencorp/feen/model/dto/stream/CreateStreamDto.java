@@ -7,7 +7,6 @@ import com.fleencorp.base.converter.common.ToSentenceCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
-import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.validator.TimezoneValid;
@@ -83,12 +82,6 @@ public class CreateStreamDto {
   @JsonProperty("visibility")
   protected String visibility;
 
-  @NotNull(message = "{stream.type.NotNull}")
-  @ValidEnum(enumClass = StreamSource.class, message = "{stream.type.Type}", ignoreCase = true)
-  @ToUpperCase
-  @JsonProperty("source")
-  protected String source;
-
   @NotNull(message = "{stream.forKids.NotNull}")
   @ValidBoolean
   @JsonProperty("is_for_kids")
@@ -114,10 +107,6 @@ public class CreateStreamDto {
     }
   }
 
-  public StreamSource getActualSource() {
-    return StreamSource.of(source);
-  }
-
   public StreamVisibility getActualVisibility() {
     return StreamVisibility.of(visibility);
   }
@@ -139,7 +128,6 @@ public class CreateStreamDto {
       .timezone(timezone)
       .scheduledStartDate(getActualStartDateTime())
       .scheduledEndDate(getActualEndDateTime())
-      .streamSource(getActualSource())
       .streamVisibility(getActualVisibility())
       .streamCreationType(SCHEDULED)
       .streamStatus(ACTIVE)

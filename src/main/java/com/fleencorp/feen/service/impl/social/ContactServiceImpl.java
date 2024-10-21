@@ -131,7 +131,7 @@ public class ContactServiceImpl implements ContactService {
         existingContact.update(updateContactDto.getActualContactType(), updateContactDto.getContact());
         return existingContact;
       })
-      .orElseThrow(() -> new ContactNotFoundException(contactId));
+      .orElseThrow(ContactNotFoundException.of(contactId));
 
     // Save the updated contact to the repository
     contactRepository.save(contact);

@@ -2,16 +2,18 @@ package com.fleencorp.feen.exception.stream;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
-import static java.lang.String.format;
-
 public class CannotJointStreamWithoutApprovalException extends FleenException {
 
-  private static final String MESSAGE = "Cannot join event or stream without approval by organizer. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "cannot.join.stream.with.approval";
+  }
 
-  public CannotJointStreamWithoutApprovalException(final Object streamId) {
-    super(format(CannotJointStreamWithoutApprovalException.MESSAGE, Objects.toString(streamId, UNKNOWN)));
+  public CannotJointStreamWithoutApprovalException(final Object...params) {
+    super(params);
+  }
+
+  public static CannotJointStreamWithoutApprovalException of(final Object streamId) {
+    return new CannotJointStreamWithoutApprovalException(streamId);
   }
 }

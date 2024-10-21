@@ -11,8 +11,4 @@ public class AlreadySignedUpException extends FleenException {
     return "already.signed.up";
   }
 
-  public AlreadySignedUpException() {
-    super();
-  }
-
 }

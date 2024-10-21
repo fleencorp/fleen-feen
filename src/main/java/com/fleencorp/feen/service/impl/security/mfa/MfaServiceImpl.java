@@ -286,7 +286,7 @@ public class MfaServiceImpl implements MfaService {
   protected void validateEmailOrPhoneVerificationCode(final String verificationKey, final String code) {
     // Check if the verification code exists
     if (!cacheService.exists(verificationKey)) {
-      throw new ExpiredVerificationCodeException(code);
+      throw ExpiredVerificationCodeException.of(code);
     }
     // Check if the provided verification code is valid and equal to the saved verification code
     if (!cacheService.get(verificationKey).equals(code)) {

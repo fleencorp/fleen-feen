@@ -6,8 +6,6 @@ import java.util.function.Supplier;
 
 public class InvalidVerificationCodeException extends FleenException {
 
-  public static final String MESSAGE = "Invalid verification code : %s";
-
   @Override
   public String getMessageCode() {
     return "invalid.verification.code";

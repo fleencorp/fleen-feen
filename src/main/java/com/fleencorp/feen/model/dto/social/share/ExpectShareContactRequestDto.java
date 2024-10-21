@@ -29,7 +29,7 @@ public class ExpectShareContactRequestDto {
     return ShareContactRequest.builder()
         .isExpected(true)
         .contactType(null)
-        .shareContactRequestStatus(null)
+        .requestStatus(null)
         .recipient(Member.of(recipientId))
         .build();
   }

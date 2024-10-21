@@ -29,7 +29,7 @@ public interface VerificationService {
 
     // Check if the verification key exists in the cache
     if (!(getCacheService().exists(verificationKey))) {
-      throw new ExpiredVerificationCodeException(code);
+      throw ExpiredVerificationCodeException.of(code);
     }
 
     // Retrieve the existing code from the cache
