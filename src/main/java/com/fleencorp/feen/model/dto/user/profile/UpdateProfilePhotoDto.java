@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.URL;
 @AllArgsConstructor
 public class UpdateProfilePhotoDto {
 
-  @URL(message = "{user.profilePhoto.Size}")
+  @URL(message = "{user.profilePhoto.URL}")
   @Size(max = 500, message = "{user.profilePhoto.Size}")
   @JsonProperty("profile_photo")
   private String profilePhoto;

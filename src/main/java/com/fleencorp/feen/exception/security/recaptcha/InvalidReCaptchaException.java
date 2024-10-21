@@ -1,9 +1,8 @@
 package com.fleencorp.feen.exception.security.recaptcha;
 
 import com.fleencorp.base.exception.FleenException;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serial;
+import java.util.Objects;
 
 /**
  * <p>The InvalidReCaptchaException class is used to define the exception response message when an invalid captcha token is submitted.</p>
@@ -13,16 +12,13 @@ import java.io.Serial;
  */
 public class InvalidReCaptchaException extends FleenException {
 
-  @Serial
-  private static final long serialVersionUID = 1L;
-
-  public static final String DEFAULT_MESSAGE = "Invalid ReCaptcha!!!";
+  public static final String MESSAGE = "Invalid ReCaptcha!!!";
 
   public InvalidReCaptchaException(final String message) {
-    super(StringUtils.isEmpty(message) ? DEFAULT_MESSAGE : message);
+    super(Objects.toString(message, MESSAGE));
   }
 
   public InvalidReCaptchaException() {
-    super(DEFAULT_MESSAGE);
+    super(MESSAGE);
   }
 }

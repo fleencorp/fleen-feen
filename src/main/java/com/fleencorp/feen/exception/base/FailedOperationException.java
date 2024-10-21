@@ -4,9 +4,8 @@ import com.fleencorp.base.exception.FleenException;
 
 public class FailedOperationException extends FleenException {
 
-  private static final String MESSAGE = "Operation failed";
-
-  public FailedOperationException() {
-    super(MESSAGE);
+  @Override
+  public String getMessageCode() {
+    return "failed.operation";
   }
 }

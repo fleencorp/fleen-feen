@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.request;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
-import com.fleencorp.feen.exception.google.oauth2.InvalidOauth2ScopeException;
+import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidScopeException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.youtube.YouTubeScopes;
@@ -25,6 +25,18 @@ public class Oauth2AuthenticationRequest {
   private String refreshToken;
   private Oauth2Authorization oauth2Authorization;
 
+  /**
+   * Retrieves the state of the OAuth2 service type in a formatted string.
+   *
+   * <p>This method checks if the {@code oauth2ServiceType} is non-null. If it is,
+   * it returns a string representation of the service type in the format
+   * {@code SERVICE_TYPE=value}, where {@code value} is the lowercase name
+   * of the {@code oauth2ServiceType}. If the {@code oauth2ServiceType} is null,
+   * it returns an empty string.</p>
+   *
+   * @return a formatted string representing the OAuth2 service type state, or an
+   *         empty string if the service type is not set
+   */
   public String getServiceTypeState() {
     return nonNull(oauth2ServiceType)
       ? SERVICE_TYPE.concat("=").concat(oauth2ServiceType.name().toLowerCase())
@@ -37,11 +49,11 @@ public class Oauth2AuthenticationRequest {
    * <p>This method generates an OAuth2 authentication request specific to the given scope. If the scope is
    * {@link Oauth2ServiceType#GOOGLE_CALENDAR}, it returns a request configured for Google Calendar. If the scope is
    * {@link Oauth2ServiceType#YOUTUBE}, it returns a request configured for YouTube. If the scope is not recognized,
-   * an {@link InvalidOauth2ScopeException} is thrown.</p>
+   * an {@link Oauth2InvalidScopeException} is thrown.</p>
    *
    * @param oauth2ServiceType The OAuth2 scope for which the authentication request should be created.
    * @return A configured {@link Oauth2AuthenticationRequest} for the given scope.
-   * @throws InvalidOauth2ScopeException If the provided scope is not valid or recognized.
+   * @throws Oauth2InvalidScopeException If the provided scope is not valid or recognized.
    */
   public static Oauth2AuthenticationRequest of(final Oauth2ServiceType oauth2ServiceType) {
     if (nonNull(oauth2ServiceType)) {
@@ -51,7 +63,7 @@ public class Oauth2AuthenticationRequest {
         return getYouTubeOauth2AuthenticationRequest();
       }
     }
-    throw new InvalidOauth2ScopeException();
+    throw new Oauth2InvalidScopeException();
   }
 
   /**

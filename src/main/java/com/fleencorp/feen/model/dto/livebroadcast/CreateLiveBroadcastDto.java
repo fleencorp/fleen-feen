@@ -14,9 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.feen.constant.stream.StreamCreationType.SCHEDULED;
-import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
-import static java.lang.Boolean.parseBoolean;
+import static com.fleencorp.feen.constant.stream.StreamSource.YOUTUBE_LIVE;
+import static com.fleencorp.feen.constant.stream.StreamType.LIVE_STREAM;
 
 @SuperBuilder
 @Getter
@@ -37,25 +36,9 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
   public FleenStream toFleenStream(final Member member) {
     final FleenStream fleenStream = toFleenStream();
     fleenStream.setMember(member);
+    fleenStream.setStreamSource(YOUTUBE_LIVE);
+    fleenStream.setStreamType(LIVE_STREAM);
     return fleenStream;
-  }
-
-  public FleenStream toFleenStream() {
-    return FleenStream.builder()
-            .title(title)
-            .description(description)
-            .tags(tags)
-            .location(location)
-            .timezone(timezone)
-            .scheduledStartDate(getActualStartDateTime())
-            .scheduledEndDate(getActualEndDateTime())
-            .streamSource(getActualSource())
-            .streamVisibility(getActualVisibility())
-            .streamCreationType(SCHEDULED)
-            .streamStatus(ACTIVE)
-            .forKids(parseBoolean(isForKids))
-            .isDeleted(false)
-            .build();
   }
 
   public Oauth2ServiceType getOauth2ServiceType() {

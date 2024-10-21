@@ -8,8 +8,4 @@ public class UpdatePasswordFailedException extends FleenException {
   public String getMessageCode() {
     return "update.password.failed";
   }
-
-  public UpdatePasswordFailedException() {
-    super();
-  }
 }

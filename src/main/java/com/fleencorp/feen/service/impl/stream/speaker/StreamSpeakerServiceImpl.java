@@ -1,8 +1,7 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.speaker;
 
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -20,12 +19,11 @@ import com.fleencorp.feen.model.response.stream.speaker.*;
 import com.fleencorp.feen.model.search.stream.speaker.EmptyStreamSpeakerSearchResult;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamSpeakerRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.StreamSpeakerService;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +48,7 @@ import static java.util.Objects.nonNull;
  * Implementation of the {@link StreamSpeakerService} interface for managing stream speakers.
  *
  * <p>This class provides functionalities to add, update, delete, and retrieve speakers
- * for a given stream or event. It utilizes repositories to interact with stream and
+ * for a given event or stream. It utilizes repositories to interact with stream and
  * speaker data and provides localized responses.</p>
  *
  * @author Yusuf Alamu Musa
@@ -60,8 +58,7 @@ import static java.util.Objects.nonNull;
 @Service
 public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
-  private final CountryService countryService;
-  private final CalendarRepository calendarRepository;
+  private final MiscService miscService;
   private final FleenStreamRepository fleenStreamRepository;
   private final MemberRepository memberRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
@@ -72,8 +69,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   /**
    * Constructs an instance of {@code StreamSpeakerImpl} with the provided dependencies.
    *
-   * @param countryService the service to handle country-related operations
-   * @param calendarRepository the repository to manage calendar entities
+   * @param miscService the {@link MiscService} used for handling miscellaneous tasks
    * @param fleenStreamRepository the repository to manage stream entities
    * @param memberRepository the repository to manage member entities
    * @param streamAttendeeRepository the repository to manage stream attendee entities
@@ -82,16 +78,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param streamEventPublisher the publisher to handle stream event-related operations
    */
   public StreamSpeakerServiceImpl(
-      final CountryService countryService,
-      final CalendarRepository calendarRepository,
+      final MiscService miscService,
       final FleenStreamRepository fleenStreamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamSpeakerRepository streamSpeakerRepository,
       final LocalizedResponse localizedResponse,
       final StreamEventPublisher streamEventPublisher) {
-    this.countryService = countryService;
-    this.calendarRepository = calendarRepository;
+    this.miscService = miscService;
     this.fleenStreamRepository = fleenStreamRepository;
     this.memberRepository = memberRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
@@ -241,7 +235,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   }
 
   /**
-   * Deletes the specified speakers from a given stream or event.
+   * Deletes the specified speakers from a given event or stream.
    *
    * @param eventOrStreamId The ID of the event or stream from which speakers are to be deleted.
    * @param dto A {@link DeleteStreamSpeakerDto} containing the details of the speakers to be deleted.
@@ -391,7 +385,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private Set<StreamAttendee> getDisapprovedOrPendingAttendees(final Set<StreamAttendee> streamAttendees) {
     // Retrieve attendees with PENDING or DISAPPROVED statuses for the given event or stream ID
     return streamAttendees.stream()
-      .filter(streamAttendee -> streamAttendee.isPending() || streamAttendee.isDisapproved())
+      .filter(streamAttendee -> streamAttendee.isRequestToJoinPending() || streamAttendee.isRequestToJoinDisapproved())
       .collect(Collectors.toSet());
   }
 
@@ -405,7 +399,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Filter attendees with PENDING or DISAPPROVED status and collect their member IDs
     return attendees.stream()
       .filter(Objects::nonNull)
-      .filter(attendee -> attendee.isDisapproved() || attendee.isPending())
+      .filter(attendee -> attendee.isRequestToJoinDisapproved() || attendee.isRequestToJoinPending())
       .map(StreamAttendee::getMemberId)
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
@@ -505,14 +499,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * associated with the owner of the event or stream, creates an event to add the guests
    * to the calendar, and publishes the event to add the new attendees.</p>
    *
-   * @param stream the stream or event for which the invitations are to be sent
+   * @param stream the event or stream for which the invitations are to be sent
    * @param ownerOfEventOrStream the owner of the event or stream
    * @param guests a set of attendees or guests that require invitations
    */
   private void sendInvitationToNewAttendeesOrGuests(final FleenStream stream, final Member ownerOfEventOrStream, final Set<EventAttendeeOrGuest> guests) {
     if (nonNull(stream) && stream.isAnEvent() && nonNull(guests) && !guests.isEmpty()) {
       // Find the calendar based on the event or stream owner's country
-      final Calendar calendar = findCalendar(ownerOfEventOrStream.getCountry());
+      final Calendar calendar = miscService.findCalendar(ownerOfEventOrStream.getCountry());
 
       // Create an event to add attendees to the calendar
       final AddCalendarEventAttendeesEvent addCalendarEventAttendeesEvent = AddCalendarEventAttendeesEvent
@@ -562,21 +556,6 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   protected FleenStream checkEventOrStreamExist(final Long eventOrStreamId) {
     return fleenStreamRepository.findById(eventOrStreamId)
       .orElseThrow(() -> new FleenStreamNotFoundException(eventOrStreamId));
-  }
-
-  /**
-   * Finds the calendar associated with the specified country title.
-   *
-   * @param countryTitle the title of the country for which the calendar is to be found
-   * @return the calendar associated with the given country title
-   * @throws CalendarNotFoundException if no country code or calendar is found for the specified country title
-   */
-  protected Calendar findCalendar(final String countryTitle) {
-    final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
-      .orElseThrow(() -> new CalendarNotFoundException(countryTitle));
-
-    return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
-      .orElseThrow(() -> new CalendarNotFoundException(countryCode));
   }
 
   /**

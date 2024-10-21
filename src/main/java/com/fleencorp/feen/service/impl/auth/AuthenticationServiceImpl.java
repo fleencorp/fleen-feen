@@ -12,7 +12,6 @@ import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
@@ -414,7 +413,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   public SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(final ConfirmMfaVerificationCodeDto confirmMfaCodeDto, final FleenUser user) {
     final String username = user.getUsername();
     final Member member = memberRepository.findByEmailAddress(username)
-      .orElseThrow(() -> new InvalidAuthenticationException(username));
+      .orElseThrow(InvalidAuthenticationException.of(username));
 
     // Validate the provided MFA verification code based on its type
     validateMfaVerificationOrOtpCode(confirmMfaCodeDto.getVerificationCode(), confirmMfaCodeDto.getActualMfaType(), username, member.getMemberId());
@@ -458,7 +457,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
     // Authenticate user with email and password
     final Authentication authentication = authenticate(emailAddress, password)
-      .orElseThrow(() -> new InvalidAuthenticationException(emailAddress));
+      .orElseThrow(InvalidAuthenticationException.of(emailAddress));
 
     // Retrieve the user from the Authentication Object
     final FleenUser user = (FleenUser) authentication.getPrincipal();
@@ -507,7 +506,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     final String emailAddress = forgotPasswordDto.getEmailAddress();
     // Retrieve member details from repository or throw exception if not found
     final Member member = memberRepository.findByEmailAddress(emailAddress)
-      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+      .orElseThrow(UserNotFoundException.of(emailAddress));
 
     // Determine the verification type from DTO
     final VerificationType verificationType = forgotPasswordDto.getActualVerificationType();
@@ -543,7 +542,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   public InitiatePasswordChangeResponse verifyResetPasswordCode(final ResetPasswordDto resetPasswordDto) {
     final String emailAddress = resetPasswordDto.getEmailAddress();
     final Member member = memberRepository.findByEmailAddress(emailAddress)
-      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+      .orElseThrow(UserNotFoundException.of(emailAddress));
 
     validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
     final FleenUser user = initializeAuthenticationAndContext(member);
@@ -571,7 +570,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     verifyUserHasResetPasswordToken(emailAddress);
     // Retrieve member from repository or throw exception if not found
     final Member member = memberRepository.findByEmailAddress(emailAddress)
-      .orElseThrow(() -> new UserNotFoundException(emailAddress));
+      .orElseThrow(UserNotFoundException.of(emailAddress));
 
     // Find any existing password reset token and reset or clear details
     findPasswordTokenAndResetOrClearDetails(emailAddress);
@@ -590,18 +589,18 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Configures roles for a new profile.
    *
    * <p>This method assigns default roles to a new member's profile. It first checks if the member
-   * is null and throws an {@link UnableToCompleteOperationException} if true. Then, it collects the
+   * is null and throws an {@link FailedOperationException} if true. Then, it collects the
    * default user roles by mapping {@link RoleType#USER} to its value. If no default roles are found,
    * it throws a {@link NoRoleAvailableToAssignException}. Finally, it retrieves the roles from the
    * {@link RoleService} and adds them to the member's roles.</p>
    *
    * @param member The new member for whom the roles are to be configured.
-   * @throws UnableToCompleteOperationException if the member is null.
+   * @throws FailedOperationException if the member is null.
    * @throws NoRoleAvailableToAssignException if no default roles are available to assign.
    */
   public void configureRolesForNewProfile(final Member member) {
     // Throw an exception if the provided member is null
-    checkIsNull(member, UnableToCompleteOperationException::new);
+    checkIsNull(member, FailedOperationException::new);
 
     // Collect default user roles
     final Set<String> defaultUserRoles = Stream
@@ -623,16 +622,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Configures statuses for a new profile.
    *
    * <p>This method assigns initial statuses to a new member's profile. It checks if the member
-   * is null and throws an {@link UnableToCompleteOperationException} if true. Then, it sets the
+   * is null and throws an {@link FailedOperationException} if true. Then, it sets the
    * profile status to {@link ProfileStatus#INACTIVE} and the verification status to
    * {@link ProfileVerificationStatus#PENDING}.</p>
    *
    * @param member The new member for whom the statuses are to be configured.
-   * @throws UnableToCompleteOperationException if the member is null.
+   * @throws FailedOperationException if the member is null.
    */
   public void configureStatusesForNewProfile(final Member member) {
     // Throw an exception if the provided member is null
-    checkIsNull(member, UnableToCompleteOperationException::new);
+    checkIsNull(member, FailedOperationException::new);
 
     // Set initial profile status
     member.setProfileStatus(ProfileStatus.INACTIVE);
@@ -649,11 +648,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param member the {@link Member} whose location details are to be configured.
    * @param countryCode the ISO country code used to look up the country details.
-   * @throws UnableToCompleteOperationException if the member is null.
+   * @throws FailedOperationException if the member is null.
    */
   public void configureUserLocationDetails(final Member member, final String countryCode) {
     // Throw an exception if the provided member is null
-    checkIsNull(List.of(member, countryCode), UnableToCompleteOperationException::new);
+    checkIsNull(List.of(member, countryCode), FailedOperationException::new);
 
     // Get country name and details
     final Country country = countryService.getCountryByCode(countryCode);
@@ -663,15 +662,15 @@ public class AuthenticationServiceImpl implements AuthenticationService,
 
   /**
    * Initializes authentication and sets the authentication context for the provided member.
-   * Throws {@link UnableToCompleteOperationException} if the member is null.
+   * Throws {@link FailedOperationException} if the member is null.
    *
    * @param member The member for whom authentication is to be initialized.
    * @return The {@link FleenUser} associated with the member after authentication and context setup.
-   * @throws UnableToCompleteOperationException If the member is null.
+   * @throws FailedOperationException If the member is null.
    */
   protected FleenUser initializeAuthenticationAndContext(final Member member) {
     // Throw an exception if the provided member is null
-    checkIsNull(member, UnableToCompleteOperationException::new);
+    checkIsNull(member, FailedOperationException::new);
 
     // Create FleenUser from Member
     final FleenUser user = FleenUser.fromMember(member);
@@ -752,12 +751,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * it throws an AlreadySignedUpException. This ensures that the sign-up process is not repeated for an already active member.</p>
    *
    * @param member the Member object whose sign-up status is to be checked
-   * @throws UnableToCompleteOperationException if the member object is null
+   * @throws FailedOperationException if the member object is null
    * @throws AlreadySignedUpException if the member is already signed up and active
    */
   private void checkIfSignUpIsAlreadyCompleted(final Member member) {
     // Throw an exception if the provided member is null
-    checkIsNull(member, UnableToCompleteOperationException::new);
+    checkIsNull(member, FailedOperationException::new);
 
     // Check if the member status indicates that the member is already signed up
     if (nonNull(member.getProfileStatus()) && member.isProfileActiveAndApproved()) {
@@ -827,12 +826,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param requestEmailAddress the email address from the request. It must not be null.
    * @param authenticatedUserEmailAddress the email address of the authenticated user. It must not be null.
-   * @throws UnableToCompleteOperationException if either requestEmailAddress or authenticatedUserEmailAddress is null.
+   * @throws FailedOperationException if either requestEmailAddress or authenticatedUserEmailAddress is null.
    * @throws FailedOperationException if requestEmailAddress does not match authenticatedUserEmailAddress.
    */
   private void validateAndCheckIfEmailsInRequestAndAuthenticatedUserAreSame(final String requestEmailAddress, final String authenticatedUserEmailAddress) {
     // Check if either email address is null and throw an exception if so
-    checkIsNullAny(List.of(requestEmailAddress, authenticatedUserEmailAddress), UnableToCompleteOperationException::new);
+    checkIsNullAny(List.of(requestEmailAddress, authenticatedUserEmailAddress), FailedOperationException::new);
 
     // Compare the email addresses and throw an exception if they don't match
     if (!authenticatedUserEmailAddress.equals(requestEmailAddress)) {
@@ -1113,15 +1112,15 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param mfaType the MFA type to retrieve verification type for
    * @return the VerificationType associated with the MFA type
-   * @throws UnableToCompleteOperationException if the MFA type is null or cannot be mapped to a VerificationType
+   * @throws FailedOperationException if the MFA type is null or cannot be mapped to a VerificationType
    */
   protected VerificationType getVerificationTypeByMfaType(final MfaType mfaType) {
     // Throw an exception if the provided MFA type is null
-    checkIsNull(mfaType, UnableToCompleteOperationException::new);
+    checkIsNull(mfaType, FailedOperationException::new);
     // Parse the MFA type into a VerificationType enum value
     final VerificationType verificationType = VerificationType.of(mfaType.name());
     // Throw an exception if the parsed VerificationType is null
-    checkIsNull(verificationType, UnableToCompleteOperationException::new);
+    checkIsNull(verificationType, FailedOperationException::new);
 
     return verificationType;
   }
@@ -1136,7 +1135,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param otpCode     the one-time password (OTP) generated for verification
    * @param user        the FleenUser for whom the verification request is being created
    * @return MfaVerificationRequest the request object containing OTP, user details, and verification type
-   * @throws UnableToCompleteOperationException if there is an issue with determining or creating the verification type
+   * @throws FailedOperationException if there is an issue with determining or creating the verification type
    */
   protected MfaVerificationRequest getVerificationTypeAndCreateMfaVerificationRequest(final String otpCode, final FleenUser user) {
     final VerificationType verificationType = getVerificationTypeByMfaType(user.getMfaType());

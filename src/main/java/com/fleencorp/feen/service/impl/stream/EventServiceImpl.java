@@ -5,12 +5,13 @@ import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
+import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -36,17 +37,17 @@ import com.fleencorp.feen.model.search.event.EventSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.EventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,9 +83,9 @@ import static java.util.Objects.nonNull;
 public class EventServiceImpl extends StreamService implements EventService {
 
   private final String delegatedAuthorityEmail;
-  private final CountryService countryService;
   private final EventUpdateService eventUpdateService;
-  private final CalendarRepository calendarRepository;
+  private final NotificationMessageService notificationMessageService;
+  private final NotificationService notificationService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final FleenStreamRepository fleenStreamRepository;
   private final MemberRepository memberRepository;
@@ -102,10 +103,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    * and country services.</p>
    *
    * @param delegatedAuthorityEmail The email address used for delegated authority in Google services
-   * @param countryService Service for handling country-related operations
    * @param miscService the service for managing miscellaneous actions
+   * @param notificationMessageService the service that manages notification messages for events and attendees
+   * @param notificationService the service responsible for managing notifications in the system
    * @param eventUpdateService Service for handling event updates
-   * @param calendarRepository Repository for managing calendar entities
    * @param chatSpaceMemberRepository Repository for handling chat space members
    * @param fleenStreamRepository Repository for managing stream entities
    * @param memberRepository Repository for managing members
@@ -116,10 +117,10 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
-      final CountryService countryService,
       final MiscService miscService,
       final EventUpdateService eventUpdateService,
-      final CalendarRepository calendarRepository,
+      final NotificationMessageService notificationMessageService,
+      final NotificationService notificationService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final FleenStreamRepository fleenStreamRepository,
       final MemberRepository memberRepository,
@@ -129,9 +130,9 @@ public class EventServiceImpl extends StreamService implements EventService {
       final LocalizedResponse localizedResponse) {
     super(miscService,fleenStreamRepository, streamAttendeeRepository, localizedResponse);
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
-    this.countryService = countryService;
     this.eventUpdateService = eventUpdateService;
-    this.calendarRepository = calendarRepository;
+    this.notificationMessageService = notificationMessageService;
+    this.notificationService = notificationService;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.fleenStreamRepository = fleenStreamRepository;
     this.memberRepository = memberRepository;
@@ -890,6 +891,9 @@ public class EventServiceImpl extends StreamService implements EventService {
     streamAttendeeRepository.save(streamAttendee);
     // Save the stream to the repository
     fleenStreamRepository.save(stream);
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofReceived(stream, streamAttendee, stream.getMember(), user.toMember());
+    notificationService.save(notification);
 
     // Verify if the attendee is a member of the chat space and send invitation
     checkIfAttendeeIsMemberOfChatSpaceAndSendInvitation(isMemberPartOfChatSpace, stream.getExternalId(), requestToJoinEventOrStreamDto.getComment(), user);
@@ -934,13 +938,13 @@ public class EventServiceImpl extends StreamService implements EventService {
   }
 
   /**
-   * Processes the attendee's request to join a stream or event.
+   * Processes the attendee's request to join a event or stream.
    *
    * <p>This method checks whether the request is still pending. If the request is pending, it updates the request status
    * and adds any organizer comments. If the request is approved, it handles the necessary steps to invite the attendee
    * to the associated calendar event by calling {@code handleApprovedRequest}.</p>
    *
-   * @param stream The stream or event the attendee has requested to join.
+   * @param stream The event or stream the attendee has requested to join.
    * @param attendee The stream attendee whose request is being processed.
    * @param processRequestToJoinDto DTO containing the actual join status and optional organizer comment.
    * @param user The user processing the request.
@@ -948,7 +952,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinEventOrStreamDto processRequestToJoinDto,
       final FleenUser user) {
     // Check if the attendee's request is still pending
-    if (!attendee.isPending()) {
+    if (!attendee.isRequestToJoinPending()) {
       return;
     }
 
@@ -958,16 +962,20 @@ public class EventServiceImpl extends StreamService implements EventService {
     attendee.updateRequestStatusAndSetOrganizerComment(joinStatus, processRequestToJoinDto.getComment());
     // If the request is approved, proceed with handling the calendar invitation
     checkIfRequestToJoinApproveDAndHandleApproval(processRequestToJoinDto.isApproved(), stream, attendee, user);
+
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, stream.getMember());
+    notificationService.save(notification);
   }
 
   /**
    * Checks if the request to join has been approved and handles the approval process.
    *
-   * <p>This method verifies if the request to join a stream or event has been approved. If the request is approved,
+   * <p>This method verifies if the request to join a event or stream has been approved. If the request is approved,
    * it proceeds to handle the approval by adding the attendee to the event through {@code handleApprovedRequest}.</p>
    *
    * @param isApproved Indicates whether the request to join has been approved.
-   * @param stream The stream or event that the attendee is requesting to join.
+   * @param stream The event or stream that the attendee is requesting to join.
    * @param attendee The stream attendee whose request is being evaluated.
    * @param user The user responsible for handling the request.
    */
@@ -1087,7 +1095,7 @@ public class EventServiceImpl extends StreamService implements EventService {
   /**
    * Sends invitations to pending attendees based on the current stream status and previous visibility.
    *
-   * <p>This method checks if the provided FleenStream is null. If so, it throws an UnableToCompleteOperationException.</p>
+   * <p>This method checks if the provided FleenStream is null. If so, it throws an FailedOperationException.</p>
    *
    * <p>It then compares the current stream visibility with the previous visibility.
    * If the current visibility is PUBLIC and the previous visibility was PRIVATE or PROTECTED,
@@ -1099,11 +1107,11 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @param calendarExternalId the external identifier of the calendar where the event resides
    * @param stream the FleenStream object representing the event
    * @param previousStreamVisibility the previous visibility status of the stream
-   * @throws UnableToCompleteOperationException if the provided FleenStream object is null
+   * @throws FailedOperationException if the provided FleenStream object is null
    */
   public void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(final String calendarExternalId, final FleenStream stream, final StreamVisibility previousStreamVisibility) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, previousStreamVisibility), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, previousStreamVisibility), FailedOperationException::new);
     // Determine the updated or current visibility of the stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
 
@@ -1360,7 +1368,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return {@code true} if the request status is {@code PENDING} or {@code DISAPPROVED}, {@code false} otherwise.
    */
   protected boolean isStreamAttendeeRequestPendingOrDisapproved(final StreamAttendee streamAttendee) {
-    return streamAttendee.isPending() || streamAttendee.isDisapproved();
+    return streamAttendee.isRequestToJoinPending() || streamAttendee.isRequestToJoinDisapproved();
   }
 
   /**
@@ -1502,26 +1510,6 @@ public class EventServiceImpl extends StreamService implements EventService {
     }
     // Return false if there's no chat space or no valid chat space ID
     return false;
-  }
-
-  /**
-   * Finds a {@link Calendar} based on the provided country title.
-   * This method retrieves the country code for the given title using the {@link CountryService}, and then
-   * searches for a {@link Calendar} in the repository using the country code.
-   * If the country title or the calendar is not found, an exception is thrown.
-   *
-   * @param countryTitle The title of the country for which the calendar is to be found.
-   * @return The {@link Calendar} associated with the given country title.
-   * @throws CalendarNotFoundException If no calendar is found for the provided country title or code.
-   */
-  protected Calendar findCalendar(final String countryTitle) {
-    // Retrieve the country code based on the provided country title.
-    final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
-      .orElseThrow(() -> new CalendarNotFoundException(countryTitle));
-
-    // Attempt to find a calendar associated with the retrieved country code.
-    return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
-      .orElseThrow(() -> new CalendarNotFoundException(countryCode));
   }
 
 }

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.security.token;
 
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.service.security.OtpService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.common;
 
-import com.fleencorp.feen.exception.user.CountryNotFoundException;
+import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.mapper.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
@@ -204,7 +204,7 @@ public class CountryServiceImpl implements CountryService {
    * It calls {@link #saveCountriesToCache(List)} with {@code null} to update the cache with the latest
    * list of countries retrieved from the data source.
    */
-  @Scheduled(cron = "0 0 */12 * * *")
+  @Scheduled(cron = "0 0 */12 * * *", zone = "${application.timezone}")
   private void saveCountriesToCache() {
     saveCountriesToCache(null);
   }

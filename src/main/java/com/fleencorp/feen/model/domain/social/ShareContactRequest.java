@@ -33,7 +33,7 @@ public class ShareContactRequest extends FleenFeenEntity {
 
   @Enumerated(STRING)
   @Column(name = "share_contact_request_status")
-  private ShareContactRequestStatus shareContactRequestStatus;
+  private ShareContactRequestStatus requestStatus;
 
   @Enumerated(STRING)
   @Column(name = "contact_type", updatable = false)
@@ -57,10 +57,27 @@ public class ShareContactRequest extends FleenFeenEntity {
   @Column(name = "recipient_comment", length = 1000)
   private String recipientComment;
 
+  /**
+   * Updates the share contact request with the specified status, contact type, contact information, and comment.
+   *
+   * @param status the new status of the contact request
+   * @param type the type of contact being shared (e.g., email, phone)
+   * @param contact the contact information being shared
+   * @param comment an optional comment from the initiator
+   */
   public void update(final ShareContactRequestStatus status, final ContactType type, final String contact, final String comment) {
-    this.shareContactRequestStatus = status;
+    this.requestStatus = status;
     this.contactType = type;
     this.contact = contact;
     this.initiatorComment = comment;
+  }
+
+  /**
+   * Checks if the share contact request has been rejected.
+   *
+   * @return {@code true} if the request status is rejected, {@code false} otherwise
+   */
+  public boolean isRejected() {
+    return ShareContactRequestStatus.isAcceptedOrRejected(requestStatus);
   }
 }

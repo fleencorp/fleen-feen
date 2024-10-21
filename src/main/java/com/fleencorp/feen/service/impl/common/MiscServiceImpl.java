@@ -87,11 +87,11 @@ public class MiscServiceImpl implements
   public Calendar findCalendar(final String countryTitle) {
     // Retrieve the country code by its title or throw an exception if not found
     final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
-      .orElseThrow(() -> new CalendarNotFoundException(countryTitle));
+      .orElseThrow(CalendarNotFoundException.of(countryTitle));
 
     // Find the calendar by code or throw an exception if not found
     return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
-      .orElseThrow(() -> new CalendarNotFoundException(countryCode));
+      .orElseThrow(CalendarNotFoundException.of(countryCode));
   }
 
   /**

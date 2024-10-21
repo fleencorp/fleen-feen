@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionTy
 import com.fleencorp.feen.constant.external.google.calendar.event.EventAttendeeDecisionToJoin;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventStatus;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.mapper.external.GoogleCalendarEventMapper;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.request.calendar.event.*;
@@ -345,6 +345,7 @@ public class GoogleCalendarEventService {
       // If the event exists, set its status to cancelled and update it on the calendar
       if (nonNull(event)) {
         event.setStatus(EventStatus.CANCELLED.getValue());
+        // Execute update request and notify all existing approved attendees
         calendar.events()
                 .update(calendarId, eventId, event)
                 .setSendUpdates(EventSendUpdate.ALL.getValue())

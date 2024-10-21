@@ -8,7 +8,6 @@ import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -129,8 +128,10 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the email address exists or not
    */
   @Override
-  public EntityExistsResponse isMemberEmailAddressExists(String emailAddress) {
-    boolean exists = isEmailAddressExist(emailAddress);
+  public EntityExistsResponse isMemberEmailAddressExists(final String emailAddress) {
+    // Check if the email address exist
+    final boolean exists = isEmailAddressExist(emailAddress);
+    // Return a localized response of the status
     return exists
       ? localizedResponse.of(EmailAddressExistsResponse.of(true))
       : localizedResponse.of(EmailAddressNotExistsResponse.of(false));
@@ -160,8 +161,8 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the phone number exists or not
    */
   @Override
-  public EntityExistsResponse isMemberPhoneNumberExists(String phoneNumber) {
-    boolean exists = isPhoneNumberExist(phoneNumber);
+  public EntityExistsResponse isMemberPhoneNumberExists(final String phoneNumber) {
+    final boolean exists = isPhoneNumberExist(phoneNumber);
     return exists
       ? localizedResponse.of(PhoneNumberExistsResponse.of(true))
       : localizedResponse.of(PhoneNumberNotExistsResponse.of(false));
@@ -300,11 +301,11 @@ public class MemberServiceImpl implements MemberService,
    *
    * @param member the {@link Member} whose country is to be updated.
    * @param countryCode the country code used to retrieve the country's details.
-   * @throws UnableToCompleteOperationException if the provided member or country code is null.
+   * @throws FailedOperationException if the provided member or country code is null.
    */
   protected void updateUserCountry(final Member member, final String countryCode) {
     // Throw an exception if the provided member is null
-    checkIsNull(List.of(member, countryCode), UnableToCompleteOperationException::new);
+    checkIsNull(List.of(member, countryCode), FailedOperationException::new);
 
     // Retrieve country details based on the provided country code
     final Country country = countryService.getCountryByCode(countryCode);
