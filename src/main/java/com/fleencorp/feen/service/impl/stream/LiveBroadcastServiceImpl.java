@@ -5,6 +5,7 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationExce
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -37,8 +38,10 @@ import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
+import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
+import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import lombok.extern.slf4j.Slf4j;
@@ -78,6 +81,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   private final EventService eventService;
   private final GoogleOauth2Service googleOauth2Service;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
+  private final NotificationMessageService notificationMessageService;
+  private final NotificationService notificationService;
   private final YouTubeChannelService youTubeChannelService;
   private final FleenStreamRepository fleenStreamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
@@ -95,6 +100,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    * @param eventService the service for interacting and managing events
    * @param googleOauth2Service the service for interacting with Google Oauth2 service
    * @param miscService the service for managing miscellaneous actions
+   * @param notificationMessageService the service that manages notification messages for events and attendees
+   * @param notificationService the service responsible for managing notifications in the system
    * @param youTubeChannelService the service for managing YouTube channels and categories
    * @param fleenStreamRepository the repository to manage FleenStream data
    * @param streamAttendeeRepository the repository for managing event or stream attendees
@@ -105,8 +112,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   public LiveBroadcastServiceImpl(
       final EventService eventService,
       final GoogleOauth2Service googleOauth2Service,
-      final MiscService miscService,
       @Lazy final LiveBroadcastUpdateService liveBroadcastUpdateService,
+      final MiscService miscService,
+      final NotificationMessageService notificationMessageService,
+      final NotificationService notificationService,
       final YouTubeChannelService youTubeChannelService,
       final FleenStreamRepository fleenStreamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
@@ -116,6 +125,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     super(miscService, fleenStreamRepository, streamAttendeeRepository, localizedResponse);
     this.eventService = eventService;
     this.googleOauth2Service = googleOauth2Service;
+    this.notificationMessageService = notificationMessageService;
+    this.notificationService = notificationService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
     this.fleenStreamRepository = fleenStreamRepository;
@@ -443,7 +454,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     // Check if the user is already an attendee of the stream and process accordingly
     checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventOrStreamDto.getAttendeeUserId()))
       .ifPresentOrElse(
-        streamAttendee -> processPendingAttendeeRequest(streamAttendee, processAttendeeRequestToJoinEventOrStreamDto),
+        streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinEventOrStreamDto),
         () -> {}
       );
 
@@ -458,12 +469,13 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    * the method updates the request status and any comments from the organizer.
    * If the request is approved, the attendee is then saved to the repository.</p>
    *
+   * @param stream the event or stream the attendee is attempting to join
    * @param streamAttendee The StreamAttendee whose request is being processed.
    * @param processAttendeeRequestToJoinEventOrStreamDto The DTO containing the updated request status and comments.
    */
-  protected void processPendingAttendeeRequest(final StreamAttendee streamAttendee, final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto) {
+  protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee streamAttendee, final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto) {
     // Process the request if the attendee's status is pending
-    if (streamAttendee.isPending()) {
+    if (streamAttendee.isRequestToJoinPending()) {
       // Update the attendee's request status and any organizer comments
       updateAttendeeRequestStatus(streamAttendee, processAttendeeRequestToJoinEventOrStreamDto);
       // If the attendee's request is approved, save the attendee
@@ -471,6 +483,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
         streamAttendeeRepository.save(streamAttendee);
       }
     }
+
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getFleenStream(), streamAttendee, stream.getMember());
+    notificationService.save(notification);
   }
 
   /**
@@ -579,7 +595,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   /**
    * Retrieves the attendees of a stream for a given event ID and user.
    *
-   * @param streamId The ID of the stream or event for which to retrieve attendees.
+   * @param streamId The ID of the event or stream for which to retrieve attendees.
    * @param searchRequest the search parameters and request use to filter the attendees to return
    * @param user The user requesting the attendee information.
    * @return An {@code EventOrStreamAttendeesResponse} containing the details of the stream attendees.
@@ -661,7 +677,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     // Retrieve the OAuth2 authorization entity associated with the member
     final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(member, Oauth2ServiceType.youTube());
     // Throw exception if no authorization is found
-    checkIsTrue(existingGoogleOauth2Authorization.isEmpty(), Oauth2InvalidAuthorizationException::new);
+    checkIsTrue(existingGoogleOauth2Authorization.isEmpty(), Oauth2InvalidAuthorizationException.of(Oauth2ServiceType.youTube()));
     // Return the retrieved OAuth2 authorization
     return existingGoogleOauth2Authorization.get();
   }

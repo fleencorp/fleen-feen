@@ -4,9 +4,16 @@ import com.fleencorp.base.exception.FleenException;
 
 public class ExpiredVerificationCodeException extends FleenException {
 
-  public static final String MESSAGE = "Verification code has expired. Code : %s";
+  @Override
+  public String getMessageCode() {
+    return "expired.verification.code";
+  }
 
-  public ExpiredVerificationCodeException(final String code) {
-    super(String.format(MESSAGE, code));
+  public ExpiredVerificationCodeException(final Object...params) {
+    super(params);
+  }
+
+  public static ExpiredVerificationCodeException of(final Object code) {
+    return new ExpiredVerificationCodeException(code);
   }
 }

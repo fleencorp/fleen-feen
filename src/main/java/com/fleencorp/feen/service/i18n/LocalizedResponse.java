@@ -29,19 +29,25 @@ import static java.util.Objects.nonNull;
 public class LocalizedResponse {
 
   private final MessageSource messageSource;
+  private final MessageSource responseMessageSource;
   private final MessageSource exMessageSource;
 
   /**
-   * Constructs a {@link LocalizedResponse} with the specified {@link MessageSource}.
+   * Constructs a LocalizedResponse with specified message sources for localization.
    *
-   * @param messageSource the {@link MessageSource} used for retrieving localized messages.
+   * @param messageSource        the primary message source used for retrieving localized messages
+   * @param responseMessageSource the message source for response-related messages
+   * @param exMessageSource      the message source for error-related messages
    */
   public LocalizedResponse(
-      @Qualifier("response-message-source") final MessageSource messageSource,
+      final MessageSource messageSource,
+      @Qualifier("response-message-source") final MessageSource responseMessageSource,
       @Qualifier("error-message-source") final MessageSource exMessageSource) {
     this.messageSource = messageSource;
+    this.responseMessageSource = responseMessageSource;
     this.exMessageSource = exMessageSource;
   }
+
 
   /**
    * Retrieves a message from the message source based on the provided key and locale.
@@ -56,6 +62,21 @@ public class LocalizedResponse {
    */
   public String getMessage(final String key, final Locale locale, final Object... params) {
     return messageSource.getMessage(key, params, locale);
+  }
+
+  /**
+   * Retrieves a message from the message source based on the provided key and locale.
+   *
+   * <p>This method delegates the message retrieval to the {@link MessageSource} using the specified key, locale,
+   * and optional parameters for message formatting. It returns the resolved message as a {@link String}.</p>
+   *
+   * @param key the message key to look up in the message source.
+   * @param locale the locale to use for message resolution.
+   * @param params optional parameters to format the message.
+   * @return the resolved message as a {@link String}.
+   */
+  public String getMessageRes(final String key, final Locale locale, final Object... params) {
+    return responseMessageSource.getMessage(key, params, locale);
   }
 
   /**
@@ -99,6 +120,21 @@ public class LocalizedResponse {
    * @param params optional parameters to format the message.
    * @return the resolved message as a {@link String}.
    */
+  public String getMessageRes(final String key, final Object... params) {
+    return getMessageRes(key, LocaleContextHolder.getLocale(), params);
+  }
+
+  /**
+   * Retrieves a message from the message source based on the provided key and the current locale.
+   *
+   * <p>This method retrieves a message using the specified key and the current locale obtained from
+   * {@link LocaleContextHolder}. Optional parameters can be provided for message formatting. The resolved message
+   * is returned as a {@link String}.</p>
+   *
+   * @param key the message key to look up in the message source.
+   * @param params optional parameters to format the message.
+   * @return the resolved message as a {@link String}.
+   */
   public String getMessageEx(final String key, final Object... params) {
     return getMessageEx(key, LocaleContextHolder.getLocale(), params);
   }
@@ -116,7 +152,7 @@ public class LocalizedResponse {
    */
   public <T extends ApiResponse> T of(final T response) {
     if (nonNull(response) && nonNull(response.getMessageCode())) {
-      final String message = getMessage(response.getMessageCode());
+      final String message = getMessageRes(response.getMessageCode());
       response.setMessage(message);
       return response;
     }
@@ -143,7 +179,7 @@ public class LocalizedResponse {
       if (isNull(params)) {
         params = new Object[] {};
       }
-      final String message = getMessage(response.getMessageCode(), params);
+      final String message = getMessageRes(response.getMessageCode(), params);
       response.setMessage(message);
       return response;
     }
@@ -174,7 +210,7 @@ public class LocalizedResponse {
         final T response = responseSupplier.get();
 
         if (nonNull(response) && nonNull(response.getMessageCode())) {
-          final String message = getMessage(response.getMessageCode());
+          final String message = getMessageRes(response.getMessageCode());
           response.setMessage(message);
         }
 
@@ -239,7 +275,7 @@ public class LocalizedResponse {
   public <T extends FleenException> ErrorResponse withStatus(final T ex, final HttpStatus status) {
     if (nonNull(ex) && nonNull(ex.getMessageCode())) {
       final String message = getMessageEx(ex.getMessageCode(), ex.getParams());
-      return ErrorResponse.of(message, status);
+      return ErrorResponse.of(message, status, ex.getDetails());
     }
     return ErrorResponse.of();
   }

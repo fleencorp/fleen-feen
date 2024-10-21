@@ -117,7 +117,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return {@code true} if the attendee's request to join status is {@link StreamAttendeeRequestToJoinStatus#PENDING},
    *         otherwise {@code false}.
    */
-  public boolean isPending() {
+  public boolean isRequestToJoinPending() {
     return StreamAttendeeRequestToJoinStatus.isPending(requestToJoinStatus);
   }
 
@@ -126,8 +126,20 @@ public class StreamAttendee extends FleenFeenEntity {
    *
    * @return {@code true} if the {@code streamAttendeeRequestToJoinStatus} is DISAPPROVED; {@code false} otherwise
    */
-  public boolean isDisapproved() {
+  public boolean isRequestToJoinDisapproved() {
     return StreamAttendeeRequestToJoinStatus.isDisapproved(requestToJoinStatus);
+  }
+
+  /**
+   * Checks if the request to join a stream or event has been approved.
+   *
+   * <p>This method evaluates the current status of the request to join and returns
+   * {@code true} if the request has been approved, otherwise it returns {@code false}.</p>
+   *
+   * @return {@code true} if the request to join has been approved, {@code false} otherwise.
+   */
+  public boolean isRequestToJoinApproved() {
+    return StreamAttendeeRequestToJoinStatus.isApproved(requestToJoinStatus);
   }
 
   /**

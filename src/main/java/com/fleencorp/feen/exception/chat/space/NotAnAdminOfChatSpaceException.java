@@ -8,8 +8,4 @@ public class NotAnAdminOfChatSpaceException extends FleenException {
   public String getMessageCode() {
     return "not.an.admin.of.chat.space";
   }
-
-  public NotAnAdminOfChatSpaceException() {
-    super();
-  }
 }

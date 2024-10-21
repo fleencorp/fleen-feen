@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.List;
 
-import static com.fleencorp.feen.constant.base.external.google.chat.HangoutsChatScopes.*;
+import static com.fleencorp.feen.constant.external.google.GoogleOauth2Scopes.*;
 
 /**
  * Configuration class for setting up Google Hangouts Chat integration.

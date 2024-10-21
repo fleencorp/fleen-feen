@@ -25,7 +25,6 @@ public class ReCaptchaAttemptService {
    * sure that the user is not allowed to make unauthorized calls until after a period of time.
    */
   public ReCaptchaAttemptService() {
-    super();
     attemptsCache = CacheBuilder.newBuilder()
       .expireAfterWrite(5, TimeUnit.MINUTES).build(new CacheLoader<>() {
         @NotNull

@@ -1,9 +1,10 @@
 package com.fleencorp.feen.service.impl.social;
 
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.social.*;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
+import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.share.ExpectShareContactRequestDto;
@@ -17,6 +18,8 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
+import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -45,6 +48,8 @@ import static java.util.Objects.isNull;
 @Slf4j
 public class ShareContactRequestServiceImpl implements ShareContactRequestService {
 
+  private final NotificationMessageService notificationMessageService;
+  private final NotificationService notificationService;
   private final MemberRepository memberRepository;
   private final ShareContactRequestRepository shareContactRequestRepository;
   private final LocalizedResponse localizedResponse;
@@ -52,13 +57,19 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   /**
    * Constructs an instance of `ShareContactRequestServiceImpl` with the specified repositories.
    *
+   * @param notificationMessageService the service that manages notification messages for events and attendees
+   * @param notificationService the service responsible for managing notifications in the system
    * @param memberRepository the repository for accessing member data
    * @param shareContactRequestRepository the repository for accessing share contact request data
    */
   public ShareContactRequestServiceImpl(
+      final NotificationMessageService notificationMessageService,
+      final NotificationService notificationService,
       final MemberRepository memberRepository,
       final ShareContactRequestRepository shareContactRequestRepository,
       final LocalizedResponse localizedResponse) {
+    this.notificationMessageService = notificationMessageService;
+    this.notificationService = notificationService;
     this.memberRepository = memberRepository;
     this.shareContactRequestRepository = shareContactRequestRepository;
     this.localizedResponse = localizedResponse;
@@ -191,7 +202,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
         final String fullName = shareContactRequest.getRecipient().getFullName();
         final Long userId = shareContactRequest.getRecipient().getMemberId();
 
-        return ShareContactRequestResponse.of(shareContactRequestId, shareContactRequest.getShareContactRequestStatus(), fullName, userId);
+        return ShareContactRequestResponse.of(shareContactRequestId, shareContactRequest.getRequestStatus(), fullName, userId);
       })
       .toList();
   }
@@ -215,7 +226,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
         final String fullName = shareContactRequest.getInitiator().getFullName();
         final Long userId = shareContactRequest.getInitiator().getMemberId();
 
-        return ShareContactRequestResponse.of(shareContactRequestId, shareContactRequest.getShareContactRequestStatus(), fullName, userId);
+        return ShareContactRequestResponse.of(shareContactRequestId, shareContactRequest.getRequestStatus(), fullName, userId);
       })
       .toList();
   }
@@ -260,7 +271,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    * @return `ProcessShareContactRequestResponse` indicating the successful processing of the request
    * @throws UserNotFoundException if the user is not found
    * @throws ShareContactRequestNotFoundException if the share contact request is not found
-   * @throws UnableToCompleteOperationException if the request is invalid or cannot be processed
+   * @throws FailedOperationException if the request is invalid or cannot be processed
    */
   @Override
   @Transactional
@@ -295,6 +306,10 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
 
     // Save the updated share contact request
     shareContactRequestRepository.save(shareContactRequest);
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(shareContactRequest, shareContactRequest.getInitiator());
+    notificationService.save(notification);
+
     // Return response indicating successful processing of the share contact request
     return localizedResponse.of(ProcessShareContactRequestResponse.of());
   }
@@ -313,12 +328,16 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   @Transactional
   public SendShareContactRequestResponse sendShareContactRequest(final SendShareContactRequestDto sendShareContactRequestDto, final FleenUser user) {
     // Validate that the recipient user exists
-    memberRepository.findById(sendShareContactRequestDto.getActualRecipientId())
+    final Member member = memberRepository.findById(sendShareContactRequestDto.getActualRecipientId())
       .orElseThrow(UserNotFoundException.of(sendShareContactRequestDto.getRecipientId()));
 
     // Convert DTO to ShareContactRequest and save it
     final ShareContactRequest shareContactRequest = sendShareContactRequestDto.toShareContactRequest(user.getId());
     shareContactRequestRepository.save(shareContactRequest);
+
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofReceived(shareContactRequest, sendShareContactRequestDto.getRecipient(), member);
+    notificationService.save(notification);
 
     // Return response indicating successful creation of the share contact request
     return localizedResponse.of(SendShareContactRequestResponse.of());
@@ -343,14 +362,14 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
       .orElseThrow(ShareContactRequestNotFoundException.of(shareContactRequestId));
 
     // Check if the request is already canceled
-    if (ShareContactRequestStatus.isCanceled(shareContactRequest.getShareContactRequestStatus())) {
+    if (ShareContactRequestStatus.isCanceled(shareContactRequest.getRequestStatus())) {
       throw new ShareContactRequestAlreadyCanceledException();
     }
     // Verify if the request has been accepted or rejected
-    verifyRequestHasBeenAcceptedOrRejected(shareContactRequest.getShareContactRequestStatus());
+    verifyRequestHasBeenAcceptedOrRejected(shareContactRequest.getRequestStatus());
 
     // Set the request status to CANCELED and save it
-    shareContactRequest.setShareContactRequestStatus(ShareContactRequestStatus.CANCELED);
+    shareContactRequest.setRequestStatus(ShareContactRequestStatus.CANCELED);
     shareContactRequestRepository.save(shareContactRequest);
 
     // Return response indicating successful cancellation
@@ -363,12 +382,12 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    *
    * @param shareContactRequestStatus the status of the contact request
    * @param contact the contact information to verify if the status is `ACCEPTED`
-   * @throws UnableToCompleteOperationException if the status is null
+   * @throws FailedOperationException if the status is null
    * @throws ShareContactRequestValueRequiredException if the status is `ACCEPTED` and the contact is null
    */
   protected void verifyContactRequestStatusAndContact(final ShareContactRequestStatus shareContactRequestStatus, final String contact) {
     // Throw an exception if the provided share contact request status is null
-    checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
+    checkIsNull(shareContactRequestStatus, FailedOperationException::new);
 
     // If the status is ACCEPTED, verify the contact
     if (ShareContactRequestStatus.isAccepted(shareContactRequestStatus)) {
@@ -391,17 +410,17 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
 
   /**
    * Verifies if the recipient of a contact sharing request is valid.
-   * If either the recipient or the current user is null, an `UnableToCompleteOperationException` is thrown.
+   * If either the recipient or the current user is null, an `FailedOperationException` is thrown.
    * If the recipient's ID does not match the current user's ID, a `CannotProcessShareContactRequestException` is thrown.
    *
    * @param recipient the intended recipient of the contact sharing request
    * @param currentUser the user initiating the request
-   * @throws UnableToCompleteOperationException if either the recipient or the current user is null
+   * @throws FailedOperationException if either the recipient or the current user is null
    * @throws CannotProcessShareContactRequestException if the recipient's ID does not match the current user's ID
    */
   protected void verifyRecipient(final Member recipient, final Member currentUser) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(recipient, currentUser), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(recipient, currentUser), FailedOperationException::new);
 
     // Check if the recipient's ID matches the current user's ID
     final boolean isSame = Objects.equals(recipient.getMemberId(), currentUser.getMemberId());
@@ -412,16 +431,16 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
 
   /**
    * Verifies if a contact sharing request has not been confirmed or rejected.
-   * If the request status is null, an `UnableToCompleteOperationException` is thrown.
+   * If the request status is null, an `FailedOperationException` is thrown.
    * If the request has not been confirmed or rejected, a `ShareContactRequestAlreadyProcessedException` is thrown.
    *
    * @param shareContactRequestStatus the status of the contact sharing request to verify
-   * @throws UnableToCompleteOperationException if the status is null
+   * @throws FailedOperationException if the status is null
    * @throws ShareContactRequestAlreadyProcessedException if the request has not been confirmed or rejected
    */
   protected void verifyRequestHasNotBeenAcceptedOrRejected(final ShareContactRequestStatus shareContactRequestStatus) {
     // Throw an exception if the provided share contact request status is null
-    checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
+    checkIsNull(shareContactRequestStatus, FailedOperationException::new);
 
     // Check if the request has not been confirmed or rejected
     if (!(ShareContactRequestStatus.isAcceptedOrRejected(shareContactRequestStatus))) {
@@ -431,16 +450,16 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
 
   /**
    * Verifies if a contact sharing request has been confirmed or rejected.
-   * If the request status is null, an `UnableToCompleteOperationException` is thrown.
+   * If the request status is null, an `FailedOperationException` is thrown.
    * If the request has already been confirmed or rejected, a `CannotCancelShareContactRequestException` is thrown.
    *
    * @param shareContactRequestStatus the status of the contact sharing request to verify
-   * @throws UnableToCompleteOperationException if the status is null
+   * @throws FailedOperationException if the status is null
    * @throws CannotCancelShareContactRequestException if the request has already been confirmed or rejected
    */
   protected void verifyRequestHasBeenAcceptedOrRejected(final ShareContactRequestStatus shareContactRequestStatus) {
     // Throw an exception if the provided share contact request status is null
-    checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
+    checkIsNull(shareContactRequestStatus, FailedOperationException::new);
 
     // Check if the request has been confirmed or rejected
     if (ShareContactRequestStatus.isAcceptedOrRejected(shareContactRequestStatus)) {
@@ -455,12 +474,12 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    * It throws an exception if the status is null or if it is in a state that cannot be accepted or rejected.</p>
    *
    * @param shareContactRequestStatus the status of the share contact request to verify
-   * @throws UnableToCompleteOperationException if the status is null
+   * @throws FailedOperationException if the status is null
    * @throws CannotProcessShareContactRequestException if the status is SENT or CANCELED
    */
   protected void verifyShareContactRequestCanOnlyBeAcceptedOrRejected(final ShareContactRequestStatus shareContactRequestStatus) {
     // Throw an exception if the provided share contact request status is null
-    checkIsNull(shareContactRequestStatus, UnableToCompleteOperationException::new);
+    checkIsNull(shareContactRequestStatus, FailedOperationException::new);
 
     // Check if the status is either SENT or CANCELED, which are invalid for acceptance or rejection
     if (ShareContactRequestStatus.isSentOrCanceled(shareContactRequestStatus)) {

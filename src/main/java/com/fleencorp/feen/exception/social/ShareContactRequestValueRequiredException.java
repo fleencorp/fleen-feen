@@ -4,9 +4,8 @@ import com.fleencorp.base.exception.FleenException;
 
 public class ShareContactRequestValueRequiredException extends FleenException {
 
-  private static final String MESSAGE = "Share contact request value is required";
-
-  public ShareContactRequestValueRequiredException() {
-    super(MESSAGE);
+  @Override
+  public String getMessageCode() {
+    return "share.contact.request.value.required";
   }
 }

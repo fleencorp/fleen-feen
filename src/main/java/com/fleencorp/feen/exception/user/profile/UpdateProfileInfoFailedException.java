@@ -8,8 +8,4 @@ public class UpdateProfileInfoFailedException extends FleenException {
   public String getMessageCode() {
     return "update.profile.info.failed";
   }
-
-  public UpdateProfileInfoFailedException() {
-    super();
-  }
 }

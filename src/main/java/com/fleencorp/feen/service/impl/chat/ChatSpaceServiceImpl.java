@@ -11,6 +11,7 @@ import com.fleencorp.feen.mapper.ChatSpaceMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
+import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
@@ -52,14 +53,17 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
@@ -89,6 +93,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
   private final String delegatedAuthorityEmail;
   private final MiscService miscService;
+  private final NotificationMessageService notificationMessageService;
+  private final NotificationService notificationService;
   private final StreamService streamService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final EventUpdateService eventUpdateService;
@@ -104,20 +110,24 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    *
    * <p>This constructor sets up dependencies for managing chat spaces, events, and associated entities.</p>
    *
-   * @param delegatedAuthorityEmail The email for delegated authority used in Google integrations.
+   * @param delegatedAuthorityEmail The email for delegated authority used in Google integrations
    * @param miscService Service for miscellaneous and common actions
-   * @param chatSpaceUpdateService Service for handling updates to chat spaces.
-   * @param eventUpdateService Service for managing updates related to events.
-   * @param chatSpaceMemberRepository Repository for managing chat space members.
-   * @param chatSpaceRepository Repository for chat space entity persistence.
-   * @param fleenStreamRepository Repository for managing stream-related data.
-   * @param memberRepository Repository for managing member entities.
-   * @param userChatSpaceRepository Repository for user-specific chat space interactions.
-   * @param localizedResponse Service for handling localized responses.
+   * @param notificationMessageService the service that manages notification messages for events and attendees
+   * @param notificationService the service responsible for managing notifications in the system
+   * @param chatSpaceUpdateService Service for handling updates to chat spaces
+   * @param eventUpdateService Service for managing updates related to events
+   * @param chatSpaceMemberRepository Repository for managing chat space members
+   * @param chatSpaceRepository Repository for chat space entity persistence
+   * @param fleenStreamRepository Repository for managing stream-related data
+   * @param memberRepository Repository for managing member entities
+   * @param userChatSpaceRepository Repository for user-specific chat space interactions
+   * @param localizedResponse Service for handling localized responses
    */
   public ChatSpaceServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
       final MiscService miscService,
+      final NotificationMessageService notificationMessageService,
+      final NotificationService notificationService,
       final StreamService streamService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final EventUpdateService eventUpdateService,
@@ -129,6 +139,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       final LocalizedResponse localizedResponse) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.miscService = miscService;
+    this.notificationMessageService = notificationMessageService;
+    this.notificationService = notificationService;
     this.streamService = streamService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.eventUpdateService = eventUpdateService;
@@ -842,14 +854,20 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   public RequestToJoinChatSpaceResponse requestToJoinSpace(final Long chatSpaceId, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    // Create a chat space member to update later
+    ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
     miscService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(chatSpace.getMemberId()), user);
     // Verify if the chat space is inactive
     verifyIfChatSpaceInactive(chatSpace);
     // If the chat space is private, handle the join request
     if (isSpacePrivate(chatSpace)) {
-      handleJoinRequest(chatSpace, requestToJoinChatSpaceDto, user);
+      chatSpaceMember = handleJoinRequest(chatSpace, requestToJoinChatSpaceDto, user);
     }
+
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofReceived(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
+    notificationService.save(notification);
     // Return a localized response confirming the request to join the chat space
     return localizedResponse.of(RequestToJoinChatSpaceResponse.of());
   }
@@ -865,21 +883,25 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param requestToJoinChatSpaceDto The DTO containing the request details for joining the chat space.
    * @param user The user requesting to join the chat space.
    */
-  protected void handleJoinRequest(final ChatSpace chatSpace, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user) {
+  protected ChatSpaceMember handleJoinRequest(final ChatSpace chatSpace, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user) {
     // Check if the user is already a member of the chat space
+    final AtomicReference<ChatSpaceMember> chatSpaceMemberAtomicReference = new AtomicReference<>();
     chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, user.toMember())
       .ifPresentOrElse(chatSpaceMember -> {
         // Update the join status based on the existing request
         updateJoinStatusBasedOnExistingRequest(chatSpaceMember, requestToJoinChatSpaceDto.getComment());
         // Save the updated chat space member
         chatSpaceMemberRepository.save(chatSpaceMember);
+        chatSpaceMemberAtomicReference.set(chatSpaceMember);
       }, () -> {
         // Create a new chat space member with a pending join status
         final ChatSpaceMember newChatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember(), requestToJoinChatSpaceDto.getComment());
         newChatSpaceMember.pendingJoinStatus();
         // Save the new chat space member
         chatSpaceMemberRepository.save(newChatSpaceMember);
+        chatSpaceMemberAtomicReference.set(newChatSpaceMember);
     });
+    return chatSpaceMemberAtomicReference.get();
   }
 
   /**
@@ -987,6 +1009,9 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       notifyChatSpaceUpdateService(chatSpaceMember, chatSpace, member);
     }
 
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(chatSpace, chatSpaceMember, chatSpace.getMember());
+    notificationService.save(notification);
     // Return the localized response indicating the result of the processing
     return localizedResponse.of(ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, processRequestToJoinChatSpaceDto.getActualMemberId()));
   }
@@ -1142,7 +1167,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Attempt to find the chat space by its ID in the repository
     return chatSpaceRepository.findById(chatSpaceId)
       // If not found, throw an exception with the chat space ID
-      .orElseThrow(() -> new ChatSpaceNotFoundException(chatSpaceId));
+      .orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
   }
 
   /**
@@ -1579,7 +1604,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
       // Fetch the pending join request counts for the chat spaces
       final List<ChatSpaceRequestToJoinPendingSelect> pendingRequests = chatSpaceMemberRepository
-        .countPendingJoinRequestsForChatSpaces(chatSpaceIds, ChatSpaceRequestToJoinStatus.PENDING);
+        .countPendingJoinRequestsForChatSpaces(chatSpaceIds, PENDING);
 
       // Map the counts back to the ChatSpaceResponse objects
       final Map<Long, Long> pendingRequestsMap = pendingRequests.stream()

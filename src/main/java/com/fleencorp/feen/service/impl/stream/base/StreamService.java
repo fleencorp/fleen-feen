@@ -5,7 +5,9 @@ import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -21,6 +23,7 @@ import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResul
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -150,17 +153,17 @@ public class StreamService {
    *
    * @param stream the FleenStream representing the event to validate
    * @param user the user attempting to perform an action on the event
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    * @throws FleenStreamNotCreatedByUserException if the event was not created by the specified user
    */
   public static void validateCreatorOfEvent(final FleenStream stream, final FleenUser user) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
     // Check if the event creator's ID matches the user's ID
     final boolean isSame = Objects.equals(stream.getMemberId(), user.getId());
     if (!isSame) {
-      throw new FleenStreamNotCreatedByUserException(user.getId());
+      throw FleenStreamNotCreatedByUserException.of(user.getId());
     }
   }
 
@@ -171,12 +174,12 @@ public class StreamService {
    * If the stream end date is in the past, it throws a FleenStreamNotCreatedByUserException with the end date as a message.</p>
    *
    * @param stream the stream end date and time to verify
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    * @throws StreamAlreadyHappenedException if the stream end date is in the past
    */
   public void verifyStreamEndDate(final FleenStream stream) {
     // Throw an exception if the provided value is null
-    checkIsNull(stream, UnableToCompleteOperationException::new);
+    checkIsNull(stream, FailedOperationException::new);
 
     // Check if the stream has already ended and throw an exception if true
     if (stream.hasEnded()) {
@@ -195,18 +198,18 @@ public class StreamService {
    *
    * @param stream the {@link FleenStream} to check for existing attendees
    * @param userId the ID of the user to check for
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    * @throws AlreadyRequestedToJoinStreamException if the user already requested to join the stream or is already an attendee of the stream
    */
   public void checkIfUserIsAlreadyAnAttendeeAndThrowError(final FleenStream stream, final Long userId) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, userId), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
 
     // If the user is found as an attendee, throw an exception with the attendee's request to join status
     checkIfUserIsAlreadyAnAttendee(stream, userId)
       .ifPresent(streamAttendee -> {
         // If the user is found as an attendee, throw an exception with the attendee's request to join status
-        throw new AlreadyRequestedToJoinStreamException(streamAttendee.getRequestToJoinStatus().getValue());
+        throw AlreadyRequestedToJoinStreamException.of(streamAttendee.getRequestToJoinStatus().getValue());
     });
   }
 
@@ -219,7 +222,7 @@ public class StreamService {
    */
   public void checkIfStreamIsPrivate(final Long eventId, final FleenStream stream) {
     if (stream.isJustPrivate()) {
-      throw new CannotJointStreamWithoutApprovalException(eventId);
+      throw CannotJointStreamWithoutApprovalException.of(eventId);
     }
   }
 
@@ -232,11 +235,11 @@ public class StreamService {
    * @param stream the stream to check for the user's attendance
    * @param userId the user's ID to check
    * @return Optional that may contain the user found as an attendee
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    */
   public Optional<StreamAttendee> checkIfUserIsAlreadyAnAttendee(final FleenStream stream, final Long userId) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, userId), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
     // Find if the user is already an attendee of the stream
     return streamAttendeeRepository.findAttendeeByStreamAndUser(stream, Member.of(userId));
   }
@@ -249,11 +252,11 @@ public class StreamService {
    * @param stream the stream to be joined
    * @param user the user requesting to join the stream
    * @return the created StreamAttendee
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    */
   public StreamAttendee createStreamAttendee(final FleenStream stream, final FleenUser user) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
     return StreamAttendee.of(user.toMember(), stream);
   }
@@ -271,11 +274,11 @@ public class StreamService {
    * @param user the {@link FleenUser} who is being added as an attendee
    * @param comment the comment to be added to the {@link StreamAttendee}
    * @return the newly created {@link StreamAttendee} with the added comment
-   * @throws UnableToCompleteOperationException if one of the input is invalid
+   * @throws FailedOperationException if one of the input is invalid
    */
   public StreamAttendee createStreamAttendeeWithComment(final FleenStream stream, final FleenUser user, final String comment) {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, user), UnableToCompleteOperationException::new);
+    checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
     final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
     streamAttendee.setAttendeeComment(comment);
@@ -293,15 +296,15 @@ public class StreamService {
    * If the object is not null, it checks the stream status and returns true if the status is not CANCELLED.</p>
    *
    * @param stream the FleenStream event to check
-   * @throws UnableToCompleteOperationException if one of the input is invalid
-   * @throws StreamAlreadyCancelledException if the event or stream has been cancelled
+   * @throws FailedOperationException if one of the input is invalid
+   * @throws StreamAlreadyCanceledException if the event or stream has been cancelled
    */
   public void verifyEventOrStreamIsNotCancelled(final FleenStream stream) {
     // Throw an exception if the provided stream is null
-    checkIsNull(stream, UnableToCompleteOperationException::new);
+    checkIsNull(stream, FailedOperationException::new);
 
     if (stream.isCanceled()) {
-      throw new StreamAlreadyCancelledException(stream.getStreamId());
+      throw StreamAlreadyCanceledException.of(stream.getStreamId());
     }
   }
 
@@ -375,7 +378,7 @@ public class StreamService {
   /**
    * Allows a user to join a specific event or stream, identified by its unique ID.
    *
-   * <p>This method handles the process of a user joining a stream or event by performing a series
+   * <p>This method handles the process of a user joining a event or stream by performing a series
    * of validations and updates. It checks the stream's status, ensures it is not canceled or private,
    * verifies that the stream is still active, and confirms that the user is not already an attendee.
    * Upon successful validation, it creates a new {@link StreamAttendee} entry for the user, approves
@@ -867,5 +870,18 @@ public class StreamService {
     miscService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(owner, user);
   }
 
+  /**
+   * Finds a {@link com.fleencorp.feen.model.domain.calendar.Calendar} based on the provided country title.
+   * This method retrieves the country code for the given title using the {@link CountryService}, and then
+   * searches for a {@link com.fleencorp.feen.model.domain.calendar.Calendar} in the repository using the country code.
+   * If the country title or the calendar is not found, an exception is thrown.
+   *
+   * @param countryTitle The title of the country for which the calendar is to be found.
+   * @return The {@link com.fleencorp.feen.model.domain.calendar.Calendar} associated with the given country title.
+   * @throws CalendarNotFoundException If no calendar is found for the provided country title or code.
+   */
+  protected Calendar findCalendar(final String countryTitle) {
+    return miscService.findCalendar(countryTitle);
+  }
 
 }

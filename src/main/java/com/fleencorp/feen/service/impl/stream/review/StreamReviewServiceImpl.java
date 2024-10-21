@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;

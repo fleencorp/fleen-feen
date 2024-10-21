@@ -374,15 +374,15 @@ CREATE TABLE country (
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'follower';
 
 CREATE TABLE follower (
-  id BIGSERIAL PRIMARY KEY,
-  follower_id BIGINT NOT NULL,
+  follower_id BIGSERIAL PRIMARY KEY,
+  following_id BIGINT NOT NULL,
   followed_id BIGINT NOT NULL,
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT follower_fk_follower_id
-    FOREIGN KEY (follower_id)
+  CONSTRAINT follower_fk_following_id
+    FOREIGN KEY (following_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE,
   CONSTRAINT follower_fk_followed_id
@@ -513,3 +513,95 @@ CREATE TABLE contact (
 );
 
 --rollback DROP TABLE IF EXISTS `contact`;
+
+
+
+--changeset alamu:18
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'notification';
+
+CREATE TABLE notification (
+  notification_id BIGSERIAL PRIMARY KEY,
+  notification_type VARCHAR(255) NOT NULL CHECK (notification_type IN (
+    'REQUEST_TO_JOIN_CHAT_SPACE_APPROVED', 'REQUEST_TO_JOIN_CHAT_SPACE_DISAPPROVED', 'REQUEST_TO_JOIN_CHAT_SPACE_RECEIVED',
+    'REQUEST_TO_JOIN_EVENT_APPROVED', 'REQUEST_TO_JOIN_EVENT_DISAPPROVED', 'REQUEST_TO_JOIN_EVENT_RECEIVED',
+    'REQUEST_TO_JOIN_LIVE_BROADCAST_APPROVED', 'REQUEST_TO_JOIN_LIVE_BROADCAST_DISAPPROVED', 'REQUEST_TO_JOIN_LIVE_BROADCAST_RECEIVED',
+    'SHARE_CONTACT_REQUEST_APPROVED', 'SHARE_CONTACT_REQUEST_DISAPPROVED', 'SHARE_CONTACT_REQUEST_RECEIVED',
+    'USER_FOLLOWING'
+  )),
+  notification_status VARCHAR(255) NOT NULL CHECK (notification.notification_status IN ('READ', 'UNREAD')),
+  contact_type VARCHAR(255)
+    NOT NULL CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+    'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
+  receiver_id BIGINT NOT NULL,
+  initiator_or_requester_id BIGINT,
+  initiator_or_requester_name VARCHAR(1000),
+  recipient_id BIGINT,
+  recipient_name VARCHAR(1000),
+  message_key VARCHAR(1000) NOT NULL,
+  other_comment VARCHAR(1000) NOT NULL,
+  id_or_link_or_url VARCHAR(1000) NOT NULL,
+  notification_read_on TIMESTAMP NULL,
+  share_contact_request_id BIGINT,
+  fleen_stream_id BIGINT,
+  fleen_stream_title VARCHAR(1000),
+  stream_attendee_id BIGINT,
+  stream_attendee_name VARCHAR(1000),
+  chat_space_id BIGINT,
+  chat_space_title VARCHAR(1000),
+  chat_space_member_id BIGINT,
+  chat_space_member_name VARCHAR(1000),
+  follower_id BIGINT,
+  follower_name VARCHAR(1000),
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT notification_fk_receiver_id
+    FOREIGN KEY (receiver_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE,
+
+  CONSTRAINT notification_fk_initiator_or_requester_id
+    FOREIGN KEY (initiator_or_requester_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE,
+
+  CONSTRAINT notification_fk_recipient_id
+    FOREIGN KEY (recipient_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE,
+
+  CONSTRAINT notification_fk_share_contact_request_id
+    FOREIGN KEY (share_contact_request_id)
+      REFERENCES share_contact_request (share_contact_request_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT notification_fk_fleen_stream_id
+    FOREIGN KEY (fleen_stream_id)
+      REFERENCES fleen_stream (fleen_stream_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT notification_fk_stream_attendee_id
+    FOREIGN KEY (stream_attendee_id)
+      REFERENCES stream_attendee (stream_attendee_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT notification_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT notification_fk_chat_space_member_id
+    FOREIGN KEY (chat_space_member_id)
+      REFERENCES chat_space_member (chat_space_member_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT notification_fk_follower_id
+    FOREIGN KEY (follower_id)
+      REFERENCES follower (follower_id)
+      ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `notification`;
+

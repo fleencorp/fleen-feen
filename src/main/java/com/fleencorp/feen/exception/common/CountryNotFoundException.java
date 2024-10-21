@@ -1,4 +1,4 @@
-package com.fleencorp.feen.exception.user;
+package com.fleencorp.feen.exception.common;
 
 import com.fleencorp.base.exception.FleenException;
 

@@ -2,16 +2,20 @@ package com.fleencorp.feen.exception.calendar;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
-import static java.lang.String.format;
+import java.util.function.Supplier;
 
 public class CalendarNotFoundException extends FleenException {
 
-  private static final String MESSAGE = "Calendar does not exist or cannot be found. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "calendar.not.found";
+  }
 
-  public CalendarNotFoundException(final Object calendarId) {
-    super(format(MESSAGE, Objects.toString(calendarId, UNKNOWN)));
+  public CalendarNotFoundException(final Object...params) {
+    super(params);
+  }
+
+  public static Supplier<CalendarNotFoundException> of(final Object calendarId) {
+    return () -> new CalendarNotFoundException(calendarId);
   }
 }

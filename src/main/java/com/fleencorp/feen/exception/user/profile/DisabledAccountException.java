@@ -4,9 +4,8 @@ import com.fleencorp.base.exception.FleenException;
 
 public class DisabledAccountException extends FleenException {
 
-  public static final String MESSAGE = "This account has been disabled.";
-
-  public DisabledAccountException() {
-    super(MESSAGE);
+  @Override
+  public String getMessageCode() {
+    return "disabled.account";
   }
 }

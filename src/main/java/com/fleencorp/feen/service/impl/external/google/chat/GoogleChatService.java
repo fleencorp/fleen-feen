@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.external.google.chat;
 
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.chat.space.ChatSpaceField;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.RetrieveChatSpaceRequest;
