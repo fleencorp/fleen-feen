@@ -27,6 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import static com.fleencorp.base.constant.base.SecurityConstant.AUTH_HEADER_PREFIX;
+import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getAccessTokenCacheKey;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.isAuthorityWhitelisted;
 import static java.util.Objects.isNull;
@@ -276,7 +277,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     } catch (final IllegalArgumentException | ExpiredJwtException | MalformedJwtException | SignatureException ex) {
       // Log the error
       log.error(ex.getMessage(), ex);
-      throw new InvalidAuthenticationTokenException(ex.getMessage());
+      throw new InvalidAuthenticationTokenException();
     }
   }
 
@@ -314,7 +315,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       resolver.resolveException(request, response, null, ex);
       return;
     }
-    final InvalidAuthenticationException exception = new InvalidAuthenticationException(null);
+    final InvalidAuthenticationException exception = new InvalidAuthenticationException(UNKNOWN);
     resolver.resolveException(request, response, null, exception);
   }
 }

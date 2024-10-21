@@ -15,6 +15,9 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
+import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
+import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -64,6 +67,8 @@ public class CreateCalendarEventDto extends CreateStreamDto {
   public FleenStream toFleenStream(final Member member) {
     final FleenStream fleenStream = toFleenStream();
     fleenStream.setMember(member);
+    fleenStream.setStreamType(EVENT);
+    fleenStream.setStreamSource(GOOGLE_MEET);
     return fleenStream;
   }
 

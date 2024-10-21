@@ -40,6 +40,16 @@ public enum ShareContactRequestStatus implements ApiParameter {
   }
 
   /**
+   * Checks if the specified {@link ShareContactRequestStatus} is REJECTED.
+   *
+   * @param status the share contact request status to check
+   * @return {@code true} if the {@code status} is REJECTED; {@code false} otherwise
+   */
+  public static boolean isRejected(final ShareContactRequestStatus status) {
+    return status == REJECTED;
+  }
+
+  /**
    * Checks if the specified {@link ShareContactRequestStatus} is CANCELED.
    *
    * @param status the share contact request status to check

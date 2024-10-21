@@ -2,11 +2,6 @@ package com.fleencorp.feen.exception.common;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
-import static java.lang.String.format;
-
 /**
  * ObjectNotFoundException is a custom exception class that extends FleenException.
  * It is thrown when an object does not exist or cannot be found in the context of AWS S3 Service.
@@ -17,9 +12,12 @@ import static java.lang.String.format;
  */
 public class ObjectNotFoundException extends FleenException {
 
-  public static final String MESSAGE = "Object does not exists or cannot be found. File name: %s";
+  @Override
+  public String getMessageCode() {
+    return "object.not.found";
+  }
 
-  public ObjectNotFoundException(final String objectKeyOrFileName) {
-    super(format(MESSAGE, Objects.toString(objectKeyOrFileName, UNKNOWN)));
+  public ObjectNotFoundException(final Object...params) {
+    super(params);
   }
 }

@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.follow.FollowOrUnfollowUserDto;
@@ -15,6 +16,8 @@ import com.fleencorp.feen.model.search.social.follower.following.FollowingSearch
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
+import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
+import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.user.FollowerService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,8 @@ import static java.util.Objects.isNull;
 @Service
 public class FollowerServiceImpl implements FollowerService {
 
+  private final NotificationMessageService notificationMessageService;
+  private final NotificationService notificationService;
   private final FollowerRepository followerRepository;
   private final LocalizedResponse localizedResponse;
 
@@ -51,8 +56,12 @@ public class FollowerServiceImpl implements FollowerService {
    * @param localizedResponse the service for adding localized message for responses
    */
   public FollowerServiceImpl(
+      final NotificationMessageService notificationMessageService,
+      final NotificationService notificationService,
       final FollowerRepository followerRepository,
       final LocalizedResponse localizedResponse) {
+    this.notificationMessageService = notificationMessageService;
+    this.notificationService = notificationService;
     this.followerRepository = followerRepository;
     this.localizedResponse = localizedResponse;
   }
@@ -121,17 +130,21 @@ public class FollowerServiceImpl implements FollowerService {
     // Verify user cannot follow itself
     verifyUserCannotFollowOrUnfollowSelf(followUserDto.getActualMemberId(), user.getId());
     // Convert the current FleenUser to a Member object representing the follower
-    final Member follower = user.toMember();
+    final Member following = user.toMember();
 
     // Check if the follower is already following the followed user
-    followerRepository.findByFollowingAndFollowed(follower, followed)
+    followerRepository.findByFollowingAndFollowed(following, followed)
       .ifPresentOrElse(
         // If already following, do nothing
         _ -> {},
         // If not already following, create and save a new Follower entity
         () -> {
-          final Follower newFollower = Follower.of(follower, followed);
+          final Follower newFollower = Follower.of(following, followed);
           followerRepository.save(newFollower);
+
+          // Create and save notification
+          final Notification notification = notificationMessageService.ofFollowing(newFollower, followed);
+          notificationService.save(notification);
       });
 
     // Return a response indicating the follow operation was successful

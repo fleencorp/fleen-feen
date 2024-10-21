@@ -1,10 +1,7 @@
 package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
-import com.fleencorp.feen.constant.stream.StreamCreationType;
-import com.fleencorp.feen.constant.stream.StreamSource;
-import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -78,6 +75,10 @@ public class FleenStream extends FleenFeenEntity {
   @Enumerated(STRING)
   @Column(name = "stream_source", nullable = false)
   private StreamSource streamSource;
+
+  @Enumerated(STRING)
+  @Column(name = "stream_type", nullable = false)
+  private StreamType streamType;
 
   @Enumerated(STRING)
   @Column(name = "stream_creation_type", nullable = false)
@@ -297,7 +298,20 @@ public class FleenStream extends FleenFeenEntity {
    * @return true if the stream source is Google Meet, false otherwise.
    */
   public boolean isAnEvent() {
-    return streamSource == StreamSource.GOOGLE_MEET;
+    return streamType == StreamType.EVENT;
+  }
+
+  /**
+   * Determines if the current stream is a live stream.
+   *
+   * <p>This method checks whether the stream source is associated with a live broadcast.
+   * Specifically, it returns true if the stream is sourced from YouTube Live, indicating
+   * that the stream is a live broadcast.</p>
+   *
+   * @return {@code true} if the stream source is YouTube Live, otherwise {@code false}.
+   */
+  public boolean isALiveStream() {
+    return streamType == StreamType.LIVE_STREAM;
   }
 
   /**

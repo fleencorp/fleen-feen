@@ -28,11 +28,11 @@ public interface ShareContactRequestRepository extends JpaRepository<ShareContac
 
   // Find requests sent by a specific member (initiator)
   @EntityGraph(attributePaths = "recipient")
-  @Query("SELECT scr FROM ShareContactRequest scr WHERE scr.initiator = :initiator AND scr.shareContactRequestStatus = :requestStatus")
+  @Query("SELECT scr FROM ShareContactRequest scr WHERE scr.initiator = :initiator AND scr.requestStatus = :requestStatus")
   Page<ShareContactRequest> findRequestsSentByMember(@Param("initiator") Member initiator, @Param("requestStatus") ShareContactRequestStatus shareContactRequestStatus, Pageable pageable);
 
   // Find requests made to a specific member (recipient)
   @EntityGraph(attributePaths = "initiator")
-  @Query("SELECT scr FROM ShareContactRequest scr WHERE scr.recipient = :recipient AND scr.shareContactRequestStatus = :requestStatus")
+  @Query("SELECT scr FROM ShareContactRequest scr WHERE scr.recipient = :recipient AND scr.requestStatus = :requestStatus")
   Page<ShareContactRequest> findRequestsMadeToMember(@Param("recipient") Member recipient, @Param("requestStatus") ShareContactRequestStatus shareContactRequestStatus, Pageable pageable);
 }

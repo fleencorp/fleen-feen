@@ -2,17 +2,17 @@ package com.fleencorp.feen.exception.stream;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
 import java.util.function.Supplier;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
 
 public class CannotCancelOrDeleteOngoingStreamException extends FleenException {
 
-  private static final String MESSAGE = "Cannot cancel or delete ongoing event or stream. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "cannot.cancel.or.delete.ongoing.stream";
+  }
 
-  public CannotCancelOrDeleteOngoingStreamException(final Object streamId) {
-    super(String.format(MESSAGE, Objects.toString(streamId, UNKNOWN)));
+  public CannotCancelOrDeleteOngoingStreamException(final Object...params) {
+    super(params);
   }
 
   public static Supplier<CannotCancelOrDeleteOngoingStreamException> of(final Object streamId) {

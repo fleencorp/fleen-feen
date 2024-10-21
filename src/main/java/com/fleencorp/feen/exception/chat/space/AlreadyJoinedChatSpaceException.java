@@ -8,8 +8,4 @@ public class AlreadyJoinedChatSpaceException extends FleenException {
   public String getMessageCode() {
     return "already.joined.chat.space";
   }
-
-  public AlreadyJoinedChatSpaceException() {
-    super();
-  }
 }

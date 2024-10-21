@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.external.google.calendar;
 
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
-import com.fleencorp.feen.exception.stream.UnableToCompleteOperationException;
+import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.request.calendar.calendar.*;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.*;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;

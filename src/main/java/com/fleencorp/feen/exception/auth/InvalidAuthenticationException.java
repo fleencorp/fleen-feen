@@ -2,15 +2,20 @@ package com.fleencorp.feen.exception.auth;
 
 import com.fleencorp.base.exception.FleenException;
 
-import java.util.Objects;
-
-import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
+import java.util.function.Supplier;
 
 public class InvalidAuthenticationException extends FleenException {
 
-  public static final String MESSAGE = "The username or password credential is invalid. ID: %s";
+  @Override
+  public String getMessageCode() {
+    return "invalid.authentication";
+  }
 
-  public InvalidAuthenticationException(final String emailAddress) {
-    super(String.format(MESSAGE, Objects.toString(emailAddress, UNKNOWN)));
+  public InvalidAuthenticationException(final Object...params) {
+    super(params);
+  }
+
+  public static Supplier<InvalidAuthenticationException> of(final Object emailAddress) {
+    return () -> new InvalidAuthenticationException(emailAddress);
   }
 }
