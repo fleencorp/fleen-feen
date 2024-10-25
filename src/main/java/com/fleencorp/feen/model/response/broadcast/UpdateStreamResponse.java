@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.broadcast;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

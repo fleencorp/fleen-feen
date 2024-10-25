@@ -35,7 +35,7 @@ import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.event.CreateEventResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.search.broadcast.request.EmptyRequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;

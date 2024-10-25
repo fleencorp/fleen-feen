@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.response.stream;
 
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
