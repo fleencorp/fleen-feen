@@ -22,7 +22,7 @@ import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 @Slf4j
 @RestController
 @RequestMapping(value = "/api/object")
-@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
+@PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class ObjectController {
 
   private final S3Service s3Service;

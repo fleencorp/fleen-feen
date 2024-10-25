@@ -189,8 +189,6 @@ public class RestExceptionHandler {
     CalendarAlreadyExistException.class,
     ChatSpaceAlreadyDeletedException.class,
     EmailAddressAlreadyExistsException.class,
-    InvalidAuthenticationException.class,
-    InvalidAuthenticationTokenException.class,
     PhoneNumberAlreadyExistsException.class,
     ShareContactRequestAlreadyCanceledException.class,
     ShareContactRequestAlreadyProcessedException.class,
@@ -256,6 +254,25 @@ public class RestExceptionHandler {
   @ResponseStatus(value = NOT_FOUND)
   public Object handleNotFound(final FleenException e) {
     return localizedResponse.withStatus(e, FleenHttpStatus.notFound());
+  }
+
+  /**
+   * Handles unauthorized access exceptions and provides a localized response.
+   *
+   * <p>This method intercepts exceptions of types {@link InvalidAuthenticationException} and
+   * {@link InvalidAuthenticationTokenException} and responds with a 404 Not Found status.
+   * It returns a localized response containing details about the exception and the unauthorized status.</p>
+   *
+   * @param e the {@link FleenException} being handled.
+   * @return a localized response with the unauthorized status.
+   */
+  @ExceptionHandler(value = {
+    InvalidAuthenticationException.class,
+    InvalidAuthenticationTokenException.class
+  })
+  @ResponseStatus(value = NOT_FOUND)
+  public Object handleUnauthorized(final FleenException e) {
+    return localizedResponse.withStatus(e, FleenHttpStatus.unauthorized());
   }
 
   /**

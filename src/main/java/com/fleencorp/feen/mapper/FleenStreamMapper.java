@@ -4,7 +4,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +43,7 @@ public class FleenStreamMapper {
           .location(entry.getLocation())
           .schedule(Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
           .visibility(entry.getStreamVisibility())
+          .streamType(entry.getStreamType())
           .streamSource(entry.getStreamSource())
           .streamLink(nonNull(entry.getStreamLink()) ? MaskedStreamLinkUri.of(entry.getStreamLink(), entry.getStreamSource()) : null)
           .streamLinkUnmasked(entry.getStreamLink())

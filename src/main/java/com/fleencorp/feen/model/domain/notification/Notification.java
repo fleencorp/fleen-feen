@@ -42,8 +42,8 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "notification_type", updatable = false, nullable = false)
   private NotificationType notificationType;
 
-  @Column(name = "member_id", insertable = false, updatable = false)
-  private Long memberId;
+  @Column(name = "receiver_id", insertable = false, updatable = false)
+  private Long receiverId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "receiver_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -130,7 +130,7 @@ public class Notification extends FleenFeenEntity {
   }
 
   public boolean isOwner(final Long userId) {
-    return memberId.equals(userId);
+    return receiver.equals(userId);
   }
 
 }

@@ -13,7 +13,7 @@ import lombok.Getter;
 public enum StreamStatus implements ApiParameter {
 
   ACTIVE("Active"),
-  CANCELLED("Cancelled");
+  CANCELED("Canceled");
 
   private final String value;
 

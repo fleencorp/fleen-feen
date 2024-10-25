@@ -8,11 +8,13 @@ import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.social.BlockUserService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/blocking")
+@PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class BlockingController {
 
   private final BlockUserService blockUserService;
