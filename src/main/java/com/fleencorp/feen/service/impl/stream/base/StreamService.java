@@ -18,6 +18,7 @@ import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchReques
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.*;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -407,12 +408,6 @@ public class StreamService {
     checkIfStreamIsPrivate(eventOrStreamId, stream);
     // Check if the user is already an attendee
     checkIfUserIsAlreadyAnAttendeeAndThrowError(stream, user.getId());
-    // Create a new StreamAttendee entry for the user
-    final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
-    streamAttendee.approveUserAttendance();
-
-    // Add the new StreamAttendee to the event's attendees list and save
-    streamAttendeeRepository.save(streamAttendee);
     // Save the fleen stream to the repository
     fleenStreamRepository.save(stream);
 
@@ -576,6 +571,8 @@ public class StreamService {
           existingStatus.ifPresent(status -> {
             // Get the status label based on the user's join status
             final String statusLabel = getJoinStatus(status);
+            // Get the user's request to join status based on the stream
+            stream.setRequestToJoinStatus(status);
             // Set the join status for the chatSpace
             stream.setJoinStatus(statusLabel);
             // Disable and reset the unmasked link if the user's join status is not approved

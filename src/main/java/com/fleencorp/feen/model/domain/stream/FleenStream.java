@@ -226,10 +226,10 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
-   * Cancels the stream by setting its status to {@link StreamStatus#CANCELLED}.
+   * Cancels the stream by setting its status to {@link StreamStatus#CANCELED}.
    */
   public void cancel() {
-    this.streamStatus = StreamStatus.CANCELLED;
+    this.streamStatus = StreamStatus.CANCELED;
   }
 
   /**
@@ -254,12 +254,12 @@ public class FleenStream extends FleenFeenEntity {
   /**
    * Checks if the stream is canceled.
    * This method returns {@code true} if the stream's status is set to
-   * {@link StreamStatus#CANCELLED}; otherwise, it returns {@code false}.
+   * {@link StreamStatus#CANCELED}; otherwise, it returns {@code false}.
    *
    * @return {@code true} if the stream is canceled; {@code false} otherwise
    */
   public boolean isCanceled() {
-    return streamStatus == StreamStatus.CANCELLED;
+    return streamStatus == StreamStatus.CANCELED;
   }
 
   /**

@@ -13,11 +13,13 @@ import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestS
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/share-contact-request")
+@PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class ShareContactRequestController {
 
   private final ShareContactRequestService shareContactRequestService;

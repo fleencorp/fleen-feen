@@ -31,7 +31,8 @@ public class AuthenticationController {
   }
 
   @PostMapping(value = "/sign-up")
-  public SignUpResponse signUp(@Valid @RequestBody final SignUpDto signUpDto) {
+  public SignUpResponse signUp(
+      @Valid @RequestBody final SignUpDto signUpDto) {
     return authenticationService.signUp(signUpDto);
   }
 

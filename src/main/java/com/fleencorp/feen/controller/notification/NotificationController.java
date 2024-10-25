@@ -6,11 +6,13 @@ import com.fleencorp.feen.model.response.notification.ReadNotificationResponse;
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.notification.NotificationService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/notification")
+@PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class NotificationController {
 
   private final NotificationService notificationService;

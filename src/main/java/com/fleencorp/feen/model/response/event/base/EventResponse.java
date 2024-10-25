@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.event.base;
 
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
