@@ -10,11 +10,13 @@ import com.fleencorp.feen.model.search.social.follower.following.FollowingSearch
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.user.FollowerService;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/follower")
+@PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class FollowerController {
 
   private final FollowerService followerService;

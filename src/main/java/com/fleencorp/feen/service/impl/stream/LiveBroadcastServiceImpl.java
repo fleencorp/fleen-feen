@@ -19,11 +19,12 @@ import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchReques
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.*;
 import com.fleencorp.feen.model.response.broadcast.*;
+import com.fleencorp.feen.model.response.event.RequestToJoinEventResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.search.broadcast.EmptyLiveBroadcastSearchResult;
 import com.fleencorp.feen.model.search.broadcast.LiveBroadcastSearchResult;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
@@ -56,6 +57,7 @@ import java.util.Set;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
@@ -398,9 +400,17 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   @Transactional
   public JoinStreamResponse joinStream(final Long streamId, final FleenUser user) {
     // Verify the event or stream details and attempt to join the event or stream
-    verifyDetailsAndTryToJoinEventOrStream(streamId, user);
-
-    return localizedResponse.of(JoinStreamResponse.of(streamId));
+    FleenStream stream = verifyDetailsAndTryToJoinEventOrStream(streamId, user);
+    // Create a new StreamAttendee entry for the user
+    final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
+    // Approve user attendance if event is public
+    streamAttendee.approveUserAttendance();
+    // Add the new StreamAttendee to the event's attendees list and save
+    streamAttendeeRepository.save(streamAttendee);
+    // Get the status label based on the user's join status
+    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    // Return localized response of the join event including status
+    return localizedResponse.of(JoinStreamResponse.of(streamId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }
 
   /**
@@ -425,9 +435,9 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   @Override
   @Transactional
   public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, final FleenUser user) {
-    eventService.requestToJoinEvent(streamId, requestToJoinEventOrStreamDto, user);
+    RequestToJoinEventResponse requestToJoinEventResponse = eventService.requestToJoinEvent(streamId, requestToJoinEventOrStreamDto, user);
 
-    return localizedResponse.of(RequestToJoinStreamResponse.of(streamId));
+    return localizedResponse.of(RequestToJoinStreamResponse.of(streamId, requestToJoinEventResponse.getRequestToJoinStatus(), requestToJoinEventResponse.getJoinStatus()));
   }
 
   /**

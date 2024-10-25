@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.request.chat.space.message;
 
 import com.fleencorp.feen.constant.chat.space.event.message.CalendarEventChatMessageField;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.*;
 
 import java.util.List;
@@ -52,6 +52,22 @@ public class GoogleChatSpaceMessageRequest {
     return (decoratedTexts != null && decoratedTexts.size() > 1) ? decoratedTexts.get(1) : null;
   }
 
+  /**
+   * Creates a new instance of {@link GoogleChatSpaceMessageRequest} based on the provided
+   * space name and stream details.
+   *
+   * <p>This method is used to construct a message request for Google Chat, incorporating
+   * information such as the space ID or name, title, description, and additional details
+   * related to the stream. It sets a default image URL and configures the message with
+   * specific widgets and buttons for enhanced interaction.</p>
+   *
+   * @param spaceName the name or ID of the Google Chat space where the message will be sent.
+   *                  Must conform to the required pattern for space identifiers.
+   * @param stream    the {@link FleenStreamResponse} object containing details about the stream,
+   *                  including title, description, schedule, and stream link.
+   * @return a {@link GoogleChatSpaceMessageRequest} object populated with the provided stream details
+   *         and additional metadata for sending a message to the specified chat space.
+   */
   public static GoogleChatSpaceMessageRequest ofEventOrStream(final String spaceName, final FleenStreamResponse stream) {
     return GoogleChatSpaceMessageRequest.builder()
       .spaceIdOrName(getChatSpaceIdOrNameRequiredPattern(spaceName))

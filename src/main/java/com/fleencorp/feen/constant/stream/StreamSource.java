@@ -14,10 +14,10 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum StreamSource implements ApiParameter {
 
-  YOUTUBE_LIVE("YouTube Live"),
   GOOGLE_MEET("Google Meet"),
   GOOGLE_MEET_LIVESTREAM("Google Meet Live Stream"),
-  NONE("None");
+  NONE("None"),
+  YOUTUBE_LIVE("YouTube Live");
 
   private final String value;
 

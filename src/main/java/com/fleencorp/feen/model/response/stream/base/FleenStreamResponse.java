@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.stream;
+package com.fleencorp.feen.model.response.stream.base;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -34,8 +35,11 @@ import static java.util.Objects.nonNull;
   "organizer",
   "for_kids",
   "stream_link",
+  "stream_type",
   "stream_source",
   "visibility",
+  "status",
+  "request_to_join_status",
   "join_status",
   "schedule_time_type",
   "total_attending",
@@ -69,6 +73,10 @@ public class FleenStreamResponse extends FleenFeenResponse {
   private String streamLinkUnmasked;
 
   @JsonFormat(shape = STRING)
+  @JsonProperty("stream_type")
+  private StreamType streamType;
+
+  @JsonFormat(shape = STRING)
   @JsonProperty("stream_source")
   private StreamSource streamSource;
 
@@ -81,6 +89,10 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("other_schedule")
   private Schedule otherSchedule;
+
+  @JsonFormat(shape = STRING)
+  @JsonProperty("request_to_join_status")
+  private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("status")

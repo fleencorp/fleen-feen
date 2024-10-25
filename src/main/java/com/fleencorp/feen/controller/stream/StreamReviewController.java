@@ -23,6 +23,7 @@ public class StreamReviewController {
     this.streamReviewService = streamReviewService;
   }
 
+  @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
   @GetMapping(value = "/mine")
   public StreamReviewSearchResult findReviews(
       @SearchParam final SearchRequest searchRequest,
@@ -32,8 +33,8 @@ public class StreamReviewController {
 
   @GetMapping(value = "/detail/{eventOrStreamId}")
   public StreamReviewSearchResult findReviews(
-    @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
-    final SearchRequest searchRequest) {
+      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @SearchParam final SearchRequest searchRequest) {
     return streamReviewService.findReviews(eventOrStreamId, searchRequest);
   }
 

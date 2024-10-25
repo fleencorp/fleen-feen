@@ -16,10 +16,10 @@ import lombok.Getter;
 @Getter
 public enum JoinStatus implements ApiParameter {
 
-  PENDING("Pending"),
+  DISAPPROVED("Disapproved"),
   JOINED("Joined"),
-  NOT_JOINED("Not Joined"),
-  DISAPPROVED("Disapproved");
+  NOT_JOINED("Join"),
+  PENDING("Pending");
 
   private final String value;
 

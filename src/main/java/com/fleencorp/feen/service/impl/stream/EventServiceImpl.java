@@ -27,9 +27,9 @@ import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchReque
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.search.broadcast.request.EmptyRequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.event.EmptyEventSearchResult;
@@ -64,6 +64,7 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
@@ -824,7 +825,16 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Create a request to add the user as an attendee to the calendar event
     createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinEventOrStreamDto.getComment());
 
-    return localizedResponse.of(JoinEventResponse.of(eventId));
+    // Create a new StreamAttendee entry for the user
+    final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
+    // Approve user attendance if event is public
+    streamAttendee.approveUserAttendance();
+    // Add the new StreamAttendee to the event's attendees list and save
+    streamAttendeeRepository.save(streamAttendee);
+    // Get the status label based on the user's join status
+    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    // Return localized response of the join event including status
+    return localizedResponse.of(JoinEventResponse.of(eventId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }
 
   /**
@@ -897,8 +907,10 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // Verify if the attendee is a member of the chat space and send invitation
     checkIfAttendeeIsMemberOfChatSpaceAndSendInvitation(isMemberPartOfChatSpace, stream.getExternalId(), requestToJoinEventOrStreamDto.getComment(), user);
+    // Get the status label based on the user's join status
+    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
 
-    return localizedResponse.of(RequestToJoinEventResponse.of(eventId));
+    return localizedResponse.of(RequestToJoinEventResponse.of(eventId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }
 
   /**
