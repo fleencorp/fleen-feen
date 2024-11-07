@@ -20,7 +20,7 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 public class VerifyEmailIdentityDto {
 
-  @NotNull
+  @NotNull(message = "{emailAddress.NotEmpty}")
   @JsonProperty("email_addresses")
   private List<String> emailAddresses;
 

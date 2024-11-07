@@ -5,7 +5,7 @@ import com.fleencorp.feen.model.dto.event.AddNewEventAttendeeDto;
 import com.fleencorp.feen.model.dto.event.RescheduleCalendarEventDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
-import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
@@ -31,23 +31,23 @@ public class UserEventController {
 
   @GetMapping(value = "/entries")
   public EventSearchResult findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @SearchParam final EventSearchRequest eventSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findMyEvents(searchRequest, user);
+    return eventService.findMyEvents(eventSearchRequest, user);
   }
 
   @GetMapping(value = "/attended-by-me")
   public EventSearchResult findEventsAttendedByUser(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @SearchParam final EventSearchRequest eventSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findEventsAttendedByUser(searchRequest, user);
+    return eventService.findEventsAttendedByUser(eventSearchRequest, user);
   }
 
   @GetMapping(value = "/attended-with-user")
   public EventSearchResult findEventsAttendedWithAnotherUser(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @SearchParam final EventSearchRequest eventSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findEventsAttendedWithAnotherUser(searchRequest, user);
+    return eventService.findEventsAttendedWithAnotherUser(eventSearchRequest, user);
   }
 
   @PutMapping(value = "/cancel/{eventId}")
@@ -65,11 +65,11 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/attendees/request-to-join/{eventId}")
-  public RequestToJoinSearchResult getAttendeesRequestToJoin(
+  public RequestToJoinSearchResult findAttendeesRequestToJoin(
       @PathVariable(name = "eventId") final Long eventId,
       @AuthenticationPrincipal final FleenUser user,
-      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return eventService.getEventAttendeeRequestsToJoinEvent(eventId, searchRequest, user);
+      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
+    return eventService.getEventAttendeeRequestsToJoinEvent(eventId, streamAttendeeSearchRequest, user);
   }
 
   @PutMapping(value = "/process-join-request/{eventId}")
@@ -105,7 +105,7 @@ public class UserEventController {
   }
 
   @GetMapping(value = "/attendees/{eventId}")
-  public StreamAttendeeSearchResult getEventAttendees(
+  public StreamAttendeeSearchResult findEventAttendees(
       @PathVariable(name = "eventId") final Long eventId,
       @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {

@@ -1,10 +1,8 @@
 package com.fleencorp.feen.model.response.auth;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
@@ -25,6 +23,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "email_address",
   "phone_number",
   "authentication_status",
+  "authentication_stage",
   "profile_verification_type"
 })
 public class SignUpResponse extends ApiResponse {
@@ -48,6 +47,10 @@ public class SignUpResponse extends ApiResponse {
   private AuthenticationStatus authenticationStatus;
 
   @JsonFormat(shape = STRING)
+  @JsonProperty("authentication_stage")
+  private AuthenticationStage authenticationStage;
+
+  @JsonFormat(shape = STRING)
   @JsonProperty("verification_type")
   private VerificationType verificationType;
 
@@ -56,14 +59,20 @@ public class SignUpResponse extends ApiResponse {
     return "sign.up";
   }
 
+  @JsonIgnore
+  public String getCompletedSignUpMessageCode() {
+    return "sign.up.completed";
+  }
+
   public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
-      final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
+      final AuthenticationStatus authenticationStatus, final AuthenticationStage authenticationStage, final VerificationType verificationType) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .emailAddress(MaskedEmailAddress.of(emailAddress))
         .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
         .authenticationStatus(authenticationStatus)
+        .authenticationStage(authenticationStage)
         .verificationType(verificationType)
         .build();
   }

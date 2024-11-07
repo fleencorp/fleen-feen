@@ -254,8 +254,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
 
     // Return the sign-up response with necessary details
-    return SignUpResponse
-      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, verificationType);
+    return localizedResponse.of(SignUpResponse
+      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, AuthenticationStage.PRE_VERIFICATION, verificationType));
   }
 
   /**
@@ -318,7 +318,10 @@ public class AuthenticationServiceImpl implements AuthenticationService,
         .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
     profileRequestPublisher.publishMessage(PublishMessageRequest.of(completedUserSignUpRequest));
 
-    return SignUpResponse.of(accessToken, refreshToken);
+    // Create a sign up response after the use completes the process
+    SignUpResponse signUpResponse = SignUpResponse.of(accessToken, refreshToken);
+    // Return a localized response with the details
+    return localizedResponse.of(signUpResponse, signUpResponse.getCompletedSignUpMessageCode());
   }
 
   /**
@@ -472,13 +475,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle sign-in based on user's profile and MFA settings
     if (isProfileInactiveAndUserYetToBeVerified(user)) {
       handleProfileYetToBeVerified(signInResponse, user);
-      return localizedResponse.of(signInResponse);
+      return localizedResponse.of(signInResponse, signInResponse.getPreVerificationMessageCode());
     }
 
     // Handle sign-in based on user's profile with enabled MFA
     if (isMfaEnabledAndMfaTypeSet(user)) {
       handleProfileWithMfaEnabled(signInResponse, user);
-      return localizedResponse.of(signInResponse);
+      return localizedResponse.of(signInResponse, signInResponse.getMfaMessageCode());
     }
 
     // Handle verified profile sign-in
@@ -892,8 +895,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws org.springframework.security.core.AuthenticationException if authentication fails
    */
   public Optional<Authentication> authenticate(final String emailAddress, final String password) {
-    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
-    authenticationToken = authenticationManager.authenticate(authenticationToken);
+      Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
+      authenticationToken = authenticationManager.authenticate(authenticationToken);
     if (nonNull(authenticationToken)) {
       return Optional.of(authenticationToken);
     }

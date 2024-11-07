@@ -23,7 +23,7 @@ import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.calendar.event.*;
-import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
@@ -159,7 +159,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return EventSearchResult The result of the search, including event or stream details and pagination information.
    */
   @Override
-  public EventSearchResult findEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEvents(final EventSearchRequest searchRequest, final FleenUser user) {
     // Find events or streams based on the search request
     final PageAndFleenStreamResponse pageAndFleenStreamResponse = findEventsOrStreams(searchRequest);
     // Get the list of event or stream views from the search result
@@ -189,7 +189,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return a EventSearchResult containing the events matching the search criteria
    */
   @Override
-  public EventSearchResult findEvents(final CalendarEventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
+  public EventSearchResult findEvents(final EventSearchRequest searchRequest, final StreamTimeType streamTimeType) {
     final Page<FleenStream> page;
 
     // Determine the appropriate page of events based on the stream time type
@@ -224,7 +224,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @param searchRequest the search request containing search criteria
    * @return a page of upcoming FleenStream events
    */
-  private Page<FleenStream> getUpcomingEvents(final CalendarEventSearchRequest searchRequest) {
+  private Page<FleenStream> getUpcomingEvents(final EventSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
       return fleenStreamRepository.findUpcomingEventsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getPage());
     }
@@ -240,7 +240,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @param searchRequest the search request containing search criteria
    * @return a page of past FleenStream events
    */
-  private Page<FleenStream> getPastEvents(final CalendarEventSearchRequest searchRequest) {
+  private Page<FleenStream> getPastEvents(final EventSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
       return fleenStreamRepository.findPastEventsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getPage());
     }
@@ -256,7 +256,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @param searchRequest the search request containing search criteria
    * @return a page of live FleenStream events
    */
-  private Page<FleenStream> getLiveEvents(final CalendarEventSearchRequest searchRequest) {
+  private Page<FleenStream> getLiveEvents(final EventSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
       return fleenStreamRepository.findLiveEventsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getPage());
     }
@@ -277,7 +277,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return a EventSearchResult of the search results containing the matching events
    */
   @Override
-  public EventSearchResult findMyEvents(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findMyEvents(final EventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 
@@ -327,7 +327,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return a EventSearchResult containing the events that match the search criteria
    */
   @Override
-  public EventSearchResult findEventsAttendedByUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEventsAttendedByUser(final EventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
 
     if (searchRequest.areAllDatesSet()) {
@@ -369,7 +369,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    * @return a EventSearchResult containing the list of events attended with another user
    */
   @Override
-  public EventSearchResult findEventsAttendedWithAnotherUser(final CalendarEventSearchRequest searchRequest, final FleenUser user) {
+  public EventSearchResult findEventsAttendedWithAnotherUser(final EventSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
 
     if (nonNull(searchRequest.getAnotherUserId())) {

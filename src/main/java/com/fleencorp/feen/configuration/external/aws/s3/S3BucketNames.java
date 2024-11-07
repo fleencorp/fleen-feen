@@ -1,6 +1,7 @@
 package com.fleencorp.feen.configuration.external.aws.s3;
 
 
+import com.fleencorp.feen.constant.file.ObjectTypeUpload;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -30,4 +31,16 @@ public class S3BucketNames {
 
   private String userPhoto;
   private String streamCoverPhoto;
+
+  public String byObjectType(ObjectTypeUpload objectTypeUpload) {
+    switch (objectTypeUpload) {
+      case PROFILE_PHOTO -> {
+        return userPhoto;
+      }
+      case STREAM_COVER_PHOTO -> {
+        return streamCoverPhoto;
+      }
+    }
+    return userPhoto;
+  }
 }

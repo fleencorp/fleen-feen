@@ -4,7 +4,7 @@ import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
-import com.fleencorp.feen.service.impl.external.aws.S3Service;
+import com.fleencorp.feen.service.impl.external.aws.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,15 +25,15 @@ import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class ObjectController {
 
-  private final S3Service s3Service;
+  private final StorageService storageService;
   private final S3BucketNames s3BucketNames;
   private final LocalizedResponse localizedResponse;
 
   public ObjectController(
-      final S3Service s3Service,
+      final StorageService storageService,
       final S3BucketNames s3BucketNames,
       final LocalizedResponse localizedResponse) {
-    this.s3Service = s3Service;
+    this.storageService = storageService;
     this.s3BucketNames = s3BucketNames;
     this.localizedResponse = localizedResponse;
   }
@@ -50,7 +50,7 @@ public class ObjectController {
   public DeleteResponse deleteProfilePhoto(
     @Parameter(description = "Object key for the profile photo", required = true)
       @RequestParam(name = "key") final String key) {
-    s3Service.deleteObjectSilent(s3BucketNames.getUserPhoto(), key);
+    storageService.deleteObjectSilent(s3BucketNames.getUserPhoto(), key);
     return localizedResponse.of(DeleteResponse.of());
   }
 
@@ -66,7 +66,7 @@ public class ObjectController {
   public DeleteResponse deleteStreamCoverPhoto(
     @Parameter(description = "Object key for the stream cover photo or thumbnail", required = true)
       @RequestParam(name = "key") final String key) {
-    s3Service.deleteObjectSilent(s3BucketNames.getStreamCoverPhoto(), key);
+    storageService.deleteObjectSilent(s3BucketNames.getStreamCoverPhoto(), key);
     return localizedResponse.of(DeleteResponse.of());
   }
 
