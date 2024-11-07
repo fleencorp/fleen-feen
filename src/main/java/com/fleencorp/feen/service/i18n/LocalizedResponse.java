@@ -159,6 +159,15 @@ public class LocalizedResponse {
     return null;
   }
 
+  public <T extends ApiResponse> T of(final T response, final String messageCode) {
+    if (nonNull(response) && nonNull(response.getMessageCode())) {
+      final String message = getMessageRes(messageCode, response.getParams());
+      response.setMessage(message);
+      return response;
+    }
+    return null;
+  }
+
   /**
    * Updates the message in the provided {@link FleenFeenResponse} (or any subclass of {@link ApiResponse})
    * with a localized message corresponding to its message key, and optionally replaces placeholders with the specified parameters.

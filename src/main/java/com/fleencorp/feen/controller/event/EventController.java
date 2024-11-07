@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.UpdateCalendarEventDto;
 import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.search.event.EventSearchResult;
@@ -31,14 +31,14 @@ public class EventController {
 
   @GetMapping(value = "/entries")
   public EventSearchResult findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @SearchParam final EventSearchRequest eventSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return eventService.findEvents(searchRequest, user);
+    return eventService.findEvents(eventSearchRequest, user);
   }
 
   @GetMapping(value = "/entries/type")
   public EventSearchResult findEvents(
-      @SearchParam final CalendarEventSearchRequest searchRequest,
+      @SearchParam final EventSearchRequest searchRequest,
       final StreamTimeType streamTimeType) {
     return eventService.findEvents(searchRequest, streamTimeType);
   }
@@ -107,6 +107,5 @@ public class EventController {
       @AuthenticationPrincipal final FleenUser user) {
     return eventService.requestToJoinEvent(eventId, requestToJoinEventOrStreamDto, user);
   }
-
 
 }

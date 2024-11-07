@@ -171,7 +171,7 @@ public class Member extends FleenFeenEntity {
    * @param roles the list of roles to add
    */
   public void addRole(final List<Role> roles) {
-    if ((null != roles) && !roles.isEmpty()) {
+    if ((nonNull(roles)) && !roles.isEmpty()) {
       roles.forEach(this::addRole); // Add each role from the list
     }
   }

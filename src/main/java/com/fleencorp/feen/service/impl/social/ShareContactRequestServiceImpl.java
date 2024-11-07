@@ -169,7 +169,6 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
       // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
       views = getSentShareContactRequests(page.getContent());
     } else {
-      log.info("Got here secondly");
       // Retrieve the share contact request expected and initiated to the user
       page = shareContactRequestRepository.findExpectedRequestsMadeToMember(member, true, searchRequest.getPage());
       // Convert the retrieved ShareContactRequests to ShareContactRequestResponse

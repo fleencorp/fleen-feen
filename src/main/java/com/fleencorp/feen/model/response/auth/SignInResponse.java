@@ -1,10 +1,7 @@
 package com.fleencorp.feen.model.response.auth;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
@@ -67,6 +64,37 @@ public class SignInResponse extends ApiResponse {
   @Override
   public String getMessageCode() {
     return "sign.in";
+  }
+
+  @JsonIgnore
+  public String getPreVerificationMessageCode() {
+    return "sign.in.pre.verification";
+  }
+
+  @JsonIgnore
+  public String getMfaAuthenticatorMessageCode() {
+    return "sign.in.mfa.authenticator";
+  }
+
+  @JsonIgnore
+  public String getMfaEmailOrPhoneMessageCode() {
+    return "sign.in.mfa.email.or.phone";
+  }
+
+  @JsonIgnore
+  public String getMfaMessageCode() {
+    if (MfaType.isAuthenticator(mfaType)) {
+      return getMfaAuthenticatorMessageCode();
+    } else {
+      return getMfaEmailOrPhoneMessageCode();
+    }
+  }
+
+  @Override
+  @JsonIgnore
+  public Object[] getParams() {
+    String verificationType = MfaType.isPhone(mfaType) ? phoneNumber.toString() : emailAddress.toString();
+    return new Object[] { mfaType.name().toLowerCase(), verificationType };
   }
 
   public static SignInResponse of(final String accessToken, final String refreshToken) {

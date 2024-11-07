@@ -1,9 +1,16 @@
 package com.fleencorp.feen.service.impl.external.aws;
 
+import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
+import com.fleencorp.feen.model.dto.aws.CreateSignedUrlDto;
+import com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse;
 import com.fleencorp.feen.service.common.ObjectService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse.SignedUrl;
 import static java.util.Objects.nonNull;
 
 
@@ -19,17 +26,20 @@ import static java.util.Objects.nonNull;
 @Service
 public class ObjectServiceImpl implements ObjectService {
 
-  private final S3Service s3Service;
+  private final StorageService storageService;
+  private final S3BucketNames bucketNames;
 
   /**
    * Constructs an ObjectServiceImpl with the provided S3Service.
    *
-   * @param s3Service The S3Service implementation.
+   * @param storageService The S3Service implementation.
    */
-  public ObjectServiceImpl(final S3Service s3Service) {
-    this.s3Service = s3Service;
+  public ObjectServiceImpl(
+      final StorageService storageService,
+      final S3BucketNames bucketNames) {
+    this.storageService = storageService;
+    this.bucketNames = bucketNames;
   }
-
 
   /**
    * Retrieves the file extension from the given filename.
@@ -40,7 +50,6 @@ public class ObjectServiceImpl implements ObjectService {
    * @param filename the name of the file
    * @return the file extension, or {@code null} if none is found
    */
-  @Override
   public String getFileExtension(final String filename) {
     return StringUtils.getFilenameExtension(filename);
   }
@@ -54,31 +63,46 @@ public class ObjectServiceImpl implements ObjectService {
    * @param filename the name of the file
    * @return the filename without the extension, or the original filename if no extension is found
    */
-  @Override
   public String stripExtension(final String filename) {
     return StringUtils.stripFilenameExtension(filename);
   }
-
 
   /**
    * Generates a random name for a file while preserving its original extension.
    *
    * <p>This method retrieves the file extension using {@link #getFileExtension(String)},
-   * generates a random object key using {@link S3Service#generateObjectKey(String)}, and
+   * generates a random object key using {@link StorageService#generateObjectKey(String)}, and
    * concatenates them to create a new filename with the original extension.</p>
    *
    * @param filename the original filename
    * @return the new filename with a random name and the original extension
    */
-  @Override
   public String generateRandomNameForFile(final String filename) {
     // Get the file extension
     final String fileExt = getFileExtension(filename);
 
     // Generate a random object key and concatenate with the file extension
-    return s3Service
+    return storageService
             .generateObjectKey(stripExtension(filename))
             .concat(".")
             .concat(nonNull(fileExt) ? fileExt.toLowerCase() : "");
+  }
+
+  @Override
+  public SignedUrlsResponse createSignedUrls(CreateSignedUrlDto createSignedUrlDto) {
+    List<String> fileNames = createSignedUrlDto.getAllFileNames();
+    List<SignedUrlsResponse.SignedUrl> signedUrls = new ArrayList<>();
+
+    for (String fileName : fileNames) {
+      final String generatedFileName = generateRandomNameForFile(fileName);
+      final String fileContentType = storageService.detectContentType(generatedFileName);
+      final String bucketName = bucketNames.byObjectType(createSignedUrlDto.getObjectType());
+      final String url = storageService.generateSignedUrl(bucketName, generatedFileName, fileContentType);
+
+      SignedUrl signedUrl = SignedUrl.of(url, generatedFileName, fileContentType, fileContentType);
+      signedUrls.add(signedUrl);
+    }
+
+    return SignedUrlsResponse.of(signedUrls);
   }
 }

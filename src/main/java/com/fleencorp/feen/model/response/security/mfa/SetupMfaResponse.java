@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
+import com.fleencorp.feen.constant.security.mfa.MfaSetupStage;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import lombok.*;
@@ -26,7 +27,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "secret",
   "mfa_enabled",
   "mfa_type",
-  "mfa_setup_status"
+  "mfa_setup_status",
+  "mfa_setup_stage"
 })
 public class SetupMfaResponse extends ApiResponse {
 
@@ -52,6 +54,10 @@ public class SetupMfaResponse extends ApiResponse {
   @JsonProperty("mfa_setup_status")
   private MfaSetupStatus mfaSetupStatus;
 
+  @JsonFormat(shape = STRING)
+  @JsonProperty("mfa_setup_stage")
+  private MfaSetupStage mfaSetupStage;
+
   @Override
   public String getMessageCode() {
     return "setup.mfa";
@@ -63,6 +69,7 @@ public class SetupMfaResponse extends ApiResponse {
       .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
       .mfaSetupStatus(setupStatus)
       .mfaType(mfaType)
+      .mfaSetupStage(MfaSetupStage.by(mfaType))
       .enabled(enabled)
       .build();
   }

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
-import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.*;
 
 import java.util.Set;

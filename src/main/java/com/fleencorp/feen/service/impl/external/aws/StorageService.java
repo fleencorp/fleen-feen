@@ -55,7 +55,7 @@ import static software.amazon.awssdk.services.s3.model.ObjectCannedACL.PUBLIC_RE
  */
 @Component
 @Slf4j
-public class S3Service {
+public class StorageService {
 
   private final S3Client amazonS3;
   private final S3Presigner s3Presigner;
@@ -69,7 +69,7 @@ public class S3Service {
    * @param amazonS3 the Amazon S3 client used for accessing Amazon S3 services
    * @param s3Presigner the S3 presigner used for generating pre-signed URLs
    */
-  public S3Service(
+  public StorageService(
       final S3Client amazonS3,
       final S3Presigner s3Presigner,
       @Qualifier("presignerForRead") final S3Presigner s3PresignerForRead) {
