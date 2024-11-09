@@ -16,6 +16,8 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventService {
 
+  DataForCreateEventResponse getDataForCreateEvent();
+
   EventSearchResult findEvents(EventSearchRequest searchRequest, FleenUser user);
 
   EventSearchResult findMyEvents(EventSearchRequest searchRequest, FleenUser user);

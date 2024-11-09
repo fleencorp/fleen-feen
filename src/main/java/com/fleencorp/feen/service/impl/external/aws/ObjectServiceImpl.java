@@ -88,21 +88,44 @@ public class ObjectServiceImpl implements ObjectService {
             .concat(nonNull(fileExt) ? fileExt.toLowerCase() : "");
   }
 
+  /**
+   * Generates signed URLs for uploading files to cloud storage.
+   *
+   * <p>This method takes a {@link CreateSignedUrlDto} object containing a list of file names,
+   * generates a unique signed URL for each file, and returns a {@link SignedUrlsResponse}
+   * containing the signed URLs and associated file metadata. The generated signed URLs
+   * allow the client to upload files directly to cloud storage with temporary access.</p>
+   *
+   * @param createSignedUrlDto the {@link CreateSignedUrlDto} containing the file names
+   *                           and the object type to determine the bucket for file upload.
+   * @return a {@link SignedUrlsResponse} containing a list of signed URLs, each associated
+   *         with a file name, content type, and the URL to upload the file.
+   */
   @Override
   public SignedUrlsResponse createSignedUrls(CreateSignedUrlDto createSignedUrlDto) {
+    // Retrieve the list of file names from the DTO.
     List<String> fileNames = createSignedUrlDto.getAllFileNames();
+    // Initialize a list to store the generated signed URLs.
     List<SignedUrlsResponse.SignedUrl> signedUrls = new ArrayList<>();
 
+    // Iterate over each file name to generate signed URLs.
     for (String fileName : fileNames) {
+      // Generate a random file name to avoid conflicts.
       final String generatedFileName = generateRandomNameForFile(fileName);
+      // Detect the content type of the file.
       final String fileContentType = storageService.detectContentType(generatedFileName);
+      // Retrieve the bucket name based on the object type in the DTO.
       final String bucketName = bucketNames.byObjectType(createSignedUrlDto.getObjectType());
+      // Generate the signed URL for uploading the file to the cloud storage.
       final String url = storageService.generateSignedUrl(bucketName, generatedFileName, fileContentType);
-
+      // Create a SignedUrl object
       SignedUrl signedUrl = SignedUrl.of(url, generatedFileName, fileContentType, fileContentType);
+      // And add it to the list.
       signedUrls.add(signedUrl);
     }
 
+    // Return the response containing the list of signed URLs.
     return SignedUrlsResponse.of(signedUrls);
   }
+
 }

@@ -15,6 +15,7 @@ import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResul
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import jakarta.validation.Valid;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,12 @@ public class EventController {
 
   public EventController(final EventService eventService) {
     this.eventService = eventService;
+  }
+
+  @GetMapping(value = "/data-create-event")
+  @Cacheable(value = "data-required-to-create-event")
+  public DataForCreateEventResponse getDataCreateEvent() {
+    return eventService.getDataForCreateEvent();
   }
 
   @GetMapping(value = "/entries")

@@ -32,6 +32,17 @@ public class S3BucketNames {
   private String userPhoto;
   private String streamCoverPhoto;
 
+  /**
+   * Returns the corresponding photo URL or path based on the provided {@link ObjectTypeUpload}.
+   *
+   * <p>This method maps the given {@link ObjectTypeUpload} to the appropriate photo type. If the object type
+   * is {@code PROFILE_PHOTO}, it returns the user's profile photo. If the object type is
+   * {@code STREAM_COVER_PHOTO}, it returns the stream's cover photo. If no specific case matches,
+   * it defaults to returning the user's profile photo.</p>
+   *
+   * @param objectTypeUpload the {@link ObjectTypeUpload} specifying the type of object (profile or stream cover photo).
+   * @return the URL or path to the corresponding photo, either the user's profile photo or the stream cover photo.
+   */
   public String byObjectType(ObjectTypeUpload objectTypeUpload) {
     switch (objectTypeUpload) {
       case PROFILE_PHOTO -> {
