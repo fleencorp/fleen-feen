@@ -531,8 +531,7 @@ CREATE TABLE notification (
     'USER_FOLLOWING'
   )),
   notification_status VARCHAR(255) NOT NULL CHECK (notification.notification_status IN ('READ', 'UNREAD')),
-  contact_type VARCHAR(255)
-    NOT NULL CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+  contact_type VARCHAR(255) CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
     'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
   receiver_id BIGINT NOT NULL,
   initiator_or_requester_id BIGINT,
@@ -541,6 +540,7 @@ CREATE TABLE notification (
   recipient_name VARCHAR(1000),
   message_key VARCHAR(1000) NOT NULL,
   other_comment VARCHAR(1000) NOT NULL,
+  is_read BOOLEAN NOT NULL,
   id_or_link_or_url VARCHAR(1000) NOT NULL,
   notification_read_on TIMESTAMP NULL,
   share_contact_request_id BIGINT,

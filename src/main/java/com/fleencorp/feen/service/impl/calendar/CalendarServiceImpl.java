@@ -99,7 +99,7 @@ public class CalendarServiceImpl implements CalendarService {
     // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
     // Return the response object containing both the countries and timezones.
-    return DataForCreateCalendarResponse.of(timezones, countries);
+    return localizedResponse.of(DataForCreateCalendarResponse.of(timezones, countries));
   }
 
   /**

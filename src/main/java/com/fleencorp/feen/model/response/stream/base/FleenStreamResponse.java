@@ -27,6 +27,7 @@ import static java.util.Objects.nonNull;
   "message",
   "title",
   "description",
+  "tags",
   "location",
   "schedule",
   "other_schedule",
@@ -55,6 +56,9 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonProperty("description")
   private String description;
+
+  @JsonProperty("tags")
+  private String tags;
 
   @JsonProperty("location")
   private String location;

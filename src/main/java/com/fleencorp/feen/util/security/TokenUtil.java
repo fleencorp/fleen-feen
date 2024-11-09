@@ -1,7 +1,7 @@
 package com.fleencorp.feen.util.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fleencorp.feen.configuration.security.properties.TokenProperties;
+import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.token.TokenType;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -52,16 +52,16 @@ public class TokenUtil {
   private final ObjectMapper mapper;
   private final String jwtIssuer;
   private final String jwtSecret;
-  private final TokenProperties tokenProperties;
+  private final TokenDurationProperties tokenDurationProperties;
 
   public TokenUtil(
       final ObjectMapper objectMapper,
       @Value("${jwt.issuer}") final String jwtIssuer,
-      @Value("${jwt.secret}") final String jwtSecret, final TokenProperties tokenProperties) {
+      @Value("${jwt.secret}") final String jwtSecret, final TokenDurationProperties tokenDurationProperties) {
     this.mapper = objectMapper;
     this.jwtIssuer = jwtIssuer;
     this.jwtSecret = jwtSecret;
-    this.tokenProperties = tokenProperties;
+    this.tokenDurationProperties = tokenDurationProperties;
   }
 
   /**
@@ -230,7 +230,7 @@ public class TokenUtil {
     setTokenType(claims, tokenType);
     setAuthenticationStatus(claims, authenticationStatus);
 
-    final long tokenExpirationInMilliseconds = durationToMilliseconds(Duration.ofHours(tokenProperties.getAccessToken()));
+    final long tokenExpirationInMilliseconds = durationToMilliseconds(Duration.ofHours(tokenDurationProperties.getAccessToken()));
     return createToken(user.getUsername(), claims, tokenExpirationInMilliseconds);
   }
 
@@ -247,7 +247,7 @@ public class TokenUtil {
    * @return A JWT refresh token as a {@code String}.
    */
   public String generateRefreshToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
-    return generateToken(user, tokenType, authenticationStatus, getRefreshTokenAuthorities(), Duration.ofHours(tokenProperties.getRefreshToken()));
+    return generateToken(user, tokenType, authenticationStatus, getRefreshTokenAuthorities(), Duration.ofHours(tokenDurationProperties.getRefreshToken()));
   }
 
   /**
@@ -263,7 +263,7 @@ public class TokenUtil {
    * @return A JWT reset password token as a {@code String}.
    */
   public String generateResetPasswordToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
-    return generateToken(user, tokenType, authenticationStatus, getResetPasswordAuthorities(), Duration.ofHours(tokenProperties.getResetPasswordToken()));
+    return generateToken(user, tokenType, authenticationStatus, getResetPasswordAuthorities(), Duration.ofHours(tokenDurationProperties.getResetPasswordToken()));
   }
 
   /**

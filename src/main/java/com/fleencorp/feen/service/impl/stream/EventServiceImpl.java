@@ -42,6 +42,7 @@ import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
@@ -70,6 +71,7 @@ import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStat
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toEventResponse;
 import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponses;
+import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
 /**
@@ -118,6 +120,7 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      final CountryService countryService,
       final MiscService miscService,
       final EventUpdateService eventUpdateService,
       final NotificationMessageService notificationMessageService,
@@ -141,6 +144,23 @@ public class EventServiceImpl extends StreamService implements EventService {
     this.userFleenStreamRepository = userFleenStreamRepository;
     this.streamEventPublisher = streamEventPublisher;
     this.localizedResponse = localizedResponse;
+  }
+
+  /**
+   * Retrieves the necessary data required for creating an event, including available timezones.
+   *
+   * <p>This method fetches a set of available timezones and returns it wrapped in a
+   * {@link DataForCreateEventResponse} object. The response is localized based on the current
+   * user's locale, allowing the data to be displayed in a manner suitable for the user's region.</p>
+   *
+   * @return a {@link DataForCreateEventResponse} object containing the available timezones.
+   */
+  @Override
+  public DataForCreateEventResponse getDataForCreateEvent() {
+    // Get the set of available timezones.
+    final Set<String> timezones = getAvailableTimezones();
+    // Return the response object containing both the countries and timezones.
+    return localizedResponse.of(DataForCreateEventResponse.of(timezones));
   }
 
   /**
@@ -903,6 +923,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     fleenStreamRepository.save(stream);
     // Create and save notification
     final Notification notification = notificationMessageService.ofReceived(stream, streamAttendee, stream.getMember(), user.toMember());
+    System.out.println("The notification is: " + notification);
     notificationService.save(notification);
 
     // Verify if the attendee is a member of the chat space and send invitation

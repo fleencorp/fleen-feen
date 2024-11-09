@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySources;
 @PropertySources({
   @PropertySource("classpath:properties/token.properties")
 })
-public class TokenProperties {
+public class TokenDurationProperties {
 
   private Long accessToken;
   private Long refreshToken;

@@ -70,7 +70,7 @@ public class Notification extends FleenFeenEntity {
   private String otherComment;
 
   @Column(name = "id_or_link_or_url", nullable = false, updatable = false)
-  private Object idOrLinkOrUrl;
+  private String idOrLinkOrUrl;
 
   @Column(name = "is_read", nullable = false)
   private Boolean isRead;
@@ -130,7 +130,7 @@ public class Notification extends FleenFeenEntity {
   }
 
   public boolean isOwner(final Long userId) {
-    return receiver.equals(userId);
+    return receiverId.equals(userId);
   }
 
 }
