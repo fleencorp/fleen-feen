@@ -29,12 +29,21 @@ public enum BlockStatus implements ApiParameter {
     this.value = value;
   }
 
-  @Override
-  public String toString() {
-    return name().toLowerCase();
-  }
-
   public static BlockStatus of(final String value) {
     return parseEnumOrNull(value, BlockStatus.class);
+  }
+
+  /**
+   * Checks if the given {@link BlockStatus} represents a blocked state.
+   *
+   * <p>This method compares the provided {@code blockStatus} with the predefined
+   * {@code BLOCKED} status. If the status is equal to {@code BLOCKED}, it returns {@code true},
+   * otherwise, it returns {@code false}.
+   *
+   * @param blockStatus the status to check
+   * @return {@code true} if the status is {@code BLOCKED}, otherwise {@code false}
+   */
+  public static boolean isBlocked(BlockStatus blockStatus) {
+    return blockStatus == BLOCKED;
   }
 }

@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
+import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
@@ -407,8 +408,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     streamAttendee.approveUserAttendance();
     // Add the new StreamAttendee to the event's attendees list and save
     streamAttendeeRepository.save(streamAttendee);
+    // Retrieve the join status based on the stream request to join status
+    final JoinStatus joinStatus = getJoinStatus(streamAttendee.getRequestToJoinStatus());
     // Get the status label based on the user's join status
-    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    final String statusLabel = localizedResponse.of(joinStatus.getMessageCode());
     // Return localized response of the join event including status
     return localizedResponse.of(JoinStreamResponse.of(streamId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }

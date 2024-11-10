@@ -1,9 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.stream.StreamSource;
-import com.fleencorp.feen.constant.stream.StreamStatus;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
@@ -572,8 +569,10 @@ public class StreamService {
           final Optional<StreamAttendeeRequestToJoinStatus> existingStatus = Optional.ofNullable(attendanceStatusMap.get(stream.getNumberId()));
           // If member is an attendee, retrieve the status and set view label
           existingStatus.ifPresent(status -> {
+            // Retrieve the join status based on the stream request to join status
+            final JoinStatus joinStatus = getJoinStatus(status);
             // Get the status label based on the user's join status
-            final String statusLabel = getJoinStatus(status);
+            final String statusLabel = localizedResponse.of(joinStatus.getMessageCode());
             // Get the user's request to join status based on the stream
             stream.setRequestToJoinStatus(status);
             // Set the join status for the chatSpace

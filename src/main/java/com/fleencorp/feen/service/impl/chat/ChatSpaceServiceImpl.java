@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.chat;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
+import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.*;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
@@ -1576,8 +1577,12 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
           // If a membership status exists, set the join status on the response
           existingStatus.ifPresent(status -> {
+            // Retrieve the join status based on the chat space request to join status
+            final JoinStatus joinStatus = getJoinStatus(status);
             // Get the status label based on the user's join status
-            final String statusLabel = getJoinStatus(status);
+            final String statusLabel = localizedResponse.of(joinStatus.getMessageCode());
+            // Get the user's request to join status based on the chat space
+            chatSpace.setRequestToJoinStatus(status);
             // Set the join status for the chatSpace
             chatSpace.setJoinStatus(statusLabel);
           });

@@ -114,6 +114,7 @@ public class BlockUserServiceImpl implements BlockUserService {
    */
   @Override
   public BlockUserStatusResponse blockOrUnblockUser(final BlockUserDto blockUserDto, final FleenUser user) {
+    // Validate the member or authenticated user details
     memberRepository.findById(user.getId())
       .orElseThrow(FailedOperationException::new);
 
@@ -130,7 +131,7 @@ public class BlockUserServiceImpl implements BlockUserService {
 
     // Save the BlockUser entity to the repository
     blockUserRepository.save(blockUser);
-    final BlockUserStatusResponse blockUserStatusResponse = BlockUserStatusResponse.of(blockStatus);
-    return localizedResponse.of(blockUserStatusResponse, blockUserStatusResponse.getParams());
+    // Returned the localized response of the blocked user
+    return localizedResponse.of(BlockUserStatusResponse.of(blockStatus));
   }
 }

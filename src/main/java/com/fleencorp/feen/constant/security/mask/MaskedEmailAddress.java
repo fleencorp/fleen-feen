@@ -25,13 +25,18 @@ public enum MaskedEmailAddress implements ApiParameter {
   /**
    * Instance representing an email address.
    */
-  EMAIL("Email");
+  EMAIL("Email", "");
 
   @Setter
   private String value;
+  @Setter
+  private String rawValue;
 
-  MaskedEmailAddress(final String value) {
+  MaskedEmailAddress(
+      final String value,
+      final String rawValue) {
     this.value = value;
+    this.rawValue = rawValue;
   }
 
   /**
@@ -58,6 +63,7 @@ public enum MaskedEmailAddress implements ApiParameter {
   public static MaskedEmailAddress of(final String value) {
     final MaskedEmailAddress emailAddress = MaskedEmailAddress.EMAIL;
     emailAddress.setValue(maskEmail(value));
+    emailAddress.setRawValue(value);
     return emailAddress;
   }
 

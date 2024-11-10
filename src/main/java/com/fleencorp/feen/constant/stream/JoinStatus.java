@@ -16,15 +16,19 @@ import lombok.Getter;
 @Getter
 public enum JoinStatus implements ApiParameter {
 
-  DISAPPROVED("Disapproved"),
-  JOINED("Joined"),
-  NOT_JOINED("Join"),
-  PENDING("Pending");
+  DISAPPROVED("Disapproved", "join.status.disapproved"),
+  JOINED("Joined", "join.status.joined"),
+  NOT_JOINED("Join", "join.status.not.joined"),
+  PENDING("Pending", "join.status.pending");
 
   private final String value;
+  private final String messageCode;
 
-  JoinStatus(final String value) {
+  JoinStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   /**
@@ -37,11 +41,11 @@ public enum JoinStatus implements ApiParameter {
    * @param joinStatus the status of a stream attendee request to join.
    * @return the string representation of the join status, or {@code null} if the status is not recognized.
    */
-  public static String getJoinStatus(final StreamAttendeeRequestToJoinStatus joinStatus) {
+  public static JoinStatus getJoinStatus(final StreamAttendeeRequestToJoinStatus joinStatus) {
     return switch (joinStatus) {
-      case PENDING -> PENDING.getValue();
-      case APPROVED -> JOINED.getValue();
-      case DISAPPROVED -> DISAPPROVED.getValue();
+      case PENDING -> PENDING;
+      case APPROVED -> JOINED;
+      case DISAPPROVED -> DISAPPROVED;
     };
   }
 
@@ -55,11 +59,11 @@ public enum JoinStatus implements ApiParameter {
    * @param joinStatus the {@link ChatSpaceRequestToJoinStatus} to get the status label for
    * @return the corresponding status string for the given join status
    */
-  public static String getJoinStatus(final ChatSpaceRequestToJoinStatus joinStatus) {
+  public static JoinStatus getJoinStatus(final ChatSpaceRequestToJoinStatus joinStatus) {
     return switch (joinStatus) {
-      case PENDING -> PENDING.getValue();
-      case APPROVED -> JOINED.getValue();
-      case DISAPPROVED -> DISAPPROVED.getValue();
+      case PENDING -> PENDING;
+      case APPROVED -> JOINED;
+      case DISAPPROVED -> DISAPPROVED;
     };
   }
 
