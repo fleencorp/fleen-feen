@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -851,8 +852,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     streamAttendee.approveUserAttendance();
     // Add the new StreamAttendee to the event's attendees list and save
     streamAttendeeRepository.save(streamAttendee);
+    // Retrieve the join status based on the user request to join status
+    final JoinStatus joinStatus = getJoinStatus(streamAttendee.getRequestToJoinStatus());
     // Get the status label based on the user's join status
-    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    final String statusLabel = localizedResponse.of(joinStatus.getMessageCode());
     // Return localized response of the join event including status
     return localizedResponse.of(JoinEventResponse.of(eventId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }
@@ -928,8 +931,10 @@ public class EventServiceImpl extends StreamService implements EventService {
 
     // Verify if the attendee is a member of the chat space and send invitation
     checkIfAttendeeIsMemberOfChatSpaceAndSendInvitation(isMemberPartOfChatSpace, stream.getExternalId(), requestToJoinEventOrStreamDto.getComment(), user);
+    // Retrieve the join status based on the user request to join status
+    final JoinStatus joinStatus = getJoinStatus(streamAttendee.getRequestToJoinStatus());
     // Get the status label based on the user's join status
-    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    final String statusLabel = localizedResponse.of(joinStatus.getMessageCode());
 
     return localizedResponse.of(RequestToJoinEventResponse.of(eventId, streamAttendee.getRequestToJoinStatus(), statusLabel));
   }

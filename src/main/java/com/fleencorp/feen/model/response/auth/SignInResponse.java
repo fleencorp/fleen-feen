@@ -78,7 +78,9 @@ public class SignInResponse extends ApiResponse {
 
   @JsonIgnore
   public String getMfaEmailOrPhoneMessageCode() {
-    return "sign.in.mfa.email.or.phone";
+    return MfaType.isEmail(mfaType)
+      ? "sign.in.mfa.email"
+      : "sign.in.mfa.phone";
   }
 
   @JsonIgnore
@@ -94,7 +96,7 @@ public class SignInResponse extends ApiResponse {
   @JsonIgnore
   public Object[] getParams() {
     String verificationType = MfaType.isPhone(mfaType) ? phoneNumber.toString() : emailAddress.toString();
-    return new Object[] { mfaType.name().toLowerCase(), verificationType };
+    return new Object[] { verificationType };
   }
 
   public static SignInResponse of(final String accessToken, final String refreshToken) {

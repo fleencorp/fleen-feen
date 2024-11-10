@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.response.chat.space.base;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.constant.stream.JoinStatus;
@@ -32,6 +33,8 @@ import static java.util.Objects.nonNull;
   "total_request_to_join",
   "visibility",
   "organizer",
+  "request_to_join_status",
+  "join_status",
   "created_on",
   "updated_on"
 })
@@ -73,6 +76,10 @@ public class ChatSpaceResponse extends FleenFeenResponse {
   @JsonProperty("organizer")
   private Organizer organizer;
 
+  @JsonFormat(shape = STRING)
+  @JsonProperty("request_to_join_status")
+  private ChatSpaceRequestToJoinStatus requestToJoinStatus;
+
   @Builder.Default
   @JsonProperty("join_status")
   private String joinStatus = JoinStatus.NOT_JOINED.getValue();
@@ -94,9 +101,7 @@ public class ChatSpaceResponse extends FleenFeenResponse {
    */
   public void disableAndResetUnmaskedLinkIfNotApproved() {
     if (nonNull(joinStatus) && JoinStatus.isNotApproved(joinStatus)) {
-      log.info("The ID is {} and the status is {}", id, joinStatus);
       spaceLinkUnMasked = null;
-      log.info("The ID is {} and the status is {} after", id, joinStatus);
     }
   }
 }

@@ -56,7 +56,9 @@ public class SignUpResponse extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "sign.up";
+    return VerificationType.isEmail(verificationType)
+      ? "sign.up.email"
+      : "sign.up.phone";
   }
 
   @JsonIgnore
@@ -64,8 +66,15 @@ public class SignUpResponse extends ApiResponse {
     return "sign.up.completed";
   }
 
+  @Override
+  public Object[] getParams() {
+    return VerificationType.isEmail(verificationType)
+      ? new Object[]{ emailAddress.getRawValue() }
+      : new Object[]{ phoneNumber.getRawValue() };
+  }
+
   public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
-      final AuthenticationStatus authenticationStatus, final AuthenticationStage authenticationStage, final VerificationType verificationType) {
+                                  final AuthenticationStatus authenticationStatus, final AuthenticationStage authenticationStage, final VerificationType verificationType) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
