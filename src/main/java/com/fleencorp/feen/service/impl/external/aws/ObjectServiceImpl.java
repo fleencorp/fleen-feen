@@ -102,14 +102,14 @@ public class ObjectServiceImpl implements ObjectService {
    *         with a file name, content type, and the URL to upload the file.
    */
   @Override
-  public SignedUrlsResponse createSignedUrls(CreateSignedUrlDto createSignedUrlDto) {
+  public SignedUrlsResponse createSignedUrls(final CreateSignedUrlDto createSignedUrlDto) {
     // Retrieve the list of file names from the DTO.
-    List<String> fileNames = createSignedUrlDto.getAllFileNames();
+    final List<String> fileNames = createSignedUrlDto.getAllFileNames();
     // Initialize a list to store the generated signed URLs.
-    List<SignedUrlsResponse.SignedUrl> signedUrls = new ArrayList<>();
+    final List<SignedUrlsResponse.SignedUrl> signedUrls = new ArrayList<>();
 
     // Iterate over each file name to generate signed URLs.
-    for (String fileName : fileNames) {
+    for (final String fileName : fileNames) {
       // Generate a random file name to avoid conflicts.
       final String generatedFileName = generateRandomNameForFile(fileName);
       // Detect the content type of the file.
@@ -119,7 +119,7 @@ public class ObjectServiceImpl implements ObjectService {
       // Generate the signed URL for uploading the file to the cloud storage.
       final String url = storageService.generateSignedUrl(bucketName, generatedFileName, fileContentType);
       // Create a SignedUrl object
-      SignedUrl signedUrl = SignedUrl.of(url, generatedFileName, fileContentType, fileContentType);
+      final SignedUrl signedUrl = SignedUrl.of(url, generatedFileName, fileContentType, fileContentType);
       // And add it to the list.
       signedUrls.add(signedUrl);
     }

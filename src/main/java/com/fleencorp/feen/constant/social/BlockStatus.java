@@ -43,7 +43,7 @@ public enum BlockStatus implements ApiParameter {
    * @param blockStatus the status to check
    * @return {@code true} if the status is {@code BLOCKED}, otherwise {@code false}
    */
-  public static boolean isBlocked(BlockStatus blockStatus) {
+  public static boolean isBlocked(final BlockStatus blockStatus) {
     return blockStatus == BLOCKED;
   }
 }

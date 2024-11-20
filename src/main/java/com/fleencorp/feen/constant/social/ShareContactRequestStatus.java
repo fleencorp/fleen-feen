@@ -14,15 +14,22 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ShareContactRequestStatus implements ApiParameter {
 
-  CANCELED("Canceled"),
-  ACCEPTED("Confirmed"),
-  REJECTED("Rejected"),
-  SENT("Sent");
+  ACCEPTED("Confirmed", "share.contact.request.status.accepted", "share.contact.request.status.accepted.2"),
+  CANCELED("Canceled", "share.contact.request.status.canceled", "share.contact.request.status.canceled.2"),
+  REJECTED("Rejected", "share.contact.request.status.rejected", "share.contact.request.status.rejected.2"),
+  SENT("Sent", "share.contact.request.status.sent", "share.contact.request.status.sent.2");
 
   private final String value;
+  private final String messageCode;
+  private final String messageCode2;
 
-  ShareContactRequestStatus(final String value) {
+  ShareContactRequestStatus(
+      final String value,
+      final String messageCode,
+      final String messageCode2) {
     this.value = value;
+    this.messageCode = messageCode;
+    this.messageCode2 = messageCode2;
   }
 
   public static ShareContactRequestStatus of(final String value) {

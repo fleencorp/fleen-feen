@@ -1,13 +1,18 @@
 package com.fleencorp.feen.model.response.chat.space.base;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.constant.stream.JoinStatus;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import lombok.*;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,10 +36,10 @@ import static java.util.Objects.nonNull;
   "is_active",
   "total_members",
   "total_request_to_join",
-  "visibility",
+  "visibility_info",
   "organizer",
-  "request_to_join_status",
-  "join_status",
+  "request_to_join_status_info",
+  "join_status_info",
   "created_on",
   "updated_on"
 })
@@ -69,20 +74,22 @@ public class ChatSpaceResponse extends FleenFeenResponse {
   @JsonProperty("total_request_to_join")
   private Long totalRequestToJoin;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("visibility")
-  private ChatSpaceVisibility visibility;
+  @JsonProperty("visibility_info")
+  private ChatSpaceVisibilityInfo visibilityInfo;
 
   @JsonProperty("organizer")
   private Organizer organizer;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("request_to_join_status")
-  private ChatSpaceRequestToJoinStatus requestToJoinStatus;
+  @JsonProperty("request_to_join_status_info")
+  private ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo;
 
-  @Builder.Default
-  @JsonProperty("join_status")
-  private String joinStatus = JoinStatus.NOT_JOINED.getValue();
+  @JsonProperty("join_status_info")
+  private JoinStatusInfo joinStatusInfo;
+
+  @JsonProperty("is_private")
+  public boolean isPrivate() {
+    return ChatSpaceVisibility.isPrivate(visibilityInfo.getVisibility());
+  }
 
   @JsonProperty("space_link_unmasked")
   public String getSpaceLinkUnmasked() {
@@ -100,7 +107,7 @@ public class ChatSpaceResponse extends FleenFeenResponse {
    * <p>This operation ensures that users without approval cannot access unmasked space links.</p>
    */
   public void disableAndResetUnmaskedLinkIfNotApproved() {
-    if (nonNull(joinStatus) && JoinStatus.isNotApproved(joinStatus)) {
+    if (nonNull(joinStatusInfo.getJoinStatus()) && JoinStatus.isNotApproved(joinStatusInfo.getJoinStatus())) {
       spaceLinkUnMasked = null;
     }
   }

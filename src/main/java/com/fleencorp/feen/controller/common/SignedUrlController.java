@@ -39,7 +39,7 @@ public class SignedUrlController {
     content = { @Content(schema = @Schema(implementation = FleenException.class))
   })
   @GetMapping("/stream-cover-photo-thumbnail")
-  public SignedUrlsResponse forStreamCoverPhotoOrThumbnail(@Valid @RequestBody CreateSignedUrlDto createSignedUrlDto) {
+  public SignedUrlsResponse forStreamCoverPhotoOrThumbnail(@Valid @RequestBody final CreateSignedUrlDto createSignedUrlDto) {
     createSignedUrlDto.streamCoverPhoto();
     return objectService.createSignedUrls(createSignedUrlDto);
   }
@@ -53,7 +53,7 @@ public class SignedUrlController {
     content = { @Content(schema = @Schema(implementation = FleenException.class))
   })
   @GetMapping("/profile-photo")
-  public SignedUrlsResponse forProfilePhoto(@Valid @RequestBody CreateSignedUrlDto createSignedUrlDto) {
+  public SignedUrlsResponse forProfilePhoto(@Valid @RequestBody final CreateSignedUrlDto createSignedUrlDto) {
     createSignedUrlDto.profilePhoto();
     return objectService.createSignedUrls(createSignedUrlDto);
   }

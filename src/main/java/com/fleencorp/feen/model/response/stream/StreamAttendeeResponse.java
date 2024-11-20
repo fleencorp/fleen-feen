@@ -1,13 +1,11 @@
 package com.fleencorp.feen.model.response.stream;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import lombok.*;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Builder
 @Getter
@@ -19,7 +17,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "attendee_id",
   "attendee_user_id",
   "full_name",
-  "join_status"
+  "request_to_join_status_info",
+  "join_status_info"
 })
 public class StreamAttendeeResponse {
 
@@ -29,9 +28,11 @@ public class StreamAttendeeResponse {
   @JsonProperty("full_name")
   private String fullName;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("request_to_join_status")
-  private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
+  @JsonProperty("request_to_join_status_info")
+  private StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo;
+
+  @JsonProperty("join_status_info")
+  private JoinStatusInfo joinStatusInfo;
 
   @JsonProperty("attendee_user_id")
   private Long attendeeUserId;
@@ -44,9 +45,11 @@ public class StreamAttendeeResponse {
         .build();
   }
 
-  public static StreamAttendeeResponse of(final Long attendeeId, final Long attendeeUserId, final String fullName, final StreamAttendeeRequestToJoinStatus joinStatus) {
-    final StreamAttendeeResponse streamAttendee = of(attendeeId, attendeeUserId, fullName);
-    streamAttendee.setRequestToJoinStatus(joinStatus);
+  public static StreamAttendeeResponse of(final Long attendeeId, final Long attendeeMemberId, final String fullName,
+      final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo, final JoinStatusInfo joinStatusInfo) {
+    final StreamAttendeeResponse streamAttendee = of(attendeeId, attendeeMemberId, fullName);
+    streamAttendee.setRequestToJoinStatusInfo(requestToJoinStatusInfo);
+    streamAttendee.setJoinStatusInfo(joinStatusInfo);
     return streamAttendee;
   }
 }

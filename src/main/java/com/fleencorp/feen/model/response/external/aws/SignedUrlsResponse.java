@@ -21,7 +21,7 @@ public class SignedUrlsResponse {
   @JsonProperty("signed_urls")
   private List<SignedUrl> signedUrls;
 
-  public static SignedUrlsResponse of(List<SignedUrl> signedUrls) {
+  public static SignedUrlsResponse of(final List<SignedUrl> signedUrls) {
     return new SignedUrlsResponse(signedUrls);
   }
 
@@ -50,7 +50,7 @@ public class SignedUrlsResponse {
     @JsonProperty("content_type")
     private String contentType;
 
-    public static SignedUrl of(String url, String fileName, String generatedFileName, String contentType) {
+    public static SignedUrl of(final String url, final String fileName, final String generatedFileName, final String contentType) {
       return new SignedUrl(url, fileName, generatedFileName, contentType);
     }
   }

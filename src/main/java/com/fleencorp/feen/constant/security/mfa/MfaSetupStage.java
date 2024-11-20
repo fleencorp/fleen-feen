@@ -39,7 +39,7 @@ public enum MfaSetupStage implements ApiParameter {
    * @return the corresponding {@link MfaSetupStage}, either {@code AUTHENTICATOR_VERIFICATION}
    *         or {@code EMAIL_PHONE_VERIFICATION}, based on the provided MFA type.
    */
-  public static MfaSetupStage by(MfaType type) {
+  public static MfaSetupStage by(final MfaType type) {
     return MfaType.isAuthenticator(type)
       ? AUTHENTICATOR_VERIFICATION
       : EMAIL_PHONE_VERIFICATION;

@@ -12,13 +12,17 @@ import lombok.Getter;
 @Getter
 public enum StreamCreationType implements ApiParameter {
 
-  INSTANT("Instant"),
-  SCHEDULED("Scheduled");
+  INSTANT("Instant", "stream.creation.type.instant"),
+  SCHEDULED("Scheduled", "stream.creation.type.scheduled");
 
   private final String value;
+  private final String messageCode;
 
-  StreamCreationType(final String value) {
+  StreamCreationType(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
 }

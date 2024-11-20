@@ -11,7 +11,7 @@ public class UsernameNotFoundException extends FleenException {
     return "username.not.found";
   }
 
-  public UsernameNotFoundException(Object...params) {
+  public UsernameNotFoundException(final Object...params) {
     super(params);
   }
 

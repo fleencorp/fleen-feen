@@ -185,6 +185,7 @@ public class RestExceptionHandler {
    */
   @ExceptionHandler(value = {
     AlreadyRequestedToJoinStreamException.class,
+    AlreadyApprovedRequestToJoinException.class,
     AlreadyJoinedChatSpaceException.class,
     CalendarAlreadyActiveException.class,
     CalendarAlreadyExistException.class,
