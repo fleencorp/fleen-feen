@@ -21,7 +21,7 @@ public interface LiveBroadcastService {
 
   LiveBroadcastSearchResult findLiveBroadcasts(LiveBroadcastSearchRequest searchRequest, FleenUser user);
 
-  RetrieveStreamResponse retrieveStream(Long streamId);
+  RetrieveStreamResponse retrieveStream(Long streamId, FleenUser user);
 
   CreateStreamResponse createLiveBroadcast(CreateLiveBroadcastDto createLiveBroadcastDto, FleenUser user);
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import lombok.*;
 
@@ -16,12 +17,16 @@ import lombok.*;
 @JsonPropertyOrder({
   "message",
   "event_id",
+  "request_to_join_status_info",
   "event"
 })
 public class ProcessAttendeeRequestToJoinEventResponse extends ApiResponse {
 
   @JsonProperty("event_id")
   private Long eventId;
+
+  @JsonProperty("request_to_join_status_info")
+  private StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo;
 
   @JsonProperty("event")
   private FleenStreamResponse event;

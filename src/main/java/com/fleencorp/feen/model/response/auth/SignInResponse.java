@@ -8,12 +8,15 @@ import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+import static java.util.Objects.nonNull;
 
 @Builder
 @Getter
@@ -27,8 +30,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "phone_number",
   "authentication_status",
   "authentication_stage",
-  "mfa_type",
-  "mfa_enabled"
+  "mfa_type_info",
+  "is_mfa_enabled_info"
 })
 public class SignInResponse extends ApiResponse {
 
@@ -54,12 +57,16 @@ public class SignInResponse extends ApiResponse {
   @JsonProperty("authentication_stage")
   private AuthenticationStage authenticationStage;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("mfa_type")
-  private MfaType mfaType;
+  @JsonProperty("mfa_type_info")
+  private MfaTypeInfo mfaTypeInfo;
 
-  @JsonProperty("mfa_enabled")
-  private Boolean mfaEnabled;
+  @JsonProperty("is_mfa_enabled_info")
+  private IsMfaEnabledInfo isMfaEnabledInfo;
+
+  @JsonIgnore
+  public MfaType getMfaType() {
+    return nonNull(mfaTypeInfo) ? mfaTypeInfo.getMfaType() : null;
+  }
 
   @Override
   public String getMessageCode() {
@@ -78,14 +85,14 @@ public class SignInResponse extends ApiResponse {
 
   @JsonIgnore
   public String getMfaEmailOrPhoneMessageCode() {
-    return MfaType.isEmail(mfaType)
+    return MfaType.isEmail(getMfaType())
       ? "sign.in.mfa.email"
       : "sign.in.mfa.phone";
   }
 
   @JsonIgnore
   public String getMfaMessageCode() {
-    if (MfaType.isAuthenticator(mfaType)) {
+    if (MfaType.isAuthenticator(getMfaType())) {
       return getMfaAuthenticatorMessageCode();
     } else {
       return getMfaEmailOrPhoneMessageCode();
@@ -95,29 +102,8 @@ public class SignInResponse extends ApiResponse {
   @Override
   @JsonIgnore
   public Object[] getParams() {
-    String verificationType = MfaType.isPhone(mfaType) ? phoneNumber.toString() : emailAddress.toString();
+    final String verificationType = MfaType.isPhone(getMfaType()) ? phoneNumber.toString() : emailAddress.toString();
     return new Object[] { verificationType };
-  }
-
-  public static SignInResponse of(final String accessToken, final String refreshToken) {
-    return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
-  }
-
-  public static SignInResponse of(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
-    return SignInResponse.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .authenticationStatus(authenticationStatus)
-        .build();
-  }
-
-  public static SignInResponse createDefault(final String emailAddress) {
-    return SignInResponse.builder()
-        .emailAddress(MaskedEmailAddress.of(emailAddress))
-        .authenticationStatus(AuthenticationStatus.IN_PROGRESS)
-        .authenticationStage(AuthenticationStage.NONE)
-        .mfaEnabled(false)
-        .build();
   }
 
   /**
@@ -149,6 +135,26 @@ public class SignInResponse extends ApiResponse {
   public void updateEmailAndPhone(final String emailAddress, final String phoneNumber) {
     this.emailAddress = MaskedEmailAddress.of(emailAddress);
     this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
+  }
+
+  public static SignInResponse of(final String accessToken, final String refreshToken) {
+    return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
+  }
+
+  public static SignInResponse of(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
+    return SignInResponse.builder()
+      .accessToken(accessToken)
+      .refreshToken(refreshToken)
+      .authenticationStatus(authenticationStatus)
+      .build();
+  }
+
+  public static SignInResponse createDefault(final String emailAddress) {
+    return SignInResponse.builder()
+      .emailAddress(MaskedEmailAddress.of(emailAddress))
+      .authenticationStatus(AuthenticationStatus.IN_PROGRESS)
+      .authenticationStage(AuthenticationStage.NONE)
+      .build();
   }
 
 }

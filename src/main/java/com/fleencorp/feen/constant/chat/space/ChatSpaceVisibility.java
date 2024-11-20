@@ -17,13 +17,17 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ChatSpaceVisibility implements ApiParameter {
 
-  PUBLIC("public"),
-  PRIVATE("private");
+  PRIVATE("private", "chat.space.visibility.private"),
+  PUBLIC("public", "chat.space.visibility.public");
 
   private final String value;
+  private final String messageCode;
 
-  ChatSpaceVisibility(final String value) {
+  ChatSpaceVisibility(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   /**
@@ -45,6 +49,16 @@ public enum ChatSpaceVisibility implements ApiParameter {
    */
   public static boolean isPrivate(final ChatSpaceVisibility visibility) {
     return visibility == PRIVATE;
+  }
+
+  /**
+   * Checks if the specified chat space visibility is public.
+   *
+   * @param visibility the visibility status of the chat space
+   * @return true if private, false otherwise
+   */
+  public static boolean isPublic(final ChatSpaceVisibility visibility) {
+    return visibility == PUBLIC;
   }
 
 }

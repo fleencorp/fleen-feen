@@ -80,4 +80,8 @@ public class ShareContactRequest extends FleenFeenEntity {
   public boolean isRejected() {
     return ShareContactRequestStatus.isAcceptedOrRejected(requestStatus);
   }
+
+  public void cancel() {
+    requestStatus = ShareContactRequestStatus.CANCELED;
+  }
 }

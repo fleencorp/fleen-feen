@@ -17,13 +17,17 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum VerificationType implements ApiParameter {
 
-  PHONE("PHONE"),
-  EMAIL("Email");
+  EMAIL("Email", "verification.type.email"),
+  PHONE("PHONE", "verification.type.phone");
 
   private final String value;
+  private final String messageCode;
 
-  VerificationType(final String value) {
+  VerificationType(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static VerificationType of(final String value) {

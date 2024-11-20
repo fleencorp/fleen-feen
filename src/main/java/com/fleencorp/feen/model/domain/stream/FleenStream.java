@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
+import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
@@ -131,6 +132,10 @@ public class FleenStream extends FleenFeenEntity {
   @Builder.Default
   @Column(name = "total_attendees", nullable = false)
   private Long totalAttendees = 0L;
+
+  public boolean isForKids() {
+    return nonNull(forKids);
+  }
 
   /**
    * Retrieves the stream ID.
@@ -326,6 +331,49 @@ public class FleenStream extends FleenFeenEntity {
    */
   public void decreaseTotalAttendees() {
     totalAttendees--;
+  }
+
+  /**
+   * Gets the stream schedule based on the current time.
+   *
+   * @return The stream time type (UPCOMING, LIVE, or PAST) based on the current time.
+   */
+  public StreamTimeType getStreamSchedule() {
+    // Return the stream schedule based on the current time
+    return getStreamSchedule(LocalDateTime.now());
+  }
+
+  /**
+   * Gets the stream schedule based on the given time.
+   *
+   * @param currentTime The time to check against the scheduled start date.
+   * @return The stream time type (UPCOMING, LIVE, or PAST) based on the current time.
+   */
+  public StreamTimeType getStreamSchedule(final LocalDateTime currentTime) {
+    // Check if the current time is before the scheduled start date
+    if (currentTime.isBefore(scheduledStartDate)) {
+      return StreamTimeType.UPCOMING;
+    }
+    // Check if the current time is after the scheduled start date
+    else if (currentTime.isAfter(scheduledStartDate)) {
+      return StreamTimeType.PAST;
+    }
+    // If current time equals the scheduled start time
+    else {
+      return StreamTimeType.LIVE;
+    }
+  }
+
+  /**
+   * Gets the masked stream link URI.
+   *
+   * @return The masked stream link URI if the stream link is not null, otherwise null.
+   */
+  public MaskedStreamLinkUri getMaskedStreamLink() {
+    // Return masked stream link if streamLink is not null
+    return nonNull(streamLink)
+      ? MaskedStreamLinkUri.of(streamLink, streamSource) // Create and return masked stream link URI
+      : null; // Return null if streamLink is null
   }
 
   public static FleenStream of(final Long streamId) {

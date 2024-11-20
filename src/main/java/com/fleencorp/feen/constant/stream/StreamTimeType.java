@@ -12,14 +12,18 @@ import lombok.Getter;
 @Getter
 public enum StreamTimeType implements ApiParameter {
 
-  LIVE("Live"),
-  PAST("Past"),
-  UPCOMING("Upcoming");
+  LIVE("Live", "stream.time.type.live"),
+  PAST("Past", "stream.time.type.past"),
+  UPCOMING("Upcoming", "stream.time.type.upcoming");
 
   private final String value;
+  private final String messageCode;
 
-  StreamTimeType(final String value) {
+  StreamTimeType(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   /**

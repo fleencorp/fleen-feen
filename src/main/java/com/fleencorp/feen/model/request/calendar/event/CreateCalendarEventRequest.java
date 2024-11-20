@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static com.fleencorp.feen.constant.external.google.calendar.event.EventMetaDataKeys.TAGS;
 import static com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Builder
@@ -84,6 +85,21 @@ public class CreateCalendarEventRequest {
   }
 
   /**
+   * Adds an attendee or guest to the list of email addresses.
+   * Initializes the list if it is null.
+   */
+  public void addAttendeeOrGuest(final EventAttendeeOrGuest eventAttendeeOrGuest) {
+    // Check if the list of attendee or guest email addresses is null
+    if (isNull(attendeeOrGuestEmailAddresses)) {
+      // Initialize the list if it is null
+      this.attendeeOrGuestEmailAddresses = new ArrayList<>();
+    }
+
+    // Add the provided eventAttendeeOrGuest to the list of email addresses
+    attendeeOrGuestEmailAddresses.add(eventAttendeeOrGuest);
+  }
+
+  /**
    * Updates the properties of the provided {@link CreateCalendarEventRequest} object with the specified
    * calendar details. This method sets the calendar ID or name, the creator's email, and the organizer's
    * email for the event request, allowing these details to be updated before processing the event creation.
@@ -122,11 +138,9 @@ public class CreateCalendarEventRequest {
    * @return the corresponding YouTube visibility value
    */
   public static String getVisibility(final String visibility) {
-    if (nonNull(visibility) &&
-        (visibility.equalsIgnoreCase(StreamVisibility.PRIVATE.getValue()) ||
-         visibility.equalsIgnoreCase(StreamVisibility.PROTECTED.getValue()))) {
+    if (StreamVisibility.isPrivateOrProtected(visibility)) {
       return StreamVisibility.PRIVATE.getValue();
-    } else if (StreamVisibility.PUBLIC.getValue().equals(visibility)) {
+    } else if (StreamVisibility.isPublic(visibility)) {
       return visibility;
     }
     return StreamVisibility.PUBLIC.getValue();

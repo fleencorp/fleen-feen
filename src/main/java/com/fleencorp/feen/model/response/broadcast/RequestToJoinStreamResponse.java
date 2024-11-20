@@ -1,14 +1,12 @@
 package com.fleencorp.feen.model.response.broadcast;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import lombok.*;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Builder
 @Getter
@@ -19,31 +17,30 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @JsonPropertyOrder({
   "message",
   "stream_id",
-  "request_to_join_status",
-  "join_status"
+  "request_to_join_status_info",
+  "join_status_info"
 })
 public class RequestToJoinStreamResponse extends ApiResponse {
 
   @JsonProperty("stream_id")
   private Long streamId;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("request_to_join_status")
-  private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
+  @JsonProperty("request_to_join_status_info")
+  private StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo;
 
-  @JsonProperty("join_status")
-  private String joinStatus;
+  @JsonProperty("join_status_info")
+  private JoinStatusInfo joinStatusInfo;
 
   @Override
   public String getMessageCode() {
     return "request.to.join.stream";
   }
 
-  public static RequestToJoinStreamResponse of(final Long streamId, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final String joinStatus) {
+  public static RequestToJoinStreamResponse of(final Long streamId, final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo, final JoinStatusInfo joinStatusInfo) {
     return RequestToJoinStreamResponse.builder()
             .streamId(streamId)
-            .requestToJoinStatus(requestToJoinStatus)
-            .joinStatus(joinStatus)
+            .requestToJoinStatusInfo(requestToJoinStatusInfo)
+            .joinStatusInfo(joinStatusInfo)
             .build();
   }
 }

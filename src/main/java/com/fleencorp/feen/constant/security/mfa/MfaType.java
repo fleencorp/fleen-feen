@@ -17,15 +17,19 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum MfaType implements ApiParameter {
 
-  PHONE("PHONE"),
-  EMAIL("Email"),
-  AUTHENTICATOR("Authenticator"),
-  NONE("None");
+  PHONE("PHONE", "mfa.type.phone"),
+  EMAIL("Email", "mfa.type.email"),
+  AUTHENTICATOR("Authenticator", "mfa.type.authenticator"),
+  NONE("None", "mfa.type.none"),;
 
   private final String value;
+  private final String messageCode;
 
-  MfaType(final String value) {
+  MfaType(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static MfaType of(final String value) {

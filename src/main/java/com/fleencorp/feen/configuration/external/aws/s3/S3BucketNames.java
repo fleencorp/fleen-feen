@@ -43,7 +43,7 @@ public class S3BucketNames {
    * @param objectTypeUpload the {@link ObjectTypeUpload} specifying the type of object (profile or stream cover photo).
    * @return the URL or path to the corresponding photo, either the user's profile photo or the stream cover photo.
    */
-  public String byObjectType(ObjectTypeUpload objectTypeUpload) {
+  public String byObjectType(final ObjectTypeUpload objectTypeUpload) {
     switch (objectTypeUpload) {
       case PROFILE_PHOTO -> {
         return userPhoto;
