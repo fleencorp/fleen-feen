@@ -35,9 +35,6 @@ public class JoinEventResponse extends ApiResponse {
   @JsonProperty("join_status_info")
   private JoinStatusInfo joinStatusInfo;
 
-  @JsonProperty("join_status")
-  private String joinStatusLabel;
-
   @Override
   public String getMessageCode() {
     return "join.event";

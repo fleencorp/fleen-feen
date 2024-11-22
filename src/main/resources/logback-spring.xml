@@ -163,12 +163,12 @@
 
         This configuration enables sending log messages to Slack, providing real-time notifications and alerts directly within your Slack workspace.
     -->
-    <appender name="EXTERNAL" class="com.fleencorp.feen.appender.SlackAppender">
-        <token>${TOKEN}</token>
-        <username>${USERNAME}</username>
-        <iconEmojis>${ICON_EMOJIS}</iconEmojis>
-        <channelIds>${LOG_CHANNEL_IDS}</channelIds>
-    </appender>
+<!--    <appender name="EXTERNAL" class="com.fleencorp.feen.appender.SlackAppender">-->
+<!--        <token>${TOKEN}</token>-->
+<!--        <username>${USERNAME}</username>-->
+<!--        <iconEmojis>${ICON_EMOJIS}</iconEmojis>-->
+<!--        <channelIds>${LOG_CHANNEL_IDS}</channelIds>-->
+<!--    </appender>-->
 
     <!--
         The <appender> element defines an asynchronous appender named "ASYNC_EXTERNAL" which is used to handle log messages asynchronously, improving performance by offloading logging operations.

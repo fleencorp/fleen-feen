@@ -6,13 +6,7 @@ import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamSourceInfo;
-import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
-import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
@@ -52,17 +46,13 @@ import static java.util.Objects.nonNull;
   "stream_type_info",
   "stream_source_info",
   "stream_status_info",
-  "visibility",
+  "visibility_info",
   "status",
-  "request_to_join_status_info",
-  "join_status_info",
-  "is_attending_info",
   "schedule_time_type_info",
   "total_attending",
   "some_attendees",
   "is_private",
-  "schedule",
-  "other_schedule"
+  "attendance_info"
 })
 public class FleenStreamResponse extends FleenFeenResponse {
 
@@ -109,20 +99,14 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("other_schedule")
   private Schedule otherSchedule;
 
-  @JsonProperty("request_to_join_status_info")
-  private StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo;
-
   @JsonProperty("total_attending")
   private long totalAttending;
 
   @JsonProperty("some_attendees")
   private Set<StreamAttendeeResponse> someAttendees;
 
-  @JsonProperty("join_status_info")
-  private JoinStatusInfo joinStatusInfo;
-
-  @JsonProperty("is_attending_info")
-  private IsAttendingInfo isAttendingInfo;
+  @JsonProperty("attendance_info")
+  private AttendanceInfo attendanceInfo;
 
   @JsonProperty("is_private")
   public boolean isPrivate() {
@@ -159,7 +143,7 @@ public class FleenStreamResponse extends FleenFeenResponse {
 
   @JsonIgnore
   public JoinStatus getJoinStatus() {
-    return nonNull(joinStatusInfo) ? joinStatusInfo.getJoinStatus() : null;
+    return nonNull(attendanceInfo) ? attendanceInfo.getJoinStatusInfo().getJoinStatus() : null;
   }
 
   public boolean hasHappened() {

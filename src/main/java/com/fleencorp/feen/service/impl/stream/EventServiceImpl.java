@@ -25,9 +25,10 @@ import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrSt
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
@@ -851,8 +852,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     final FleenStreamResponse streamResponse = joinEventOrStream(eventId, user);
     // Send invitation to new attendee
     createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), streamResponse.getExternalId(), user.getEmailAddress(), joinEventOrStreamDto.getComment());
+    // Extract the attendance info
+    final AttendanceInfo attendanceInfo = streamResponse.getAttendanceInfo();
     // Return localized response of the join event including status
-    return localizedResponse.of(JoinEventResponse.of(eventId, streamResponse.getRequestToJoinStatusInfo(), streamResponse.getJoinStatusInfo()));
+    return localizedResponse.of(JoinEventResponse.of(eventId, attendanceInfo.getRequestToJoinStatusInfo(), attendanceInfo.getJoinStatusInfo()));
   }
 
   /**
