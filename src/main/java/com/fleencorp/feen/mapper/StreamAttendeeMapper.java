@@ -2,9 +2,9 @@ package com.fleencorp.feen.mapper;
 
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import org.springframework.context.MessageSource;
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
 @Component
 public class StreamAttendeeMapper {
 
-  private final MessageSource messageSource;;
+  private final MessageSource messageSource;
   private final FleenStreamMapper streamMapper;
 
   /**

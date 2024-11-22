@@ -201,19 +201,6 @@ public class FleenStreamMapper {
   }
 
   /**
-   * Converts the given attendance status into an {@link IsAttendingInfo} object.
-   *
-   * <p>This method determines the appropriate message code based on the attendance status
-   * and translates it to a localized message.</p>
-   *
-   * @param isAttending a boolean indicating whether the attendee is currently attending
-   * @return an {@link IsAttendingInfo} object containing the attendance status and its corresponding localized message
-   */
-  public IsAttendingInfo toIsAttendingInfo(final boolean isAttending) {
-    return IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode()));
-  }
-
-  /**
    * Converts the given stream to its corresponding stream status information.
    *
    * @param stream the stream to convert
@@ -267,9 +254,9 @@ public class FleenStreamMapper {
    * @param isAttending {@code true} if the user is attending the stream, {@code false} otherwise
    */
   public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending) {
-    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(stream, requestToJoinStatus);
-    final JoinStatusInfo joinStatusInfo = toJoinStatusInfo(stream, joinStatus);
-    final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(stream, isAttending);
+    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
+    final JoinStatusInfo joinStatusInfo = toJoinStatusInfo(joinStatus);
+    final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(isAttending);
 
     stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
   }
@@ -278,13 +265,12 @@ public class FleenStreamMapper {
    * Converts the given FleenStreamResponse and StreamAttendeeRequestToJoinStatus
    * to StreamAttendeeRequestToJoinStatusInfo.
    *
-   * @param stream the FleenStreamResponse to be checked.
    * @param requestToJoinStatus the StreamAttendeeRequestToJoinStatus to be translated.
    * @return the StreamAttendeeRequestToJoinStatusInfo object with translated message
    * if both stream and requestToJoinStatus are non-null, otherwise null.
    */
-  private StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    if (nonNull(stream) && nonNull(requestToJoinStatus)) {
+  public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
+    if (nonNull(requestToJoinStatus)) {
       return StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
     }
     return null;
@@ -293,29 +279,27 @@ public class FleenStreamMapper {
   /**
    * Converts the given FleenStreamResponse and JoinStatus to JoinStatusInfo.
    *
-   * @param stream the FleenStreamResponse to be checked.
    * @param joinStatus the JoinStatus to be translated.
    * @return the JoinStatusInfo object with translated messages if both stream and joinStatus are non-null, otherwise null.
    */
-  private JoinStatusInfo toJoinStatusInfo(final FleenStreamResponse stream, final JoinStatus joinStatus) {
-    if (nonNull(stream) && nonNull(joinStatus)) {
+  public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
+    if (nonNull(joinStatus)) {
       return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
     }
     return null;
   }
 
   /**
-   * Converts the given FleenStreamResponse and attendance status to IsAttendingInfo.
+   * Converts the given attendance status into an {@link IsAttendingInfo} object.
    *
-   * @param stream the FleenStreamResponse to be checked.
-   * @param isAttending the attendance status.
-   * @return the IsAttendingInfo object with translated message if the stream is non-null, otherwise null.
+   * <p>This method determines the appropriate message code based on the attendance status
+   * and translates it to a localized message.</p>
+   *
+   * @param isAttending a boolean indicating whether the attendee is currently attending
+   * @return an {@link IsAttendingInfo} object containing the attendance status and its corresponding localized message
    */
-  private IsAttendingInfo toIsAttendingInfo(final FleenStreamResponse stream, final boolean isAttending) {
-    if (nonNull(stream)) {
-      return IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode()));
-    }
-    return null;
+  public IsAttendingInfo toIsAttendingInfo(final boolean isAttending) {
+    return IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode()));
   }
 
 }
