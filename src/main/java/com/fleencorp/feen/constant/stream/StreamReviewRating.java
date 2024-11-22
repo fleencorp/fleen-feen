@@ -16,16 +16,20 @@ import static com.fleencorp.base.util.EnumUtil.getEnumConstant;
 @Getter
 public enum StreamReviewRating implements ApiParameter {
 
-  POOR("Poor"),
-  FAIR("Fair"),
-  GOOD("Good"),
-  VERY_GOOD("Very Good"),
-  EXCELLENT("Excellent");
+  EXCELLENT("Excellent", "stream.review.rating.excellent"),
+  FAIR("Fair", "stream.review.rating.fair"),
+  GOOD("Good", "stream.review.rating.good"),
+  POOR("Poor", "stream.review.rating.poor"),
+  VERY_GOOD("Very Good", "stream.review.rating.very.good");
 
   private final String value;
+  private final String messageCode;
 
-  StreamReviewRating(final String value) {
+  StreamReviewRating(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   /**

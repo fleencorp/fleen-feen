@@ -14,14 +14,18 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum StreamVisibility implements ApiParameter {
 
-  PRIVATE("private"),
-  PUBLIC("public"),
-  PROTECTED("protected");
+  PRIVATE("private", "stream.visibility.private"),
+  PROTECTED("protected", "stream.visibility.protected"),
+  PUBLIC("public", "stream.visibility.public");
 
   private final String value;
+  private final String messageCode;
 
-  StreamVisibility(final String value) {
+  StreamVisibility(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static StreamVisibility of(final String value) {
@@ -46,6 +50,27 @@ public enum StreamVisibility implements ApiParameter {
    */
   public static boolean isPublic(final StreamVisibility streamVisibility) {
     return streamVisibility == PUBLIC;
+  }
+
+  /**
+   * Checks if the given visibility indicates a private or protected status.
+   *
+   * @param visibility The visibility status to check.
+   * @return true if the visibility is either private or protected, false otherwise.
+   */
+  public static boolean isPrivateOrProtected(final String visibility) {
+    return PRIVATE.getValue().equalsIgnoreCase(visibility) ||
+      PROTECTED.getValue().equalsIgnoreCase(visibility);
+  }
+
+  /**
+   * Checks if the given visibility indicates a public status.
+   *
+   * @param visibility The visibility status to check.
+   * @return true if the visibility is public, false otherwise.
+   */
+  public static boolean isPublic(final String visibility) {
+    return PUBLIC.getValue().equalsIgnoreCase(visibility);
   }
 
 }

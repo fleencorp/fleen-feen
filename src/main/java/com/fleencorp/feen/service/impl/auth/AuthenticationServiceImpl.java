@@ -19,6 +19,7 @@ import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.ResetPasswordCodeExpiredException;
 import com.fleencorp.feen.exception.verification.ResetPasswordCodeInvalidException;
 import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
@@ -111,6 +112,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final ProfileRequestPublisher profileRequestPublisher;
   private final ProfileTokenRepository profileTokenRepository;
   private final LocalizedResponse localizedResponse;
+  private final CommonMapper commonMapper;
   private final String originDomain;
 
   /**
@@ -134,6 +136,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param profileRequestPublisher the publisher for sending profile-related requests.
    * @param profileTokenRepository the repository for managing profile-related tokens.
    * @param localizedResponse the service for handling localized responses.
+   * @param commonMapper a service for creating info data and their localized text
    * @param originDomain the origin domain used in the app to perform actions
    */
   public AuthenticationServiceImpl(
@@ -148,6 +151,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final ProfileRequestPublisher profileRequestPublisher,
       final ProfileTokenRepository profileTokenRepository,
       final LocalizedResponse localizedResponse,
+      final CommonMapper commonMapper,
       @Value("${origin-domain}") final String originDomain) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
@@ -160,6 +164,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.profileRequestPublisher = profileRequestPublisher;
     this.profileTokenRepository = profileTokenRepository;
     this.localizedResponse = localizedResponse;
+    this.commonMapper = commonMapper;
     this.originDomain = originDomain;
   }
 
@@ -253,9 +258,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Save authentication tokens for the user
     saveAuthenticationTokensToRepositoryOrCache(user.getUsername(), accessToken, refreshToken);
 
+    final SignUpResponse signUpResponse = SignUpResponse.of(
+      accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, AuthenticationStage.PRE_VERIFICATION);
+
+    // Update verification type info data and text
+    commonMapper.setVerificationType(signUpResponse, verificationType);
     // Return the sign-up response with necessary details
-    return SignUpResponse
-      .of(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber(), AuthenticationStatus.IN_PROGRESS, verificationType);
+    return localizedResponse.of(signUpResponse);
   }
 
   /**
@@ -318,7 +327,10 @@ public class AuthenticationServiceImpl implements AuthenticationService,
         .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
     profileRequestPublisher.publishMessage(PublishMessageRequest.of(completedUserSignUpRequest));
 
-    return SignUpResponse.of(accessToken, refreshToken);
+    // Create a sign up response after the use completes the process
+    final SignUpResponse signUpResponse = SignUpResponse.of(accessToken, refreshToken);
+    // Return a localized response with the details
+    return localizedResponse.of(signUpResponse, signUpResponse.getCompletedSignUpMessageCode());
   }
 
   /**
@@ -472,13 +484,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle sign-in based on user's profile and MFA settings
     if (isProfileInactiveAndUserYetToBeVerified(user)) {
       handleProfileYetToBeVerified(signInResponse, user);
-      return localizedResponse.of(signInResponse);
+      return localizedResponse.of(signInResponse, signInResponse.getPreVerificationMessageCode());
     }
 
     // Handle sign-in based on user's profile with enabled MFA
     if (isMfaEnabledAndMfaTypeSet(user)) {
       handleProfileWithMfaEnabled(signInResponse, user);
-      return localizedResponse.of(signInResponse);
+      return localizedResponse.of(signInResponse, signInResponse.getMfaMessageCode());
     }
 
     // Handle verified profile sign-in
@@ -892,8 +904,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws org.springframework.security.core.AuthenticationException if authentication fails
    */
   public Optional<Authentication> authenticate(final String emailAddress, final String password) {
-    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
-    authenticationToken = authenticationManager.authenticate(authenticationToken);
+      Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
+      authenticationToken = authenticationManager.authenticate(authenticationToken);
     if (nonNull(authenticationToken)) {
       return Optional.of(authenticationToken);
     }
@@ -926,7 +938,10 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   protected SignInResponse createDefaultSignInResponse(final FleenUser user) {
     // Create and return the default sign-in response using the user's email address
-    return SignInResponse.createDefault(user.getEmailAddress());
+    final SignInResponse signInResponse = SignInResponse.createDefault(user.getEmailAddress());
+    // Set the mfa status information and localized text
+    commonMapper.setMfaEnabled(signInResponse, false);
+    return signInResponse;
   }
 
   /**
@@ -1159,9 +1174,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Set the authentication stage to MFA verification
     signInResponse.setAuthenticationStage(AuthenticationStage.MFA_VERIFICATION);
     // Enable MFA in the sign-in response
-    signInResponse.setMfaEnabled(true);
+    commonMapper.setMfaEnabled(signInResponse, true);
     // Set the MFA type used by the user
-    signInResponse.setMfaType(user.getMfaType());
+    commonMapper.setMfaType(signInResponse, user.getMfaType());
     // Update the access token in the sign-in response
     signInResponse.setAccessToken(accessToken);
     // Clear the refresh token as it is not used in MFA authentication

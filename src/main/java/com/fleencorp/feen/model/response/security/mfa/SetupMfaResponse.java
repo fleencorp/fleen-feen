@@ -7,11 +7,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
+import com.fleencorp.feen.constant.security.mfa.MfaSetupStage;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+import static java.util.Objects.nonNull;
 
 @Builder
 @Getter
@@ -24,9 +28,10 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "phone_number",
   "qr_code",
   "secret",
-  "mfa_enabled",
-  "mfa_type",
-  "mfa_setup_status"
+  "is_mfa_enabled_info",
+  "mfa_type_info",
+  "mfa_setup_status",
+  "mfa_setup_stage"
 })
 public class SetupMfaResponse extends ApiResponse {
 
@@ -39,35 +44,38 @@ public class SetupMfaResponse extends ApiResponse {
   @JsonProperty("qr_code")
   private String qrCode;
 
+  @JsonProperty("secret")
   private String secret;
 
-  @JsonProperty("mfa_enabled")
-  private boolean enabled;
+  @JsonProperty("is_mfa_enabled_info")
+  private IsMfaEnabledInfo isMfaEnabledInfo;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("mfa_type")
-  private MfaType mfaType;
+  @JsonProperty("mfa_type_info")
+  private MfaTypeInfo mfaTypeInfo;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("mfa_setup_status")
   private MfaSetupStatus mfaSetupStatus;
+
+  @JsonFormat(shape = STRING)
+  @JsonProperty("mfa_setup_stage")
+  private MfaSetupStage mfaSetupStage;
 
   @Override
   public String getMessageCode() {
     return "setup.mfa";
   }
 
-  public static SetupMfaResponse of(final String emailAddress, final String phoneNumber, final MfaSetupStatus setupStatus, final MfaType mfaType, final boolean enabled) {
+  public static SetupMfaResponse of(final String emailAddress, final String phoneNumber, final MfaSetupStatus setupStatus, final IsMfaEnabledInfo isMfaEnabledInfo, final MfaTypeInfo mfaTypeInfo) {
+    final MfaSetupStage setupStage = MfaSetupStage.by(nonNull(mfaTypeInfo) ? mfaTypeInfo.getMfaType() : MfaType.NONE);
+
     return SetupMfaResponse.builder()
       .emailAddress(MaskedEmailAddress.of(emailAddress))
       .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
       .mfaSetupStatus(setupStatus)
-      .mfaType(mfaType)
-      .enabled(enabled)
+      .isMfaEnabledInfo(isMfaEnabledInfo)
+      .mfaTypeInfo(mfaTypeInfo)
+      .mfaSetupStage(setupStage)
       .build();
-  }
-
-  public void enabled() {
-    this.enabled = true;
   }
 }

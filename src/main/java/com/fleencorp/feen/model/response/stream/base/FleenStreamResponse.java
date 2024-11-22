@@ -2,16 +2,23 @@ package com.fleencorp.feen.model.response.stream.base;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
-import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.constant.stream.JoinStatus;
+import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.info.IsForKidsInfo;
+import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
+import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
@@ -27,26 +34,25 @@ import static java.util.Objects.nonNull;
   "message",
   "title",
   "description",
+  "tags",
   "location",
   "schedule",
   "other_schedule",
   "created_on",
   "updated_on",
   "organizer",
-  "for_kids",
+  "is_for_kids_info",
   "stream_link",
-  "stream_type",
-  "stream_source",
-  "visibility",
+  "stream_type_info",
+  "stream_source_info",
+  "stream_status_info",
+  "visibility_info",
   "status",
-  "request_to_join_status",
-  "join_status",
-  "schedule_time_type",
+  "schedule_time_type_info",
   "total_attending",
   "some_attendees",
   "is_private",
-  "schedule",
-  "other_schedule"
+  "attendance_info"
 })
 public class FleenStreamResponse extends FleenFeenResponse {
 
@@ -56,33 +62,36 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("description")
   private String description;
 
+  @JsonProperty("tags")
+  private String tags;
+
   @JsonProperty("location")
   private String location;
 
   @JsonProperty("organizer")
   private Organizer organizer;
 
-  @JsonProperty("for_kids")
-  private Boolean forKids;
+  @JsonProperty("is_for_kids_info")
+  private IsForKidsInfo forKidsIno;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("stream_link")
   private MaskedStreamLinkUri streamLink;
 
-  @JsonIgnore
-  private String streamLinkUnmasked;
+  @JsonProperty("stream_type_info")
+  private StreamTypeInfo streamTypeInfo;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("stream_type")
-  private StreamType streamType;
+  @JsonProperty("stream_source_info")
+  private StreamSourceInfo streamSourceInfo;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("stream_source")
-  private StreamSource streamSource;
+  @JsonProperty("stream_status_info")
+  private StreamStatusInfo streamStatusInfo;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("visibility")
-  private StreamVisibility visibility;
+  @JsonProperty("visibility_info")
+  private StreamVisibilityInfo streamVisibilityInfo;
+
+  @JsonProperty("schedule_time_type_info")
+  private ScheduleTimeTypeInfo scheduleTimeTypeInfo;
 
   @JsonProperty("schedule")
   private Schedule schedule;
@@ -90,30 +99,18 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("other_schedule")
   private Schedule otherSchedule;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("request_to_join_status")
-  private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
-
-  @JsonFormat(shape = STRING)
-  @JsonProperty("status")
-  private StreamStatus status;
-
   @JsonProperty("total_attending")
   private long totalAttending;
 
   @JsonProperty("some_attendees")
-  private List<StreamAttendeeResponse> someAttendees;
+  private Set<StreamAttendeeResponse> someAttendees;
 
-  @Builder.Default
-  @JsonProperty("join_status")
-  private String joinStatus = JoinStatus.NOT_JOINED.getValue();
-
-  @JsonProperty("schedule_time_type")
-  private StreamTimeType scheduleTimeType;
+  @JsonProperty("attendance_info")
+  private AttendanceInfo attendanceInfo;
 
   @JsonProperty("is_private")
   public boolean isPrivate() {
-    return StreamVisibility.isPrivateOrProtected(visibility);
+    return StreamVisibility.isPrivateOrProtected(getVisibility());
   }
 
   @JsonProperty("stream_link_unmasked")
@@ -122,45 +119,35 @@ public class FleenStreamResponse extends FleenFeenResponse {
     return streamLinkUnmasked;
   }
 
+  @JsonIgnore
+  private String streamLinkUnmasked;
+
   /**
    * For the purpose of use in Chat Space where an event is created and is available for member of the space to join.
    */
   @JsonIgnore
   public String streamLinkNotMasked;
 
-  /**
-   * Updates the schedule status of this FleenStream by setting the stream time type
-   * based on the current time.
-   */
-  public void updateStreamSchedule() {
-    updateStreamTimeType(LocalDateTime.now());
+  @JsonIgnore
+  private String externalId;
+
+  @JsonIgnore
+  public StreamVisibility getVisibility() {
+    return nonNull(streamVisibilityInfo) ? streamVisibilityInfo.getVisibility() : null;
   }
 
-  /**
-   * Updates the streamTimeType of this FleenStream based on the provided currentTime.
-   * The stream is considered Upcoming if currentTime is before the scheduled start time,
-   * Live if it is between the scheduled start and end times, and Past if it is after the
-   * scheduled end time.
-   *
-   * @param currentTime the current time to compare against the stream's scheduled start and end times
-   * @throws NullPointerException if currentTime is null
-   */
-  public void updateStreamTimeType(final LocalDateTime currentTime) {
-    if (currentTime.isBefore(this.schedule.getStartDate())) {
-      this.scheduleTimeType = StreamTimeType.UPCOMING;
-    } else if (currentTime.isAfter(this.schedule.getStartDate())) {
-      this.scheduleTimeType = StreamTimeType.PAST;
-    } else {
-      this.scheduleTimeType = StreamTimeType.LIVE;
-    }
+  @JsonIgnore
+  public LocalDateTime getEndDate() {
+    return nonNull(schedule.getEndDate()) ? schedule.getEndDate() : null;
   }
 
-  /**
-   * Increments the total number of attendees or guests by one. This method is designed to ensure
-   * that the count is increased just once per invocation.
-   */
-  public void incrementAttendeesOrGuestsAttendingJustOnce() {
-    totalAttending++;
+  @JsonIgnore
+  public JoinStatus getJoinStatus() {
+    return nonNull(attendanceInfo) ? attendanceInfo.getJoinStatusInfo().getJoinStatus() : null;
+  }
+
+  public boolean hasHappened() {
+    return schedule.getEndDate().isBefore(LocalDateTime.now());
   }
 
   /**
@@ -173,7 +160,7 @@ public class FleenStreamResponse extends FleenFeenResponse {
    * <p>This operation ensures that users without approval cannot access unmasked stream links.</p>
    */
   public void disableAndResetUnmaskedLinkIfNotApproved() {
-    if (nonNull(joinStatus) && JoinStatus.isNotApproved(joinStatus)) {
+    if (nonNull(getJoinStatus()) && JoinStatus.isNotApproved(getJoinStatus())) {
       streamLinkUnmasked = null;
     }
   }

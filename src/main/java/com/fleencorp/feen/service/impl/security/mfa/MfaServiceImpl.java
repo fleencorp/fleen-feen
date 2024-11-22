@@ -11,9 +11,12 @@ import com.fleencorp.feen.exception.security.mfa.MfaGenerationFailedException;
 import com.fleencorp.feen.exception.security.mfa.MfaVerificationFailed;
 import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
 import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.security.mfa.ConfirmSetupMfaDto;
 import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
+import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import com.fleencorp.feen.model.other.MfaAuthenticatorSecurityInfo;
 import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
@@ -55,16 +58,19 @@ public class MfaServiceImpl implements MfaService {
   private final ProfileRequestPublisher profileRequestPublisher;
   private final LocalizedResponse localizedResponse;
   private final MfaProperties mfaProperties;
+  private final CommonMapper commonMapper;
 
   /**
-   * Constructs a new MfaServiceImpl with the specified dependencies.
+   * Constructs an instance of MfaServiceImpl with the required services, properties, and mappers for Multi-Factor Authentication (MFA) operations.
    *
-   * @param cacheService the cache service for temporary storage of OTPs and verification codes.
-   * @param otpService the service for generating and verifying OTPs.
-   * @param mfaRepository the repository for managing MFA-related data.
-   * @param memberRepository the repository for managing member data.
-   * @param profileRequestPublisher the publisher for sending MFA verification code requests.
-   * @param mfaProperties the properties for MFA configuration.
+   * @param cacheService         The service used for caching data.
+   * @param otpService           The service for generating One-Time Passwords (OTPs).
+   * @param mfaRepository        The repository responsible for handling MFA data.
+   * @param memberRepository     The repository responsible for managing member data.
+   * @param profileRequestPublisher Publishes profile requests when necessary.
+   * @param localizedResponse    The service used to fetch localized responses based on the user's locale.
+   * @param mfaProperties        Configuration properties for MFA settings.
+   * @param commonMapper            The mapper service responsible for mapping MFA-related entities and responses.
    */
   public MfaServiceImpl(
       final CacheService cacheService,
@@ -73,7 +79,8 @@ public class MfaServiceImpl implements MfaService {
       final MemberRepository memberRepository,
       final ProfileRequestPublisher profileRequestPublisher,
       final LocalizedResponse localizedResponse,
-      final MfaProperties mfaProperties) {
+      final MfaProperties mfaProperties,
+      final CommonMapper commonMapper) {
     this.cacheService = cacheService;
     this.otpService = otpService;
     this.mfaRepository = mfaRepository;
@@ -81,6 +88,7 @@ public class MfaServiceImpl implements MfaService {
     this.profileRequestPublisher = profileRequestPublisher;
     this.localizedResponse = localizedResponse;
     this.mfaProperties = mfaProperties;
+    this.commonMapper = commonMapper;
   }
 
   /**
@@ -98,12 +106,14 @@ public class MfaServiceImpl implements MfaService {
 
     // Check if the MFA type is set and MFA is not already enabled
     if (isMfaMethodOrTypeNotEmpty(member.getMfaType()) && member.isMfaDisabled()) {
+      // Update member mfa status
+      member.setMfaEnabled(true);
       // Enable two-factor authentication (2FA) for the user
       mfaRepository.enableOrDisableTwoFa(user.toMember(), true);
     }
 
     // Return a response indicating the result of the MFA enable operation
-    return localizedResponse.of(EnableOrDisableMfaResponse.of());
+    return localizedResponse.of(EnableOrDisableMfaResponse.of(member.isMfaEnabled()));
   }
 
   /**
@@ -121,12 +131,14 @@ public class MfaServiceImpl implements MfaService {
 
     // Check if the MFA type is set and MFA is currently enabled
     if (isMfaMethodOrTypeNotEmpty(member.getMfaType()) && member.isMfaEnabled()) {
+      // Update member mfa status
+      member.setMfaEnabled(false);
       // Disable two-factor authentication (2FA) for the user
       mfaRepository.enableOrDisableTwoFa(user.toMember(), false);
     }
 
     // Return a response indicating the status of the MFA disable operation
-    return localizedResponse.of(EnableOrDisableMfaResponse.of());
+    return localizedResponse.of(EnableOrDisableMfaResponse.of(member.isMfaDisabled()));
   }
 
   /**
@@ -141,9 +153,12 @@ public class MfaServiceImpl implements MfaService {
     // Retrieve the member associated with the user's ID
     final Member member = memberRepository.findById(user.getId())
       .orElseThrow(FailedOperationException::new);
-
+    // Get Mfa Enabled Info
+    final IsMfaEnabledInfo mfaEnabledInfo = commonMapper.toIsMfaEnabledInfo(member.isMfaEnabled());
+    // Get Mfa Type Info
+    final MfaTypeInfo mfaTypeInfo = commonMapper.toMfaTypeInfo(member.getMfaType());
     // Return a response with the MFA status and type
-    return localizedResponse.of(MfaStatusResponse.of(member.isMfaEnabled(), member.getMfaType()));
+    return localizedResponse.of(MfaStatusResponse.of(mfaEnabledInfo, mfaTypeInfo));
   }
 
   /**
@@ -384,8 +399,11 @@ public class MfaServiceImpl implements MfaService {
    */
   private SetupMfaResponse completeMfaSetupWithoutVerificationIfProposedAndCurrentMfaTypeIsSame(final SetupMfaResponse setupMfaResponse) {
     // Enable MFA and set the setup status to COMPLETE
-    setupMfaResponse.enabled();
     setupMfaResponse.setMfaSetupStatus(MfaSetupStatus.COMPLETE);
+    // Get Mfa Enabled Info
+    final IsMfaEnabledInfo mfaEnabledInfo = commonMapper.toIsMfaEnabledInfo(true);
+    // Update the setup response and return
+    setupMfaResponse.setIsMfaEnabledInfo(mfaEnabledInfo);
     return setupMfaResponse;
   }
 
@@ -423,8 +441,12 @@ public class MfaServiceImpl implements MfaService {
    * @return the setup MFA response
    */
   protected SetupMfaResponse initializeAndSetupMfaResponseBeforeCompletionOrVerificationOrReverification(final Member member, final MfaType proposedMfaType) {
+    // Get Mfa Enabled Info
+    final IsMfaEnabledInfo mfaEnabledInfo = commonMapper.toIsMfaEnabledInfo(false);
+    // Get Mfa Type Info
+    final MfaTypeInfo mfaTypeInfo = commonMapper.toMfaTypeInfo(proposedMfaType);
     // Build and return the setup MFA response
-    return SetupMfaResponse.of(member.getEmailAddress(), member.getPhoneNumber(), MfaSetupStatus.IN_PROGRESS, proposedMfaType, false);
+    return SetupMfaResponse.of(member.getEmailAddress(), member.getPhoneNumber(), MfaSetupStatus.IN_PROGRESS, mfaEnabledInfo, mfaTypeInfo);
   }
 
   /**

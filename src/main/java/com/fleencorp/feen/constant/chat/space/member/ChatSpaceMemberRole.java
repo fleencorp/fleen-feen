@@ -15,12 +15,16 @@ import lombok.Getter;
 @Getter
 public enum ChatSpaceMemberRole implements ApiParameter {
 
-  MEMBER("member"),
-  ADMIN("admin");
+  ADMIN("admin", "chat.space.member.role.admin"),
+  MEMBER("member", "chat.space.member.role.member");
 
   private final String value;
+  private final String messageCode;
 
-  ChatSpaceMemberRole(final String value) {
+  ChatSpaceMemberRole(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 }

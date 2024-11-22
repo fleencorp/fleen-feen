@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,16 +39,19 @@ public class UpgradeChatSpaceMemberToAdminResponse extends ApiResponse {
   @JsonProperty("role")
   private ChatSpaceMemberRole role;
 
+  @JsonProperty("role_info")
+  private ChatSpaceMemberRoleInfo roleInfo;
+
   @Override
   public String getMessageCode() {
     return "upgrade.chat.space.member.to.admin";
   }
 
-  public static UpgradeChatSpaceMemberToAdminResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMemberRole chatSpaceMemberRole) {
+  public static UpgradeChatSpaceMemberToAdminResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo) {
     return UpgradeChatSpaceMemberToAdminResponse.builder()
       .chatSpaceId(chatSpaceId)
       .chatSpaceMemberId(chatSpaceMemberId)
-      .role(chatSpaceMemberRole)
+      .roleInfo(chatSpaceMemberRoleInfo)
       .build();
   }
 }

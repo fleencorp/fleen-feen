@@ -4,6 +4,9 @@ import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.mapper.CommonMapper;
+import com.fleencorp.feen.mapper.FleenStreamMapper;
+import com.fleencorp.feen.mapper.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -15,6 +18,9 @@ import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.*;
@@ -23,7 +29,7 @@ import com.fleencorp.feen.model.response.event.RequestToJoinEventResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
 import com.fleencorp.feen.model.response.stream.PageAndFleenStreamResponse;
-import com.fleencorp.feen.model.response.stream.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.RetrieveEventOrStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
 import com.fleencorp.feen.model.search.broadcast.EmptyLiveBroadcastSearchResult;
 import com.fleencorp.feen.model.search.broadcast.LiveBroadcastSearchResult;
@@ -57,9 +63,6 @@ import java.util.Set;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 
 /**
@@ -93,23 +96,28 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   private final LocalizedResponse localizedResponse;
 
   /**
-   * Constructs a new instance of LiveBroadcastServiceImpl.
+   * Constructs an {@code LiveBroadcastServiceImpl} with the specified dependencies.
    *
-   * <p>This constructor initializes the necessary services and repositories for handling live broadcasts,
-   * including the YouTubeLiveBroadcastService for creating broadcasts on YouTube, the FleenStreamRepository
-   * for managing broadcast data, and the GoogleOauth2AuthorizationRepository for OAuth2 authorization.</p>
+   * <p>This constructor initializes the live broadcast service, incorporating various components
+   * to manage live broadcast events, including event services, Google OAuth 2.0 authorization,
+   * live broadcast updates, notifications, and YouTube channel management. The service also
+   * integrates stream and attendee repositories for managing live stream events and attendees.</p>
    *
-   * @param eventService the service for interacting and managing events
-   * @param googleOauth2Service the service for interacting with Google Oauth2 service
-   * @param miscService the service for managing miscellaneous actions
-   * @param notificationMessageService the service that manages notification messages for events and attendees
-   * @param notificationService the service responsible for managing notifications in the system
-   * @param youTubeChannelService the service for managing YouTube channels and categories
-   * @param fleenStreamRepository the repository to manage FleenStream data
-   * @param streamAttendeeRepository the repository for managing event or stream attendees
-   * @param oauth2AuthorizationRepository the repository to handle OAuth2 authorization
-   * @param userFleenStreamRepository  the repository for FleenStream operations related to a user profile
-   * @param localizedResponse the service for creating localized response message
+   * @param eventService provides event-related functionalities, including event creation, updates, and management.
+   * @param googleOauth2Service handles OAuth 2.0 authentication and authorization processes for Google services.
+   * @param liveBroadcastUpdateService service for updating live broadcast details.
+   * @param miscService provides miscellaneous utility functions and services.
+   * @param notificationMessageService generates notification messages related to broadcasts and events.
+   * @param notificationService sends notifications for live broadcasts and associated events.
+   * @param youTubeChannelService manages YouTube channel integration and broadcasting.
+   * @param fleenStreamRepository repository for managing stream-related entities.
+   * @param streamAttendeeRepository repository for managing attendees of streams.
+   * @param oauth2AuthorizationRepository repository for handling OAuth2 authorization data.
+   * @param userFleenStreamRepository repository for managing user-stream relationships.
+   * @param localizedResponse provides localized responses for API operations.
+   * @param streamMapper maps stream-related entities and response models.
+   * @param attendeeMapper maps stream attendee entities to response models.
+   * @param commonMapper provides common mapping functionality for entities.
    */
   public LiveBroadcastServiceImpl(
       final EventService eventService,
@@ -123,8 +131,11 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
       final StreamAttendeeRepository streamAttendeeRepository,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final UserFleenStreamRepository userFleenStreamRepository,
-      final LocalizedResponse localizedResponse) {
-    super(miscService, fleenStreamRepository, streamAttendeeRepository, localizedResponse);
+      final LocalizedResponse localizedResponse,
+      final FleenStreamMapper streamMapper,
+      final StreamAttendeeMapper attendeeMapper,
+      final CommonMapper commonMapper) {
+    super(miscService, fleenStreamRepository, streamAttendeeRepository, localizedResponse, streamMapper, attendeeMapper, commonMapper);
     this.eventService = eventService;
     this.googleOauth2Service = googleOauth2Service;
     this.notificationMessageService = notificationMessageService;
@@ -167,7 +178,9 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    */
   @Override
   public LiveBroadcastSearchResult findLiveBroadcasts(final LiveBroadcastSearchRequest searchRequest, final FleenUser user) {
+    // Find the list of events or stream
     final PageAndFleenStreamResponse pageAndResponse = findEventsOrStreams(searchRequest);
+    // Extract the list of stream responses
     final List<FleenStreamResponse> views = pageAndResponse.getResponses();
     // Determine statuses like schedule, join status, schedules and timezones
     determineDifferentStatusesAndDetailsOfEventOrStreamBasedOnUser(views, user);
@@ -187,19 +200,14 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
    * Retrieves details about a specific stream, including its attendees and their statuses.
    *
    * @param streamId the ID of the stream to retrieve
+   * @param user the authenticated user
    * @return a {@link RetrieveStreamResponse} containing details of the stream, its attendees, and the total count of approved attendees
    */
   @Override
-  public RetrieveStreamResponse retrieveStream(final Long streamId) {
-    // Find the stream by its ID
-    final FleenStream stream = findStream(streamId);
-    // Get all event or stream attendees
-    final Set<StreamAttendee> streamAttendeesGoingToStream = getAttendeesGoingToStream(stream);
-    // Convert the attendees to response objects
-    final Set<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(streamAttendeesGoingToStream);
-    // Count total attendees whose request to join event is approved and are attending the event because they are interested
-    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndRequestToJoinStatusAndIsAttending(stream, APPROVED, true);
-    return localizedResponse.of(RetrieveStreamResponse.of(streamId, toFleenStreamResponse(stream), streamAttendees, totalAttendees));
+  public RetrieveStreamResponse retrieveStream(final Long streamId, final FleenUser user) {
+    final RetrieveEventOrStreamResponse response = retrieveEventOrStream(streamId, user);
+    // Return a localized response of the stream with the attendees and total attending attendees
+    return localizedResponse.of(RetrieveStreamResponse.of(streamId, response.getStream(), response.getAttendees(), response.getTotalAttending()));
   }
 
   /**
@@ -237,13 +245,15 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
       user.getPhoneNumber());
 
     // Increase attendees count, save the event and and add the stream in YouTube Live Stream
-    stream = increaseTotalAttendeesOrGuestsAndSave(stream);
+    stream = increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(stream);
     // Register the organizer of the event as an attendee or guest
-    registerAndApproveOrganizerOfEventAsAnAttendee(stream, user);
+    registerAndApproveOrganizerOfEventOrStreamAsAnAttendee(stream, user);
     // Create and add live broadcast or stream in external service for example YouTube Live Stream API
     liveBroadcastUpdateService.createLiveBroadcastAndStream(stream, createLiveBroadcastRequest);
-
-    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), incrementAttendeeBecauseOfOrganizerAndGetResponse(stream)));
+    // Get the stream response
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
+    // Return the localized response of the created stream
+    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), streamResponse));
   }
 
   /**
@@ -294,10 +304,12 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     );
     // Save the updated stream to the repository
     fleenStreamRepository.save(stream);
-
     // Update the live broadcast using YouTubeLiveBroadcastService
     liveBroadcastUpdateService.updateLiveBroadcastAndStream(stream, updateLiveBroadcastRequest);
-    return localizedResponse.of(UpdateStreamResponse.of(streamId, toFleenStreamResponse(stream)));
+    // Get the stream response
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponse(stream);
+    // Return a localized response of the updated stream
+    return localizedResponse.of(UpdateStreamResponse.of(streamId, streamResponse));
   }
 
   /**
@@ -348,7 +360,12 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
 
     // Reschedule the live broadcast using Live Stream API
     liveBroadcastUpdateService.rescheduleLiveBroadcastAndStream(stream, rescheduleLiveBroadcastRequest);
-    return localizedResponse.of(RescheduleStreamResponse.of(streamId, toFleenStreamResponse(stream)));
+    // Convert the stream to the equivalent stream response whether event or live broadcast or live stream
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponse(stream);
+    // Determine the join status of the user if available
+    determineUserJoinStatusForEventOrStream(List.of(streamResponse), user);
+    // Return the localized response of the Reschedule
+    return localizedResponse.of(RescheduleStreamResponse.of(streamId, streamResponse));
   }
 
   /**
@@ -367,7 +384,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
     // Find the existing attendee record for the user and event
-    streamAttendeeRepository.findByFleenStreamAndMember(stream, user.toMember())
+    streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember())
       .ifPresent(streamAttendee -> {
         // If an attendee record exists, update their attendance status to false
         streamAttendee.setIsNotAttending();
@@ -376,8 +393,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
         // Save the updated attendee record
         streamAttendeeRepository.save(streamAttendee);
       });
+    // Get a not attending stream response with the details
+    final NotAttendingStreamResponse notAttendingStreamResponse =  commonMapper.notAttendingStream();
     // Build and return the response indicating the user is no longer attending
-    return localizedResponse.of(NotAttendingStreamResponse.of());
+    return localizedResponse.of(notAttendingStreamResponse);
   }
 
   /**
@@ -399,18 +418,12 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   @Override
   @Transactional
   public JoinStreamResponse joinStream(final Long streamId, final FleenUser user) {
-    // Verify the event or stream details and attempt to join the event or stream
-    FleenStream stream = verifyDetailsAndTryToJoinEventOrStream(streamId, user);
-    // Create a new StreamAttendee entry for the user
-    final StreamAttendee streamAttendee = createStreamAttendee(stream, user);
-    // Approve user attendance if event is public
-    streamAttendee.approveUserAttendance();
-    // Add the new StreamAttendee to the event's attendees list and save
-    streamAttendeeRepository.save(streamAttendee);
-    // Get the status label based on the user's join status
-    final String statusLabel = getJoinStatus(streamAttendee.getRequestToJoinStatus());
+    // Verify the user details and attempt to join the event
+    final FleenStreamResponse streamResponse = joinEventOrStream(streamId, user);
+    // Extract the attendance info
+    final AttendanceInfo attendanceInfo = streamResponse.getAttendanceInfo();
     // Return localized response of the join event including status
-    return localizedResponse.of(JoinStreamResponse.of(streamId, streamAttendee.getRequestToJoinStatus(), statusLabel));
+    return localizedResponse.of(JoinStreamResponse.of(streamId, attendanceInfo.getRequestToJoinStatusInfo(), attendanceInfo.getJoinStatusInfo()));
   }
 
   /**
@@ -435,9 +448,14 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   @Override
   @Transactional
   public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, final FleenUser user) {
-    RequestToJoinEventResponse requestToJoinEventResponse = eventService.requestToJoinEvent(streamId, requestToJoinEventOrStreamDto, user);
-
-    return localizedResponse.of(RequestToJoinStreamResponse.of(streamId, requestToJoinEventResponse.getRequestToJoinStatus(), requestToJoinEventResponse.getJoinStatus()));
+    // Use event service to request to join the event due to similarity in APIs
+    final RequestToJoinEventResponse requestToJoinEventResponse = eventService.requestToJoinEvent(streamId, requestToJoinEventOrStreamDto, user);
+    // Get the Stream attendee request to join status info
+    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = requestToJoinEventResponse.getRequestToJoinStatusInfo();
+    // Get the join status info
+    final JoinStatusInfo joinStatusInfo = requestToJoinEventResponse.getJoinStatusInfo();
+    // Return a localized response of the request to join stream
+    return localizedResponse.of(RequestToJoinStreamResponse.of(streamId, requestToJoinStatusInfo, joinStatusInfo));
   }
 
   /**
@@ -462,14 +480,13 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     verifyStreamDetails(stream, user);
 
     // Check if the user is already an attendee of the stream and process accordingly
-    checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventOrStreamDto.getAttendeeUserId()))
-      .ifPresentOrElse(
-        streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinEventOrStreamDto),
-        () -> {}
-      );
-
+    final Optional<StreamAttendee> existingAttendee = checkIfUserIsAlreadyAnAttendee(stream, Long.parseLong(processAttendeeRequestToJoinEventOrStreamDto.getAttendeeUserId()));
+    // If the attendee exists and is found, process their request to join request
+    existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinEventOrStreamDto));
+    // Get a processed attendee request to join stream response
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
-    return localizedResponse.of(ProcessAttendeeRequestToJoinStreamResponse.of(streamId, toFleenStreamResponse(stream)));
+    return localizedResponse.of(processedRequestToJoin);
   }
 
   /**
@@ -494,8 +511,9 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
       }
     }
 
-    // Create and save notification
+    // Create the notification
     final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getFleenStream(), streamAttendee, stream.getMember());
+    // Save the notification
     notificationService.save(notification);
   }
 
@@ -530,6 +548,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     );
     // Reschedule the live broadcast using Live Stream API
     liveBroadcastUpdateService.deleteLiveBroadcast(deleteLiveBroadcastRequest);
+    // Return a localized response of the deleted stream
     return localizedResponse.of(DeletedStreamResponse.of(streamId));
   }
 
@@ -587,7 +606,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
 
     // Update the event visibility on the Google Calendar Service
     liveBroadcastUpdateService.updateStreamVisibility(updateCalendarEventVisibilityRequest);
-    return localizedResponse.of(UpdateStreamVisibilityResponse.of(streamId, toFleenStreamResponse(stream)));
+    // Get the stream response
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
+    // Return a localized response of the updated stream with its visibility
+    return localizedResponse.of(UpdateStreamVisibilityResponse.of(streamId, streamResponse));
   }
 
   /**

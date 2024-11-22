@@ -17,15 +17,19 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ProfileStatus implements ApiParameter {
 
-  ACTIVE("Active"),
-  BANNED("Banned"),
-  DISABLED("Disabled"),
-  INACTIVE("Inactive");
+  ACTIVE("Active", "profile.status.active"),
+  BANNED("Banned", "profile.status.banned"),
+  DISABLED("Disabled", "profile.status.disabled"),
+  INACTIVE("Inactive" , "profile.status.inactive");
 
   private final String value;
+  private final String messageCode;
 
-  ProfileStatus(final String value) {
+  ProfileStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static ProfileStatus of(final String value) {

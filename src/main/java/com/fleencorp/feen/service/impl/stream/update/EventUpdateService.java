@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.stream.update;
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;
 import com.fleencorp.feen.event.model.stream.EventStreamCreatedResult;
+import com.fleencorp.feen.mapper.FleenStreamMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
@@ -15,7 +16,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
 import static java.util.Objects.requireNonNull;
 
 
@@ -33,27 +33,28 @@ import static java.util.Objects.requireNonNull;
 public class EventUpdateService {
 
   private final FleenStreamRepository fleenStreamRepository;
+  private final FleenStreamMapper streamMapper;
   private final GoogleCalendarEventService googleCalendarEventService;
   private final BroadcastService broadcastService;
   private final GoogleChatService googleChatService;
 
   /**
-   * Constructs an instance of {@link EventUpdateService} with the provided dependencies.
+   * Constructs an EventUpdateService with the necessary dependencies.
    *
-   * <p>This constructor initializes the service with necessary repositories and
-   * services required for handling event updates.</p>
-   *
-   * @param fleenStreamRepository        The repository for managing FleenStream entities.
-   * @param broadcastService             The service responsible for broadcasting messages.
-   * @param googleCalendarEventService   The service for managing Google Calendar events.
-   * @param googleChatService            The service for interacting with Google Chat.
+   * @param fleenStreamRepository The repository for handling FleenStream data.
+   * @param streamMapper The mapper for converting FleenStream entities to response objects.
+   * @param broadcastService The service for managing broadcast-related tasks.
+   * @param googleCalendarEventService The service for interacting with Google Calendar events.
+   * @param googleChatService The service for sending messages to Google Chat.
    */
   public EventUpdateService(
       final FleenStreamRepository fleenStreamRepository,
+      final FleenStreamMapper streamMapper,
       final BroadcastService broadcastService,
       final GoogleCalendarEventService googleCalendarEventService,
       final GoogleChatService googleChatService) {
     this.fleenStreamRepository = fleenStreamRepository;
+    this.streamMapper = streamMapper;
     this.broadcastService = broadcastService;
     this.googleCalendarEventService = googleCalendarEventService;
     this.googleChatService = googleChatService;
@@ -109,7 +110,7 @@ public class EventUpdateService {
     // Prepare the request to send a calendar event message to the chat space
     final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
       stream.getSpaceIdOrName(),
-      requireNonNull(toFleenStreamResponse(stream))
+      requireNonNull(streamMapper.toFleenStreamResponseNoJoinStatus(stream))
     );
 
     // Send the event message to the chat space

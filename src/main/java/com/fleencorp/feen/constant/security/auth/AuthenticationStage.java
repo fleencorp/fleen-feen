@@ -3,6 +3,11 @@ package com.fleencorp.feen.constant.security.auth;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+/**
+ * Represents the stages in the authentication process.
+ * This enum defines the various stages a user may go through during authentication,
+ * including stages such as pre-verification and multi-factor authentication (MFA).
+ */
 @Getter
 public enum AuthenticationStage implements ApiParameter {
 

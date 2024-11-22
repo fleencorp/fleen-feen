@@ -6,7 +6,7 @@ import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
-import com.fleencorp.feen.model.request.search.calendar.CalendarEventSearchRequest;
+import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.event.*;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
@@ -16,15 +16,17 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventService {
 
-  EventSearchResult findEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
+  DataForCreateEventResponse getDataForCreateEvent();
 
-  EventSearchResult findMyEvents(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEvents(EventSearchRequest searchRequest, FleenUser user);
 
-  EventSearchResult findEvents(CalendarEventSearchRequest searchRequest, StreamTimeType streamTimeType);
+  EventSearchResult findMyEvents(EventSearchRequest searchRequest, FleenUser user);
 
-  EventSearchResult findEventsAttendedByUser(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEvents(EventSearchRequest searchRequest, StreamTimeType streamTimeType);
 
-  EventSearchResult findEventsAttendedWithAnotherUser(CalendarEventSearchRequest searchRequest, FleenUser user);
+  EventSearchResult findEventsAttendedByUser(EventSearchRequest searchRequest, FleenUser user);
+
+  EventSearchResult findEventsAttendedWithAnotherUser(EventSearchRequest searchRequest, FleenUser user);
 
   StreamAttendeeSearchResult findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
 

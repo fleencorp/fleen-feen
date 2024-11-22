@@ -12,12 +12,16 @@ import lombok.Getter;
 @Getter
 public enum StreamStatus implements ApiParameter {
 
-  ACTIVE("Active"),
-  CANCELED("Canceled");
+  ACTIVE("Active", "stream.status.active"),
+  CANCELED("Canceled", "stream.status.canceled"),;
 
   private final String value;
+  private final String messageCode;
 
-  StreamStatus(final String value) {
+  StreamStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 }

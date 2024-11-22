@@ -150,4 +150,13 @@ public class StreamAttendee extends FleenFeenEntity {
     isAttending = false;
   }
 
+  /**
+   * Returns whether the attendee is currently attending.
+   *
+   * @return true if the attendee is attending, false otherwise.
+   */
+  public boolean isAttending() {
+    return getIsAttending();
+  }
+
 }

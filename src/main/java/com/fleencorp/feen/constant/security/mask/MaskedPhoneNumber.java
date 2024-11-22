@@ -22,13 +22,18 @@ public enum MaskedPhoneNumber implements ApiParameter {
   /**
    * Instance representing a phone number.
    */
-  PHONE("Phone");
+  PHONE("Phone", "");
 
   @Setter
   private String value;
+  @Setter
+  private String rawValue;
 
-  MaskedPhoneNumber(final String value) {
+  MaskedPhoneNumber(
+      final String value,
+      final String rawValue) {
     this.value = value;
+    this.rawValue = rawValue;
   }
 
   /**
@@ -56,6 +61,7 @@ public enum MaskedPhoneNumber implements ApiParameter {
   public static MaskedPhoneNumber of(final String value) {
     final MaskedPhoneNumber phoneNumber = MaskedPhoneNumber.PHONE;
     phoneNumber.setValue(maskPhoneNumber(value));
+    phoneNumber.setRawValue(value);
     return phoneNumber;
   }
 

@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationTokenException;
+import com.fleencorp.feen.exception.auth.UsernameNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
@@ -184,6 +185,7 @@ public class RestExceptionHandler {
    */
   @ExceptionHandler(value = {
     AlreadyRequestedToJoinStreamException.class,
+    AlreadyApprovedRequestToJoinException.class,
     AlreadyJoinedChatSpaceException.class,
     CalendarAlreadyActiveException.class,
     CalendarAlreadyExistException.class,
@@ -220,7 +222,7 @@ public class RestExceptionHandler {
     UnableToCompleteOperationException.class
   })
   @ResponseStatus(value = INTERNAL_SERVER_ERROR)
-  public ErrorResponse handleInternal(final FailedOperationException e) {
+  public ErrorResponse handleInternal(final UnableToCompleteOperationException e) {
     return localizedResponse.withStatus(e, FleenHttpStatus.internalServerError());
   }
 
@@ -268,9 +270,10 @@ public class RestExceptionHandler {
    */
   @ExceptionHandler(value = {
     InvalidAuthenticationException.class,
-    InvalidAuthenticationTokenException.class
+    InvalidAuthenticationTokenException.class,
+    UsernameNotFoundException.class
   })
-  @ResponseStatus(value = NOT_FOUND)
+  @ResponseStatus(value = UNAUTHORIZED)
   public Object handleUnauthorized(final FleenException e) {
     return localizedResponse.withStatus(e, FleenHttpStatus.unauthorized());
   }

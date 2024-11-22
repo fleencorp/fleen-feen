@@ -28,7 +28,9 @@ public class BlockUserStatusResponse extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "block.user.status";
+    return BlockStatus.isBlocked(blockStatus)
+      ? "block.user.status.blocked"
+      : "block.user.status.unblocked";
   }
 
   @JsonIgnore
