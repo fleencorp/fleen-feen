@@ -10,6 +10,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CalendarEventSearchRequest extends StreamSearchRequest {
+public class EventSearchRequest extends StreamSearchRequest {
 
 }

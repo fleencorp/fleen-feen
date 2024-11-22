@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -160,28 +159,38 @@ public class LocalizedResponse {
   }
 
   /**
-   * Updates the message in the provided {@link FleenFeenResponse} (or any subclass of {@link ApiResponse})
-   * with a localized message corresponding to its message key, and optionally replaces placeholders with the specified parameters.
+   * Updates the message of the given {@link ApiResponse} object based on the provided message code.
    *
-   * <p>This method retrieves the localized message for the given {@link FleenFeenResponse} based on its message key,
-   * using the provided parameters to replace placeholders in the message if applicable. The response's message field is then updated
-   * with the localized message. If the {@code response} or its {@code messageCode} is {@code null}, the method returns {@code null}.</p>
+   * <p>If the provided {@code response} and its {@code messageCode} are not null, this method retrieves
+   * a message corresponding to the given {@code messageCode} and any parameters from the response.
+   * The retrieved message is then set in the response object.
    *
-   * <p>If the {@code params} are {@code null}, they are replaced with an empty array to prevent issues during message formatting.</p>
-   *
-   * @param <T>      the type of the response, which extends {@link ApiResponse}.
-   * @param response the {@link FleenFeenResponse} object (or subclass of {@link ApiResponse}) whose message field should be updated.
-   * @param params   the parameters to replace placeholders in the localized message, or {@code null} if no parameters are needed.
-   * @return the updated {@link FleenFeenResponse} with the localized message, or {@code null} if the input response or message code is {@code null}.
+   * @param <T> the type of the response that extends {@link ApiResponse}
+   * @param response the response object to be updated
+   * @param messageCode the code used to look up the message to be set in the response
+   * @return the updated {@code response} with the new message, or {@code null} if the response or its message code is null
    */
-  public <T extends ApiResponse> T of(final T response, Object[] params) {
+  public <T extends ApiResponse> T of(final T response, final String messageCode) {
     if (nonNull(response) && nonNull(response.getMessageCode())) {
-      if (isNull(params)) {
-        params = new Object[] {};
-      }
-      final String message = getMessageRes(response.getMessageCode(), params);
+      final String message = getMessageRes(messageCode, response.getParams());
       response.setMessage(message);
       return response;
+    }
+    return null;
+  }
+
+  /**
+   * Retrieves a message corresponding to the provided message code.
+   *
+   * <p>If the provided {@code messageCode} is not null, this method looks up the message associated
+   * with the given code and returns it. If the {@code messageCode} is null, it returns {@code null}.
+   *
+   * @param messageCode the code used to look up the message
+   * @return the message corresponding to the {@code messageCode}, or {@code null} if the code is null
+   */
+  public String of(final String messageCode) {
+    if (nonNull(messageCode)) {
+      return getMessageRes(messageCode);
     }
     return null;
   }

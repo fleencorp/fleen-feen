@@ -14,18 +14,22 @@ import lombok.Getter;
 @Getter
 public enum RoleType {
 
-  SUPER_ADMINISTRATOR("Super Administrator"),
-  ADMINISTRATOR("Administrator"),
-  REFRESH_TOKEN_USER("Refresh Token User"),
-  PRE_VERIFIED_USER("Pre Verified User"),
-  PRE_AUTHENTICATED_USER("Pre Authenticated User"),
-  USER("User"),
-  RESET_PASSWORD_USER("Reset Password User");
+  SUPER_ADMINISTRATOR("Super Administrator", "role.type.super.administrator"),
+  ADMINISTRATOR("Administrator", "role.type.administrator"),
+  REFRESH_TOKEN_USER("Refresh Token User", "role.type.refresh.token.user"),
+  PRE_VERIFIED_USER("Pre Verified User", "role.type.pre.verified.user"),
+  PRE_AUTHENTICATED_USER("Pre Authenticated User", "role.type.pre.authenticated.user"),
+  USER("User", "role.type.user"),
+  RESET_PASSWORD_USER("Reset Password User", "role.type.reset.password.user"),;
 
   private final String value;
+  private final String messageCode;
 
-  RoleType(final String value) {
-        this.value = value;
+  RoleType(
+        final String value,
+        final String messageCode) {
+      this.value = value;
+      this.messageCode = messageCode;
     }
 
   /**

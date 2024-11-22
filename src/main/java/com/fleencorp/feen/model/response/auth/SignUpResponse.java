@@ -1,17 +1,17 @@
 package com.fleencorp.feen.model.response.auth;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+import static java.util.Objects.nonNull;
 
 @Builder
 @Getter
@@ -25,7 +25,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "email_address",
   "phone_number",
   "authentication_status",
-  "profile_verification_type"
+  "authentication_stage",
+  "verification_type_info"
 })
 public class SignUpResponse extends ApiResponse {
 
@@ -48,23 +49,45 @@ public class SignUpResponse extends ApiResponse {
   private AuthenticationStatus authenticationStatus;
 
   @JsonFormat(shape = STRING)
-  @JsonProperty("verification_type")
-  private VerificationType verificationType;
+  @JsonProperty("authentication_stage")
+  private AuthenticationStage authenticationStage;
+
+  @JsonProperty("verification_type_info")
+  private VerificationTypeInfo verificationTypeInfo;
+
+  @JsonIgnore
+  private VerificationType getVerificationType() {
+    return nonNull(verificationTypeInfo) ? verificationTypeInfo.getVerificationType() : null;
+  }
 
   @Override
   public String getMessageCode() {
-    return "sign.up";
+    return VerificationType.isEmail(getVerificationType())
+      ? "sign.up.email"
+      : "sign.up.phone";
+  }
+
+  @JsonIgnore
+  public String getCompletedSignUpMessageCode() {
+    return "sign.up.completed";
+  }
+
+  @Override
+  public Object[] getParams() {
+    return VerificationType.isEmail(getVerificationType())
+      ? new Object[]{ emailAddress.getRawValue() }
+      : new Object[]{ phoneNumber.getRawValue() };
   }
 
   public static SignUpResponse of(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber,
-      final AuthenticationStatus authenticationStatus, final VerificationType verificationType) {
+      final AuthenticationStatus authenticationStatus, final AuthenticationStage authenticationStage) {
     return SignUpResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .emailAddress(MaskedEmailAddress.of(emailAddress))
         .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
         .authenticationStatus(authenticationStatus)
-        .verificationType(verificationType)
+        .authenticationStage(authenticationStage)
         .build();
   }
 
@@ -77,7 +100,6 @@ public class SignUpResponse extends ApiResponse {
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .authenticationStatus(authenticationStatus)
-        .verificationType(null)
         .emailAddress(null)
         .phoneNumber(null)
         .build();

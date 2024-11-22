@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.security.token;
 
-import com.fleencorp.feen.configuration.security.properties.TokenProperties;
+import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
@@ -29,22 +29,22 @@ public class TokenServiceImpl implements TokenService {
 
   private final CacheService cacheService;
   private final TokenUtil tokenUtil;
-  private final TokenProperties tokenProperties;
+  private final TokenDurationProperties tokenDurationProperties;
 
   /**
    * Constructs a TokenServiceImpl with the necessary dependencies.
    *
    * @param cacheService    the service used for caching tokens
    * @param tokenUtil       utility for generating and managing tokens
-   * @param tokenProperties properties related to token generation and validation
+   * @param tokenDurationProperties properties related to token generation and validation
    */
   public TokenServiceImpl(
       final CacheService cacheService,
       final TokenUtil tokenUtil,
-      final TokenProperties tokenProperties) {
+      final TokenDurationProperties tokenDurationProperties) {
     this.cacheService = cacheService;
     this.tokenUtil = tokenUtil;
-    this.tokenProperties = tokenProperties;
+    this.tokenDurationProperties = tokenDurationProperties;
   }
 
   /**
@@ -101,7 +101,7 @@ public class TokenServiceImpl implements TokenService {
    */
   @Override
   public void saveAccessToken(final String subject, final String token) {
-    final Duration duration = Duration.ofHours(tokenProperties.getAccessToken());
+    final Duration duration = Duration.ofHours(tokenDurationProperties.getAccessToken());
     cacheService.set(getAccessTokenCacheKey(subject), token, duration);
   }
 
@@ -113,7 +113,7 @@ public class TokenServiceImpl implements TokenService {
    */
   @Override
   public void saveRefreshToken(final String subject, final String token) {
-    final Duration duration = Duration.ofHours(tokenProperties.getRefreshToken());
+    final Duration duration = Duration.ofHours(tokenDurationProperties.getRefreshToken());
     cacheService.set(getRefreshTokenCacheKey(subject), token, duration);
   }
 

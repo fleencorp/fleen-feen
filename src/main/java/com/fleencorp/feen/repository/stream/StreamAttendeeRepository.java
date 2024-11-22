@@ -35,8 +35,6 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   Page<StreamAttendee> findByFleenStreamAndRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
 
-  Optional<StreamAttendee> findByFleenStreamAndMember(FleenStream fleenStream, Member member);
-
   Page<StreamAttendee> findAllByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
   long countByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
@@ -44,7 +42,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:memberIds) AND sa.requestToJoinStatus IN (:statuses)")
   Set<StreamAttendee> findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("memberIds") List<Long> speakerMemberIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.requestToJoinStatus) " +
+  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.requestToJoinStatus, sa.isAttending, sa.fleenStream.streamVisibility, sa.fleenStream.scheduledEndDate) " +
     "FROM StreamAttendee sa LEFT JOIN sa.member m LEFT JOIN sa.fleenStream fs WHERE m = :member AND fs.fleenStreamId IN (:ids)")
   List<StreamAttendeeSelect> findByMemberAndEventOrStreamIds(Member member, @Param("ids") List<Long> eventOrStreamIds);
 

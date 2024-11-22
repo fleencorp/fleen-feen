@@ -3,11 +3,14 @@ package com.fleencorp.feen.service.impl.chat;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
+import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.*;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.mapper.ChatSpaceMapper;
+import com.fleencorp.feen.mapper.ChatSpaceMemberMapper;
+import com.fleencorp.feen.mapper.FleenStreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -20,6 +23,7 @@ import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.dto.chat.member.*;
 import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.projection.ChatSpaceMemberSelect;
 import com.fleencorp.feen.model.projection.ChatSpaceRequestToJoinPendingSelect;
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
@@ -64,17 +68,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus.PENDING;
-import static com.fleencorp.feen.constant.stream.JoinStatus.getJoinStatus;
-import static com.fleencorp.feen.mapper.ChatSpaceMapper.toChatSpaceResponse;
-import static com.fleencorp.feen.mapper.ChatSpaceMapper.toChatSpaceResponses;
-import static com.fleencorp.feen.mapper.ChatSpaceMemberMapper.toChatSpaceMemberResponses;
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -104,24 +104,33 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   private final MemberRepository memberRepository;
   private final UserChatSpaceRepository userChatSpaceRepository;
   private final LocalizedResponse localizedResponse;
+  private final FleenStreamMapper streamMapper;
+  private final ChatSpaceMapper chatSpaceMapper;
+  private final ChatSpaceMemberMapper chatSpaceMemberMapper;
 
   /**
-   * Initializes the ChatSpaceServiceImpl with necessary services and repositories.
+   * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
    *
-   * <p>This constructor sets up dependencies for managing chat spaces, events, and associated entities.</p>
+   * <p>This constructor initializes the service with all required components for managing
+   * chat spaces, including repositories, mappers, and various utility services. It also injects
+   * configuration values like the delegated authority email.</p>
    *
-   * @param delegatedAuthorityEmail The email for delegated authority used in Google integrations
-   * @param miscService Service for miscellaneous and common actions
-   * @param notificationMessageService the service that manages notification messages for events and attendees
-   * @param notificationService the service responsible for managing notifications in the system
-   * @param chatSpaceUpdateService Service for handling updates to chat spaces
-   * @param eventUpdateService Service for managing updates related to events
-   * @param chatSpaceMemberRepository Repository for managing chat space members
-   * @param chatSpaceRepository Repository for chat space entity persistence
-   * @param fleenStreamRepository Repository for managing stream-related data
-   * @param memberRepository Repository for managing member entities
-   * @param userChatSpaceRepository Repository for user-specific chat space interactions
-   * @param localizedResponse Service for handling localized responses
+   * @param delegatedAuthorityEmail the email address used for delegated authority in Google services.
+   * @param miscService handles miscellaneous utility operations.
+   * @param notificationMessageService manages notifications sent as messages.
+   * @param notificationService processes and sends general notifications.
+   * @param streamService provides operations related to streams.
+   * @param chatSpaceUpdateService handles updates to chat spaces.
+   * @param eventUpdateService manages updates to events associated with chat spaces.
+   * @param chatSpaceMemberRepository repository for managing chat space members.
+   * @param chatSpaceRepository repository for chat space entities.
+   * @param fleenStreamRepository repository for stream-related entities.
+   * @param memberRepository repository for member-related data.
+   * @param userChatSpaceRepository repository for user-chat space associations.
+   * @param localizedResponse provides localized responses for API operations.
+   * @param streamMapper maps stream-related entities and responses.
+   * @param chatSpaceMapper maps chat space entities to response models.
+   * @param chatSpaceMemberMapper maps chat space member entities to response models.
    */
   public ChatSpaceServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
@@ -136,7 +145,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       final FleenStreamRepository fleenStreamRepository,
       final MemberRepository memberRepository,
       final UserChatSpaceRepository userChatSpaceRepository,
-      final LocalizedResponse localizedResponse) {
+      final LocalizedResponse localizedResponse,
+      final FleenStreamMapper streamMapper,
+      final ChatSpaceMapper chatSpaceMapper,
+      final ChatSpaceMemberMapper chatSpaceMemberMapper) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.miscService = miscService;
     this.notificationMessageService = notificationMessageService;
@@ -150,6 +162,9 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     this.memberRepository = memberRepository;
     this.userChatSpaceRepository = userChatSpaceRepository;
     this.localizedResponse = localizedResponse;
+    this.streamMapper = streamMapper;
+    this.chatSpaceMapper = chatSpaceMapper;
+    this.chatSpaceMemberMapper = chatSpaceMemberMapper;
   }
 
   /**
@@ -181,7 +196,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     }
 
     // Convert the retrieved chat spaces to response objects
-    final List<ChatSpaceResponse> views = toChatSpaceResponses(page.getContent());
+    final List<ChatSpaceResponse> views = chatSpaceMapper.toChatSpaceResponses(page.getContent());
     // Determine user join status of spaces
     determineUserJoinStatusFoChatSpace(views, user);
     // Return a search result view with the chat space responses and pagination details
@@ -222,7 +237,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     }
 
     // Convert the retrieved chat spaces to response objects
-    final List<ChatSpaceResponse> views = toChatSpaceResponses(page.getContent());
+    final List<ChatSpaceResponse> views = chatSpaceMapper.toChatSpaceResponses(page.getContent());
     // Update the total request to join for each chat space
     updateTotalRequestToJoinForChatSpaces(views);
     // Determine user join status of spaces
@@ -289,6 +304,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   public ChatSpaceMemberSearchResult findChatSpaceMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+
+    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
 
     // Check if the search request includes a member's name
@@ -301,7 +318,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     }
 
     // Convert the chat space members to response views
-    final List<ChatSpaceMemberResponse> views = toChatSpaceMemberResponses(page.getContent());
+    final List<ChatSpaceMemberResponse> views = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Return a search result view with the chat space member responses and pagination details
     return handleSearchResult(
       page,
@@ -327,7 +344,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Find events or streams based on the search request
     final Page<FleenStream> page = fleenStreamRepository.findByChatSpace(ChatSpace.of(chatSpaceId), searchRequest.getPage());
     // Get the list of event or stream views from the search result
-    final List<FleenStreamResponse> views = toFleenStreamResponses(page.getContent());
+    final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponses(page.getContent());
     // Determine statuses like schedule, join status, schedules and timezones
     streamService.determineDifferentStatusesAndDetailsOfEventOrStreamBasedOnUser(views, user);
     // Set the attendees and total attendee count for each event or stream
@@ -371,7 +388,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Delegate the creation of the chat space to the update service
     chatSpaceUpdateService.createChatSpace(chatSpace, createChatSpaceRequest);
     // Return a localized response with the chat space details
-    return localizedResponse.of(CreateChatSpaceResponse.of(toChatSpaceResponse(chatSpace)));
+    return localizedResponse.of(CreateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
   }
 
   /**
@@ -428,14 +445,14 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated FleenStream entity to the repository
     stream = fleenStreamRepository.save(stream);
     // Register the organizer of the event as an attendee or guest
-    streamService.registerAndApproveOrganizerOfEventAsAnAttendee(stream, user);
+    streamService.registerAndApproveOrganizerOfEventOrStreamAsAnAttendee(stream, user);
     // Create the event in Google Calendar and announce it in the chat space
     eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
-
+    // Get the stream response
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
     // Return a localized response with the created event's details
-    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), streamService.incrementAttendeeBecauseOfOrganizerAndGetResponse(stream)));
+    return localizedResponse.of(CreateEventResponse.of(stream.getStreamId(), streamResponse));
   }
-
 
   /**
    * Updates an existing chat space with new details.
@@ -472,7 +489,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Create update chat space request and send to external service
     createAndUpdateChatSpaceInExternalService(updateChatSpaceDto, chatSpace);
     // Return a localized response with the updated chat space details
-    return localizedResponse.of(UpdateChatSpaceResponse.of(toChatSpaceResponse(chatSpace)));
+    return localizedResponse.of(UpdateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
   }
 
   /**
@@ -511,8 +528,22 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
 
+    final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponse(chatSpace);
+    updateUserJoinStatus(chatSpaceResponse, user);
+
     // Return a localized response containing the chat space details
-    return localizedResponse.of(RetrieveChatSpaceResponse.of(toChatSpaceResponse(chatSpace)));
+    return localizedResponse.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
+  }
+
+  public void updateUserJoinStatus(final ChatSpaceResponse chatSpaceResponse, final FleenUser user) {
+    if (nonNull(chatSpaceResponse) && nonNull(user)) {
+      chatSpaceMemberRepository
+        .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(user.getId()), ChatSpace.of(chatSpaceResponse.getNumberId()))
+        .ifPresent(chatSpaceMember -> {
+          final JoinStatus joinStatus = JoinStatus.getJoinStatus(chatSpaceMember.getRequestToJoinStatus(), chatSpaceResponse.getVisibilityInfo().getVisibility());
+          chatSpaceMapper.update(chatSpaceResponse, chatSpaceMember.getRequestToJoinStatus(), joinStatus);
+      });
+    }
   }
 
   /**
@@ -659,8 +690,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpaceMember.upgradeRole();
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
+    // Get the c
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
     // Return a localized response confirming the upgrade
-    return localizedResponse.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId(), chatSpaceMember.getRole()));
+    return localizedResponse.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -695,8 +728,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpaceMember.downgradeRole();
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
+    // Get chat space member role
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
     // Return a localized response confirming the downgrade
-    return localizedResponse.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId(), chatSpaceMember.getRole()));
+    return localizedResponse.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -718,7 +753,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
         // Extract the chat space from each chat space member
         .map(ChatSpaceMember::getChatSpace)
         // Convert each chat space to a ChatSpaceResponse
-        .map(ChatSpaceMapper::toChatSpaceResponse)
+        .map(chatSpaceMapper::toChatSpaceResponse)
         // Collect the responses into a list
         .collect(Collectors.toList());
     }
@@ -960,7 +995,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     }
 
     // Convert the chat space members to response objects
-    final List<ChatSpaceMemberResponse> views = toChatSpaceMemberResponses(page.getContent());
+    final List<ChatSpaceMemberResponse> views = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Return a search result view with the request to join responses and pagination details
     return handleSearchResult(
       page,
@@ -1482,9 +1517,9 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       // Retrieve the user's membership or attendance status for the chat spaces
       final List<ChatSpaceMemberSelect> userMemberships = chatSpaceMemberRepository.findByMemberAndEventOrStreamIds(user.toMember(), eventIds);
       // Group the user's membership statuses by chat space ID
-      final Map<Long, ChatSpaceRequestToJoinStatus> membershipStatusMap = groupMemberStatusByChatSpaceId(userMemberships);
+      final Map<Long, ChatSpaceMemberSelect> membershipMap = groupMemberStatusByChatSpaceId(userMemberships);
       // Update the join status of the responses based on the membership status map
-      updateJoinStatusInResponses(responses, membershipStatusMap);
+      updateJoinStatusInResponses(responses, membershipMap);
     }
   }
 
@@ -1542,13 +1577,13 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param userMembership the list of user memberships to be processed
    * @return a map of chat space IDs to membership statuses
    */
-  protected static Map<Long, ChatSpaceRequestToJoinStatus> groupMemberStatusByChatSpaceId(final List<ChatSpaceMemberSelect> userMembership) {
+  protected static Map<Long, ChatSpaceMemberSelect> groupMemberStatusByChatSpaceId(final List<ChatSpaceMemberSelect> userMembership) {
     if (nonNull(userMembership) && !userMembership.isEmpty()) {
       return userMembership.stream()
         // Filter out any null entries in the list
         .filter(Objects::nonNull)
         // Collect results into a map with chat space ID as key and membership status as value
-        .collect(Collectors.toMap(ChatSpaceMemberSelect::getChatSpaceId, ChatSpaceMemberSelect::getRequestToJoinStatus));
+        .collect(Collectors.toMap(ChatSpaceMemberSelect::getChatSpaceId, Function.identity()));
     }
     // Return an empty map if the input list is null or empty
     return Map.of();
@@ -1566,21 +1601,15 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param responses the list of {@link ChatSpaceResponse} to be updated
    * @param membershipStatusMap a map of membership statuses keyed by the chat space ID
    */
-  protected void updateJoinStatusInResponses(final List<ChatSpaceResponse> responses, final Map<Long, ChatSpaceRequestToJoinStatus> membershipStatusMap) {
+  protected void updateJoinStatusInResponses(final List<ChatSpaceResponse> responses, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
     if (nonNull(responses) && nonNull(membershipStatusMap)) {
       responses.stream()
         .filter(Objects::nonNull)
         .forEach(chatSpace -> {
           // Retrieve the membership status for the current chat space response
-          final Optional<ChatSpaceRequestToJoinStatus> existingStatus = Optional.ofNullable(membershipStatusMap.get(chatSpace.getNumberId()));
-
+          final Optional<ChatSpaceMemberSelect> existingMembership = Optional.ofNullable(membershipStatusMap.get(chatSpace.getNumberId()));
           // If a membership status exists, set the join status on the response
-          existingStatus.ifPresent(status -> {
-            // Get the status label based on the user's join status
-            final String statusLabel = getJoinStatus(status);
-            // Set the join status for the chatSpace
-            chatSpace.setJoinStatus(statusLabel);
-          });
+          existingMembership.ifPresent(membership -> chatSpaceMapper.update(chatSpace, membership.getRequestToJoinStatus(), membership.getJoinStatus()));
       });
     }
   }

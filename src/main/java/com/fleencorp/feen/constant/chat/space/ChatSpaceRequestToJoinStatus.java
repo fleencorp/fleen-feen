@@ -17,14 +17,18 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ChatSpaceRequestToJoinStatus implements ApiParameter {
 
-  APPROVED("Approved"),
-  DISAPPROVED("Disapproved"),
-  PENDING("Pending");
+  APPROVED("Approved", "chat.space.request.to.join.status.approved"),
+  DISAPPROVED("Disapproved", "chat.space.request.to.join.status.disapproved"),
+  PENDING("Pending", "chat.space.request.to.join.status.pending");
 
   private final String value;
+  private final String messageCode;
 
-  ChatSpaceRequestToJoinStatus(final String value) {
+  ChatSpaceRequestToJoinStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   /**
@@ -73,5 +77,15 @@ public enum ChatSpaceRequestToJoinStatus implements ApiParameter {
    */
   public static ChatSpaceRequestToJoinStatus of(final String value) {
     return parseEnumOrNull(value, ChatSpaceRequestToJoinStatus.class);
+  }
+
+  /**
+   * Returns the approved status for a request to join a chat space.
+   * This method is used to retrieve the predefined status that indicates the request has been approved.
+   *
+   * @return The {@link ChatSpaceRequestToJoinStatus} representing the approved status.
+   */
+  public static ChatSpaceRequestToJoinStatus approved() {
+    return APPROVED;
   }
 }

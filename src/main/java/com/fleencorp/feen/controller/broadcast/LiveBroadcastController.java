@@ -44,8 +44,9 @@ public class LiveBroadcastController {
 
   @GetMapping(value = "/detail/{streamId}")
   public RetrieveStreamResponse findLiveBroadcast(
-      @PathVariable(name = "streamId") final Long streamId) {
-    return liveBroadcastService.retrieveStream(streamId);
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.retrieveStream(streamId, user);
   }
 
   @GetMapping(value = "/attendees/{streamId}")

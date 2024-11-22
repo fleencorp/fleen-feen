@@ -1,14 +1,12 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.response.base.ApiResponse;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
+import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import lombok.*;
-
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Builder
 @Getter
@@ -17,27 +15,26 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "enabled",
-  "mfa_type"
+  "is_mfa_enabled_info",
+  "mfa_type_info"
 })
 public class MfaStatusResponse extends ApiResponse {
 
-  @JsonProperty("enabled")
-  private boolean enabled;
+  @JsonProperty("is_mfa_enabled_info")
+  private IsMfaEnabledInfo isMfaEnabledInfo;
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("mfa_type")
-  private MfaType mfaType;
+  @JsonProperty("mfa_type_info")
+  private MfaTypeInfo mfaTypeInfo;
 
   @Override
   public String getMessageCode() {
     return "mfa.status";
   }
 
-  public static MfaStatusResponse of(final boolean enabled, final MfaType mfaType) {
+  public static MfaStatusResponse of(final IsMfaEnabledInfo mfaEnabledInfo, final MfaTypeInfo mfaTypeInfo) {
     return MfaStatusResponse.builder()
-        .enabled(enabled)
-        .mfaType(mfaType)
-        .build();
+      .isMfaEnabledInfo(mfaEnabledInfo)
+      .mfaTypeInfo(mfaTypeInfo)
+      .build();
   }
 }

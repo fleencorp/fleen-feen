@@ -1,10 +1,16 @@
 package com.fleencorp.feen.model.projection;
 
+import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.StreamVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+import static java.util.Objects.nonNull;
 
 /**
  * @see <a href="https://velog.io/@pjh612/Spring-Data-JPA%EC%97%90%EC%84%9C%EC%9D%98-Projection-%EB%B0%A9%EB%B2%95">
@@ -36,4 +42,16 @@ public class StreamAttendeeSelect {
 
   private Long eventOrStreamId;
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
+  private Boolean isAttending;
+  private StreamVisibility streamVisibility;
+  private LocalDateTime endDate;
+
+  public boolean isAttending() {
+    return nonNull(isAttending) && isAttending;
+  }
+
+  public JoinStatus getJoinStatus() {
+    return JoinStatus.getJoinStatus(requestToJoinStatus, streamVisibility, endDate.isBefore(LocalDateTime.now()), isAttending);
+  }
+
 }

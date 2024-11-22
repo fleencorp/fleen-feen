@@ -29,7 +29,7 @@ import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import com.fleencorp.feen.service.impl.external.aws.S3Service;
+import com.fleencorp.feen.service.impl.external.aws.StorageService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.user.MemberService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class MemberServiceImpl implements MemberService,
 
   private final CacheService cacheService;
   private final CountryService countryService;
-  private final S3Service s3Service;
+  private final StorageService storageService;
   private final MemberRepository memberRepository;
   private final UserProfileRepository userProfileRepository;
   private final LocalizedResponse localizedResponse;
@@ -77,7 +77,7 @@ public class MemberServiceImpl implements MemberService,
   public MemberServiceImpl(
       final CacheService cacheService,
       final CountryService countryService,
-      final S3Service s3Service,
+      final StorageService storageService,
       final MemberRepository memberRepository,
       final UserProfileRepository userProfileRepository,
       final LocalizedResponse localizedResponse,
@@ -86,7 +86,7 @@ public class MemberServiceImpl implements MemberService,
       final S3BucketNames s3BucketNames) {
     this.cacheService = cacheService;
     this.countryService = countryService;
-    this.s3Service = s3Service;
+    this.storageService = storageService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
     this.localizedResponse = localizedResponse;
@@ -498,9 +498,9 @@ public class MemberServiceImpl implements MemberService,
     // Check if the member has a profile photo set
     if (nonNull(profilePhotoUrl)) {
       // Retrieve the object key from the profile photo URL
-      final String key = s3Service.getObjectKeyFromUrl(profilePhotoUrl);
+      final String key = storageService.getObjectKeyFromUrl(profilePhotoUrl);
       // Delete the profile photo from the S3 bucket
-      s3Service.deleteObject(s3BucketNames.getUserPhoto(), key);
+      storageService.deleteObject(s3BucketNames.getUserPhoto(), key);
       // Delete the member's profile photo
       member.deleteProfilePhoto();
       // Save the updated member information to the repository

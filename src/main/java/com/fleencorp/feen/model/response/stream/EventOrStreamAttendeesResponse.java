@@ -7,8 +7,8 @@ import com.fleencorp.base.model.response.base.ApiResponse;
 import lombok.*;
 import org.springframework.data.domain.Page;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -33,7 +33,7 @@ public class EventOrStreamAttendeesResponse extends ApiResponse {
 
   @Builder.Default
   @JsonProperty("attendees")
-  private List<EventOrStreamAttendeeResponse> attendees = new ArrayList<>();
+  private Set<EventOrStreamAttendeeResponse> attendees = new HashSet<>();
 
   @JsonProperty("page")
   private Page<?> page;

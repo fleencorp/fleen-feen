@@ -14,14 +14,18 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum StreamAttendeeRequestToJoinStatus implements ApiParameter {
 
-  APPROVED("APPROVED"),
-  DISAPPROVED("DISAPPROVED"),
-  PENDING("PENDING");
+  APPROVED("APPROVED", "stream.attendee.request.to.join.status.approved"),
+  DISAPPROVED("DISAPPROVED", "stream.attendee.request.to.join.status.disapproved"),
+  PENDING("PENDING", "stream.attendee.request.to.join.status.pending");
 
   private final String value;
+  private final String messageCode;
 
-  StreamAttendeeRequestToJoinStatus(final String value) {
+  StreamAttendeeRequestToJoinStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static StreamAttendeeRequestToJoinStatus of(final String value) {
@@ -56,6 +60,15 @@ public enum StreamAttendeeRequestToJoinStatus implements ApiParameter {
    */
   public static boolean isDisapproved(final StreamAttendeeRequestToJoinStatus status) {
     return DISAPPROVED == status;
+  }
+
+  /**
+   * Returns the approved status for a StreamAttendeeRequestToJoinStatus.
+   *
+   * @return the approved StreamAttendeeRequestToJoinStatus.
+   */
+  public static StreamAttendeeRequestToJoinStatus approved() {
+    return APPROVED;
   }
 
 }

@@ -5,8 +5,9 @@ import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.service.impl.external.google.chat.GoogleChatService;
+import com.fleencorp.feen.service.impl.external.google.firebase.CloudNotificationService;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,15 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-import static com.fleencorp.feen.mapper.FleenStreamMapper.toFleenStreamResponse;
-import static java.util.Objects.requireNonNull;
-
 @RestController
 @RequestMapping(value = "/simple")
 @RequiredArgsConstructor
 public class SimpleController {
 
   private final GoogleChatService googleChatService;
+  private final CloudNotificationService cloudNotificationService;
+
+  @GetMapping(value = "/3")
+  public Object two() throws FirebaseMessagingException {
+    cloudNotificationService.sendMessage();
+    return "Hello World!";
+  }
 
   @GetMapping(value = "/1")
   public Object just1() {
@@ -57,13 +62,13 @@ public class SimpleController {
       .build();
 
     // Prepare the request to send a calendar event message to the chat space
-    final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
+/*    final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
       stream.getSpaceIdOrName(),
       requireNonNull(toFleenStreamResponse(stream))
     );
 
     // Send the event message to the chat space
-    googleChatService.createCalendarEventMessageAndSendToChatSpace(googleChatSpaceMessageRequest);
+    googleChatService.createCalendarEventMessageAndSendToChatSpace(googleChatSpaceMessageRequest);*/
     return "Hello World!";
   }
 

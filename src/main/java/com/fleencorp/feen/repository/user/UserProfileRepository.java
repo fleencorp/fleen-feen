@@ -20,10 +20,10 @@ public interface UserProfileRepository extends JpaRepository<Member, Long> {
   @Query("UPDATE Member m SET m.profileStatus = :profileStatus  WHERE m = :member")
   void updateProfileStatus(@Param("member") Member member, @Param("profileStatus") ProfileStatus profileStatus);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.MemberInfoSelect(m.memberId, m.firstName, m.lastName, m.country) FROM Member m WHERE m = :member")
+  @Query("SELECT new com.fleencorp.feen.model.projection.MemberInfoSelect(m.memberId, m.firstName, m.lastName, m.profilePhotoUrl, m.country) FROM Member m WHERE m = :member")
   Optional<MemberInfoSelect> findInfoByMember(@Param("member") Member member);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.MemberUpdateSelect(m.memberId, m.firstName, m.lastName, m.country) FROM Member m WHERE m = :member")
+  @Query("SELECT new com.fleencorp.feen.model.projection.MemberUpdateSelect(m.memberId, m.firstName, m.lastName, m.emailAddress, m.phoneNumber, m.country) FROM Member m WHERE m = :member")
   Optional<MemberUpdateSelect> findByMember(@Param("member") Member member);
 
   @Query("SELECT new com.fleencorp.feen.model.projection.MemberProfileStatusSelect(m.profileStatus) FROM Member m WHERE m = :member")

@@ -29,7 +29,7 @@ public class StreamReviewResponse extends FleenFeenResponse {
   private String review;
 
   @JsonProperty("rating")
-  private Object rating;
+  private Integer rating;
 
   @JsonProperty("rating_name")
   private String ratingName;

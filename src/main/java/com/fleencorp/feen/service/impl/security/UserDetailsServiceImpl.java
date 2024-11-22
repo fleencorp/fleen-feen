@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.impl.security;
 
+import com.fleencorp.feen.exception.auth.UsernameNotFoundException;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     // Retrieve the member from the repository by email address
     final Member member = repository
       .findByEmailAddress(emailAddress)
-      .orElseThrow(() -> new UsernameNotFoundException(emailAddress));
+      .orElseThrow(UsernameNotFoundException.of(emailAddress));
 
     // Convert the member to UserDetails
     return fromMember(member);

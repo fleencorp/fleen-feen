@@ -17,15 +17,19 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ProfileVerificationStatus implements ApiParameter {
 
-  APPROVED("Approved"),
-  DISAPPROVED("Disapproved"),
-  IN_PROGRESS("In Progress"),
-  PENDING("Pending");
+  APPROVED("Approved", "profile.verification.status.approved"),
+  DISAPPROVED("Disapproved", "profile.verification.status.disapproved"),
+  IN_PROGRESS("In Progress", "profile.verification.status.in.progress"),
+  PENDING("Pending", "profile.verification.status.pending"),;
 
   private final String value;
+  private final String messageCode;
 
-  ProfileVerificationStatus(final String value) {
+  ProfileVerificationStatus(
+      final String value,
+      final String messageCode) {
     this.value = value;
+    this.messageCode = messageCode;
   }
 
   public static ProfileVerificationStatus of(final String value) {
