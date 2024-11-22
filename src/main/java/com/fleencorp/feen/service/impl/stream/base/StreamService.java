@@ -15,8 +15,10 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
@@ -194,8 +196,14 @@ public class StreamService {
           final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = streamMapper.toRequestToJoinStatus(attendee.getRequestToJoinStatus());
           // Determine the join status info based on the stream and attendee details
           final JoinStatusInfo joinStatusInfo = streamMapper.toJoinStatus(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending());
+          // Determine the is attending information based on the user's status attendee status
+          final IsAttendingInfo isAttendingInfo = streamMapper.toIsAttendingInfo(attendee.isAttending());
+          // Create a stream attendee response with basic info
+          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getFullName());
+          // Add the attendance info on the attendee response
+          attendeeResponse.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
           // Return a new StreamAttendeeResponse object with the attendee's details and status info
-          return StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getFullName(), requestToJoinStatusInfo, joinStatusInfo);
+          return attendeeResponse;
         })
         // Collect all mapped responses into a set
         .collect(Collectors.toSet());
