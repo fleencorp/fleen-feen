@@ -18,15 +18,15 @@ import lombok.*;
 public class IsForKidsInfo {
 
   @JsonProperty("for_kids")
-  private Boolean isForKids;
+  private Boolean forKids;
 
   @JsonProperty("for_kids_text")
-  private String isForKidsText;
+  private String forKidsText;
 
   public static IsForKidsInfo of(final Boolean isForKids, final String isFForKidsText) {
     return IsForKidsInfo.builder()
-      .isForKids(isForKids)
-      .isForKidsText(isFForKidsText)
+      .forKids(isForKids)
+      .forKidsText(isFForKidsText)
       .build();
   }
 }

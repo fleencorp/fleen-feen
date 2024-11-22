@@ -3,14 +3,11 @@ package com.fleencorp.feen.mapper;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamSourceInfo;
-import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
+import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
@@ -76,6 +73,12 @@ public class FleenStreamMapper {
       final StreamTimeType scheduleTimeType = entry.getStreamSchedule();
       final IsForKids isForKids = IsForKids.by(entry.isForKids());
 
+      final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(false);
+      final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of();
+      final JoinStatusInfo joinStatusInfo = entry.isPrivate()
+        ? JoinStatusInfo.of(joinStatusNotJoinedPrivate, translate(joinStatusNotJoinedPrivate.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()))
+        : JoinStatusInfo.of(joinStatusNotJoinedPublic, translate(joinStatusNotJoinedPublic.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()));
+
       return FleenStreamResponse.builder()
           .id(entry.getStreamId())
           .title(entry.getTitle())
@@ -91,15 +94,11 @@ public class FleenStreamMapper {
           .scheduleTimeTypeInfo(ScheduleTimeTypeInfo.of(scheduleTimeType, translate(scheduleTimeType.getMessageCode())))
           .forKidsIno(IsForKidsInfo.of(entry.isForKids(), translate(isForKids.getMessageCode())))
           .organizer(Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone()))
-          .requestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of())
-          .joinStatusInfo(entry.isPrivate()
-            ? JoinStatusInfo.of(joinStatusNotJoinedPrivate, translate(joinStatusNotJoinedPrivate.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()))
-            : JoinStatusInfo.of(joinStatusNotJoinedPublic, translate(joinStatusNotJoinedPublic.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2())))
-          .isAttendingInfo(toIsAttendingInfo(false))
           .streamLink(entry.getMaskedStreamLink())
           .streamLinkUnmasked(entry.getStreamLink())
           .streamLinkNotMasked(entry.getStreamLink())
           .totalAttending(entry.getTotalAttendees())
+          .attendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo))
           .build();
     }
     return null;
@@ -114,14 +113,16 @@ public class FleenStreamMapper {
    */
   public FleenStreamResponse toFleenStreamResponseApproved(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse streamResponse = toFleenStreamResponse(entry);
+      final FleenStreamResponse stream = toFleenStreamResponse(entry);
       final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final StreamAttendeeRequestToJoinStatus requestToJoinStatus = StreamAttendeeRequestToJoinStatus.approved();
 
-      streamResponse.setIsAttendingInfo(toIsAttendingInfo(true));
-      streamResponse.setJoinStatusInfo(JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2())));
-      streamResponse.setRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode())));
-      return streamResponse;
+      final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(true);
+      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+      final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
+
+      stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
+      return stream;
     }
     return null;
   }
@@ -134,10 +135,9 @@ public class FleenStreamMapper {
    */
   public FleenStreamResponse toFleenStreamResponseNoJoinStatus(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse streamResponse = toFleenStreamResponse(entry);
-      streamResponse.setRequestToJoinStatusInfo(null);
-      streamResponse.setJoinStatusInfo(null);
-      return streamResponse;
+      final FleenStreamResponse stream = toFleenStreamResponse(entry);
+      stream.setAttendanceInfo(AttendanceInfo.of());
+      return stream;
     }
     return null;
   }
@@ -267,45 +267,55 @@ public class FleenStreamMapper {
    * @param isAttending {@code true} if the user is attending the stream, {@code false} otherwise
    */
   public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending) {
-    updateRequestToJoinStatus(stream, requestToJoinStatus);
-    updateJoinStatus(stream, joinStatus);
-    updateAttendingStatus(stream, isAttending);
+    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(stream, requestToJoinStatus);
+    final JoinStatusInfo joinStatusInfo = toJoinStatusInfo(stream, joinStatus);
+    final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(stream, isAttending);
+
+    stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
   }
 
   /**
-   * Updates the request-to-join status information in the given stream response.
+   * Converts the given FleenStreamResponse and StreamAttendeeRequestToJoinStatus
+   * to StreamAttendeeRequestToJoinStatusInfo.
    *
-   * @param stream the stream response object to be updated
-   * @param requestToJoinStatus the status of the request to join the stream
+   * @param stream the FleenStreamResponse to be checked.
+   * @param requestToJoinStatus the StreamAttendeeRequestToJoinStatus to be translated.
+   * @return the StreamAttendeeRequestToJoinStatusInfo object with translated message
+   * if both stream and requestToJoinStatus are non-null, otherwise null.
    */
-  private void updateRequestToJoinStatus(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
+  private StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
     if (nonNull(stream) && nonNull(requestToJoinStatus)) {
-      stream.setRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode())));
+      return StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
     }
+    return null;
   }
 
   /**
-   * Updates the join status information in the given stream response.
+   * Converts the given FleenStreamResponse and JoinStatus to JoinStatusInfo.
    *
-   * @param stream the response object containing stream information to be updated
-   * @param joinStatus the join status to be set in the stream response
+   * @param stream the FleenStreamResponse to be checked.
+   * @param joinStatus the JoinStatus to be translated.
+   * @return the JoinStatusInfo object with translated messages if both stream and joinStatus are non-null, otherwise null.
    */
-  private void updateJoinStatus(final FleenStreamResponse stream, final JoinStatus joinStatus) {
+  private JoinStatusInfo toJoinStatusInfo(final FleenStreamResponse stream, final JoinStatus joinStatus) {
     if (nonNull(stream) && nonNull(joinStatus)) {
-      stream.setJoinStatusInfo(JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2())));
+      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
     }
+    return null;
   }
 
   /**
-   * Updates the attending status information in the given stream response.
+   * Converts the given FleenStreamResponse and attendance status to IsAttendingInfo.
    *
-   * @param stream the response object containing stream information to be updated
-   * @param isAttending {@code true} if the user is attending the stream, {@code false} otherwise
+   * @param stream the FleenStreamResponse to be checked.
+   * @param isAttending the attendance status.
+   * @return the IsAttendingInfo object with translated message if the stream is non-null, otherwise null.
    */
-  private void updateAttendingStatus(final FleenStreamResponse stream, final boolean isAttending) {
+  private IsAttendingInfo toIsAttendingInfo(final FleenStreamResponse stream, final boolean isAttending) {
     if (nonNull(stream)) {
-      stream.setIsAttendingInfo(IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode())));
+      return IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode()));
     }
+    return null;
   }
 
 }

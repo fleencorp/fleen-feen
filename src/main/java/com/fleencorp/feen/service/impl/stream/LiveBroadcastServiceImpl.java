@@ -18,8 +18,9 @@ import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.*;
@@ -419,8 +420,10 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   public JoinStreamResponse joinStream(final Long streamId, final FleenUser user) {
     // Verify the user details and attempt to join the event
     final FleenStreamResponse streamResponse = joinEventOrStream(streamId, user);
+    // Extract the attendance info
+    final AttendanceInfo attendanceInfo = streamResponse.getAttendanceInfo();
     // Return localized response of the join event including status
-    return localizedResponse.of(JoinStreamResponse.of(streamId, streamResponse.getRequestToJoinStatusInfo(), streamResponse.getJoinStatusInfo()));
+    return localizedResponse.of(JoinStreamResponse.of(streamId, attendanceInfo.getRequestToJoinStatusInfo(), attendanceInfo.getJoinStatusInfo()));
   }
 
   /**

@@ -29,5 +29,9 @@ public class IsAttendingInfo {
       .attendingText(isAttendingText)
       .build();
   }
+
+  public static IsAttendingInfo of() {
+    return new IsAttendingInfo();
+  }
 }
 
