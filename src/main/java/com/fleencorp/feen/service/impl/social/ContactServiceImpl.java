@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.social;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.dto.social.contact.AddContactDto;
@@ -14,7 +15,6 @@ import com.fleencorp.feen.model.search.contact.ContactSearchResult;
 import com.fleencorp.feen.model.search.contact.EmptyContactSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.ContactRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.social.ContactService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
