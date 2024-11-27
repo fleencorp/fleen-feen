@@ -171,7 +171,7 @@ public class LocalizedResponse {
    * @return the updated {@code response} with the new message, or {@code null} if the response or its message code is null
    */
   public <T extends ApiResponse> T of(final T response, final String messageCode) {
-    if (nonNull(response) && nonNull(response.getMessageCode())) {
+    if (nonNull(response) && nonNull(messageCode)) {
       final String message = getMessageRes(messageCode, response.getParams());
       response.setMessage(message);
       return response;
