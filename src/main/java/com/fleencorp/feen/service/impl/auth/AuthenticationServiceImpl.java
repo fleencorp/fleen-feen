@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.auth;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -49,7 +50,6 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.VerificationService;

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.social;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
@@ -14,7 +15,6 @@ import com.fleencorp.feen.model.search.social.blocking.EmptyBlockingUserSearchRe
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.social.BlockUserService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;

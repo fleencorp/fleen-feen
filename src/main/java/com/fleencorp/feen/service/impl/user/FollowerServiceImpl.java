@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.user.Follower;
@@ -15,7 +16,6 @@ import com.fleencorp.feen.model.search.social.follower.following.EmptyFollowingS
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.user.FollowerService;
