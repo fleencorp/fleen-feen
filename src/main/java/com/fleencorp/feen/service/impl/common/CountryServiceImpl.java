@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.common;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.mapper.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
@@ -11,7 +12,6 @@ import com.fleencorp.feen.model.search.country.CountrySearchResult;
 import com.fleencorp.feen.model.search.country.EmptyCountrySearchResult;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

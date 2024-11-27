@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.calendar;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
@@ -28,7 +29,6 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
 import lombok.extern.slf4j.Slf4j;

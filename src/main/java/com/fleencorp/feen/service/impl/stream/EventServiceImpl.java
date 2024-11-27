@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream;
 
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -53,7 +54,6 @@ import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;

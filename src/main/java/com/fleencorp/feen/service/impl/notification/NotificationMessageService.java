@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.notification;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -9,7 +10,6 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import org.springframework.stereotype.Component;
 
 import static com.fleencorp.feen.constant.notification.NotificationType.*;
