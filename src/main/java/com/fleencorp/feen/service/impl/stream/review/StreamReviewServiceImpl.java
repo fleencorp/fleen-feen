@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamReview;
@@ -13,7 +14,6 @@ import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamReviewRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.StreamReviewService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;

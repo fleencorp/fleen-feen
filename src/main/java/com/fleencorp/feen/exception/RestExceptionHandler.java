@@ -2,6 +2,7 @@ package com.fleencorp.feen.exception;
 
 import com.fleencorp.base.exception.FleenException;
 import com.fleencorp.base.model.response.error.ErrorResponse;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
@@ -32,7 +33,6 @@ import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

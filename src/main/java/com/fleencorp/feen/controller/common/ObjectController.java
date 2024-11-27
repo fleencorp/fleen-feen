@@ -1,9 +1,9 @@
 package com.fleencorp.feen.controller.common;
 
 import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.external.aws.StorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

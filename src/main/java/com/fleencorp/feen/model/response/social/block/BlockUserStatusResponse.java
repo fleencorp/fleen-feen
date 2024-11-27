@@ -19,9 +19,6 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 })
 public class BlockUserStatusResponse extends ApiResponse {
 
-  @JsonProperty("message")
-  private String message;
-
   @JsonFormat(shape = STRING)
   @JsonProperty("block_status")
   private BlockStatus blockStatus;

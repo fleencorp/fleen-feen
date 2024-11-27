@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.speaker;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
@@ -24,7 +25,6 @@ import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamSpeakerRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.stream.StreamSpeakerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

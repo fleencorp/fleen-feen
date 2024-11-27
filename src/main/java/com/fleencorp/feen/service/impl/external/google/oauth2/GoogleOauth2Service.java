@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.external.google.oauth2;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2Autho
 import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.security.mfa;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -26,7 +27,6 @@ import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.security.MfaRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.OtpService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
