@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
@@ -27,7 +28,6 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.repository.user.UserProfileRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.impl.external.aws.StorageService;
 import com.fleencorp.feen.service.security.VerificationService;

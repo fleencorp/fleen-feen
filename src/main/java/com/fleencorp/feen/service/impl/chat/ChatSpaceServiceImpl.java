@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.chat;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.stream.JoinStatus;
@@ -56,7 +57,6 @@ import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
 import com.fleencorp.feen.service.impl.stream.update.EventUpdateService;
