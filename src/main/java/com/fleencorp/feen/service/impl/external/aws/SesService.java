@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.external.aws;
 
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.model.dto.aws.VerifyEmailIdentityDto;
 import com.fleencorp.feen.model.response.external.aws.VerifyEmailIdentityResponse;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;

@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.notification;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.constant.notification.NotificationType;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
@@ -11,7 +12,6 @@ import com.fleencorp.feen.model.search.notification.EmptyNotificationSearchResul
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.notification.NotificationRepository;
-import com.fleencorp.feen.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.service.notification.NotificationService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
