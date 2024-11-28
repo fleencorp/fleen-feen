@@ -73,7 +73,7 @@ public class SignUpDto {
   @JsonProperty("verification_type")
   private String verificationType;
 
-  public VerificationType getActualVerificationType() {
+  public VerificationType getVerificationType() {
     return VerificationType.of(verificationType);
   }
 

@@ -46,9 +46,30 @@ public class Calendar extends FleenFeenEntity {
   @Column(name = "is_active", nullable = false)
   private Boolean isActive = true;
 
+  /**
+   * Updates the title, description, and timezone of the object.
+   *
+   * @param title       the new title
+   * @param description the new description
+   * @param timezone    the new timezone
+   */
   public void update(final String title, final String description, final String timezone) {
     this.title = title;
     this.description = description;
     this.timezone = timezone;
+  }
+
+  /**
+   * Marks the calendar as active.
+   */
+  public void markAsActive() {
+    isActive = true;
+  }
+
+  /**
+   * Marks the calendar as inactive.
+   */
+  public void markAsInactive() {
+    isActive = false;
   }
 }

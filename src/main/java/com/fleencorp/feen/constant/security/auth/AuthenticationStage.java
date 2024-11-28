@@ -20,4 +20,8 @@ public enum AuthenticationStage implements ApiParameter {
   AuthenticationStage(final String value) {
     this.value = value;
   }
+
+  public static AuthenticationStage preVerification() {
+    return PRE_VERIFICATION;
+  }
 }

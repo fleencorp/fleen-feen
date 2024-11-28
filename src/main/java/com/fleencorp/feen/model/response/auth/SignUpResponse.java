@@ -104,4 +104,9 @@ public class SignUpResponse extends ApiResponse {
         .phoneNumber(null)
         .build();
   }
+
+  public static SignUpResponse ofDefault(final String accessToken, final String refreshToken, final String emailAddress, final String phoneNumber) {
+    return SignUpResponse.of(
+      accessToken, refreshToken, emailAddress, phoneNumber, AuthenticationStatus.IN_PROGRESS, AuthenticationStage.PRE_VERIFICATION);
+  }
 }
