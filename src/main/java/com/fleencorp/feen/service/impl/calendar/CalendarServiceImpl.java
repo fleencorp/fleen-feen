@@ -266,7 +266,7 @@ public class CalendarServiceImpl implements CalendarService {
         oauth2Authorization.getAccessToken(),
         user.getEmailAddress());
 
-    calendar.setIsActive(true);
+    calendar.markAsActive();
     // Save updated calendar
     calendar = calendarRepository.save(calendar);
 
@@ -303,7 +303,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Log deletion response from external service
     log.info("Deleted calendar: {}", deleteCalendarResponse);
-    calendar.setIsActive(false);
+    calendar.markAsInactive();
 
     calendarRepository.save(calendar);
     return localizedResponse.of(DeletedCalendarResponse.of(calendarId));

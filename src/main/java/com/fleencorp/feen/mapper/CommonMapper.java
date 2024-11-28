@@ -7,12 +7,12 @@ import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.broadcast.NotAttendingStreamResponse;
@@ -43,7 +43,7 @@ import static java.util.Objects.nonNull;
 public class CommonMapper {
 
   private final FleenStreamMapper streamMapper;
-  private final MessageSource messageSource;;
+  private final MessageSource messageSource;
 
   /**
    * Constructs a new instance of {@link CommonMapper} with the specified dependencies.
@@ -160,6 +160,21 @@ public class CommonMapper {
     if (nonNull(signInResponse) && nonNull(isMfaEnabled)) {
       signInResponse.setIsMfaEnabledInfo(IsMfaEnabledInfo.of(isMfaEnabled, translate(IsMfaEnabled.by(isMfaEnabled).getMessageCode())));
     }
+  }
+
+  /**
+   * Sets the MFA (Multi-Factor Authentication) status and type in the sign-in response.
+   *
+   * <p>This method updates the {@code signInResponse} with the provided MFA type and
+   * enables or disables MFA based on the {@code isMfaEnabled} flag.</p>
+   *
+   * @param signInResponse the response object that will be updated with the MFA status and type
+   * @param isMfaEnabled a flag indicating whether MFA is enabled
+   * @param mfaType the type of MFA to be set (e.g., SMS, email, etc.)
+   */
+  public void setMfaEnabledAndMfaType(final SignInResponse signInResponse, final Boolean isMfaEnabled, final MfaType mfaType) {
+    setMfaType(signInResponse, mfaType);
+    setMfaEnabled(signInResponse, isMfaEnabled);
   }
 
   /**
