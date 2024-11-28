@@ -50,7 +50,7 @@ public class ProfileToken extends FleenFeenEntity {
    * @param resetPasswordToken the new reset password token to be assigned
    * @param resetPasswordTokenExpiryDate the new expiry date for the reset password token
    */
-  public void updateMemberAndResetPasswordTokenAndExpiryDate(Member member, String resetPasswordToken, LocalDateTime resetPasswordTokenExpiryDate) {
+  public void updateMemberAndResetPasswordTokenAndExpiryDate(final Member member, final String resetPasswordToken, final LocalDateTime resetPasswordTokenExpiryDate) {
     this.member = member;
     this.resetPasswordToken = resetPasswordToken;
     this.resetPasswordTokenExpiryDate = resetPasswordTokenExpiryDate;

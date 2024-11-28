@@ -140,7 +140,7 @@ public class CacheService {
   /**
    * Checks if the cache entry exists, and if so, deletes it.
    */
-  public void existsAndDelete(String cacheKey) {
+  public void existsAndDelete(final String cacheKey) {
     if (exists(cacheKey)) {
       delete(cacheKey);
     }

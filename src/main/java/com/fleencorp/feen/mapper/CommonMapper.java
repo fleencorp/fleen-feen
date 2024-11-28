@@ -43,7 +43,7 @@ import static java.util.Objects.nonNull;
 public class CommonMapper {
 
   private final FleenStreamMapper streamMapper;
-  private final MessageSource messageSource;;
+  private final MessageSource messageSource;
 
   /**
    * Constructs a new instance of {@link CommonMapper} with the specified dependencies.

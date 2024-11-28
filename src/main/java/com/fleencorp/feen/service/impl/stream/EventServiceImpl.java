@@ -52,7 +52,6 @@ import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
-import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.impl.stream.base.StreamService;
@@ -109,7 +108,6 @@ public class EventServiceImpl extends StreamService implements EventService {
    * management, while adding specialized event-related services.</p>
    *
    * @param delegatedAuthorityEmail email address used for delegated authority in Google services.
-   * @param countryService provides country-specific operations and data.
    * @param miscService handles miscellaneous utility operations.
    * @param eventUpdateService service for handling event-related updates.
    * @param notificationMessageService provides services for generating notification messages.
@@ -127,7 +125,6 @@ public class EventServiceImpl extends StreamService implements EventService {
    */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
-      final CountryService countryService,
       final MiscService miscService,
       final EventUpdateService eventUpdateService,
       final NotificationMessageService notificationMessageService,

@@ -291,7 +291,7 @@ public class Member extends FleenFeenEntity {
    *
    * @param roles The collection of roles to add.
    */
-  public void addRoles(Collection<Role> roles) {
+  public void addRoles(final Collection<Role> roles) {
     if (roles != null && !roles.isEmpty()) {
       this.roles.addAll(roles);
     }
