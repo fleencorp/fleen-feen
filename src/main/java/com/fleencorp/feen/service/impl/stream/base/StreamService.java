@@ -51,7 +51,6 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
 
@@ -429,7 +428,7 @@ public class StreamService {
     if (nonNull(streamAttendee)) {
       // If the stream is private, set the request-to-join status to pending
       if (stream.isPrivate()) {
-        streamAttendee.setRequestToJoinStatus(PENDING);
+        streamAttendee.markRequestAsPending();
       }
     }
   }
@@ -486,6 +485,21 @@ public class StreamService {
     return stream;
   }
 
+  /**
+   * Joins the specified event or stream and returns the corresponding stream response.
+   *
+   * <p>This method verifies the event or stream details, attempts to join the event or stream,
+   * creates a new {@link StreamAttendee} entry for the user, and approves their attendance if the
+   * event is public. It also converts the event or stream into a {@link FleenStreamResponse} and
+   * updates the attendee join status. The new {@link StreamAttendee} is then saved to the repository.</p>
+   *
+   * <p>The method also sets the external ID associated with the stream and ensures that the user
+   * is properly recorded as attending the event or stream.</p>
+   *
+   * @param eventId the ID of the event or stream to join
+   * @param user the {@link FleenUser} who is attempting to join the event or stream
+   * @return a {@link FleenStreamResponse} containing the stream details after the user has joined
+   */
   @Transactional
   public FleenStreamResponse joinEventOrStream(final Long eventId, final FleenUser user) {
     // Verify the event or stream details and attempt to join the event or stream
@@ -627,16 +641,51 @@ public class StreamService {
     }
   }
 
+  /**
+   * Finds the attendance details for the specified user across multiple streams.
+   *
+   * <p>This method retrieves the attendance details for the given {@link Member} across a list of
+   * stream IDs by calling {@link #findAttendeeAttendance(Member, List)}. The retrieved attendee
+   * attendance data is then grouped and returned as a map, where each stream ID is mapped to its
+   * corresponding {@link StreamAttendeeSelect}.</p>
+   *
+   * @param member the {@link Member} whose attendance details are being retrieved
+   * @param streamIds the list of stream IDs to check for the user's attendance
+   * @return a map of stream IDs to their corresponding {@link StreamAttendeeSelect} for the given user
+   */
   protected Map<Long, StreamAttendeeSelect> findUserAttendance(final Member member, final List<Long> streamIds) {
     final List<StreamAttendeeSelect> attendeeAttendance = findAttendeeAttendance(member, streamIds);
     return groupAttendeeAttendance(attendeeAttendance);
   }
 
+  /**
+   * Retrieves the attendance records for the specified user across multiple events or streams.
+   *
+   * <p>This method fetches the attendance records for the given {@link Member} across the provided
+   * list of event or stream IDs by querying the {@link StreamAttendeeRepository}. The result is a
+   * list of {@link StreamAttendeeSelect} objects representing the user's attendance status for each
+   * event or stream.</p>
+   *
+   * @param member the {@link Member} whose attendance records are being retrieved
+   * @param eventIds the list of event or stream IDs to check for the user's attendance
+   * @return a list of {@link StreamAttendeeSelect} objects representing the user's attendance for each event or stream
+   */
   protected List<StreamAttendeeSelect> findAttendeeAttendance(final Member member, final List<Long> eventIds) {
     // Retrieve the user's attendance records for the provided event or stream IDs
     return streamAttendeeRepository.findByMemberAndEventOrStreamIds(member, eventIds);
   }
 
+  /**
+   * Groups the user's attendance records by event or stream ID.
+   *
+   * <p>This method takes a list of {@link StreamAttendeeSelect} objects representing the user's attendance
+   * for various events or streams. It groups these records by their associated event or stream ID and
+   * returns the results as a map, where the keys are the event or stream IDs and the values are the corresponding
+   * {@link StreamAttendeeSelect} objects.</p>
+   *
+   * @param attendeeAttendance the list of {@link StreamAttendeeSelect} objects representing the user's attendance
+   * @return a map with event or stream IDs as keys and {@link StreamAttendeeSelect} objects as values
+   */
   protected Map<Long, StreamAttendeeSelect> groupAttendeeAttendance(final List<StreamAttendeeSelect> attendeeAttendance) {
     if (nonNull(attendeeAttendance)) {
       return groupAttendeeAttendanceByEventOrStreamId(attendeeAttendance);

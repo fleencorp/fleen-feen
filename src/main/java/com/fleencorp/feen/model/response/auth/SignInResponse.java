@@ -137,6 +137,37 @@ public class SignInResponse extends ApiResponse {
     this.phoneNumber = MaskedPhoneNumber.of(phoneNumber);
   }
 
+  /**
+   * Updates the access token, refresh token, and authentication status.
+   *
+   * <p>This method sets the new access token and refresh token for the user, as well as
+   * updating the authentication status to reflect the current login state.</p>
+   *
+   * @param accessToken the new access token to be set
+   * @param refreshToken the new refresh token to be set
+   * @param authenticationStatus the new authentication status to be set
+   */
+  public void updateTokenAndAuthenticationStatus(final String accessToken, final String refreshToken, final AuthenticationStatus authenticationStatus) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+    this.authenticationStatus = authenticationStatus;
+  }
+
+  /**
+   * Updates the access token and refresh token.
+   *
+   * <p>This method sets the provided access token and refresh token to the current instance,
+   * allowing for the updating of authentication credentials.</p>
+   *
+   * @param accessToken the new access token to be set
+   * @param refreshToken the new refresh token to be set
+   */
+  public void updateAccessAndRefreshToken(final String accessToken, final String refreshToken) {
+    this.accessToken = accessToken;
+    this.refreshToken = refreshToken;
+  }
+
+
   public static SignInResponse of(final String accessToken, final String refreshToken) {
     return of(accessToken, refreshToken, AuthenticationStatus.COMPLETED);
   }
@@ -149,7 +180,7 @@ public class SignInResponse extends ApiResponse {
       .build();
   }
 
-  public static SignInResponse createDefault(final String emailAddress) {
+  public static SignInResponse ofDefault(final String emailAddress) {
     return SignInResponse.builder()
       .emailAddress(MaskedEmailAddress.of(emailAddress))
       .authenticationStatus(AuthenticationStatus.IN_PROGRESS)

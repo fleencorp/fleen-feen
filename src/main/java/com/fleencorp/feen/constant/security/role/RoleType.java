@@ -2,6 +2,10 @@ package com.fleencorp.feen.constant.security.role;
 
 import lombok.Getter;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
 * Enumeration for Role Types.
 *
@@ -40,6 +44,20 @@ public enum RoleType {
    */
   public static boolean isPreVerified(final RoleType roleType) {
     return PRE_VERIFIED_USER == roleType;
+  }
+
+  /**
+   * Returns the default user roles as a set of role names.
+   *
+   * <p>This method retrieves the default roles for new users, such as {@code PRE_VERIFIED_USER},
+   * and converts them into a set of their string names.</p>
+   *
+   * @return a set of default role names for a new user
+   */
+  public static Set<String> getDefaultUserRoles() {
+    return Stream.of(PRE_VERIFIED_USER)
+      .map(RoleType::name)
+      .collect(Collectors.toSet());
   }
 
 }

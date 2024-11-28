@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -252,11 +253,48 @@ public class Member extends FleenFeenEntity {
   }
 
   /**
+   * Marks the profile as inactive and sets the verification status to pending.
+   *
+   * <p>This method updates the profile's status to {@link ProfileStatus#INACTIVE} and
+   * sets the verification status to {@link ProfileVerificationStatus#PENDING},
+   * indicating that the profile is no longer active and the verification process
+   * is awaiting action.</p>
+   */
+  public void markProfileInactiveAndPending() {
+    this.profileStatus = ProfileStatus.INACTIVE;
+    this.verificationStatus = ProfileVerificationStatus.PENDING;
+  }
+
+  /**
+   * Marks the profile as active and sets the verification status to approved.
+   *
+   * <p>This method updates the profile's status to {@link ProfileStatus#ACTIVE} and
+   * sets the verification status to {@link ProfileVerificationStatus#APPROVED},
+   * indicating that the profile is now active and has been approved.</p>
+   */
+  public void markProfileActiveAndApproved() {
+    this.profileStatus = ProfileStatus.ACTIVE;
+    this.verificationStatus = ProfileVerificationStatus.APPROVED;
+  }
+
+  /**
    * Deletes the user's profile photo by setting the profile photo URL to null.
    */
   public void deleteProfilePhoto() {
     // Remove the profile photo by nullifying the URL
     this.profilePhotoUrl = null;
+  }
+
+  /**
+   * Adds a collection of roles to the member's role set.
+   * Ensures that no duplicate roles are added.
+   *
+   * @param roles The collection of roles to add.
+   */
+  public void addRoles(Collection<Role> roles) {
+    if (roles != null && !roles.isEmpty()) {
+      this.roles.addAll(roles);
+    }
   }
 
   public static Member of(final Long memberId) {

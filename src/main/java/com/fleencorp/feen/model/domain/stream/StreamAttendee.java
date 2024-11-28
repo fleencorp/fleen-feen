@@ -145,9 +145,19 @@ public class StreamAttendee extends FleenFeenEntity {
   /**
    * Sets the attendance status of the current user to indicate they are not attending.
    */
-  public void setIsNotAttending() {
+  public void markAsNotAttending() {
     // Update the attendance status to false
     isAttending = false;
+  }
+
+  /**
+   * Marks the request-to-join status as pending.
+   *
+   * <p>This method sets the current {@code requestToJoinStatus} of the attendee to
+   * {@code StreamAttendeeRequestToJoinStatus.PENDING}, indicating that their request is pending approval.</p>
+   */
+  public void markRequestAsPending() {
+    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.PENDING;
   }
 
   /**

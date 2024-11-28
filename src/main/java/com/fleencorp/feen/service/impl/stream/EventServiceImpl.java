@@ -635,10 +635,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     verifyStreamDetails(stream, user);
     // Update the FleenStream object with the response from Google Calendar
     stream.update(
-        updateCalendarEventDto.getTitle(),
-        updateCalendarEventDto.getDescription(),
-        updateCalendarEventDto.getTags(),
-        updateCalendarEventDto.getLocation());
+      updateCalendarEventDto.getTitle(),
+      updateCalendarEventDto.getDescription(),
+      updateCalendarEventDto.getTags(),
+      updateCalendarEventDto.getLocation());
 
     stream = fleenStreamRepository.save(stream);
 
@@ -769,7 +769,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember())
       .ifPresent(streamAttendee -> {
         // If an attendee record exists, update their attendance status to false
-        streamAttendee.setIsNotAttending();
+        streamAttendee.markAsNotAttending();
         // Decrease the total number of attendees to event
         decreaseTotalAttendeesOrGuestsAndSave(stream);
         // Save the updated attendee record

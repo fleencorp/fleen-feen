@@ -304,7 +304,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   public ChatSpaceMemberSearchResult findChatSpaceMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
-
+    // Retrieve the chat space
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
 
@@ -535,16 +535,31 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     return localizedResponse.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
   }
 
+  /**
+   * Updates the join status of a user in a chat space based on the chat space response and user details.
+   *
+   * <p>This method retrieves the chat space member associated with the provided {@link FleenUser} and {@link ChatSpaceResponse}.
+   * It then updates the user's join status based on the request-to-join status and the visibility information of the chat space.
+   * If the user is found in the chat space, their join status is updated accordingly.</p>
+   *
+   * @param chatSpaceResponse the {@link ChatSpaceResponse} containing chat space details, including visibility information
+   * @param user the {@link FleenUser} whose join status needs to be updated
+   */
   public void updateUserJoinStatus(final ChatSpaceResponse chatSpaceResponse, final FleenUser user) {
+    // Check if the provided chat space response and user are not null
     if (nonNull(chatSpaceResponse) && nonNull(user)) {
+      // Retrieve the chat space member for the given user and chat space number ID
       chatSpaceMemberRepository
         .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(user.getId()), ChatSpace.of(chatSpaceResponse.getNumberId()))
         .ifPresent(chatSpaceMember -> {
-          final JoinStatus joinStatus = JoinStatus.getJoinStatus(chatSpaceMember.getRequestToJoinStatus(), chatSpaceResponse.getVisibilityInfo().getVisibility());
+          // Get the join status based on the member's request-to-join status and chat space visibility
+          final JoinStatus joinStatus = JoinStatus.getJoinStatus(chatSpaceMember.getRequestToJoinStatus(), chatSpaceResponse.getVisibility());
+          // Update the chat space response with the new join status
           chatSpaceMapper.update(chatSpaceResponse, chatSpaceMember.getRequestToJoinStatus(), joinStatus);
-      });
+        });
     }
   }
+
 
   /**
    * Deletes a chat space by its ID.
