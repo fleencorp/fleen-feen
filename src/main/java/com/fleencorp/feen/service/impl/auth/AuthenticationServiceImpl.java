@@ -246,7 +246,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param member the {@link Member} whose profile is being set up
    * @param signUpDto the {@link SignUpDto} containing user sign-up details such as the password and country code
    */
-  protected void setupMemberProfile(Member member, SignUpDto signUpDto) {
+  protected void setupMemberProfile(final Member member, final SignUpDto signUpDto) {
     // Configure roles for the new member's profile
     configureRolesForNewProfile(member);
     // Configure statuses for the new member's profile
@@ -269,9 +269,9 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param member the {@link Member} to be authenticated and initialized
    * @return the authenticated {@link FleenUser} with the authentication context set
    */
-  protected FleenUser authenticateAndInitializeContext(Member member) {
+  protected FleenUser authenticateAndInitializeContext(final Member member) {
     // Initialize authentication and set context for the new member
-    FleenUser user = initializeAuthenticationAndContext(member);
+    final FleenUser user = initializeAuthenticationAndContext(member);
     // Set user timezone after authentication
     setUserTimezoneAfterAuthentication(user);
     // Return the user
@@ -290,7 +290,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param accessToken the access token to be saved for the user
    * @param refreshToken the refresh token to be saved for the user
    */
-  protected void handleVerificationAndTokens(FleenUser user, VerificationType verificationType, String accessToken, String refreshToken) {
+  protected void handleVerificationAndTokens(final FleenUser user, final VerificationType verificationType, final String accessToken, final String refreshToken) {
     final String otpCode = generateOtp();
     // Send sign up verification message to user
     sendSignUpVerificationMessage(otpCode, verificationType, user);
@@ -313,7 +313,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationType the type of verification (e.g., email, phone) to be set in the response
    * @return the {@link SignUpResponse} with localized details and necessary information for the sign-up process
    */
-  protected SignUpResponse createSignUpResponse(FleenUser user, String accessToken, String refreshToken, VerificationType verificationType) {
+  protected SignUpResponse createSignUpResponse(final FleenUser user, final String accessToken, final String refreshToken, final VerificationType verificationType) {
     // Create default sign up response
     final SignUpResponse signUpResponse = SignUpResponse.ofDefault(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber());
     // Update verification type info data and text
@@ -332,7 +332,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param signUpDto the sign-up details containing the user's raw password
    * @param member the member entity where the hashed password will be stored
    */
-  protected void encodeAndHashUserPassword(SignUpDto signUpDto, Member member) {
+  protected void encodeAndHashUserPassword(final SignUpDto signUpDto, final Member member) {
     // Encode or hash the user's password before saving
     final String password = signUpDto.getPassword();
     encodeOrHashUserPassword(member, password);
@@ -347,7 +347,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param member the member entity to be evaluated and potentially marked as an internal user
    */
-  protected void verifyIfUserShouldBeInternal(Member member) {
+  protected void verifyIfUserShouldBeInternal(final Member member) {
     member.confirmAndSetInternalUser(originDomain);
   }
 
@@ -415,7 +415,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return the {@link Member} object containing the member's details
    * @throws VerificationFailedException if no member is found with the given email address
    */
-  protected Member getMemberDetailsToCompleteSignUp(String username) {
+  protected Member getMemberDetailsToCompleteSignUp(final String username) {
     return memberRepository.findByEmailAddress(username)
       .orElseThrow(VerificationFailedException::new);
   }
@@ -430,7 +430,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param member the {@link Member} whose profile is being updated
    * @param verificationType the {@link VerificationType} indicating the verification status to be applied to the member's profile
    */
-  protected void updateMemberProfile(Member member, VerificationType verificationType) {
+  protected void updateMemberProfile(final Member member, final VerificationType verificationType) {
     // Clear default roles assigned during sign-up
     member.clearDefaultRolesAssignedDuringSignUpRole();
     // Update profile details including roles and profile status
@@ -447,7 +447,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the {@link FleenUser} for whom the access token is generated
    * @return a {@link String} representing the generated access token
    */
-  protected String generateAccessTokenWithCompletedAuthentication(FleenUser user) {
+  protected String generateAccessTokenWithCompletedAuthentication(final FleenUser user) {
     return tokenService.createAccessToken(user, AuthenticationStatus.COMPLETED);
   }
 
@@ -460,7 +460,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the {@link FleenUser} for whom the refresh token is generated
    * @return a {@link String} representing the generated refresh token
    */
-  protected String generateRefreshToken(FleenUser user) {
+  protected String generateRefreshToken(final FleenUser user) {
     return tokenService.createRefreshToken(user);
   }
 
@@ -473,7 +473,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the {@link FleenUser} representing the signed-up user
    * @param member the {@link Member} associated with the user for sign-up details
    */
-  protected void sendCompletedSignUpMessage(FleenUser user, Member member) {
+  protected void sendCompletedSignUpMessage(final FleenUser user, final Member member) {
     createAndSendCompletedUserSignUpMessage(user, member);
   }
 
@@ -487,7 +487,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param refreshToken the refresh token generated for the user
    * @return a localized {@link SignUpResponse} containing the access and refresh tokens along with a message code
    */
-  protected SignUpResponse createCompletedSignUpResponse(String accessToken, String refreshToken) {
+  protected SignUpResponse createCompletedSignUpResponse(final String accessToken, final String refreshToken) {
     // Create a sign up response after the use completes the process
     final SignUpResponse signUpResponse = SignUpResponse.of(accessToken, refreshToken);
     // Return a localized response with the details
@@ -505,7 +505,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param member the new user whose profile details are to be updated
    * @param verificationType the type of verification used for the user (e.g., email or SMS)
    */
-  protected void updateProfileDetailsForNewUser(Member member, VerificationType verificationType) {
+  protected void updateProfileDetailsForNewUser(final Member member, final VerificationType verificationType) {
     // Get roles for new user
     final List<Role> userRoles = getRolesForNewUser();
     // Verify user and update signed-up user details
@@ -687,7 +687,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return a {@link SignInResponse} containing the result of the sign-in process, with a
    *         localization message for pre-verification
    */
-  protected SignInResponse processSignInForProfileYetToBeVerified(SignInResponse signInResponse, FleenUser user) {
+  protected SignInResponse processSignInForProfileYetToBeVerified(final SignInResponse signInResponse, final FleenUser user) {
     // Handle verified profile sign-in for verified user incomplete verification details like email or phone
     handleProfileYetToBeVerified(signInResponse, user);
     // Return a localized response for the sign in
@@ -706,7 +706,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return a {@link SignInResponse} containing the final result of the sign-in process, with the
    *         appropriate localization message for MFA
    */
-  protected SignInResponse processSignInForProfileWithMfaEnabled(SignInResponse signInResponse, FleenUser user) {
+  protected SignInResponse processSignInForProfileWithMfaEnabled(final SignInResponse signInResponse, final FleenUser user) {
     // Handle verified profile sign-in for verified user with mfa or 2fa enabled
     handleProfileWithMfaEnabled(signInResponse, user);
     // Return a localized response for the sign in
@@ -727,7 +727,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return a {@link SignInResponse} containing the final result of the sign-in process, with any
    *         appropriate localization messages
    */
-  protected SignInResponse processSignInForProfileThatIsVerified(SignInResponse signInResponse, FleenUser user, Authentication authentication) {
+  protected SignInResponse processSignInForProfileThatIsVerified(final SignInResponse signInResponse, final FleenUser user, final Authentication authentication) {
     // Handle verified profile sign-in for verified user
     handleProfileThatIsVerified(signInResponse, user, authentication);
     // Return a localized response after the sign in process completes
@@ -1128,7 +1128,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   public Optional<Authentication> authenticate(final String emailAddress, final String password) {
     // Create authentication token using the provided email address and password
-    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
+    final Authentication authenticationToken = new UsernamePasswordAuthenticationToken(emailAddress, password);
     // Authenticate the token using the authentication manager
     return Optional.of(authenticationToken)
       .map(authenticationManager::authenticate);
@@ -1241,7 +1241,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the {@link FleenUser} whose details are used in the sign-up request
    * @param member the {@link Member} whose verification status is included in the request
    */
-  protected void createAndSendCompletedUserSignUpMessage(FleenUser user, Member member) {
+  protected void createAndSendCompletedUserSignUpMessage(final FleenUser user, final Member member) {
     final CompletedUserSignUpRequest completedUserSignUpRequest = CompletedUserSignUpRequest
       .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
     profileRequestPublisher.publishMessage(PublishMessageRequest.of(completedUserSignUpRequest));
@@ -1259,7 +1259,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the {@link FleenUser} whose details (e.g., name, email, phone number) are included in the request
    * @param otpCode the one-time password (OTP) code to be resent for MFA verification
    */
-  protected void sendResendMfaVerificationMessage(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user, String otpCode) {
+  protected void sendResendMfaVerificationMessage(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final FleenUser user, final String otpCode) {
     final MfaVerificationRequest resendMfaVerificationCodeRequest = MfaVerificationRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), resendMfaVerificationCodeDto.getActualVerificationType());
     // Resend mfa verification code request
@@ -1276,7 +1276,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param verificationType the type of verification to be used (e.g., email, phone)
    * @param user the {@link FleenUser} whose details (e.g., name, email) are included in the verification request
    */
-  protected void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, FleenUser user) {
+  protected void sendSignUpVerificationMessage(final String otpCode, final VerificationType verificationType, final FleenUser user) {
     // Prepare and send sign-up verification code request
     final SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, verificationType, user);
     // Publish to send message to user
@@ -1295,7 +1295,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *             are included in the forgot password request
    * @param verificationType the type of verification to be used (e.g., email, phone)
    */
-  protected void sendForgotPasswordMessage(String otpCode, FleenUser user, VerificationType verificationType) {
+  protected void sendForgotPasswordMessage(final String otpCode, final FleenUser user, final VerificationType verificationType) {
     // Create a request to send forgot password code with OTP and user details
     final ForgotPasswordRequest forgotPasswordRequest = ForgotPasswordRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
@@ -1397,7 +1397,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param user the user for whom the MFA verification process is being handled
    */
-  protected void handleMfaVerification(FleenUser user) {
+  protected void handleMfaVerification(final FleenUser user) {
     // Check if the MFA type is email or phone-based
     if (isMfaTypeByEmailOrPhone(user.getMfaType())) {
       // Generate a one-time password (OTP) for verification
@@ -1419,7 +1419,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the user for whom the MFA verification message is being sent
    * @param otpCode the one-time password (OTP) code for the MFA verification
    */
-  protected void sendMfaVerificationMessage(FleenUser user, String otpCode) {
+  protected void sendMfaVerificationMessage(final FleenUser user, final String otpCode) {
     // Create the MFA verification request based on the OTP code and user details
     final MfaVerificationRequest mfaVerificationRequest = getVerificationTypeAndCreateMfaVerificationRequest(otpCode, user);
     // Publish the MFA verification request message
@@ -1435,7 +1435,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param user the user for whom pre-authenticated authorities will be set
    */
-  protected void setPreAuthenticatedAuthorities(FleenUser user) {
+  protected void setPreAuthenticatedAuthorities(final FleenUser user) {
     // Assign pre-authenticated authorities to the user
     user.setAuthorities(getPreAuthenticatedAuthorities());
     // Create an authentication token with the user's authorities
@@ -1454,7 +1454,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the user for whom the access token will be generated
    * @return the generated access token for the user
    */
-  protected String generateAndSaveAccessToken(FleenUser user) {
+  protected String generateAndSaveAccessToken(final FleenUser user) {
     final String accessToken = tokenService.createAccessToken(user);
     tokenService.saveAccessToken(user.getUsername(), accessToken);
     return accessToken;
