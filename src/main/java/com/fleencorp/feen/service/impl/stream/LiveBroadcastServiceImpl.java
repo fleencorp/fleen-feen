@@ -387,7 +387,7 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember())
       .ifPresent(streamAttendee -> {
         // If an attendee record exists, update their attendance status to false
-        streamAttendee.setIsNotAttending();
+        streamAttendee.markAsNotAttending();
         // Decrease the total number of attendees to stream
         decreaseTotalAttendeesOrGuestsAndSave(stream);
         // Save the updated attendee record

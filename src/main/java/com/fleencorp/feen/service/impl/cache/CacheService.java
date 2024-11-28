@@ -138,6 +138,15 @@ public class CacheService {
   }
 
   /**
+   * Checks if the cache entry exists, and if so, deletes it.
+   */
+  public void existsAndDelete(String cacheKey) {
+    if (exists(cacheKey)) {
+      delete(cacheKey);
+    }
+  }
+
+  /**
    * Sets the specified key in the cache to the serialized JSON representation of the given value.
    *
    * @param key   The key to set.
