@@ -466,20 +466,21 @@ public class MemberServiceImpl implements MemberService,
    * @return a response indicating the outcome of the profile photo update operation.
    */
   public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final FleenUser user) {
-/*    // Retrieve the member associated with the user's email address
+    // Retrieve the member associated with the user's email address
     Member member = findMember(user.getEmailAddress());
+    // Retrieve the profile photo associated with the user
     String profilePhotoUrl = member.getProfilePhotoUrl();
 
     // Check if the member currently has a profile photo
     if (nonNull(profilePhotoUrl)) {
       // Delete the existing profile photo from S3 storage
-      s3Service.deleteObject(s3BucketNames.getUserPhoto(), s3Service.getObjectKeyFromUrl(profilePhotoUrl));
+      storageService.deleteObject(s3BucketNames.getUserPhoto(), storageService.getObjectKeyFromUrl(profilePhotoUrl));
     }
 
     // Update the member's profile photo URL with the new one
     member.setProfilePhotoUrl(dto.getProfilePhoto());
     // Save the updated member information to the repository
-    memberRepository.save(member);*/
+    memberRepository.save(member);
     // Return a response indicating the successful update of the profile photo
     return localizedResponse.of(UpdateProfilePhotoResponse.of());
   }

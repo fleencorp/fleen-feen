@@ -37,6 +37,8 @@ import static java.util.Objects.nonNull;
  */
 public class GoogleApiUtil {
 
+  private GoogleApiUtil() {}
+
     /**
    * Converts a LocalDateTime object to a DateTime object.
    *
