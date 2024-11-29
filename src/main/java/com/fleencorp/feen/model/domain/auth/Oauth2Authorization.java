@@ -15,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.isNull;
 
 @SuperBuilder
 @Getter
@@ -63,9 +64,43 @@ public class Oauth2Authorization extends FleenFeenEntity {
     return Oauth2Authorization.builder().member(member).build();
   }
 
+  /**
+   * Updates the OAuth2 service type and source for the current session.
+   *
+   * <p>This method sets the {@code serviceType} and {@code oauth2Source} for the session, updating
+   * the OAuth2 service provider type and the source of the authentication.</p>
+   *
+   * @param serviceType the type of OAuth2 service (e.g., Google, Facebook)
+   * @param oauth2Source the source of the OAuth2 authentication
+   */
   public void updateServiceTypeAndSource(final Oauth2ServiceType serviceType, final Oauth2Source oauth2Source) {
     this.serviceType = serviceType;
     this.oauth2Source = oauth2Source;
+  }
+
+  /**
+   * Checks if the access token has expired.
+   *
+   * <p>This method compares the current system time with the token's expiration time to determine
+   * if the access token is expired.</p>
+   *
+   * @return {@code true} if the access token is expired, {@code false} otherwise
+   */
+  public boolean isAccessTokenExpired() {
+    return System.currentTimeMillis() >= tokenExpirationTimeInMilliseconds;
+  }
+
+  /**
+   * Checks if the provided access token differs from the stored one.
+   *
+   * <p>This method compares the new access token with the currently stored access token. It returns
+   * {@code true} if the stored token is either {@code null} or different from the new one.</p>
+   *
+   * @param newAccessToken the new access token to compare with the stored one
+   * @return {@code true} if the tokens are different, {@code false} if they are the same
+   */
+  public boolean isAccessTokenNotSame(final String newAccessToken) {
+    return isNull(accessToken) || !(accessToken.equals(newAccessToken));
   }
 
 }

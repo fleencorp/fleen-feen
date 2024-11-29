@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
 * Mapper class for converting FleenStream entities to various DTOs.
@@ -35,7 +34,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class FleenStreamMapper {
 
-  private final MessageSource messageSource;;
+  private final MessageSource messageSource;
 
   public FleenStreamMapper(final MessageSource messageSource) {
     this.messageSource = messageSource;
@@ -156,7 +155,7 @@ public class FleenStreamMapper {
       return entries.stream()
           .filter(Objects::nonNull)
           .map(this::toFleenStreamResponse)
-          .collect(toList());
+          .toList();
     }
     return List.of();
   }
@@ -172,7 +171,7 @@ public class FleenStreamMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(this::toFleenStreamResponseNoJoinStatus)
-        .collect(toList());
+        .toList();
     }
     return List.of();
   }

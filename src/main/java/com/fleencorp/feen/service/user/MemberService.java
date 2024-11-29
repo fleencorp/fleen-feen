@@ -38,4 +38,6 @@ public interface MemberService {
   EntityExistsResponse isMemberEmailAddressExists(String emailAddress);
 
   EntityExistsResponse isMemberPhoneNumberExists(String phoneNumber);
+
+  void clearAuthenticationTokens(String username);
 }

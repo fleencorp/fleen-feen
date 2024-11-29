@@ -10,6 +10,8 @@ import static com.fleencorp.base.constant.base.CacheKeyConstant.UPDATE_PHONE_NUM
 @Slf4j
 public class CacheKeyService {
 
+  private CacheKeyService() {}
+
   /**
    * Generates a cache key for setting up multi-factor authentication (MFA) based on the provided username and MFA type.
    *

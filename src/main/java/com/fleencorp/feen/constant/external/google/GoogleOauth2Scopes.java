@@ -14,6 +14,8 @@ package com.fleencorp.feen.constant.external.google;
  */
 public class GoogleOauth2Scopes {
 
+  private GoogleOauth2Scopes() {}
+
   public static final String CHAT_BOT = "https://www.googleapis.com/auth/chat.bot";
   public static final String CHAT_DELETE = "https://www.googleapis.com/auth/chat.delete";
   public static final String CHAT_MEMBERSHIPS = "https://www.googleapis.com/auth/chat.memberships";

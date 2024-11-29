@@ -33,6 +33,7 @@ import com.fleencorp.feen.service.impl.external.aws.StorageService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.user.MemberService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,7 @@ import java.util.List;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsFalse;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.getUpdateEmailCacheKey;
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.getUpdatePhoneNumberCacheKey;
+import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static com.fleencorp.feen.service.security.OtpService.getRandomSixDigitOtp;
 import static java.util.Objects.nonNull;
 
@@ -646,6 +646,26 @@ public class MemberServiceImpl implements MemberService,
       // Profile is banned
       throw new BannedAccountException();
     }
+  }
+
+  /**
+   * Clears authentication tokens for the specified user.
+   *
+   * @param username the username of the user
+   */
+  @Override
+  @Async
+  public void clearAuthenticationTokens(final String username) {
+    final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
+    final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
+    final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);
+
+    // Delete access token from cache if it exists
+    cacheService.existsAndDelete(accessTokenCacheKeyKey);
+    // Delete reset password token from cache if it exists
+    cacheService.existsAndDelete(resetPasswordTokenCacheKey);
+    // Delete refresh token from cache if it exists
+    cacheService.existsAndDelete(refreshTokenCacheKeyKey);
   }
 
 

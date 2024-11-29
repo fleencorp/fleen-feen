@@ -123,4 +123,28 @@ public class Oauth2AuthenticationRequest {
   private static Set<String> getYouTubeScopes() {
     return YouTubeScopes.all();
   }
+
+  /**
+   * Checks if an OAuth2 authorization is present.
+   *
+   * <p>This method verifies whether the {@link Oauth2Authorization} object is non-null,
+   * indicating that an OAuth2 authorization is available.</p>
+   *
+   * @return {@code true} if the OAuth2 authorization is present, otherwise {@code false}
+   */
+  public boolean isOauth2AuthorizationPresent() {
+    return nonNull(oauth2Authorization);
+  }
+
+  /**
+   * Checks if an OAuth2 service type is present.
+   *
+   * <p>This method verifies whether the {@link Oauth2ServiceType} object is non-null,
+   * indicating that an OAuth2 service type is available.</p>
+   *
+   * @return {@code true} if the OAuth2 service type is present, otherwise {@code false}
+   */
+  public boolean isOauth2ServiceTypePresent() {
+    return nonNull(oauth2ServiceType);
+  }
 }

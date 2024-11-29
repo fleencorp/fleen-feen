@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 
 public class FleenHttpStatus {
 
+  private FleenHttpStatus() {}
+
   public static HttpStatus ok() {
     return HttpStatus.OK;
   }

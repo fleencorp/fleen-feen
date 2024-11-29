@@ -5,8 +5,10 @@ import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
+import com.fleencorp.feen.constant.base.ReportMessageType;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2Source;
+import com.fleencorp.feen.exception.google.oauth2.Oauth2AuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
@@ -32,8 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 import static com.fleencorp.base.util.FleenUtil.setIfNonNull;
-import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_OAUTH2;
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.SPACE;
 
@@ -161,22 +163,20 @@ public class GoogleOauth2Service {
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
     // Verify the authorization code and obtain the completed OAuth2 authorization response
     final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
+    // Convert the user to a member instance
     final Member member = user.toMember();
-
     // Get service type associated with authorization and authorization code
     final Oauth2ServiceType oauth2ServiceType = authenticationRequest.getOauth2ServiceType();
     // Retrieve the OAuth2 authorization for the member and service type, or create a new one if not found
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository
-          .findByMemberAndServiceType(member, oauth2ServiceType)
-          .orElseGet(() -> Oauth2Authorization.of(member));
+    final Oauth2Authorization oauth2Authorization = findOauth2AuthorizationOrCreateOne(oauth2ServiceType, member);
 
     // Update the OAuth2 authorization with the details from the authorization response
     updateOauth2Authorization(oauth2Authorization, oauth2AuthorizationResponse);
     // Set the service type and source for the authorization
-    oauth2Authorization.updateServiceTypeAndSource(oauth2ServiceType, Oauth2Source.GOOGLE);
-
+    oauth2Authorization.updateServiceTypeAndSource(oauth2ServiceType, Oauth2Source.google());
     // Save the updated OAuth2 authorization in the repository
     oauth2AuthorizationRepository.save(oauth2Authorization);
+    // Return a localized response of the oauth2 authorization
     return localizedResponse.of(oauth2AuthorizationResponse);
   }
 
@@ -202,6 +202,7 @@ public class GoogleOauth2Service {
     final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(authenticationRequest.getRefreshToken());
     // If the token response is not null, proceed with updating the authorization
     if (nonNull(oauth2TokenResponse)) {
+      // Convert the user to a member instance
       final Member member = user.toMember();
       // Retrieve the OAuth2 authorization for the user
       final Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, member);
@@ -209,6 +210,7 @@ public class GoogleOauth2Service {
       updateOauth2Authorization(oauth2Authorization, oauth2TokenResponse);
       // Save the updated authorization in the repository
       oauth2AuthorizationRepository.save(oauth2Authorization);
+      // Return the response
       return oauth2TokenResponse;
     }
     // Throw an exception if the token response is null
@@ -231,19 +233,16 @@ public class GoogleOauth2Service {
    */
   protected Oauth2Authorization getOauth2Authorization(final Oauth2AuthenticationRequest authenticationRequest, final Member member) {
     // Check if the request already contains an OAuth2 authorization
-    if (nonNull(authenticationRequest.getOauth2Authorization())) {
+    if (authenticationRequest.isOauth2AuthorizationPresent()) {
       return authenticationRequest.getOauth2Authorization();
-    } else if (nonNull(authenticationRequest.getOauth2ServiceType())) {
+    } else if (authenticationRequest.isOauth2ServiceTypePresent()) {
       // If no authorization is provided, check for a specific OAuth2 service type and retrieve the authorization if available
-      return oauth2AuthorizationRepository
-        .findByMemberAndServiceType(member, authenticationRequest.getOauth2ServiceType())
-        .orElseGet(() -> Oauth2Authorization.of(member));
+      return findOauth2AuthorizationOrCreateOne(authenticationRequest.getOauth2ServiceType(), member);
     } else {
       // If neither an authorization nor a service type is provided, find or create a general OAuth2 authorization for the member
       return Oauth2Authorization.of(member);
     }
   }
-
 
   /**
    * Updates OAuth 2.0 authorization details in the Oauth2Authorization entity.
@@ -315,13 +314,24 @@ public class GoogleOauth2Service {
    *         or null if the authorization code is invalid or expired.
    */
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCode(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest) {
+    // Exchange the authorization code for an OAuth2 token response
     final TokenResponse tokenResponse = exchangeAuthorizationCode(authorizationCode, authenticationRequest);
+
+    // If the token response is not null, create and return the CompletedOauth2AuthorizationResponse with the token details
     if (nonNull(tokenResponse)) {
-      return CompletedOauth2AuthorizationResponse.of(tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(), tokenResponse.getExpiresInSeconds(),
-        tokenResponse.getTokenType(), StringUtil.replaceWith(tokenResponse.getScope(), SPACE, COMMA));
+      return CompletedOauth2AuthorizationResponse.of(
+        tokenResponse.getAccessToken(),
+        tokenResponse.getRefreshToken(),
+        tokenResponse.getExpiresInSeconds(),
+        tokenResponse.getTokenType(),
+        StringUtil.replaceWith(tokenResponse.getScope(), SPACE, COMMA) // Replace space with comma in scope
+      );
     }
+
+    // Return null if the token response is null
     return null;
   }
+
 
   /**
    * Exchanges an OAuth 2.0 authorization code for an access token and possibly a refresh token.
@@ -343,27 +353,75 @@ public class GoogleOauth2Service {
    */
   @MeasureExecutionTime
   public TokenResponse exchangeAuthorizationCode(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest) {
+    // Retrieve the GoogleAuthorizationCodeFlow for the OAuth2 service
     final GoogleAuthorizationCodeFlow googleAuthorizationCodeFlow = getGoogleAuthorizationCodeFlow(authenticationRequest);
-    try {
-      if (nonNull(googleAuthorizationCodeFlow)) {
-        return googleAuthorizationCodeFlow.newTokenRequest(authorizationCode)
-            .setRedirectUri(getRedirectUri())
-            .execute();
-      }
-    } catch (final TokenResponseException ex) {
-      final String errorMessage = String.format("An error occurred while exchanging Oauth2 authorization code. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
-      if (ex.getMessage().contains("invalid_grant")) {
-        throw Oauth2InvalidGrantOrTokenException.of(authorizationCode, authenticationRequest.getOauth2ServiceType());
-      }
-      throw new Oauth2InvalidAuthorizationException();
-    } catch (final IOException ex) {
-      final String errorMessage = String.format("An error occurred while exchanging Oauth2 authorization code. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
-
-      throw new ExternalSystemException(ex.getMessage());
+    // Return null if the authorization code flow is not available
+    if (isNull(googleAuthorizationCodeFlow)) {
+      return null;
     }
+
+    try {
+      // Request a new token using the authorization code and execute the request
+      return googleAuthorizationCodeFlow.newTokenRequest(authorizationCode)
+        .setRedirectUri(getRedirectUri())
+        .execute();
+    } catch (final TokenResponseException ex) {
+      // Handle exceptions during the token response process
+      handleTokenResponseException(ex, authorizationCode, authenticationRequest);
+    } catch (final IOException ex) {
+      // Handle IO exceptions during the token exchange process
+      handleIOException(ex, ex.getMessage());
+    }
+
+    // Return an empty response
     return null;
+  }
+
+  /**
+   * Handles {@link TokenResponseException} during OAuth2 token exchange processes.
+   *
+   * <p>This method processes the {@link TokenResponseException} that occurs during the token exchange
+   * phase of OAuth2 authentication. It sends an error message through the {@code reporterService}
+   * and determines whether the exception is due to an invalid grant. If so, an {@link Oauth2InvalidGrantOrTokenException}
+   * is thrown; otherwise, it throws an {@link Oauth2InvalidAuthorizationException}.</p>
+   *
+   * @param ex the {@link TokenResponseException} that occurred
+   * @param authorizationCode the OAuth2 authorization code involved in the request
+   * @param authenticationRequest the {@link Oauth2AuthenticationRequest} containing details of the OAuth2 service and request
+   */
+  protected void handleTokenResponseException(final TokenResponseException ex, final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest) {
+    // Generate an error message indicating the failure in verifying the authorization code
+    final String errorMessage = Oauth2AuthorizationException.failedVerificationOfAuthorizationCodeMessage(ex.getMessage());
+    // Send the error message to the reporting service for logging or monitoring
+    reporterService.sendMessage(errorMessage, ReportMessageType.googleOauth2());
+
+    // Check if the exception message indicates an invalid grant error
+    if (Oauth2AuthorizationException.isInvalidGrant(ex.getMessage())) {
+      // Throw a custom exception indicating an invalid grant or token error
+      throw Oauth2InvalidGrantOrTokenException.of(authorizationCode, authenticationRequest.getOauth2ServiceType());
+    } else {
+      // Throw a generic OAuth2 invalid authorization exception
+      throw new Oauth2InvalidAuthorizationException();
+    }
+  }
+
+  /**
+   * Handles {@link IOException} during OAuth2 authorization processes.
+   *
+   * <p>This method processes the provided {@link IOException} by generating a detailed error message
+   * related to the failure of authorization code verification. It sends a notification through the
+   * {@code reporterService} and then throws an {@link ExternalSystemException}.</p>
+   *
+   * @param ex the {@link IOException} that occurred
+   * @param message the custom message to include in the error report
+   */
+  protected void handleIOException(final IOException ex, final String message) {
+    // Generate an error message indicating the failure in verifying the authorization code
+    final String errorMessage = Oauth2AuthorizationException.failedVerificationOfAuthorizationCodeMessage(message);
+    // Send the error message to the reporting service for logging or monitoring
+    reporterService.sendMessage(errorMessage, ReportMessageType.googleOauth2());
+    // Throw a custom exception indicating an issue with an external system
+    throw new ExternalSystemException(ex.getMessage());
   }
 
   /**
@@ -384,15 +442,49 @@ public class GoogleOauth2Service {
   @MeasureExecutionTime
   public GoogleTokenResponse refreshAccessToken(final String refreshToken) {
     try {
-      final GoogleRefreshTokenRequest refreshTokenRequest = new GoogleRefreshTokenRequest(
-              GoogleOauth2Service.getTransport(), GoogleOauth2Service.getJsonFactory(), refreshToken,
-              oauth2Credential.getClientId(), oauth2Credential.getClientSecret());
+      final GoogleRefreshTokenRequest refreshTokenRequest = createRefreshTokenRequest(refreshToken);
       return refreshTokenRequest.execute();
     } catch (final IOException ex) {
-      final String errorMessage = String.format("An error occurred while refreshing Google Oauth2 token. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_OAUTH2);
-      throw new ExternalSystemException(errorMessage);
+      handleIOExceptionForTokenRefresh(ex);
     }
+    return null;
+  }
+
+  /**
+   * Creates a refresh token request for OAuth2 authentication.
+   *
+   * <p>This method generates a {@link GoogleRefreshTokenRequest} using the provided refresh token
+   * and the stored OAuth2 credentials, including the client ID and client secret. It uses the
+   * appropriate transport and JSON factory for making the request to refresh the token.</p>
+   *
+   * @param refreshToken the refresh token to be used for authentication and token refresh
+   * @return a {@link GoogleRefreshTokenRequest} initialized with the provided refresh token and OAuth2 credentials
+   */
+  protected GoogleRefreshTokenRequest createRefreshTokenRequest(final String refreshToken) {
+    return new GoogleRefreshTokenRequest(
+      GoogleOauth2Service.getTransport(),
+      GoogleOauth2Service.getJsonFactory(),
+      refreshToken,
+      oauth2Credential.getClientId(),
+      oauth2Credential.getClientSecret());
+  }
+
+  /**
+   * Handles an {@link IOException} that occurs during the Google OAuth2 token refresh process.
+   *
+   * <p>This method captures any {@link IOException} thrown while attempting to refresh the OAuth2
+   * token using the provided refresh token, logs the error, and sends a report message. It then throws
+   * an {@link ExternalSystemException} with the error message.</p>
+   *
+   * @param ex the {@link IOException} encountered during the token refresh process
+   */
+  protected void handleIOExceptionForTokenRefresh(final IOException ex) {
+    // Format the error message for token refresh failure
+    final String errorMessage = Oauth2AuthorizationException.failedTokenRefresh(ex.getMessage());
+    // Send a report message with the error details
+    reporterService.sendMessage(errorMessage, ReportMessageType.googleOauth2());
+    // Throw an external system exception with the error message
+    throw new ExternalSystemException(errorMessage);
   }
 
   /**
@@ -500,6 +592,7 @@ public class GoogleOauth2Service {
    * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
    *         specified user and service type.
    */
+  @Transactional
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
@@ -510,7 +603,7 @@ public class GoogleOauth2Service {
     validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, user);
     // Save Oauth2Authorization if new token has been set
     saveTokenIfAccessTokenUpdated(oauth2Authorization, currentAccessToken);
-
+    // Return the oauth2 authorization
     return oauth2Authorization;
   }
 
@@ -535,7 +628,7 @@ public class GoogleOauth2Service {
     authenticationRequest.setOauth2Authorization(oauth2Authorization);
 
     // Check if the access token has expired
-    if (System.currentTimeMillis() >= oauth2Authorization.getTokenExpirationTimeInMilliseconds()) {
+    if (oauth2Authorization.isAccessTokenExpired()) {
       // Refresh the access token using the refresh token
       final Oauth2AuthorizationResponse refreshOauth2TokenResponse = refreshUserAccessToken(authenticationRequest, user);
       // Update the access token if the refresh response contains a new one
@@ -557,10 +650,28 @@ public class GoogleOauth2Service {
    */
   public void saveTokenIfAccessTokenUpdated(final Oauth2Authorization oauth2Authorization, final String currentAccessToken) {
     // Check if the access token has been updated
-    if (!(oauth2Authorization.getAccessToken().equals(currentAccessToken))) {
+    if (oauth2Authorization.isAccessTokenNotSame(currentAccessToken)) {
       // Save the updated authorization entity to the repository
       oauth2AuthorizationRepository.save(oauth2Authorization);
     }
+  }
+
+  /**
+   * Finds or creates an OAuth2 authorization for the specified member and service type.
+   *
+   * <p>If an existing OAuth2 authorization is found for the given {@link Member} and
+   * {@link Oauth2ServiceType}, it is returned. Otherwise, a new OAuth2 authorization is created
+   * for the member.</p>
+   *
+   * @param oauth2ServiceType the {@link Oauth2ServiceType} to create
+   * @param member the {@link Member} for whom the authorization is being retrieved or created
+   * @return the existing or newly created {@link Oauth2Authorization} for the member
+   */
+  protected Oauth2Authorization findOauth2AuthorizationOrCreateOne(final Oauth2ServiceType oauth2ServiceType, final Member member) {
+    // Find the OAuth2 authorization for the member and service type, or create a new one if not found
+    return oauth2AuthorizationRepository
+      .findByMemberAndServiceType(member, oauth2ServiceType)
+      .orElseGet(() -> Oauth2Authorization.of(member));
   }
 
 }
