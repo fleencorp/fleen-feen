@@ -31,4 +31,8 @@ public enum ReportMessageType implements ApiParameter {
   ReportMessageType(final String value) {
     this.value = value;
   }
+
+  public static ReportMessageType googleOauth2() {
+    return GOOGLE_OAUTH2;
+  }
 }

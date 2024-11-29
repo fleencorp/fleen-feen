@@ -21,4 +21,8 @@ public enum Oauth2Source implements ApiParameter {
   Oauth2Source(final String value) {
     this.value = value;
   }
+
+  public static Oauth2Source google() {
+    return Oauth2Source.GOOGLE;
+  }
 }

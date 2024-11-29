@@ -8,7 +8,6 @@ import com.google.api.services.calendar.model.EventReminder;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -48,7 +47,7 @@ public class GoogleCalendarMapper {
           .accessRole(calendar.getAccessRole())
           .defaultReminders(calendar.getDefaultReminders().stream()
               .map(GoogleCalendarMapper::mapToReminders)
-              .collect(Collectors.toList()))
+              .toList())
           .deleted(calendar.getDeleted())
           .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
           .build();
@@ -121,7 +120,7 @@ public class GoogleCalendarMapper {
       return calendarListEntries.stream()
           .map(GoogleCalendarMapper::mapToCalendarResponse)
           .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }

@@ -15,6 +15,8 @@ import static com.fleencorp.feen.constant.security.role.RoleType.*;
  */
 public class UserAuthoritiesUtil {
 
+  private UserAuthoritiesUtil() {}
+
   /**
    * Prefix for all roles.
    */
