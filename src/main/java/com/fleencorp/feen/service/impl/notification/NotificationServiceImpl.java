@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
@@ -163,7 +162,7 @@ public class NotificationServiceImpl implements NotificationService {
         .filter(Objects::nonNull)
         .map(this::createNotificationResponseWithMessage)  // Extracted method for conversion and message setting
         .filter(Objects::nonNull)
-        .collect(Collectors.toList());
+        .toList();
     }
     return List.of();
   }
