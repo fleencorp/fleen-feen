@@ -5,7 +5,6 @@ import com.fleencorp.feen.model.response.social.contact.ContactResponse;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -59,7 +58,7 @@ public class ContactMapper {
       return entries.stream()
           .filter(Objects::nonNull)
           .map(ContactMapper::toContactResponse)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }

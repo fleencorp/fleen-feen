@@ -511,6 +511,7 @@ public class MfaServiceImpl implements MfaService {
         setupMfaResponse.setSecret(mfaAuthenticator.getSecret());
         setupMfaResponse.setQrCode(mfaAuthenticator.getQrCode());
       }
+      default -> {}
     }
   }
 
