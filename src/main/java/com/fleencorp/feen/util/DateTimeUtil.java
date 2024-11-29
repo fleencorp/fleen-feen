@@ -26,6 +26,8 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class DateTimeUtil {
 
+  private DateTimeUtil() {}
+
   /**
    * Converts a LocalDateTime object to a Date object.
    *
@@ -88,12 +90,12 @@ public class DateTimeUtil {
   public static String getGmtOffset(final LocalDateTime localDateTime, final String timezone) {
     // Convert LocalDateTime to ZonedDateTime using the provided timezone
     final ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(timezone));
-
     // Get the offset from UTC
     final ZoneOffset offset = zonedDateTime.getOffset();
 
     // Calculate hours and minutes from total seconds
-    final int oneHour = 3600; // 1 hour in seconds;
+    // 3600 is 1 hour in seconds
+    final int oneHour = 3600;
     final int totalSeconds = offset.getTotalSeconds();
     final int hours = totalSeconds / oneHour;
     final int minutes = Math.abs((totalSeconds % oneHour) / 60);

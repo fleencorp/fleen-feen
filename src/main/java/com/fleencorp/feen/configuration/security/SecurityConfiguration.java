@@ -33,7 +33,7 @@ public class SecurityConfiguration {
   private final JwtAuthenticationFilter authenticationFilter;
   private final CustomAuthenticationProvider authenticationProvider;
 
-  public static final String[] WHITELIST = {
+  protected static final String[] WHITELIST = {
     "/auth/**",
     "/v2/api-docs",
     "/swagger-resources",
@@ -45,9 +45,8 @@ public class SecurityConfiguration {
     "/**"
   };
 
-  public static final String[] WHITELIST_RESOURCES = {
-    "/resources/**",
-    "/gma/static/**"
+  protected static final String[] WHITELIST_RESOURCES = {
+    "/resources/**"
   };
 
   @Bean
