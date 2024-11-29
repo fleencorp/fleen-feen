@@ -6,7 +6,6 @@ import com.google.api.services.calendar.model.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService.toLocalDateTime;
 import static java.util.Objects.nonNull;
@@ -68,7 +67,7 @@ public class GoogleCalendarEventMapper {
           .stream()
           .map(GoogleCalendarEventMapper::mapToEvent)
           .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }
@@ -271,7 +270,7 @@ public class GoogleCalendarEventMapper {
       return eventReminders.stream()
           .map(GoogleCalendarEventMapper::mapToOverride)
           .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }
@@ -310,7 +309,7 @@ public class GoogleCalendarEventMapper {
       return eventAttendees.stream()
           .map(GoogleCalendarEventMapper::mapToAttendee)
           .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }

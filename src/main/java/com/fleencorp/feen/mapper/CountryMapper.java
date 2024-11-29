@@ -5,7 +5,6 @@ import com.fleencorp.feen.model.response.country.CountryResponse;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -57,7 +56,7 @@ public class CountryMapper {
       return entries.stream()
           .filter(Objects::nonNull)
           .map(CountryMapper::toCountryResponse)
-          .collect(Collectors.toList());
+          .toList();
     }
     return List.of();
   }

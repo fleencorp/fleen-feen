@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.fleencorp.base.constant.base.ExceptionMessages.invalidRequestBody;
 import static com.fleencorp.feen.constant.http.FleenHttpStatus.badRequest;
@@ -345,7 +344,7 @@ public class RestExceptionHandler {
       return ex.getBindingResult().getFieldErrors(fieldError.getField())
         .stream()
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
-        .collect(Collectors.toList());
+        .toList();
     }
     return new ArrayList<>();
   }
