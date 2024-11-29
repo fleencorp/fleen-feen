@@ -21,6 +21,8 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 @Slf4j
 public class Oauth2Util {
 
+  private Oauth2Util() {}
+
   /**
    * Validates the OAuth2 scope provided in the states string and returns the corresponding {@link Oauth2ServiceType} enum.
    *
