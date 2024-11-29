@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
 * Utility class for mapping Calendar entities to CalendarResponse DTOs.
@@ -51,7 +50,7 @@ public class CalendarMapper {
       return entries.stream()
           .filter(Objects::nonNull)
           .map(CalendarMapper::toCalendarResponse)
-          .collect(toList());
+          .toList();
     }
     return List.of();
   }

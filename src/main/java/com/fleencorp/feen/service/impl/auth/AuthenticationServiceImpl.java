@@ -54,10 +54,10 @@ import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
+import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -99,6 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     PasswordService, VerificationService {
 
   private final AuthenticationManager authenticationManager;
+  private final MemberService memberService;
   private final CacheService cacheService;
   private final CountryService countryService;
   private final MfaService mfaService;
@@ -123,6 +124,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * operations, including managing user roles, tokens, MFA, and profile-related actions.</p>
    *
    * @param authenticationManager the manager responsible for processing authentication requests.
+   * @param memberService the service for managing members and profile information
    * @param cacheService the service handling cache operations.
    * @param countryService the service providing country-related data and operations.
    * @param mfaService the service managing multi-factor authentication (MFA).
@@ -140,6 +142,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final AuthenticationManager authenticationManager,
       final CacheService cacheService,
       final CountryService countryService,
+      final MemberService memberService,
       final MfaService mfaService,
       final RoleService roleService,
       final TokenService tokenService,
@@ -153,6 +156,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;
     this.countryService = countryService;
+    this.memberService = memberService;
     this.mfaService = mfaService;
     this.roleService = roleService;
     this.tokenService = tokenService;
@@ -576,7 +580,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   public SignOutResponse signOut(final FleenUser user) {
     final String username = user.getUsername();
     // Clear saved authentication tokens including access and refresh token
-    clearAuthenticationTokens(username);
+    memberService.clearAuthenticationTokens(username);
     // Clear the security context
     clearUserAuthenticationDetails();
     // Return a localized response
@@ -1658,25 +1662,6 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     if (nonNull(profileToken) && profileToken.isResetPasswordTokenExpired()) {
       throw new ResetPasswordCodeExpiredException();
     }
-  }
-
-  /**
-   * Clears authentication tokens for the specified user.
-   *
-   * @param username the username of the user
-   */
-  @Async
-  public void clearAuthenticationTokens(final String username) {
-    final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
-    final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
-    final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);
-
-    // Delete access token from cache if it exists
-    cacheService.existsAndDelete(accessTokenCacheKeyKey);
-    // Delete reset password token from cache if it exists
-    cacheService.existsAndDelete(resetPasswordTokenCacheKey);
-    // Delete refresh token from cache if it exists
-    cacheService.existsAndDelete(refreshTokenCacheKeyKey);
   }
 
   /**

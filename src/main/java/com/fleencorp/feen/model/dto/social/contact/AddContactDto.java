@@ -41,7 +41,7 @@ public class AddContactDto {
 
   public Contact toContact() {
     return Contact.builder()
-        .contact(contact)
+        .contactValue(contact)
         .contactType(getActualContactType())
         .build();
   }

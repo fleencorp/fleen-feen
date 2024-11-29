@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 
 /**
  * Utility class for mapping {@link Follower} entities to {@link UserResponse} DTOs.
@@ -80,7 +79,7 @@ public class FollowerMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(FollowerMapper::toFollowerResponse)
-        .collect(toList());
+        .toList();
     }
     return List.of();
   }
@@ -100,7 +99,7 @@ public class FollowerMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(FollowerMapper::toFollowingResponse)
-        .collect(toList());
+        .toList();
     }
     return List.of();
   }

@@ -35,6 +35,7 @@ public class CompletedUserSignUpRequest extends MessageRequest {
         .build();
   }
 
+  @Override
   public Map<String, Object> toMessagePayload() {
     final Map<String, Object> payload = new HashMap<>(super.toMessagePayload());
     payload.put(PROFILE_VERIFICATION_STATUS.getValue(), profileVerificationStatus);

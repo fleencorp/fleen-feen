@@ -34,7 +34,7 @@ public class Contact extends FleenFeenEntity {
   private ContactType contactType;
 
   @Column(name = "contact", length = 1000)
-  private String contact;
+  private String contactValue;
 
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
@@ -43,6 +43,6 @@ public class Contact extends FleenFeenEntity {
 
   public void update(final ContactType contactType, final String contact) {
     this.contactType = contactType;
-    this.contact = contact;
+    this.contactValue = contact;
   }
 }

@@ -80,6 +80,8 @@ public class CreateChatSpaceRequest extends ChatSpaceRequest {
   @Setter
   public static class PermissionSettings {
 
+    private PermissionSettings() {}
+
     public static Map<String, Object> defaultPermissions() {
       final Map<String, Object> permissionSettings = new HashMap<>();
       permissionSettings.put(managersAllowed(), true);

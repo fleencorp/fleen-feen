@@ -42,6 +42,7 @@ import static java.util.Objects.*;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
+import static software.amazon.awssdk.http.SdkHttpMethod.GET;
 import static software.amazon.awssdk.http.SdkHttpMethod.PUT;
 import static software.amazon.awssdk.services.s3.model.ObjectCannedACL.PUBLIC_READ;
 
@@ -228,13 +229,14 @@ public class StorageService {
     final Instant expiration = getExpirationDate(expirationDate);
     S3Request s3Request = null;
 
-    switch (httpMethod) {
-      case PUT -> s3Request = PutObjectRequest
+    if (httpMethod == PUT) {
+      s3Request = PutObjectRequest
         .builder()
         .bucket(bucketName)
         .key(objectKey)
         .build();
-      case GET -> s3Request = GetObjectRequest
+    } else if (httpMethod == GET) {
+      s3Request = GetObjectRequest
         .builder()
         .bucket(bucketName)
         .key(objectKey)

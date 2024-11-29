@@ -37,7 +37,7 @@ public class ContactMapper {
           .id(entry.getContactId())
           .contactType(entry.getContactType())
           .contactTypeLabel(nonNull(entry.getContactType()) ? entry.getContactType().getValue() : null)
-          .contact(entry.getContact())
+          .contact(entry.getContactValue())
           .createdOn(entry.getCreatedOn())
           .updatedOn(entry.getUpdatedOn())
           .build();
