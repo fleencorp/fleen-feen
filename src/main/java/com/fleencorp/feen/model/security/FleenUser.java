@@ -14,7 +14,6 @@ import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.buildAuthorities;
 import static java.util.Arrays.asList;
@@ -67,7 +66,7 @@ public class FleenUser implements UserDetails {
     final List<String> roles = member.getRoles()
       .stream()
       .map(Role::getCode)
-      .collect(Collectors.toList());
+      .toList();
     final List<GrantedAuthority> authorities = buildAuthorities(roles);
 
     // Build a FleenUser object from the Member entity data
@@ -145,7 +144,7 @@ public class FleenUser implements UserDetails {
       .filter(Objects::nonNull)
       .map(authority -> Role.of(authority.getAuthority()))
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public Member toMember() {

@@ -425,11 +425,9 @@ public class StreamService {
    * @param stream the stream being checked for privacy status
    */
   public void setAttendeeRequestToJoinPendingIfStreamIsPrivate(final StreamAttendee streamAttendee, final FleenStream stream) {
-    if (nonNull(streamAttendee)) {
+    if (nonNull(streamAttendee) && stream.isPrivate()) {
       // If the stream is private, set the request-to-join status to pending
-      if (stream.isPrivate()) {
-        streamAttendee.markRequestAsPending();
-      }
+      streamAttendee.markRequestAsPending();
     }
   }
 

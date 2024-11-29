@@ -89,11 +89,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final YouTubeChannelService youTubeChannelService;
-  private final FleenStreamRepository fleenStreamRepository;
-  private final StreamAttendeeRepository streamAttendeeRepository;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final UserFleenStreamRepository userFleenStreamRepository;
-  private final LocalizedResponse localizedResponse;
 
   /**
    * Constructs an {@code LiveBroadcastServiceImpl} with the specified dependencies.
@@ -142,11 +139,8 @@ public class LiveBroadcastServiceImpl extends StreamService implements LiveBroad
     this.notificationService = notificationService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
-    this.fleenStreamRepository = fleenStreamRepository;
-    this.streamAttendeeRepository = streamAttendeeRepository;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.userFleenStreamRepository = userFleenStreamRepository;
-    this.localizedResponse = localizedResponse;
   }
 
   /**
