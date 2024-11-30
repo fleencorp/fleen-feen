@@ -23,10 +23,10 @@ public class IsForKidsInfo {
   @JsonProperty("for_kids_text")
   private String forKidsText;
 
-  public static IsForKidsInfo of(final Boolean isForKids, final String isFForKidsText) {
+  public static IsForKidsInfo of(final Boolean isForKids, final String isForKidsText) {
     return IsForKidsInfo.builder()
       .forKids(isForKids)
-      .forKidsText(isFForKidsText)
+      .forKidsText(isForKidsText)
       .build();
   }
 }

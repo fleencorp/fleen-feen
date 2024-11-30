@@ -26,9 +26,11 @@ import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrSt
 import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
 import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
+import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
@@ -692,8 +694,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     );
     // Delete the event in the Google Calendar
     eventUpdateService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
+    // Get the deleted info
+    final IsDeletedInfo isDeletedInfo = streamMapper.toIsDeletedInfo(stream.isDeleted());
     // Return a localized response of the Deleted event
-    return localizedResponse.of(DeletedEventResponse.of(eventId));
+    return localizedResponse.of(DeletedEventResponse.of(eventId, isDeletedInfo));
   }
 
   /**
@@ -735,7 +739,7 @@ public class EventServiceImpl extends StreamService implements EventService {
     // Cancel the stream in the external service
     eventUpdateService.cancelEventInGoogleCalendar(cancelCalendarEventRequest);
     // Convert the stream status to info
-    final StreamStatusInfo statusInfo = streamMapper.toStreamStatus(stream);
+    final StreamStatusInfo statusInfo = streamMapper.toStreamStatusInfo(stream.getStreamStatus());
     // Return a localized response of the cancellation
     return localizedResponse.of(CancelEventResponse.of(eventId, statusInfo));
   }
@@ -1089,8 +1093,10 @@ public class EventServiceImpl extends StreamService implements EventService {
     updateCalendarEventVisibility(calendar, stream, updateEventOrStreamVisibilityDto);
     // Send invitation to attendees that requested to join earlier and whose request is pending because the event or stream was private earlier
     sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendar.getExternalId(), stream, currentStreamVisibility);
-
-    return localizedResponse.of(UpdateEventVisibilityResponse.of(eventId, streamMapper.toFleenStreamResponseNoJoinStatus(stream)));
+    // Retrieve the stream visibility information
+    final StreamVisibilityInfo streamVisibility = streamMapper.toStreamVisibilityInfo(stream.getStreamVisibility());
+    // Return a localized response of the update
+    return localizedResponse.of(UpdateEventVisibilityResponse.of(eventId, streamVisibility));
   }
 
   /**

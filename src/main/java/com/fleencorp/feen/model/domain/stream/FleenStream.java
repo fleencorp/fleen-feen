@@ -268,6 +268,17 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
+   * Checks if the stream is deleted.
+   * This method returns {@code true} if the stream's deleted is set to
+   * true; otherwise, it returns {@code false}.
+   *
+   * @return {@code true} if the stream is deleted; {@code false} otherwise
+   */
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  /**
    * Checks if the current time is within the scheduled start and end dates, indicating the event is ongoing.
    *
    * @return {@code true} if the current time is equal to or after the {@code scheduledStartDate}
