@@ -470,7 +470,6 @@ public class MemberServiceImpl implements MemberService,
     Member member = findMember(user.getEmailAddress());
     // Retrieve the profile photo associated with the user
     String profilePhotoUrl = member.getProfilePhotoUrl();
-
     // Check if the member currently has a profile photo
     if (nonNull(profilePhotoUrl)) {
       // Delete the existing profile photo from S3 storage
