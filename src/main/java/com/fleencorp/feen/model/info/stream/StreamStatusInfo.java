@@ -17,7 +17,9 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "stream_status",
-  "stream_status_text"
+  "stream_status_text",
+  "stream_status_text_2",
+  "stream_status_text_3"
 })
 public class StreamStatusInfo {
 
@@ -28,10 +30,18 @@ public class StreamStatusInfo {
   @JsonProperty("stream_status_text")
   private String streamStatusText;
 
-  public static StreamStatusInfo of(final StreamStatus streamStatus, final String streamStatusText) {
+  @JsonProperty("stream_status_text_2")
+  private String streamStatusText2;
+
+  @JsonProperty("stream_status_text_3")
+  private String streamStatusText3;
+
+  public static StreamStatusInfo of(final StreamStatus streamStatus, final String streamStatusText, final String streamStatusText2, final String streamStatusText3) {
     return StreamStatusInfo.builder()
       .streamStatus(streamStatus)
       .streamStatusText(streamStatusText)
+      .streamStatusText2(streamStatusText2)
+      .streamStatusText3(streamStatusText3)
       .build();
   }
 }

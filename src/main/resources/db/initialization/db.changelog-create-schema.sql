@@ -240,7 +240,7 @@ CREATE TABLE fleen_stream (
   stream_visibility VARCHAR(255) DEFAULT 'PUBLIC'
     NOT NULL CHECK (stream_visibility IN ('PRIVATE', 'PROTECTED', 'PUBLIC')),
   stream_status VARCHAR(255) DEFAULT 'ACTIVE'
-    NOT NULL CHECK (stream_status IN ('ACTIVE', 'CANCELLED')),
+    NOT NULL CHECK (stream_status IN ('ACTIVE', 'CANCELED')),
   scheduled_start_date TIMESTAMP NOT NULL,
   scheduled_end_date TIMESTAMP NOT NULL,
 
