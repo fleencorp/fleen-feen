@@ -467,9 +467,9 @@ public class MemberServiceImpl implements MemberService,
    */
   public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final FleenUser user) {
     // Retrieve the member associated with the user's email address
-    Member member = findMember(user.getEmailAddress());
+    final Member member = findMember(user.getEmailAddress());
     // Retrieve the profile photo associated with the user
-    String profilePhotoUrl = member.getProfilePhotoUrl();
+    final String profilePhotoUrl = member.getProfilePhotoUrl();
     // Check if the member currently has a profile photo
     if (nonNull(profilePhotoUrl)) {
       // Delete the existing profile photo from S3 storage
