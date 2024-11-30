@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
@@ -47,6 +48,7 @@ import static java.util.Objects.nonNull;
   "stream_source_info",
   "stream_status_info",
   "visibility_info",
+  "is_deleted_info",
   "status",
   "schedule_time_type_info",
   "total_attending",
@@ -108,6 +110,9 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("attendance_info")
   private AttendanceInfo attendanceInfo;
 
+  @JsonProperty("is_deleted_info")
+  private IsDeletedInfo isDeletedInfo;
+
   @JsonProperty("is_private")
   public boolean isPrivate() {
     return StreamVisibility.isPrivateOrProtected(getVisibility());
@@ -146,6 +151,7 @@ public class FleenStreamResponse extends FleenFeenResponse {
     return nonNull(attendanceInfo) ? attendanceInfo.getJoinStatusInfo().getJoinStatus() : null;
   }
 
+  @JsonIgnore
   public boolean hasHappened() {
     return schedule.getEndDate().isBefore(LocalDateTime.now());
   }
