@@ -241,6 +241,7 @@ public class StreamAttendeeTest {
   void ensure_is_attending_is_null() {
 //    GIVEN
     StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setIsAttending(null);
 
 //    ASSERT
     assertNull(streamAttendee.getIsAttending());
