@@ -9,6 +9,7 @@ import com.fleencorp.feen.model.response.security.mfa.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
+import com.fleencorp.feen.service.verification.VerificationService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,12 +22,15 @@ public class MfaController {
 
   private final AuthenticationService authenticationService;
   private final MfaService mfaService;
+  private final VerificationService verificationService;
 
   public MfaController(
       final AuthenticationService authenticationService,
-      final MfaService mfaService) {
+      final MfaService mfaService,
+      final VerificationService verificationService) {
     this.authenticationService = authenticationService;
     this.mfaService = mfaService;
+    this.verificationService = verificationService;
   }
 
   @GetMapping(value = "/status")
@@ -68,7 +72,7 @@ public class MfaController {
   public ResendMfaVerificationCodeResponse resendMfaVerificationCode(
       @Valid @RequestBody final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.resendMfaVerificationCode(resendMfaVerificationCodeDto, user);
+    return verificationService.resendMfaVerificationCode(resendMfaVerificationCodeDto, user);
   }
 
   @PutMapping(value = "/re-enable")

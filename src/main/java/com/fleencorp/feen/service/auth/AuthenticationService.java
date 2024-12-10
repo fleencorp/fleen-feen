@@ -22,10 +22,6 @@ public interface AuthenticationService {
 
   SignUpResponse completeSignUp(CompleteSignUpDto completeSignUpDto, FleenUser user);
 
-  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user);
-
-  ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user);
-
   SignOutResponse signOut(FleenUser user);
 
   SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto, FleenUser user);
