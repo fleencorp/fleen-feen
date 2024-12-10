@@ -30,7 +30,7 @@ import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.impl.external.aws.StorageService;
-import com.fleencorp.feen.service.security.VerificationService;
+import com.fleencorp.feen.service.verification.VerificationService;
 import com.fleencorp.feen.service.user.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;

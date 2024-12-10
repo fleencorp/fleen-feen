@@ -9,6 +9,7 @@ import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.auth.AuthenticationService;
+import com.fleencorp.feen.service.verification.VerificationService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,9 +21,13 @@ import org.springframework.web.bind.annotation.*;
 public class VerificationController {
 
   private final AuthenticationService authenticationService;
+  private final VerificationService verificationService;
 
-  public VerificationController(final AuthenticationService authenticationService) {
+  public VerificationController(
+      final AuthenticationService authenticationService,
+      final VerificationService verificationService) {
     this.authenticationService = authenticationService;
+    this.verificationService = verificationService;
   }
 
   @PreAuthorize("hasAnyRole('PRE_VERIFIED_USER')")
@@ -37,7 +42,7 @@ public class VerificationController {
   public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(
       @Valid @RequestBody final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.resendSignUpVerificationCode(resendSignUpVerificationCodeDto, user);
+    return verificationService.resendSignUpVerificationCode(resendSignUpVerificationCodeDto, user);
   }
 
   @PreAuthorize("hasRole('RESET_PASSWORD_USER')")

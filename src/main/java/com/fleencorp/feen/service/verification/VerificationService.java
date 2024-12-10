@@ -1,8 +1,15 @@
-package com.fleencorp.feen.service.security;
+package com.fleencorp.feen.service.verification;
 
+import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
 import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
 import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.model.dto.auth.ResendSignUpVerificationCodeDto;
+import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
+import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
+import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
+import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
@@ -44,4 +51,16 @@ public interface VerificationService {
   }
 
   CacheService getCacheService();
+
+  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user);
+
+  SignUpVerificationRequest createSignUpVerificationRequest(String otp, VerificationType verificationType, FleenUser user);
+
+  ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user);
+
+  void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, FleenUser user);
+
+  void saveSignUpVerificationCodeTemporarily(String username, String verificationCode);
+
+  void saveMfaVerificationCodeTemporarily(String username, String verificationCode);
 }
