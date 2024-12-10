@@ -38,9 +38,9 @@ public class VerificationServiceImpl implements VerificationService {
   private final LocalizedResponse localizedResponse;
 
   public VerificationServiceImpl(
-      CacheService cacheService,
-      ProfileRequestPublisher profileRequestPublisher,
-      LocalizedResponse localizedResponse) {
+    final CacheService cacheService,
+    final ProfileRequestPublisher profileRequestPublisher,
+    final LocalizedResponse localizedResponse) {
     this.cacheService = cacheService;
     this.profileRequestPublisher = profileRequestPublisher;
     this.localizedResponse = localizedResponse;
