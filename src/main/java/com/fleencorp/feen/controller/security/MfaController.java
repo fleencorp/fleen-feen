@@ -64,7 +64,7 @@ public class MfaController {
   public SignInResponse verifyMfaCode(
       @Valid @RequestBody final ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.verifyMfaVerificationCodeAndAuthenticateUser(confirmMfaVerificationCodeDto, user);
+    return verificationService.verifyMfaVerificationCodeAndAuthenticateUser(confirmMfaVerificationCodeDto, user);
   }
 
   @PreAuthorize("hasAnyRole('PRE_AUTHENTICATED_USER')")
