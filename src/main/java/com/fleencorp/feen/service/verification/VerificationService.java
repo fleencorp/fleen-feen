@@ -1,0 +1,92 @@
+package com.fleencorp.feen.service.verification;
+
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.domain.user.ProfileToken;
+import com.fleencorp.feen.model.dto.auth.ResendSignUpVerificationCodeDto;
+import com.fleencorp.feen.model.dto.auth.ResetPasswordDto;
+import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
+import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
+import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
+import com.fleencorp.feen.model.response.auth.SignInResponse;
+import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
+import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
+import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.service.impl.cache.CacheService;
+import org.springframework.security.core.Authentication;
+
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
+import static java.util.Objects.nonNull;
+
+public interface VerificationService {
+
+  /**
+   * Validates the provided verification code against the stored code.
+   *
+   * <p>This method checks if the verification key is null, if the key exists in the cache,
+   * and if the stored code matches the provided code. It throws appropriate exceptions if
+   * validation fails.</p>
+   *
+   * @param verificationKey the key used to retrieve the verification code from the cache
+   * @param code            the verification code to validate
+   * @throws VerificationFailedException    if the verification key is null
+   * @throws ExpiredVerificationCodeException if the verification key does not exist in the cache
+   * @throws InvalidVerificationCodeException if the stored code does not match the provided code
+   */
+  default void validateVerificationCode(final String verificationKey, final String code) {
+    // Check if the verification key is null
+    checkIsNull(verificationKey, VerificationFailedException::new);
+
+    // Check if the verification key exists in the cache
+    if (!(getCacheService().exists(verificationKey))) {
+      throw ExpiredVerificationCodeException.of(code);
+    }
+
+    // Retrieve the existing code from the cache
+    final String existingCode = (String) getCacheService().get(verificationKey);
+    // Check if the verification key is null
+    checkIsNull(existingCode, InvalidVerificationCodeException.of(code));
+
+    // Check if the existing code is null or does not match the provided code
+    if (!(nonNull(existingCode) && existingCode.equals(code))) {
+      throw new InvalidVerificationCodeException(code);
+    }
+  }
+
+  CacheService getCacheService();
+
+  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user);
+
+  SignUpVerificationRequest createSignUpVerificationRequest(String otp, VerificationType verificationType, FleenUser user);
+
+  ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user);
+
+  void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, FleenUser user);
+
+  void saveSignUpVerificationCodeTemporarily(String username, String verificationCode);
+
+  void saveMfaVerificationCodeTemporarily(String username, String verificationCode);
+
+  SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto, FleenUser user);
+
+
+  FleenUser initializeAuthenticationAndContext(Member member);
+
+  void setContext(Authentication authentication);
+
+  InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto);
+
+  Member getMemberDetails(String emailAddressOrUsername);
+
+  ProfileToken findProfileToken(String emailAddress);
+
+  void verifyResetPasswordTokenHasNotExpired(ProfileToken profileToken);
+
+  void validateProfileTokenAndVerificationCode(String verificationTokenOrCode, ProfileToken profileToken);
+}
+
+
