@@ -57,11 +57,12 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Service
 public class MemberServiceImpl implements MemberService,
-  EmailService, PasswordService, PhoneService, VerificationService {
+  EmailService, PasswordService, PhoneService {
 
   private final CacheService cacheService;
   private final CountryService countryService;
   private final StorageService storageService;
+  private final VerificationService verificationService;
   private final MemberRepository memberRepository;
   private final UserProfileRepository userProfileRepository;
   private final LocalizedResponse localizedResponse;
@@ -75,18 +76,20 @@ public class MemberServiceImpl implements MemberService,
    * @param memberRepository the repository used to manage member entities.
    */
   public MemberServiceImpl(
-      final CacheService cacheService,
-      final CountryService countryService,
-      final StorageService storageService,
-      final MemberRepository memberRepository,
-      final UserProfileRepository userProfileRepository,
-      final LocalizedResponse localizedResponse,
-      final PasswordEncoder passwordEncoder,
-      final ProfileRequestPublisher profileRequestPublisher,
-      final S3BucketNames s3BucketNames) {
+    final CacheService cacheService,
+    final CountryService countryService,
+    final StorageService storageService,
+    final VerificationService verificationService,
+    final MemberRepository memberRepository,
+    final UserProfileRepository userProfileRepository,
+    final LocalizedResponse localizedResponse,
+    final PasswordEncoder passwordEncoder,
+    final ProfileRequestPublisher profileRequestPublisher,
+    final S3BucketNames s3BucketNames) {
     this.cacheService = cacheService;
     this.countryService = countryService;
     this.storageService = storageService;
+    this.verificationService = verificationService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
     this.localizedResponse = localizedResponse;
@@ -362,7 +365,7 @@ public class MemberServiceImpl implements MemberService,
     final String code = updateEmailAddressDto.getVerificationCode();
 
     // Validate the provided verification code
-    validateVerificationCode(verificationKey, code);
+    verificationService.validateVerificationCode(verificationKey, code);
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
 
@@ -408,7 +411,7 @@ public class MemberServiceImpl implements MemberService,
     final String code = updatePhoneNumberDto.getVerificationCode();
 
     // Validate the provided verification code
-    validateVerificationCode(verificationKey, code);
+    verificationService.validateVerificationCode(verificationKey, code);
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
 

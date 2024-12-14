@@ -4,13 +4,20 @@ import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
 import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
 import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.domain.user.ProfileToken;
 import com.fleencorp.feen.model.dto.auth.ResendSignUpVerificationCodeDto;
+import com.fleencorp.feen.model.dto.auth.ResetPasswordDto;
+import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
 import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
 import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
+import com.fleencorp.feen.model.response.auth.SignInResponse;
+import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
+import org.springframework.security.core.Authentication;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static java.util.Objects.nonNull;
@@ -63,4 +70,23 @@ public interface VerificationService {
   void saveSignUpVerificationCodeTemporarily(String username, String verificationCode);
 
   void saveMfaVerificationCodeTemporarily(String username, String verificationCode);
+
+  SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto, FleenUser user);
+
+
+  FleenUser initializeAuthenticationAndContext(Member member);
+
+  void setContext(Authentication authentication);
+
+  InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto);
+
+  Member getMemberDetails(String emailAddressOrUsername);
+
+  ProfileToken findProfileToken(String emailAddress);
+
+  void verifyResetPasswordTokenHasNotExpired(ProfileToken profileToken);
+
+  void validateProfileTokenAndVerificationCode(String verificationTokenOrCode, ProfileToken profileToken);
 }
+
+
