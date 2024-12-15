@@ -247,6 +247,28 @@ public class StreamAttendeeTest {
     assertNull(streamAttendee.getIsAttending());
   }
 
+  @DisplayName("Ensure isAttending is false")
+  @Test
+  void ensure_is_attending_is_false(){
+    //GIVEN
+    StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setIsAttending(false);
+
+    //ASSERT
+    assertFalse(streamAttendee.isAttending());
+  }
+
+  @DisplayName("Ensure isAttending is true")
+  @Test
+  void ensure_is_attending_is_true(){
+    //GIVEN
+    StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setIsAttending(true);
+
+    //ASSERT
+    assertTrue(streamAttendee.isAttending());
+  }
+
   @DisplayName("Ensure attendee comment is null")
   @Test
   void ensure_attendee_comment_is_null() {
@@ -287,6 +309,40 @@ public class StreamAttendeeTest {
 
 //    ASSERT
     assertNotNull(streamAttendee.getOrganizerComment());
+  }
+
+  @DisplayName("Ensure request to join status is pending")
+  @Test
+  void ensure_request_to_join_is_pending(){
+    //GIVEN
+    StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setRequestToJoinStatus(StreamAttendeeRequestToJoinStatus.PENDING);
+
+    //ASSERT
+    assertEquals(streamAttendee.getRequestToJoinStatus(), StreamAttendeeRequestToJoinStatus.PENDING);
+
+  }
+
+  @DisplayName("Ensure request to join is approved")
+  @Test
+  void ensure_request_to_join_is_approved(){
+    //GIVEN
+    StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setRequestToJoinStatus(StreamAttendeeRequestToJoinStatus.APPROVED);
+
+    //ASSERT
+    assertTrue(streamAttendee.isRequestToJoinApproved());
+  }
+
+  @DisplayName("Ensure request to join is disapproved")
+  @Test
+  void ensure_request_to_join_is_disapproved(){
+    //GIVEN
+    StreamAttendee streamAttendee = new StreamAttendee();
+    streamAttendee.setRequestToJoinStatus(StreamAttendeeRequestToJoinStatus.DISAPPROVED);
+
+    //ASSERT
+    assertTrue(streamAttendee.isRequestToJoinDisapproved());
   }
 
 }
