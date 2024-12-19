@@ -1,28 +1,18 @@
 package com.fleencorp.feen.model.response.external.google.calendar.calendar;
 
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.base.GoogleCalendarResponse;
-import lombok.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class GoogleListCalendarResponse {
+import static java.util.Objects.isNull;
 
-  @Builder.Default
-  private List<GoogleCalendarResponse> calendars = new ArrayList<>();
+public record GoogleListCalendarResponse(List<GoogleCalendarResponse> calendarResponses) {
 
-  public static GoogleListCalendarResponse of(final List<GoogleCalendarResponse> calendars) {
-    return GoogleListCalendarResponse.builder()
-      .calendars(calendars)
-      .build();
+  public static GoogleListCalendarResponse of(final List<GoogleCalendarResponse> calendarResponses) {
+    return new GoogleListCalendarResponse(isNull(calendarResponses) ? List.of() : calendarResponses);
   }
 
   public static GoogleListCalendarResponse of() {
-    return new GoogleListCalendarResponse();
+    return new GoogleListCalendarResponse(List.of());
   }
 }

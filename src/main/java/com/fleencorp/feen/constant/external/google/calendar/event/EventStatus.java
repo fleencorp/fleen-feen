@@ -20,4 +20,8 @@ public enum EventStatus implements ApiParameter {
   EventStatus(final String value) {
     this.value = value;
   }
+
+  public static String cancelled() {
+    return CANCELLED.getValue();
+  }
 }

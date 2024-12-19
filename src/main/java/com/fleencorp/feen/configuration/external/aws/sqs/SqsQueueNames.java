@@ -1,6 +1,7 @@
 package com.fleencorp.feen.configuration.external.aws.sqs;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.PropertySources;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "queue")
 @PropertySources({

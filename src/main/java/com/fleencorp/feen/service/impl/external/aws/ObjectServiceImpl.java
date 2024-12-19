@@ -4,6 +4,7 @@ import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.dto.aws.CreateSignedUrlDto;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse;
 import com.fleencorp.feen.service.common.ObjectService;
+import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -50,7 +51,7 @@ public class ObjectServiceImpl implements ObjectService {
    * @param filename the name of the file
    * @return the file extension, or {@code null} if none is found
    */
-  public String getFileExtension(final String filename) {
+  protected String getFileExtension(final String filename) {
     return StringUtils.getFilenameExtension(filename);
   }
 
@@ -63,7 +64,7 @@ public class ObjectServiceImpl implements ObjectService {
    * @param filename the name of the file
    * @return the filename without the extension, or the original filename if no extension is found
    */
-  public String stripExtension(final String filename) {
+  protected String stripExtension(final String filename) {
     return StringUtils.stripFilenameExtension(filename);
   }
 
@@ -77,7 +78,7 @@ public class ObjectServiceImpl implements ObjectService {
    * @param filename the original filename
    * @return the new filename with a random name and the original extension
    */
-  public String generateRandomNameForFile(final String filename) {
+  protected String generateRandomNameForFile(final String filename) {
     // Get the file extension
     final String fileExt = getFileExtension(filename);
 

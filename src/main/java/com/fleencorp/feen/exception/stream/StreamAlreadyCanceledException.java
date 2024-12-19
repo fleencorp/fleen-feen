@@ -13,7 +13,7 @@ public class StreamAlreadyCanceledException extends FleenException {
     super(params);
   }
 
-  public static FleenStreamNotCreatedByUserException of(final Object streamId) {
-    return new FleenStreamNotCreatedByUserException(streamId);
+  public static StreamNotCreatedByUserException of(final Object streamId) {
+    return new StreamNotCreatedByUserException(streamId);
   }
 }

@@ -1,16 +1,24 @@
 package com.fleencorp.feen.controller.broadcast;
 
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.constant.stream.StreamTimeType;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.request.search.youtube.LiveBroadcastSearchRequest;
-import com.fleencorp.feen.model.response.broadcast.*;
-import com.fleencorp.feen.model.search.broadcast.LiveBroadcastSearchResult;
-import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
+import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
+import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
+import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
+import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
+import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.UpdateStreamResponse;
+import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
+import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
+import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
+import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,44 +27,44 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/live-stream")
+@PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class LiveBroadcastController {
 
   private final LiveBroadcastService liveBroadcastService;
+  private final LiveBroadcastJoinService liveBroadcastJoinService;
+  private final StreamSearchService streamSearchService;
 
   public LiveBroadcastController(
-      final LiveBroadcastService liveBroadcastService) {
+      final LiveBroadcastService liveBroadcastService,
+      final LiveBroadcastJoinService liveBroadcastJoinService,
+      final StreamSearchService streamSearchService) {
     this.liveBroadcastService = liveBroadcastService;
+    this.liveBroadcastJoinService = liveBroadcastJoinService;
+    this.streamSearchService = streamSearchService;
   }
 
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @GetMapping(value = "/data-create-stream")
   @Cacheable(value = "data-required-to-create-stream")
-  public DataForCreateStreamResponse getDataCreateStream() {
-    return liveBroadcastService.getDataForCreateStream();
+  public DataForCreateLiveBroadcastResponse getDataCreateStream() {
+    return liveBroadcastService.getDataForCreateLiveBroadcast();
   }
 
   @GetMapping(value = "/entries")
-  public LiveBroadcastSearchResult findLiveBroadcasts(
-      @SearchParam final LiveBroadcastSearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.findLiveBroadcasts(searchRequest, user);
+  public StreamSearchResult findEvents(
+    @SearchParam final EventSearchRequest searchRequest,
+    @AuthenticationPrincipal final FleenUser user) {
+    searchRequest.setStreamType(StreamType.liveStream());
+    return streamSearchService.findStreams(searchRequest, user);
   }
 
-  @GetMapping(value = "/detail/{streamId}")
-  public RetrieveStreamResponse findLiveBroadcast(
-      @PathVariable(name = "streamId") final Long streamId,
-      @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.retrieveStream(streamId, user);
+  @GetMapping(value = "/entries/type")
+  public StreamSearchResult findEvents(
+    @SearchParam final EventSearchRequest searchRequest,
+    final StreamTimeType streamTimeType) {
+    searchRequest.setStreamType(StreamType.liveStream());
+    return streamSearchService.findStreams(searchRequest, streamTimeType);
   }
 
-  @GetMapping(value = "/attendees/{streamId}")
-  public StreamAttendeeSearchResult findStreamAttendees(
-    @PathVariable(name = "streamId") final Long streamId,
-    @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return liveBroadcastService.findStreamAttendees(streamId, searchRequest);
-  }
-
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/create")
   public CreateStreamResponse createLiveStream(
       @Valid @RequestBody final CreateLiveBroadcastDto createLiveBroadcastDto,
@@ -73,28 +81,27 @@ public class LiveBroadcastController {
     return liveBroadcastService.updateLiveBroadcast(streamId, updateLiveBroadcastDto, user);
   }
 
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PutMapping(value = "/not-attending/{streamId}")
   public NotAttendingStreamResponse notAttendingStream(
       @PathVariable(name = "streamId") final Long streamId,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.notAttendingStream(streamId, user);
+    return liveBroadcastJoinService.notAttendingLiveBroadcast(streamId, user);
   }
 
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/join/{streamId}")
   public JoinStreamResponse joinStream(
       @PathVariable(name = "streamId") final Long streamId,
+      @Valid @RequestBody final JoinStreamDto joinStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.joinStream(streamId, user);
+    return liveBroadcastJoinService.joinLiveBroadcast(streamId, joinStreamDto, user);
   }
 
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @PostMapping(value = "/request-to-join/{streamId}")
   public RequestToJoinStreamResponse requestToJoinStream(
       @PathVariable(name = "streamId") final Long streamId,
-      @Valid @RequestBody final RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto,
+      @Valid @RequestBody final RequestToJoinStreamDto requestToJoinStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.requestToJoinStream(streamId, requestToJoinEventOrStreamDto, user);
+    return liveBroadcastJoinService.requestToJoinLiveBroadcast(streamId, requestToJoinStreamDto, user);
   }
 }

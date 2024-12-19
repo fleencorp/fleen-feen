@@ -29,8 +29,8 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
-import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarService;
-import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
+import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
+import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -41,8 +41,9 @@ import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponse;
-import static com.fleencorp.feen.mapper.CalendarMapper.toCalendarResponses;
+import static com.fleencorp.feen.mapper.calendar.CalendarMapper.toCalendarResponse;
+import static com.fleencorp.feen.mapper.calendar.CalendarMapper.toCalendarResponses;
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
@@ -50,7 +51,7 @@ import static java.util.Objects.nonNull;
  * Implementation of the CalendarService interface.
  * This class provides methods for calendar-related operations.
  *
- * @author Yusuf Alamu Musa
+ * @author Yusuf Àlàmù Mùsà
  * @version 1.0
  */
 @Slf4j
@@ -140,7 +141,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public RetrieveCalendarResponse findCalendar(final Long calendarId) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(CalendarNotFoundException.of(calendarId));
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
     return localizedResponse.of(RetrieveCalendarResponse.of(calendarId, toCalendarResponse(calendar)));
   }
 
@@ -174,20 +175,20 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(createCalendarDto.getOauth2ServiceType(), user);
-
     // Create a create calendar request to be used in external service
-    final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
-      .of(createCalendarDto.getTitle(),
-          createCalendarDto.getDescription(),
-          createCalendarDto.getTimezone(),
-          oauth2Authorization.getAccessToken(),
-          user.getEmailAddress());
+    final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest.of(
+      createCalendarDto.getTitle(),
+      createCalendarDto.getDescription(),
+      createCalendarDto.getTimezone(),
+      oauth2Authorization.getAccessToken(),
+      user.getEmailAddress()
+    );
     // Save new calendar
     calendar = calendarRepository.save(calendar);
 
     // Create a calendar using Google Calendar API Service
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
-    calendar.setExternalId(googleCreateCalendarResponse.getCalendarId());
+    calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
     return localizedResponse.of(CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
@@ -207,31 +208,33 @@ public class CalendarServiceImpl implements CalendarService {
   @Transactional
   public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final FleenUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(CalendarNotFoundException.of(calendarId));
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(updateCalendarDto.getOauth2ServiceType(), user);
 
     // Prepare request to patch calendar in external service
-    final PatchCalendarRequest patchCalendarRequest = PatchCalendarRequest
-      .of(calendar.getExternalId(),
-          updateCalendarDto.getTitle(),
-          updateCalendarDto.getDescription(),
-          updateCalendarDto.getTimezone(),
-          oauth2Authorization.getAccessToken());
+    final PatchCalendarRequest patchCalendarRequest = PatchCalendarRequest.of(
+      calendar.getExternalId(),
+      updateCalendarDto.getTitle(),
+      updateCalendarDto.getDescription(),
+      updateCalendarDto.getTimezone(),
+      oauth2Authorization.getAccessToken()
+    );
 
     // Update calendar details locally
     calendar.update(
-              updateCalendarDto.getTitle(),
-              updateCalendarDto.getDescription(),
-              updateCalendarDto.getTimezone());
+      updateCalendarDto.getTitle(),
+      updateCalendarDto.getDescription(),
+      updateCalendarDto.getTimezone()
+    );
     // Save updated calendar
     calendar = calendarRepository.save(calendar);
 
     // Update the calendar through Google Calendar API Service
     final GooglePatchCalendarResponse googlePatchCalendarResponse = googleCalendarService.patchCalendar(patchCalendarRequest);
-    log.info("Patch calendar response: {}", googlePatchCalendarResponse);
+    logIfEnabled(log::isInfoEnabled, () -> log.info("Patch calendar response: {}", googlePatchCalendarResponse));
 
     return localizedResponse.of(UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
@@ -259,12 +262,13 @@ public class CalendarServiceImpl implements CalendarService {
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
 
     // Create a create calendar request to be used in external service
-    final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest
-      .of(calendar.getTitle(),
-        calendar.getDescription(),
-        calendar.getTimezone(),
-        oauth2Authorization.getAccessToken(),
-        user.getEmailAddress());
+    final CreateCalendarRequest createCalendarRequest = CreateCalendarRequest.of(
+      calendar.getTitle(),
+      calendar.getDescription(),
+      calendar.getTimezone(),
+      oauth2Authorization.getAccessToken(),
+      user.getEmailAddress()
+    );
 
     calendar.markAsActive();
     // Save updated calendar
@@ -272,7 +276,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     // Update the calendar through Google Calendar API Service
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
-    calendar.setExternalId(googleCreateCalendarResponse.getCalendarId());
+    calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
     return localizedResponse.of(ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
@@ -291,7 +295,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Transactional
   public DeletedCalendarResponse deleteCalendar(final Long calendarId, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(CalendarNotFoundException.of(calendarId));
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
@@ -302,7 +306,7 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleDeleteCalendarResponse deleteCalendarResponse = googleCalendarService.deleteCalendar(deleteCalendarRequest);
 
     // Log deletion response from external service
-    log.info("Deleted calendar: {}", deleteCalendarResponse);
+    logIfEnabled(log::isInfoEnabled, () -> log.info("Deleted calendar: {}", deleteCalendarResponse));
     calendar.markAsInactive();
 
     calendarRepository.save(calendar);
@@ -327,28 +331,30 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final FleenUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
-            .orElseThrow(CalendarNotFoundException.of(calendarId));
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
 
     // Construct the request for sharing the calendar
-    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest
-      .of(calendar.getExternalId(),
-          shareCalendarWithUserDto.getEmailAddress(),
-          shareCalendarWithUserDto.getActualAclScopeType(),
-          shareCalendarWithUserDto.getActualAclRole(),
-          oauth2Authorization.getAccessToken());
+    final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest.of(
+      calendar.getExternalId(),
+      shareCalendarWithUserDto.getEmailAddress(),
+      shareCalendarWithUserDto.getActualAclScopeType(),
+      shareCalendarWithUserDto.getActualAclRole(),
+      oauth2Authorization.getAccessToken()
+    );
 
     // Share the calendar with the user using the Google Calendar service
     final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarService.shareCalendarWithUser(shareCalendarWithUserRequest);
-    log.info("Shared calendar: {} with user {}", googleShareCalendarWithUserResponse, shareCalendarWithUserDto.getEmailAddress());
+    logIfEnabled(log::isInfoEnabled, () -> log.info("Shared calendar: {} with user {}", googleShareCalendarWithUserResponse, shareCalendarWithUserDto.getEmailAddress()));
 
     // Return share calendar response
     final ShareCalendarWithUserResponse shareCalendarWithUserResponse = ShareCalendarWithUserResponse
       .of(calendarId,
         shareCalendarWithUserDto.getEmailAddress(),
-        toCalendarResponse(calendar));
+        toCalendarResponse(calendar)
+      );
     return localizedResponse.of(shareCalendarWithUserResponse);
   }
 

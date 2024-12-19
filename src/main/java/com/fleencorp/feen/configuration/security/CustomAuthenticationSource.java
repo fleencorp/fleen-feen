@@ -1,6 +1,7 @@
 package com.fleencorp.feen.configuration.security;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.NoArgsConstructor;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
  * @see HttpServletRequest
  * @see WebAuthenticationDetails
  */
+@NoArgsConstructor
 @Component
 public class CustomAuthenticationSource implements AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> {
 

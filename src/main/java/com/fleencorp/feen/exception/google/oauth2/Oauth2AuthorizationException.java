@@ -2,7 +2,7 @@ package com.fleencorp.feen.exception.google.oauth2;
 
 import static java.util.Objects.nonNull;
 
-public class Oauth2AuthorizationException {
+public final class Oauth2AuthorizationException {
 
   private Oauth2AuthorizationException() {}
 

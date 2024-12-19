@@ -71,8 +71,7 @@ public class SlackReporter implements ReporterService {
   public void sendMessage(final String message, final ReportMessageType reportMessageType) {
     final String channelId = getChannelId(reportMessageType);
     final SlackColor slackColor = getColor(reportMessageType);
-    System.out.println("ChannelId: " + channelId);
-    System.out.println("SlackColor: " + slackColor);
+    log.info("Details are {} and {}", channelId, slackColor);
     slackAdapter.sendMessage(getChannelId(reportMessageType), message);
   }
 

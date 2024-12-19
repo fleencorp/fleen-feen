@@ -1,6 +1,7 @@
 package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.constant.stream.StreamStatus;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import org.springframework.data.domain.Page;
@@ -23,26 +24,26 @@ public interface FleenStreamRepository extends JpaRepository<FleenStream, Long> 
   @Query("SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL AND fs.streamStatus = :status ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findMany(@Param("status") StreamStatus status, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.scheduledStartDate > :currentDate ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findUpcomingEvents(@Param("currentDate") LocalDateTime dateTime, Pageable pageable);
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.scheduledStartDate > :currentDate ORDER BY fs.scheduledStartDate ASC")
+  Page<FleenStream> findUpcomingStreams(@Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.scheduledStartDate > :currentDate AND LOWER(fs.title) " +
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.scheduledStartDate > :currentDate AND LOWER(fs.title) " +
+    "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
+  Page<FleenStream> findUpcomingStreamsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
+
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.scheduledStartDate < :currentDate ORDER BY fs.scheduledStartDate ASC")
+  Page<FleenStream> findPastStreams(@Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
+
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.scheduledStartDate < :currentDate AND LOWER(fs.title) " +
           "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findUpcomingEventsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, Pageable pageable);
+  Page<FleenStream> findPastStreamsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.scheduledStartDate < :currentDate ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findPastEvents(@Param("currentDate") LocalDateTime dateTime, Pageable pageable);
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND :currentDate > fs.scheduledStartDate AND :currentDate < fs.scheduledEndDate ORDER BY fs.scheduledStartDate ASC")
+  Page<FleenStream> findLiveStreams(@Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.scheduledStartDate < :currentDate AND LOWER(fs.title) " +
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND :currentDate > fs.scheduledStartDate AND :currentDate < fs.scheduledEndDate AND LOWER(fs.title) " +
           "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findPastEventsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, Pageable pageable);
-
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE :currentDate > fs.scheduledStartDate AND :currentDate < fs.scheduledEndDate ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findLiveEvents(@Param("currentDate") LocalDateTime dateTime, Pageable pageable);
-
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE :currentDate > fs.scheduledStartDate AND :currentDate < fs.scheduledEndDate AND LOWER(fs.title) " +
-          "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
-  Page<FleenStream> findLiveEventsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, Pageable pageable);
+  Page<FleenStream> findLiveStreamsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
   @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByChatSpace(ChatSpace chatSpace, Pageable pageable);

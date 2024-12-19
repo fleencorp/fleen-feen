@@ -24,7 +24,7 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Slf4j
-public class DateTimeUtil {
+public final class DateTimeUtil {
 
   private DateTimeUtil() {}
 

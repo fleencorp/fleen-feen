@@ -12,7 +12,7 @@ package com.fleencorp.feen.constant.external.google;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
-public class GoogleOauth2Scopes {
+public final class GoogleOauth2Scopes {
 
   private GoogleOauth2Scopes() {}
 
@@ -27,4 +27,5 @@ public class GoogleOauth2Scopes {
 
   public static final String CLOUD_MESSAGING = "https://www.googleapis.com/auth/firebase.messaging";
   public static final String CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform";
+
 }

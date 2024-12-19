@@ -13,14 +13,14 @@ import static com.fleencorp.feen.constant.security.role.RoleType.*;
 /**
  * Utility class for managing Fleen authorities.
  */
-public class UserAuthoritiesUtil {
-
-  private UserAuthoritiesUtil() {}
+public final class UserAuthoritiesUtil {
 
   /**
    * Prefix for all roles.
    */
   public static final String ROLE_PREFIX = "ROLE_";
+
+  private UserAuthoritiesUtil() {}
 
   /**
    * Retrieves authorities for pre-verified users.

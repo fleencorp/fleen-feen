@@ -9,11 +9,14 @@ import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.*;
 import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceResponse;
-import com.fleencorp.feen.model.response.event.CreateEventResponse;
+import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
+import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +26,26 @@ import org.springframework.web.bind.annotation.*;
 public class ChatSpaceController {
 
   private final ChatSpaceService chatSpaceService;
+  private final ChatSpaceEventService chatSpaceEventService;
+  private final ChatSpaceJoinService chatSpaceJoinService;
+  private final ChatSpaceSearchService chatSpaceSearchService;
 
-  public ChatSpaceController(final ChatSpaceService chatSpaceService) {
+  public ChatSpaceController(
+      final ChatSpaceService chatSpaceService,
+      final ChatSpaceEventService chatSpaceEventService,
+      final ChatSpaceJoinService chatSpaceJoinService,
+      final ChatSpaceSearchService chatSpaceSearchService) {
     this.chatSpaceService = chatSpaceService;
+    this.chatSpaceEventService = chatSpaceEventService;
+    this.chatSpaceJoinService = chatSpaceJoinService;
+    this.chatSpaceSearchService = chatSpaceSearchService;
   }
 
   @GetMapping(value = "/find-spaces")
   public ChatSpaceSearchResult findSpaces(
       @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findSpaces(chatSpaceSearchRequest, user);
+    return chatSpaceSearchService.findSpaces(chatSpaceSearchRequest, user);
   }
 
   @GetMapping(value = "/find-events/{chatSpaceId}")
@@ -40,7 +53,7 @@ public class ChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findChatSpaceEvents(chatSpaceId, chatSpaceSearchRequest, user);
+    return chatSpaceEventService.findChatSpaceEvents(chatSpaceId, chatSpaceSearchRequest, user);
   }
 
   @PostMapping(value = "/create")
@@ -51,18 +64,18 @@ public class ChatSpaceController {
   }
 
   @PostMapping(value = "/create-event/{chatSpaceId}")
-  public CreateEventResponse createEvent(
+  public CreateStreamResponse createEvent(
       @PathVariable(value = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final CreateChatSpaceEventDto createChatSpaceEventDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.createChatSpaceEvent(chatSpaceId, createChatSpaceEventDto, user);
+    return chatSpaceEventService.createChatSpaceEvent(chatSpaceId, createChatSpaceEventDto, user);
   }
 
   @GetMapping(value = "/detail/{chatSpaceId}")
   public RetrieveChatSpaceResponse detail(
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.retrieveChatSpace(chatSpaceId, user);
+    return chatSpaceSearchService.retrieveChatSpace(chatSpaceId, user);
   }
 
   @PutMapping(value = "/update/{chatSpaceId}")
@@ -106,7 +119,7 @@ public class ChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final JoinChatSpaceDto joinChatSpaceDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.joinSpace(chatSpaceId, joinChatSpaceDto, user);
+    return chatSpaceJoinService.joinSpace(chatSpaceId, joinChatSpaceDto, user);
   }
 
   @PostMapping(value = "/request-to-join/{chatSpaceId}")
@@ -114,14 +127,14 @@ public class ChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.requestToJoinSpace(chatSpaceId, requestToJoinChatSpaceDto, user);
+    return chatSpaceJoinService.requestToJoinSpace(chatSpaceId, requestToJoinChatSpaceDto, user);
   }
 
   @PostMapping(value = "/leave/{chatSpaceId}")
   public LeaveChatSpaceResponse leave(
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.leaveChatSpace(chatSpaceId, user);
+    return chatSpaceJoinService.leaveChatSpace(chatSpaceId, user);
   }
 
 }

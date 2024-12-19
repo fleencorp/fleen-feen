@@ -18,8 +18,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 
 /**
  * The ReCaptchaAdapter is used for authentication and security purpose to verify that
@@ -64,7 +66,7 @@ public class ReCaptchaAdapter extends BaseAdapter {
    * @see <a href="https://cloud.google.com/recaptcha-enterprise/docs/create-key-website">Create reCAPTCHA keys for websites</a>
    */
   public ReCaptchaResponse verifyRecaptcha(final String reCaptchaToken) {
-    final Map<ApiParameter, String> parameters = new HashMap<>();
+    final Map<ApiParameter, String> parameters = new ConcurrentHashMap<>();
     parameters.put(GoogleRecaptchaParameter.SECRET, recaptchaSecret);
     parameters.put(GoogleRecaptchaParameter.RESPONSE, reCaptchaToken);
 
@@ -75,9 +77,7 @@ public class ReCaptchaAdapter extends BaseAdapter {
     if (response.getStatusCode().is2xxSuccessful()) {
       return response.getBody();
     } else {
-      log.error(String.format(
-            "An error occurred while calling verifyRecaptcha method of RecaptchaAdapter: %s",
-            response.getBody()));
+      logIfEnabled(log::isErrorEnabled, () -> log.error("An error occurred while calling verifyRecaptcha method of RecaptchaAdapter: {}", response.getBody()));
       throw new ExternalSystemException(ExternalSystemType.GOOGLE_RECAPTCHA.getValue());
     }
   }

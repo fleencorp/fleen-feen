@@ -1,22 +1,16 @@
 package com.fleencorp.feen.model.response.external.google.calendar.event;
 
 import com.fleencorp.feen.model.response.external.google.calendar.event.base.GoogleCalendarEventResponse;
-import lombok.*;
 
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class GooglePatchCalendarEventResponse {
+import static java.util.Objects.nonNull;
 
-  private String eventId;
-  private GoogleCalendarEventResponse event;
+public record GooglePatchCalendarEventResponse(String eventId, GoogleCalendarEventResponse eventResponse) {
 
-  public static GooglePatchCalendarEventResponse of(final String eventId, final GoogleCalendarEventResponse event) {
-    return GooglePatchCalendarEventResponse.builder()
-      .eventId(eventId)
-      .event(event)
-      .build();
+  public String getHangoutLink() {
+    return nonNull(eventResponse) ? eventResponse.getHangoutLink() : null;
+  }
+
+  public static GooglePatchCalendarEventResponse of(final String eventId, final GoogleCalendarEventResponse eventResponse) {
+    return new GooglePatchCalendarEventResponse(eventId, eventResponse);
   }
 }

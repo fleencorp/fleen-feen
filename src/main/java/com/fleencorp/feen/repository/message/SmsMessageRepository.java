@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.readResourceFile;
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 
 /**
  * Repository for managing SMS message templates.
@@ -59,7 +60,7 @@ public class SmsMessageRepository {
       smsMessages = objectMapper.readValue(value, new TypeReference<>() {});
       return smsMessages;
     } catch (final JsonProcessingException ex) {
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     }
     return List.of();
   }

@@ -8,7 +8,6 @@ import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.Builder.Default;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
@@ -16,8 +15,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.fleencorp.feen.constant.stream.StreamVisibility.PRIVATE;
-import static com.fleencorp.feen.constant.stream.StreamVisibility.PROTECTED;
+import static com.fleencorp.feen.constant.stream.StreamVisibility.*;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -113,7 +111,7 @@ public class FleenStream extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
-  @Default
+  @Builder.Default
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
@@ -122,12 +120,13 @@ public class FleenStream extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
   private ChatSpace chatSpace;
 
-  @Default
+  @Builder.Default
   @Column(name = "made_for_kids", nullable = false)
   private Boolean forKids = false;
 
+  @Builder.Default
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted;
+  private Boolean deleted = false;
 
   @Builder.Default
   @Column(name = "total_attendees", nullable = false)
@@ -146,6 +145,10 @@ public class FleenStream extends FleenFeenEntity {
     return fleenStreamId;
   }
 
+  public Long getChatSpaceId() {
+    return nonNull(chatSpace) ? chatSpace.getChatSpaceId() : null;
+  }
+
   /**
    * Retrieves the set of stream attendees.
    *
@@ -157,6 +160,10 @@ public class FleenStream extends FleenFeenEntity {
 
   public String getSpaceIdOrName() {
     return nonNull(chatSpace) ? chatSpace.getExternalIdOrName() : null;
+  }
+
+  public Member getOrganizer() {
+    return member;
   }
 
   /**
@@ -224,10 +231,10 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
-   * Marks the entity as deleted by setting the {@code isDeleted} flag to {@code true}.
+   * Marks the entity as deleted by setting the {@code deleted} flag to {@code true}.
    */
   public void delete() {
-    this.isDeleted = true;
+    this.deleted = true;
   }
 
   /**
@@ -245,6 +252,15 @@ public class FleenStream extends FleenFeenEntity {
    */
   public boolean isPrivate() {
     return streamVisibility == PRIVATE || streamVisibility == PROTECTED;
+  }
+
+  /**
+   * Checks if the stream visibility is set to public.
+   *
+   * @return {@code true} if the stream visibility is {@link StreamVisibility#PUBLIC}, {@code false} otherwise.
+   */
+  public boolean isPublic() {
+    return streamVisibility == PUBLIC;
   }
 
   /**
@@ -275,7 +291,7 @@ public class FleenStream extends FleenFeenEntity {
    * @return {@code true} if the stream is deleted; {@code false} otherwise
    */
   public boolean isDeleted() {
-    return isDeleted;
+    return deleted;
   }
 
   /**

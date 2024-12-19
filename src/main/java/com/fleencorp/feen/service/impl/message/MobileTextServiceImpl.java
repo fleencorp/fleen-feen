@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sqs.model.SqsException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.util.Objects.nonNull;
 
 /**
@@ -66,8 +68,8 @@ public class MobileTextServiceImpl implements MobileTextService {
           .phoneNumber(phoneNumber)
           .messageAttributes(smsAttributes)
           .build());
-    } catch (final RuntimeException ex) {
-      log.error(ex.getMessage(), ex);
+    } catch (final SqsException ex) {
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     }
   }
 
