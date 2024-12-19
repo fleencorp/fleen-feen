@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Component
-@Qualifier("profileRequest-appEvent")
+@Qualifier("profile-request-pub")
 public class ProfileRequestPublisher implements PublisherService {
 
   private final ApplicationEventPublisher applicationEventPublisher;

@@ -124,7 +124,7 @@ public class RestExceptionHandler {
     DisabledAccountException.class,
     ExpiredVerificationCodeException.class,
     FileUploadException.class,
-    FleenStreamNotCreatedByUserException.class,
+    StreamNotCreatedByUserException.class,
     InvalidVerificationCodeException.class,
     MfaGenerationFailedException.class,
     MfaVerificationFailed.class,

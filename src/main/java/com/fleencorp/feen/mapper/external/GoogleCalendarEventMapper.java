@@ -7,7 +7,7 @@ import com.google.api.services.calendar.model.*;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService.toLocalDateTime;
+import static com.fleencorp.feen.service.impl.external.google.calendar.event.GoogleCalendarEventServiceImpl.toLocalDateTime;
 import static java.util.Objects.nonNull;
 
 /**
@@ -20,7 +20,7 @@ import static java.util.Objects.nonNull;
 * @author Yusuf Alamu Musa
 * @version 1.0
 */
-public class GoogleCalendarEventMapper {
+public final class GoogleCalendarEventMapper {
 
   private GoogleCalendarEventMapper() {}
 

@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.dto.social.contact;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
-import com.fleencorp.base.validator.ValidEnum;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.social.ContactType;
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -28,7 +28,7 @@ public class AddContactDto {
   private String contact;
 
   @NotNull(message = "{share.contactType.NotNull}")
-  @ValidEnum(enumClass = ContactType.class, message = "{share.contactType.Type}", ignoreCase = true)
+  @OneOf(enumClass = ContactType.class, message = "{share.contactType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("contact_type")
   private String contactType;

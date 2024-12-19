@@ -22,7 +22,7 @@ public enum ConferenceSolutionType implements ApiParameter {
     this.value = value;
   }
 
-  public static ConferenceSolutionType getDefault() {
-    return ConferenceSolutionType.HANGOUTS_MEET;
+  public static String getDefault() {
+    return ConferenceSolutionType.HANGOUTS_MEET.getValue();
   }
 }

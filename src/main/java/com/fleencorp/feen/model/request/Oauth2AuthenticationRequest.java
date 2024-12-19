@@ -19,7 +19,7 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 public class Oauth2AuthenticationRequest {
 
-  public static final String oauth2ServiceTypeKey = SERVICE_TYPE;
+  public static final String OAUTH_2_SERVICE_TYPE_KEY = SERVICE_TYPE;
   private Oauth2ServiceType oauth2ServiceType;
   private Set<String> scopes;
   private String refreshToken;

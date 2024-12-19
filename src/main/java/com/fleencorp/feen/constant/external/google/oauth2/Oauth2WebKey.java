@@ -1,6 +1,6 @@
 package com.fleencorp.feen.constant.external.google.oauth2;
 
-public class Oauth2WebKey {
+public final class Oauth2WebKey {
 
   private Oauth2WebKey() {}
 

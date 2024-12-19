@@ -2,12 +2,12 @@ package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.model.dto.stream.AddStreamReviewDto;
+import com.fleencorp.feen.model.dto.stream.review.AddStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
 import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.stream.StreamReviewService;
+import com.fleencorp.feen.service.stream.review.StreamReviewService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

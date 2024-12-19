@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.dto.social.share;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
-import com.fleencorp.base.validator.ValidEnum;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.social.ContactType;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import jakarta.validation.constraints.NotBlank;
@@ -18,13 +18,13 @@ import lombok.*;
 public class ProcessShareContactRequestDto {
 
   @NotNull(message = "{share.shareContactRequestStatus.NotNull}")
-  @ValidEnum(enumClass = ShareContactRequestStatus.class, message = "{share.shareContactRequestStatus.Type}", ignoreCase = true)
+  @OneOf(enumClass = ShareContactRequestStatus.class, message = "{share.shareContactRequestStatus.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("share_contact_request_status")
   private String shareContactRequestStatus;
 
   @NotNull(message = "{share.contactType.NotNull}")
-  @ValidEnum(enumClass = ContactType.class, message = "{share.contactType.Type}", ignoreCase = true)
+  @OneOf(enumClass = ContactType.class, message = "{share.contactType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("contact_type")
   private String contactType;

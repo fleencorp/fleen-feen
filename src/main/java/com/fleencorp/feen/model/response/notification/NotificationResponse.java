@@ -54,7 +54,7 @@ public class NotificationResponse extends FleenFeenResponse {
         .id(entry.getNotificationId())
         .type(entry.getNotificationType())
         .status(entry.getNotificationStatus())
-        .idOrLinkOrUrl(nonNull(entry.getIdOrLinkOrUrl()) ? entry.getIdOrLinkOrUrl().toString() : null)
+        .idOrLinkOrUrl(nonNull(entry.getIdOrLinkOrUrl()) ? entry.getIdOrLinkOrUrl() : null)
         .build();
     }
     return null;

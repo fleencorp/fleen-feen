@@ -8,7 +8,7 @@ public class FleenStreamNotFoundException extends FleenException {
 
   @Override
   public String getMessageCode() {
-    return "fleen.stream.not.found";
+    return "stream.not.found";
   }
 
   public FleenStreamNotFoundException(final Object...params) {

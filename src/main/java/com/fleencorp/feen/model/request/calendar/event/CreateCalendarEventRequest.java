@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.request.calendar.event;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -57,6 +57,10 @@ public class CreateCalendarEventRequest {
 
   public boolean getCanGuestsCanSeeOtherGuests() {
     return false;
+  }
+
+  public String getVisibility() {
+    return nonNull(visibility) ? visibility.getValue() : null;
   }
 
   public List<EventAttendeeOrGuest> getAttendeeOrGuests() {

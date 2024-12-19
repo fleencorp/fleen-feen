@@ -1,66 +1,43 @@
 package com.fleencorp.feen.service.stream;
 
-import com.fleencorp.feen.constant.stream.StreamTimeType;
-import com.fleencorp.feen.model.dto.event.*;
-import com.fleencorp.feen.model.dto.stream.JoinEventOrStreamDto;
-import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.dto.stream.RequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
-import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
-import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.event.*;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
-import com.fleencorp.feen.model.search.event.EventSearchResult;
-import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
+import com.fleencorp.feen.model.response.stream.base.*;
+import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventService {
 
   DataForCreateEventResponse getDataForCreateEvent();
 
-  EventSearchResult findEvents(EventSearchRequest searchRequest, FleenUser user);
+  CreateStreamResponse createEvent(CreateCalendarEventDto createEventDto, FleenUser user) throws CalendarNotFoundException;
 
-  EventSearchResult findMyEvents(EventSearchRequest searchRequest, FleenUser user);
+  CreateStreamResponse createInstantEvent(CreateInstantCalendarEventDto createInstantEventDto, FleenUser user) throws CalendarNotFoundException;
 
-  EventSearchResult findEvents(EventSearchRequest searchRequest, StreamTimeType streamTimeType);
+  UpdateStreamResponse updateEvent(Long eventId, UpdateStreamDto updateStreamDto, FleenUser user)
+    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamNotCreatedByUserException,
+    StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 
-  EventSearchResult findEventsAttendedByUser(EventSearchRequest searchRequest, FleenUser user);
+  DeleteStreamResponse deleteEvent(Long eventId, FleenUser user)
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 
-  EventSearchResult findEventsAttendedWithAnotherUser(EventSearchRequest searchRequest, FleenUser user);
+  CancelStreamResponse cancelEvent(Long eventId, FleenUser user)
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 
-  StreamAttendeeSearchResult findEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest);
+  RescheduleStreamResponse rescheduleEvent(Long eventId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 
-  RetrieveEventResponse retrieveEvent(Long eventId, FleenUser user);
-
-  CreateEventResponse createEvent(CreateCalendarEventDto createCalendarEventDto, FleenUser user);
-
-  CreateEventResponse createInstantEvent(CreateInstantCalendarEventDto createInstantCalendarEventDto, FleenUser user);
-
-  UpdateEventResponse updateEvent(Long eventId, UpdateCalendarEventDto updateCalendarEventDto, FleenUser user);
-
-  DeletedEventResponse deleteEvent(Long eventId, FleenUser user);
-
-  CancelEventResponse cancelEvent(Long eventId, FleenUser user);
-
-  NotAttendingEventResponse notAttendingEvent(Long eventId, FleenUser user);
-
-  RescheduleEventResponse rescheduleEvent(Long eventId, RescheduleCalendarEventDto rescheduleCalendarEventDto, FleenUser user);
-
-  JoinEventResponse joinEvent(Long eventId, JoinEventOrStreamDto joinEventOrStreamDto, FleenUser user);
-
-  RequestToJoinEventResponse requestToJoinEvent(Long eventId, RequestToJoinEventOrStreamDto requestToJoinEventOrStreamDto, FleenUser user);
-
-  ProcessAttendeeRequestToJoinEventResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto, FleenUser user);
-
-  UpdateEventVisibilityResponse updateEventVisibility(Long eventId, UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto, FleenUser user);
-
-  AddNewEventAttendeeResponse addEventAttendee(Long eventId, AddNewEventAttendeeDto addNewEventAttendeeDto, FleenUser user);
-
-  RequestToJoinSearchResult getEventAttendeeRequestsToJoinEvent(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
-
-  StreamAttendeeSearchResult getEventAttendees(Long eventId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
-
-  TotalEventsCreatedByUserResponse countTotalEventsByUser(FleenUser user);
-
-  TotalEventsAttendedByUserResponse countTotalEventsAttended(FleenUser user);
+  UpdateStreamVisibilityResponse updateEventVisibility(Long eventId, UpdateStreamVisibilityDto updateStreamVisibilityDto, FleenUser user)
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
+    FailedOperationException;
 }

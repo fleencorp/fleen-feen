@@ -17,7 +17,9 @@ import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResu
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
+import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -26,24 +28,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/user/chat-space")
 public class UserChatSpaceController {
 
-  private final ChatSpaceService chatSpaceService;
+  private final ChatSpaceJoinService chatSpaceJoinService;
+  private final ChatSpaceMemberService chatSpaceMemberService;
+  private final ChatSpaceSearchService chatSpaceSearchService;
 
-  public UserChatSpaceController(final ChatSpaceService chatSpaceService) {
-    this.chatSpaceService = chatSpaceService;
+  public UserChatSpaceController(
+      final ChatSpaceJoinService chatSpaceJoinService,
+      final ChatSpaceMemberService chatSpaceMemberService,
+      final ChatSpaceSearchService chatSpaceSearchService) {
+    this.chatSpaceJoinService = chatSpaceJoinService;
+    this.chatSpaceMemberService = chatSpaceMemberService;
+    this.chatSpaceSearchService = chatSpaceSearchService;
   }
 
   @GetMapping(value = "/created")
   public ChatSpaceSearchResult findSpaceCreated(
       @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findSpacesCreated(chatSpaceSearchRequest, user);
+    return chatSpaceSearchService.findSpacesCreated(chatSpaceSearchRequest, user);
   }
 
   @GetMapping(value = "/belong-to")
   public ChatSpaceSearchResult findSpaceIBelong(
       final ChatSpaceSearchRequest createdSpaceSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findSpacesIBelongTo(createdSpaceSearchRequest, user);
+    return chatSpaceSearchService.findSpacesIBelongTo(createdSpaceSearchRequest, user);
   }
 
   @GetMapping(value = "/find-members/{chatSpaceId}")
@@ -51,7 +60,7 @@ public class UserChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findChatSpaceMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
+    return chatSpaceMemberService.findChatSpaceMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
   @GetMapping(value = "/request-to-join/{chatSpaceId}")
@@ -59,7 +68,7 @@ public class UserChatSpaceController {
       @PathVariable final Long chatSpaceId,
       @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
+    return chatSpaceSearchService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
   @PutMapping(value = "/upgrade-member/{chatSpaceId}")
@@ -67,7 +76,7 @@ public class UserChatSpaceController {
     @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
     @Valid @RequestBody final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto,
     @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.upgradeChatSpaceMemberToAdmin(chatSpaceId, upgradeChatSpaceMemberToAdminDto, user);
+    return chatSpaceMemberService.upgradeChatSpaceMemberToAdmin(chatSpaceId, upgradeChatSpaceMemberToAdminDto, user);
   }
 
   @PutMapping(value = "/downgrade-member/{chatSpaceId}")
@@ -75,7 +84,7 @@ public class UserChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
+    return chatSpaceMemberService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
   }
 
   @PutMapping(value = "/process-join-request/{chatSpaceId}")
@@ -83,7 +92,7 @@ public class UserChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.processRequestToJoinSpace(chatSpaceId, processRequestToJoinChatSpaceDto, user);
+    return chatSpaceJoinService.processRequestToJoinSpace(chatSpaceId, processRequestToJoinChatSpaceDto, user);
   }
 
   @PostMapping(value = "/add-member/{chatSpaceId}")
@@ -91,7 +100,7 @@ public class UserChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final AddChatSpaceMemberDto addChatSpaceMemberDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.addMember(chatSpaceId, addChatSpaceMemberDto, user);
+    return chatSpaceMemberService.addMember(chatSpaceId, addChatSpaceMemberDto, user);
   }
 
   @DeleteMapping(value = "/remove-member/{chatSpaceId}")
@@ -99,6 +108,6 @@ public class UserChatSpaceController {
       @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Valid @RequestBody final RemoveChatSpaceMemberDto removeChatSpaceMemberDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.removeMember(chatSpaceId, removeChatSpaceMemberDto, user);
+    return chatSpaceMemberService.removeMember(chatSpaceId, removeChatSpaceMemberDto, user);
   }
 }

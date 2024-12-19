@@ -35,9 +35,9 @@ public interface MemberService {
 
   RemoveProfilePhotoResponse removeProfilePhoto(FleenUser user);
 
-  EntityExistsResponse isMemberEmailAddressExists(String emailAddress);
+  EntityExistsResponse verifyMemberEmailAddressExists(String emailAddress);
 
-  EntityExistsResponse isMemberPhoneNumberExists(String phoneNumber);
+  EntityExistsResponse verifyMemberPhoneNumberExists(String phoneNumber);
 
   void clearAuthenticationTokens(String username);
 }

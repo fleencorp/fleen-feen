@@ -65,7 +65,7 @@ public class StreamReview extends FleenFeenEntity {
    * @return the name of the rating, or null if the rating is not set.
    */
   public String getRatingName() {
-    return nonNull(rating) ? rating.name() : null;
+    return nonNull(rating) ? rating.getValue() : null;
   }
 
   /**

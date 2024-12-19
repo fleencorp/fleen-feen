@@ -3,9 +3,10 @@ package com.fleencorp.feen.service.impl.stream.review;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.mapper.stream.review.StreamReviewMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamReview;
-import com.fleencorp.feen.model.dto.stream.AddStreamReviewDto;
+import com.fleencorp.feen.model.dto.stream.review.AddStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
@@ -14,7 +15,7 @@ import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamReviewRepository;
-import com.fleencorp.feen.service.stream.StreamReviewService;
+import com.fleencorp.feen.service.stream.review.StreamReviewService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +24,6 @@ import java.util.List;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.StreamReviewMapper.toStreamReviewResponses;
-import static com.fleencorp.feen.mapper.StreamReviewMapper.toStreamReviewResponsesMore;
 
 /**
  * Implementation of the {@link StreamReviewService} interface for managing stream reviews.
@@ -41,8 +40,9 @@ import static com.fleencorp.feen.mapper.StreamReviewMapper.toStreamReviewRespons
 @Service
 public class StreamReviewServiceImpl implements StreamReviewService {
 
-  private final FleenStreamRepository fleenStreamRepository;
+  private final FleenStreamRepository streamRepository;
   private final StreamReviewRepository streamReviewRepository;
+  private final StreamReviewMapper streamReviewMapper;
   private final LocalizedResponse localizedResponse;
 
   /**
@@ -51,16 +51,18 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    * <p>This constructor initializes the service with repositories for managing streams and reviews,
    * as well as a localized response handler for returning user-friendly messages.</p>
    *
-   * @param fleenStreamRepository the repository for accessing stream data
+   * @param streamRepository the repository for accessing stream data
    * @param streamReviewRepository the repository for accessing stream review data
    * @param localizedResponse the service for generating localized responses
    */
   public StreamReviewServiceImpl(
-      final FleenStreamRepository fleenStreamRepository,
+      final FleenStreamRepository streamRepository,
       final StreamReviewRepository streamReviewRepository,
+      final StreamReviewMapper streamReviewMapper,
       final LocalizedResponse localizedResponse) {
-    this.fleenStreamRepository = fleenStreamRepository;
+    this.streamRepository = streamRepository;
     this.streamReviewRepository = streamReviewRepository;
+    this.streamReviewMapper = streamReviewMapper;
     this.localizedResponse = localizedResponse;
   }
 
@@ -77,7 +79,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   @Override
   public StreamReviewSearchResult findReviews(final Long eventOrStreamId, final SearchRequest searchRequest) {
     final Page<StreamReview> page = streamReviewRepository.findByStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
-    final List<StreamReviewResponse> views = toStreamReviewResponsesMore(page.getContent());
+    final List<StreamReviewResponse> views = streamReviewMapper.toStreamReviewResponsesMore(page.getContent());
 
     // Return a search result view with the review responses and pagination details
     return handleSearchResult(
@@ -100,7 +102,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   @Override
   public StreamReviewSearchResult findReviews(final SearchRequest searchRequest, final FleenUser user) {
     final Page<StreamReview> page = streamReviewRepository.findByMember(user.toMember(), searchRequest.getPage());
-    final List<StreamReviewResponse> views = toStreamReviewResponses(page.getContent());
+    final List<StreamReviewResponse> views = streamReviewMapper.toStreamReviewResponses(page.getContent());
 
     // Return a search result view with the review responses and pagination details
     return handleSearchResult(
@@ -126,7 +128,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   @Transactional
   public AddStreamReviewResponse addReview(final Long eventOrStreamId, final AddStreamReviewDto addStreamReviewDto, final FleenUser user) {
     // Check if the event or stream exists; throw exception if not
-    fleenStreamRepository.findById(eventOrStreamId)
+    streamRepository.findById(eventOrStreamId)
       .orElseThrow(() -> new FleenStreamNotFoundException(eventOrStreamId));
 
     final StreamReview streamReview = addStreamReviewDto

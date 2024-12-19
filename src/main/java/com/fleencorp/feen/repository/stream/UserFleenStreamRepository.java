@@ -1,5 +1,6 @@
 package com.fleencorp.feen.repository.stream;
 
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -49,12 +50,24 @@ public interface UserFleenStreamRepository extends JpaRepository<FleenStream, Lo
   @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE m = :member")
   Long countTotalEventsAttended(@Param("member") Member member);
 
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE m = :member")
+  Long countTotalStreamsAttended(@Param("member") Member member);
+
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.fleenStream.streamType = :streamType AND m = :member")
+  Long countTotalStreamsAttended(@Param("streamType") StreamType streamType, @Param("member") Member member);
+
   @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.member = :member")
   Long countTotalEventsByUser(@Param("member") Member member);
+
+  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.member = :member")
+  Long countTotalStreamsByUser(@Param("member") Member member);
+
+  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.member = :member")
+  Long countTotalStreamsByUser(@Param("streamType") StreamType streamType, @Param("member") Member member);
 
   @Query("SELECT DISTINCT fs FROM FleenStream fs " +
           "JOIN fs.attendees sa " +
           "WHERE sa.member = :you AND fs IN " +
           "(SELECT fs2 FROM FleenStream fs2 JOIN fs2.attendees sa2 WHERE sa2.member = :friend)")
-  Page<FleenStream> findEventsAttendedTogether(@Param("you") Member you, @Param("friend") Member friend, Pageable pageable);
+  Page<FleenStream> findStreamsAttendedTogether(@Param("you") Member you, @Param("friend") Member friend, Pageable pageable);
 }

@@ -2,7 +2,7 @@ package com.fleencorp.feen.constant.http;
 
 import org.springframework.http.HttpStatus;
 
-public class FleenHttpStatus {
+public final class FleenHttpStatus {
 
   private FleenHttpStatus() {}
 

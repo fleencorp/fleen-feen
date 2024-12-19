@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -83,7 +84,7 @@ public class StreamEventSubscriber implements MessageListener {
         emitter.send(dataWithMediaTypes);
       }
     } catch (final IOException ex) {
-      log.error("Unable to process request. Reason: {}", ex.getMessage());
+      logIfEnabled(log::isErrorEnabled, () -> log.error("Unable to process request. Reason: {}", ex.getMessage()));
       // If an IOException occurs, remove the emitter associated with the user ID
       emitterRepository.removeEmitter(userId);
     }

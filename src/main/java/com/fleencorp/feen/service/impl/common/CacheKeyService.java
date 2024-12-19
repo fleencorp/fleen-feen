@@ -8,7 +8,7 @@ import static com.fleencorp.base.constant.base.CacheKeyConstant.UPDATE_EMAIL_CAC
 import static com.fleencorp.base.constant.base.CacheKeyConstant.UPDATE_PHONE_NUMBER_CACHE_PREFIX;
 
 @Slf4j
-public class CacheKeyService {
+public final class CacheKeyService {
 
   private CacheKeyService() {}
 

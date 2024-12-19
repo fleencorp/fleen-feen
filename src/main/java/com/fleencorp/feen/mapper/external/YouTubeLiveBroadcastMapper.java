@@ -19,7 +19,7 @@ import static java.util.Objects.nonNull;
 * @author Yusuf Alamu Musa
 * @version 1.0
 */
-public class YouTubeLiveBroadcastMapper {
+public final class YouTubeLiveBroadcastMapper {
 
   private YouTubeLiveBroadcastMapper() {}
 

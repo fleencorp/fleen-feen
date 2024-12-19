@@ -3,8 +3,8 @@ package com.fleencorp.feen.model.dto.auth;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.base.validator.ValidEmail;
-import com.fleencorp.base.validator.ValidEnum;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +28,7 @@ public class ForgotPasswordDto {
   private String emailAddress;
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
+  @OneOf(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("verification_type")
   private String verificationType;

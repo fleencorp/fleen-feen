@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.service.auth.AuthenticationService;
+import com.fleencorp.feen.service.security.VerificationService;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +20,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
   private final AuthenticationService authenticationService;
+  private final VerificationService verificationService;
 
-  public AuthenticationController(final AuthenticationService authenticationService) {
+  public AuthenticationController(
+      final AuthenticationService authenticationService,
+      final VerificationService verificationService) {
     this.authenticationService = authenticationService;
+    this.verificationService = verificationService;
   }
 
   @GetMapping(value = "/data-for-sign-up")
@@ -45,12 +50,12 @@ public class AuthenticationController {
   @PostMapping(value = "/forgot-password")
   public ForgotPasswordResponse forgotPassword(
       @Valid @RequestBody final ForgotPasswordDto forgotPasswordDto) {
-    return authenticationService.forgotPassword(forgotPasswordDto);
+    return verificationService.forgotPassword(forgotPasswordDto);
   }
 
   @PostMapping(value = "/verify-reset-password-code")
   public InitiatePasswordChangeResponse validateResetPasswordCode(
       @Valid @RequestBody final ResetPasswordDto resetPasswordDto) {
-    return authenticationService.verifyResetPasswordCode(resetPasswordDto);
+    return verificationService.verifyResetPasswordCode(resetPasswordDto);
   }
 }

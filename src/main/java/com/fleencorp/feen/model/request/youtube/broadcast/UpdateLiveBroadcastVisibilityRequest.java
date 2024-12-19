@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static java.util.Objects.nonNull;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -17,6 +19,10 @@ public class UpdateLiveBroadcastVisibilityRequest extends LiveBroadcastRequest {
 
   private String broadcastId;
   private LiveBroadcastPrivacyStatus privacyStatus;
+
+  public String getPrivacyStatus() {
+    return nonNull(privacyStatus) ? privacyStatus.getValue() : null;
+  }
 
   public static UpdateLiveBroadcastVisibilityRequest of(final String accessToken, final String broadcastId, final String visibility) {
     return UpdateLiveBroadcastVisibilityRequest.builder()

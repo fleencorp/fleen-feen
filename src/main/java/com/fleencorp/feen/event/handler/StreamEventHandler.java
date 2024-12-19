@@ -3,7 +3,7 @@ package com.fleencorp.feen.event.handler;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeesRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeesResponse;
-import com.fleencorp.feen.service.impl.external.google.calendar.GoogleCalendarEventService;
+import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,15 +26,10 @@ import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMI
 @Service
 public class StreamEventHandler {
 
-  private final GoogleCalendarEventService googleCalendarEventService;
+  private final GoogleCalendarAttendeeService googleCalendarAttendeeService;
 
-  /**
-   * Constructs a new StreamEventHandler with the specified GoogleCalendarEventService.
-   *
-   * @param googleCalendarEventService the service used to interact with Google Calendar for event-related operations
-   */
-  public StreamEventHandler(final GoogleCalendarEventService googleCalendarEventService) {
-    this.googleCalendarEventService = googleCalendarEventService;
+  public StreamEventHandler(final GoogleCalendarAttendeeService googleCalendarAttendeeService) {
+    this.googleCalendarAttendeeService = googleCalendarAttendeeService;
   }
 
   /**
@@ -56,7 +51,7 @@ public class StreamEventHandler {
 
 
       // Call the Google Calendar API Service to add the new attendees to the event
-      final GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarEventService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
+      final GoogleAddNewCalendarEventAttendeesResponse googleAddNewCalendarEventAttendeesResponse = googleCalendarAttendeeService.addNewAttendeesToCalendarEvent(addNewEventAttendeesRequest);
       log.info("Added attendees: {}", googleAddNewCalendarEventAttendeesResponse);
     });
   }

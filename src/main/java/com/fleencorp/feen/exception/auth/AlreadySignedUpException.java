@@ -1,9 +1,7 @@
 package com.fleencorp.feen.exception.auth;
 
 import com.fleencorp.base.exception.FleenException;
-import lombok.Getter;
 
-@Getter
 public class AlreadySignedUpException extends FleenException {
 
   @Override

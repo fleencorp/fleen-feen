@@ -12,7 +12,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder("authorization_uri")
+@JsonPropertyOrder({
+  "authorization_uri"
+})
 public class StartOauth2AuthorizationResponse extends ApiResponse {
 
   @JsonProperty("authorization_uri")

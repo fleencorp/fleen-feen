@@ -40,18 +40,18 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 public class StreamAttendeeSelect {
 
-  private Long eventOrStreamId;
+  private Long streamId;
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
-  private Boolean isAttending;
+  private Boolean attending;
   private StreamVisibility streamVisibility;
   private LocalDateTime endDate;
 
   public boolean isAttending() {
-    return nonNull(isAttending) && isAttending;
+    return nonNull(attending) && attending;
   }
 
   public JoinStatus getJoinStatus() {
-    return JoinStatus.getJoinStatus(requestToJoinStatus, streamVisibility, endDate.isBefore(LocalDateTime.now()), isAttending);
+    return JoinStatus.getJoinStatus(requestToJoinStatus, streamVisibility, endDate.isBefore(LocalDateTime.now()), attending);
   }
 
 }

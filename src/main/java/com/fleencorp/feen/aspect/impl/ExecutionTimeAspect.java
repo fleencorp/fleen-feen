@@ -1,6 +1,7 @@
 package com.fleencorp.feen.aspect.impl;
 
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 @Slf4j
+@NoArgsConstructor
 public class ExecutionTimeAspect {
 
   /**
@@ -30,16 +32,12 @@ public class ExecutionTimeAspect {
   public Object logExecutionTime(final ProceedingJoinPoint joinPoint, final MeasureExecutionTime measureExecutionTime) throws Throwable {
     // Record the start time of method execution
     final long startTime = System.currentTimeMillis();
-
     // Proceed with the method execution
     final Object proceed = joinPoint.proceed();
-
     // Record the end time of method execution
     final long endTime = System.currentTimeMillis();
-
     // Calculate and log the execution time
-    final String message = String.format("{%s} executed in %d ms", joinPoint.getSignature().toShortString(), (endTime - startTime));
-    log.info(message);
+    log.info("{} executed in {} ms", joinPoint.getSignature().toShortString(), (endTime - startTime));
 
     return proceed;
   }

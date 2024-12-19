@@ -11,6 +11,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.io.IOException;
+
 import static com.fleencorp.base.constant.base.SecurityConstant.AUTH_HEADER_PREFIX;
 import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getAccessTokenCacheKey;
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.isAuthorityWhitelisted;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -121,7 +125,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       // Continue with the filter chain
       filterChain.doFilter(request, response);
-    } catch (final Exception ex) {
+    } catch (final IOException | ServletException ex) {
       handleException(request, response, ex);
     }
   }
@@ -159,9 +163,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           }
         }
       }
-    } catch (final Exception ex) {
+    } catch (final RuntimeException ex) {
       // Log any exceptions as errors
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     }
     return true;
   }
@@ -276,7 +280,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return tokenUtil.getUsernameFromToken(token);
     } catch (final IllegalArgumentException | ExpiredJwtException | MalformedJwtException | SignatureException ex) {
       // Log the error
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       throw new InvalidAuthenticationTokenException();
     }
   }
@@ -310,7 +314,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param ex       The exception that occurred during the authentication process.
    */
   private void handleException(final HttpServletRequest request, final HttpServletResponse response, final Exception ex) {
-    log.error(ex.getMessage(), ex);
+    logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     if (ex instanceof InvalidAuthenticationTokenException) {
       resolver.resolveException(request, response, null, ex);
       return;

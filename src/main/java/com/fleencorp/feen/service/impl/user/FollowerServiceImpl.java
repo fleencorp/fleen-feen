@@ -28,8 +28,8 @@ import java.util.Objects;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.FollowerMapper.toFollowerResponses;
-import static com.fleencorp.feen.mapper.FollowerMapper.toFollowingResponses;
+import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowerResponses;
+import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowingResponses;
 import static java.util.Objects.isNull;
 
 /**

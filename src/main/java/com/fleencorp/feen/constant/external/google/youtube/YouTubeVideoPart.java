@@ -33,7 +33,7 @@ public enum YouTubeVideoPart implements ApiParameter {
    *
    * @return the string value of SNIPPET
    */
-  public static String getSnippet() {
+  public static String snippet() {
     return SNIPPET.getValue();
   }
 
@@ -42,7 +42,7 @@ public enum YouTubeVideoPart implements ApiParameter {
    *
    * @return the string value of ID
    */
-  public static String getId() {
+  public static String id() {
     return ID.getValue();
   }
 
@@ -51,7 +51,15 @@ public enum YouTubeVideoPart implements ApiParameter {
    *
    * @return the string value of CONTENT_DETAILS
    */
-  public static String getContentDetails() {
+  public static String contentDetails() {
     return CONTENT_DETAILS.getValue();
+  }
+
+  public static String status() {
+    return STATUS.getValue();
+  }
+
+  public static String cdn() {
+    return CDN.getValue();
   }
 }

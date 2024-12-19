@@ -52,6 +52,7 @@ public class DeleteResponse extends ApiResponse {
   }
 
   public DeleteResponse(final String message, final boolean status) {
+    super();
     this.message = message;
     this.timestamp = LocalDateTime.now().toString();
     this.statusCode = status ? OK.value() : BAD_REQUEST.value();

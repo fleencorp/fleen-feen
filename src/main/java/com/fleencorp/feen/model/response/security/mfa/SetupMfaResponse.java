@@ -48,7 +48,7 @@ public class SetupMfaResponse extends ApiResponse {
   private String secret;
 
   @JsonProperty("is_mfa_enabled_info")
-  private IsMfaEnabledInfo isMfaEnabledInfo;
+  private IsMfaEnabledInfo mfaEnabledInfo;
 
   @JsonProperty("mfa_type_info")
   private MfaTypeInfo mfaTypeInfo;
@@ -73,7 +73,7 @@ public class SetupMfaResponse extends ApiResponse {
       .emailAddress(MaskedEmailAddress.of(emailAddress))
       .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
       .mfaSetupStatus(setupStatus)
-      .isMfaEnabledInfo(isMfaEnabledInfo)
+      .mfaEnabledInfo(isMfaEnabledInfo)
       .mfaTypeInfo(mfaTypeInfo)
       .mfaSetupStage(setupStage)
       .build();
