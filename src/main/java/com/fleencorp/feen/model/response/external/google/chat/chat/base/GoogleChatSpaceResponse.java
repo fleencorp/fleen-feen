@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,7 +89,7 @@ public class GoogleChatSpaceResponse {
       return membershipCount;
     }
 
-    private static void setValidCount(final Object countObj, final Consumer<Integer> setter) {
+    private static void setValidCount(final Object countObj, final IntConsumer setter) {
       if (countObj != null && isValidNumber(countObj.toString())) {
         setter.accept((Integer) countObj);
       }

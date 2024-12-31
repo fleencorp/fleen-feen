@@ -74,6 +74,26 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     this.localizedResponse = localizedResponse;
     this.chatSpaceMapper = chatSpaceMapper;
   }
+
+  /**
+   * Finds a chat space by its ID.
+   *
+   * <p>This method retrieves a chat space from the repository using the provided ID.
+   * If the chat space with the specified ID does not exist, a `ChatSpaceNotFoundException`
+   * is thrown.</p>
+   *
+   * @param chatSpaceId The ID of the chat space to retrieve.
+   * @return The chat space associated with the provided ID.
+   * @throws ChatSpaceNotFoundException if no chat space with the specified ID is found.
+   */
+  @Override
+  public ChatSpace findChatSpace(final Long chatSpaceId) throws ChatSpaceNotFoundException {
+    // Attempt to find the chat space by its ID in the repository
+    return chatSpaceRepository.findById(chatSpaceId)
+      // If not found, throw an exception with the chat space ID
+      .orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
+  }
+
   /**
    * Creates a chat space using the provided DTO and user information.
    *
@@ -297,24 +317,6 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   }
 
   /**
-   * Finds a chat space by its ID.
-   *
-   * <p>This method retrieves a chat space from the repository using the provided ID.
-   * If the chat space with the specified ID does not exist, a `ChatSpaceNotFoundException`
-   * is thrown.</p>
-   *
-   * @param chatSpaceId The ID of the chat space to retrieve.
-   * @return The chat space associated with the provided ID.
-   * @throws ChatSpaceNotFoundException if no chat space with the specified ID is found.
-   */
-  protected ChatSpace findChatSpace(final Long chatSpaceId) {
-    // Attempt to find the chat space by its ID in the repository
-    return chatSpaceRepository.findById(chatSpaceId)
-      // If not found, throw an exception with the chat space ID
-      .orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
-  }
-
-  /**
    * Validates that the provided user is either the creator or an admin of the specified chat space.
    *
    * <p>This method checks if the user is the creator of the chat space by comparing their IDs.
@@ -326,7 +328,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws FailedOperationException if any of the provided values is null.
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
    */
-  protected void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
+  @Override
+  public void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 

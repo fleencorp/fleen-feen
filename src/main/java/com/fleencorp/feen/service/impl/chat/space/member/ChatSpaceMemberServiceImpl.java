@@ -2,8 +2,6 @@ package com.fleencorp.feen.service.impl.chat.space.member;
 
 import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
-import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
-import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
@@ -41,12 +39,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.isNull;
@@ -65,10 +59,11 @@ import static java.util.Objects.nonNull;
 @Service
 public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
 
+  private final ChatSpaceService chatSpaceService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
-  private final ChatSpaceRepository chatSpaceRepository;
   private final MemberRepository memberRepository;
+  private final ChatSpaceRepository chatSpaceRepository;
   private final LocalizedResponse localizedResponse;
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
 
@@ -79,21 +74,23 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * chat spaces, including repositories, mappers, and various utility services. It also injects
    * configuration values like the delegated authority email.</p>
    *
+   * @param chatSpaceService handles chat spaces.
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
+   * @param memberRepository repository for members
    * @param chatSpaceRepository repository for chat space entities.
-   * @param memberRepository repository for member-related data.
    * @param localizedResponse provides localized responses for API operations.
    * @param chatSpaceMemberMapper maps chat space member entities to response models.
    */
   public ChatSpaceMemberServiceImpl(
-
+      final ChatSpaceService chatSpaceService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
-      final ChatSpaceRepository chatSpaceRepository,
       final MemberRepository memberRepository,
+      final ChatSpaceRepository chatSpaceRepository,
       final LocalizedResponse localizedResponse,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
+    this.chatSpaceService = chatSpaceService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
@@ -116,7 +113,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Override
   public ChatSpaceMemberSearchResult findChatSpaceMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
     // Retrieve the chat space
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
 
     // Check if the search request includes a member's name
@@ -158,9 +155,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Transactional
   public UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(final Long chatSpaceId, final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
 
     // Find the chat space member to be upgraded or throw an exception if not found
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository
@@ -197,9 +194,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Transactional
   public DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(final Long chatSpaceId, final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
 
     // Find the chat space admin to be downgraded or throw an exception if not found
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository
@@ -231,9 +228,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Transactional
   public AddChatSpaceMemberResponse addMember(final Long chatSpaceId, final AddChatSpaceMemberDto addChatSpaceMemberDto, final FleenUser user) {
     // Find the chat space by its ID
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Validate if the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Find the member to be added using the provided member ID
     final Member member = findMember(addChatSpaceMemberDto.getActualMemberId());
     // Find or create the chat space member object
@@ -268,9 +265,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Transactional
   public RemoveChatSpaceMemberResponse removeMember(final Long chatSpaceId, final RemoveChatSpaceMemberDto removeChatSpaceMemberDto, final FleenUser user) {
     // Retrieve the chat space using the provided chatSpaceId
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Remove the user from the chat space
     final ChatSpaceMember chatSpaceMember = leaveChatSpaceOrRemoveChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getActualMemberId());
     // Return a localized response indicating the member removal was successful
@@ -305,40 +302,6 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   }
 
   /**
-   * Finds a chat space by its ID.
-   *
-   * <p>This method retrieves a chat space from the repository using the provided ID.
-   * If the chat space with the specified ID does not exist, a `ChatSpaceNotFoundException`
-   * is thrown.</p>
-   *
-   * @param chatSpaceId The ID of the chat space to retrieve.
-   * @return The chat space associated with the provided ID.
-   * @throws ChatSpaceNotFoundException if no chat space with the specified ID is found.
-   */
-  protected ChatSpace findChatSpace(final Long chatSpaceId) {
-    // Attempt to find the chat space by its ID in the repository
-    return chatSpaceRepository.findById(chatSpaceId)
-      // If not found, throw an exception with the chat space ID
-      .orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
-  }
-
-  /**
-   * Finds a member by their unique identifier.
-   *
-   * <p>This method retrieves a member from the repository using the provided member ID. If no member is found
-   * with the specified ID, a {@link MemberNotFoundException} is thrown.</p>
-   *
-   * @param memberId The unique identifier of the member to be retrieved.
-   * @return The {@link Member} associated with the given member ID.
-   * @throws MemberNotFoundException if no member is found with the specified ID.
-   */
-  protected Member findMember(final Long memberId) {
-    // Retrieve the member by ID and throw an exception if not found
-    return memberRepository.findById(memberId)
-      .orElseThrow(MemberNotFoundException.of(memberId));
-  }
-
-  /**
    * Finds a chat space member based on the provided chat space and member.
    *
    * <p>This method retrieves a {@link ChatSpaceMember} from the repository using the specified chat space and member.
@@ -350,7 +313,8 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @return The {@link ChatSpaceMember} associated with the specified chat space and member.
    * @throws ChatSpaceMemberNotFoundException if no chat space member is found for the specified chat space and member.
    */
-  protected ChatSpaceMember findChatSpaceMember(final ChatSpace chatSpace, final Member member) {
+  @Override
+  public ChatSpaceMember findChatSpaceMember(final ChatSpace chatSpace, final Member member) {
     // Retrieve the chat space member and throw an exception if not found
     return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(member.getMemberId()));
@@ -368,102 +332,12 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @param chatSpace The {@link ChatSpace} to which the member is being added.
    * @param member The {@link Member} that is being added to the chat space.
    */
-  protected void notifyChatSpaceUpdateService(final ChatSpaceMember chatSpaceMember, final ChatSpace chatSpace, final Member member) {
+  @Override
+  public void notifyChatSpaceUpdateService(final ChatSpaceMember chatSpaceMember, final ChatSpace chatSpace, final Member member) {
     // Create a request to add the member to the chat space
     final AddChatSpaceMemberRequest addChatSpaceMemberRequest = AddChatSpaceMemberRequest.of(chatSpace.getExternalIdOrName(), member.getEmailAddress());
     // Notify the chat space update service of the new member addition
     chatSpaceUpdateService.addMember(chatSpaceMember, addChatSpaceMemberRequest);
-  }
-
-  /**
-   * Validates that the provided user is either the creator or an admin of the specified chat space.
-   *
-   * <p>This method checks if the user is the creator of the chat space by comparing their IDs.
-   * If the user is not the creator, it further checks if the user is an admin of the chat space.
-   * If the user is neither the creator nor an admin, a {@link NotAnAdminOfChatSpaceException} is thrown.</p>
-   *
-   * @param chatSpace The chat space to validate against.
-   * @param user The user whose permissions are being validated.
-   * @throws FailedOperationException if any of the provided values is null.
-   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
-   */
-  protected void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
-    // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
-
-    // Check if the user is the creator of the space
-    if (Objects.equals(chatSpace.getMemberId(), user.getId())) {
-      return;
-    }
-    // Check if the user is an admin in the space
-    if (checkIfUserIsAnAdminInSpace(chatSpace, user)) {
-      return;
-    }
-    // If neither, throw exception
-    throw new NotAnAdminOfChatSpaceException();
-  }
-
-  /**
-   * Checks if the specified user is an admin in the provided chat space.
-   *
-   * <p>This method retrieves all members of the chat space with the admin role and extracts their IDs.
-   * It then checks if the given user is among those members. If the user is found in the list of admin
-   * member IDs, the method returns true; otherwise, it returns false.</p>
-   *
-   * @param chatSpace The chat space to check the user's admin status against.
-   * @param user The user whose admin status is being checked.
-   * @return {@code true} if the user is an admin in the chat space; {@code false} otherwise.
-   */
-  protected boolean checkIfUserIsAnAdminInSpace(final ChatSpace chatSpace, final FleenUser user) {
-    // Retrieve all members of the chat space with the admin role
-    final Set<ChatSpaceMember> chatSpaceMembers = chatSpaceMemberRepository.findByChatSpaceAndRole(chatSpace, ChatSpaceMemberRole.ADMIN);
-    // Extract the IDs of the admin members
-    final Set<Long> spaceMemberIds = extractMemberIds(chatSpaceMembers);
-    // Check if the user is among the admin members
-    return isSpaceMemberAnAdmin(spaceMemberIds, user);
-  }
-
-  /**
-   * Extracts the member IDs from a set of chat space members.
-   *
-   * <p>This method checks if the provided set of chat space members is not null and not empty.
-   * If valid, it streams the members and maps them to their corresponding member IDs, collecting
-   * the results into a set. If the input set is null or empty, an empty set is returned.</p>
-   *
-   * @param chatSpaceMembers The set of chat space members from which to extract member IDs.
-   * @return A set of member IDs extracted from the provided chat space members, or an empty set if the input is null or empty.
-   */
-  protected Set<Long> extractMemberIds(final Set<ChatSpaceMember> chatSpaceMembers) {
-    // Check if the chat space members set is not null and not empty
-    if (nonNull(chatSpaceMembers) && !chatSpaceMembers.isEmpty()) {
-      // Stream the members and collect their IDs into a set
-      return chatSpaceMembers.stream()
-        .map(ChatSpaceMember::getMemberId)
-        .collect(Collectors.toSet());
-    }
-    // Return an empty set if the input is null or empty
-    return Set.of();
-  }
-
-  /**
-   * Checks if the specified user is an admin among the provided space member IDs.
-   *
-   * <p>This method verifies that the set of space member IDs and the user are not null or empty.
-   * If valid, it checks if the user’s ID is present in the set of space member IDs, indicating
-   * that the user is an admin. If the set is null, empty, or the user is null, it returns false.</p>
-   *
-   * @param spaceMemberIds The set of space member IDs to check against.
-   * @param user The user whose admin status is being checked.
-   * @return True if the user is an admin (their ID is in the set of member IDs); false otherwise.
-   */
-  protected boolean isSpaceMemberAnAdmin(final Set<Long> spaceMemberIds, final FleenUser user) {
-    // Check if the space member IDs set and user are not null or empty
-    if (nonNull(spaceMemberIds) && !spaceMemberIds.isEmpty() && nonNull(user)) {
-      // Check if the user's ID is present in the set of space member IDs
-      return spaceMemberIds.contains(user.getId());
-    }
-    // Return false if the input set is null, empty, or the user is null
-    return false;
   }
 
   /**
@@ -538,6 +412,23 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     }
     // Return false if there's no chat space or no valid chat space ID
     return false;
+  }
+
+  /**
+   * Finds a member by their unique identifier.
+   *
+   * <p>This method retrieves a member from the repository using the provided member ID. If no member is found
+   * with the specified ID, a {@link MemberNotFoundException} is thrown.</p>
+   *
+   * @param memberId The unique identifier of the member to be retrieved.
+   * @return The {@link Member} associated with the given member ID.
+   * @throws MemberNotFoundException if no member is found with the specified ID.
+   */
+  @Override
+  public Member findMember(final Long memberId) throws MemberNotFoundException {
+    // Retrieve the member by ID and throw an exception if not found
+    return memberRepository.findById(memberId)
+      .orElseThrow(MemberNotFoundException.of(memberId));
   }
 
 }

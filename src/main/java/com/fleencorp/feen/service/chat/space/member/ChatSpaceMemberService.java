@@ -4,6 +4,7 @@ import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.DowngradeChatSpaceAdminToMemberDto;
 import com.fleencorp.feen.model.dto.chat.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
@@ -30,5 +31,11 @@ public interface ChatSpaceMemberService {
 
   ChatSpaceMember leaveChatSpaceOrRemoveChatSpaceMember(ChatSpace chatSpace, Long memberId);
 
+  ChatSpaceMember findChatSpaceMember(ChatSpace chatSpace, Member member);
+
+  void notifyChatSpaceUpdateService(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
+
   boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(FleenStream stream, StreamAttendee streamAttendee);
+
+  Member findMember(Long memberId);
 }

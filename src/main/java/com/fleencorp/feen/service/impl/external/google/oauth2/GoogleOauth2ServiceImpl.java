@@ -199,7 +199,6 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @param user The FleenUser for whom the OAuth 2.0 authorization is being refreshed.
    * @return A RefreshOauth2TokenResponse containing the refreshed OAuth 2.0 access token and other details.
    */
-  @Transactional
   protected RefreshOauth2TokenResponse refreshUserAccessToken(final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
     // Attempt to refresh the user's OAuth2 token using the provided refresh token
     final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(authenticationRequest.getRefreshToken());
