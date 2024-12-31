@@ -21,7 +21,7 @@ import lombok.*;
 public class MfaStatusResponse extends ApiResponse {
 
   @JsonProperty("is_mfa_enabled_info")
-  private IsMfaEnabledInfo isMfaEnabledInfo;
+  private IsMfaEnabledInfo mfaEnabledInfo;
 
   @JsonProperty("mfa_type_info")
   private MfaTypeInfo mfaTypeInfo;
@@ -33,7 +33,7 @@ public class MfaStatusResponse extends ApiResponse {
 
   public static MfaStatusResponse of(final IsMfaEnabledInfo mfaEnabledInfo, final MfaTypeInfo mfaTypeInfo) {
     return MfaStatusResponse.builder()
-      .isMfaEnabledInfo(mfaEnabledInfo)
+      .mfaEnabledInfo(mfaEnabledInfo)
       .mfaTypeInfo(mfaTypeInfo)
       .build();
   }

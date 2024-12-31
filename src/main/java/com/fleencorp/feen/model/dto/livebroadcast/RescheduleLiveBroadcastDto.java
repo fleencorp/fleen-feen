@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.dto.livebroadcast;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
-import com.fleencorp.feen.model.dto.stream.RescheduleStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

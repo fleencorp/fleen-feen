@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -203,7 +203,7 @@ public class NotificationServiceImpl implements NotificationService {
    * @return a map that associates each {@link NotificationType} with its respective message handler.
    */
   protected Map<NotificationType, Function<Notification, String>> messageHandlers() {
-    final Map<NotificationType, Function<Notification, String>> messageHandlers = new HashMap<>();
+    final Map<NotificationType, Function<Notification, String>> messageHandlers = new EnumMap<>(NotificationType.class);
 
     // Mapping NotificationTypes to corresponding message handling functions
     // Handling requests to join a chat space

@@ -26,6 +26,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class ReCaptchaAspect {
 
+  private static final String RECAPTCHA_HEADER_KEY = "Recaptcha-token";
   private final ReCaptchaService reCaptchaService;
   private final ReCaptchaAttemptService reCaptchaAttemptService;
   private final String recaptchaScoreThreshold;
@@ -38,8 +39,6 @@ public class ReCaptchaAspect {
     this.reCaptchaAttemptService = reCaptchaAttemptService;
     this.recaptchaScoreThreshold = recaptchaScoreThreshold;
   }
-
-  private static final String RECAPTCHA_HEADER_KEY = "Recaptcha-token";
 
   /**
    * A method annotated with {@code @Around} to verify the reCAPTCHA token before executing the target method.

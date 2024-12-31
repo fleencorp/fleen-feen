@@ -5,7 +5,7 @@ import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToSentenceCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
-import com.fleencorp.base.validator.ValidEnum;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -50,7 +50,7 @@ public class CreateChatSpaceDto {
   protected String tags;
 
   @NotNull(message = "{chatSpace.visibility.NotNull}")
-  @ValidEnum(enumClass = ChatSpaceVisibility.class, message = "{chatSpace.visibility.Type}", ignoreCase = true)
+  @OneOf(enumClass = ChatSpaceVisibility.class, message = "{chatSpace.visibility.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("visibility")
   private String visibility;
@@ -69,7 +69,7 @@ public class CreateChatSpaceDto {
       .tags(tags)
       .spaceVisibility(getActualVisibility())
       .isActive(true)
-      .isDeleted(false)
+      .deleted(false)
       .totalMembers(0L)
       .build();
   }

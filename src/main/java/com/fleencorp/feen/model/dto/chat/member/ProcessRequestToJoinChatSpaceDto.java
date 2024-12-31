@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.dto.chat.member;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.base.validator.ValidEnum;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,7 +22,7 @@ public class ProcessRequestToJoinChatSpaceDto {
   private String memberId;
 
   @NotNull(message = "{chatSpace.joinStatus.NotNull}")
-  @ValidEnum(enumClass = ChatSpaceRequestToJoinStatus.class, message = "{chatSpace.joinStatus.Type}", ignoreCase = true)
+  @OneOf(enumClass = ChatSpaceRequestToJoinStatus.class, message = "{chatSpace.joinStatus.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("join_status")
   private String joinStatus;

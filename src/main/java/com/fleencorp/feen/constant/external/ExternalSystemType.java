@@ -25,4 +25,8 @@ public enum ExternalSystemType implements ApiParameter {
   ExternalSystemType(final String value) {
     this.value = value;
   }
+
+  public static String youTube() {
+    return YOUTUBE.getValue();
+  }
 }

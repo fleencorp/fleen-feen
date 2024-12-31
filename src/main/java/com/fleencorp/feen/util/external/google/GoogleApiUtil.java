@@ -2,12 +2,13 @@ package com.fleencorp.feen.util.external.google;
 
 import com.fleencorp.feen.constant.external.google.chat.base.GoogleChatParameter;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2Service;
+import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2ServiceImpl;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.util.DateTime;
 import com.google.protobuf.Timestamp;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,7 +36,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
-public class GoogleApiUtil {
+public final class GoogleApiUtil {
 
   private GoogleApiUtil() {}
 
@@ -87,7 +88,7 @@ public class GoogleApiUtil {
    */
   public static HttpRequestInitializer getHttpRequestInitializer(final String accessToken) {
     return httpRequest -> {
-      httpRequest.setParser(new JsonObjectParser(GoogleOauth2Service.getJsonFactory()));
+      httpRequest.setParser(new JsonObjectParser(GoogleOauth2ServiceImpl.getJsonFactory()));
       httpRequest.setHeaders(getHeaders(accessToken));
       httpRequest.setThrowExceptionOnExecuteError(true);
       httpRequest.setConnectTimeout(50_000);
@@ -170,12 +171,13 @@ public class GoogleApiUtil {
    * @param localDateTime the {@code LocalDateTime} to convert; if null, the current date and time are used
    * @return a Protobuf {@code Timestamp} built from the provided or default {@code LocalDateTime}
    **/
-  public static Timestamp convertToProtobufTimestamp(LocalDateTime localDateTime) {
+  public static Timestamp convertToProtobufTimestamp(final LocalDateTime localDateTime) {
+    LocalDateTime newDateTime = localDateTime;
     if (isNull(localDateTime)) {
-      localDateTime = LocalDateTime.now();
+      newDateTime = LocalDateTime.now();
     }
     // Convert LocalDateTime to Instant
-    final Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
+    final Instant instant = newDateTime.toInstant(ZoneOffset.UTC);
 
     // Build the Timestamp using the seconds and nanos from the Instant
     return Timestamp.newBuilder()
@@ -211,7 +213,7 @@ public class GoogleApiUtil {
    * @return the extracted space ID or name, or the original space name if conditions are not met
    */
   public static String getSpaceIdOrNameFrom(final String spaceName) {
-    if (nonNull(spaceName) && !spaceName.trim().isEmpty() && spaceName.startsWith(GoogleChatParameter.spaces())) {
+    if (nonNull(spaceName) && !StringUtils.isBlank(spaceName) && spaceName.startsWith(GoogleChatParameter.spaces())) {
       final int index = GoogleChatParameter.spaces().length() + 1;
       return spaceName.substring(index);
     }
@@ -231,7 +233,7 @@ public class GoogleApiUtil {
    * @return the extracted member ID or name, or the original member name if conditions are not met
    */
   public static String getSpaceMemberIdOrNameFrom(final String memberName) {
-    if (nonNull(memberName) && !memberName.trim().isEmpty() && memberName.startsWith(GoogleChatParameter.users())) {
+    if (nonNull(memberName) && !StringUtils.isBlank(memberName) && memberName.startsWith(GoogleChatParameter.users())) {
       final int index = GoogleChatParameter.users().length() + 1;
       return memberName.substring(index);
     }

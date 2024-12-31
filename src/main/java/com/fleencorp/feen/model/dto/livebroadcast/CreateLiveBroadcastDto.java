@@ -5,7 +5,7 @@ import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

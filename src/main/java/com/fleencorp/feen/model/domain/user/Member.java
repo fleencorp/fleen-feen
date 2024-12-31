@@ -59,17 +59,14 @@ public class Member extends FleenFeenEntity {
   @Column(name = "country", length = 50)
   private String country;
 
-  @Builder.Default
   @Column(name ="email_address_verified", nullable = false)
-  private boolean emailAddressVerified = false;
+  private boolean emailAddressVerified;
 
-  @Builder.Default
   @Column(name ="phone_number_verified", nullable = false)
-  private boolean phoneNumberVerified = false;
+  private boolean phoneNumberVerified;
 
-  @Builder.Default
   @Column(name = "mfa_enabled", nullable = false)
-  private boolean mfaEnabled = false;
+  private boolean mfaEnabled;
 
   @Convert(converter = StringCryptoConverter.class)
   @Column(name = "mfa_secret")

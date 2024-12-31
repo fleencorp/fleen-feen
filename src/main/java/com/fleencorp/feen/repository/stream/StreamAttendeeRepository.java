@@ -1,7 +1,7 @@
 package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.stream.StreamSource;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -30,25 +30,25 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   Page<StreamAttendee> findByFleenStream(FleenStream fleenStream, Pageable pageable);
 
-  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.fleenStream.streamSource = :streamSource")
-  Page<StreamAttendee> findByFleenStreamAndStreamSource(FleenStream fleenStream, StreamSource streamSource, Pageable pageable);
+  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.fleenStream.streamType = :streamType")
+  Page<StreamAttendee> findByFleenStreamAndStreamType(FleenStream fleenStream, StreamType streamType, Pageable pageable);
 
   Page<StreamAttendee> findByFleenStreamAndRequestToJoinStatus(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
 
-  Page<StreamAttendee> findAllByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
+  Page<StreamAttendee> findAllByFleenStreamAndRequestToJoinStatusAndAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
-  long countByFleenStreamAndRequestToJoinStatusAndIsAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
+  long countByFleenStreamAndRequestToJoinStatusAndAttending(FleenStream fleenStream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
 
   @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream.fleenStreamId = :eventOrStreamId AND sa.member.memberId IN (:memberIds) AND sa.requestToJoinStatus IN (:statuses)")
   Set<StreamAttendee> findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(@Param("eventOrStreamId") Long eventOrStreamId, @Param("memberIds") List<Long> speakerMemberIds, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.requestToJoinStatus, sa.isAttending, sa.fleenStream.streamVisibility, sa.fleenStream.scheduledEndDate) " +
+  @Query("SELECT new com.fleencorp.feen.model.projection.StreamAttendeeSelect(fs.fleenStreamId, sa.requestToJoinStatus, sa.attending, sa.fleenStream.streamVisibility, sa.fleenStream.scheduledEndDate) " +
     "FROM StreamAttendee sa LEFT JOIN sa.member m LEFT JOIN sa.fleenStream fs WHERE m = :member AND fs.fleenStreamId IN (:ids)")
-  List<StreamAttendeeSelect> findByMemberAndEventOrStreamIds(Member member, @Param("ids") List<Long> eventOrStreamIds);
+  List<StreamAttendeeSelect> findByMemberAndStreamIds(Member member, @Param("ids") List<Long> eventOrStreamIds);
 
   @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.member = :member")
   Optional<StreamAttendee> findAttendeeByStreamAndUser(@Param("fleenStream") FleenStream fleenStream, @Param("member") Member member);
 
-  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.isAttending = true")
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.fleenStream = :fleenStream AND sa.attending = true")
   Set<StreamAttendee> findAttendeesGoingToStream(@Param("fleenStream") FleenStream fleenStream);
 }

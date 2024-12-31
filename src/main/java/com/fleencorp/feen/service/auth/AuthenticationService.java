@@ -1,17 +1,13 @@
 package com.fleencorp.feen.service.auth;
 
-import com.fleencorp.feen.model.dto.auth.*;
-import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
-import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.dto.auth.SignInDto;
+import com.fleencorp.feen.model.dto.auth.SignUpDto;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
-import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
-import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
-import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
-import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
-import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface AuthenticationService {
@@ -20,21 +16,21 @@ public interface AuthenticationService {
 
   SignUpResponse signUp(SignUpDto signUpDto);
 
-  SignUpResponse completeSignUp(CompleteSignUpDto completeSignUpDto, FleenUser user);
-
-  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user);
-
-  ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user);
-
   SignOutResponse signOut(FleenUser user);
-
-  SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto, FleenUser user);
 
   SignInResponse signIn(SignInDto signInDto);
 
-  ForgotPasswordResponse forgotPassword(ForgotPasswordDto forgotPasswordDto);
+  FleenUser initializeAuthenticationAndContext(Member member);
 
-  InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto);
+  Member getMemberDetails(String emailAddressOrUsername);
 
-  ChangePasswordResponse changePassword(ChangePasswordDto changePasswordDto, FleenUser user);
+  void saveSignUpVerificationCodeTemporarily(String username, String verificationCode);
+
+  void saveMfaVerificationCodeTemporarily(String username, String verificationCode);
+
+  void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, FleenUser user);
+
+  void saveAuthenticationTokensToRepositoryOrCache(String username, String accessToken, String refreshToken);
+
+  void setUserTimezoneAfterAuthentication(FleenUser user);
 }

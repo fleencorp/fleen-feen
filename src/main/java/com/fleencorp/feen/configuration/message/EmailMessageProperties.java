@@ -2,6 +2,7 @@ package com.fleencorp.feen.configuration.message;
 
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
+@NoArgsConstructor
 @ConfigurationProperties(prefix = "mail")
 public class EmailMessageProperties {
 

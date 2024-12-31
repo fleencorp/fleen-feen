@@ -1,5 +1,6 @@
 package com.fleencorp.feen.configuration.rest;
 
+import lombok.NoArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@NoArgsConstructor
 @Configuration
 public class RestAdapterConfiguration {
 

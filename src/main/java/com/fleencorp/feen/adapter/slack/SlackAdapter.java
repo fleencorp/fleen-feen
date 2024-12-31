@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.util.Objects.nonNull;
 
 /**
@@ -69,8 +70,8 @@ public class SlackAdapter {
     final SlackColor slackColor = sendMessageRequest.getSlackColor();
     try {
       slackClient.send(url, createPayloadWithAttachmentsAndFields(title, data, sendMessageRequest.getIconEmoji(), slackColor));
-    } catch (final Exception ex) {
-      log.error("Error sending message to Slack. Reason: {}", ex.getMessage());
+    } catch (final IOException ex) {
+      logIfEnabled(log::isErrorEnabled, () -> log.error("Error sending message to Slack. Reason: {}", ex.getMessage()));
     }
   }
 
@@ -245,7 +246,7 @@ public class SlackAdapter {
     try {
       methodsClient.chatPostMessage(chatPostMessageRequest);
     } catch (final SlackApiException | IOException ex) {
-      log.error("Error has occurred. Reason: {}", ex.getMessage());
+      logIfEnabled(log::isErrorEnabled, () -> log.error("Error has occurred. Reason: {}", ex.getMessage()));
     }
   }
 

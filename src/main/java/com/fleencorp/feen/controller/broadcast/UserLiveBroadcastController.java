@@ -2,14 +2,19 @@ package com.fleencorp.feen.controller.broadcast;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.stream.ProcessAttendeeRequestToJoinEventOrStreamDto;
-import com.fleencorp.feen.model.dto.stream.UpdateEventOrStreamVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.broadcast.*;
-import com.fleencorp.feen.model.response.stream.EventOrStreamAttendeesResponse;
+import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.CancelStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.DeleteStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.RescheduleStreamResponse;
+import com.fleencorp.feen.model.response.stream.base.UpdateStreamVisibilityResponse;
 import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
+import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
+import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,9 +26,16 @@ import org.springframework.web.bind.annotation.*;
 public class UserLiveBroadcastController {
   
   private final LiveBroadcastService liveBroadcastService;
+  private final LiveBroadcastJoinService liveBroadcastJoinService;
+  private final StreamAttendeeService streamAttendeeService;
   
-  public UserLiveBroadcastController(final LiveBroadcastService liveBroadcastService) {
+  public UserLiveBroadcastController(
+      final LiveBroadcastService liveBroadcastService,
+      final LiveBroadcastJoinService liveBroadcastJoinService,
+      final StreamAttendeeService streamAttendeeService) {
     this.liveBroadcastService = liveBroadcastService;
+    this.liveBroadcastJoinService = liveBroadcastJoinService;
+    this.streamAttendeeService = streamAttendeeService;
   }
 
   @PutMapping(value = "/reschedule/{streamId}")
@@ -35,10 +47,17 @@ public class UserLiveBroadcastController {
   }
 
   @DeleteMapping(value = "/delete/{streamId}")
-  public DeletedStreamResponse deleteStream(
+  public DeleteStreamResponse deleteStream(
       @PathVariable(name = "streamId") final Long streamId,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.deleteStream(streamId, user);
+    return liveBroadcastService.deleteLiveBroadcast(streamId, user);
+  }
+
+  @PutMapping(value = "/delete/{streamId}")
+  public CancelStreamResponse cancelStream(
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user) {
+    return liveBroadcastService.cancelLiveBroadcast(streamId, user);
   }
 
   @GetMapping(value = "/attendees/request-to-join/{streamId}")
@@ -46,42 +65,22 @@ public class UserLiveBroadcastController {
       @PathVariable(name = "streamId") final Long streamId,
       @AuthenticationPrincipal final FleenUser user,
       @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return liveBroadcastService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
+    return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
   }
 
   @PutMapping(value = "/process-join-request/{streamId}")
   public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinEvent(
       @PathVariable(name = "streamId") final Long streamId,
-      @Valid @RequestBody final ProcessAttendeeRequestToJoinEventOrStreamDto processAttendeeRequestToJoinEventOrStreamDto,
+      @Valid @RequestBody final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.processAttendeeRequestToJoinStream(streamId, processAttendeeRequestToJoinEventOrStreamDto, user);
+    return liveBroadcastJoinService.processAttendeeRequestToJoinLiveBroadcast(streamId, processAttendeeRequestToJoinStreamDto, user);
   }
 
   @PutMapping(value = "/update-visibility/{streamId}")
   public UpdateStreamVisibilityResponse updateStreamVisibility(
       @PathVariable(name = "streamId") final Long streamId,
-      @Valid @RequestBody final UpdateEventOrStreamVisibilityDto updateEventOrStreamVisibilityDto,
+      @Valid @RequestBody final UpdateStreamVisibilityDto updateStreamVisibilityDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.updateStreamVisibility(streamId, updateEventOrStreamVisibilityDto, user);
-  }
-
-  @GetMapping(value = "/attendees/{streamId}")
-  public EventOrStreamAttendeesResponse getStreamAttendees(
-      @PathVariable(name = "streamId") final Long streamId,
-      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.getStreamAttendees(streamId, streamAttendeeSearchRequest, user);
-  }
-
-  @GetMapping(value = "/total-by-me")
-  public TotalStreamsCreatedByUserResponse countTotalEventsCreatedByUser(
-      @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.countTotalStreamsByUser(user);
-  }
-
-  @GetMapping(value = "/total-attended-by-me")
-  public TotalStreamsAttendedByUserResponse countTotalEventsAttendedByUser(
-      @AuthenticationPrincipal final FleenUser user) {
-    return liveBroadcastService.countTotalStreamsAttended(user);
+    return liveBroadcastService.updateLiveBroadcastVisibility(streamId, updateStreamVisibilityDto, user);
   }
 }

@@ -17,7 +17,7 @@ import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getSpaceMemb
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
-public class GoogleChatSpaceMemberMapper {
+public final class GoogleChatSpaceMemberMapper {
 
   private GoogleChatSpaceMemberMapper() {}
 

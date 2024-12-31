@@ -13,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -35,6 +36,14 @@ public class CreateLiveBroadcastRequest extends LiveBroadcastRequest {
   private Boolean enableLowLatencyStreamingOrLowDataStreaming;
   private Boolean enableAutoStart;
 
+  public String getClosedCaptionsType() {
+    return nonNull(closedCaptionsType) ? closedCaptionsType.getValue() : null;
+  }
+
+  public String getPrivacyStatus() {
+    return nonNull(privacyStatus) ? privacyStatus.getValue() : null;
+  }
+
   public static CreateLiveBroadcastRequest by(final CreateLiveBroadcastDto dto) {
     return CreateLiveBroadcastRequest.builder()
             .title(dto.getTitle())
@@ -42,7 +51,7 @@ public class CreateLiveBroadcastRequest extends LiveBroadcastRequest {
             .thumbnailUrl(dto.getThumbnailUrl())
             .scheduledStartDateTime(dto.getActualStartDateTime())
             .scheduledEndDateTime(dto.getActualEndDateTime())
-            .madeForKids(parseBoolean(dto.getIsForKids()))
+            .madeForKids(parseBoolean(dto.getForKids()))
             .privacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(dto.getVisibility())))
             .enableLowLatencyStreamingOrLowDataStreaming(true)
             .enableAutoStart(false)

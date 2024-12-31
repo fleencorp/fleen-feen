@@ -29,7 +29,7 @@ import com.fleencorp.feen.repository.user.UserProfileRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import com.fleencorp.feen.service.impl.external.aws.StorageService;
+import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.user.MemberService;
 import lombok.extern.slf4j.Slf4j;
@@ -57,11 +57,12 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Service
 public class MemberServiceImpl implements MemberService,
-  EmailService, PasswordService, PhoneService, VerificationService {
+  EmailService, PasswordService, PhoneService {
 
   private final CacheService cacheService;
   private final CountryService countryService;
   private final StorageService storageService;
+  private final VerificationService verificationService;
   private final MemberRepository memberRepository;
   private final UserProfileRepository userProfileRepository;
   private final LocalizedResponse localizedResponse;
@@ -78,6 +79,7 @@ public class MemberServiceImpl implements MemberService,
       final CacheService cacheService,
       final CountryService countryService,
       final StorageService storageService,
+      final VerificationService verificationService,
       final MemberRepository memberRepository,
       final UserProfileRepository userProfileRepository,
       final LocalizedResponse localizedResponse,
@@ -87,22 +89,13 @@ public class MemberServiceImpl implements MemberService,
     this.cacheService = cacheService;
     this.countryService = countryService;
     this.storageService = storageService;
+    this.verificationService = verificationService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
     this.localizedResponse = localizedResponse;
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
     this.s3BucketNames = s3BucketNames;
-  }
-
-  /**
-   * Retrieves the cache service instance.
-   *
-   * @return the {@link CacheService} instance used for managing cache operations.
-   */
-  @Override
-  public CacheService getCacheService() {
-    return cacheService;
   }
 
   /**
@@ -128,7 +121,7 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the email address exists or not
    */
   @Override
-  public EntityExistsResponse isMemberEmailAddressExists(final String emailAddress) {
+  public EntityExistsResponse verifyMemberEmailAddressExists(final String emailAddress) {
     // Check if the email address exist
     final boolean exists = isEmailAddressExist(emailAddress);
     // Return a localized response of the status
@@ -161,7 +154,7 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the phone number exists or not
    */
   @Override
-  public EntityExistsResponse isMemberPhoneNumberExists(final String phoneNumber) {
+  public EntityExistsResponse verifyMemberPhoneNumberExists(final String phoneNumber) {
     final boolean exists = isPhoneNumberExist(phoneNumber);
     return exists
       ? localizedResponse.of(PhoneNumberExistsResponse.of(true))
@@ -362,7 +355,7 @@ public class MemberServiceImpl implements MemberService,
     final String code = updateEmailAddressDto.getVerificationCode();
 
     // Validate the provided verification code
-    validateVerificationCode(verificationKey, code);
+    verificationService.validateVerificationCode(verificationKey, code);
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
 
@@ -408,7 +401,7 @@ public class MemberServiceImpl implements MemberService,
     final String code = updatePhoneNumberDto.getVerificationCode();
 
     // Validate the provided verification code
-    validateVerificationCode(verificationKey, code);
+    verificationService.validateVerificationCode(verificationKey, code);
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
 
@@ -465,6 +458,7 @@ public class MemberServiceImpl implements MemberService,
    * @param user the {@link FleenUser} whose profile photo is to be updated.
    * @return a response indicating the outcome of the profile photo update operation.
    */
+  @Override
   public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final FleenUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
@@ -490,6 +484,7 @@ public class MemberServiceImpl implements MemberService,
    * @param user the {@link FleenUser} whose profile photo is to be removed.
    * @return a localized {@link RemoveProfilePhotoResponse} indicating the result of the operation.
    */
+  @Override
   public RemoveProfilePhotoResponse removeProfilePhoto(final FleenUser user) {
     // Find the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
@@ -656,6 +651,7 @@ public class MemberServiceImpl implements MemberService,
   @Override
   @Async
   public void clearAuthenticationTokens(final String username) {
+    // Retrieve the associated token cache keys
     final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
     final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
     final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);

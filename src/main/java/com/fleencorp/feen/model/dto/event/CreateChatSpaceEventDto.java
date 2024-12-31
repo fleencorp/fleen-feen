@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.dto.event;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.stream.CreateStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

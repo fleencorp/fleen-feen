@@ -55,6 +55,7 @@ public class EntityExistsResponse extends ApiResponse {
   }
 
   public EntityExistsResponse(final boolean exists, final boolean status) {
+    super();
     this.exists = exists;
     this.timestamp = LocalDateTime.now();
     this.statusCode = status ? OK.value() : BAD_REQUEST.value();

@@ -51,7 +51,7 @@ public class MemberExistValidator implements ConstraintValidator<MemberExist, St
     if (nonNull(memberId)) {
       try {
         return service.isIdExists(Long.parseLong(memberId));
-      } catch (final Exception ignored) {}
+      } catch (final RuntimeException ignored) {}
       return false;
     }
     return true;

@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static java.util.Objects.nonNull;
+
 @Builder
 @Getter
 @Setter
@@ -22,4 +24,8 @@ public class ListCalendarEventRequest {
   private LocalDateTime from;
   private LocalDateTime to;
   private EventOrderBy orderBy;
+
+  public String getOrderBy() {
+    return nonNull(orderBy) ? orderBy.getValue() : null;
+  }
 }

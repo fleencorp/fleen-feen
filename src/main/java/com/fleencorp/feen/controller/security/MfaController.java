@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.security.mfa.*;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.auth.AuthenticationService;
+import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class MfaController {
 
-  private final AuthenticationService authenticationService;
   private final MfaService mfaService;
+  private final VerificationService verificationService;
 
   public MfaController(
-      final AuthenticationService authenticationService,
-      final MfaService mfaService) {
-    this.authenticationService = authenticationService;
+      final MfaService mfaService,
+      final VerificationService verificationService) {
     this.mfaService = mfaService;
+    this.verificationService = verificationService;
   }
 
   @GetMapping(value = "/status")
@@ -60,7 +60,7 @@ public class MfaController {
   public SignInResponse verifyMfaCode(
       @Valid @RequestBody final ConfirmMfaVerificationCodeDto confirmMfaVerificationCodeDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.verifyMfaVerificationCodeAndAuthenticateUser(confirmMfaVerificationCodeDto, user);
+    return verificationService.verifyMfaVerificationCodeAndAuthenticateUser(confirmMfaVerificationCodeDto, user);
   }
 
   @PreAuthorize("hasAnyRole('PRE_AUTHENTICATED_USER')")
@@ -68,7 +68,7 @@ public class MfaController {
   public ResendMfaVerificationCodeResponse resendMfaVerificationCode(
       @Valid @RequestBody final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return authenticationService.resendMfaVerificationCode(resendMfaVerificationCodeDto, user);
+    return verificationService.resendMfaVerificationCode(resendMfaVerificationCodeDto, user);
   }
 
   @PutMapping(value = "/re-enable")
