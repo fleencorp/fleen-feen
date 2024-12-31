@@ -2,7 +2,7 @@ package com.fleencorp.feen.controller.common;
 
 import com.fleencorp.feen.model.dto.aws.VerifyEmailIdentityDto;
 import com.fleencorp.feen.model.response.external.aws.VerifyEmailIdentityResponse;
-import com.fleencorp.feen.service.impl.external.aws.SesService;
+import com.fleencorp.feen.service.impl.external.aws.ses.SesService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;

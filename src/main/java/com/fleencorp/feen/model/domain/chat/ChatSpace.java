@@ -73,7 +73,7 @@ public class ChatSpace extends FleenFeenEntity {
 
   @Builder.Default
   @Column(name = "is_deleted", nullable = false)
-  private Boolean isDeleted = false;
+  private Boolean deleted = false;
 
   @Builder.Default
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
@@ -142,7 +142,7 @@ public class ChatSpace extends FleenFeenEntity {
    * within the context of the application.
    */
   public void delete() {
-    isDeleted = true;
+    deleted = true;
   }
 
   /**
@@ -151,7 +151,7 @@ public class ChatSpace extends FleenFeenEntity {
    * @return true if the member is deleted; otherwise, returns false.
    */
   public boolean isDeleted() {
-    return isDeleted;
+    return deleted;
   }
 
   /**

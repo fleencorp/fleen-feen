@@ -43,7 +43,7 @@ public class MiscController {
   public EntityExistsResponse emailExists(
     @Parameter(description = "Email address to check for existence")
       @PathVariable(name = "emailAddress") final String emailAddress) {
-    return memberService.isMemberEmailAddressExists(emailAddress);
+    return memberService.verifyMemberEmailAddressExists(emailAddress);
   }
 
   @Operation(summary = "Check If Phone Number Exists",
@@ -58,7 +58,7 @@ public class MiscController {
   public EntityExistsResponse phoneExists(
     @Parameter(description = "Phone number to check for existence")
       @PathVariable(name = "phoneNumber") final String phoneNumber) {
-    return memberService.isMemberPhoneNumberExists(phoneNumber);
+    return memberService.verifyMemberPhoneNumberExists(phoneNumber);
   }
 
   @Operation(summary = "Encode a password eligible plain text",

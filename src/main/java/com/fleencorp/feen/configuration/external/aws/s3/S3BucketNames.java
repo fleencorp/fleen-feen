@@ -3,6 +3,7 @@ package com.fleencorp.feen.configuration.external.aws.s3;
 
 import com.fleencorp.feen.constant.file.ObjectTypeUpload;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.PropertySources;
  */
 @Getter
 @Setter
+@NoArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "aws.s3.bucket")
 @PropertySources({

@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.request.chat.space.message;
 
 import com.fleencorp.feen.constant.chat.space.event.message.CalendarEventChatMessageField;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.model.response.stream.base.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.*;
 
 import java.util.List;

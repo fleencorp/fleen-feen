@@ -7,11 +7,11 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.function.IntConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.fleencorp.base.util.FleenUtil.isValidNumber;
-import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -64,37 +64,36 @@ public class GoogleChatSpaceResponse {
       // Create a new MembershipCount instance
       final MembershipCount membershipCount = new MembershipCount();
 
-      // Check if the fields map is not null
-      if (nonNull(fields)) {
-        // Get the membership count object from the fields map
-        final Object membershipCountObj = fields.get(ChatSpaceField.membershipCount());
-
-        // Check if the membership count object is not null
-        if (nonNull(membershipCountObj)) {
-          // Create a Gson instance for JSON parsing
-          final Gson gson = new Gson();
-          // Parse the membership count object to a map
-          final Map<String, Object> map = gson.fromJson(membershipCountObj.toString(), Map.class);
-
-          // Get the count of joined direct human users
-          final Object joinedDirectHumanUserCount = map.get(ChatSpaceField.joinedDirectHumanUserCount());
-          // Get the count of joined groups
-          final Object joinedGroupCount = map.get(ChatSpaceField.joinedGroupCount());
-
-          // Validate and set the count of joined direct human users
-          if (nonNull(joinedDirectHumanUserCount) && isValidNumber(joinedDirectHumanUserCount.toString())) {
-            membershipCount.setJoinedDirectHumanUserCount((Integer) joinedDirectHumanUserCount);
-          }
-          // Validate and set the count of joined groups
-          if (nonNull(joinedGroupCount) && isValidNumber(joinedGroupCount.toString())) {
-            membershipCount.setJoinedGroupCount((Integer) joinedGroupCount);
-          }
-        }
+      // Return early if fields map is null
+      if (fields == null) {
+        return membershipCount;
       }
 
-    // Return the populated MembershipCount object
-    return membershipCount;
-  }
+      // Get the membership count object from the fields map
+      final Object membershipCountObj = fields.get(ChatSpaceField.membershipCount());
+
+      // Return early if membership count object is null
+      if (membershipCountObj == null) {
+        return membershipCount;
+      }
+
+      // Parse the membership count object to a map
+      final Gson gson = new Gson();
+      final Map<String, Object> map = gson.fromJson(membershipCountObj.toString(), Map.class);
+
+      // Extract counts and set them if valid
+      setValidCount(map.get(ChatSpaceField.joinedDirectHumanUserCount()), membershipCount::setJoinedDirectHumanUserCount);
+      setValidCount(map.get(ChatSpaceField.joinedGroupCount()), membershipCount::setJoinedGroupCount);
+
+      // Return the populated MembershipCount object
+      return membershipCount;
+    }
+
+    private static void setValidCount(final Object countObj, final IntConsumer setter) {
+      if (countObj != null && isValidNumber(countObj.toString())) {
+        setter.accept((Integer) countObj);
+      }
+    }
 
 
     /**

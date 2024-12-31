@@ -41,7 +41,7 @@ public class StreamAttendee extends FleenFeenEntity {
 
   @Builder.Default
   @Column(name = "is_attending", nullable = false)
-  private Boolean isAttending = false;
+  private Boolean attending = false;
 
   @Column(name = "attendee_comment", length = 1000)
   private String attendeeComment;
@@ -80,11 +80,25 @@ public class StreamAttendee extends FleenFeenEntity {
     return nonNull(member) ? member.getFullName() : null;
   }
 
+  public String getProfilePhoto() {
+    return nonNull(member) ? member.getProfilePhotoUrl() : null;
+  }
+
+  public String getJoinStatus() {
+    return nonNull(requestToJoinStatus) ? requestToJoinStatus.getValue() : null;
+  }
+
   public static StreamAttendee of(final Member member, final FleenStream stream) {
     return StreamAttendee.builder()
       .member(member)
       .fleenStream(stream)
       .build();
+  }
+
+  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
+    final StreamAttendee streamAttendee = of(member, stream);
+    streamAttendee.setAttendeeComment(comment);
+    return streamAttendee;
   }
 
   /**
@@ -104,11 +118,16 @@ public class StreamAttendee extends FleenFeenEntity {
   /**
    * Approves the user's attendance for a event or stream.
    * This method sets the user's request to join status to {@link StreamAttendeeRequestToJoinStatus#APPROVED}
-   * and marks the user as attending by setting {@code isAttending} to {@code true}.
+   * and marks the user as attending by setting {@code attending} to {@code true}.
    */
   public void approveUserAttendance() {
     requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
-    isAttending = true;
+    attending = true;
+  }
+
+  public void approvedByOrganizer(final String organizerComment) {
+    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
+    this.organizerComment = organizerComment;
   }
 
   /**
@@ -147,7 +166,7 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public void markAsNotAttending() {
     // Update the attendance status to false
-    isAttending = false;
+    attending = false;
   }
 
   /**
@@ -166,7 +185,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return true if the attendee is attending, false otherwise.
    */
   public boolean isAttending() {
-    return getIsAttending();
+    return attending;
   }
 
 }

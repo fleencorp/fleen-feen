@@ -60,7 +60,7 @@ public class CreateInstantCalendarEventDto {
             .streamCreationType(INSTANT)
             .streamStatus(ACTIVE)
             .forKids(true)
-            .isDeleted(false)
+            .deleted(false)
             .member(member)
             .build();
   }

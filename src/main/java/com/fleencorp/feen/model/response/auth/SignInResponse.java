@@ -1,6 +1,5 @@
 package com.fleencorp.feen.model.response.auth;
 
-
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
@@ -61,7 +60,7 @@ public class SignInResponse extends ApiResponse {
   private MfaTypeInfo mfaTypeInfo;
 
   @JsonProperty("is_mfa_enabled_info")
-  private IsMfaEnabledInfo isMfaEnabledInfo;
+  private IsMfaEnabledInfo mfaEnabledInfo;
 
   @JsonIgnore
   public MfaType getMfaType() {

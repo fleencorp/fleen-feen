@@ -1,11 +1,9 @@
 package com.fleencorp.feen.service.impl.common;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
-import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
-import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
@@ -95,30 +93,23 @@ public class MiscServiceImpl implements
   }
 
   /**
-   * Verifies if the provided user is the owner of a chat space, an event or stream and is attempting to perform a restricted action.
+   * Finds a calendar associated with the specified country and stream type.
    *
-   * <p>If the provided {@code owner}'s ID matches the {@code user}'s ID, this method throws
-   * a {@link FailedOperationException}, indicating that the owner is trying to perform an action they are not allowed to.</p>
+   * <p>If the provided country title and stream type are non-null and the stream type is an event,
+   * the method proceeds to find the calendar associated with the country. If the conditions are not met,
+   * it returns null.</p>
    *
-   * <p>This method ensures that certain actions cannot be performed by the chat space or event or stream owner, enforcing
-   * restrictions based on ownership.</p>
-   *
-   * @param owner the {@link Member} representing the owner of a chat space, an event or stream
-   * @param user the {@link FleenUser} attempting to perform the action
-   * @throws FailedOperationException if the user is the owner of a chat space, event or stream and tries to perform a restricted action
+   * @param countryTitle the title of the country for which the calendar is to be found
+   * @param streamType the type of stream associated with the calendar
+   * @return the {@link Calendar} associated with the specified country and stream type,
+   *         or null if the conditions are not satisfied
    */
   @Override
-  public void verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(final Member owner, final FleenUser user) {
-    // Check if both the owner and user are provided
-    if (nonNull(owner) && nonNull(user)) {
-      final Long ownerUserId = owner.getMemberId();
-      // Get the user's ID
-      final Long userId = user.getId();
-      // If the user is the owner, throw an exception
-      if (ownerUserId.equals(userId)) {
-        throw new FailedOperationException();
-      }
+  public Calendar findCalendar(final String countryTitle, final StreamType streamType) {
+    if (nonNull(countryTitle) && nonNull(streamType) && StreamType.isEvent(streamType))  {
+      findCalendar(countryTitle);
     }
+    return null;
   }
 
   /**

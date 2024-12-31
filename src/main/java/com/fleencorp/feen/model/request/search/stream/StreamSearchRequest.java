@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.request.search.stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,6 +39,10 @@ public class StreamSearchRequest extends SearchRequest {
   @ToUpperCase
   protected String streamVisibility;
 
+  @JsonProperty("stream_type")
+  @ToUpperCase
+  protected String streamType;
+
   @JsonProperty("another_user_id")
   protected Long anotherUserId;
 
@@ -47,5 +52,9 @@ public class StreamSearchRequest extends SearchRequest {
       return actualStreamVisibility;
     }
     return defaultVisibility;
+  }
+
+  public StreamType getStreamType() {
+    return StreamType.of(streamType);
   }
 }

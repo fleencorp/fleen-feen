@@ -38,16 +38,16 @@ public class CreateChatSpaceRequest extends ChatSpaceRequest {
     return true;
   }
 
-  public ChatHistoryState getHistoryState() {
-    return ChatHistoryState.HISTORY_ON;
+  public String getHistoryState() {
+    return ChatHistoryState.HISTORY_ON.getValue();
   }
 
-  public ChatSpaceType getSpaceType() {
-    return ChatSpaceType.SPACE;
+  public String getSpaceType() {
+    return ChatSpaceType.SPACE.getValue();
   }
 
-  public ChatSpaceThreadState getThreadState() {
-    return ChatSpaceThreadState.THREADED_MESSAGES;
+  public String getThreadState() {
+    return ChatSpaceThreadState.THREADED_MESSAGES.getValue();
   }
 
   public Map<String, Object> getPermissions() {
@@ -78,7 +78,7 @@ public class CreateChatSpaceRequest extends ChatSpaceRequest {
 
   @Getter
   @Setter
-  public static class PermissionSettings {
+  public static final class PermissionSettings {
 
     private PermissionSettings() {}
 

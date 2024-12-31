@@ -40,11 +40,7 @@ public abstract class MessageRequest {
 
   public abstract MessageRequestType getRequestType();
 
-  public String getTemplateName() {
-    return null;
-  }
+  public abstract String getTemplateName();
 
-  public String getMessageTitle() {
-    return null;
-  }
+  public abstract String getMessageTitle();
 }

@@ -12,7 +12,7 @@ public interface NotificationService {
 
   void save(Notification notification);
 
-  ReadNotificationResponse markAsRead(final Long notificationId, FleenUser user);
+  ReadNotificationResponse markAsRead(Long notificationId, FleenUser user);
 
   ReadNotificationResponse markAllAsRead(FleenUser user);
 }

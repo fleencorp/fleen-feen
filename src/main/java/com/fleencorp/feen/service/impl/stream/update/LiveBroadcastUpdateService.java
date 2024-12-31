@@ -10,7 +10,8 @@ import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
-import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastService;
+import com.fleencorp.feen.service.external.google.youtube.YouTubeLiveBroadcastService;
+import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -35,15 +36,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LiveBroadcastUpdateService {
 
-  private final FleenStreamRepository fleenStreamRepository;
+  private final FleenStreamRepository streamRepository;
   private final BroadcastService broadcastService;
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
 
   public LiveBroadcastUpdateService(
-    final FleenStreamRepository fleenStreamRepository,
-    @Lazy final BroadcastService broadcastService,
-    @Lazy final YouTubeLiveBroadcastService youTubeLiveBroadcastService) {
-    this.fleenStreamRepository = fleenStreamRepository;
+      final FleenStreamRepository streamRepository,
+      @Lazy final BroadcastService broadcastService,
+      @Lazy final YouTubeLiveBroadcastService youTubeLiveBroadcastService) {
+    this.streamRepository = streamRepository;
     this.broadcastService = broadcastService;
     this.youTubeLiveBroadcastService = youTubeLiveBroadcastService;
   }
@@ -62,8 +63,8 @@ public class LiveBroadcastUpdateService {
     // Create the live broadcast using YouTubeLiveBroadcastService
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
     // Update the stream with the event ID and HTML link from the created YouTube live broadcast
-    stream.updateDetails(createYouTubeLiveBroadcastResponse.getLiveBroadcastId(), createYouTubeLiveBroadcastResponse.getLiveStreamLink());
-    fleenStreamRepository.save(stream);
+    stream.updateDetails(createYouTubeLiveBroadcastResponse.liveBroadcastId(), createYouTubeLiveBroadcastResponse.liveStreamLink());
+    streamRepository.save(stream);
 
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
@@ -91,9 +92,9 @@ public class LiveBroadcastUpdateService {
     log.info("Updated broadcast: {}", updateYouTubeLiveBroadcastResponse);
 
     // Update the FleenStream entity with the external ID from the updated YouTube broadcast
-    stream.setExternalId(updateYouTubeLiveBroadcastResponse.getLiveBroadcastId());
+    stream.setExternalId(updateYouTubeLiveBroadcastResponse.liveBroadcastId());
     // Save the updated FleenStream entity to the repository
-    fleenStreamRepository.save(stream);
+    streamRepository.save(stream);
   }
 
   /**
@@ -112,9 +113,9 @@ public class LiveBroadcastUpdateService {
     log.info("Rescheduled broadcast: {}", rescheduleYouTubeLiveBroadcastResponse);
 
     // Update the FleenStream entity with the external ID from the updated YouTube broadcast
-    stream.setExternalId(rescheduleYouTubeLiveBroadcastResponse.getLiveBroadcastId());
+    stream.setExternalId(rescheduleYouTubeLiveBroadcastResponse.liveBroadcastId());
     // Save the updated FleenStream entity to the repository
-    fleenStreamRepository.save(stream);
+    streamRepository.save(stream);
   }
 
   /**
@@ -136,7 +137,7 @@ public class LiveBroadcastUpdateService {
    * Updates the visibility of a live broadcast stream on YouTube.
    *
    * <p>This method asynchronously updates the visibility status of a live broadcast stream by calling the
-   * {@link YouTubeLiveBroadcastService#updateLiveBroadcastVisibility(UpdateLiveBroadcastVisibilityRequest)}
+   * {@link YouTubeLiveBroadcastServiceImpl#updateLiveBroadcastVisibility(UpdateLiveBroadcastVisibilityRequest)}
    * service method. The visibility update is performed in a separate thread to avoid blocking the main execution
    * flow, and the transaction ensures consistency in the database if any operations are performed.</p>
    *
@@ -148,7 +149,7 @@ public class LiveBroadcastUpdateService {
    *                                             live broadcast visibility. This includes the broadcast ID,
    *                                             new visibility status, and access token for authentication.
    *
-   * @see YouTubeLiveBroadcastService#updateLiveBroadcastVisibility(UpdateLiveBroadcastVisibilityRequest)
+   * @see YouTubeLiveBroadcastServiceImpl#updateLiveBroadcastVisibility(UpdateLiveBroadcastVisibilityRequest)
    */
   @Async
   @Transactional

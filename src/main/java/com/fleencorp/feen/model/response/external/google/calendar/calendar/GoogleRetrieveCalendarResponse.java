@@ -1,22 +1,10 @@
 package com.fleencorp.feen.model.response.external.google.calendar.calendar;
 
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.base.GoogleCalendarResponse;
-import lombok.*;
 
-@Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class GoogleRetrieveCalendarResponse {
+public record GoogleRetrieveCalendarResponse(String calendarId, GoogleCalendarResponse calendarResponse) {
 
-  private String calendarId;
-  private GoogleCalendarResponse calendar;
-
-  public static GoogleRetrieveCalendarResponse of(final String calendarId, final GoogleCalendarResponse calendar) {
-    return GoogleRetrieveCalendarResponse.builder()
-      .calendarId(calendarId)
-      .calendar(calendar)
-      .build();
+  public static GoogleRetrieveCalendarResponse of(final String calendarId, final GoogleCalendarResponse calendarResponse) {
+    return new GoogleRetrieveCalendarResponse(calendarId, calendarResponse);
   }
 }

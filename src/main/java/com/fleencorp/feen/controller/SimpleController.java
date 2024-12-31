@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.service.impl.external.google.chat.GoogleChatService;
+import com.fleencorp.feen.service.impl.external.google.chat.GoogleChatServiceImpl;
 import com.fleencorp.feen.service.impl.external.google.firebase.CloudNotificationService;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class SimpleController {
 
-  private final GoogleChatService googleChatService;
+  private final GoogleChatServiceImpl googleChatService;
   private final CloudNotificationService cloudNotificationService;
 
   @GetMapping(value = "/3")
@@ -54,7 +54,7 @@ public class SimpleController {
       .title("Java Conf 2024")
       .streamLink("https://www.google.com/")
       .forKids(true)
-      .isDeleted(false)
+      .deleted(false)
       .organizerEmail("yusuf@fleencorp.com")
       .organizerPhone("123456")
       .organizerName("Yusuf Musa")

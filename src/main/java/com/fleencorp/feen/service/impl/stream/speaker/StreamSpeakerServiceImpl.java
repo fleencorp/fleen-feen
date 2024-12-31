@@ -10,10 +10,10 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
-import com.fleencorp.feen.model.dto.stream.AddStreamSpeakerDto;
-import com.fleencorp.feen.model.dto.stream.DeleteStreamSpeakerDto;
-import com.fleencorp.feen.model.dto.stream.StreamSpeakerDto;
-import com.fleencorp.feen.model.dto.stream.UpdateStreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.base.DeleteStreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.speaker.AddStreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.speaker.StreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.model.response.stream.speaker.*;
@@ -25,7 +25,7 @@ import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamSpeakerRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.stream.StreamSpeakerService;
+import com.fleencorp.feen.service.stream.speaker.StreamSpeakerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -38,9 +38,9 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.*;
-import static com.fleencorp.feen.mapper.StreamSpeakerMapper.toStreamSpeakerResponses;
-import static com.fleencorp.feen.mapper.StreamSpeakerMapper.toStreamSpeakerResponsesByMember;
-import static com.fleencorp.feen.service.impl.stream.base.StreamService.validateCreatorOfEvent;
+import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponses;
+import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponsesByMember;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -59,7 +59,7 @@ import static java.util.Objects.nonNull;
 public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
   private final MiscService miscService;
-  private final FleenStreamRepository fleenStreamRepository;
+  private final FleenStreamRepository streamRepository;
   private final MemberRepository memberRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamSpeakerRepository streamSpeakerRepository;
@@ -70,7 +70,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * Constructs an instance of {@code StreamSpeakerImpl} with the provided dependencies.
    *
    * @param miscService the {@link MiscService} used for handling miscellaneous tasks
-   * @param fleenStreamRepository the repository to manage stream entities
+   * @param streamRepository the repository to manage stream entities
    * @param memberRepository the repository to manage member entities
    * @param streamAttendeeRepository the repository to manage stream attendee entities
    * @param streamSpeakerRepository the repository to manage stream speaker entities
@@ -79,14 +79,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   public StreamSpeakerServiceImpl(
       final MiscService miscService,
-      final FleenStreamRepository fleenStreamRepository,
+      final FleenStreamRepository streamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamSpeakerRepository streamSpeakerRepository,
       final LocalizedResponse localizedResponse,
       final StreamEventPublisher streamEventPublisher) {
     this.miscService = miscService;
-    this.fleenStreamRepository = fleenStreamRepository;
+    this.streamRepository = streamRepository;
     this.memberRepository = memberRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamSpeakerRepository = streamSpeakerRepository;
@@ -554,7 +554,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @throws FleenStreamNotFoundException if the event or stream is not found.
    */
   protected FleenStream checkEventOrStreamExist(final Long eventOrStreamId) {
-    return fleenStreamRepository.findById(eventOrStreamId)
+    return streamRepository.findById(eventOrStreamId)
       .orElseThrow(() -> new FleenStreamNotFoundException(eventOrStreamId));
   }
 
@@ -574,7 +574,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Check if the event or stream with the given ID exists, throw exception if not
     final FleenStream stream = checkEventOrStreamExist(eventOrStreamId);
     // Validate if the user is the creator of the event
-    validateCreatorOfEvent(stream, user);
+    validateCreatorOfStream(stream, user);
 
     return stream;
   }

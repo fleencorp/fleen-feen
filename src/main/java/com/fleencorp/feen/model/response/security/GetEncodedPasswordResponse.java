@@ -21,14 +21,14 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 public class GetEncodedPasswordResponse {
 
   @JsonProperty("encoded_password")
-  private String encodedPassword;
+  private final String encodedPassword;
 
   @JsonProperty("raw_password")
-  private String rawPassword;
+  private final String rawPassword;
 
   @JsonFormat(shape = STRING, pattern = DateFormatUtil.DATE_TIME)
   @JsonProperty("timestamp")
-  private LocalDateTime timestamp;
+  private final LocalDateTime timestamp;
 
   public GetEncodedPasswordResponse(final String encodedPassword, final String rawPassword) {
     this.encodedPassword = encodedPassword;

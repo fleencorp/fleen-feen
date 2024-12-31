@@ -36,4 +36,14 @@ public class SendVerificationCodeRequest extends MessageRequest {
   public MessageRequestType getRequestType() {
     return null;
   }
+
+  @Override
+  public String getTemplateName() {
+    return "";
+  }
+
+  @Override
+  public String getMessageTitle() {
+    return "";
+  }
 }

@@ -22,13 +22,13 @@ import lombok.experimental.SuperBuilder;
 })
 public class RetrieveMemberInfoResponse extends ApiResponse {
 
+  @JsonProperty("details")
+  private MemberInfoSelect details;
+
   @Override
   public String getMessageCode() {
     return "retrieve.member.info";
   }
-
-  @JsonProperty("details")
-  private MemberInfoSelect details;
 
   public static RetrieveMemberInfoResponse of(final MemberInfoSelect details) {
     return RetrieveMemberInfoResponse.builder()

@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.util.Objects.nonNull;
 
 /**
@@ -158,7 +159,7 @@ public class CacheService {
         final String jsonString = mapper.writeValueAsString(value);
         set(key, jsonString);
       } catch (final JsonProcessingException ex) {
-        log.error(ex.getMessage(), ex);
+        logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       }
     }
   }

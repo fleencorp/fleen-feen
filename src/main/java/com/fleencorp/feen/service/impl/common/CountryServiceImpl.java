@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.common;
 
 import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
-import com.fleencorp.feen.mapper.CountryMapper;
+import com.fleencorp.feen.mapper.impl.other.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
@@ -26,8 +26,8 @@ import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponse;
-import static com.fleencorp.feen.mapper.CountryMapper.toCountryResponses;
+import static com.fleencorp.feen.mapper.impl.other.CountryMapper.toCountryResponse;
+import static com.fleencorp.feen.mapper.impl.other.CountryMapper.toCountryResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -175,14 +175,15 @@ public class CountryServiceImpl implements CountryService {
    * @param countries A {@link List} of {@link CountryResponse} objects to be cached. If this list is {@code null}
    *                  or empty, the method will fetch the countries from the data source using {@link #getCountries()}.
    */
-  protected void saveCountriesToCache(List<CountryResponse> countries) {
+  protected void saveCountriesToCache(final List<CountryResponse> countries) {
     // If the list of countries is null or empty, retrieve the countries
+    List<CountryResponse> newCountries = countries;
     if (isNull(countries) || countries.isEmpty()) {
-      countries = getCountries();
+      newCountries = getCountries();
     }
 
     // Filter out null country entries and save each valid country to the cache
-    countries.stream()
+    newCountries.stream()
       .filter(Objects::nonNull)
       .forEach(country -> cacheService.set(getCountryCacheKey(country.getTitle()), country));
   }

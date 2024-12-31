@@ -1,24 +1,10 @@
 package com.fleencorp.feen.model.response.external.google.youtube;
 
 import com.fleencorp.feen.model.response.external.google.youtube.base.YouTubeLiveBroadcastResponse;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Builder
-@Getter
-@Setter
-public class RescheduleYouTubeLiveBroadcastResponse {
+public record RescheduleYouTubeLiveBroadcastResponse(String liveBroadcastId, String liveStreamLink, YouTubeLiveBroadcastResponse liveBroadcastResponse) {
 
-  private String liveBroadcastId;
-  private String liveStreamLink;
-  private YouTubeLiveBroadcastResponse liveBroadcast;
-
-  public static RescheduleYouTubeLiveBroadcastResponse of(final String liveBroadcastId, final String liveStreamLink, final YouTubeLiveBroadcastResponse liveBroadcast) {
-    return RescheduleYouTubeLiveBroadcastResponse.builder()
-      .liveBroadcastId(liveBroadcastId)
-      .liveStreamLink(liveStreamLink)
-      .liveBroadcast(liveBroadcast)
-      .build();
+  public static RescheduleYouTubeLiveBroadcastResponse of(final String liveBroadcastId, final String liveStreamLink, final YouTubeLiveBroadcastResponse liveBroadcastResponse) {
+    return new RescheduleYouTubeLiveBroadcastResponse(liveBroadcastId, liveStreamLink, liveBroadcastResponse);
   }
 }

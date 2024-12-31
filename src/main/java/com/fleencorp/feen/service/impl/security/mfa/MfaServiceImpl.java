@@ -347,6 +347,7 @@ public class MfaServiceImpl implements MfaService {
    * @param username The username or email address associated with the MFA setup.
    * @param code The verification code for MFA validation.
    */
+  @Override
   public void validateEmailOrPhoneMfaVerificationCode(final String username, final String code) {
     final String verificationKey = getMfaAuthenticationCacheKey(username);
     validateEmailOrPhoneVerificationCode(verificationKey, code);
@@ -403,7 +404,7 @@ public class MfaServiceImpl implements MfaService {
     // Get Mfa Enabled Info
     final IsMfaEnabledInfo mfaEnabledInfo = commonMapper.toIsMfaEnabledInfo(true);
     // Update the setup response and return
-    setupMfaResponse.setIsMfaEnabledInfo(mfaEnabledInfo);
+    setupMfaResponse.setMfaEnabledInfo(mfaEnabledInfo);
     return setupMfaResponse;
   }
 
@@ -414,7 +415,7 @@ public class MfaServiceImpl implements MfaService {
    * @param member The member for whom MFA setup is being completed.
    * @param mfaType The type of MFA for which the setup is completed.
    */
-  private void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final Member member, final MfaType mfaType) {
+  protected void updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(final Member member, final MfaType mfaType) {
     member.setMfaEnabled(true);
     member.setMfaType(mfaType);
     if (MfaType.isNotAuthenticator(mfaType)) {
@@ -522,7 +523,7 @@ public class MfaServiceImpl implements MfaService {
    * @param verificationType the type of verification (e.g., EMAIL or SMS)
    * @param mfaType the MFA type for which the verification code is being sent
    */
-  public void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
+  protected void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
     // Generate a random six-digit OTP
     final String otpCode = getRandomSixDigitOtp();
     final FleenUser user = FleenUser.fromMemberBasic(member);

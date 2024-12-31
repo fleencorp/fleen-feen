@@ -1,5 +1,6 @@
 package com.fleencorp.feen.configuration.message;
 
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ import java.util.Locale;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@NoArgsConstructor
 @Configuration
 public class MessageSourceConfiguration {
 

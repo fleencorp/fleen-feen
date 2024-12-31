@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getChatSpaceIdOrNameRequiredPattern;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getChatSpaceUserIdOrNameRequiredPattern;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -32,6 +33,14 @@ public class AddChatSpaceMemberRequest extends ChatSpaceMemberRequest {
 
   public String getUsername() {
     return getChatSpaceUserIdOrNameRequiredPattern(userEmailAddress);
+  }
+
+  public String getRole() {
+    return nonNull(membershipRole) ? membershipRole.getValue() : null;
+  }
+
+  public String getUserType() {
+    return nonNull(userType) ? userType.getValue() : null;
   }
 
   public static AddChatSpaceMemberRequest of(final String spaceIdOrName, final String userEmailAddress) {

@@ -68,7 +68,7 @@ public class SignUpDto {
   private String countryCode;
 
   @NotNull(message = "{user.verificationType.NotNull}")
-  @ValidEnum(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
+  @OneOf(enumClass = VerificationType.class, message = "{user.verificationType.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("verification_type")
   private String verificationType;

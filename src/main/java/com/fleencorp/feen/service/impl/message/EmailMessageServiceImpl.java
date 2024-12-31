@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import static com.fleencorp.feen.constant.message.MessageTemplateField.LOGO;
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.nonNull;
 import static org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED;
@@ -87,7 +88,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
       }
     } catch (final MessagingException ex) {
       // Log the exception message and stack trace
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       // Throw custom exception if unable to set the email body
       throw new UnableToCompleteOperationException();
     }
@@ -118,7 +119,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
       return helper;
     } catch (final MessagingException ex) {
       // Log the exception message and stack trace
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       throw new UnableToCompleteOperationException();
     }
   }
@@ -160,7 +161,7 @@ public class EmailMessageServiceImpl implements EmailMessageService {
       // Send the email message
       mailSender.send(message);
     } catch (final MessagingException | MailSendException ex) {
-      log.error(ex.getMessage(), ex);
+      logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       throw new UnableToCompleteOperationException();
     }
   }

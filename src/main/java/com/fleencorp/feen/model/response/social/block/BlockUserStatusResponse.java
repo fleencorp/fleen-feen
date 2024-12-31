@@ -31,6 +31,7 @@ public class BlockUserStatusResponse extends ApiResponse {
   }
 
   @JsonIgnore
+  @Override
   public Object[] getParams() {
     return new Object[] { blockStatus };
   }

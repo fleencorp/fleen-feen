@@ -23,8 +23,8 @@ import java.util.List;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.ContactMapper.toContactResponse;
-import static com.fleencorp.feen.mapper.ContactMapper.toContactResponses;
+import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactResponse;
+import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactResponses;
 
 /**
  * Implementation of the {@link ContactService} interface for managing contacts.

@@ -19,7 +19,7 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
  * @version 1.0
  */
 @Slf4j
-public class Oauth2Util {
+public final class Oauth2Util {
 
   private Oauth2Util() {}
 
@@ -43,7 +43,7 @@ public class Oauth2Util {
    * Validates the OAuth2 scope provided in the states map and returns the corresponding Oauth2Scope enum.
    *
    * <p>This method retrieves the OAuth2 scope string from the provided map using the key defined by
-   * {@link Oauth2AuthenticationRequest#oauth2ServiceTypeKey}. It then converts this string to an Oauth2Scope
+   * {@link Oauth2AuthenticationRequest#OAUTH_2_SERVICE_TYPE_KEY}. It then converts this string to an Oauth2Scope
    * enum using {@link Oauth2ServiceType#of(String)}.</p>
    *
    * <p>If either the scope string or the resulting Oauth2Scope is null, an {@link Oauth2InvalidScopeException}
@@ -54,7 +54,7 @@ public class Oauth2Util {
    * @throws Oauth2InvalidScopeException if the OAuth2 scope is invalid or null.
    */
   public static Oauth2ServiceType validateOauth2ScopeAndReturn(final Map<String, String> states) {
-    final String oauth2ServiceTypeStr = states.get(Oauth2AuthenticationRequest.oauth2ServiceTypeKey);
+    final String oauth2ServiceTypeStr = states.get(Oauth2AuthenticationRequest.OAUTH_2_SERVICE_TYPE_KEY);
     final Oauth2ServiceType oauth2ServiceType = Oauth2ServiceType.of(oauth2ServiceTypeStr);
 
     checkIsNullAny(List.of(oauth2ServiceTypeStr, oauth2ServiceType), Oauth2InvalidScopeException::new);

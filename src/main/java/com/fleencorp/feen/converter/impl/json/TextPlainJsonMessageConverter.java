@@ -10,6 +10,8 @@ import org.springframework.util.MimeType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
+
 /**
  * A custom message converter that converts messages with "text/plain" MIME type to JSON objects using {@link ObjectMapper}.
  * This converter extends {@link AbstractMessageConverter} and uses UTF-8 encoding.
@@ -58,7 +60,7 @@ public class TextPlainJsonMessageConverter extends AbstractMessageConverter {
       try {
         return objectMapper.readValue(payload, targetClass);
       } catch (final IOException ex) {
-        log.error("Unable to convert message. Reason: {}", ex.getMessage());
+        logIfEnabled(log::isErrorEnabled, () -> log.error("Unable to convert message. Reason: {}", ex.getMessage()));
         return null;
       }
     }

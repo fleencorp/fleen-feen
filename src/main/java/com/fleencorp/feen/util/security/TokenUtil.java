@@ -380,7 +380,7 @@ public class TokenUtil {
    * @param userId The user ID to be added to the claims.
    * @param authorities The array of authorities to be added to the claims.
    */
-  private void setBasicDetails(final Map<String, Object> claims, final Long userId, final String[] authorities) {
+  private void setBasicDetails(final Map<String, Object> claims, final Long userId, final String...authorities) {
     if (nonNull(claims) && nonNull(userId)) {
       claims.put(USER_ID.getValue(), userId);
     }

@@ -52,7 +52,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
    * @throws AuthenticationException If authentication fails.
    */
   @Override
-  public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
+  public Authentication authenticate(final Authentication authentication) {
     final String emailAddress = authentication.getName();
     final String password = authentication.getCredentials().toString();
 
