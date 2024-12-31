@@ -51,6 +51,7 @@ import static java.util.Objects.nonNull;
 @Service
 public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
 
+  private final ChatSpaceService chatSpaceService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
   private final UserChatSpaceRepository userChatSpaceRepository;
@@ -65,6 +66,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * chat spaces, including repositories, mappers, and various utility services. It also injects
    * configuration values like the delegated authority email.</p>
    *
+   * @param chatSpaceService for managing chat spaces
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
    * @param userChatSpaceRepository repository for user-chat space associations.
@@ -73,12 +75,14 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceMemberMapper maps chat space member entities to response models.
    */
   public ChatSpaceSearchServiceImpl(
+      final ChatSpaceService chatSpaceService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
       final UserChatSpaceRepository userChatSpaceRepository,
       final LocalizedResponse localizedResponse,
       final ChatSpaceMapper chatSpaceMapper,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
+    this.chatSpaceService = chatSpaceService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.userChatSpaceRepository = userChatSpaceRepository;
@@ -225,7 +229,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   @Override
   public RetrieveChatSpaceResponse retrieveChatSpace(final Long chatSpaceId, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Get the equivalent chat space response
     final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponse(chatSpace);
     // Update join status of user in the chat space response
@@ -304,7 +308,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   @Override
   public RequestToJoinSearchResult findRequestToJoinSpace(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
     // Retrieve the chat space by its ID
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
 
     // Check if a member name is provided in the search request
@@ -324,24 +328,6 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       localizedResponse.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
       localizedResponse.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
     );
-  }
-
-  /**
-   * Finds a chat space by its ID.
-   *
-   * <p>This method retrieves a chat space from the repository using the provided ID.
-   * If the chat space with the specified ID does not exist, a `ChatSpaceNotFoundException`
-   * is thrown.</p>
-   *
-   * @param chatSpaceId The ID of the chat space to retrieve.
-   * @return The chat space associated with the provided ID.
-   * @throws ChatSpaceNotFoundException if no chat space with the specified ID is found.
-   */
-  protected ChatSpace findChatSpace(final Long chatSpaceId) {
-    // Attempt to find the chat space by its ID in the repository
-    return chatSpaceRepository.findById(chatSpaceId)
-      // If not found, throw an exception with the chat space ID
-      .orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
   }
 
   /**

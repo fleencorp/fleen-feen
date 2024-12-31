@@ -239,7 +239,6 @@ public class StreamServiceImpl implements StreamService {
    * @return a {@link TryToJoinPrivateOrProtectedStreamResponse} containing the stream, the stream attendee, and
    *         attendance information
    */
-  @Transactional
   protected TryToJoinPrivateOrProtectedStreamResponse tryToRequestToToJoinPrivateOrProtectedStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user) {
     // Find the stream by its ID
     final FleenStream stream = findStream(streamId);

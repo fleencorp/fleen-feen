@@ -38,7 +38,7 @@ public class JoinStreamResponse extends ApiResponse {
   @JsonIgnore
   protected StreamType getStreamType() {
     return nonNull(streamTypeInfo) ? streamTypeInfo.getStreamType() : null;
-  };
+  }
 
   @Override
   public String getMessageCode() {

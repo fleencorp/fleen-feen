@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.external.aws.s3;
 
-import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.common.ObjectNotFoundException;
 import com.fleencorp.feen.exception.file.FileUploadException;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
@@ -12,7 +11,6 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.awscore.presigner.PresignRequest;
 import software.amazon.awssdk.awscore.presigner.PresignedRequest;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -27,26 +25,21 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLConnection;
-import java.nio.file.Files;
 import java.time.Instant;
 import java.util.*;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.getTimeInMillis;
-import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.time.Duration.ofHours;
-import static java.time.LocalDateTime.now;
-import static java.util.Objects.*;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 import static software.amazon.awssdk.http.SdkHttpMethod.GET;
 import static software.amazon.awssdk.http.SdkHttpMethod.PUT;
-import static software.amazon.awssdk.services.s3.model.ObjectCannedACL.PUBLIC_READ;
 
 
 /**
@@ -526,14 +519,14 @@ public class StorageService {
    * @param objectMetaData optional metadata to associate with the uploaded object
    * @throws RuntimeException if an error occurs during the upload process
    */
-  @Async
+/*  @Async
   public void uploadObject(final String bucketName, final MultipartFile multipartFile, final Optional<Map<String, String>> objectMetaData) {
     try {
-      final String originalFileName = requireNonNull(multipartFile.getOriginalFilename());
+//      final String originalFileName = requireNonNull(multipartFile.getOriginalFilename());
       final String fileName = now()
         .toString()
-        .concat(COMMA)
-        .concat(originalFileName);
+        .concat(COMMA);
+//        .concat(originalFileName);
       final File file = convertMultipartFileToFile(multipartFile, fileName);
 
       final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -550,7 +543,7 @@ public class StorageService {
       logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
       throw new FileUploadException();
     }
-  }
+  }*/
 
   /**
    * Uploads a byte array as an object to the specified bucket in Amazon S3.
@@ -579,14 +572,14 @@ public class StorageService {
     }
   }
 
-  /**
+/*  *//**
    * Converts a multipart file to a regular File.
    *
    * @param multipartFile the multipart file to convert
    * @param fileName the name of the resulting file
    * @return the converted file
    * @throws RuntimeException if an error occurs during the conversion process
-   */
+   *//*
   private File convertMultipartFileToFile(final MultipartFile multipartFile, final String fileName) {
     final File file = new File(fileName);
 
@@ -597,7 +590,7 @@ public class StorageService {
       throw new UnableToCompleteOperationException();
     }
     return file;
-  }
+  }*/
 
   /**
    * Extracts the base URL from the provided URL.

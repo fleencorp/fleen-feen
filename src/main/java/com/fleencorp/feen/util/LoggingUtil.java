@@ -9,7 +9,7 @@ public final class LoggingUtil {
   private LoggingUtil() {}
 
   public static void logIfEnabled(final Supplier<Boolean> logCheck, final Runnable logStatement) {
-    if (nonNull(logCheck) && nonNull(logStatement) && logCheck.get()) {
+    if (nonNull(logCheck) && nonNull(logStatement)) {
       logStatement.run();
     }
   }

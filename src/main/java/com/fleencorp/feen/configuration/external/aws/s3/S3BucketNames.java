@@ -53,7 +53,6 @@ public class S3BucketNames {
       case STREAM_COVER_PHOTO -> {
         return streamCoverPhoto;
       }
-      default -> {}
     }
     return userPhoto;
   }
