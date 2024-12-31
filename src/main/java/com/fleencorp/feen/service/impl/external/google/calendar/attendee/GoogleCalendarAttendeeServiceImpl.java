@@ -294,7 +294,7 @@ public class GoogleCalendarAttendeeServiceImpl implements GoogleCalendarAttendee
    */
   private static void determineIfAttendeeIsOrganizer(final EventAttendee attendee) {
     // Check if the attendee is not null and is marked as an organizer
-    if (nonNull(attendee) && nonNull(attendee.getOrganizer()) && attendee.getOrganizer()) {
+    if (nonNull(attendee) && nonNull(attendee.getOrganizer())) {
       // Set the response status to accepted if the attendee is an organizer
       attendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
     }
