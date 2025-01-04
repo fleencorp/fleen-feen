@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
@@ -33,6 +32,7 @@ import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
 import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -70,7 +70,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final FleenStreamRepository streamRepository;
   private final StreamMapper streamMapper;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new {@link LiveBroadcastServiceImpl} with the specified dependencies.
@@ -86,7 +86,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @param youTubeChannelService the service for interacting with YouTube channels
    * @param streamRepository the repository for storing and retrieving stream data
    * @param oauth2AuthorizationRepository the repository for handling OAuth2 authorization data
-   * @param localizedResponse the service for generating localized responses
+   * @param localizer the service for generating localized responses
    * @param streamMapper the mapper used to convert stream data to response formats
    */
   public LiveBroadcastServiceImpl(
@@ -96,7 +96,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       final YouTubeChannelService youTubeChannelService,
       final FleenStreamRepository streamRepository,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
     this.streamService = streamService;
@@ -105,7 +105,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.streamRepository = streamRepository;
     this.streamMapper = streamMapper;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -174,7 +174,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response of the created stream
-    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**
@@ -245,7 +245,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the updated stream
-    return localizedResponse.of(UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**
@@ -317,7 +317,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response of the Reschedule
-    return localizedResponse.of(RescheduleStreamResponse.of(liveBroadcastId, streamResponse, streamTypeInfo));
+    return localizer.of(RescheduleStreamResponse.of(liveBroadcastId, streamResponse, streamTypeInfo));
   }
 
   /**
@@ -398,7 +398,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the deleted stream
-    return localizedResponse.of(DeleteStreamResponse.of(liveBroadcastId, streamTypeInfo, deletedInfo));
+    return localizer.of(DeleteStreamResponse.of(liveBroadcastId, streamTypeInfo, deletedInfo));
   }
 
   @Override
@@ -421,7 +421,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the cancellation
-    return localizedResponse.of(CancelStreamResponse.of(broadcastId, statusInfo, streamTypeInfo));
+    return localizer.of(CancelStreamResponse.of(broadcastId, statusInfo, streamTypeInfo));
   }
 
 
@@ -488,7 +488,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the updated stream with its visibility
-    return localizedResponse.of(UpdateStreamVisibilityResponse.of(liveBroadcastId, streamVisibility, streamTypeInfo));
+    return localizer.of(UpdateStreamVisibilityResponse.of(liveBroadcastId, streamVisibility, streamTypeInfo));
   }
 
   protected void updateStreamVisibilityExternally(final UpdateStreamVisibilityRequest updateStreamVisibilityRequest) {

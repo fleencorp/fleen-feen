@@ -3,14 +3,12 @@ package com.fleencorp.feen.model.response.chat.space;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,8 +29,6 @@ public class EnableChatSpaceResponse extends ApiResponse {
   }
 
   public static EnableChatSpaceResponse of(final Long chatSpaceId) {
-    return EnableChatSpaceResponse.builder()
-      .chatSpaceId(chatSpaceId)
-      .build();
+    return new EnableChatSpaceResponse(chatSpaceId);
   }
 }

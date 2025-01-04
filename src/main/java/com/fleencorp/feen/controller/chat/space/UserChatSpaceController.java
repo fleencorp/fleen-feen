@@ -13,9 +13,9 @@ import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberRes
 import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;

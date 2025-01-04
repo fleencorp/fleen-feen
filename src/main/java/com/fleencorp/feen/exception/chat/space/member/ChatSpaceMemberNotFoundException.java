@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.chat.space.member;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class ChatSpaceMemberNotFoundException extends FleenException {
+public class ChatSpaceMemberNotFoundException extends ApiException {
 
   @Override
   public String getMessageCode() {

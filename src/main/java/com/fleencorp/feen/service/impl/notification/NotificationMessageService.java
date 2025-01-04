@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.notification;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -10,6 +9,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Component;
 
 import static com.fleencorp.feen.constant.notification.NotificationType.*;
@@ -19,7 +19,7 @@ import static java.util.Objects.nonNull;
  * Service component responsible for handling notification messages.
  *
  * <p>The {@code NotificationMessageService} class provides functionality to manage localized notification messages
- * within the application. It leverages the {@link LocalizedResponse} to generate localized responses for
+ * within the application. It leverages the {@link Localizer} to generate localized responses for
  * notifications that are tailored to the user's locale.</p>
  *
  * <p>This class is designed to be used as a Spring {@link Component}, allowing it to be automatically detected
@@ -31,15 +31,15 @@ import static java.util.Objects.nonNull;
 @Component
 public class NotificationMessageService {
 
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
-   * Constructs a new {@code NotificationMessageService} with the provided {@link LocalizedResponse}.
+   * Constructs a new {@code NotificationMessageService} with the provided {@link Localizer}.
    *
-   * @param localizedResponse the service responsible for handling localized responses for notifications
+   * @param localizer the service responsible for handling localized responses for notifications
    */
-  public NotificationMessageService(final LocalizedResponse localizedResponse) {
-    this.localizedResponse = localizedResponse;
+  public NotificationMessageService(final Localizer localizer) {
+    this.localizer = localizer;
   }
 
   /**
@@ -49,7 +49,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the request to join the chat space
    */
   public String ofApprovedRequestToJoinChatSpace(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getChatSpaceTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getChatSpaceTitle());
   }
 
   /**
@@ -59,7 +59,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the request to join the chat space
    */
   public String ofDisapprovedRequestToJoinChatSpace(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getChatSpaceTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getChatSpaceTitle());
   }
 
   /**
@@ -69,7 +69,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the request to join the chat space
    */
   public String ofReceivedRequestToJoinChatSpace(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getChatSpaceTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getChatSpaceTitle());
   }
 
   /**
@@ -79,7 +79,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the request to join the event
    */
   public String ofApprovedRequestToJoinEvent(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -89,7 +89,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the request to join the event
    */
   public String ofDisapprovedRequestToJoinEvent(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -99,7 +99,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the request to join the event
    */
   public String ofReceivedRequestToJoinEvent(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -109,7 +109,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the request to join the live broadcast
    */
   public String ofApprovedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -119,7 +119,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the request to join the live broadcast
    */
   public String ofDisapprovedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -129,7 +129,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the request to join the live broadcast
    */
   public String ofReceivedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
   }
 
   /**
@@ -139,7 +139,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the contact sharing request
    */
   public String ofApprovedShareContactRequest(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getRecipientName());
+    return localizer.getMessage(notification.getMessageKey(), notification.getRecipientName());
   }
 
   /**
@@ -149,7 +149,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the contact sharing request
    */
   public String ofDisapprovedShareContactRequest(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getRecipientName());
+    return localizer.getMessage(notification.getMessageKey(), notification.getRecipientName());
   }
 
   /**
@@ -159,7 +159,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the contact sharing request
    */
   public String ofReceivedShareContactRequest(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getRecipientName(), notification.getContactType().getValue());
+    return localizer.getMessage(notification.getMessageKey(), notification.getRecipientName(), notification.getContactType().getValue());
   }
 
   /**
@@ -169,7 +169,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the user following action
    */
   public String ofUserFollowing(final Notification notification) {
-    return localizedResponse.getMessage(notification.getMessageKey(), notification.getFollowerName());
+    return localizer.getMessage(notification.getMessageKey(), notification.getFollowerName());
   }
 
   /**

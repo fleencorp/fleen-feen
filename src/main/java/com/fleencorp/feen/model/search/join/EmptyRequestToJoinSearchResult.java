@@ -1,19 +1,16 @@
-package com.fleencorp.feen.model.search.broadcast;
+package com.fleencorp.feen.model.search.join;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.function.Supplier;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,17 +20,17 @@ import java.util.function.Supplier;
   "message",
   "result"
 })
-public class LiveBroadcastSearchResult extends ApiResponse {
+public class EmptyRequestToJoinSearchResult extends RequestToJoinSearchResult {
 
   @JsonProperty("result")
   private SearchResultView result;
 
   @Override
   public String getMessageCode() {
-    return "live.broadcast.search";
+    return "empty.request.to.join.search";
   }
 
-  public static Supplier<LiveBroadcastSearchResult> of(final SearchResultView result) {
-    return () -> new LiveBroadcastSearchResult(result);
+  public static Supplier<RequestToJoinSearchResult> of(final SearchResultView result) {
+    return () -> new EmptyRequestToJoinSearchResult(result);
   }
 }

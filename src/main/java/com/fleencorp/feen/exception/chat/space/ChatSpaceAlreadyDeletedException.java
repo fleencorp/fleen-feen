@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.chat.space;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class ChatSpaceAlreadyDeletedException extends FleenException {
+public class ChatSpaceAlreadyDeletedException extends ApiException {
 
   @Override
   public String getMessageCode() {

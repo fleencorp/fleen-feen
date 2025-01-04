@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.user.profile;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class BannedAccountException extends FleenException {
+public class BannedAccountException extends ApiException {
 
   @Override
   public String getMessageCode() {

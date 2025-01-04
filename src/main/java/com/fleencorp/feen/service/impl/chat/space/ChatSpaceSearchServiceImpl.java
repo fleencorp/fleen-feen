@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.chat.space;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
@@ -16,16 +15,17 @@ import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest
 import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
-import com.fleencorp.feen.model.search.broadcast.request.EmptyRequestToJoinSearchResult;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.EmptyChatSpaceSearchResult;
+import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
 import com.fleencorp.feen.repository.chat.UserChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +55,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
   private final UserChatSpaceRepository userChatSpaceRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final ChatSpaceMapper chatSpaceMapper;
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
 
@@ -70,7 +70,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
    * @param userChatSpaceRepository repository for user-chat space associations.
-   * @param localizedResponse provides localized responses for API operations.
+   * @param localizer provides localized responses for API operations.
    * @param chatSpaceMapper maps chat space entities to response models.
    * @param chatSpaceMemberMapper maps chat space member entities to response models.
    */
@@ -79,14 +79,14 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
       final UserChatSpaceRepository userChatSpaceRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final ChatSpaceMapper chatSpaceMapper,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.userChatSpaceRepository = userChatSpaceRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.chatSpaceMapper = chatSpaceMapper;
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
   }
@@ -126,8 +126,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -169,8 +169,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -210,8 +210,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -235,7 +235,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Update join status of user in the chat space response
     updateUserJoinStatus(chatSpaceResponse, user);
     // Return a localized response containing the chat space details
-    return localizedResponse.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
+    return localizer.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
   }
 
   /**
@@ -325,8 +325,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Return a search result view with the request to join responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 

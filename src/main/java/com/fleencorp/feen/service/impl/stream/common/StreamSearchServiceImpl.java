@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.common;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -27,6 +26,7 @@ import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -69,7 +69,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final UserFleenStreamRepository userStreamRepository;
   private final StreamMapper streamMapper;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new instance of `StreamSearchServiceImpl` with the provided services and repositories.
@@ -81,7 +81,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @param streamRepository the repository used to interact with the `FleenStream` data
    * @param streamAttendeeRepository the repository used to interact with the `StreamAttendee` data
    * @param userStreamRepository the repository used to manage the relationship between users and streams
-   * @param localizedResponse the service used for localizing response messages and data
+   * @param localizer the service used for localizing response messages and data
    * @param streamMapper the mapper responsible for converting stream entities to response objects
    */
   public StreamSearchServiceImpl(
@@ -90,14 +90,14 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final UserFleenStreamRepository userStreamRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamMapper streamMapper) {
     this.streamAttendeeService = streamAttendeeService;
     this.streamService = streamService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.userStreamRepository = userStreamRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.streamMapper = streamMapper;
   }
 
@@ -131,8 +131,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Return a search result view with the streams responses and pagination details
     return handleSearchResult(
       streamResponsesAndPage.getPage(),
-      localizedResponse.of(StreamSearchResult.of(toSearchResult(views, streamResponsesAndPage.getPage()), streamTypeInfo)),
-      localizedResponse.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), streamResponsesAndPage.getPage()), streamTypeInfo))
+      localizer.of(StreamSearchResult.of(toSearchResult(views, streamResponsesAndPage.getPage()), streamTypeInfo)),
+      localizer.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), streamResponsesAndPage.getPage()), streamTypeInfo))
     );
   }
 
@@ -337,8 +337,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Return a search result view with the streams responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamSearchResult.of(toSearchResult(views, page), streamTypeInfo)),
-      localizedResponse.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), page), streamTypeInfo))
+      localizer.of(StreamSearchResult.of(toSearchResult(views, page), streamTypeInfo)),
+      localizer.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), page), streamTypeInfo))
     );
   }
 
@@ -374,7 +374,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response
-    return localizedResponse.of(RetrieveStreamResponse.of(streamId, streamResponse, streamAttendees, totalAttendees, streamTypeInfo));
+    return localizer.of(RetrieveStreamResponse.of(streamId, streamResponse, streamAttendees, totalAttendees, streamTypeInfo));
   }
 
   /**

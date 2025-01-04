@@ -254,10 +254,17 @@
 			<scope>test</scope>
 		</dependency>
 
+
+
 		<dependency>
 			<groupId>com.fleencorp</groupId>
 			<artifactId>api-service</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fleencorp.i18n</groupId>
+			<artifactId>localizer</artifactId>
+			<version>1.2.3</version>
 		</dependency>
 
 	</dependencies>

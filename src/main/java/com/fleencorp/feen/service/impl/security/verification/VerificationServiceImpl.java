@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.security.verification;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
@@ -40,6 +39,7 @@ import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.RoleService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -72,7 +72,7 @@ public class VerificationServiceImpl implements PasswordService,
   private final ProfileTokenRepository profileTokenRepository;
   private final PasswordEncoder passwordEncoder;
   private final PublisherService publisherService;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   public VerificationServiceImpl(
       @Lazy final AuthenticationServiceImpl authenticationService,
@@ -84,7 +84,7 @@ public class VerificationServiceImpl implements PasswordService,
       final ProfileTokenRepository profileTokenRepository,
       final PasswordEncoder passwordEncoder,
       @Qualifier("profile-request-pub") final PublisherService publisherService,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.authenticationService = authenticationService;
     this.cacheService = cacheService;
     this.mfaService = mfaService;
@@ -94,7 +94,7 @@ public class VerificationServiceImpl implements PasswordService,
     this.profileTokenRepository = profileTokenRepository;
     this.passwordEncoder = passwordEncoder;
     this.publisherService = publisherService;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   @Override
@@ -360,7 +360,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Create a sign up response after the use completes the process
     final SignUpResponse signUpResponse = SignUpResponse.of(accessToken, refreshToken);
     // Return a localized response with the details
-    return localizedResponse.of(signUpResponse, signUpResponse.getCompletedSignUpMessageCode());
+    return localizer.of(signUpResponse, signUpResponse.getCompletedSignUpMessageCode());
   }
 
   /**
@@ -406,7 +406,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Save the newly generated verification code temporarily for the user
     authenticationService.saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
     // Return response indicating the successful initiation of code resend
-    return localizedResponse.of(ResendSignUpVerificationCodeResponse.of());
+    return localizer.of(ResendSignUpVerificationCodeResponse.of());
   }
 
   /**
@@ -452,7 +452,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Save the newly generated verification code temporarily for the user
     authenticationService.saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
     // Return response indicating the successful initiation of code resend
-    return localizedResponse.of(ResendMfaVerificationCodeResponse.of());
+    return localizer.of(ResendMfaVerificationCodeResponse.of());
   }
 
   /**
@@ -504,7 +504,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Save authentication tokens to repository or cache
     authenticationService.saveAuthenticationTokensToRepositoryOrCache(username, accessToken, refreshToken);
     // Return SignInResponse with access and refresh tokens
-    return localizedResponse.of(SignInResponse.of(accessToken, refreshToken));
+    return localizer.of(SignInResponse.of(accessToken, refreshToken));
   }
 
   /**
@@ -566,7 +566,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Save the new reset password token for the user
     tokenService.saveResetPasswordToken(user.getUsername(), resetPasswordToken);
     // Return a localized response with the reset password token
-    return localizedResponse.of(InitiatePasswordChangeResponse.of(resetPasswordToken));
+    return localizer.of(InitiatePasswordChangeResponse.of(resetPasswordToken));
   }
 
   /**
@@ -673,7 +673,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Save reset password OTP in cache or storage
     saveResetPasswordOtpTemporarily(member.getEmailAddress(), otpCode);
     // Return response with email address and phone number for confirmation
-    return localizedResponse.of(ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber()));
+    return localizer.of(ForgotPasswordResponse.of(emailAddress, user.getPhoneNumber()));
   }
 
   /**
@@ -756,7 +756,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Clear access token associated with reset password operation
     clearResetPasswordToken(emailAddress);
     // Return response indicating successful password change
-    return localizedResponse.of(ChangePasswordResponse.of());
+    return localizer.of(ChangePasswordResponse.of());
   }
 
   /**

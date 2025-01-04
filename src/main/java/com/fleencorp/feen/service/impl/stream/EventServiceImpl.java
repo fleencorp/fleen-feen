@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
@@ -35,6 +34,7 @@ import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -71,14 +71,14 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamMapper streamMapper;
   private final StreamEventPublisher streamEventPublisher;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructor for initializing the EventServiceImpl class with required dependencies.
    *
    * <p>This constructor injects the necessary services and components, including the Google
    * delegated authority email, various service and repository classes, and utilities like
-   * LocalizedResponse and StreamMapper. It sets up the internal state of the EventServiceImpl
+   * Localizer and StreamMapper. It sets up the internal state of the EventServiceImpl
    * to manage stream and event operations effectively.</p>
    *
    * @param delegatedAuthorityEmail the email address for the Google delegated authority, injected from the configuration.
@@ -87,7 +87,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param eventUpdateService      the service for updating event details.
    * @param streamRepository        the repository for accessing stream data.
    * @param streamAttendeeRepository the repository for accessing stream attendee data.
-   * @param localizedResponse       the service for providing localized responses.
+   * @param localizer       the service for providing localized responses.
    * @param streamEventPublisher    the publisher for publishing stream events.
    * @param streamMapper            the mapper for converting stream data to different representations.
    */
@@ -98,7 +98,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       final EventUpdateService eventUpdateService,
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamEventPublisher streamEventPublisher,
       final StreamMapper streamMapper) {
     this.miscService = miscService;
@@ -109,7 +109,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamMapper = streamMapper;
     this.streamEventPublisher = streamEventPublisher;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -126,7 +126,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
     // Return the response object containing both the countries and timezones.
-    return localizedResponse.of(DataForCreateEventResponse.of(timezones));
+    return localizer.of(DataForCreateEventResponse.of(timezones));
   }
 
   /**
@@ -176,7 +176,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
-    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**
@@ -274,7 +274,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
-    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**
@@ -350,7 +350,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response the updated stream
-    return localizedResponse.of(UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**
@@ -441,7 +441,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the Deleted event
-    return localizedResponse.of(DeleteStreamResponse.of(eventId, streamTypeInfo, deletedInfo));
+    return localizer.of(DeleteStreamResponse.of(eventId, streamTypeInfo, deletedInfo));
   }
 
   /**
@@ -530,7 +530,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the cancellation
-    return localizedResponse.of(CancelStreamResponse.of(eventId, statusInfo, streamTypeInfo));
+    return localizer.of(CancelStreamResponse.of(eventId, statusInfo, streamTypeInfo));
   }
 
   /**
@@ -617,7 +617,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the rescheduled event
-    return localizedResponse.of(RescheduleStreamResponse.of(eventId, streamResponse, streamTypeInfo));
+    return localizer.of(RescheduleStreamResponse.of(eventId, streamResponse, streamTypeInfo));
   }
 
   /**
@@ -696,7 +696,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the update
-    return localizedResponse.of(UpdateStreamVisibilityResponse.of(eventId, streamVisibility, streamTypeInfo));
+    return localizer.of(UpdateStreamVisibilityResponse.of(eventId, streamVisibility, streamTypeInfo));
   }
 
 

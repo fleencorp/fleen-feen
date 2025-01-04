@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.chat.space.member;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.NotAnAdminOfChatSpaceException;
@@ -34,6 +33,7 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.chat.space.ChatSpaceUpdateService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +64,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final MemberRepository memberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
 
   /**
@@ -79,7 +79,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param memberRepository repository for members
    * @param chatSpaceRepository repository for chat space entities.
-   * @param localizedResponse provides localized responses for API operations.
+   * @param localizer provides localized responses for API operations.
    * @param chatSpaceMemberMapper maps chat space member entities to response models.
    */
   public ChatSpaceMemberServiceImpl(
@@ -88,14 +88,14 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final MemberRepository memberRepository,
       final ChatSpaceRepository chatSpaceRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.memberRepository = memberRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
   }
 
@@ -130,8 +130,8 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Return a search result view with the chat space member responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ChatSpaceMemberSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyChatSpaceMemberSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ChatSpaceMemberSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyChatSpaceMemberSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -171,7 +171,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Get the c
     final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
     // Return a localized response confirming the upgrade
-    return localizedResponse.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId(), roleInfo));
+    return localizer.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -209,7 +209,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Get chat space member role
     final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
     // Return a localized response confirming the downgrade
-    return localizedResponse.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId(), roleInfo));
+    return localizer.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -242,7 +242,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Notify the chat space update service about the change
     notifyChatSpaceUpdateService(chatSpaceMember, chatSpace, member);
     // Return a localized response indicating success
-    return localizedResponse.of(AddChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
+    return localizer.of(AddChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
   }
 
   /**
@@ -271,7 +271,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Remove the user from the chat space
     final ChatSpaceMember chatSpaceMember = leaveChatSpaceOrRemoveChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getActualMemberId());
     // Return a localized response indicating the member removal was successful
-    return localizedResponse.of(RemoveChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
+    return localizer.of(RemoveChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
   }
 
   /**

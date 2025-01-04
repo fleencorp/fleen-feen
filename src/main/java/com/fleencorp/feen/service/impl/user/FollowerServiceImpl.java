@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.user.Follower;
@@ -19,6 +18,7 @@ import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.user.FollowerService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,23 +47,23 @@ public class FollowerServiceImpl implements FollowerService {
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final FollowerRepository followerRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new instance of {@link FollowerServiceImpl}.
    *
    * @param followerRepository the {@link FollowerRepository} used to access follower data
-   * @param localizedResponse the service for adding localized message for responses
+   * @param localizer the service for adding localized message for responses
    */
   public FollowerServiceImpl(
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final FollowerRepository followerRepository,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.followerRepository = followerRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -82,8 +82,8 @@ public class FollowerServiceImpl implements FollowerService {
     // Return a search result view with the followers responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(FollowerSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyFollowerSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(FollowerSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyFollowerSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -110,8 +110,8 @@ public class FollowerServiceImpl implements FollowerService {
     // Return a search result view with the followings responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(FollowingSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyFollowingSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(FollowingSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyFollowingSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -148,7 +148,7 @@ public class FollowerServiceImpl implements FollowerService {
       });
 
     // Return a response indicating the follow operation was successful
-    return localizedResponse.of(FollowUserResponse.of());
+    return localizer.of(FollowUserResponse.of());
   }
 
   /**
@@ -174,7 +174,7 @@ public class FollowerServiceImpl implements FollowerService {
       .ifPresent(followerRepository::delete);
 
     // Return a response indicating the unfollow operation was successful
-    return localizedResponse.of(UnfollowUserResponse.of());
+    return localizer.of(UnfollowUserResponse.of());
   }
 
   /**

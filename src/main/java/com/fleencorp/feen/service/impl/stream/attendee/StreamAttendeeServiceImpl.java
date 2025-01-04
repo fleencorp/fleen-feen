@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.attendee;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
@@ -19,8 +18,8 @@ import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeReques
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.model.search.broadcast.request.EmptyRequestToJoinSearchResult;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -29,6 +28,7 @@ import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -66,7 +66,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   private final StreamService streamService;
   private final EventUpdateService eventUpdateService;
   private final StreamAttendeeRepository streamAttendeeRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final StreamAttendeeMapper attendeeMapper;
   private final StreamMapper streamMapper;
   private static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
@@ -85,7 +85,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param streamService The service responsible for stream-related operations.
    * @param eventUpdateService The service for handling updates to events.
    * @param streamAttendeeRepository The repository for accessing stream attendee data.
-   * @param localizedResponse The service used to return localized responses.
+   * @param localizer The service used to return localized responses.
    * @param attendeeMapper The mapper used for mapping stream attendee objects.
    * @param streamMapper The mapper used for mapping stream objects.
    */
@@ -94,14 +94,14 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       final StreamService streamService,
       final EventUpdateService eventUpdateService,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
       final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
     this.eventUpdateService = eventUpdateService;
     this.streamAttendeeRepository = streamAttendeeRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.attendeeMapper = attendeeMapper;
     this.streamMapper = streamMapper;
   }
@@ -132,8 +132,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Return a search result view with the attendees responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamAttendeeSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(StreamAttendeeSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -345,8 +345,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Return a search result view with the attendees responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamAttendeeSearchResult.of(toSearchResult(List.of(attendeeResponses), page))),
-      localizedResponse.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(StreamAttendeeSearchResult.of(toSearchResult(List.of(attendeeResponses), page))),
+      localizer.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -423,8 +423,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Return a search result view with the attendee responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 

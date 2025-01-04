@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.CommonMapper;
@@ -26,6 +25,7 @@ import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +56,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new instance of {@code LiveBroadcastJoinServiceImpl}.
@@ -69,7 +69,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * @param notificationMessageService the service for creating notification messages
    * @param notificationService the service for saving notifications
    * @param streamAttendeeRepository the repository for stream attendee records
-   * @param localizedResponse the service for generating localized responses
+   * @param localizer the service for generating localized responses
    * @param commonMapper the mapper for common data transformations
    * @param streamMapper the mapper for stream-specific data transformations
    */
@@ -79,7 +79,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.attendeeService = attendeeService;
@@ -89,7 +89,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -132,7 +132,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Set the stream type info
     notAttendingStreamResponse.setStreamTypeInfo(streamTypeInfo);
     // Build and return the response indicating the user is no longer attending
-    return localizedResponse.of(notAttendingStreamResponse);
+    return localizer.of(notAttendingStreamResponse);
   }
 
   /**
@@ -167,7 +167,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return localized response of the join stream including status
-    return localizedResponse.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo));
+    return localizer.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo));
   }
 
   /**
@@ -229,7 +229,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Get a processed attendee request to join stream response
     final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
-    return localizedResponse.of(processedRequestToJoin);
+    return localizer.of(processedRequestToJoin);
   }
 
   /**

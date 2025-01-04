@@ -3,15 +3,13 @@ package com.fleencorp.feen.model.response.chat.space.member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,10 +38,6 @@ public class DowngradeChatSpaceAdminToMemberResponse extends ApiResponse {
   }
 
   public static DowngradeChatSpaceAdminToMemberResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMemberRoleInfo roleInfo) {
-    return DowngradeChatSpaceAdminToMemberResponse.builder()
-      .chatSpaceId(chatSpaceId)
-      .chatSpaceMemberId(chatSpaceMemberId)
-      .roleInfo(roleInfo)
-      .build();
+    return new DowngradeChatSpaceAdminToMemberResponse(chatSpaceId, chatSpaceMemberId, roleInfo);
   }
 }

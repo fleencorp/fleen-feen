@@ -3,17 +3,15 @@ package com.fleencorp.feen.model.search.social.blocking;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.function.Supplier;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

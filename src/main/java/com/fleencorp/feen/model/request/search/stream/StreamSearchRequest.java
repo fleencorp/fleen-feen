@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -56,5 +57,11 @@ public class StreamSearchRequest extends SearchRequest {
 
   public StreamType getStreamType() {
     return StreamType.of(streamType);
+  }
+
+  public void setDefaultStreamType() {
+    if (isNull(streamType)) {
+      streamType = StreamType.event();
+    }
   }
 }

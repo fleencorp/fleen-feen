@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.chat.space;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceAlreadyDeletedException;
@@ -19,6 +18,7 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +46,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final ChatSpaceMapper chatSpaceMapper;
 
   /**
@@ -59,19 +59,19 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
-   * @param localizedResponse provides localized responses for API operations.
+   * @param localizer provides localized responses for API operations.
    * @param chatSpaceMapper maps chat space entities to response models.
    */
   public ChatSpaceServiceImpl(
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final ChatSpaceMapper chatSpaceMapper) {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.chatSpaceMapper = chatSpaceMapper;
   }
 
@@ -123,7 +123,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Delegate the creation of the chat space to the update service
     chatSpaceUpdateService.createChatSpace(chatSpace, createChatSpaceRequest);
     // Return a localized response with the chat space details
-    return localizedResponse.of(CreateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
+    return localizer.of(CreateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
   }
 
   /**
@@ -182,7 +182,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Create update chat space request and send to external service
     createAndUpdateChatSpaceInExternalService(updateChatSpaceDto, chatSpace);
     // Return a localized response with the updated chat space details
-    return localizedResponse.of(UpdateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
+    return localizer.of(UpdateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
   }
 
   /**
@@ -229,7 +229,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Return a localized response confirming the deletion
-    return localizedResponse.of(DeleteChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(DeleteChatSpaceResponse.of(chatSpaceId));
   }
 
   /**
@@ -256,7 +256,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Send a request to delete the chat space from external systems
     chatSpaceUpdateService.deleteChatSpace(DeleteChatSpaceRequest.of(chatSpace.getExternalIdOrName()));
     // Return a localized response confirming the deletion
-    return localizedResponse.of(DeleteChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(DeleteChatSpaceResponse.of(chatSpaceId));
   }
 
   /**
@@ -284,7 +284,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Return a localized response confirming the enabling of the chat space
-    return localizedResponse.of(EnableChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(EnableChatSpaceResponse.of(chatSpaceId));
   }
 
   /**
@@ -313,7 +313,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Return a localized response confirming the disabling of the chat space
-    return localizedResponse.of(DisableChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(DisableChatSpaceResponse.of(chatSpaceId));
   }
 
   /**
