@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.common;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.mapper.impl.other.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
@@ -13,6 +12,7 @@ import com.fleencorp.feen.model.search.country.EmptyCountrySearchResult;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -47,13 +47,13 @@ public class CountryServiceImpl implements CountryService {
 
   private final CountryRepository repository;
   private final CacheService cacheService;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new instance of the {@link CountryServiceImpl}.
    *
    * <p>This constructor initializes the service with the required dependencies:
-   * {@link CountryRepository}, {@link CacheService}, and {@link LocalizedResponse}.</p>
+   * {@link CountryRepository}, {@link CacheService}, and {@link Localizer}.</p>
    *
    * <p>These dependencies are injected to handle various operations such as
    * country repository interactions, caching operations, and localized responses
@@ -61,15 +61,15 @@ public class CountryServiceImpl implements CountryService {
    *
    * @param repository the {@link CountryRepository} used for country data retrieval and management
    * @param cacheService the service for caching country data
-   * @param localizedResponse the service for creating localized responses
+   * @param localizer the service for creating localized responses
    */
   public CountryServiceImpl(
       final CountryRepository repository,
       final CacheService cacheService,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.repository = repository;
     this.cacheService = cacheService;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -87,8 +87,8 @@ public class CountryServiceImpl implements CountryService {
     // Return a search result view with the country responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(CountrySearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyCountrySearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(CountrySearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyCountrySearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -108,7 +108,7 @@ public class CountryServiceImpl implements CountryService {
     final Country country = repository.findById(countryId)
             .orElseThrow(CountryNotFoundException.of(countryId));
     // Return a localized response containing details of country
-    return localizedResponse.of(RetrieveCountryResponse.of(toCountryResponse(country)));
+    return localizer.of(RetrieveCountryResponse.of(toCountryResponse(country)));
   }
 
   /**
@@ -140,7 +140,7 @@ public class CountryServiceImpl implements CountryService {
     // Count the total number of countries in the repository
     final long total = repository.count();
     // Return a localized response containing the total count of countries
-    return localizedResponse.of(CountAllResponse.of(total));
+    return localizer.of(CountAllResponse.of(total));
   }
 
   /**

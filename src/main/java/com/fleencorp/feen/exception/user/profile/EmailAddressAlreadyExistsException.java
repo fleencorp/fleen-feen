@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.user.profile;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class EmailAddressAlreadyExistsException extends FleenException {
+public class EmailAddressAlreadyExistsException extends ApiException {
 
   @Override
   public String getMessageCode() {

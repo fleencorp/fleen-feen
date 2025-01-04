@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.notification;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.constant.notification.NotificationType;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
@@ -13,6 +12,7 @@ import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.notification.NotificationRepository;
 import com.fleencorp.feen.service.notification.NotificationService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
 
   private final NotificationMessageService notificationMessageService;
   private final NotificationRepository notificationRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new {@code NotificationServiceImpl} with the given notification repository.
@@ -51,10 +51,10 @@ public class NotificationServiceImpl implements NotificationService {
   public NotificationServiceImpl(
       final NotificationMessageService notificationMessageService,
       final NotificationRepository notificationRepository,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.notificationMessageService = notificationMessageService;
     this.notificationRepository = notificationRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -81,8 +81,8 @@ public class NotificationServiceImpl implements NotificationService {
     // Return a search result with the notification responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(NotificationSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyNotificationSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(NotificationSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyNotificationSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -128,7 +128,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     // Return the localized response indicating the notification has been read
-    return localizedResponse.of(ReadNotificationResponse.of());
+    return localizer.of(ReadNotificationResponse.of());
   }
 
   /**
@@ -142,7 +142,7 @@ public class NotificationServiceImpl implements NotificationService {
     // Mark all notifications currently unread as now read for the given user
     notificationRepository.markAllAsRead(NotificationStatus.read(), NotificationStatus.unread(), user.toMember());
     // Return a response indicating that the notifications have been marked as read
-    return localizedResponse.of(ReadNotificationResponse.of());
+    return localizer.of(ReadNotificationResponse.of());
   }
 
   /**

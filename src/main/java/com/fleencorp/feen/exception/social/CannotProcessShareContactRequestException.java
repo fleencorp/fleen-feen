@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.social;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class CannotProcessShareContactRequestException extends FleenException {
+public class CannotProcessShareContactRequestException extends ApiException {
 
   @Override
   public String getMessageCode() {

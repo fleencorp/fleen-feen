@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.social;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class ShareContactRequestAlreadyCanceledException extends FleenException {
+public class ShareContactRequestAlreadyCanceledException extends ApiException {
 
   @Override
   public String getMessageCode() {

@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.auth;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class InvalidAuthenticationException extends FleenException {
+public class InvalidAuthenticationException extends ApiException {
 
   @Override
   public String getMessageCode() {

@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.verification;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class ResetPasswordCodeInvalidException extends FleenException {
+public class ResetPasswordCodeInvalidException extends ApiException {
 
   @Override
   public String getMessageCode() {

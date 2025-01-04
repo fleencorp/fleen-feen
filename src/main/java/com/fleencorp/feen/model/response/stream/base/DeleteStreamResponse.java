@@ -3,10 +3,10 @@ package com.fleencorp.feen.model.response.stream.base;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.*;
 
 import static java.util.Objects.nonNull;

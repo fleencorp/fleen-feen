@@ -4,15 +4,17 @@ import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 public class EmailAddressExistsResponse extends EntityExistsResponse {
+
+  public EmailAddressExistsResponse(final boolean exists) {
+    super(exists, LocalDateTime.now(), getActualStatusCode(exists));
+  }
 
   @Override
   public String getMessageCode() {
@@ -20,10 +22,6 @@ public class EmailAddressExistsResponse extends EntityExistsResponse {
   }
 
   public static EmailAddressExistsResponse of(final boolean exists) {
-    return EmailAddressExistsResponse.builder()
-      .statusCode(getActualStatusCode(true))
-      .timestamp(LocalDateTime.now())
-      .exists(exists)
-      .build();
+    return new EmailAddressExistsResponse(exists);
   }
 }

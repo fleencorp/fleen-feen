@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.external.aws.ses;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.model.dto.aws.VerifyEmailIdentityDto;
 import com.fleencorp.feen.model.response.external.aws.VerifyEmailIdentityResponse;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 public class SesService {
 
   private final SesClient sesClient;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new instance of {@code SesService} with the specified SES client
@@ -19,18 +19,18 @@ public class SesService {
    *
    * <p>This constructor initializes the {@code SesService} with the provided
    * {@link SesClient} to interact with AWS SES for email operations, and a
-   * {@link LocalizedResponse} to handle localized responses based on user locale
+   * {@link Localizer} to handle localized responses based on user locale
    * settings.</p>
    *
    * @param sesClient The {@link SesClient} used for making requests to AWS SES.
-   * @param localizedResponse The {@link LocalizedResponse} used to generate
+   * @param localizer The {@link Localizer} used to generate
    *                          localized responses for operations performed by this service.
    */
   public SesService(
-    final SesClient sesClient,
-    final LocalizedResponse localizedResponse) {
+      final SesClient sesClient,
+      final Localizer localizer) {
     this.sesClient = sesClient;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -59,6 +59,6 @@ public class SesService {
         sesClient.verifyEmailIdentity(request);
       }
     }
-    return localizedResponse.of(VerifyEmailIdentityResponse.of());
+    return localizer.of(VerifyEmailIdentityResponse.of());
   }
 }

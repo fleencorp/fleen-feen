@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
@@ -42,6 +41,7 @@ import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +77,7 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
   private final MemberRepository memberRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs an instance of {@code EventJoinServiceImpl} and injects necessary dependencies.
@@ -99,7 +99,7 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param streamRepository the repository for managing FleenStream entities
    * @param memberRepository the repository for managing member entities
    * @param streamAttendeeRepository the repository for managing stream attendee entities
-   * @param localizedResponse the utility for creating localized response messages
+   * @param localizer the utility for creating localized response messages
    * @param commonMapper the mapper for common entity conversions
    * @param streamMapper the mapper for stream-related entity conversions
    */
@@ -114,7 +114,7 @@ public class EventJoinServiceImpl implements EventJoinService {
       final FleenStreamRepository streamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.chatSpaceMemberService = chatSpaceMemberService;
@@ -129,7 +129,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -186,7 +186,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Set the stream type info
     notAttendingStreamResponse.setStreamTypeInfo(streamTypeInfo);
     // Return a localized response
-    return localizedResponse.of(notAttendingStreamResponse);
+    return localizer.of(notAttendingStreamResponse);
   }
 
   /**
@@ -250,7 +250,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Send invitation to new attendee
     attendeeService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinStreamDto.getComment());
     // Return localized response of the join event including status
-    return localizedResponse.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo));
+    return localizer.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo));
   }
 
   /**
@@ -352,7 +352,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Get a processed attendee request to join event response
     final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
-    return localizedResponse.of(processedRequestToJoin);
+    return localizer.of(processedRequestToJoin);
   }
 
   /**
@@ -463,7 +463,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Save stream to the repository
     streamRepository.save(stream);
     // Return a localized response with the details of the added attendee
-    return localizedResponse.of(AddNewStreamAttendeeResponse.of(eventId, addNewAttendeeDto.getEmailAddress(), streamMapper.toFleenStreamResponseNoJoinStatus(stream)));
+    return localizer.of(AddNewStreamAttendeeResponse.of(eventId, addNewAttendeeDto.getEmailAddress(), streamMapper.toFleenStreamResponseNoJoinStatus(stream)));
   }
 
   /**

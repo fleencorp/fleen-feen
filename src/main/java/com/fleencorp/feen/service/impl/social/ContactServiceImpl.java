@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.social;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.dto.social.contact.AddContactDto;
@@ -16,6 +15,7 @@ import com.fleencorp.feen.model.search.contact.EmptyContactSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.ContactRepository;
 import com.fleencorp.feen.service.social.ContactService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactRespon
 public class ContactServiceImpl implements ContactService {
 
   private final ContactRepository contactRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new {@code ContactServiceImpl} instance with the specified contact repository.
@@ -49,9 +49,9 @@ public class ContactServiceImpl implements ContactService {
    */
   public ContactServiceImpl(
       final ContactRepository contactRepository,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.contactRepository = contactRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -74,8 +74,8 @@ public class ContactServiceImpl implements ContactService {
     // Return a search result view with the contact responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ContactSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyContactSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ContactSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyContactSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -106,7 +106,7 @@ public class ContactServiceImpl implements ContactService {
     // Save the contact to the repository
     contactRepository.save(contact);
     // Convert the contact to a response object and return it
-    return localizedResponse.of(AddContactResponse.of(toContactResponse(contact)));
+    return localizer.of(AddContactResponse.of(toContactResponse(contact)));
   }
 
   /**
@@ -136,7 +136,7 @@ public class ContactServiceImpl implements ContactService {
     // Save the updated contact to the repository
     contactRepository.save(contact);
     // Convert the contact to a response object and return it
-    return localizedResponse.of(UpdateContactResponse.of(toContactResponse(contact)));
+    return localizer.of(UpdateContactResponse.of(toContactResponse(contact)));
   }
 
   /**
@@ -159,7 +159,7 @@ public class ContactServiceImpl implements ContactService {
     // Delete the contact from the repository
     contactRepository.delete(contact);
     // Return a response object indicating successful deletion
-    return localizedResponse.of(DeleteContactResponse.of());
+    return localizer.of(DeleteContactResponse.of());
   }
 
   /**
@@ -177,6 +177,6 @@ public class ContactServiceImpl implements ContactService {
     // Delete all contacts associated with the user
     contactRepository.deleteAllByOwner(user.toMember());
     // Return a response object indicating successful deletion
-    return localizedResponse.of(DeleteResponse.of());
+    return localizer.of(DeleteResponse.of());
   }
 }

@@ -1,8 +1,5 @@
 package com.fleencorp.feen.exception;
 
-import com.fleencorp.base.exception.FleenException;
-import com.fleencorp.base.model.response.error.ErrorResponse;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
@@ -33,6 +30,9 @@ import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.response.ErrorResponse;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -69,19 +69,19 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private static final String DATA_FIELD_NAME = "field";
   private static final String ERRORS_PROPERTY_NAME = "errors";
 
-  public RestExceptionHandler(final LocalizedResponse localizedResponse) {
-    this.localizedResponse = localizedResponse;
+  public RestExceptionHandler(final Localizer localizer) {
+    this.localizer = localizer;
   }
 
   /**
    * Handles exceptions of type {@link FailedOperationException} and returns a {@link ErrorResponse} with a {@code BAD_REQUEST} status.
    *
    * <p>This method is triggered whenever a {@code FailedOperationException} is thrown during the processing of a request.
-   * It creates an appropriate error response by delegating to the {@code localizedResponse} service,
+   * It creates an appropriate error response by delegating to the {@code localizer} service,
    * which formats the response based on the exception details and the localized message.</p>
    *
    * <p>The method sets the HTTP response status to {@code BAD_REQUEST} (400), indicating that the client's request was invalid or could not be processed.</p>
@@ -94,18 +94,18 @@ public class RestExceptionHandler {
   })
   @ResponseStatus(value = BAD_REQUEST)
   public ErrorResponse handleBadRequest(final FailedOperationException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.badRequest());
+    return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
   /**
-   * Handles various {@link FleenException} types and returns an {@link ErrorResponse} with a {@code BAD_REQUEST} status.
+   * Handles various {@link ApiException} types and returns an {@link ErrorResponse} with a {@code BAD_REQUEST} status.
    *
    * <p>This method is triggered whenever any of the specified exceptions are thrown during the processing of a request.
    * It catches a wide range of application-specific exceptions such as {@link AlreadySignedUpException},
    * {@link BannedAccountException}, {@link InvalidVerificationCodeException}, and many more, all of which indicate a problem
    * with the client's request that prevents it from being processed correctly.</p>
    *
-   * <p>The method creates an appropriate error response using the {@code localizedResponse} service,
+   * <p>The method creates an appropriate error response using the {@code localizer} service,
    * which formats the response based on the exception details and the localized message.
    * The response status is set to {@code BAD_REQUEST} (400), indicating that the request was invalid or could not be processed.</p>
    *
@@ -139,8 +139,8 @@ public class RestExceptionHandler {
     VerificationFailedException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
-  public ErrorResponse handleBadRequest(final FleenException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.badRequest());
+  public ErrorResponse handleBadRequest(final ApiException e) {
+    return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
   /**
@@ -150,7 +150,7 @@ public class RestExceptionHandler {
    * {@link Oauth2InvalidAuthorizationException}, {@link Oauth2InvalidGrantOrTokenException}, or {@link Oauth2InvalidScopeException}
    * are thrown during request processing. These exceptions typically indicate issues with third-party services like reCAPTCHA or OAuth2.</p>
    *
-   * <p>The method uses the {@code localizedResponse} service to generate a localized error response,
+   * <p>The method uses the {@code localizer} service to generate a localized error response,
    * though the status in the response is mapped to {@code NOT_FOUND} (404), despite the original request error leading to a {@code BAD_REQUEST}.
    * This custom handling may be intended to mask certain error details.</p>
    *
@@ -164,8 +164,8 @@ public class RestExceptionHandler {
     Oauth2InvalidScopeException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
-  public Object handleExternalBadRequest(final FleenException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.badRequest());
+  public Object handleExternalBadRequest(final ApiException e) {
+    return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
   /**
@@ -176,7 +176,7 @@ public class RestExceptionHandler {
    * These exceptions typically indicate that an operation cannot be completed due to a conflict with the current state of the application,
    * such as trying to join a stream that the user has already requested or that a calendar event already exists.</p>
    *
-   * <p>The method utilizes the {@code localizedResponse} service to create a localized error response.
+   * <p>The method utilizes the {@code localizer} service to create a localized error response.
    * The HTTP response status is set to {@code CONFLICT} (409), indicating that the request could not be completed due to a conflict with the current resource state.</p>
    *
    * @param e the exception thrown during the operation that represents a conflict in the application's state
@@ -197,8 +197,8 @@ public class RestExceptionHandler {
     StreamAlreadyHappenedException.class
   })
   @ResponseStatus(value = CONFLICT)
-  public ErrorResponse handleConflict(final FleenException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.conflict());
+  public ErrorResponse handleConflict(final ApiException e) {
+    return localizer.withStatus(e, FleenHttpStatus.conflict());
   }
 
   /**
@@ -209,7 +209,7 @@ public class RestExceptionHandler {
    * of a request. This exception typically signifies that an unexpected error has occurred within the server,
    * preventing the completion of the requested operation.</p>
    *
-   * <p>The method utilizes the {@code localizedResponse} service to create a localized error response,
+   * <p>The method utilizes the {@code localizer} service to create a localized error response,
    * ensuring the response is relevant to the user's context. The HTTP response status is set to
    * {@code INTERNAL_SERVER_ERROR} (500), indicating that there was a problem on the server side.</p>
    *
@@ -222,7 +222,7 @@ public class RestExceptionHandler {
   })
   @ResponseStatus(value = INTERNAL_SERVER_ERROR)
   public ErrorResponse handleInternal(final UnableToCompleteOperationException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.internalServerError());
+    return localizer.withStatus(e, FleenHttpStatus.internalServerError());
   }
 
   /**
@@ -233,7 +233,7 @@ public class RestExceptionHandler {
    * These exceptions indicate that the requested resource does not exist in the system, such as when attempting to access a chat space or member
    * that cannot be found.</p>
    *
-   * <p>The method leverages the {@code localizedResponse} service to generate a localized error response,
+   * <p>The method leverages the {@code localizer} service to generate a localized error response,
    * ensuring that the user receives a meaningful message that corresponds to the {@code NOT_FOUND} (404) HTTP status.</p>
    *
    * @param e the exception thrown during the operation that indicates a resource was not found
@@ -253,8 +253,8 @@ public class RestExceptionHandler {
     UserNotFoundException.class,
   })
   @ResponseStatus(value = NOT_FOUND)
-  public Object handleNotFound(final FleenException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.notFound());
+  public Object handleNotFound(final ApiException e) {
+    return localizer.withStatus(e, FleenHttpStatus.notFound());
   }
 
   /**
@@ -264,7 +264,7 @@ public class RestExceptionHandler {
    * {@link InvalidAuthenticationTokenException} and responds with a 404 Not Found status.
    * It returns a localized response containing details about the exception and the unauthorized status.</p>
    *
-   * @param e the {@link FleenException} being handled.
+   * @param e the {@link ApiException} being handled.
    * @return a localized response with the unauthorized status.
    */
   @ExceptionHandler(value = {
@@ -273,8 +273,8 @@ public class RestExceptionHandler {
     UsernameNotFoundException.class
   })
   @ResponseStatus(value = UNAUTHORIZED)
-  public Object handleUnauthorized(final FleenException e) {
-    return localizedResponse.withStatus(e, FleenHttpStatus.unauthorized());
+  public Object handleUnauthorized(final ApiException e) {
+    return localizer.withStatus(e, FleenHttpStatus.unauthorized());
   }
 
   /**

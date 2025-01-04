@@ -4,9 +4,10 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.type.StreamTypeSearchRequest;
+import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/stream")
+@RequestMapping(value = "/api/user/stream")
 @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
 public class StreamController {
 
@@ -38,7 +39,15 @@ public class StreamController {
   public StreamSearchResult findMyStreams(
       @SearchParam final StreamSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
+    searchRequest.setDefaultStreamType();
     return streamService.findMyStreams(searchRequest, user);
+  }
+
+  @GetMapping(value = "/detail/{streamId}")
+  public RetrieveStreamResponse findMyStream(
+    @PathVariable(name = "streamId") final Long streamId,
+    @AuthenticationPrincipal final FleenUser user) {
+    return streamService.retrieveStream(streamId, user);
   }
 
   @GetMapping(value = "/attended-by-me")
@@ -55,7 +64,7 @@ public class StreamController {
     return streamService.findStreamsAttendedWithAnotherUser(searchRequest, user);
   }
 
-  @GetMapping(value = "/attendees/{streamId}")
+  @GetMapping(value = "/public/attendees/{streamId}")
   public StreamAttendeeSearchResult findStreamAttendees(
       @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final StreamAttendeeSearchRequest searchRequest) {

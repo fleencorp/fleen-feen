@@ -3,15 +3,13 @@ package com.fleencorp.feen.model.response.calendar;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -40,10 +38,6 @@ public class ShareCalendarWithUserResponse extends ApiResponse {
   }
 
   public static ShareCalendarWithUserResponse of(final Long calendarId, final String userEmailAddress, final CalendarResponse calendar) {
-    return ShareCalendarWithUserResponse.builder()
-            .calendarId(calendarId)
-            .calendar(calendar)
-            .userEmailAddress(userEmailAddress)
-            .build();
+    return new ShareCalendarWithUserResponse(calendarId, userEmailAddress, calendar);
   }
 }
