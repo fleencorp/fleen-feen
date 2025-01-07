@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.user;
 
-import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor

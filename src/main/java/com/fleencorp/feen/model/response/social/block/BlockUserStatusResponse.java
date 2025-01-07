@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.response.social.block;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.social.BlockStatus;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;

@@ -3,10 +3,12 @@ package com.fleencorp.feen.model.response.other;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
-import lombok.*;
+import com.fleencorp.localizer.model.response.ApiResponse;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,8 +29,6 @@ public class CountAllResponse extends ApiResponse {
   }
 
   public static CountAllResponse of(final long total) {
-    return CountAllResponse.builder()
-            .total(total)
-            .build();
+    return new CountAllResponse(total);
   }
 }

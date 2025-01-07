@@ -315,10 +315,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    */
   private void handleException(final HttpServletRequest request, final HttpServletResponse response, final Exception ex) {
     logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
+
     if (ex instanceof InvalidAuthenticationTokenException) {
       resolver.resolveException(request, response, null, ex);
       return;
     }
+
     final InvalidAuthenticationException exception = new InvalidAuthenticationException(UNKNOWN);
     resolver.resolveException(request, response, null, exception);
   }

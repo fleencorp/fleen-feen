@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.external.google.oauth2;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
@@ -22,6 +21,7 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.report.ReporterService;
+import com.fleencorp.localizer.service.Localizer;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.googleapis.auth.oauth2.*;
@@ -70,7 +70,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
   private final Oauth2Credential oauth2Credential;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final ReporterService reporterService;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new GoogleOauth2Service.
@@ -78,17 +78,17 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @param oauth2Credential The OAuth2 credentials used for Google authentication.
    * @param oauth2AuthorizationRepository The repository for storing OAuth2 authorization data.
    * @param reporterService The service used for reporting events.
-   * @param localizedResponse The service for setting localized message to the responses
+   * @param localizer The service for setting localized message to the responses
    */
   public GoogleOauth2ServiceImpl(
       final Oauth2Credential oauth2Credential,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final ReporterService reporterService,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.oauth2Credential = oauth2Credential;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.reporterService = reporterService;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -107,7 +107,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
   @Override
   public StartOauth2AuthorizationResponse startOauth2Authentication(final Oauth2AuthenticationRequest authenticationRequest) {
     final String authorizationUri = getAuthorizationUri(authenticationRequest);
-    return localizedResponse.of(StartOauth2AuthorizationResponse.of(authorizationUri));
+    return localizer.of(StartOauth2AuthorizationResponse.of(authorizationUri));
   }
 
   /**
@@ -180,7 +180,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
     // Save the updated OAuth2 authorization in the repository
     oauth2AuthorizationRepository.save(oauth2Authorization);
     // Return a localized response of the oauth2 authorization
-    return localizedResponse.of(oauth2AuthorizationResponse);
+    return localizer.of(oauth2AuthorizationResponse);
   }
 
   /**

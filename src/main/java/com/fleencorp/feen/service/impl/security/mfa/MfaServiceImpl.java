@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.security.mfa;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -30,6 +29,7 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.OtpService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +56,7 @@ public class MfaServiceImpl implements MfaService {
   private final MfaRepository mfaRepository;
   private final MemberRepository memberRepository;
   private final ProfileRequestPublisher profileRequestPublisher;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final MfaProperties mfaProperties;
   private final CommonMapper commonMapper;
 
@@ -68,7 +68,7 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaRepository        The repository responsible for handling MFA data.
    * @param memberRepository     The repository responsible for managing member data.
    * @param profileRequestPublisher Publishes profile requests when necessary.
-   * @param localizedResponse    The service used to fetch localized responses based on the user's locale.
+   * @param localizer    The service used to fetch localized responses based on the user's locale.
    * @param mfaProperties        Configuration properties for MFA settings.
    * @param commonMapper            The mapper service responsible for mapping MFA-related entities and responses.
    */
@@ -78,7 +78,7 @@ public class MfaServiceImpl implements MfaService {
       final MfaRepository mfaRepository,
       final MemberRepository memberRepository,
       final ProfileRequestPublisher profileRequestPublisher,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final MfaProperties mfaProperties,
       final CommonMapper commonMapper) {
     this.cacheService = cacheService;
@@ -86,7 +86,7 @@ public class MfaServiceImpl implements MfaService {
     this.mfaRepository = mfaRepository;
     this.memberRepository = memberRepository;
     this.profileRequestPublisher = profileRequestPublisher;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.mfaProperties = mfaProperties;
     this.commonMapper = commonMapper;
   }
@@ -113,7 +113,7 @@ public class MfaServiceImpl implements MfaService {
     }
 
     // Return a response indicating the result of the MFA enable operation
-    return localizedResponse.of(EnableOrDisableMfaResponse.of(member.isMfaEnabled()));
+    return localizer.of(EnableOrDisableMfaResponse.of(member.isMfaEnabled()));
   }
 
   /**
@@ -138,7 +138,7 @@ public class MfaServiceImpl implements MfaService {
     }
 
     // Return a response indicating the status of the MFA disable operation
-    return localizedResponse.of(EnableOrDisableMfaResponse.of(member.isMfaDisabled()));
+    return localizer.of(EnableOrDisableMfaResponse.of(member.isMfaDisabled()));
   }
 
   /**
@@ -158,7 +158,7 @@ public class MfaServiceImpl implements MfaService {
     // Get Mfa Type Info
     final MfaTypeInfo mfaTypeInfo = commonMapper.toMfaTypeInfo(member.getMfaType());
     // Return a response with the MFA status and type
-    return localizedResponse.of(MfaStatusResponse.of(mfaEnabledInfo, mfaTypeInfo));
+    return localizer.of(MfaStatusResponse.of(mfaEnabledInfo, mfaTypeInfo));
   }
 
   /**
@@ -212,7 +212,7 @@ public class MfaServiceImpl implements MfaService {
 
     // Save member changes and return setup response
     memberRepository.save(member);
-    return localizedResponse.of(setupMfaResponse);
+    return localizer.of(setupMfaResponse);
   }
 
 
@@ -246,7 +246,7 @@ public class MfaServiceImpl implements MfaService {
     // Update the setup response with Authenticator secret if applicable
     updateMfaSetupResponseAndIfPossibleSetMfaAuthenticatorSecret(newMfaType, setupMfaResponse, member);
 
-    return localizedResponse.of(setupMfaResponse);
+    return localizer.of(setupMfaResponse);
   }
 
   /**
@@ -272,7 +272,7 @@ public class MfaServiceImpl implements MfaService {
     // Save the updated member details
     memberRepository.save(member);
 
-    return localizedResponse.of(ConfirmMfaSetupResponse.of());
+    return localizer.of(ConfirmMfaSetupResponse.of());
   }
 
   /**

@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 

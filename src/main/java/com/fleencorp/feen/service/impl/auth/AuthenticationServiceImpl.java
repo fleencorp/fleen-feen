@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.auth;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -42,6 +41,7 @@ import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.RoleService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -96,7 +96,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   private final MemberRepository memberRepository;
   private final PasswordEncoder passwordEncoder;
   private final ProfileRequestPublisher profileRequestPublisher;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final CommonMapper commonMapper;
   private final String originDomain;
 
@@ -107,7 +107,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * authentication, such as the {@link AuthenticationManager}, {@link CacheService}, {@link CountryService},
    * {@link MfaService}, {@link RoleService}, {@link TokenService}, {@link MemberRepository},
    * {@link PasswordEncoder}, {@link ProfileRequestPublisher}, {@link ProfileTokenRepository},
-   * and {@link LocalizedResponse}. These dependencies are injected to facilitate authentication
+   * and {@link Localizer}. These dependencies are injected to facilitate authentication
    * operations, including managing user roles, tokens, MFA, and profile-related actions.</p>
    *
    * @param authenticationManager the manager responsible for processing authentication requests.
@@ -119,7 +119,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param memberRepository the repository for accessing and managing {@link Member} entities.
    * @param passwordEncoder the encoder for processing passwords.
    * @param profileRequestPublisher the publisher for sending profile-related requests.
-   * @param localizedResponse the service for handling localized responses.
+   * @param localizer the service for handling localized responses.
    * @param commonMapper a service for creating info data and their localized text
    * @param originDomain the origin domain used in the app to perform actions
    */
@@ -133,7 +133,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final MemberRepository memberRepository,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final CommonMapper commonMapper,
       @Value("${origin-domain}") final String originDomain) {
     this.authenticationManager = authenticationManager;
@@ -145,7 +145,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     this.memberRepository = memberRepository;
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.commonMapper = commonMapper;
     this.originDomain = originDomain;
   }
@@ -172,7 +172,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Get the countries in the search result
     final List<?> countries = searchResult.getResult().getValues();
     // Return the response object containing both the countries and timezones.
-    return localizedResponse.of(DataForSignUpResponse.of(countries));
+    return localizer.of(DataForSignUpResponse.of(countries));
   }
 
   /**
@@ -294,7 +294,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Update verification type info data and text
     commonMapper.setVerificationType(signUpResponse, verificationType);
     // Return the sign-up response with necessary details
-    return localizedResponse.of(signUpResponse);
+    return localizer.of(signUpResponse);
   }
 
   /**
@@ -340,7 +340,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Clear the security context
     clearUserAuthenticationDetails();
     // Return a localized response
-    return localizedResponse.of(SignOutResponse.of());
+    return localizer.of(SignOutResponse.of());
   }
 
   /**
@@ -418,7 +418,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle verified profile sign-in for verified user incomplete verification details like email or phone
     handleProfileYetToBeVerified(signInResponse, user);
     // Return a localized response for the sign in
-    return localizedResponse.of(signInResponse, signInResponse.getPreVerificationMessageCode());
+    return localizer.of(signInResponse, signInResponse.getPreVerificationMessageCode());
   }
 
   /**
@@ -437,7 +437,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle verified profile sign-in for verified user with mfa or 2fa enabled
     handleProfileWithMfaEnabled(signInResponse, user);
     // Return a localized response for the sign in
-    return localizedResponse.of(signInResponse, signInResponse.getMfaMessageCode());
+    return localizer.of(signInResponse, signInResponse.getMfaMessageCode());
   }
 
   /**
@@ -458,7 +458,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Handle verified profile sign-in for verified user
     handleProfileThatIsVerified(signInResponse, user, authentication);
     // Return a localized response after the sign in process completes
-    return localizedResponse.of(signInResponse);
+    return localizer.of(signInResponse);
   }
 
   /**

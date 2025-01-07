@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.response.stream.base.CancelStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.DeleteStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.RescheduleStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.UpdateStreamVisibilityResponse;
-import com.fleencorp.feen.model.search.broadcast.request.RequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;

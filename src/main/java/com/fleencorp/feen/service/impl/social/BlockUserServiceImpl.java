@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.social;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
@@ -16,6 +15,7 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.social.BlockUserService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +39,7 @@ public class BlockUserServiceImpl implements BlockUserService {
 
   private final BlockUserRepository blockUserRepository;
   private final MemberRepository memberRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a new {@link BlockUserServiceImpl} instance with the required dependencies.
@@ -49,15 +49,15 @@ public class BlockUserServiceImpl implements BlockUserService {
    *
    * @param blockUserRepository  the {@link BlockUserRepository} used for managing block operations
    * @param memberRepository     the {@link MemberRepository} used for accessing member data
-   * @param localizedResponse    the {@link LocalizedResponse} service used to generate localized responses
+   * @param localizer    the {@link Localizer} service used to generate localized responses
    */
   public BlockUserServiceImpl(
       final BlockUserRepository blockUserRepository,
       final MemberRepository memberRepository,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.blockUserRepository = blockUserRepository;
     this.memberRepository = memberRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -76,8 +76,8 @@ public class BlockUserServiceImpl implements BlockUserService {
     // Return a search result view with the blocked users responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(BlockingUserSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyBlockingUserSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(BlockingUserSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyBlockingUserSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -132,6 +132,6 @@ public class BlockUserServiceImpl implements BlockUserService {
     // Save the BlockUser entity to the repository
     blockUserRepository.save(blockUser);
     // Returned the localized response of the blocked user
-    return localizedResponse.of(BlockUserStatusResponse.of(blockStatus));
+    return localizer.of(BlockUserStatusResponse.of(blockStatus));
   }
 }

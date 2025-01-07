@@ -1,245 +1,173 @@
 package com.fleencorp.feen.constant.http;
 
-import org.springframework.http.HttpStatus;
+import jakarta.ws.rs.core.Response;
 
 public final class FleenHttpStatus {
 
   private FleenHttpStatus() {}
 
-  public static HttpStatus ok() {
-    return HttpStatus.OK;
+  public static Response.Status ok() {
+    return Response.Status.OK;
   }
 
-  public static HttpStatus created() {
-    return HttpStatus.CREATED;
+  public static Response.Status created() {
+    return Response.Status.CREATED;
   }
 
-  public static HttpStatus accepted() {
-    return HttpStatus.ACCEPTED;
+  public static Response.Status accepted() {
+    return Response.Status.ACCEPTED;
   }
 
-  public static HttpStatus noContent() {
-    return HttpStatus.NO_CONTENT;
+  public static Response.Status noContent() {
+    return Response.Status.NO_CONTENT;
   }
 
-  public static HttpStatus badRequest() {
-    return HttpStatus.BAD_REQUEST;
+  public static Response.Status badRequest() {
+    return Response.Status.BAD_REQUEST;
   }
 
-  public static HttpStatus unauthorized() {
-    return HttpStatus.UNAUTHORIZED;
+  public static Response.Status unauthorized() {
+    return Response.Status.UNAUTHORIZED;
   }
 
-  public static HttpStatus forbidden() {
-    return HttpStatus.FORBIDDEN;
+  public static Response.Status forbidden() {
+    return Response.Status.FORBIDDEN;
   }
 
-  public static HttpStatus notFound() {
-    return HttpStatus.NOT_FOUND;
+  public static Response.Status notFound() {
+    return Response.Status.NOT_FOUND;
   }
 
-  public static HttpStatus methodNotAllowed() {
-    return HttpStatus.METHOD_NOT_ALLOWED;
+  public static Response.Status methodNotAllowed() {
+    return Response.Status.METHOD_NOT_ALLOWED;
   }
 
-  public static HttpStatus conflict() {
-    return HttpStatus.CONFLICT;
+  public static Response.Status conflict() {
+    return Response.Status.CONFLICT;
   }
 
-  public static HttpStatus internalServerError() {
-    return HttpStatus.INTERNAL_SERVER_ERROR;
+  public static Response.Status internalServerError() {
+    return Response.Status.INTERNAL_SERVER_ERROR;
   }
 
-  public static HttpStatus notImplemented() {
-    return HttpStatus.NOT_IMPLEMENTED;
+  public static Response.Status notImplemented() {
+    return Response.Status.NOT_IMPLEMENTED;
   }
 
-  public static HttpStatus badGateway() {
-    return HttpStatus.BAD_GATEWAY;
+  public static Response.Status badGateway() {
+    return Response.Status.BAD_GATEWAY;
   }
 
-  public static HttpStatus serviceUnavailable() {
-    return HttpStatus.SERVICE_UNAVAILABLE;
+  public static Response.Status serviceUnavailable() {
+    return Response.Status.SERVICE_UNAVAILABLE;
   }
 
-  public static HttpStatus gatewayTimeout() {
-    return HttpStatus.GATEWAY_TIMEOUT;
+  public static Response.Status gatewayTimeout() {
+    return Response.Status.GATEWAY_TIMEOUT;
   }
 
-  public static HttpStatus continueStatus() {
-    return HttpStatus.CONTINUE;
+  public static Response.Status resetContent() {
+    return Response.Status.RESET_CONTENT;
   }
 
-  public static HttpStatus switchingProtocols() {
-    return HttpStatus.SWITCHING_PROTOCOLS;
-  }
-
-  public static HttpStatus processing() {
-    return HttpStatus.PROCESSING;
-  }
-
-  public static HttpStatus nonAuthoritativeInformation() {
-    return HttpStatus.NON_AUTHORITATIVE_INFORMATION;
-  }
-
-  public static HttpStatus resetContent() {
-    return HttpStatus.RESET_CONTENT;
-  }
-
-  public static HttpStatus partialContent() {
-    return HttpStatus.PARTIAL_CONTENT;
-  }
-
-  public static HttpStatus multiStatus() {
-    return HttpStatus.MULTI_STATUS;
-  }
-
-  public static HttpStatus alreadyReported() {
-    return HttpStatus.ALREADY_REPORTED;
-  }
-
-  public static HttpStatus imUsed() {
-    return HttpStatus.IM_USED;
+  public static Response.Status partialContent() {
+    return Response.Status.PARTIAL_CONTENT;
   }
 
   // 3xx Redirection
-  public static HttpStatus multipleChoices() {
-    return HttpStatus.MULTIPLE_CHOICES;
+  public static Response.Status multipleChoices() {
+    return Response.Status.MULTIPLE_CHOICES;
   }
 
-  public static HttpStatus movedPermanently() {
-    return HttpStatus.MOVED_PERMANENTLY;
+  public static Response.Status movedPermanently() {
+    return Response.Status.MOVED_PERMANENTLY;
   }
 
-  public static HttpStatus found() {
-    return HttpStatus.FOUND;
+  public static Response.Status found() {
+    return Response.Status.FOUND;
   }
 
-  public static HttpStatus seeOther() {
-    return HttpStatus.SEE_OTHER;
+  public static Response.Status seeOther() {
+    return Response.Status.SEE_OTHER;
   }
 
-  public static HttpStatus notModified() {
-    return HttpStatus.NOT_MODIFIED;
+  public static Response.Status notModified() {
+    return Response.Status.NOT_MODIFIED;
   }
 
-  public static HttpStatus useProxy() {
-    return HttpStatus.USE_PROXY;
+  public static Response.Status useProxy() {
+    return Response.Status.USE_PROXY;
   }
 
-  public static HttpStatus temporaryRedirect() {
-    return HttpStatus.TEMPORARY_REDIRECT;
+  public static Response.Status temporaryRedirect() {
+    return Response.Status.TEMPORARY_REDIRECT;
   }
 
-  public static HttpStatus permanentRedirect() {
-    return HttpStatus.PERMANENT_REDIRECT;
+  public static Response.Status permanentRedirect() {
+    return Response.Status.PERMANENT_REDIRECT;
   }
 
-  public static HttpStatus paymentRequired() {
-    return HttpStatus.PAYMENT_REQUIRED;
+  public static Response.Status paymentRequired() {
+    return Response.Status.PAYMENT_REQUIRED;
   }
 
-  public static HttpStatus notAcceptable() {
-    return HttpStatus.NOT_ACCEPTABLE;
+  public static Response.Status notAcceptable() {
+    return Response.Status.NOT_ACCEPTABLE;
   }
 
-  public static HttpStatus proxyAuthenticationRequired() {
-    return HttpStatus.PROXY_AUTHENTICATION_REQUIRED;
+  public static Response.Status proxyAuthenticationRequired() {
+    return Response.Status.PROXY_AUTHENTICATION_REQUIRED;
   }
 
-  public static HttpStatus requestTimeout() {
-    return HttpStatus.REQUEST_TIMEOUT;
+  public static Response.Status requestTimeout() {
+    return Response.Status.REQUEST_TIMEOUT;
   }
 
-  public static HttpStatus gone() {
-    return HttpStatus.GONE;
+  public static Response.Status gone() {
+    return Response.Status.GONE;
   }
 
-  public static HttpStatus lengthRequired() {
-    return HttpStatus.LENGTH_REQUIRED;
+  public static Response.Status lengthRequired() {
+    return Response.Status.LENGTH_REQUIRED;
   }
 
-  public static HttpStatus preconditionFailed() {
-    return HttpStatus.PRECONDITION_FAILED;
+  public static Response.Status preconditionFailed() {
+    return Response.Status.PRECONDITION_FAILED;
   }
 
-  public static HttpStatus payloadTooLarge() {
-    return HttpStatus.PAYLOAD_TOO_LARGE;
+  public static Response.Status unsupportedMediaType() {
+    return Response.Status.UNSUPPORTED_MEDIA_TYPE;
   }
 
-  public static HttpStatus uriTooLong() {
-    return HttpStatus.URI_TOO_LONG;
+  public static Response.Status requestedRangeNotSatisfiable() {
+    return Response.Status.REQUESTED_RANGE_NOT_SATISFIABLE;
   }
 
-  public static HttpStatus unsupportedMediaType() {
-    return HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+  public static Response.Status expectationFailed() {
+    return Response.Status.EXPECTATION_FAILED;
   }
 
-  public static HttpStatus requestedRangeNotSatisfiable() {
-    return HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
+  public static Response.Status preconditionRequired() {
+    return Response.Status.PRECONDITION_REQUIRED;
   }
 
-  public static HttpStatus expectationFailed() {
-    return HttpStatus.EXPECTATION_FAILED;
+  public static Response.Status tooManyRequests() {
+    return Response.Status.TOO_MANY_REQUESTS;
   }
 
-  public static HttpStatus iAmATeapot() {
-    return HttpStatus.I_AM_A_TEAPOT;
+  public static Response.Status requestHeaderFieldsTooLarge() {
+    return Response.Status.REQUEST_HEADER_FIELDS_TOO_LARGE;
   }
 
-  public static HttpStatus unprocessableEntity() {
-    return HttpStatus.UNPROCESSABLE_ENTITY;
+  public static Response.Status unavailableForLegalReasons() {
+    return Response.Status.UNAVAILABLE_FOR_LEGAL_REASONS;
   }
 
-  public static HttpStatus locked() {
-    return HttpStatus.LOCKED;
+  public static Response.Status httpVersionNotSupported() {
+    return Response.Status.HTTP_VERSION_NOT_SUPPORTED;
   }
 
-  public static HttpStatus failedDependency() {
-    return HttpStatus.FAILED_DEPENDENCY;
-  }
-
-  public static HttpStatus upgradeRequired() {
-    return HttpStatus.UPGRADE_REQUIRED;
-  }
-
-  public static HttpStatus preconditionRequired() {
-    return HttpStatus.PRECONDITION_REQUIRED;
-  }
-
-  public static HttpStatus tooManyRequests() {
-    return HttpStatus.TOO_MANY_REQUESTS;
-  }
-
-  public static HttpStatus requestHeaderFieldsTooLarge() {
-    return HttpStatus.REQUEST_HEADER_FIELDS_TOO_LARGE;
-  }
-
-  public static HttpStatus unavailableForLegalReasons() {
-    return HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS;
-  }
-
-  public static HttpStatus httpVersionNotSupported() {
-    return HttpStatus.HTTP_VERSION_NOT_SUPPORTED;
-  }
-
-  public static HttpStatus variantAlsoNegotiates() {
-    return HttpStatus.VARIANT_ALSO_NEGOTIATES;
-  }
-
-  public static HttpStatus insufficientStorage() {
-    return HttpStatus.INSUFFICIENT_STORAGE;
-  }
-
-  public static HttpStatus loopDetected() {
-    return HttpStatus.LOOP_DETECTED;
-  }
-
-  public static HttpStatus notExtended() {
-    return HttpStatus.NOT_EXTENDED;
-  }
-
-  public static HttpStatus networkAuthenticationRequired() {
-    return HttpStatus.NETWORK_AUTHENTICATION_REQUIRED;
+  public static Response.Status networkAuthenticationRequired() {
+    return Response.Status.NETWORK_AUTHENTICATION_REQUIRED;
   }
 }

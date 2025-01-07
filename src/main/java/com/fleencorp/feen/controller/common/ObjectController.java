@@ -1,10 +1,10 @@
 package com.fleencorp.feen.controller.common;
 
 import com.fleencorp.base.exception.FleenException;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
+import com.fleencorp.localizer.service.Localizer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,15 +27,15 @@ public class ObjectController {
 
   private final StorageService storageService;
   private final S3BucketNames s3BucketNames;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   public ObjectController(
       final StorageService storageService,
       final S3BucketNames s3BucketNames,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.storageService = storageService;
     this.s3BucketNames = s3BucketNames;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   @Operation(summary = "Delete Display or Profile Photo",
@@ -51,7 +51,7 @@ public class ObjectController {
     @Parameter(description = "Object key for the profile photo", required = true)
       @RequestParam(name = "key") final String key) {
     storageService.deleteObjectSilent(s3BucketNames.getUserPhoto(), key);
-    return localizedResponse.of(DeleteResponse.of());
+    return localizer.of(DeleteResponse.of());
   }
 
   @Operation(summary = "Delete a stream's cover photo or thumbnail",
@@ -67,7 +67,7 @@ public class ObjectController {
     @Parameter(description = "Object key for the stream cover photo or thumbnail", required = true)
       @RequestParam(name = "key") final String key) {
     storageService.deleteObjectSilent(s3BucketNames.getStreamCoverPhoto(), key);
-    return localizedResponse.of(DeleteResponse.of());
+    return localizer.of(DeleteResponse.of());
   }
 
 }
