@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.stream;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class StreamAlreadyHappenedException extends FleenException {
+public class StreamAlreadyHappenedException extends ApiException {
 
   @Override
   public String getMessageCode() {

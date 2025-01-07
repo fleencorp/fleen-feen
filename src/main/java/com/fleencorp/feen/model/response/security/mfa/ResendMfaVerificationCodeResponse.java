@@ -1,12 +1,10 @@
 package com.fleencorp.feen.model.response.security.mfa;
 
-import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +16,6 @@ public class ResendMfaVerificationCodeResponse extends ApiResponse {
   }
 
   public static ResendMfaVerificationCodeResponse of() {
-    return ResendMfaVerificationCodeResponse.builder()
-        .build();
+    return new ResendMfaVerificationCodeResponse();
   }
 }

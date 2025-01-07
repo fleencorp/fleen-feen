@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.stream;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class StreamNotCreatedByUserException extends FleenException {
+public class StreamNotCreatedByUserException extends ApiException {
 
   @Override
   public String getMessageCode() {

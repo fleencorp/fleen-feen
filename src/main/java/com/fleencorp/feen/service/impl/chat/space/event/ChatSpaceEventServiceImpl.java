@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.chat.space.event;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
@@ -23,6 +22,7 @@ import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   private final EventUpdateService eventUpdateService;
   private final ChatSpaceRepository chatSpaceRepository;
   private final FleenStreamRepository streamRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final StreamMapper streamMapper;
 
   /**
@@ -66,7 +66,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    * @param eventUpdateService The service for handling event updates.
    * @param chatSpaceRepository The repository for managing chat space entities.
    * @param streamRepository The repository for managing stream entities.
-   * @param localizedResponse The response object used for returning localized messages.
+   * @param localizer The response object used for returning localized messages.
    * @param streamMapper The mapper for converting stream-related data between different formats.
    */
   public ChatSpaceEventServiceImpl(
@@ -77,7 +77,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
       final EventUpdateService eventUpdateService,
       final ChatSpaceRepository chatSpaceRepository,
       final FleenStreamRepository streamRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamMapper streamMapper) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.miscService = miscService;
@@ -86,7 +86,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     this.eventUpdateService = eventUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.streamRepository = streamRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.streamMapper = streamMapper;
   }
 
@@ -117,8 +117,8 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Return a search result view with the chat space event responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ChatSpaceEventSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyChatSpaceEventSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ChatSpaceEventSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyChatSpaceEventSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -163,7 +163,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response with the created event's details
-    return localizedResponse.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
   /**

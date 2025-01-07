@@ -2,14 +2,12 @@ package com.fleencorp.feen.model.response.country;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,8 +27,6 @@ public class RetrieveCountryResponse extends ApiResponse {
   }
 
   public static RetrieveCountryResponse of(final CountryResponse country) {
-    return RetrieveCountryResponse.builder()
-      .country(country)
-      .build();
+    return new RetrieveCountryResponse(country);
   }
 }

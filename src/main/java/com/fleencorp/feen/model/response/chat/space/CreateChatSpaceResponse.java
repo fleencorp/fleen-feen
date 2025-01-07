@@ -3,15 +3,13 @@ package com.fleencorp.feen.model.response.chat.space;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,9 +29,7 @@ public class CreateChatSpaceResponse extends ApiResponse {
     return "create.chat.space";
   }
 
-  public static CreateChatSpaceResponse of(final ChatSpaceResponse response) {
-    return CreateChatSpaceResponse.builder()
-      .chatSpace(response)
-      .build();
+  public static CreateChatSpaceResponse of(final ChatSpaceResponse chatSpaceResponse) {
+    return new CreateChatSpaceResponse(chatSpaceResponse);
   }
 }

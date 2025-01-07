@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.social;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.social.*;
@@ -23,6 +22,7 @@ import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -54,7 +54,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   private final NotificationService notificationService;
   private final MemberRepository memberRepository;
   private final ShareContactRequestRepository shareContactRequestRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final CommonMapper commonMapper;
 
   /**
@@ -65,7 +65,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    * @param notificationService       The service for sending notifications.
    * @param memberRepository          The repository responsible for managing member data.
    * @param shareContactRequestRepository The repository responsible for managing share contact request data.
-   * @param localizedResponse         The service used to fetch localized responses based on the user's locale.
+   * @param localizer         The service used to fetch localized responses based on the user's locale.
    * @param commonMapper             The mapper service responsible for common data transformations.
    */
   public ShareContactRequestServiceImpl(
@@ -73,13 +73,13 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
       final NotificationService notificationService,
       final MemberRepository memberRepository,
       final ShareContactRequestRepository shareContactRequestRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final CommonMapper commonMapper) {
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.memberRepository = memberRepository;
     this.shareContactRequestRepository = shareContactRequestRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.commonMapper = commonMapper;
   }
 
@@ -108,8 +108,8 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     // Return a search result view with the share contact requests responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -143,8 +143,8 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     // Return a search result view with the share contact requests responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -185,8 +185,8 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     // Return a search result view with the share contact requests responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(ShareContactRequestSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyShareContactRequestSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -265,7 +265,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     shareContactRequestRepository.save(shareContactRequest);
 
     // Return response indicating the request was processed
-    return localizedResponse.of(ExpectShareContactRequestResponse.of());
+    return localizer.of(ExpectShareContactRequestResponse.of());
   }
 
   /**
@@ -324,7 +324,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     final ShareContactRequestStatusInfo requestStatusInfo = commonMapper.toShareContactRequestStatusInfo(shareContactRequest.getRequestStatus());
 
     // Return response indicating successful processing of the share contact request
-    return localizedResponse.of(ProcessShareContactRequestResponse.of(requestStatusInfo));
+    return localizer.of(ProcessShareContactRequestResponse.of(requestStatusInfo));
   }
 
   /**
@@ -356,7 +356,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     final ShareContactRequestStatusInfo requestStatusInfo = commonMapper.toShareContactRequestStatusInfo(shareContactRequest.getRequestStatus());
 
     // Return response indicating successful creation of the share contact request
-    return localizedResponse.of(SendShareContactRequestResponse.of(requestStatusInfo));
+    return localizer.of(SendShareContactRequestResponse.of(requestStatusInfo));
   }
 
   /**
@@ -391,7 +391,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     final ShareContactRequestStatusInfo requestStatusInfo = commonMapper.toShareContactRequestStatusInfo(shareContactRequest.getRequestStatus());
 
     // Return response indicating successful cancellation
-    return localizedResponse.of(CancelShareContactRequestResponse.of(requestStatusInfo));
+    return localizer.of(CancelShareContactRequestResponse.of(requestStatusInfo));
   }
 
   /**

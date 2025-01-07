@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.speaker;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
@@ -26,6 +25,7 @@ import com.fleencorp.feen.repository.stream.StreamSpeakerRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.speaker.StreamSpeakerService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private final MemberRepository memberRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamSpeakerRepository streamSpeakerRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final StreamEventPublisher streamEventPublisher;
 
   /**
@@ -74,7 +74,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param memberRepository the repository to manage member entities
    * @param streamAttendeeRepository the repository to manage stream attendee entities
    * @param streamSpeakerRepository the repository to manage stream speaker entities
-   * @param localizedResponse the service to handle localized responses
+   * @param localizer the service to handle localized responses
    * @param streamEventPublisher the publisher to handle stream event-related operations
    */
   public StreamSpeakerServiceImpl(
@@ -83,14 +83,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamSpeakerRepository streamSpeakerRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamEventPublisher streamEventPublisher) {
     this.miscService = miscService;
     this.streamRepository = streamRepository;
     this.memberRepository = memberRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamSpeakerRepository = streamSpeakerRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.streamEventPublisher = streamEventPublisher;
   }
 
@@ -111,8 +111,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Return a search result view with the speaker responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -129,7 +129,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final Set<StreamSpeakerResponse> speakerResponses = toStreamSpeakerResponses(speakers);
     // Return a localized response containing the list of speaker responses
-    return localizedResponse.of(GetStreamSpeakersResponse.of(speakerResponses));
+    return localizer.of(GetStreamSpeakersResponse.of(speakerResponses));
   }
 
   /**
@@ -161,7 +161,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers, dto.getSpeakers());
     // Save all the speakers to the repository
     streamSpeakerRepository.saveAll(speakers);
-    return localizedResponse.of(AddStreamSpeakerResponse.of());
+    return localizer.of(AddStreamSpeakerResponse.of());
   }
 
   /**
@@ -201,7 +201,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       streamSpeakerRepository.saveAll(updatedSpeakers);
     }
     // Return a response indicating that the speakers have been successfully updated
-    return localizedResponse.of(UpdateStreamSpeakerResponse.of());
+    return localizer.of(UpdateStreamSpeakerResponse.of());
   }
 
   /**
@@ -256,7 +256,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       streamSpeakerRepository.deleteAll(speakers);
     }
 
-    return localizedResponse.of(DeleteStreamSpeakerResponse.of());
+    return localizer.of(DeleteStreamSpeakerResponse.of());
   }
 
   /**

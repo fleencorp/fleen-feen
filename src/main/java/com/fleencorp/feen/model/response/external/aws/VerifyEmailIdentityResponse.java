@@ -2,13 +2,11 @@ package com.fleencorp.feen.model.response.external.aws;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

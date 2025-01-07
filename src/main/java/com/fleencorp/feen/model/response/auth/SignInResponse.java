@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.response.auth;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
 import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
@@ -9,6 +8,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

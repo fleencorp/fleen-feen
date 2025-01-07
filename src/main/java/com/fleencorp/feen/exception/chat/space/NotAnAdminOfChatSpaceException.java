@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.chat.space;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class NotAnAdminOfChatSpaceException extends FleenException {
+public class NotAnAdminOfChatSpaceException extends ApiException {
 
   @Override
   public String getMessageCode() {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.response.base.ApiResponse;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaSetupStage;
@@ -12,6 +11,7 @@ import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;

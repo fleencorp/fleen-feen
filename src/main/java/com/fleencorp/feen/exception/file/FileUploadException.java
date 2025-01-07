@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.file;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class FileUploadException extends FleenException {
+public class FileUploadException extends ApiException {
 
   @Override
   public String getMessageCode() {

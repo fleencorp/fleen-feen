@@ -4,21 +4,17 @@ import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2Autho
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 public class RefreshOauth2TokenResponse extends Oauth2AuthorizationResponse {
 
+  public RefreshOauth2TokenResponse(final String accessToken, final String refreshToken, final String tokenType, final Long expiresIn, final String scope) {
+    super(null, null, null, accessToken, refreshToken, tokenType, expiresIn, scope);
+  }
+
   public static RefreshOauth2TokenResponse of(final String accessToken, final String refreshToken, final Long expiresIn, final String tokenType, final String scope) {
-    return RefreshOauth2TokenResponse.builder()
-      .accessToken(accessToken)
-      .refreshToken(refreshToken)
-      .accessTokenExpirationTimeInSeconds(expiresIn)
-      .tokenType(tokenType)
-      .scope(scope)
-      .build();
+    return new RefreshOauth2TokenResponse(accessToken, refreshToken, tokenType, expiresIn, scope);
   }
 }

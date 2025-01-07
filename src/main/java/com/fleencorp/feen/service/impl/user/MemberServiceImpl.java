@@ -2,7 +2,6 @@ package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
@@ -32,6 +31,7 @@ import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.user.MemberService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,7 +65,7 @@ public class MemberServiceImpl implements MemberService,
   private final VerificationService verificationService;
   private final MemberRepository memberRepository;
   private final UserProfileRepository userProfileRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final PasswordEncoder passwordEncoder;
   private final ProfileRequestPublisher profileRequestPublisher;
   private final S3BucketNames s3BucketNames;
@@ -82,7 +82,7 @@ public class MemberServiceImpl implements MemberService,
       final VerificationService verificationService,
       final MemberRepository memberRepository,
       final UserProfileRepository userProfileRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
       final S3BucketNames s3BucketNames) {
@@ -92,7 +92,7 @@ public class MemberServiceImpl implements MemberService,
     this.verificationService = verificationService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
     this.s3BucketNames = s3BucketNames;
@@ -126,8 +126,8 @@ public class MemberServiceImpl implements MemberService,
     final boolean exists = isEmailAddressExist(emailAddress);
     // Return a localized response of the status
     return exists
-      ? localizedResponse.of(EmailAddressExistsResponse.of(true))
-      : localizedResponse.of(EmailAddressNotExistsResponse.of(false));
+      ? localizer.of(EmailAddressExistsResponse.of(true))
+      : localizer.of(EmailAddressNotExistsResponse.of(false));
   }
 
   /**
@@ -157,8 +157,8 @@ public class MemberServiceImpl implements MemberService,
   public EntityExistsResponse verifyMemberPhoneNumberExists(final String phoneNumber) {
     final boolean exists = isPhoneNumberExist(phoneNumber);
     return exists
-      ? localizedResponse.of(PhoneNumberExistsResponse.of(true))
-      : localizedResponse.of(PhoneNumberNotExistsResponse.of(false));
+      ? localizer.of(PhoneNumberExistsResponse.of(true))
+      : localizer.of(PhoneNumberNotExistsResponse.of(false));
   }
 
   /**
@@ -197,7 +197,7 @@ public class MemberServiceImpl implements MemberService,
       .orElseThrow(FailedOperationException::new);
 
     // Return the localized response containing the retrieved member information
-    return localizedResponse.of(RetrieveMemberInfoResponse.of(info));
+    return localizer.of(RetrieveMemberInfoResponse.of(info));
   }
 
   /**
@@ -214,7 +214,7 @@ public class MemberServiceImpl implements MemberService,
       .orElseThrow(FailedOperationException::new);
 
     // Return the localized response containing the retrieved member update information
-    return localizedResponse.of(RetrieveMemberUpdateInfoResponse.of(info));
+    return localizer.of(RetrieveMemberUpdateInfoResponse.of(info));
   }
 
   /**
@@ -231,7 +231,7 @@ public class MemberServiceImpl implements MemberService,
       .orElseThrow(FailedOperationException::new);
 
     // Return the localized response containing the retrieved profile status
-    return localizedResponse.of(RetrieveProfileStatusResponse.of(verificationStatus));
+    return localizer.of(RetrieveProfileStatusResponse.of(verificationStatus));
   }
 
   /**
@@ -263,7 +263,7 @@ public class MemberServiceImpl implements MemberService,
     }
 
     // Return the response indicating successful password update
-    return localizedResponse.of(UpdatePasswordResponse.of());
+    return localizer.of(UpdatePasswordResponse.of());
   }
 
   /**
@@ -286,7 +286,7 @@ public class MemberServiceImpl implements MemberService,
     // Update the user's first and last name
     member.updateDetails(updateProfileInfoDto.getFirstName(), updateProfileInfoDto.getLastName());
     // Return the response indicating successful profile update
-    return localizedResponse.of(UpdateProfileInfoResponse.of());
+    return localizer.of(UpdateProfileInfoResponse.of());
   }
 
   /**
@@ -332,7 +332,7 @@ public class MemberServiceImpl implements MemberService,
     // Save the generated verification code for the member
     saveUpdateEmailOrPhoneVerificationCode(verificationType, member, code);
     // Return the response indicating successful sending of the verification code
-    return localizedResponse.of(SendUpdateEmailOrPhoneVerificationCodeResponse.of());
+    return localizer.of(SendUpdateEmailOrPhoneVerificationCodeResponse.of());
   }
 
   /**
@@ -378,7 +378,7 @@ public class MemberServiceImpl implements MemberService,
     clearUpdateEmailAddressOtp(username);
 
     // Return the response indicating successful email address update
-    return localizedResponse.of(UpdateEmailAddressResponse.of());
+    return localizer.of(UpdateEmailAddressResponse.of());
   }
 
   /**
@@ -424,7 +424,7 @@ public class MemberServiceImpl implements MemberService,
     clearUpdatePhoneNumberOtp(username);
 
     // Return the response indicating successful phone number update
-    return localizedResponse.of(UpdatePhoneNumberResponse.of());
+    return localizer.of(UpdatePhoneNumberResponse.of());
   }
 
   /**
@@ -475,7 +475,7 @@ public class MemberServiceImpl implements MemberService,
     // Save the updated member information to the repository
     memberRepository.save(member);
     // Return a response indicating the successful update of the profile photo
-    return localizedResponse.of(UpdateProfilePhotoResponse.of());
+    return localizer.of(UpdateProfilePhotoResponse.of());
   }
 
   /**
@@ -503,7 +503,7 @@ public class MemberServiceImpl implements MemberService,
     }
 
     // Return a response indicating successful removal of the profile photo
-    return localizedResponse.of(RemoveProfilePhotoResponse.of());
+    return localizer.of(RemoveProfilePhotoResponse.of());
   }
 
   /**
@@ -525,15 +525,15 @@ public class MemberServiceImpl implements MemberService,
     if (ProfileStatus.isInactive(member.getProfileStatus())) {
       // Update the profile status if currently inactive
       userProfileRepository.updateProfileStatus(user.toMember(), profileStatus);
-      return localizedResponse.of(UpdateProfileStatusResponse.of(profileStatus));
+      return localizer.of(UpdateProfileStatusResponse.of(profileStatus));
     } else if (ProfileStatus.isActive(member.getProfileStatus())) {
       // Update the profile status if currently active
       userProfileRepository.updateProfileStatus(user.toMember(), profileStatus);
-      return localizedResponse.of(UpdateProfileStatusResponse.of(profileStatus));
+      return localizer.of(UpdateProfileStatusResponse.of(profileStatus));
     }
 
     // Return a response indicating the status of the profile update operation
-    return localizedResponse.of(UpdateProfileStatusResponse.of(member.getProfileStatus()));
+    return localizer.of(UpdateProfileStatusResponse.of(member.getProfileStatus()));
   }
 
   /**

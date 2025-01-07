@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.calendar;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
@@ -31,6 +30,7 @@ import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -62,7 +62,7 @@ public class CalendarServiceImpl implements CalendarService {
   private final GoogleCalendarService googleCalendarService;
   private final CalendarRepository calendarRepository;
   private final GoogleOauth2Service googleOauth2Service;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
   * Constructs a new CalendarServiceImpl with the specified GoogleCalendarService and CalendarRepository.
@@ -71,19 +71,19 @@ public class CalendarServiceImpl implements CalendarService {
   * @param countryService the service for managing and retrieving countries
   * @param calendarRepository the repository to manage calendar data
   * @param googleOauth2Service the service for interacting with Google Oauth2 service
-  * @param localizedResponse the service for setting localized message to responses
+  * @param localizer the service for setting localized message to responses
   */
   public CalendarServiceImpl(
       final GoogleCalendarService googleCalendarService,
       final CountryService countryService,
       final CalendarRepository calendarRepository,
       final GoogleOauth2Service googleOauth2Service,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.googleCalendarService = googleCalendarService;
     this.countryService = countryService;
     this.calendarRepository = calendarRepository;
     this.googleOauth2Service = googleOauth2Service;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -100,7 +100,7 @@ public class CalendarServiceImpl implements CalendarService {
     // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
     // Return the response object containing both the countries and timezones.
-    return localizedResponse.of(DataForCreateCalendarResponse.of(timezones, countries));
+    return localizer.of(DataForCreateCalendarResponse.of(timezones, countries));
   }
 
   /**
@@ -126,8 +126,8 @@ public class CalendarServiceImpl implements CalendarService {
     // Return a search result view with the calendar responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(CalendarSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyCalendarSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(CalendarSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyCalendarSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -142,7 +142,7 @@ public class CalendarServiceImpl implements CalendarService {
   public RetrieveCalendarResponse findCalendar(final Long calendarId) {
     final Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(CalendarNotFoundException.of(calendarId));
-    return localizedResponse.of(RetrieveCalendarResponse.of(calendarId, toCalendarResponse(calendar)));
+    return localizer.of(RetrieveCalendarResponse.of(calendarId, toCalendarResponse(calendar)));
   }
 
   /**
@@ -190,7 +190,7 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
-    return localizedResponse.of(CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    return localizer.of(CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
 
   /**
@@ -236,7 +236,7 @@ public class CalendarServiceImpl implements CalendarService {
     final GooglePatchCalendarResponse googlePatchCalendarResponse = googleCalendarService.patchCalendar(patchCalendarRequest);
     logIfEnabled(log::isInfoEnabled, () -> log.info("Patch calendar response: {}", googlePatchCalendarResponse));
 
-    return localizedResponse.of(UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    return localizer.of(UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
 
   /**
@@ -278,7 +278,7 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
-    return localizedResponse.of(ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    return localizer.of(ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
   }
 
   /**
@@ -310,7 +310,7 @@ public class CalendarServiceImpl implements CalendarService {
     calendar.markAsInactive();
 
     calendarRepository.save(calendar);
-    return localizedResponse.of(DeletedCalendarResponse.of(calendarId));
+    return localizer.of(DeletedCalendarResponse.of(calendarId));
   }
 
   /**
@@ -355,7 +355,7 @@ public class CalendarServiceImpl implements CalendarService {
         shareCalendarWithUserDto.getEmailAddress(),
         toCalendarResponse(calendar)
       );
-    return localizedResponse.of(shareCalendarWithUserResponse);
+    return localizer.of(shareCalendarWithUserResponse);
   }
 
   /**

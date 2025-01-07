@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.mapper.stream.review.StreamReviewMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -16,6 +15,7 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamReviewRepository;
 import com.fleencorp.feen.service.stream.review.StreamReviewService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +43,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   private final FleenStreamRepository streamRepository;
   private final StreamReviewRepository streamReviewRepository;
   private final StreamReviewMapper streamReviewMapper;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a {@link StreamReviewServiceImpl} instance with the specified dependencies.
@@ -53,17 +53,17 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    *
    * @param streamRepository the repository for accessing stream data
    * @param streamReviewRepository the repository for accessing stream review data
-   * @param localizedResponse the service for generating localized responses
+   * @param localizer the service for generating localized responses
    */
   public StreamReviewServiceImpl(
       final FleenStreamRepository streamRepository,
       final StreamReviewRepository streamReviewRepository,
       final StreamReviewMapper streamReviewMapper,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.streamRepository = streamRepository;
     this.streamReviewRepository = streamReviewRepository;
     this.streamReviewMapper = streamReviewMapper;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -84,8 +84,8 @@ public class StreamReviewServiceImpl implements StreamReviewService {
     // Return a search result view with the review responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -107,8 +107,8 @@ public class StreamReviewServiceImpl implements StreamReviewService {
     // Return a search result view with the review responses and pagination details
     return handleSearchResult(
       page,
-      localizedResponse.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
-      localizedResponse.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
+      localizer.of(StreamReviewSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyStreamReviewSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
 
@@ -137,7 +137,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
     // Save the new StreamReview to the repository
     streamReviewRepository.save(streamReview);
     // Return a localized response for the added review
-    return localizedResponse.of(AddStreamReviewResponse.of());
+    return localizer.of(AddStreamReviewResponse.of());
   }
 
   /**
@@ -155,6 +155,6 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   public DeleteStreamReviewResponse deleteReview(final Long reviewId, final FleenUser user) {
     // Delete the StreamReview associated with the given review ID and user
     streamReviewRepository.deleteByStreamReviewIdAndMember(reviewId, user.toMember());
-    return localizedResponse.of(DeleteStreamReviewResponse.of());
+    return localizer.of(DeleteStreamReviewResponse.of());
   }
 }

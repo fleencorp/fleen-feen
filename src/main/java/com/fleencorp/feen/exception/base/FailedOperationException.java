@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.base;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
-public class FailedOperationException extends FleenException {
+public class FailedOperationException extends ApiException {
 
   @Override
   public String getMessageCode() {

@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.chat.space.join;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.exception.chat.space.*;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
@@ -26,6 +25,7 @@ import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.chat.space.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
+import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +54,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
 
   /**
    * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
@@ -70,7 +70,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
-   * @param localizedResponse provides localized responses for API operations.
+   * @param localizer provides localized responses for API operations.
    */
   public ChatSpaceJoinServiceImpl(
       final ChatSpaceService chatSpaceService,
@@ -80,7 +80,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
-      final LocalizedResponse localizedResponse) {
+      final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceMemberService = chatSpaceMemberService;
     this.notificationMessageService = notificationMessageService;
@@ -88,7 +88,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
   }
 
   /**
@@ -122,7 +122,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Increase total members and save chat space
     increaseTotalMembersAndSave(chatSpace);
     // Return a localized response indicating successful joining
-    return localizedResponse.of(JoinChatSpaceResponse.of());
+    return localizer.of(JoinChatSpaceResponse.of());
   }
 
   /**
@@ -234,7 +234,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final Notification notification = notificationMessageService.ofReceived(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
     notificationService.save(notification);
     // Return a localized response confirming the request to join the chat space
-    return localizedResponse.of(RequestToJoinChatSpaceResponse.of());
+    return localizer.of(RequestToJoinChatSpaceResponse.of());
   }
 
   /**
@@ -338,7 +338,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final Notification notification = notificationMessageService.ofApprovedOrDisapproved(chatSpace, chatSpaceMember, chatSpace.getMember());
     notificationService.save(notification);
     // Return the localized response indicating the result of the processing
-    return localizedResponse.of(ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, processRequestToJoinChatSpaceDto.getActualMemberId()));
+    return localizer.of(ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, processRequestToJoinChatSpaceDto.getActualMemberId()));
   }
 
   /**
@@ -386,7 +386,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Remove the user from the chat space
     chatSpaceMemberService.leaveChatSpaceOrRemoveChatSpaceMember(chatSpace, user.getId());
     // Return a localized response indicating the member removal was successful
-    return localizedResponse.of(LeaveChatSpaceResponse.of());
+    return localizer.of(LeaveChatSpaceResponse.of());
   }
 
   /**

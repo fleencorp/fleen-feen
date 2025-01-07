@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.member;
 
-import com.fleencorp.base.exception.FleenException;
+import com.fleencorp.localizer.model.exception.ApiException;
 
 import java.util.function.Supplier;
 
-public class MemberNotFoundException extends FleenException {
+public class MemberNotFoundException extends ApiException {
 
   @Override
   public String getMessageCode() {

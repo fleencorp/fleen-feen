@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
-import com.fleencorp.base.service.i18n.LocalizedResponse;
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
@@ -27,6 +26,7 @@ import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,7 @@ public class StreamServiceImpl implements StreamService {
   private final StreamAttendeeService attendeeService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
-  private final LocalizedResponse localizedResponse;
+  private final Localizer localizer;
   private final StreamMapper streamMapper;
 
   /**
@@ -80,7 +80,7 @@ public class StreamServiceImpl implements StreamService {
    * @param attendeeService the service responsible for handling stream attendees
    * @param streamRepository the repository for managing stream data
    * @param streamAttendeeRepository the repository for managing stream attendee data
-   * @param localizedResponse the service for handling localized responses
+   * @param localizer the service for handling localized responses
    * @param streamMapper the mapper for converting stream-related objects to different representations
    */
   public StreamServiceImpl(
@@ -89,14 +89,14 @@ public class StreamServiceImpl implements StreamService {
       @Lazy final StreamAttendeeService attendeeService,
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final LocalizedResponse localizedResponse,
+      final Localizer localizer,
       final StreamMapper streamMapper) {
     this.notificationService = notificationService;
     this.notificationMessageService = notificationMessageService;
     this.attendeeService = attendeeService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
-    this.localizedResponse = localizedResponse;
+    this.localizer = localizer;
     this.streamMapper = streamMapper;
   }
 
@@ -223,7 +223,7 @@ public class StreamServiceImpl implements StreamService {
     // Send and save notifications
     sendJoinRequestNotificationForPrivateStream(stream, streamAttendee, user);
     // Return the localized response of the request to join the stream
-    return localizedResponse.of(RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, tryToJoinResponse));
+    return localizer.of(RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, tryToJoinResponse));
   }
 
   /**
