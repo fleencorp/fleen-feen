@@ -15,11 +15,11 @@ public interface StreamSpeakerService {
 
   StreamSpeakerSearchResult findSpeakers(StreamSpeakerSearchRequest searchRequest);
 
-  GetStreamSpeakersResponse getSpeakers(Long eventOrStreamId);
+  GetStreamSpeakersResponse getSpeakers(Long streamId);
 
-  AddStreamSpeakerResponse addSpeakers(Long eventOrStreamId, AddStreamSpeakerDto dto, FleenUser user);
+  AddStreamSpeakerResponse addSpeakers(Long streamId, AddStreamSpeakerDto dto, FleenUser user);
 
-  UpdateStreamSpeakerResponse updateSpeakers(Long eventOrStreamId, UpdateStreamSpeakerDto dto, FleenUser user);
+  UpdateStreamSpeakerResponse updateSpeakers(Long streamId, UpdateStreamSpeakerDto dto, FleenUser user);
 
-  DeleteStreamSpeakerResponse deleteSpeakers(Long eventOrStreamId, DeleteStreamSpeakerDto dto, FleenUser user);
+  DeleteStreamSpeakerResponse deleteSpeakers(Long streamId, DeleteStreamSpeakerDto dto, FleenUser user);
 }

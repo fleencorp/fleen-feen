@@ -407,6 +407,7 @@ public class StreamServiceImpl implements StreamService {
           // If member is an attendee, retrieve the status and set view label
           existingAttendance.ifPresent(attendance -> {
             // Update the request to join status, join status and is attending info
+            log.info("The join status is {}", attendance.getRequestToJoinStatus());
             streamMapper.update(stream, attendance.getRequestToJoinStatus(), attendance.getJoinStatus(), attendance.isAttending());
           });
       });

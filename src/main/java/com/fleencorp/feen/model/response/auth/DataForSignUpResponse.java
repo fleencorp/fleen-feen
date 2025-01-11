@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,8 +31,6 @@ public class DataForSignUpResponse extends ApiResponse {
   }
 
   public static DataForSignUpResponse of(final List<?> countries) {
-    return DataForSignUpResponse.builder()
-      .countries(countries)
-      .build();
+    return new DataForSignUpResponse(countries);
   }
 }

@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,10 +31,7 @@ public class ScheduleTimeTypeInfo {
   private String scheduleTimeTypeText;
 
   public static ScheduleTimeTypeInfo of(final StreamTimeType scheduleTimeType, final String scheduleTimeTypeText) {
-    return ScheduleTimeTypeInfo.builder()
-      .scheduleTimeType(scheduleTimeType)
-      .scheduleTimeTypeText(scheduleTimeTypeText)
-      .build();
+    return new ScheduleTimeTypeInfo(scheduleTimeType, scheduleTimeTypeText);
   }
 }
 

@@ -10,8 +10,8 @@ import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
+import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
@@ -211,14 +211,14 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * stream type info, and other relevant stream data.</p>
    *
    * @param liveBroadcastId the ID of the live broadcast stream to be updated
-   * @param updateLiveBroadcastDto the DTO containing the new details for the live broadcast
-   * @param user the user who is attempting to update the stream
+   * @param updateStreamDto the DTO containing the new details for the live broadcast
+   * @param user            the user who is attempting to update the stream
    * @return a {@link UpdateStreamResponse} containing details of the updated stream
    * @throws Oauth2InvalidAuthorizationException if the user’s OAuth2 authorization is invalid or expired
    */
   @Override
   @Transactional
-  public UpdateStreamResponse updateLiveBroadcast(final Long liveBroadcastId, final UpdateLiveBroadcastDto updateLiveBroadcastDto, final FleenUser user)
+  public UpdateStreamResponse updateLiveBroadcast(final Long liveBroadcastId, final UpdateStreamDto updateStreamDto, final FleenUser user)
       throws Oauth2InvalidAuthorizationException {
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(liveBroadcastId);
@@ -228,16 +228,16 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     final Oauth2Authorization oauth2Authorization = verifyAndGetUserOauth2Authorization(user);
     // Update the stream entity with new title, description, tags, and location
     stream.update(
-      updateLiveBroadcastDto.getTitle(),
-      updateLiveBroadcastDto.getDescription(),
-      updateLiveBroadcastDto.getTags(),
-      updateLiveBroadcastDto.getLocation()
+      updateStreamDto.getTitle(),
+      updateStreamDto.getDescription(),
+      updateStreamDto.getTags(),
+      updateStreamDto.getLocation()
     );
 
     // Save the updated stream to the repository
     stream = streamRepository.save(stream);
     // Create and build patch request
-    final PatchStreamRequest patchStreamRequest = createPatchStreamRequest(oauth2Authorization, stream, updateLiveBroadcastDto);
+    final PatchStreamRequest patchStreamRequest = createPatchStreamRequest(oauth2Authorization, stream, updateStreamDto);
     // Patch or update the stream externally
     patchStreamExternally(patchStreamRequest);
     // Get the stream response
@@ -283,7 +283,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * stream details.</p>
    *
    * @param liveBroadcastId the ID of the live broadcast stream to be rescheduled
-   * @param rescheduleLiveBroadcastDto the DTO containing the new schedule details (start time, end time, timezone)
+   * @param rescheduleStreamDto the DTO containing the new schedule details (start time, end time, timezone)
    * @param user the {@link FleenUser} making the request, used for authorization and validation
    * @return a {@link RescheduleStreamResponse} containing the updated stream details
    * @throws FleenStreamNotFoundException if the stream with the given ID is not found
@@ -291,25 +291,25 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    */
   @Override
   @Transactional
-  public RescheduleStreamResponse rescheduleLiveBroadcast(final Long liveBroadcastId, final RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, final FleenUser user)
+  public RescheduleStreamResponse rescheduleLiveBroadcast(final Long liveBroadcastId, final RescheduleStreamDto rescheduleStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException {
     // Retrieve the FleenStream entity from the repository based on the stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Retrieve the Oauth2 Authorization associated with the user
-    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(rescheduleLiveBroadcastDto.getOauth2ServiceType(), user);
+    final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Update the schedule of the FleenStream entity with new start and end times and timezone
     stream.updateSchedule(
-      rescheduleLiveBroadcastDto.getStartDateTime(),
-      rescheduleLiveBroadcastDto.getEndDateTime(),
-      rescheduleLiveBroadcastDto.getTimezone()
+      rescheduleStreamDto.getStartDateTime(),
+      rescheduleStreamDto.getEndDateTime(),
+      rescheduleStreamDto.getTimezone()
     );
 
     // Save the rescheduled stream to the repository
     streamRepository.save(stream);
     // Create the reschedule stream request
-    final RescheduleStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(oauth2Authorization, stream, rescheduleLiveBroadcastDto);
+    final RescheduleStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(oauth2Authorization, stream, rescheduleStreamDto);
     // Reschedule the stream using an external service
     rescheduleStreamExternally(rescheduleStreamRequest);
     // Convert the stream to the equivalent stream response whether live broadcast or live broadcast or live stream

@@ -34,4 +34,31 @@ public enum ObjectTypeUpload {
   public static ObjectTypeUpload streamCoverPhoto() {
     return STREAM_COVER_PHOTO;
   }
+
+  /**
+   * Checks if the provided object type is a profile photo.
+   *
+   * <p>This method compares the given objectTypeUpload with the predefined PROFILE_PHOTO
+   * constant and returns true if they match.</p>
+   *
+   * @param objectTypeUpload the object type to check
+   * @return true if the object type is a profile photo, false otherwise
+   */
+  public static boolean isProfilePhoto(final ObjectTypeUpload objectTypeUpload) {
+    return objectTypeUpload == PROFILE_PHOTO;
+  }
+
+  /**
+   * Checks if the provided object type is a stream cover photo.
+   *
+   * <p>This method compares the given objectTypeUpload with the predefined STREAM_COVER_PHOTO
+   * constant and returns true if they match.</p>
+   *
+   * @param objectTypeUpload the object type to check
+   * @return true if the object type is a stream cover photo, false otherwise
+   */
+  public static boolean isStreamCoverPhoto(final ObjectTypeUpload objectTypeUpload) {
+    return objectTypeUpload == STREAM_COVER_PHOTO;
+  }
+
 }

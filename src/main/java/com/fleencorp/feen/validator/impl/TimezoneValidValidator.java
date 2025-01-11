@@ -22,19 +22,6 @@ import static java.util.Objects.nonNull;
 public class TimezoneValidValidator implements ConstraintValidator<TimezoneValid, String> {
 
   /**
-  * Constructs a new TimezoneValidValidator.
-  */
-  public TimezoneValidValidator() {}
-
-  /**
-  * Initializes the validator. This method is a no-op for this validator.
-  *
-  * @param constraintAnnotation the annotation instance for a given constraint declaration
-  */
-  @Override
-  public void initialize(final TimezoneValid constraintAnnotation) {}
-
-  /**
   * Checks if the given timezone string is valid by verifying its existence in the available zone IDs.
   *
   * <p>If the timezone string is not null, the method checks if the string is contained within the

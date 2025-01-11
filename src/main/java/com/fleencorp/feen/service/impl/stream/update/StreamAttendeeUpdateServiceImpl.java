@@ -1,0 +1,53 @@
+package com.fleencorp.feen.service.impl.stream.update;
+
+import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
+import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Implementation of the AttendeeUpdateService interface for stream attendees.
+ *
+ * <p>This class provides the functionality for updating attendee information
+ * within the context of a stream. It implements the methods defined in the
+ * AttendeeUpdateService interface to manage and update attendee details related
+ * to streams.</p>
+ *
+ */
+@Service
+public class StreamAttendeeUpdateServiceImpl implements AttendeeUpdateService {
+
+  private final OtherEventUpdateService otherEventUpdateService;
+
+  public StreamAttendeeUpdateServiceImpl(final OtherEventUpdateService otherEventUpdateService) {
+    this.otherEventUpdateService = otherEventUpdateService;
+  }
+
+  /**
+   * Creates a new stream attendee request and sends an invitation to the specified attendee.
+   *
+   * <p>This method constructs an {@code AddNewEventAttendeeRequest} using the provided
+   * calendar ID, stream ID, attendee email address, and an optional comment.
+   * The newly created request is then sent to the {@code eventUpdateService} to add
+   * the attendee to the calendar event.</p>
+   *
+   * @param calendarExternalId The external ID of the calendar to which the stream belongs.
+   * @param streamExternalId The external ID of the stream.
+   * @param attendeeEmailAddress The email address of the attendee to invite.
+   * @param comment An optional comment regarding the attendee invitation.
+   */
+  @Override
+  @Transactional
+  public void createNewEventAttendeeRequestAndSendInvitation(final String calendarExternalId, final String streamExternalId, final String attendeeEmailAddress, final String comment) {
+    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.withComment(
+      calendarExternalId,
+      streamExternalId,
+      attendeeEmailAddress,
+      comment
+    );
+
+    // Send an invitation to the user in the Calendar & Event API
+    otherEventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+  }
+}

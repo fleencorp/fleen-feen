@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Set;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,9 +36,6 @@ public class DataForCreateLiveBroadcastResponse extends ApiResponse {
   }
 
   public static DataForCreateLiveBroadcastResponse of(final Set<String> timezones, final List<?> categories) {
-    return DataForCreateLiveBroadcastResponse.builder()
-      .timezones(timezones)
-      .categories(categories)
-      .build();
+    return new DataForCreateLiveBroadcastResponse(timezones, categories);
   }
 }

@@ -621,7 +621,6 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @param oauth2ServiceType the type of OAuth2 service being validated, e.g., Google, Facebook
    * @param user the authenticated user for whom the token validation and refresh are being performed
    */
-  @Transactional
   public void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     // Create a new authentication request for the specified OAuth2 service type
     final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);

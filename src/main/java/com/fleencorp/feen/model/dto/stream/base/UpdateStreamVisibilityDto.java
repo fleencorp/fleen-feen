@@ -4,6 +4,7 @@ package com.fleencorp.feen.model.dto.stream.base;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.OneOf;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -23,7 +24,21 @@ public class UpdateStreamVisibilityDto {
   @JsonProperty("visibility")
   protected String visibility;
 
+  @NotNull(message = "{stream.streamType.NotNull}")
+  @OneOf(enumClass = StreamType.class, message = "{stream.streamType.Type}", ignoreCase = true)
+  @ToUpperCase
+  @JsonProperty("stream_type")
+  protected String streamType;
+
   public StreamVisibility getActualVisibility() {
     return StreamVisibility.of(visibility);
+  }
+
+  private StreamType getStreamType() {
+    return StreamType.of(streamType);
+  }
+
+  public boolean isEvent() {
+    return StreamType.isEvent(getStreamType());
   }
 }

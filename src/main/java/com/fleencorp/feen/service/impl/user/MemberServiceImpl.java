@@ -9,9 +9,11 @@ import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.profile.*;
+import com.fleencorp.feen.mapper.user.UserMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.user.profile.*;
+import com.fleencorp.feen.model.info.user.ProfileStatusInfo;
 import com.fleencorp.feen.model.projection.MemberInfoSelect;
 import com.fleencorp.feen.model.projection.MemberProfileStatusSelect;
 import com.fleencorp.feen.model.projection.MemberUpdateSelect;
@@ -51,13 +53,13 @@ import static java.util.Objects.nonNull;
  * Implementation of the {@link MemberService}, {@link EmailService}, and {@link PhoneService} interfaces.
  *This class provides functionalities for managing members, including operations related to email and phone services.
  *
- * @author Yusuf Alamu Musa
+ * @author Yusuf Àlàmú Musa
  * @version 1.0
  */
 @Slf4j
 @Service
 public class MemberServiceImpl implements MemberService,
-  EmailService, PasswordService, PhoneService {
+    EmailService, PasswordService, PhoneService {
 
   private final CacheService cacheService;
   private final CountryService countryService;
@@ -68,12 +70,27 @@ public class MemberServiceImpl implements MemberService,
   private final Localizer localizer;
   private final PasswordEncoder passwordEncoder;
   private final ProfileRequestPublisher profileRequestPublisher;
+  private final UserMapper userMapper;
   private final S3BucketNames s3BucketNames;
 
   /**
-   * Constructs a new instance of {@code MemberServiceImpl} with the specified member repository.
+   * Constructs a new instance of {@code MemberServiceImpl} with the specified dependencies.
    *
-   * @param memberRepository the repository used to manage member entities.
+   * <p>This constructor initializes the service with the required components to perform member-related
+   * operations, including caching, country-related services, file storage, verification,
+   * repository access, localization, password encoding, profile publishing, and user mapping.</p>
+   *
+   * @param cacheService            the service used for caching member data
+   * @param countryService          the service providing country-related operations
+   * @param storageService          the service for handling file storage operations
+   * @param verificationService     the service responsible for verifying members
+   * @param memberRepository        the repository for managing member-related database operations
+   * @param userProfileRepository   the repository for handling user profile data access
+   * @param localizer               the service for handling localization of responses
+   * @param passwordEncoder         the encoder for handling password hashing and verification
+   * @param profileRequestPublisher the publisher for handling profile request messages
+   * @param userMapper              the mapper for transforming user data between models
+   * @param s3BucketNames           the configuration class for managing S3 bucket names
    */
   public MemberServiceImpl(
       final CacheService cacheService,
@@ -85,6 +102,7 @@ public class MemberServiceImpl implements MemberService,
       final Localizer localizer,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
+      final UserMapper userMapper,
       final S3BucketNames s3BucketNames) {
     this.cacheService = cacheService;
     this.countryService = countryService;
@@ -95,6 +113,7 @@ public class MemberServiceImpl implements MemberService,
     this.localizer = localizer;
     this.passwordEncoder = passwordEncoder;
     this.profileRequestPublisher = profileRequestPublisher;
+    this.userMapper = userMapper;
     this.s3BucketNames = s3BucketNames;
   }
 
@@ -520,20 +539,21 @@ public class MemberServiceImpl implements MemberService,
       .orElseThrow(FailedOperationException::new);
     // Check and validate if account is banned or disabled
     checkIfProfileIsBannedOrDisabled(member);
+    // Status to update
+    ProfileStatus newProfileStatus = profileStatus;
 
     // Check if the profile status is inactive
-    if (ProfileStatus.isInactive(member.getProfileStatus())) {
+    if (ProfileStatus.isInactive(member.getProfileStatus()) || ProfileStatus.isActive(member.getProfileStatus())) {
       // Update the profile status if currently inactive
       userProfileRepository.updateProfileStatus(user.toMember(), profileStatus);
-      return localizer.of(UpdateProfileStatusResponse.of(profileStatus));
-    } else if (ProfileStatus.isActive(member.getProfileStatus())) {
-      // Update the profile status if currently active
-      userProfileRepository.updateProfileStatus(user.toMember(), profileStatus);
-      return localizer.of(UpdateProfileStatusResponse.of(profileStatus));
+    } else {
+      newProfileStatus = member.getProfileStatus();
     }
 
-    // Return a response indicating the status of the profile update operation
-    return localizer.of(UpdateProfileStatusResponse.of(member.getProfileStatus()));
+    // Retrieve the profile status info
+    final ProfileStatusInfo profileStatusInfo = userMapper.toProfileStatusInfo(newProfileStatus);
+    // Return a localized response
+    return localizer.of(UpdateProfileStatusResponse.of(profileStatusInfo));
   }
 
   /**

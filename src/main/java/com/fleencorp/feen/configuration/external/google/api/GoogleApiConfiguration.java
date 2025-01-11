@@ -118,7 +118,7 @@ public class GoogleApiConfiguration {
     // Convert the object to a JSON string
     final String payload = jsonUtil.convertToString(value);
     // Replace escaped newline characters with actual newline characters
-    return payload.replaceAll("\\\\n", "\n");
+    return payload.replace("\\\\n", "\n");
   }
 
   /**

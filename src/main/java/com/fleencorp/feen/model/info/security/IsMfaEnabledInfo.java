@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.info.security;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,9 +26,6 @@ public class IsMfaEnabledInfo {
   private String mfaEnabledText;
 
   public static IsMfaEnabledInfo of(final Boolean mfaEnabled, final String mfaEnabledText) {
-    return IsMfaEnabledInfo.builder()
-      .mfaEnabled(mfaEnabled)
-      .mfaEnabledText(mfaEnabledText)
-      .build();
+    return new IsMfaEnabledInfo(mfaEnabled, mfaEnabledText);
   }
 }

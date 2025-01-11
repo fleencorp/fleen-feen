@@ -150,14 +150,15 @@ public class StorageService {
    */
   public String generateSignedUrlWithHeaders(final String bucketName, final String objectKey, final String contentType, final SdkHttpMethod httpMethod, final int hour) {
     S3Request s3Request = null;
-    switch (httpMethod) {
-      case PUT -> s3Request = PutObjectRequest
+    if (httpMethod == PUT) {
+      s3Request = PutObjectRequest
         .builder()
         .bucket(bucketName)
         .key(objectKey)
         .contentType(contentType)
         .build();
-      case GET -> s3Request = GetObjectRequest
+    } else if (httpMethod == GET) {
+      s3Request = GetObjectRequest
         .builder()
         .bucket(bucketName)
         .key(objectKey)
@@ -401,7 +402,9 @@ public class StorageService {
           .key(objectKey)
           .build();
         return amazonS3.headObject(headObjectRequest) != null && amazonS3.headObject(headObjectRequest).lastModified() != null;
-      } catch (final S3Exception ignored) {}
+      } catch (final S3Exception ignored) {
+        return false;
+      }
     }
     return false;
   }

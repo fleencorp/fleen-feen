@@ -22,7 +22,7 @@ public enum JoinStatus implements ApiParameter {
   ATTENDED("Attended", "join.status.attended", "join.status.attended.2"),
   ATTENDING("Attending", "join.status.attending", "join.status.attending.2"),
   NOT_ATTENDING("Not Attending", "join.status.not.attending", "join.status.not.attending.2"),
-  JOINED_EVENT_OR_STREAM("Going", "join.status.joined.event.or.stream", "join.status.joined.event.or.stream.2"),
+  JOINED_STREAM("Going", "join.status.joined.stream", "join.status.joined.stream.2"),
   JOINED_CHAT_SPACE("Joined", "join.status.joined.chat.space", "join.status.joined.chat.space.2"),
   NOT_JOINED("Join", "join.status.not.joined", "join.status.not.joined.2"),
   NOT_JOINED_PUBLIC("Join", "join.status.not.joined.public", "join.status.not.joined.public.2"),
@@ -43,11 +43,11 @@ public enum JoinStatus implements ApiParameter {
   }
 
   /**
-   * Returns the join status based on the request-to-join status, stream visibility, attendance, and event occurrence.
+   * Returns the join status based on the request-to-join status, stream visibility, attendance, and stream occurrence.
    *
    * @param requestToJoinStatus the status of the request to join the stream
    * @param visibility the visibility of the stream, indicating whether it is public or private
-   * @param hasHappened {@code true} if the event or stream has already occurred, {@code false} otherwise
+   * @param hasHappened {@code true} if the stream has already occurred, {@code false} otherwise
    * @param isAttending {@code true} if the attendee is currently attending, {@code false} otherwise
    * @return the join status based on the parameters
    */
@@ -57,7 +57,7 @@ public enum JoinStatus implements ApiParameter {
     } else if (isApprovedButNotAttending(requestToJoinStatus, isAttending)) {
       return JoinStatus.notAttending();
     } else if (isApprovedAndVisible(visibility, requestToJoinStatus)) {
-      return JoinStatus.joinedEventOrStream();
+      return JoinStatus.joinedStream();
     } else if (isDisapprovedForPrivate(visibility, requestToJoinStatus)) {
       return JoinStatus.notJoinedPrivate();
     } else if (isDisapprovedForPublic(visibility, requestToJoinStatus)) {
@@ -194,7 +194,7 @@ public enum JoinStatus implements ApiParameter {
    * @return {@code true} if the status is not "Joined", {@code false} otherwise
    */
   public static boolean isNotApproved(final JoinStatus joinStatus) {
-    return JOINED != joinStatus;
+    return JOINED != joinStatus && JOINED_STREAM != joinStatus;
   }
 
   public static JoinStatus pending() {
@@ -213,8 +213,8 @@ public enum JoinStatus implements ApiParameter {
     return JOINED_CHAT_SPACE;
   }
 
-  public static JoinStatus joinedEventOrStream() {
-    return JOINED_EVENT_OR_STREAM;
+  public static JoinStatus joinedStream() {
+    return JOINED_STREAM;
   }
 
   public static JoinStatus attended() {

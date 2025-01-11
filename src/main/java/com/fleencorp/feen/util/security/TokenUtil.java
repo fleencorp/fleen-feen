@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.*;
 import java.util.function.Function;
@@ -53,6 +54,7 @@ public class TokenUtil {
   private final String jwtIssuer;
   private final String jwtSecret;
   private final TokenDurationProperties tokenDurationProperties;
+  public static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   public TokenUtil(
       final ObjectMapper objectMapper,

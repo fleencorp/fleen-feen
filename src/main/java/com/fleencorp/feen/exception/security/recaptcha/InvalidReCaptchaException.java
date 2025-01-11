@@ -12,13 +12,13 @@ import java.util.Objects;
  */
 public class InvalidReCaptchaException extends ApiException {
 
-  public static final String MESSAGE = "Invalid ReCaptcha!!!";
+  public static final String DEFAULT_MESSAGE = "Invalid ReCaptcha!!!";
 
   public InvalidReCaptchaException(final String message) {
-    super(Objects.toString(message, MESSAGE));
+    super(Objects.toString(message, DEFAULT_MESSAGE));
   }
 
   public InvalidReCaptchaException() {
-    super(MESSAGE);
+    super(DEFAULT_MESSAGE);
   }
 }

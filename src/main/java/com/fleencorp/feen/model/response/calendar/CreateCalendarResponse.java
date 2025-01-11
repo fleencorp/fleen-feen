@@ -5,9 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,9 +34,6 @@ public class CreateCalendarResponse extends ApiResponse {
   }
 
   public static CreateCalendarResponse of(final Long calendarId, final CalendarResponse calendar) {
-    return CreateCalendarResponse.builder()
-            .calendarId(calendarId)
-            .calendar(calendar)
-            .build();
+    return new CreateCalendarResponse(calendarId, calendar);
   }
 }

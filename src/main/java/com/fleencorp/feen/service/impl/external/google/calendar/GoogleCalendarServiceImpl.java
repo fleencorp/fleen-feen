@@ -6,10 +6,10 @@ import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.request.calendar.calendar.*;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.*;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
+import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
 import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.AclRule;
 import com.google.api.services.calendar.model.CalendarList;
 import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.ConferenceProperties;
@@ -44,16 +44,18 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
+  private final GoogleCalendarUpdateService googleCalendarUpdateService;
   private final ReporterService reporterService;
   private final String applicationName;
   private final String serviceAccountDelegatedAuthorityEmail;
   private final String originDomain;
 
   /**
-   * Constructs a new GoogleCalendarService configured to interact with the Google Calendar API.
+   * Constructs a new {@link GoogleCalendarService} configured to interact with the Google Calendar API.
    * This service facilitates operations such as creating, sharing, and managing calendars and events
    * using a delegated service account.
    *
+   * @param googleCalendarUpdateService the GoogleCalendarUpdateService instance for updating Google Calendar events
    * @param applicationName the name of the application, used in the User-Agent header for requests to the Google Calendar API.
    *                        This helps identify the application in API usage logs, and is typically specified via the
    *                        {@code application.name} property.
@@ -67,10 +69,12 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
    */
 
   public GoogleCalendarServiceImpl(
+      final GoogleCalendarUpdateService googleCalendarUpdateService,
       @Value("${application.name}") final String applicationName,
       @Value("${service.account.delegated.authority.email}") final String serviceAccountDelegatedAuthorityEmail,
       @Value("${origin-domain}") final String originDomain,
       final ReporterService reporterService) {
+    this.googleCalendarUpdateService = googleCalendarUpdateService;
     this.applicationName = applicationName;
     this.serviceAccountDelegatedAuthorityEmail = serviceAccountDelegatedAuthorityEmail;
     this.originDomain = originDomain;
@@ -137,7 +141,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
   public void shareCalendarWithServiceAccountEmail(final String calendarId, final String calendarCreatorEmailAddress, final String accessToken) {
     if (isInternalEmailOrEmailIsAnOriginEmail(originDomain, calendarCreatorEmailAddress)) {
       final ShareCalendarWithUserRequest scheduleWithUserRequest = ShareCalendarWithUserRequest.of(calendarId, serviceAccountDelegatedAuthorityEmail, accessToken);
-      shareCalendarWithUser(scheduleWithUserRequest);
+      googleCalendarUpdateService.shareCalendarWithUser(scheduleWithUserRequest);
     }
   }
 
@@ -287,61 +291,6 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
       logIfEnabled(log::isErrorEnabled, () -> log.error("Cannot update. Calendar does not exist or cannot be found. {}", patchCalendarRequest.getCalendarId()));
     } catch (final IOException ex) {
       final String errorMessage = String.format("Error occurred while patching calendar. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
-    }
-    throw new UnableToCompleteOperationException();
-  }
-
-  /**
-   * Shares a specific calendar with a user based on the provided request parameters.
-   *
-   * <p>This method retrieves the calendar identified by {@code calendarId} from the Google Calendar service,
-   * creates an ACL rule to grant specified access rights to the user identified by {@code emailAddress},
-   * and shares the calendar accordingly. If an error occurs during the sharing process, it is logged.</p>
-   *
-   * @param shareCalendarWithUserRequest the request object containing the calendar ID, email address of the user,
-   *                                     ACL scope type, and ACL role
-   * @return {@link GoogleShareCalendarWithUserResponse} the response containing the calendar shared with the user
-   * @throws UnableToCompleteOperationException the operation cannot be completed
-   *
-   * @see <a href="https://developers.google.com/calendar/api/v3/reference/acl">
-   *   Acl</a>
-   */
-  @Override
-  @MeasureExecutionTime
-  public GoogleShareCalendarWithUserResponse shareCalendarWithUser(final ShareCalendarWithUserRequest shareCalendarWithUserRequest) {
-    try {
-      // Retrieve the calendar from Google Calendar service based on the calendar ID
-      final com.google.api.services.calendar.model.Calendar calendar = getService(shareCalendarWithUserRequest.getAccessToken()).calendars()
-              .get(shareCalendarWithUserRequest.getCalendarId())
-              .execute();
-
-      if (nonNull(calendar)) {
-        // Create an ACL rule to specify access rights for the user
-        final AclRule aclRule = new AclRule();
-        final AclRule.Scope scope = new AclRule.Scope();
-        scope.setType(shareCalendarWithUserRequest.getAclScopeType().getValue())
-              .setValue(shareCalendarWithUserRequest.getEmailAddress());
-
-        // Set the AclRule scope for the user the calendar is to be shared with
-        aclRule
-          .setScope(scope)
-          .setRole(shareCalendarWithUserRequest.getAclRole().getValue());
-
-        // Insert the ACL rule to share the calendar with the user
-        getService(shareCalendarWithUserRequest.getAccessToken())
-              .acl()
-              .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
-              .execute();
-
-        return GoogleShareCalendarWithUserResponse
-          .of(shareCalendarWithUserRequest.getCalendarId(),
-              shareCalendarWithUserRequest.getEmailAddress(),
-              mapToCalendarResponse(calendar));
-      }
-      logIfEnabled(log::isErrorEnabled, () -> log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId()));
-    } catch (final IOException ex) {
-      final String errorMessage = String.format("Error occurred while sharing calendar. Reason: %s", ex.getMessage());
       reporterService.sendMessage(errorMessage, GOOGLE_CALENDAR);
     }
     throw new UnableToCompleteOperationException();

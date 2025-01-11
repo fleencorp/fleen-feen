@@ -34,9 +34,9 @@ public class AddContactDto {
   private String contactType;
 
   public Contact toContact(final Member member) {
-    final Contact contact = toContact();
-    contact.setOwner(member);
-    return contact;
+    final Contact newContact = toContact();
+    newContact.setOwner(member);
+    return newContact;
   }
 
   public Contact toContact() {
