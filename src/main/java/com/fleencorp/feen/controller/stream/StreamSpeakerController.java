@@ -33,36 +33,36 @@ public class StreamSpeakerController {
     return streamSpeakerService.findSpeakers(searchRequest);
   }
 
-  @GetMapping(value = "/entries/{eventOrStreamId}")
+  @GetMapping(value = "/entries/{streamId}")
   public GetStreamSpeakersResponse getStreamSpeakers(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId) {
-    return streamSpeakerService.getSpeakers(eventOrStreamId);
+      @PathVariable(name = "streamId") final Long streamId) {
+    return streamSpeakerService.getSpeakers(streamId);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @PostMapping(value = "/add/{eventOrStreamId}")
+  @PostMapping(value = "/add/{streamId}")
   public AddStreamSpeakerResponse addStreamSpeaker(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final AddStreamSpeakerDto addStreamSpeakerDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return streamSpeakerService.addSpeakers(eventOrStreamId, addStreamSpeakerDto, user);
+    return streamSpeakerService.addSpeakers(streamId, addStreamSpeakerDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @PutMapping(value = "/update/{eventOrStreamId}")
+  @PutMapping(value = "/update/{streamId}")
   public UpdateStreamSpeakerResponse updateStreamSpeaker(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final UpdateStreamSpeakerDto updateStreamSpeakerDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return streamSpeakerService.updateSpeakers(eventOrStreamId, updateStreamSpeakerDto, user);
+    return streamSpeakerService.updateSpeakers(streamId, updateStreamSpeakerDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @DeleteMapping(value = "/delete/{eventOrStreamId}")
+  @DeleteMapping(value = "/delete/{streamId}")
   public DeleteStreamSpeakerResponse deleteStreamSpeaker(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final DeleteStreamSpeakerDto deleteStreamSpeakerDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return streamSpeakerService.deleteSpeakers(eventOrStreamId, deleteStreamSpeakerDto, user);
+    return streamSpeakerService.deleteSpeakers(streamId, deleteStreamSpeakerDto, user);
   }
 }

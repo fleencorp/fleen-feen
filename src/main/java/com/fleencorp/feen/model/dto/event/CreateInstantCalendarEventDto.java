@@ -24,8 +24,8 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 @AllArgsConstructor
 public class CreateInstantCalendarEventDto {
 
-  @NotBlank(message = "{event.title.NotBlank}")
-  @Size(min = 10, max = 500, message = "{event.title.Size}")
+  @NotBlank(message = "{stream.title.NotBlank}")
+  @Size(min = 10, max = 500, message = "{stream.title.Size}")
   @JsonProperty("title")
   private String title;
 

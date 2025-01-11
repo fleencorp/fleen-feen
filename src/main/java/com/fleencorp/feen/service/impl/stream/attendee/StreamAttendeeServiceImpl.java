@@ -14,7 +14,6 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
@@ -27,7 +26,7 @@ import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -64,7 +63,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
 
   private final MiscService miscService;
   private final StreamService streamService;
-  private final EventUpdateService eventUpdateService;
+  private final AttendeeUpdateService attendeeUpdateService;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final Localizer localizer;
   private final StreamAttendeeMapper attendeeMapper;
@@ -72,34 +71,27 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   private static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
 
   /**
-   * Implementation of the {@link StreamAttendeeService} interface for managing stream attendee-related operations.
+   * Constructs a new instance of {@code StreamAttendeeServiceImpl} with the specified services and dependencies.
    *
-   * <p>This class is responsible for managing attendees of streams, including adding, updating, and removing attendees.
-   * It also coordinates with other services like {@link StreamService} and {@link EventUpdateService} to ensure that attendee
-   * data is properly handled and synchronized with stream information.</p>
-   *
-   * <p>It utilizes various injected dependencies for accessing stream data, attendee data, and event-related updates,
-   * while also providing localized responses and mapping functionality for stream and attendee objects.</p>
-   *
-   * @param miscService The service for handling miscellaneous operations like calendar management.
-   * @param streamService The service responsible for stream-related operations.
-   * @param eventUpdateService The service for handling updates to events.
-   * @param streamAttendeeRepository The repository for accessing stream attendee data.
-   * @param localizer The service used to return localized responses.
-   * @param attendeeMapper The mapper used for mapping stream attendee objects.
-   * @param streamMapper The mapper used for mapping stream objects.
+   * @param miscService               the service for miscellaneous operations
+   * @param streamService             the service for managing streams
+   * @param attendeeUpdateService     the service for handling attendee updates
+   * @param streamAttendeeRepository  the repository for managing stream attendee data
+   * @param localizer                 the service for localization tasks
+   * @param attendeeMapper            the mapper for mapping attendee data
+   * @param streamMapper              the mapper for mapping stream data
    */
   public StreamAttendeeServiceImpl(
       final MiscService miscService,
       final StreamService streamService,
-      final EventUpdateService eventUpdateService,
+      final AttendeeUpdateService attendeeUpdateService,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
       final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
-    this.eventUpdateService = eventUpdateService;
+    this.attendeeUpdateService = attendeeUpdateService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.localizer = localizer;
     this.attendeeMapper = attendeeMapper;
@@ -271,35 +263,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       // Find calendar associated with user's country
       final Calendar calendar = miscService.findCalendar(user.getCountry());
       // Create and add stream attendee to Calendar Event and send invitation
-      createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), streamExternalId, user.getEmailAddress(), comment);
+      attendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), streamExternalId, user.getEmailAddress(), comment);
     }
-  }
-
-  /**
-   * Creates a new stream attendee request and sends an invitation to the specified attendee.
-   *
-   * <p>This method constructs an {@code AddNewEventAttendeeRequest} using the provided
-   * calendar ID, stream ID, attendee email address, and an optional comment.
-   * The newly created request is then sent to the {@code eventUpdateService} to add
-   * the attendee to the calendar event.</p>
-   *
-   * @param calendarExternalId The external ID of the calendar to which the stream belongs.
-   * @param streamExternalId The external ID of the stream.
-   * @param attendeeEmailAddress The email address of the attendee to invite.
-   * @param comment An optional comment regarding the attendee invitation.
-   */
-  @Override
-  @Transactional
-  public void createNewEventAttendeeRequestAndSendInvitation(final String calendarExternalId, final String streamExternalId, final String attendeeEmailAddress, final String comment) {
-    final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.withComment(
-      calendarExternalId,
-      streamExternalId,
-      attendeeEmailAddress,
-      comment
-    );
-
-    // Send an invitation to the user in the Calendar & Event API
-    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
   }
 
   /**

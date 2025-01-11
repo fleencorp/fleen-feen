@@ -28,8 +28,6 @@ public interface StreamAttendeeService {
 
   void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, FleenUser user);
 
-  void createNewEventAttendeeRequestAndSendInvitation(String calendarExternalId, String streamExternalId, String attendeeEmailAddress, String comment);
-
   Set<StreamAttendee> getAttendeesGoingToStream(FleenStream stream);
 
   StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws FleenStreamNotFoundException;

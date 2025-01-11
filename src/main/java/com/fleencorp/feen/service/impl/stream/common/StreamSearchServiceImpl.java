@@ -156,7 +156,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Convert the page content to FleenStreamResponse objects
     final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponses(page.getContent());
     // Return the processed and localized response
-    return processStreamsAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
 
   /**
@@ -235,7 +235,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Set other schedule details if user timezone is different
     streamService.setOtherScheduleBasedOnUserTimezone(views, user);
     // Return the processed and localized response
-    return processStreamsAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
 
   /**
@@ -275,7 +275,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Convert the streams to response views
     final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
     // Return the processed and localized response
-    return processStreamsAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
 
   /**
@@ -309,7 +309,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Convert the streams to response views
     final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
     // Return the processed and localized response
-    return processStreamsAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
 
   /**
@@ -327,7 +327,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @param searchRequest the request object containing search parameters, such as the stream type
    * @return a localized response containing the search result with stream responses and pagination details
    */
-  protected StreamSearchResult processStreamsAttendedByUserOrAttendedWithAnotherUser(final List<FleenStreamResponse> views, final Page<FleenStream> page, final StreamSearchRequest searchRequest) {
+  protected StreamSearchResult processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(final List<FleenStreamResponse> views, final Page<FleenStream> page, final StreamSearchRequest searchRequest) {
     // Set the attendees and total number of attendees for each stream
     streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(views);
     // Retrieve the first 10 attendees in any order

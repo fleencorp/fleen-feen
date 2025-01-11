@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,9 +31,6 @@ public class ChatSpaceVisibilityInfo {
   private String visibilityText;
 
   public static ChatSpaceVisibilityInfo of(final ChatSpaceVisibility visibility, final String visibilityText) {
-    return ChatSpaceVisibilityInfo.builder()
-      .visibility(visibility)
-      .visibilityText(visibilityText)
-      .build();
+    return new ChatSpaceVisibilityInfo(visibility, visibilityText);
   }
 }

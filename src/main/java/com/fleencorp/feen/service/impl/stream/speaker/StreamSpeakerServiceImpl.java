@@ -119,13 +119,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   /**
    * Retrieves the speakers for a specified event or stream.
    *
-   * @param eventOrStreamId The ID of the event or stream for which to retrieve speakers.
+   * @param streamId The ID of the event or stream for which to retrieve speakers.
    * @return A {@link GetStreamSpeakersResponse} containing the details of the speakers.
    */
   @Override
-  public GetStreamSpeakersResponse getSpeakers(final Long eventOrStreamId) {
+  public GetStreamSpeakersResponse getSpeakers(final Long streamId) {
     // Fetch all StreamSpeaker entities associated with the given event or stream ID
-    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByFleenStream(FleenStream.of(eventOrStreamId));
+    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByFleenStream(FleenStream.of(streamId));
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final Set<StreamSpeakerResponse> speakerResponses = toStreamSpeakerResponses(speakers);
     // Return a localized response containing the list of speaker responses
@@ -140,7 +140,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * specified event or stream. It then validates that all member IDs associated with the speakers exist
    * in the repository. If the validation passes, the speakers are saved to the repository.</p>
    *
-   * @param eventOrStreamId the ID of the event or stream to add speakers to
+   * @param streamId the ID of the event or stream to add speakers to
    * @param dto the {@link AddStreamSpeakerDto} containing the speaker information to add
    * @param user the {@link FleenUser} performing the add operation
    * @return an {@link AddStreamSpeakerResponse} indicating the outcome of the addition
@@ -149,9 +149,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   @Transactional
-  public AddStreamSpeakerResponse addSpeakers(final Long eventOrStreamId, final AddStreamSpeakerDto dto, final FleenUser user) {
+  public AddStreamSpeakerResponse addSpeakers(final Long streamId, final AddStreamSpeakerDto dto, final FleenUser user) {
     // Check if the event or stream with the given ID exists, throw exception if not
-    final FleenStream stream = getAndVerifyStreamDetails(eventOrStreamId, user);
+    final FleenStream stream = getAndVerifyStreamDetails(streamId, user);
     // Convert the DTO to a set of StreamSpeaker objects linked to the specified event or stream
     final Set<StreamSpeaker> speakers = dto.toStreamSpeakers(stream);
 
@@ -172,7 +172,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * to the specified event or stream. The method ensures that all member IDs associated with the speakers
    * exist in the repository. If the validation is successful, it saves the updated speakers to the repository.</p>
    *
-   * @param eventOrStreamId the ID of the event or stream to update speakers for
+   * @param streamId the ID of the event or stream to update speakers for
    * @param dto the {@link UpdateStreamSpeakerDto} containing the speaker information to update
    * @param user the {@link FleenUser} performing the update operation
    * @return an {@link UpdateStreamSpeakerResponse} indicating the outcome of the update
@@ -181,11 +181,11 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   @Transactional
-  public UpdateStreamSpeakerResponse updateSpeakers(final Long eventOrStreamId, final UpdateStreamSpeakerDto dto, final FleenUser user) {
+  public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final FleenUser user) {
     // Check if the event or stream with the given ID exists, throw exception if not
-    final FleenStream stream = getAndVerifyStreamDetails(eventOrStreamId, user);
+    final FleenStream stream = getAndVerifyStreamDetails(streamId, user);
     // Convert the DTO to a set of StreamSpeaker entities, associating them with the specified event or stream
-    final Set<StreamSpeaker> newSpeakers = dto.toStreamSpeakers(FleenStream.of(eventOrStreamId));
+    final Set<StreamSpeaker> newSpeakers = dto.toStreamSpeakers(FleenStream.of(streamId));
     // Ensure all member IDs in the speakers are valid and exist
     checkIfNonNullMemberIdsExists(newSpeakers);
     // Process the speakers by checking for existing entries in the database
@@ -237,16 +237,16 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   /**
    * Deletes the specified speakers from a given event or stream.
    *
-   * @param eventOrStreamId The ID of the event or stream from which speakers are to be deleted.
+   * @param streamId The ID of the event or stream from which speakers are to be deleted.
    * @param dto A {@link DeleteStreamSpeakerDto} containing the details of the speakers to be deleted.
    * @param user The user performing the delete operation.
    * @return A {@link DeleteStreamSpeakerResponse} indicating the result of the delete operation.
    */
   @Override
   @Transactional
-  public DeleteStreamSpeakerResponse deleteSpeakers(final Long eventOrStreamId, final DeleteStreamSpeakerDto dto, final FleenUser user) {
+  public DeleteStreamSpeakerResponse deleteSpeakers(final Long streamId, final DeleteStreamSpeakerDto dto, final FleenUser user) {
     // Check if the event or stream with the given ID exists, throw exception if not
-    getAndVerifyStreamDetails(eventOrStreamId, user);
+    getAndVerifyStreamDetails(streamId, user);
     // Get all stream speakers from dto
     final Set<StreamSpeaker> speakers = dto.toStreamSpeakers();
 

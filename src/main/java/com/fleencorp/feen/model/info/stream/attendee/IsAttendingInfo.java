@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.info.stream.attendee;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,10 +26,7 @@ public class IsAttendingInfo {
   private String attendingText;
 
   public static IsAttendingInfo of(final Boolean isAttending, final String isAttendingText) {
-    return IsAttendingInfo.builder()
-      .attending(isAttending)
-      .attendingText(isAttendingText)
-      .build();
+    return new IsAttendingInfo(isAttending, isAttendingText);
   }
 
   public static IsAttendingInfo of() {

@@ -1,13 +1,18 @@
 package com.fleencorp.feen.model.response.social.block;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,15 +35,12 @@ public class BlockUserStatusResponse extends ApiResponse {
       : "block.user.status.unblocked";
   }
 
-  @JsonIgnore
   @Override
   public Object[] getParams() {
     return new Object[] { blockStatus };
   }
 
   public static BlockUserStatusResponse of(final BlockStatus blockStatus) {
-    return BlockUserStatusResponse.builder()
-        .blockStatus(blockStatus)
-        .build();
+    return new BlockUserStatusResponse(blockStatus);
   }
 }

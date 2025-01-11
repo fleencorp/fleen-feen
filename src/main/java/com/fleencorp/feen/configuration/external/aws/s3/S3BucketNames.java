@@ -46,13 +46,10 @@ public class S3BucketNames {
    * @return the URL or path to the corresponding photo, either the user's profile photo or the stream cover photo.
    */
   public String byObjectType(final ObjectTypeUpload objectTypeUpload) {
-    switch (objectTypeUpload) {
-      case PROFILE_PHOTO -> {
-        return userPhoto;
-      }
-      case STREAM_COVER_PHOTO -> {
-        return streamCoverPhoto;
-      }
+    if (ObjectTypeUpload.isProfilePhoto(objectTypeUpload)) {
+      return userPhoto;
+    } else if (ObjectTypeUpload.isStreamCoverPhoto(objectTypeUpload)) {
+      return streamCoverPhoto;
     }
     return userPhoto;
   }

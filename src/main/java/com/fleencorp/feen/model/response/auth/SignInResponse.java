@@ -91,15 +91,12 @@ public class SignInResponse extends ApiResponse {
 
   @JsonIgnore
   public String getMfaMessageCode() {
-    if (MfaType.isAuthenticator(getMfaType())) {
-      return getMfaAuthenticatorMessageCode();
-    } else {
-      return getMfaEmailOrPhoneMessageCode();
-    }
+    return MfaType.isAuthenticator(getMfaType())
+      ? getMfaAuthenticatorMessageCode()
+      : getMfaEmailOrPhoneMessageCode();
   }
 
   @Override
-  @JsonIgnore
   public Object[] getParams() {
     final String verificationType = MfaType.isPhone(getMfaType()) ? phoneNumber.toString() : emailAddress.toString();
     return new Object[] { verificationType };

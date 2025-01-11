@@ -6,9 +6,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,9 +34,6 @@ public class MfaStatusResponse extends ApiResponse {
   }
 
   public static MfaStatusResponse of(final IsMfaEnabledInfo mfaEnabledInfo, final MfaTypeInfo mfaTypeInfo) {
-    return MfaStatusResponse.builder()
-      .mfaEnabledInfo(mfaEnabledInfo)
-      .mfaTypeInfo(mfaTypeInfo)
-      .build();
+    return new MfaStatusResponse(mfaEnabledInfo, mfaTypeInfo);
   }
 }
