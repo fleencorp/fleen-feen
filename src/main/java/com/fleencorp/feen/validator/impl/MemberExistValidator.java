@@ -32,14 +32,6 @@ public class MemberExistValidator implements ConstraintValidator<MemberExist, St
   }
 
   /**
-   * Initializes the validator. This method is a no-op for this validator.
-   *
-   * @param constraintAnnotation the annotation instance for a given constraint declaration
-   */
-  @Override
-  public void initialize(final MemberExist constraintAnnotation) {}
-
-  /**
    * Validates whether the given member ID exists.
    *
    * @param memberId The member ID to validate, provided as a string.
@@ -49,10 +41,7 @@ public class MemberExistValidator implements ConstraintValidator<MemberExist, St
   @Override
   public boolean isValid(final String memberId, final ConstraintValidatorContext context) {
     if (nonNull(memberId)) {
-      try {
-        return service.isIdExists(Long.parseLong(memberId));
-      } catch (final RuntimeException ignored) {}
-      return false;
+      return service.isIdExists(Long.parseLong(memberId));
     }
     return true;
   }

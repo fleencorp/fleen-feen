@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,8 +29,6 @@ public class InitiatePasswordChangeResponse extends ApiResponse {
   }
 
   public static InitiatePasswordChangeResponse of(final String accessToken) {
-    return InitiatePasswordChangeResponse.builder()
-        .accessToken(accessToken)
-        .build();
+    return new InitiatePasswordChangeResponse(accessToken);
   }
 }

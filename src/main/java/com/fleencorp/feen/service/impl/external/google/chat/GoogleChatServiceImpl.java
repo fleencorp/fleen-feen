@@ -13,12 +13,12 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteC
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleRetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
+import com.fleencorp.feen.service.external.google.chat.GoogleChatUpdateService;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.fleencorp.feen.util.external.google.GoogleChatMessageBuilder;
 import com.google.chat.v1.*;
 import com.google.protobuf.FieldMask;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -47,25 +47,31 @@ import static java.util.Objects.requireNonNull;
 @Component
 public class GoogleChatServiceImpl implements GoogleChatService {
 
+  private final GoogleChatUpdateService googleChatUpdateService;
   private final ChatServiceClient chatBot;
   private final ChatServiceClient chatService;
   private final ReporterService reporterService;
 
   /**
-   * Constructs a new instance of GoogleChatService.
+   * Creates an instance of GoogleChatServiceImpl with the specified service clients.
    *
-   * <p>This constructor initializes the GoogleChatService with the specified
-   * ChatServiceClient instances for standard and chat bot services, as well as
-   * the ReporterService for handling reporting operations.</p>
+   * <p>This constructor initializes the GoogleChatServiceImpl instance with the provided
+   * GoogleChatUpdateService for handling chat updates, along with ChatServiceClients for
+   * both standard chat and chat bot operations. Additionally, a ReporterService is provided
+   * for reporting-related functionality.</p>
    *
-   * @param chatService the ChatServiceClient instance for standard chat operations
-   * @param reporterService the ReporterService instance for reporting operations
+   * @param googleChatUpdateService the GoogleChatUpdateService instance for managing chat updates
+   * @param chatBot the ChatServiceClient instance used for chat bot-related operations
+   * @param chatService the ChatServiceClient instance used for standard chat operations
+   * @param reporterService the ReporterService instance used for reporting operations
    */
   public GoogleChatServiceImpl(
+      final GoogleChatUpdateService googleChatUpdateService,
       final ChatServiceClient chatBot,
       final ChatServiceClient chatService,
       final ReporterService reporterService) {
-    this.chatBot = requireNonNull(chatBot);
+    this.googleChatUpdateService = requireNonNull(googleChatUpdateService);
+    this.chatBot = chatBot;
     this.chatService = chatService;
     this.reporterService = reporterService;
   }
@@ -108,9 +114,9 @@ public class GoogleChatServiceImpl implements GoogleChatService {
       // Check if the space is created
       if (nonNull(createdSpace)) {
         // Update the space history state
-        updateNewSpaceHistoryState(createChatSpaceRequest, createdSpace);
+        googleChatUpdateService.updateNewSpaceHistoryState(createChatSpaceRequest, createdSpace);
         // Add the chat app to the newly created space
-        addChatAppToSpace(createChatSpaceRequest.getChatAppOrBotName(), createdSpace.getName());
+        googleChatUpdateService.addChatAppToSpace(createChatSpaceRequest.getChatAppOrBotName(), createdSpace.getName());
         // Return the response with the updated space information
         return GoogleCreateChatSpaceResponse.of(createdSpace.getName(), toGoogleChatSpaceResponse(createdSpace));
       }
@@ -233,54 +239,6 @@ public class GoogleChatServiceImpl implements GoogleChatService {
     }
     // Throw an exception if the delete process cannot be completed
     throw new UnableToCompleteOperationException();
-
-  }
-
-  /**
-   * Asynchronously updates the history state of a newly created Google Chat space.
-   *
-   * @param createChatSpaceRequest The request containing the details of the newly created chat space.
-   * @param createdSpace The Google Chat space that was created and needs to have its history state updated.
-   */
-  @Async
-  public void updateNewSpaceHistoryState(final CreateChatSpaceRequest createChatSpaceRequest, final Space createdSpace) {
-    // Create an update request to adjust the space's history state
-    final UpdateSpaceRequest updateSpaceRequest = createUpdateSpaceRequestForHistoryState(createChatSpaceRequest, createdSpace);
-    // Update the created space with the new request and verify if it was successfully updated
-    getService().updateSpace(updateSpaceRequest);
-  }
-
-  /**
-   * Adds a chat application to the specified chat space.
-   *
-   * <p>This method builds a user and membership details based on the provided space name.
-   * It then creates a membership in the chat space. If the membership is created successfully,
-   * it logs the created membership information.</p>
-   *
-   * @param chatAppOrBotUsername the name of the chat app or bot user to add to the chat space
-   * @param spaceName the name of the chat space to which the app will be added.
-   *
-   * @see <a href="https://developers.google.com/workspace/chat/authenticate-authorize-chat-app">
-   *   Authenticate as a Google Chat app</a>
-   * @see <a href="https://developers.google.com/workspace/chat/create-members#create-membership-calling-api">
-   *   Add a Chat app to a space</a>
-   */
-  @Async
-  @MeasureExecutionTime
-  public void addChatAppToSpace(final String chatAppOrBotUsername, final String spaceName) {
-    try {
-      // Build user details based on the space name
-      final User user = buildUser(chatAppOrBotUsername);
-      // Build membership details for the user
-      final Membership membership = buildMembership(user);
-      // Create a membership request for the specified space
-      final CreateMembershipRequest createMembershipRequest = getCreateMembershipRequest(spaceName, membership);
-      // Create the membership in the chat service
-      getService().createMembership(createMembershipRequest);
-    } catch (final RuntimeException ex) {
-      final String errorMessage = String.format("Error occurred while adding app to space. Reason: %s", ex.getMessage());
-      reporterService.sendMessage(errorMessage, GOOGLE_CHAT);
-    }
   }
 
   /**

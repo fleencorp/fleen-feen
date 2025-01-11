@@ -8,13 +8,11 @@ import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -40,9 +38,6 @@ public class ForgotPasswordResponse extends ApiResponse {
   }
 
   public static ForgotPasswordResponse of(final String emailAddress, final String phoneNumber) {
-    return ForgotPasswordResponse.builder()
-        .emailAddress(MaskedEmailAddress.of(emailAddress))
-        .phoneNumber(MaskedPhoneNumber.of(phoneNumber))
-        .build();
+    return new ForgotPasswordResponse(MaskedEmailAddress.of(emailAddress), MaskedPhoneNumber.of(phoneNumber));
   }
 }

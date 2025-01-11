@@ -3,11 +3,13 @@ package com.fleencorp.feen.model.response.stream.speaker;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,8 +29,6 @@ public class GetStreamSpeakersResponse extends ApiResponse {
   }
 
   public static GetStreamSpeakersResponse of(final Set<StreamSpeakerResponse> speakers) {
-    return GetStreamSpeakersResponse.builder()
-      .speakers(speakers)
-      .build();
+    return new GetStreamSpeakersResponse(speakers);
   }
 }

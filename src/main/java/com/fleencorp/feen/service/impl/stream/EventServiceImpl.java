@@ -34,6 +34,7 @@ import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,6 +68,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   private final MiscService miscService;
   private final StreamService streamService;
   private final EventUpdateService eventUpdateService;
+  private final OtherEventUpdateService otherEventUpdateService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamMapper streamMapper;
@@ -84,6 +86,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param delegatedAuthorityEmail the email address for the Google delegated authority, injected from the configuration.
    * @param miscService             the service for handling miscellaneous tasks.
    * @param streamService           the service for stream-related operations.
+   * @param otherEventUpdateService the service for handling other types of event updates.
    * @param eventUpdateService      the service for updating event details.
    * @param streamRepository        the repository for accessing stream data.
    * @param streamAttendeeRepository the repository for accessing stream attendee data.
@@ -96,6 +99,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       final MiscService miscService,
       final StreamService streamService,
       final EventUpdateService eventUpdateService,
+      final OtherEventUpdateService otherEventUpdateService,
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
@@ -105,6 +109,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     this.streamService = streamService;
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.eventUpdateService = eventUpdateService;
+    this.otherEventUpdateService = otherEventUpdateService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamMapper = streamMapper;
@@ -226,7 +231,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       // Update the event request with necessary details
       createCalendarEventRequest.update(createStreamRequest.calendarExternalId(), delegatedAuthorityEmail, createStreamRequest.userEmailAddress());
       // Create and add event in Calendar through external service
-      eventUpdateService.createEventInGoogleCalendar(createStreamRequest.stream(), createCalendarEventRequest);
+      otherEventUpdateService.createEventInGoogleCalendar(createStreamRequest.stream(), createCalendarEventRequest);
     }
   }
 

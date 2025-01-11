@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +17,6 @@ import static com.fleencorp.feen.constant.message.ResponseMessage.SUCCESS;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
-@Builder
 @Getter
 @Setter
 @AllArgsConstructor

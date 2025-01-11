@@ -87,7 +87,7 @@ public class CreateStreamDto {
   @JsonProperty("is_for_kids")
   protected String forKids;
 
-  @Size(min = 3, max = 100, message = "{event.organizerAliasOrDisplayName.Size}")
+  @Size(min = 3, max = 100, message = "{stream.organizerAliasOrDisplayName.Size}")
   @JsonProperty("organizer_alias_or_display_name")
   private String organizerAliasOrDisplayName;
 

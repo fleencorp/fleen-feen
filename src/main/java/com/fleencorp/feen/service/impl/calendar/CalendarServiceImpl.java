@@ -29,6 +29,7 @@ import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
+import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
@@ -60,29 +61,39 @@ public class CalendarServiceImpl implements CalendarService {
 
   private final CountryService countryService;
   private final GoogleCalendarService googleCalendarService;
+  private final GoogleCalendarUpdateService googleCalendarUpdateService;
   private final CalendarRepository calendarRepository;
   private final GoogleOauth2Service googleOauth2Service;
   private final Localizer localizer;
 
   /**
-  * Constructs a new CalendarServiceImpl with the specified GoogleCalendarService and CalendarRepository.
-  *
-  * @param googleCalendarService the service to interact with Google Calendar
-  * @param countryService the service for managing and retrieving countries
-  * @param calendarRepository the repository to manage calendar data
-  * @param googleOauth2Service the service for interacting with Google Oauth2 service
-  * @param localizer the service for setting localized message to responses
-  */
+   * Creates an instance of CalendarServiceImpl with the specified services and repository.
+   *
+   * <p>This constructor initializes the CalendarServiceImpl instance with the provided
+   * CountryService for handling country-related operations, GoogleCalendarService and
+   * GoogleCalendarUpdateService for interacting with Google Calendar, GoogleOauth2Service
+   * for OAuth2 authentication, CalendarRepository for managing calendar data, and Localizer
+   * for localization tasks.</p>
+   *
+   * @param countryService the CountryService instance for country-related functionality
+   * @param googleCalendarService the GoogleCalendarService instance for interacting with Google Calendar
+   * @param googleCalendarUpdateService the GoogleCalendarUpdateService instance for updating Google Calendar events
+   * @param googleOauth2Service the GoogleOauth2Service instance for handling OAuth2 authentication
+   * @param calendarRepository the CalendarRepository instance for accessing and storing calendar data
+   * @param localizer the Localizer instance for localization operations
+   */
   public CalendarServiceImpl(
-      final GoogleCalendarService googleCalendarService,
       final CountryService countryService,
-      final CalendarRepository calendarRepository,
+      final GoogleCalendarService googleCalendarService,
+      final GoogleCalendarUpdateService googleCalendarUpdateService,
       final GoogleOauth2Service googleOauth2Service,
+      final CalendarRepository calendarRepository,
       final Localizer localizer) {
-    this.googleCalendarService = googleCalendarService;
     this.countryService = countryService;
-    this.calendarRepository = calendarRepository;
+    this.googleCalendarService = googleCalendarService;
+    this.googleCalendarUpdateService = googleCalendarUpdateService;
     this.googleOauth2Service = googleOauth2Service;
+    this.calendarRepository = calendarRepository;
     this.localizer = localizer;
   }
 
@@ -346,7 +357,7 @@ public class CalendarServiceImpl implements CalendarService {
     );
 
     // Share the calendar with the user using the Google Calendar service
-    final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarService.shareCalendarWithUser(shareCalendarWithUserRequest);
+    final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarUpdateService.shareCalendarWithUser(shareCalendarWithUserRequest);
     logIfEnabled(log::isInfoEnabled, () -> log.info("Shared calendar: {} with user {}", googleShareCalendarWithUserResponse, shareCalendarWithUserDto.getEmailAddress()));
 
     // Return share calendar response

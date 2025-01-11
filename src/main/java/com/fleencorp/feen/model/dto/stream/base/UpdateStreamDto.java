@@ -3,8 +3,12 @@ package com.fleencorp.feen.model.dto.stream.base;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
+import com.fleencorp.base.converter.common.ToUpperCase;
+import com.fleencorp.base.validator.OneOf;
+import com.fleencorp.feen.constant.stream.StreamType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,4 +44,18 @@ public class UpdateStreamDto {
   @ToTitleCase
   @JsonProperty("location")
   protected String location;
+
+  @NotNull(message = "{stream.streamType.NotNull}")
+  @OneOf(enumClass = StreamType.class, message = "{stream.streamType.Type}", ignoreCase = true)
+  @ToUpperCase
+  @JsonProperty("stream_type")
+  protected String streamType;
+
+  private StreamType getStreamType() {
+    return StreamType.of(streamType);
+  }
+
+  public boolean isEvent() {
+    return StreamType.isEvent(getStreamType());
+  }
 }

@@ -191,9 +191,7 @@ public class FollowerServiceImpl implements FollowerService {
    *                                  or if either {@code memberId} or {@code userId} is {@code null}
    */
   public void verifyUserCannotFollowOrUnfollowSelf(final Long memberId, final Long userId) {
-    if (isNull(memberId) || isNull(userId)) {
-      throw new FailedOperationException();
-    } else if (Objects.equals(memberId, userId)) {
+    if (isNull(memberId) || isNull(userId) || Objects.equals(memberId, userId)) {
       throw new FailedOperationException();
     }
   }

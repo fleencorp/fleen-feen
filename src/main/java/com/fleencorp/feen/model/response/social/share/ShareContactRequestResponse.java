@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,11 +35,6 @@ public class ShareContactRequestResponse {
   private ShareContactRequestStatusInfo requestStatusInfo;
 
   public static ShareContactRequestResponse of(final Long shareContactRequestId, final String fullName, final Long userId, final ShareContactRequestStatusInfo requestStatusInfo) {
-    return ShareContactRequestResponse.builder()
-        .shareContactRequestId(shareContactRequestId)
-        .requestStatusInfo(requestStatusInfo)
-        .fullName(fullName)
-        .userId(userId)
-        .build();
+    return new ShareContactRequestResponse(shareContactRequestId, fullName, userId, requestStatusInfo);
   }
 }

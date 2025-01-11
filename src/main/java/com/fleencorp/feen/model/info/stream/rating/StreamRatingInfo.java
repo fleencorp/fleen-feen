@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamReviewRating;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,11 +39,6 @@ public class StreamRatingInfo {
   private String ratingText;
 
   public static StreamRatingInfo of(final StreamReviewRating reviewRating, final Integer rating, final String ratingName, final String ratingText) {
-    return StreamRatingInfo.builder()
-      .reviewRating(reviewRating)
-      .rating(rating)
-      .ratingName(ratingName)
-      .ratingText(ratingText)
-      .build();
+    return new StreamRatingInfo(reviewRating, rating, ratingName, ratingText);
   }
 }

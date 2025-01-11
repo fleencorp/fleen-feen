@@ -7,11 +7,13 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static java.util.Objects.nonNull;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,7 +45,7 @@ public class DeleteStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "delete.event" : "delete.live.broadcast";
   }
 
-  public static DeleteStreamResponse of(final long eventId, final StreamTypeInfo streamTypeInfo, final IsDeletedInfo isDeletedInfo) {
-    return new DeleteStreamResponse(eventId, streamTypeInfo, isDeletedInfo);
+  public static DeleteStreamResponse of(final long streamId, final StreamTypeInfo streamTypeInfo, final IsDeletedInfo isDeletedInfo) {
+    return new DeleteStreamResponse(streamId, streamTypeInfo, isDeletedInfo);
   }
 }

@@ -123,7 +123,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
         streamService.decreaseTotalAttendeesOrGuestsAndSave(stream);
         // Save the updated attendee record
         streamAttendeeRepository.save(streamAttendee);
-      });
+    });
 
     // Get a not attending stream response with the details
     final NotAttendingStreamResponse notAttendingStreamResponse = commonMapper.notAttendingStream();
