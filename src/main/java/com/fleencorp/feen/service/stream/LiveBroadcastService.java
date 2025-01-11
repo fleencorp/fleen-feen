@@ -5,8 +5,8 @@ import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.livebroadcast.RescheduleLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.livebroadcast.UpdateLiveBroadcastDto;
+import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
+import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
@@ -18,9 +18,9 @@ public interface LiveBroadcastService {
 
   CreateStreamResponse createLiveBroadcast(CreateLiveBroadcastDto createLiveBroadcastDto, FleenUser user) throws Oauth2InvalidAuthorizationException;
 
-  UpdateStreamResponse updateLiveBroadcast(Long liveBroadcastId, UpdateLiveBroadcastDto updateLiveBroadcastDto, FleenUser user) throws Oauth2InvalidAuthorizationException;
+  UpdateStreamResponse updateLiveBroadcast(Long liveBroadcastId, UpdateStreamDto updateStreamDto, FleenUser user) throws Oauth2InvalidAuthorizationException;
 
-  RescheduleStreamResponse rescheduleLiveBroadcast(Long liveBroadcastId, RescheduleLiveBroadcastDto rescheduleLiveBroadcastDto, FleenUser user)
+  RescheduleStreamResponse rescheduleLiveBroadcast(Long liveBroadcastId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException;
 
   DeleteStreamResponse deleteLiveBroadcast(Long liveBroadcastId, FleenUser user)

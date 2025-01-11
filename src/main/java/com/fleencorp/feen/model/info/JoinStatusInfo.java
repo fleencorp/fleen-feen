@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.JoinStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,11 +35,7 @@ public class JoinStatusInfo {
   private String joinStatusText2;
 
   public static JoinStatusInfo of(final JoinStatus joinStatus, final String joinStatusText, final String joinStatusText2) {
-    return JoinStatusInfo.builder()
-      .joinStatus(joinStatus)
-      .joinStatusText(joinStatusText)
-      .joinStatusText2(joinStatusText2)
-      .build();
+    return new JoinStatusInfo(joinStatus, joinStatusText, joinStatusText2);
   }
 
   public static JoinStatusInfo of() {

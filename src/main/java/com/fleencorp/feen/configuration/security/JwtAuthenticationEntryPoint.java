@@ -10,9 +10,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 /**
  * <p>JwtAuthenticationEntryPoint is a class that implements the
  * AuthenticationEntryPoint interface for handling authentication
@@ -29,10 +26,7 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   private final HandlerExceptionResolver resolver;
 

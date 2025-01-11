@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.security;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+import static com.fleencorp.feen.util.security.TokenUtil.SECURE_RANDOM;
 
 /**
  * Service interface for generating and validating OTPs (One-Time Passwords).
@@ -20,11 +19,10 @@ public interface OtpService {
    * @return Randomly generated OTP as a string of numeric characters.
    */
   static String generateOtp(final int length) {
-    final Random obj = new Random();
     final char[] otp = new char[length];
 
     for (int i = 0; i < 6; i++)  {
-      otp[i]= (char) (obj.nextInt(10) + 48);
+      otp[i]= (char) (SECURE_RANDOM.nextInt(10) + 48);
     }
     return String.valueOf(otp);
   }
@@ -40,8 +38,18 @@ public interface OtpService {
     return generateOtp(6);
   }
 
+  /**
+   * Generates a random six-digit OTP (One-Time Password).
+   *
+   * <p>This method uses a cryptographically secure random number generator to
+   * ensure that the generated OTP is sufficiently unpredictable.
+   * The OTP is always a six-digit number between 100000 and 999999 inclusive.</p>
+   *
+   * @return a randomly generated six-digit OTP as a string
+   */
   static String getRandomSixDigitOtp() {
-    return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
+    int otp = SECURE_RANDOM.nextInt(900000) + 100000;
+    return String.valueOf(otp);
   }
 
   String generateSecretKey();

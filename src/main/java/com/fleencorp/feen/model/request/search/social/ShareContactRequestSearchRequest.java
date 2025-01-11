@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,9 +25,11 @@ public class ShareContactRequestSearchRequest extends SearchRequest {
   private Boolean isExpected;
 
   @JsonIgnore
+  @Builder.Default
   private Boolean isSentExpectedRequest = false;
 
   @JsonIgnore
+  @Builder.Default
   private Boolean isReceivedExpectedRequest = false;
 
   @JsonIgnore

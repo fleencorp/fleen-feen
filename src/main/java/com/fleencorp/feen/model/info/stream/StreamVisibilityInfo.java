@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,10 +31,7 @@ public class StreamVisibilityInfo {
   private String visibilityText;
 
   public static StreamVisibilityInfo of(final StreamVisibility visibility, final String visibilityText) {
-    return StreamVisibilityInfo.builder()
-      .visibility(visibility)
-      .visibilityText(visibilityText)
-      .build();
+    return new StreamVisibilityInfo(visibility, visibilityText);
   }
 }
 

@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.info;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,10 +30,6 @@ public class IsDeletedInfo {
   private String deletedText2;
 
   public static IsDeletedInfo of(final Boolean deleted, final String deletedText, final String deletedText2) {
-    return IsDeletedInfo.builder()
-      .deleted(deleted)
-      .deletedText(deletedText)
-      .deletedText2(deletedText2)
-      .build();
+    return new IsDeletedInfo(deleted, deletedText, deletedText2);
   }
 }

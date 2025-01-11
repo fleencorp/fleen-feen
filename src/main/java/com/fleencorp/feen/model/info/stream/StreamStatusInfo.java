@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -37,12 +39,7 @@ public class StreamStatusInfo {
   private String streamStatusText3;
 
   public static StreamStatusInfo of(final StreamStatus streamStatus, final String streamStatusText, final String streamStatusText2, final String streamStatusText3) {
-    return StreamStatusInfo.builder()
-      .streamStatus(streamStatus)
-      .streamStatusText(streamStatusText)
-      .streamStatusText2(streamStatusText2)
-      .streamStatusText3(streamStatusText3)
-      .build();
+    return new StreamStatusInfo(streamStatus, streamStatusText, streamStatusText2, streamStatusText3);
   }
 }
 

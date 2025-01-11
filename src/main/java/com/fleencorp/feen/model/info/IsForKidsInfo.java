@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.info;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,9 +26,6 @@ public class IsForKidsInfo {
   private String forKidsText;
 
   public static IsForKidsInfo of(final Boolean isForKids, final String isForKidsText) {
-    return IsForKidsInfo.builder()
-      .forKids(isForKids)
-      .forKidsText(isForKidsText)
-      .build();
+    return new IsForKidsInfo(isForKids, isForKidsText);
   }
 }

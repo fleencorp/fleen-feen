@@ -40,7 +40,9 @@ import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
+import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
 import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -69,7 +71,9 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final MiscService miscService;
   private final StreamAttendeeService attendeeService;
   private final StreamService streamService;
+  private final AttendeeUpdateService attendeeUpdateService;
   private final EventUpdateService eventUpdateService;
+  private final OtherEventUpdateService otherEventUpdateService;
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final FleenStreamRepository streamRepository;
@@ -80,35 +84,37 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final Localizer localizer;
 
   /**
-   * Constructs an instance of {@code EventJoinServiceImpl} and injects necessary dependencies.
+   * Constructs a new instance of {@code EventJoinServiceImpl} with the specified dependencies.
    *
-   * <p>This constructor initializes the {@code EventJoinServiceImpl} with the provided services and repositories
-   * which are essential for managing event join operations, including handling attendees, updating events,
-   * sending notifications, and interacting with the stream data.</p>
+   * <p>This constructor initializes the service with all required components for handling event join operations,
+   * including member and attendee services, stream management, notifications, event updates, and repositories for
+   * accessing event and attendee data. It also integrates with localization and mapping services for internationalization
+   * and data transformation.</p>
    *
-   * <p>Each parameter represents a required service or repository used in the internal operations of the service
-   * for managing event-related activities.</p>
-   *
-   * @param chatSpaceMemberService the service for managing chat space members
-   * @param miscService the miscellaneous service for handling auxiliary tasks
-   * @param attendeeService the service for managing stream attendees
-   * @param streamService the service for managing stream-related operations
-   * @param eventUpdateService the service for updating event schedules and details
-   * @param notificationMessageService the service for preparing notification messages
-   * @param notificationService the service for sending notifications
-   * @param streamRepository the repository for managing FleenStream entities
-   * @param memberRepository the repository for managing member entities
-   * @param streamAttendeeRepository the repository for managing stream attendee entities
-   * @param localizer the utility for creating localized response messages
-   * @param commonMapper the mapper for common entity conversions
-   * @param streamMapper the mapper for stream-related entity conversions
+   * @param chatSpaceMemberService     the service for managing chat space members
+   * @param miscService                the service for miscellaneous operations
+   * @param attendeeService            the service for managing event attendees
+   * @param streamService              the service for stream-related operations
+   * @param attendeeUpdateService      the service for handling attendee updates
+   * @param eventUpdateService         the service for updating event details
+   * @param otherEventUpdateService    the service for handling other types of event updates
+   * @param notificationMessageService the service for composing notification messages
+   * @param notificationService        the service for sending notifications
+   * @param memberRepository           the repository for accessing member data
+   * @param streamRepository           the repository for accessing stream data
+   * @param streamAttendeeRepository   the repository for accessing stream attendee data
+   * @param localizer                  the service for handling localization of messages
+   * @param commonMapper               the mapper for transforming common data models
+   * @param streamMapper               the mapper for transforming stream-related data models
    */
   public EventJoinServiceImpl(
       final ChatSpaceMemberService chatSpaceMemberService,
       final MiscService miscService,
       final StreamAttendeeService attendeeService,
       final StreamService streamService,
+      final AttendeeUpdateService attendeeUpdateService,
       final EventUpdateService eventUpdateService,
+      final OtherEventUpdateService otherEventUpdateService,
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final FleenStreamRepository streamRepository,
@@ -121,7 +127,9 @@ public class EventJoinServiceImpl implements EventJoinService {
     this.miscService = miscService;
     this.attendeeService = attendeeService;
     this.streamService = streamService;
+    this.attendeeUpdateService = attendeeUpdateService;
     this.eventUpdateService = eventUpdateService;
+    this.otherEventUpdateService = otherEventUpdateService;
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.memberRepository = memberRepository;
@@ -248,7 +256,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Send invitation to new attendee
-    attendeeService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinStreamDto.getComment());
+    attendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinStreamDto.getComment());
     // Return localized response of the join event including status
     return localizer.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo));
   }
@@ -589,7 +597,7 @@ public class EventJoinServiceImpl implements EventJoinService {
       displayOrAliasName
     );
 
-    eventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+    otherEventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
   }
 
 }

@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.response.social.block;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,9 +26,6 @@ public class BlockedUserResponse {
   private Long userId;
 
   public static BlockedUserResponse of(final String fullName, final Long userId) {
-    return BlockedUserResponse.builder()
-        .fullName(fullName)
-        .userId(userId)
-        .build();
+    return new BlockedUserResponse(fullName, userId);
   }
 }
