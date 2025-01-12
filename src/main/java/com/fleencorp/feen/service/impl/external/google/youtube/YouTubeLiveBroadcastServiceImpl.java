@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static com.fleencorp.feen.constant.base.ReportMessageType.YOUTUBE;
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;

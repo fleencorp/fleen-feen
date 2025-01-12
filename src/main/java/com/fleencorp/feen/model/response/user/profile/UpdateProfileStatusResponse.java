@@ -2,7 +2,6 @@ package com.fleencorp.feen.model.response.user.profile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.model.info.user.ProfileStatusInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;

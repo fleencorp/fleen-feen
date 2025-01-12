@@ -5,9 +5,11 @@ import com.fleencorp.base.validator.FieldMatch;
 import com.fleencorp.base.validator.ValidPassword;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

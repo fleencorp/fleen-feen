@@ -9,6 +9,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
+import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
@@ -32,8 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
 
 /**
  * Implementation of the {@link LiveBroadcastJoinService} interface that handles the logic for managing attendees joining live broadcasts.
@@ -100,6 +100,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * and saves the updated attendee record. A response is returned indicating the change in attendance status.</p>
    *
    * @param liveBroadcastId the ID of the live broadcast stream
+   * @param notAttendingStreamDto the DTO containing stream-related details for the non-attendance action
    * @param user the user who is marking themselves as not attending
    * @return a {@link NotAttendingStreamResponse} containing the updated attendance status and stream type info
    * @throws FleenStreamNotFoundException if the stream with the specified ID is not found
@@ -107,10 +108,12 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    */
   @Override
   @Transactional
-  public NotAttendingStreamResponse notAttendingLiveBroadcast(final Long liveBroadcastId, final FleenUser user)
+  public NotAttendingStreamResponse notAttendingLiveBroadcast(final Long liveBroadcastId, final NotAttendingStreamDto notAttendingStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the stream
     verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
@@ -162,6 +165,8 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     final TryToJoinPublicStreamResponse tryToJoinResponse = streamService.tryToJoinPublicStream(liveBroadcastId, joinStreamDto.getComment(), user);
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
@@ -219,6 +224,8 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
         StreamAlreadyCanceledException, FailedOperationException {
     // Retrieve the stream using the provided stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
 

@@ -48,7 +48,7 @@ public interface OtpService {
    * @return a randomly generated six-digit OTP as a string
    */
   static String getRandomSixDigitOtp() {
-    int otp = SECURE_RANDOM.nextInt(900000) + 100000;
+    final int otp = SECURE_RANDOM.nextInt(900000) + 100000;
     return String.valueOf(otp);
   }
 

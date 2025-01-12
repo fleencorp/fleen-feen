@@ -5,9 +5,7 @@ import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
-import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -24,11 +22,11 @@ public interface EventService {
     throws CalendarNotFoundException, FleenStreamNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 
-  DeleteStreamResponse deleteEvent(Long eventId, FleenUser user)
+  DeleteStreamResponse deleteEvent(Long eventId, DeleteStreamDto deleteStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 
-  CancelStreamResponse cancelEvent(Long eventId, FleenUser user)
+  CancelStreamResponse cancelEvent(Long eventId, CancelStreamDto cancelStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 

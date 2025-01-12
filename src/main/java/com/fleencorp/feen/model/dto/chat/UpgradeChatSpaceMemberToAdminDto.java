@@ -3,9 +3,11 @@ package com.fleencorp.feen.model.dto.chat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
