@@ -1,2 +1,2 @@
 # fleen-feen
-Fleen Feen connects you with the world
+Fleen Feen connects you with people and the world.
