@@ -21,7 +21,7 @@ import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.request.calendar.event.NotAttendingEventRequest;
-import com.fleencorp.feen.model.request.stream.NotAttendingStreamRequest;
+import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStreamResponse;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
@@ -50,8 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
 
 /**
  * Implementation of the {@link EventJoinService} interface that handles the logic for managing attendee participation in events.
@@ -168,6 +167,8 @@ public class EventJoinServiceImpl implements EventJoinService {
     final FleenStream stream = streamService.findStream(eventId);
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(streamType, notAttendingStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the event
@@ -183,7 +184,7 @@ public class EventJoinServiceImpl implements EventJoinService {
         // Save the updated attendee record
         streamAttendeeRepository.save(streamAttendee);
         // Create a request that remove the attendee from the Google Calendar event
-        final NotAttendingStreamRequest notAttendingStreamRequest = NotAttendingStreamRequest.of(calendar, stream, user.getEmailAddress(), streamType);
+        final ExternalStreamRequest notAttendingStreamRequest = ExternalStreamRequest.ofNotAttending(calendar, stream, user.getEmailAddress(), streamType);
         // Send the request for the update of non-attendance
         notAttendingStreamExternally(notAttendingStreamRequest);
     });
@@ -206,13 +207,14 @@ public class EventJoinServiceImpl implements EventJoinService {
    *
    * @param notAttendingStreamRequest the request containing details for the non-attendance update
    */
-  protected void notAttendingStreamExternally(final NotAttendingStreamRequest notAttendingStreamRequest) {
-    if (notAttendingStreamRequest.isAnEvent()) {
+  protected void notAttendingStreamExternally(final ExternalStreamRequest notAttendingStreamRequest) {
+    if (notAttendingStreamRequest.isAnEvent() && notAttendingStreamRequest.isNotAttendingRequest()) {
       // Create a request that remove the attendee from the external service
       final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(
         notAttendingStreamRequest.calendarExternalId(),
         notAttendingStreamRequest.streamExternalId(),
-        notAttendingStreamRequest.attendeeEmailAddress());
+        notAttendingStreamRequest.getAttendeeEmailAddress()
+      );
       // Send the request for the update of non-attendance
       eventUpdateService.notAttendingEvent(notAttendingEventRequest);
     }
@@ -251,6 +253,8 @@ public class EventJoinServiceImpl implements EventJoinService {
     final TryToJoinPublicStreamResponse tryToJoinResponse = streamService.tryToJoinPublicStream(eventId, joinStreamDto.getComment(), user);
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
@@ -284,6 +288,8 @@ public class EventJoinServiceImpl implements EventJoinService {
     final TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse = requestToJoinStreamResponse.getTryToJoinResponse();
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Check and handle chat space membership and invitation
@@ -343,6 +349,8 @@ public class EventJoinServiceImpl implements EventJoinService {
       StreamAlreadyCanceledException, FailedOperationException {
     // Retrieve the event (FleenStream) using the event ID
     final FleenStream stream = streamService.findStream(eventId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
@@ -460,6 +468,8 @@ public class EventJoinServiceImpl implements EventJoinService {
         StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), addNewAttendeeDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
 

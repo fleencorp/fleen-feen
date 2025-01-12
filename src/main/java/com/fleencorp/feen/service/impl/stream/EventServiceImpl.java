@@ -13,16 +13,14 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
-import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.request.calendar.event.*;
-import com.fleencorp.feen.model.request.stream.*;
+import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
@@ -173,7 +171,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create an event
-    final CreateStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, user.getEmailAddress(), createEventDto);
+    final ExternalStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, user.getEmailAddress(), createEventDto);
     // Create and add event in Calendar through external service
     createEventExternally(createStreamRequest);
     // Increment attendee count because of creator or organizer of event
@@ -185,11 +183,11 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   }
 
   /**
-   * Builds and returns a {@link CreateStreamRequest} containing all necessary details for creating a stream,
+   * Builds and returns a {@link ExternalStreamRequest} containing all necessary details for creating a stream,
    * including calendar, stream, attendee or guest information, user email, stream type, and event details.
    *
    * <p>This method consolidates the required data from the provided parameters to create a new instance
-   * of {@link CreateStreamRequest}. It is used to prepare the request for creating a stream and passing
+   * of {@link ExternalStreamRequest}. It is used to prepare the request for creating a stream and passing
    * the relevant information to external services.</p>
    *
    * @param calendar the calendar associated with the stream
@@ -197,10 +195,10 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param attendeeOrGuest the event attendee or guest to be added to the stream
    * @param userEmailAddress the email address of the user creating the stream
    * @param createEventDto the DTO containing event details such as title and description
-   * @return a {@link CreateStreamRequest} instance with the provided stream details
+   * @return a {@link ExternalStreamRequest} instance with the provided stream details
    */
-  protected CreateStreamRequest createAndBuildStreamRequest(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final CreateCalendarEventDto createEventDto) {
-    return CreateStreamRequest.of(
+  protected ExternalStreamRequest createAndBuildStreamRequest(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final CreateCalendarEventDto createEventDto) {
+    return ExternalStreamRequest.ofCreateEvent(
       calendar,
       stream,
       attendeeOrGuest,
@@ -213,7 +211,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   /**
    * Creates an event in an external calendar service (e.g., Google Calendar) based on the provided stream request.
    *
-   * <p>This method verifies whether the provided {@link CreateStreamRequest} corresponds to an event.
+   * <p>This method verifies whether the provided {@link ExternalStreamRequest} corresponds to an event.
    * If so, it creates a calendar event request using the details from the request, adds the event
    * organizer as an attendee, and updates the request with additional necessary details, such as the
    * calendar's external ID, the delegated authority email, and the user's email address. Finally,
@@ -221,17 +219,17 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    *
    * @param createStreamRequest the request object containing details of the event to be created
    */
-  protected void createEventExternally(final CreateStreamRequest createStreamRequest) {
+  protected void createEventExternally(final ExternalStreamRequest createStreamRequest) {
     // Verify if the stream to be updated is an event
-    if (createStreamRequest.isAnEvent()) {
+    if (createStreamRequest.isAnEvent() && createStreamRequest.isCreateEventRequest()) {
       // Create a Calendar event request
-      final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.by(createStreamRequest.createEventDto());
+      final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.by(createStreamRequest.getCreateEventDto());
       // Add event organizer as an attendee
-      createCalendarEventRequest.addAttendeeOrGuest(createStreamRequest.attendeeOrGuest());
+      createCalendarEventRequest.addAttendeeOrGuest(createStreamRequest.getAttendeeOrGuest());
       // Update the event request with necessary details
       createCalendarEventRequest.update(createStreamRequest.calendarExternalId(), delegatedAuthorityEmail, createStreamRequest.userEmailAddress());
       // Create and add event in Calendar through external service
-      otherEventUpdateService.createEventInGoogleCalendar(createStreamRequest.stream(), createCalendarEventRequest);
+      otherEventUpdateService.createEventInGoogleCalendar(createStreamRequest.getStream(), createCalendarEventRequest);
     }
   }
 
@@ -271,7 +269,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Save stream and create event in Google Calendar Event Service externally
     stream = streamRepository.save(stream);
     // Create and build the create stream request to be use for external purpose
-    final CreateInstantStreamRequest createInstantStreamRequest = CreateInstantStreamRequest.of(calendar, stream, stream.getStreamType(), createInstantEventDto);
+    final ExternalStreamRequest createInstantStreamRequest = ExternalStreamRequest.ofCreateInstantEvent(calendar, stream, stream.getStreamType(), createInstantEventDto);
     // Create and add event in Calendar through external service
     createInstantEventExternally(createInstantStreamRequest);
     // Get the stream response
@@ -286,20 +284,20 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * Creates an instant event in an external calendar service, such as Google Calendar.
    *
    * <p>This method checks if the stream is an event, then creates a request to add an event in an external calendar.
-   * It populates the request with the details from the provided {@link CreateInstantStreamRequest} object,
+   * It populates the request with the details from the provided {@link ExternalStreamRequest} object,
    * including the event information and calendar details. The event is then created and added to the external calendar
    * service.</p>
    *
    * @param createInstantStreamRequest the request containing the event details and calendar information
    */
-  protected void createInstantEventExternally(final CreateInstantStreamRequest createInstantStreamRequest) {
-    if (createInstantStreamRequest.isAnEvent()) {
+  protected void createInstantEventExternally(final ExternalStreamRequest createInstantStreamRequest) {
+    if (createInstantStreamRequest.isAnEvent() && createInstantStreamRequest.isCreateInstantEventRequest()) {
       // Create the request for creating an event externally
-      final CreateInstantCalendarEventRequest createInstantCalendarEventRequest = CreateInstantCalendarEventRequest.by(createInstantStreamRequest.createInstantEventDto());
+      final CreateInstantCalendarEventRequest createInstantCalendarEventRequest = CreateInstantCalendarEventRequest.by(createInstantStreamRequest.getCreateInstantEventDto());
       // Update the instant event request with necessary details
       createInstantCalendarEventRequest.update(createInstantStreamRequest.calendarExternalId());
       // Create and add event in Calendar through external service
-      eventUpdateService.createInstantEventInGoogleCalendar(createInstantStreamRequest.stream(), createInstantCalendarEventRequest);
+      eventUpdateService.createInstantEventInGoogleCalendar(createInstantStreamRequest.getStream(), createInstantCalendarEventRequest);
     }
   }
 
@@ -333,6 +331,8 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(eventId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), updateStreamDto.getStreamType());
 
     // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
@@ -347,7 +347,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Save the updated stream to the repository
     stream = streamRepository.save(stream);
     // Create and build the patch stream request with necessary payload
-    final PatchStreamRequest patchStreamRequest = createPatchStreamRequest(calendar, stream, updateStreamDto);
+    final ExternalStreamRequest patchStreamRequest = createPatchStreamRequest(calendar, stream, updateStreamDto);
     // Patch or update the stream externally
     patchStreamExternally(patchStreamRequest);
     // Get the stream response
@@ -361,15 +361,15 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   /**
    * Patches a stream externally by updating its event details if it is an event.
    *
-   * <p>This method checks if the provided {@link PatchStreamRequest} represents an event.
-   * If it is an event, it calls {@link #patchEventInGoogleCalendar(PatchStreamRequest)} to update the event details
+   * <p>This method checks if the provided {@link ExternalStreamRequest} represents an event.
+   * If it is an event, it calls {@link #patchEventInGoogleCalendar(ExternalStreamRequest)} to update the event details
    * in Google Calendar. Otherwise, no external action is performed.</p>
    *
    * @param patchStreamRequest the request containing the details to patch the stream or event
    */
-  protected void patchStreamExternally(final PatchStreamRequest patchStreamRequest) {
+  protected void patchStreamExternally(final ExternalStreamRequest patchStreamRequest) {
     // Verify if the stream to be updated is an event
-    if (patchStreamRequest.isAnEvent()) {
+    if (patchStreamRequest.isAnEvent() && patchStreamRequest.isPatchRequest()) {
       patchEventInGoogleCalendar(patchStreamRequest);
     }
   }
@@ -378,23 +378,23 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * Updates the details of an event in Google Calendar using the provided patch request.
    *
    * <p>This method prepares a request to patch the calendar event with updated details such as the title,
-   * description, and location, based on the provided {@link PatchStreamRequest}. Once the request is prepared,
+   * description, and location, based on the provided {@link ExternalStreamRequest}. Once the request is prepared,
    * it delegates the operation to the {@code eventUpdateService} to update the event in Google Calendar.</p>
    *
    * @param patchStreamRequest the request containing the details to patch the calendar event
    */
-  protected void patchEventInGoogleCalendar(final PatchStreamRequest patchStreamRequest) {
+  protected void patchEventInGoogleCalendar(final ExternalStreamRequest patchStreamRequest) {
     // Prepare a request to patch the calendar event with updated details
     final PatchCalendarEventRequest patchCalendarEventRequest = PatchCalendarEventRequest.of(
       patchStreamRequest.calendarExternalId(),
       patchStreamRequest.streamExternalId(),
-      patchStreamRequest.title(),
-      patchStreamRequest.description(),
-      patchStreamRequest.location()
+      patchStreamRequest.getTitle(),
+      patchStreamRequest.getDescription(),
+      patchStreamRequest.getLocation()
     );
 
     // Update the event details in the Google Calendar
-    eventUpdateService.updateEventInGoogleCalendar(patchStreamRequest.stream(), patchCalendarEventRequest);
+    eventUpdateService.updateEventInGoogleCalendar(patchStreamRequest.getStream(), patchCalendarEventRequest);
   }
 
   /**
@@ -409,6 +409,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * the stream is ongoing, or if the deletion operation fails.</p>
    *
    * @param eventId the ID of the stream to be deleted
+   * @param deleteStreamDto the dto containing the deletion details
    * @param user the user requesting the deletion
    * @return a {@link DeleteStreamResponse} containing details about the deleted stream
    * @throws FleenStreamNotFoundException if the stream with the given ID cannot be found
@@ -419,13 +420,15 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public DeleteStreamResponse deleteEvent(final Long eventId, final FleenUser user)
+  public DeleteStreamResponse deleteEvent(final Long eventId, final DeleteStreamDto deleteStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(streamType, deleteStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Validate if the user is the creator of the event
@@ -438,7 +441,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     streamRepository.save(stream);
 
     // Create the request to delete the stream externally
-    final DeleteStreamRequest deleteStreamRequest = createDeleteStreamRequest(stream, calendar);
+    final ExternalStreamRequest deleteStreamRequest = createDeleteStreamRequest(stream, calendar);
     // Delete the stream externally
     deleteStreamsExternal(deleteStreamRequest);
     // Get the deleted info
@@ -454,12 +457,12 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    *
    * <p>If the delete stream request represents an event, this method delegates the deletion of the event
    * to the {@link #deleteGoogleCalendarEvent} method. The check is done by evaluating if the request
-   * is an event through the {@link DeleteStreamRequest#isAnEvent()} method.</p>
+   * is an event through the {@link ExternalStreamRequest#isAnEvent()} method.</p>
    *
    * @param deleteStreamRequest the request containing the details of the stream to be deleted externally.
    */
-  protected void deleteStreamsExternal(final DeleteStreamRequest deleteStreamRequest) {
-    if (deleteStreamRequest.isAnEvent()) {
+  protected void deleteStreamsExternal(final ExternalStreamRequest deleteStreamRequest) {
+    if (deleteStreamRequest.isAnEvent() && deleteStreamRequest.isDeleteRequest()) {
       deleteGoogleCalendarEvent(deleteStreamRequest);
     }
   }
@@ -468,13 +471,13 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * Deletes an event from Google Calendar based on the provided delete stream request.
    *
    * <p>This method creates a request to delete the calendar event using the external IDs from the
-   * provided {@link DeleteStreamRequest}. It then deletes the event from Google Calendar using
+   * provided {@link ExternalStreamRequest}. It then deletes the event from Google Calendar using
    * the {@link EventUpdateService}.</p>
    *
    * @param deleteStreamRequest the request containing the details needed to delete the event
    *                            from Google Calendar, including the calendar and stream external IDs.
    */
-  protected void deleteGoogleCalendarEvent(final DeleteStreamRequest deleteStreamRequest) {
+  protected void deleteGoogleCalendarEvent(final ExternalStreamRequest deleteStreamRequest) {
     // Create a request to delete the calendar event
     final DeleteCalendarEventRequest deleteCalendarEventRequest = DeleteCalendarEventRequest.of(
       deleteStreamRequest.calendarExternalId(),
@@ -496,6 +499,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * the stream is already canceled or has already occurred, or if the cancellation operation fails.</p>
    *
    * @param eventId the ID of the stream to be canceled
+   * @param cancelStreamDto the dto containing the cancellation details
    * @param user the user requesting the cancellation
    * @return a {@link CancelStreamResponse} containing details about the canceled stream
    * @throws FleenStreamNotFoundException if the stream with the given ID cannot be found
@@ -508,13 +512,15 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public CancelStreamResponse cancelEvent(final Long eventId, final FleenUser user)
+  public CancelStreamResponse cancelEvent(final Long eventId, final CancelStreamDto cancelStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(streamType, cancelStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
 
@@ -527,7 +533,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Save the stream to the repository
     streamRepository.save(stream);
     // Create the cancel stream request
-    final CancelStreamRequest cancelStreamRequest = CancelStreamRequest.of(calendar, stream, streamType);
+    final ExternalStreamRequest cancelStreamRequest = ExternalStreamRequest.ofCancel(calendar, stream, streamType);
     // Cancel the stream externally
     cancelStreamExternal(cancelStreamRequest);
     // Convert the stream status to info
@@ -546,8 +552,8 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    *
    * @param cancelStreamRequest the request containing the details of the stream to cancel
    */
-  protected void cancelStreamExternal(final CancelStreamRequest cancelStreamRequest) {
-    if (cancelStreamRequest.isAnEvent()) {
+  protected void cancelStreamExternal(final ExternalStreamRequest cancelStreamRequest) {
+    if (cancelStreamRequest.isAnEvent() && cancelStreamRequest.isCancelRequest()) {
       cancelGoogleCalendarEvent(cancelStreamRequest);
     }
   }
@@ -561,7 +567,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param cancelStreamRequest the request containing details about the calendar event to cancel, including
    *                            the calendar and stream identifiers
    */
-  protected void cancelGoogleCalendarEvent(final CancelStreamRequest cancelStreamRequest) {
+  protected void cancelGoogleCalendarEvent(final ExternalStreamRequest cancelStreamRequest) {
     // Create a request to cancel the calendar event and submit request to external Calendar service
     final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest.of(
       cancelStreamRequest.calendarExternalId(),
@@ -600,6 +606,8 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final FleenStream stream = streamService.findStream(eventId);
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(streamType, rescheduleStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Verify stream details like the owner, event date and active status of the event
@@ -614,7 +622,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Save the stream and event details
     streamRepository.save(stream);
     // Create the reschedule stream request
-    final RescheduleStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(calendar, stream, rescheduleStreamDto);
+    final ExternalStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(calendar, stream, rescheduleStreamDto);
     // Reschedule the stream externally
     rescheduleStreamExternally(rescheduleStreamRequest);
     // Get the stream response
@@ -628,21 +636,21 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   /**
    * Reschedules an external calendar event (e.g., in Google Calendar) based on the provided stream's new schedule.
    *
-   * <p>This method creates a {@link RescheduleCalendarEventRequest} from the given {@link RescheduleStreamRequest}
+   * <p>This method creates a {@link RescheduleCalendarEventRequest} from the given {@link ExternalStreamRequest}
    * containing the updated schedule details (start date/time, end date/time, and timezone). It then uses
    * {@link #eventUpdateService} to update the event in an external calendar service like Google Calendar.</p>
    *
    * @param rescheduleStreamRequest the request containing the updated details for rescheduling the stream in an external calendar
    */
-  protected void rescheduleStreamExternally(final RescheduleStreamRequest rescheduleStreamRequest) {
-    if (rescheduleStreamRequest.isAnEvent()) {
+  protected void rescheduleStreamExternally(final ExternalStreamRequest rescheduleStreamRequest) {
+    if (rescheduleStreamRequest.isAnEvent() && rescheduleStreamRequest.isRescheduleRequest()) {
       // Prepare a request to reschedule the calendar event with the new schedule details
       final RescheduleCalendarEventRequest rescheduleCalendarEventRequest = RescheduleCalendarEventRequest.of(
         rescheduleStreamRequest.calendarExternalId(),
         rescheduleStreamRequest.streamExternalId(),
-        rescheduleStreamRequest.startDateTime(),
-        rescheduleStreamRequest.endDateTime(),
-        rescheduleStreamRequest.timezone()
+        rescheduleStreamRequest.getStartDateTime(),
+        rescheduleStreamRequest.getEndDateTime(),
+        rescheduleStreamRequest.getTimezone()
       );
       // Update event schedule details in the Google Calendar service
       eventUpdateService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
@@ -680,6 +688,8 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), updateStreamVisibilityDto.getStreamType());
     // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event
@@ -690,7 +700,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     updateStreamVisibility(stream, updateStreamVisibilityDto.getActualVisibility());
 
     // Create request to update stream visibility
-    final UpdateStreamVisibilityRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(calendar, stream, updateStreamVisibilityDto.getVisibility());
+    final ExternalStreamRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(calendar, stream, updateStreamVisibilityDto.getVisibility());
     // Update the stream visibility using an external service
     updateStreamVisibilityExternally(updateStreamVisibilityRequest);
 
@@ -721,13 +731,13 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     streamRepository.save(stream);
   }
 
-  protected void updateStreamVisibilityExternally(final UpdateStreamVisibilityRequest updateStreamVisibilityRequest) {
-    if (updateStreamVisibilityRequest.isAnEvent()) {
+  protected void updateStreamVisibilityExternally(final ExternalStreamRequest updateStreamVisibilityRequest) {
+    if (updateStreamVisibilityRequest.isAnEvent() && updateStreamVisibilityRequest.isVisibilityUpdateRequest()) {
       // Create a request to update the stream's visibility
       final UpdateCalendarEventVisibilityRequest request = UpdateCalendarEventVisibilityRequest.of(
         updateStreamVisibilityRequest.calendarExternalId(),
         updateStreamVisibilityRequest.streamExternalId(),
-        updateStreamVisibilityRequest.visibility()
+        updateStreamVisibilityRequest.getVisibility()
       );
 
       // Update the event visibility using an external service

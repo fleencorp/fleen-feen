@@ -68,8 +68,8 @@ public class UserStreamController {
       @Valid @RequestBody final CancelStreamDto cancelStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
     return cancelStreamDto.isEvent()
-      ? eventService.cancelEvent(streamId, user)
-      : liveBroadcastService.cancelLiveBroadcast(streamId, user);
+      ? eventService.cancelEvent(streamId, cancelStreamDto, user)
+      : liveBroadcastService.cancelLiveBroadcast(streamId, cancelStreamDto, user);
   }
 
   @DeleteMapping(value = "/delete/{streamId}")
@@ -78,8 +78,8 @@ public class UserStreamController {
       @Valid @RequestBody final DeleteStreamDto deleteStreamDto,
       @AuthenticationPrincipal final FleenUser user) {
     return deleteStreamDto.isEvent()
-      ? eventService.deleteEvent(streamId, user)
-      : liveBroadcastService.deleteLiveBroadcast(streamId, user);
+      ? eventService.deleteEvent(streamId, deleteStreamDto, user)
+      : liveBroadcastService.deleteLiveBroadcast(streamId, deleteStreamDto, user);
   }
 
   @PutMapping(value = "/process-join-request/{streamId}")
@@ -112,13 +112,13 @@ public class UserStreamController {
       : liveBroadcastService.updateLiveBroadcastVisibility(streamId, updateStreamVisibilityDto, user);
   }
 
-  @PostMapping(value = "/add-attendee/{eventId}")
+  @PostMapping(value = "/add-attendee/{streamId}")
   public AddNewStreamAttendeeResponse addStreamAttendee(
-      @PathVariable(name = "eventId") final Long eventId,
+      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final AddNewStreamAttendeeDto addNewStreamAttendeeDto,
       @AuthenticationPrincipal final FleenUser user) {
     if (addNewStreamAttendeeDto.isEvent()) {
-      return eventJoinService.addEventAttendee(eventId, addNewStreamAttendeeDto, user);
+      return eventJoinService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
     }
     throw new FailedOperationException();
   }
