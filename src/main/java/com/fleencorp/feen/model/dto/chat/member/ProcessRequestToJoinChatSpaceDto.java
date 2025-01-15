@@ -7,9 +7,11 @@ import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

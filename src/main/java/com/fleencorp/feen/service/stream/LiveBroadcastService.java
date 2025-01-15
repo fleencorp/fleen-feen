@@ -5,9 +5,7 @@ import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -23,11 +21,11 @@ public interface LiveBroadcastService {
   RescheduleStreamResponse rescheduleLiveBroadcast(Long liveBroadcastId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException;
 
-  DeleteStreamResponse deleteLiveBroadcast(Long liveBroadcastId, FleenUser user)
+  DeleteStreamResponse deleteLiveBroadcast(Long liveBroadcastId, DeleteStreamDto deleteStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 
-  CancelStreamResponse cancelLiveBroadcast(Long broadcastId, FleenUser user)
+  CancelStreamResponse cancelLiveBroadcast(Long broadcastId, CancelStreamDto cancelStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 

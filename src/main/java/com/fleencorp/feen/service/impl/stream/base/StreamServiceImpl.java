@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
 import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
@@ -213,6 +214,8 @@ public class StreamServiceImpl implements StreamService {
     final TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse = tryToRequestToToJoinPrivateOrProtectedStream(streamId, requestToJoinStreamDto, user);
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Extract the attendance info
@@ -806,6 +809,25 @@ public class StreamServiceImpl implements StreamService {
           throw AlreadyApprovedRequestToJoinException.of(requestToJoinStatus);
         }
     });
+  }
+
+  /**
+   * Verifies if the provided stream type is equal to the original stream type.
+   *
+   * <p>This method checks whether the given {@code streamType} is equal to
+   * the {@code originalStreamType}. If the {@code originalStreamType} is null or
+   * not equal to the {@code originalStreamType}, a {@link FailedOperationException}
+   * is thrown.</p>
+   *
+   * @param originalStreamType the original {@link StreamType} to compare against
+   * @param streamType the {@link StreamType} to verify
+   * @throws FailedOperationException if the {@code streamType} is null or not equal
+   *                                  to the {@code originalStreamType}
+   */
+  public static void isStreamTypeEqual(final StreamType originalStreamType, final StreamType streamType) {
+    if (originalStreamType == null || originalStreamType != streamType) {
+      throw new FailedOperationException();
+    }
   }
 
 }

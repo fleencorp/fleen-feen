@@ -69,8 +69,8 @@ public class StreamSearchController {
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @GetMapping(value = "/mine/detail/{streamId}")
   public RetrieveStreamResponse findMyStream(
-    @PathVariable(name = "streamId") final Long streamId,
-    @AuthenticationPrincipal final FleenUser user) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.retrieveStream(streamId, user);
   }
 
@@ -100,9 +100,9 @@ public class StreamSearchController {
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @GetMapping(value = "/attendees/request-to-join/{streamId}")
   public RequestToJoinSearchResult findAttendeesRequestToJoin(
-    @PathVariable(name = "streamId") final Long streamId,
-    @AuthenticationPrincipal final FleenUser user,
-    @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
+      @PathVariable(name = "streamId") final Long streamId,
+      @AuthenticationPrincipal final FleenUser user,
+      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
     return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);
   }
 }

@@ -5,9 +5,11 @@ import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

@@ -63,7 +63,7 @@ public class UserMapperImpl implements UserMapper {
    *         and a translated message based on the {@code profileStatus.getMessageCode()}
    */
   @Override
-  public ProfileStatusInfo toProfileStatusInfo(ProfileStatus profileStatus) {
+  public ProfileStatusInfo toProfileStatusInfo(final ProfileStatus profileStatus) {
     return ProfileStatusInfo.of(profileStatus, translate(profileStatus.getMessageCode()));
   }
 }

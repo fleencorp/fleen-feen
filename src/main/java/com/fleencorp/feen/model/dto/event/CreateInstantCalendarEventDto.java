@@ -7,7 +7,10 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +20,6 @@ import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

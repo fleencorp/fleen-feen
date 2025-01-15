@@ -56,6 +56,6 @@ public class StreamController {
       @AuthenticationPrincipal final FleenUser user) {
     return notAttendingStreamDto.isEvent()
       ? eventJoinService.notAttendingEvent(streamId, notAttendingStreamDto, user)
-      : liveBroadcastJoinService.notAttendingLiveBroadcast(streamId, user);
+      : liveBroadcastJoinService.notAttendingLiveBroadcast(streamId, notAttendingStreamDto, user);
   }
 }

@@ -10,7 +10,7 @@ class FleenFeenApplicationTests {
 
 	@Test
 	void contextLoads() {
-		String testText = "Test Feen App";
+		final String testText = "Test Feen App";
 		assertNotNull(testText);
 	}
 

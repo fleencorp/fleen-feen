@@ -10,14 +10,12 @@ import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
-import com.fleencorp.feen.model.dto.stream.base.UpdateStreamVisibilityDto;
+import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
-import com.fleencorp.feen.model.request.stream.*;
+import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.*;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -166,7 +164,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Register the organizer of the live broadcast as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create a live broadcast
-    final CreateStreamRequest createStreamRequest = CreateStreamRequest.of(stream, stream.getStreamType(), createLiveBroadcastDto, oauth2Authorization);
+    final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(stream, stream.getStreamType(), createLiveBroadcastDto, oauth2Authorization);
     // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
     // Get the stream response
@@ -188,14 +186,14 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @param createStreamRequest the request containing details about the stream and the live broadcast
    *                            to be created, including access token and broadcast information
    */
-  protected void createLiveBroadcastExternally(final CreateStreamRequest createStreamRequest) {
-    if (createStreamRequest.isABroadcast()) {
+  protected void createLiveBroadcastExternally(final ExternalStreamRequest createStreamRequest) {
+    if (createStreamRequest.isABroadcast() && createStreamRequest.isCreateLiveBroadcastRequest()) {
       // Create a request object for the live broadcast based on the dto
-      final CreateLiveBroadcastRequest createLiveBroadcastRequest = CreateLiveBroadcastRequest.by(createStreamRequest.createLiveBroadcastDto());
+      final CreateLiveBroadcastRequest createLiveBroadcastRequest = CreateLiveBroadcastRequest.by(createStreamRequest.getCreateLiveBroadcastDto());
       // Update access token needed to perform request
       createLiveBroadcastRequest.updateToken(createStreamRequest.accessToken());
       // Create and add live broadcast or stream in external service for example YouTube Live Stream API
-      liveBroadcastUpdateService.createLiveBroadcastAndStream(createStreamRequest.stream(), createLiveBroadcastRequest);
+      liveBroadcastUpdateService.createLiveBroadcastAndStream(createStreamRequest.getStream(), createLiveBroadcastRequest);
     }
   }
 
@@ -222,6 +220,8 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       throws Oauth2InvalidAuthorizationException {
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), updateStreamDto.getStreamType());
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Check if the OAuth2 authorization exists for the user
@@ -237,7 +237,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Save the updated stream to the repository
     stream = streamRepository.save(stream);
     // Create and build patch request
-    final PatchStreamRequest patchStreamRequest = createPatchStreamRequest(oauth2Authorization, stream, updateStreamDto);
+    final ExternalStreamRequest patchStreamRequest = createPatchStreamRequest(oauth2Authorization, stream, updateStreamDto);
     // Patch or update the stream externally
     patchStreamExternally(patchStreamRequest);
     // Get the stream response
@@ -258,18 +258,18 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    *
    * @param patchStreamRequest the request containing the details to update the live broadcast
    */
-  protected void patchStreamExternally(final PatchStreamRequest patchStreamRequest) {
-    if (patchStreamRequest.isABroadcast()) {
+  protected void patchStreamExternally(final ExternalStreamRequest patchStreamRequest) {
+    if (patchStreamRequest.isABroadcast() && patchStreamRequest.isPatchRequest()) {
       // Create an update request using the access token and update details
       final UpdateLiveBroadcastRequest updateLiveBroadcastRequest = UpdateLiveBroadcastRequest.of(
         patchStreamRequest.accessToken(),
-        patchStreamRequest.title(),
-        patchStreamRequest.description(),
+        patchStreamRequest.getTitle(),
+        patchStreamRequest.getDescription(),
         patchStreamRequest.streamExternalId()
       );
 
       // Update the live broadcast using an external service
-      liveBroadcastUpdateService.updateLiveBroadcastAndStream(patchStreamRequest.stream(), updateLiveBroadcastRequest);
+      liveBroadcastUpdateService.updateLiveBroadcastAndStream(patchStreamRequest.getStream(), updateLiveBroadcastRequest);
     }
   }
 
@@ -295,6 +295,8 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException {
     // Retrieve the FleenStream entity from the repository based on the stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), rescheduleStreamDto.getStreamType());
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Retrieve the Oauth2 Authorization associated with the user
@@ -309,7 +311,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Save the rescheduled stream to the repository
     streamRepository.save(stream);
     // Create the reschedule stream request
-    final RescheduleStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(oauth2Authorization, stream, rescheduleStreamDto);
+    final ExternalStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(oauth2Authorization, stream, rescheduleStreamDto);
     // Reschedule the stream using an external service
     rescheduleStreamExternally(rescheduleStreamRequest);
     // Convert the stream to the equivalent stream response whether live broadcast or live broadcast or live stream
@@ -324,25 +326,25 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * Reschedules a live broadcast (e.g., on YouTube) based on the provided updated schedule details.
    *
    * <p>This method creates a {@link RescheduleLiveBroadcastRequest} using the provided details from the
-   * {@link RescheduleStreamRequest} (including the start and end date/times). It then uses
+   * {@link ExternalStreamRequest} (including the start and end date/times). It then uses
    * {@link #liveBroadcastUpdateService} to perform the rescheduling operation in the external service,
    * such as the YouTube Live Stream API.</p>
    *
    * @param rescheduleStreamRequest the request containing updated details for rescheduling the stream's live broadcast
    */
-  protected void rescheduleStreamExternally(final RescheduleStreamRequest rescheduleStreamRequest) {
-    if (rescheduleStreamRequest.isABroadcast()) {
+  protected void rescheduleStreamExternally(final ExternalStreamRequest rescheduleStreamRequest) {
+    if (rescheduleStreamRequest.isABroadcast() && rescheduleStreamRequest.isRescheduleRequest()) {
       // Create a request object to reschedule the live broadcast on the external service
       final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest.of(
         rescheduleStreamRequest.accessToken(),
-        rescheduleStreamRequest.startDateTime(),
-        rescheduleStreamRequest.endDateTime(),
+        rescheduleStreamRequest.getStartDateTime(),
+        rescheduleStreamRequest.getEndDateTime(),
         null,
         rescheduleStreamRequest.streamExternalId()
       );
 
       // Reschedule the live broadcast using an external service
-      liveBroadcastUpdateService.rescheduleLiveBroadcastAndStream(rescheduleStreamRequest.stream(), rescheduleLiveBroadcastRequest);
+      liveBroadcastUpdateService.rescheduleLiveBroadcastAndStream(rescheduleStreamRequest.getStream(), rescheduleLiveBroadcastRequest);
     }
   }
 
@@ -363,6 +365,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * {@link FailedOperationException} will be thrown.</p>
    *
    * @param liveBroadcastId the ID of the live broadcast stream to be deleted
+   * @param deleteStreamDto the dto containing the deletion details
    * @param user the {@link FleenUser} requesting the deletion
    * @return a {@link DeleteStreamResponse} containing details of the deleted stream
    * @throws FleenStreamNotFoundException if the stream with the given ID does not exist
@@ -373,11 +376,13 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    */
   @Override
   @Transactional
-  public DeleteStreamResponse deleteLiveBroadcast(final Long liveBroadcastId, final FleenUser user)
+  public DeleteStreamResponse deleteLiveBroadcast(final Long liveBroadcastId, final DeleteStreamDto deleteStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException,
         StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), deleteStreamDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Validate if the user is the creator of the live broadcast
@@ -390,7 +395,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     streamRepository.save(stream);
 
     // Create a request to delete the live broadcast
-    final DeleteStreamRequest deleteStreamRequest = createDeleteStreamRequest(stream, oauth2Authorization);
+    final ExternalStreamRequest deleteStreamRequest = createDeleteStreamRequest(stream, oauth2Authorization);
     // Reschedule the live broadcast using an external service
     deleteStreamExternally(deleteStreamRequest);
     // Get the deleted info
@@ -401,13 +406,38 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     return localizer.of(DeleteStreamResponse.of(liveBroadcastId, streamTypeInfo, deletedInfo));
   }
 
+  /**
+   * Cancels a live broadcast and updates the stream status, performing external cancellation operations.
+   *
+   * <p>This method retrieves the stream by its ID, verifies the stream's details (such as ownership and
+   * active status), and checks if the stream is ongoing. If valid, it updates the stream's status to "canceled",
+   * saves the updated stream, and performs the cancellation externally. Finally, it returns a localized response
+   * indicating the cancellation result.</p>
+   *
+   * <p>The method may throw various exceptions if the stream is not found, the user is not the creator,
+   * the stream is already canceled or has already occurred, or if the cancellation operation fails.</p>
+   *
+   * @param broadcastId the ID of the stream to be canceled
+   * @param cancelStreamDto the dto containing the cancellation details
+   * @param user the user requesting the cancellation
+   * @return a {@link CancelStreamResponse} containing details about the canceled stream
+   * @throws FleenStreamNotFoundException if the stream with the given ID cannot be found
+   * @throws CalendarNotFoundException if no calendar is found for the user's country and stream type
+   * @throws StreamNotCreatedByUserException if the stream was not created by the provided user
+   * @throws StreamAlreadyCanceledException if the stream has already been canceled
+   * @throws StreamAlreadyHappenedException if the stream has already occurred
+   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be canceled
+   * @throws FailedOperationException if the cancellation operation fails
+   */
   @Override
   @Transactional
-  public CancelStreamResponse cancelLiveBroadcast(final Long broadcastId, final FleenUser user)
+  public CancelStreamResponse cancelLiveBroadcast(final Long broadcastId, final CancelStreamDto cancelStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(broadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), cancelStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
     // Verify if the stream is still ongoing
@@ -431,11 +461,11 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * <p>This method checks if the stream is a broadcast and, if so, creates a request to delete the associated live
    * broadcast on an external service (e.g., YouTube). It then calls the external service to perform the deletion.</p>
    *
-   * @param deleteStreamRequest the {@link DeleteStreamRequest} containing the details of the stream to be deleted,
+   * @param deleteStreamRequest the {@link ExternalStreamRequest} containing the details of the stream to be deleted,
    *                             including the external stream ID and OAuth2 access token
    */
-  protected void deleteStreamExternally(final DeleteStreamRequest deleteStreamRequest) {
-    if (deleteStreamRequest.isABroadcast()) {
+  protected void deleteStreamExternally(final ExternalStreamRequest deleteStreamRequest) {
+    if (deleteStreamRequest.isABroadcast() && deleteStreamRequest.isDeleteRequest()) {
       // Create a request to delete the live broadcast
       final DeleteLiveBroadcastRequest deleteLiveBroadcastRequest = DeleteLiveBroadcastRequest.of(
         deleteStreamRequest.streamExternalId(),
@@ -467,6 +497,8 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       throws FleenStreamNotFoundException, Oauth2InvalidAuthorizationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
+    // Verify if the stream's type is the same as the stream type of the request
+    isStreamTypeEqual(stream.getStreamType(), updateStreamVisibilityDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Verify stream details like the owner, stream date and active status of the stream
@@ -479,7 +511,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     streamRepository.save(stream);
 
     // Create request to update stream visibility
-    final UpdateStreamVisibilityRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(oauth2Authorization, stream, updateStreamVisibilityDto.getVisibility());
+    final ExternalStreamRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(oauth2Authorization, stream, updateStreamVisibilityDto.getVisibility());
     // Update the stream visibility using an external service
     updateStreamVisibilityExternally(updateStreamVisibilityRequest);
 
@@ -491,13 +523,13 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     return localizer.of(UpdateStreamVisibilityResponse.of(liveBroadcastId, streamVisibility, streamTypeInfo));
   }
 
-  protected void updateStreamVisibilityExternally(final UpdateStreamVisibilityRequest updateStreamVisibilityRequest) {
-    if (updateStreamVisibilityRequest.isABroadcast()) {
+  protected void updateStreamVisibilityExternally(final ExternalStreamRequest updateStreamVisibilityRequest) {
+    if (updateStreamVisibilityRequest.isABroadcast() && updateStreamVisibilityRequest.isVisibilityUpdateRequest()) {
       // Create a request to update the service's visibility
       final UpdateLiveBroadcastVisibilityRequest updateLiveBroadcastVisibilityRequest = UpdateLiveBroadcastVisibilityRequest.of(
         updateStreamVisibilityRequest.accessToken(),
         updateStreamVisibilityRequest.streamExternalId(),
-        updateStreamVisibilityRequest.visibility()
+        updateStreamVisibilityRequest.getVisibility()
       );
 
       // Update the stream visibility using an external service
