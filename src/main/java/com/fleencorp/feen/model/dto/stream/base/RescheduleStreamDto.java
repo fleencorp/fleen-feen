@@ -49,7 +49,7 @@ public class RescheduleStreamDto {
   @JsonProperty("stream_type")
   protected String streamType;
 
-  private StreamType getStreamType() {
+  public StreamType getStreamType() {
     return StreamType.of(streamType);
   }
 

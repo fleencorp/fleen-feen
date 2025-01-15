@@ -5,12 +5,14 @@ import com.fleencorp.base.util.FleenUtil;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor

@@ -34,7 +34,7 @@ public class UpdateStreamVisibilityDto {
     return StreamVisibility.of(visibility);
   }
 
-  private StreamType getStreamType() {
+  public StreamType getStreamType() {
     return StreamType.of(streamType);
   }
 

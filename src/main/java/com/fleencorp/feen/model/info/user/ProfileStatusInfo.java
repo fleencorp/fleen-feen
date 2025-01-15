@@ -26,7 +26,7 @@ public class ProfileStatusInfo {
   @JsonProperty("profile_status_text")
   private String profileStatusText;
 
-  public static ProfileStatusInfo of(ProfileStatus status, String profileStatusText) {
+  public static ProfileStatusInfo of(final ProfileStatus status, final String profileStatusText) {
     return new ProfileStatusInfo(status, profileStatusText);
   }
 }
