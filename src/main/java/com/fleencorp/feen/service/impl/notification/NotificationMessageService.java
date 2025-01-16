@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import org.springframework.stereotype.Component;
 
 import static com.fleencorp.feen.constant.notification.NotificationType.*;
@@ -31,14 +32,14 @@ import static java.util.Objects.nonNull;
 @Component
 public class NotificationMessageService {
 
-  private final Localizer localizer;
+  private final DefaultLocalizer localizer;
 
   /**
    * Constructs a new {@code NotificationMessageService} with the provided {@link Localizer}.
    *
    * @param localizer the service responsible for handling localized responses for notifications
    */
-  public NotificationMessageService(final Localizer localizer) {
+  public NotificationMessageService(final DefaultLocalizer localizer) {
     this.localizer = localizer;
   }
 

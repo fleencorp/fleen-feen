@@ -1,6 +1,10 @@
 package com.fleencorp.feen.configuration.message;
 
+import com.fleencorp.localizer.service.ErrorLocalizer;
 import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizerAdapter;
+import com.fleencorp.localizer.service.adapter.ErrorLocalizerAdapter;
 import com.fleencorp.localizer.service.adapter.LocalizerAdapter;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -127,11 +131,18 @@ public class MessageSourceConfiguration {
   }
 
   @Bean
-  public Localizer localizer(
-      final MessageSource messageSource,
-      @Qualifier("response-message-source") final MessageSource responseMessageSource,
-      @Qualifier("error-message-source") final MessageSource errorMessageSource) {
-    return new LocalizerAdapter(messageSource, responseMessageSource, errorMessageSource);
+  public DefaultLocalizer defaultLocalizer(final MessageSource messageSource) {
+    return new DefaultLocalizerAdapter(messageSource);
+  }
+
+  @Bean
+  public Localizer localizer(@Qualifier("response-message-source") final MessageSource messageSource) {
+    return new LocalizerAdapter(messageSource);
+  }
+
+  @Bean
+  public ErrorLocalizer errorLocalizer(@Qualifier("error-message-source") final MessageSource messageSource) {
+    return new ErrorLocalizerAdapter(messageSource);
   }
 
   /**
