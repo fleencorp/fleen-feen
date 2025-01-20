@@ -7,12 +7,10 @@ import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
