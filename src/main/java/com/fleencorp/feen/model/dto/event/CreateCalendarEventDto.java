@@ -14,14 +14,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

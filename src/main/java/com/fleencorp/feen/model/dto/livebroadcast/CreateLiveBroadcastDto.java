@@ -12,12 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.stream.StreamSource.YOUTUBE_LIVE;
 import static com.fleencorp.feen.constant.stream.StreamType.LIVE_STREAM;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

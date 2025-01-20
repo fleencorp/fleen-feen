@@ -9,6 +9,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.validator.StreamDuration;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -26,11 +26,11 @@ import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@StreamDuration
 @DateRange(start = "startDateTime", end = "endDateTime")
 public class CreateStreamDto {
 
@@ -120,20 +120,23 @@ public class CreateStreamDto {
   }
 
   public FleenStream toFleenStream() {
-    return FleenStream.builder()
-      .title(title)
-      .description(description)
-      .tags(tags)
-      .location(location)
-      .timezone(timezone)
-      .scheduledStartDate(getActualStartDateTime())
-      .scheduledEndDate(getActualEndDateTime())
-      .streamVisibility(getActualVisibility())
-      .streamCreationType(SCHEDULED)
-      .streamStatus(ACTIVE)
-      .forKids(parseBoolean(forKids))
-      .deleted(false)
-      .build();
+    final FleenStream fleenStream = new FleenStream();
+    fleenStream.setTags(tags);
+    fleenStream.setTitle(title);
+    fleenStream.setLocation(location);
+    fleenStream.setTimezone(timezone);
+    fleenStream.setDescription(description);
+
+    fleenStream.setScheduledStartDate(getActualStartDateTime());
+    fleenStream.setScheduledEndDate(getActualEndDateTime());
+    fleenStream.setStreamVisibility(getActualVisibility());
+
+    fleenStream.setStreamStatus(ACTIVE);
+    fleenStream.setStreamCreationType(SCHEDULED);
+
+    fleenStream.setForKids(parseBoolean(forKids));
+    fleenStream.setDeleted(false);
+    return fleenStream;
   }
 
 }
