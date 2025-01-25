@@ -79,7 +79,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
     // Create an event using an external service (Google Calendar)
     final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.updateDetails(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
+    stream.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
     streamRepository.save(stream);
     // Set the event ID from the created event to to be reused
     createCalendarEventRequest.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
@@ -128,7 +128,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
   public void broadcastEventOrStreamCreated(final FleenStream stream) {
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
-      .of(stream.getMember().getMemberId(),
+      .of(stream.getMemberId(),
         stream.getStreamId(),
         stream.getExternalId(),
         stream.getStreamLink(),

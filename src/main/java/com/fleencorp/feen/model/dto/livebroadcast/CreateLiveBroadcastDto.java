@@ -32,11 +32,11 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
   private String thumbnailUrl;
 
   public FleenStream toFleenStream(final Member member) {
-    final FleenStream fleenStream = toFleenStream();
-    fleenStream.setMember(member);
-    fleenStream.setStreamSource(YOUTUBE_LIVE);
-    fleenStream.setStreamType(LIVE_STREAM);
-    return fleenStream;
+    final FleenStream stream = toFleenStream();
+    stream.setMember(member);
+    stream.setStreamSource(YOUTUBE_LIVE);
+    stream.setStreamType(LIVE_STREAM);
+    return stream;
   }
 
   public Oauth2ServiceType getOauth2ServiceType() {

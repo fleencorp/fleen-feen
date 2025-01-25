@@ -15,7 +15,7 @@ import java.util.List;
 
 public interface StreamService {
 
-  FleenStream findStream(Long eventOrStreamId) throws FleenStreamNotFoundException;
+  FleenStream findStream(Long streamId) throws FleenStreamNotFoundException;
 
   RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,

@@ -63,12 +63,12 @@ public class LiveBroadcastUpdateService {
     // Create the live broadcast using YouTubeLiveBroadcastService
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
     // Update the stream with the event ID and HTML link from the created YouTube live broadcast
-    stream.updateDetails(createYouTubeLiveBroadcastResponse.liveBroadcastId(), createYouTubeLiveBroadcastResponse.liveStreamLink());
+    stream.update(createYouTubeLiveBroadcastResponse.liveBroadcastId(), createYouTubeLiveBroadcastResponse.liveStreamLink());
     streamRepository.save(stream);
 
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
-      .of(stream.getMember().getMemberId(),
+      .of(stream.getMemberId(),
         stream.getStreamId(),
         stream.getExternalId(),
         stream.getStreamLink(),

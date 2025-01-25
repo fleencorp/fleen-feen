@@ -87,7 +87,7 @@ public class EventUpdateServiceImpl implements EventUpdateService {
 
     // Prepare the request to send a calendar event message to the chat space
     final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
-      stream.getSpaceIdOrName(),
+      stream.getExternalSpaceIdOrName(),
       requireNonNull(streamMapper.toFleenStreamResponseNoJoinStatus(stream))
     );
 
@@ -116,7 +116,7 @@ public class EventUpdateServiceImpl implements EventUpdateService {
     // Create an instant event using an external service (Google Calendar)
     final GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.updateDetails(googleCreateInstantCalendarEventResponse.eventId(), googleCreateInstantCalendarEventResponse.getHangoutLink());
+    stream.update(googleCreateInstantCalendarEventResponse.eventId(), googleCreateInstantCalendarEventResponse.getHangoutLink());
     streamRepository.save(stream);
   }
 
