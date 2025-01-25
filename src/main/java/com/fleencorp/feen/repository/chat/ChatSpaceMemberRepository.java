@@ -81,7 +81,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
         SELECT new com.fleencorp.feen.model.projection.ChatSpaceMemberSelect(cs.chatSpaceId, csm.requestToJoinStatus, csm.chatSpace.spaceVisibility)
         FROM ChatSpaceMember csm LEFT JOIN csm.member m LEFT JOIN csm.chatSpace cs WHERE m = :member AND cs.chatSpaceId IN (:ids)
     """)
-  List<ChatSpaceMemberSelect> findByMemberAndEventOrStreamIds(Member member, @Param("ids") List<Long> eventOrStreamIds);
+  List<ChatSpaceMemberSelect> findByMemberAndEventOrStreamIds(Member member, @Param("ids") List<Long> streamIds);
 
 
   @Query(value =

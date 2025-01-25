@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 public interface UserFleenStreamRepository extends JpaRepository<FleenStream, Long> {
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL AND fs.member = :member ORDER BY fs.updatedOn DESC")
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL AND fs.member = :member ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findManyByMe(@Param("member") Member member, Pageable pageable);
 
   @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.member = :member ORDER BY fs.updatedOn DESC")

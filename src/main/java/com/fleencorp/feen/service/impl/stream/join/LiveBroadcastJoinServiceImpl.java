@@ -33,7 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 /**
  * Implementation of the {@link LiveBroadcastJoinService} interface that handles the logic for managing attendees joining live broadcasts.
@@ -113,7 +114,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), notAttendingStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the stream
     verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
@@ -166,7 +167,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), joinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
@@ -225,7 +226,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Retrieve the stream using the provided stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), processAttendeeRequestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
 

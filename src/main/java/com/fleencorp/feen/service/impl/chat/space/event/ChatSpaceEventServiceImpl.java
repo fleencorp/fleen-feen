@@ -151,7 +151,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     final String organizerAliasOrDisplayName = createChatSpaceEventDto.getOrganizerAlias(user.getFullName());
 
     // Update the FleenStream entity with organizer and contact details
-    stream.updateDetails(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
+    stream.update(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
     // Save the updated FleenStream entity to the repository
     stream = streamRepository.save(stream);
     // Register the organizer of the event as an attendee or guest

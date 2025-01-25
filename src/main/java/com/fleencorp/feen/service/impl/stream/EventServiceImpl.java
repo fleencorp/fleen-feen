@@ -160,7 +160,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createEventDto.toFleenStream(user.toMember());
-    stream.updateDetails(
+    stream.update(
       organizerAliasOrDisplayName,
       user.getEmailAddress(),
       user.getPhoneNumber()
@@ -257,7 +257,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create a Stream object from the DTO and update its details with the Google Calendar response
     FleenStream stream = createInstantEventDto.toFleenStream(user.toMember());
     // Update the details of the stream
-    stream.updateDetails(
+    stream.update(
       user.getFullName(),
       user.getEmailAddress(),
       user.getPhoneNumber());
@@ -332,7 +332,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), updateStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamDto.getStreamType());
 
     // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
@@ -428,7 +428,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(streamType, deleteStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(deleteStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Validate if the user is the creator of the event
@@ -520,7 +520,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(streamType, cancelStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(cancelStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
 
@@ -607,7 +607,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(streamType, rescheduleStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(rescheduleStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Verify stream details like the owner, event date and active status of the event
@@ -689,7 +689,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), updateStreamVisibilityDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamVisibilityDto.getStreamType());
     // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event

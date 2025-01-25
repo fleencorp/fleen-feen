@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.domain.stream;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -15,12 +16,13 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.fleencorp.feen.constant.stream.StreamVisibility.*;
+import static com.fleencorp.feen.constant.stream.StreamVisibility.PRIVATE;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -35,7 +37,7 @@ public class FleenStream extends FleenFeenEntity {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "fleen_stream_id", nullable = false, updatable = false, unique = true)
-  private Long fleenStreamId;
+  private Long streamId;
 
   @Column(name = "external_id")
   private String externalId;
@@ -136,29 +138,11 @@ public class FleenStream extends FleenFeenEntity {
     return nonNull(forKids);
   }
 
-  /**
-   * Retrieves the stream ID.
-   *
-   * @return the stream ID as a {@link Long}.
-   */
-  public Long getStreamId() {
-    return fleenStreamId;
-  }
-
   public Long getChatSpaceId() {
     return nonNull(chatSpace) ? chatSpace.getChatSpaceId() : null;
   }
 
-  /**
-   * Retrieves the set of stream attendees.
-   *
-   * @return a {@link Set} of {@link StreamAttendee}, or an empty set if attendees are null.
-   */
-  public Set<StreamAttendee> getAttendees() {
-    return nonNull(attendees) ? attendees : new HashSet<>();
-  }
-
-  public String getSpaceIdOrName() {
+  public String getExternalSpaceIdOrName() {
     return nonNull(chatSpace) ? chatSpace.getExternalIdOrName() : null;
   }
 
@@ -193,7 +177,7 @@ public class FleenStream extends FleenFeenEntity {
    * @param externalId the new external ID to be set
    * @param streamLink the new stream link to be set
    */
-  public void updateDetails(final String externalId, final String streamLink) {
+  public void update(final String externalId, final String streamLink) {
     this.externalId = externalId;
     this.streamLink = streamLink;
   }
@@ -208,7 +192,7 @@ public class FleenStream extends FleenFeenEntity {
    * @param organizerEmail the new email of the organizer to be set
    * @param organizerPhone the new phone number of the organizer to be set
    */
-  public void updateDetails(final String organizerName, final String organizerEmail, final String organizerPhone) {
+  public void update(final String organizerName, final String organizerEmail, final String organizerPhone) {
     this.organizerName = organizerName;
     this.organizerEmail = organizerEmail;
     this.organizerPhone = organizerPhone;
@@ -250,8 +234,8 @@ public class FleenStream extends FleenFeenEntity {
    * @return {@code true} if the stream's visibility is either {@link StreamVisibility#PRIVATE}
    *         or {@link StreamVisibility#PROTECTED}; {@code false} otherwise.
    */
-  public boolean isPrivate() {
-    return streamVisibility == PRIVATE || streamVisibility == PROTECTED;
+  public boolean isPrivateOrProtected() {
+    return StreamVisibility.isPrivateOrProtected(streamVisibility);
   }
 
   /**
@@ -260,7 +244,7 @@ public class FleenStream extends FleenFeenEntity {
    * @return {@code true} if the stream visibility is {@link StreamVisibility#PUBLIC}, {@code false} otherwise.
    */
   public boolean isPublic() {
-    return streamVisibility == PUBLIC;
+    return StreamVisibility.isPublic(streamVisibility);
   }
 
   /**
@@ -268,7 +252,7 @@ public class FleenStream extends FleenFeenEntity {
    *
    * @return {@code true} if the {@code streamVisibility} is PRIVATE; {@code false} otherwise
    */
-  public boolean isJustPrivate() {
+  public boolean isPrivate() {
     return streamVisibility == PRIVATE;
   }
 
@@ -347,6 +331,17 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
+   * Checks whether the chat space and its ID are present.
+   *
+   * @return {@code true} if the {@code chatSpace} object is not null
+   *         and the chat space ID obtained from {@link #getChatSpaceId()}
+   *         is not null; {@code false} otherwise.
+   */
+  public boolean hasChatSpaceId() {
+    return nonNull(chatSpace) && nonNull(getChatSpaceId());
+  }
+
+  /**
    * Increments the total number of members in the event or stream by one.
    */
   public void increaseTotalAttendees() {
@@ -357,7 +352,9 @@ public class FleenStream extends FleenFeenEntity {
    * Decrements the total number of attendees in the event or stream by one.
    */
   public void decreaseTotalAttendees() {
-    totalAttendees--;
+    if (totalAttendees >= 1) {
+      totalAttendees--;
+    }
   }
 
   /**
@@ -377,6 +374,11 @@ public class FleenStream extends FleenFeenEntity {
    * @return The stream time type (UPCOMING, LIVE, or PAST) based on the current time.
    */
   public StreamTimeType getStreamSchedule(final LocalDateTime currentTime) {
+    // If scheduled start date is not set, assume the stream is UPCOMING
+    if (isNull(scheduledStartDate)) {
+      return StreamTimeType.UPCOMING;
+    }
+
     // Check if the current time is before the scheduled start date
     if (currentTime.isBefore(scheduledStartDate)) {
       return StreamTimeType.UPCOMING;
@@ -388,6 +390,24 @@ public class FleenStream extends FleenFeenEntity {
     // If current time equals the scheduled start time
     else {
       return StreamTimeType.LIVE;
+    }
+  }
+
+  /**
+   * Verifies if the provided stream type is equal to the original stream type.
+   *
+   * <p>This method checks whether the given {@code streamType} is equal to
+   * the {@code originalStreamType}. If the {@code originalStreamType} is null or
+   * not equal to the {@code originalStreamType}, a {@link FailedOperationException}
+   * is thrown.</p>
+   *
+   * @param streamType the {@link StreamType} to verify
+   * @throws FailedOperationException if the {@code streamType} is null or not equal
+   *                                  to the {@code originalStreamType}
+   */
+  public void verifyIfStreamTypeNotEqualAndFail(final StreamType streamType) {
+    if (isNull(this.streamType) || this.streamType != streamType) {
+      throw new FailedOperationException();
     }
   }
 
@@ -404,8 +424,13 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   public static FleenStream of(final Long streamId) {
-    return FleenStream.builder()
-        .fleenStreamId(streamId)
-        .build();
+    final FleenStream stream = new FleenStream();
+    stream.setStreamId(streamId);
+
+    return stream;
+  }
+
+  public static FleenStream empty() {
+    return null;
   }
 }

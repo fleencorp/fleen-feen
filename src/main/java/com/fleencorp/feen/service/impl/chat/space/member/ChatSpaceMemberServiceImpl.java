@@ -404,7 +404,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Override
   public boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(final FleenStream stream, final StreamAttendee streamAttendee) {
     // Check if the stream has an associated chat space with a valid ID
-    if (nonNull(stream.getChatSpace()) && nonNull(stream.getChatSpaceId())) {
+    if (stream.hasChatSpaceId()) {
       // Find if the attendee is a member of the chat space
       final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberRepository.findByChatSpaceAndMemberAndStatus(stream.getChatSpace(), streamAttendee.getMember(), ChatSpaceRequestToJoinStatus.approved());
       // Return true if a member exists, otherwise false

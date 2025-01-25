@@ -82,7 +82,7 @@ public class StreamMapperImpl implements StreamMapper {
 
       final IsAttendingInfo attendingInfo = toIsAttendingInfo(false);
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of();
-      final JoinStatusInfo joinStatusInfo = entry.isPrivate()
+      final JoinStatusInfo joinStatusInfo = entry.isPrivateOrProtected()
         ? JoinStatusInfo.of(joinStatusNotJoinedPrivate, translate(joinStatusNotJoinedPrivate.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()))
         : JoinStatusInfo.of(joinStatusNotJoinedPublic, translate(joinStatusNotJoinedPublic.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()));
 

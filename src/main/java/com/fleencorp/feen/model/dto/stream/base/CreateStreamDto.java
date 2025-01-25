@@ -120,23 +120,23 @@ public class CreateStreamDto {
   }
 
   public FleenStream toFleenStream() {
-    final FleenStream fleenStream = new FleenStream();
-    fleenStream.setTags(tags);
-    fleenStream.setTitle(title);
-    fleenStream.setLocation(location);
-    fleenStream.setTimezone(timezone);
-    fleenStream.setDescription(description);
+    final FleenStream stream = new FleenStream();
+    stream.setTags(tags);
+    stream.setTitle(title);
+    stream.setLocation(location);
+    stream.setTimezone(timezone);
+    stream.setDescription(description);
 
-    fleenStream.setScheduledStartDate(getActualStartDateTime());
-    fleenStream.setScheduledEndDate(getActualEndDateTime());
-    fleenStream.setStreamVisibility(getActualVisibility());
+    stream.setScheduledStartDate(getActualStartDateTime());
+    stream.setScheduledEndDate(getActualEndDateTime());
+    stream.setStreamVisibility(getActualVisibility());
 
-    fleenStream.setStreamStatus(ACTIVE);
-    fleenStream.setStreamCreationType(SCHEDULED);
+    stream.setStreamStatus(ACTIVE);
+    stream.setStreamCreationType(SCHEDULED);
 
-    fleenStream.setForKids(parseBoolean(forKids));
-    fleenStream.setDeleted(false);
-    return fleenStream;
+    stream.setForKids(parseBoolean(forKids));
+    stream.setDeleted(false);
+    return stream;
   }
 
 }
