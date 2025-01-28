@@ -263,7 +263,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     }
 
     // Create the notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getFleenStream(), streamAttendee, stream.getMember());
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getStream(), streamAttendee, stream.getMember());
     // Save the notification
     notificationService.save(notification);
   }

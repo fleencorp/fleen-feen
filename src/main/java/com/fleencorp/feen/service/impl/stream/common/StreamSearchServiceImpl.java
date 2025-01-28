@@ -370,7 +370,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Update the schedule, timezone details and join status
     updateStreamOtherScheduleAndUserJoinStatus(streamResponse, user);
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
-    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
+    final long totalAttendees = streamAttendeeRepository.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response

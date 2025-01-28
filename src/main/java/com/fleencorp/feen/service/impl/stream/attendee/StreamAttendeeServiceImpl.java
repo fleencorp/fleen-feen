@@ -116,7 +116,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Set default number of attendees to retrieve during the search
     searchRequest.setDefaultPageSize();
     // Retrieve paginated list of attendees associated with the given event or stream
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStream(FleenStream.of(streamId), searchRequest.getPage());
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByStream(FleenStream.of(streamId), searchRequest.getPage());
     // Retrieve the fleen stream
     final FleenStream stream = streamService.findStream(streamId);
     // Convert the list of attendees to response objects
@@ -211,7 +211,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
           final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM);
           // Fetch attendees who are approved and attending the stream
           final Page<StreamAttendee> page = streamAttendeeRepository
-            .findAllByFleenStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true, pageable);
+            .findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true, pageable);
           // Convert the list of stream attendees to list of stream attendee responses
           final List<StreamAttendeeResponse> streamAttendees = toStreamAttendeeResponses(stream, page.getContent());
           // Set the attendees on the response
@@ -238,7 +238,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
           final Long streamId = Long.parseLong(stream.getId().toString());
           // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
           final long totalAttendees = streamAttendeeRepository.
-            countByFleenStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true);
+            countByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true);
           stream.setTotalAttending(totalAttendees);
         });
     }
@@ -382,7 +382,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     validateCreatorOfStream(stream, user);
 
     // Find pending attendees requesting to join a stream
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByStreamAndRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
     // Convert the stream attendee to their equivalent responses
     final List<StreamAttendeeResponse> views = toStreamAttendeeResponsesWithStatus(page.getContent(), stream);
     // Return a search result view with the attendee responses and pagination details

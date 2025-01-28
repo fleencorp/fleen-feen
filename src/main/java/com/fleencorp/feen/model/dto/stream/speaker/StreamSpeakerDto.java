@@ -66,7 +66,7 @@ public class StreamSpeakerDto {
 
   public StreamSpeaker toStreamSpeaker(final FleenStream stream) {
     final StreamSpeaker streamSpeaker = toStreamSpeaker();
-    streamSpeaker.setFleenStream(stream);
+    streamSpeaker.setStream(stream);
     return streamSpeaker;
   }
 

@@ -114,7 +114,7 @@ public class FleenStream extends FleenFeenEntity {
   private Member member;
 
   @Builder.Default
-  @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "fleenStream")
+  @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
   @CreatedBy

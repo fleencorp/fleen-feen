@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface StreamReviewRepository extends JpaRepository<StreamReview, Long> {
 
-  @Query("SELECT r FROM StreamReview r WHERE r.fleenStream = :stream")
+  @Query("SELECT r FROM StreamReview r WHERE r.stream = :stream")
   Page<StreamReview> findByStream(FleenStream stream, Pageable pageable);
 
   @Query("SELECT r FROM StreamReview r WHERE r.member = :member")

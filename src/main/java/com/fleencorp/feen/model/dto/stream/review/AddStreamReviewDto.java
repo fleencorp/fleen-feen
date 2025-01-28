@@ -34,7 +34,7 @@ public class AddStreamReviewDto {
 
   public StreamReview toStreamReview(final FleenStream stream, final Member member) {
     final StreamReview streamReview = toStreamReview();
-    streamReview.setFleenStream(stream);
+    streamReview.setStream(stream);
     streamReview.setMember(member);
 
     return streamReview;
