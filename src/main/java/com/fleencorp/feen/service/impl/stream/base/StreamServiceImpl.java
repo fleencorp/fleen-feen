@@ -19,6 +19,7 @@ import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStrea
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
@@ -38,6 +39,7 @@ import java.util.*;
 import static com.fleencorp.base.util.ExceptionUtil.*;
 import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.groupAttendeeAttendance;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
+import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
 /**
@@ -409,7 +411,6 @@ public class StreamServiceImpl implements StreamService {
           // If member is an attendee, retrieve the status and set view label
           existingAttendance.ifPresent(attendance -> {
             // Update the request to join status, join status and is attending info
-            log.info("The join status is {}", attendance.getRequestToJoinStatus());
             streamMapper.update(stream, attendance.getRequestToJoinStatus(), attendance.getJoinStatus(), attendance.isAttending());
           });
       });
@@ -482,6 +483,22 @@ public class StreamServiceImpl implements StreamService {
     stream.increaseTotalAttendees();
     // Save the updated stream to the repository
     return streamRepository.save(stream);
+  }
+
+  /**
+   * Retrieves the necessary data for rescheduling a stream, including the available time zones.
+   *
+   * <p>This method fetches the available time zones from the system and returns a response object
+   * that contains the time zone details needed for rescheduling a stream.</p>
+   *
+   * @return a {@link DataForRescheduleStreamResponse} object containing the time zones available for rescheduling the stream
+   */
+  @Override
+  public DataForRescheduleStreamResponse getDataForRescheduleStream() {
+    // Retrieve the available timezones from the system
+    final Set<String> timezones = getAvailableTimezones();
+    // Return the response containing the details to reschedule stream
+    return DataForRescheduleStreamResponse.of(timezones);
   }
 
   /**

@@ -4,11 +4,13 @@ import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
+import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
+import com.fleencorp.feen.service.stream.common.StreamService;
 import jakarta.validation.Valid;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,12 +24,15 @@ public class CreateStreamController {
 
   private final EventService eventService;
   private final LiveBroadcastService liveBroadcastService;
+  private final StreamService streamService;
 
   public CreateStreamController(
       final EventService eventService,
-      final LiveBroadcastService liveBroadcastService) {
+      final LiveBroadcastService liveBroadcastService,
+      final StreamService streamService) {
     this.eventService = eventService;
     this.liveBroadcastService = liveBroadcastService;
+    this.streamService = streamService;
   }
 
   @GetMapping(value = "/event/required-data-create")
@@ -54,6 +59,12 @@ public class CreateStreamController {
   @Cacheable(value = "data-required-to-create-live-broadcast")
   public DataForCreateLiveBroadcastResponse getDataCreateLiveBroadcast() {
     return liveBroadcastService.getDataForCreateLiveBroadcast();
+  }
+
+  @GetMapping(value = "/required-data-reschedule-stream")
+  @Cacheable(value = "data-required-to-reschedule-stream")
+  public DataForRescheduleStreamResponse getDataRescheduleStream() {
+    return streamService.getDataForRescheduleStream();
   }
 
   @PostMapping(value = "/create")

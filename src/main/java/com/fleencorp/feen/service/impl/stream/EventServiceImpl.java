@@ -613,7 +613,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
     // Update Stream schedule details and time
-    stream.updateSchedule(
+    stream.reschedule(
       rescheduleStreamDto.getStartDateTime(),
       rescheduleStreamDto.getEndDateTime(),
       rescheduleStreamDto.getTimezone()

@@ -739,8 +739,8 @@ class FleenStreamTest {
   }
 
   @Test
-  @DisplayName("Ensure update of start date, end date and timezone")
-  void ensure_update_of_start_date_and_timezone() {
+  @DisplayName("Ensure reschedule by start date, end date and timezone")
+  void ensure_update_by_start_date_and_timezone() {
     // given
     FleenStream stream = new FleenStream();
     LocalDateTime startDateTime = LocalDateTime.now();
@@ -748,7 +748,7 @@ class FleenStreamTest {
     String timezone = "Europe/Monaco";
 
     // act
-    stream.updateSchedule(startDateTime, endDateTime, timezone);
+    stream.reschedule(startDateTime, endDateTime, timezone);
 
     // then
     assertEquals(startDateTime, stream.getScheduledStartDate());
@@ -826,8 +826,8 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not ongoing")
   void ensure_stream_is_not_ongoing() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now();
-    LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
+    LocalDateTime startDateTime = LocalDateTime.now().plusHours(1);
+    LocalDateTime endDateTime = LocalDateTime.now().plusHours(2);
 
     FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
@@ -1002,7 +1002,7 @@ class FleenStreamTest {
     stream.setScheduledStartDate(LocalDateTime.now());
 
     // then
-    assertEquals(StreamTimeType.PAST, stream.getStreamSchedule());
+    assertEquals(StreamTimeType.LIVE, stream.getStreamSchedule());
   }
 
   @Test
