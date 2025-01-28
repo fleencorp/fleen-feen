@@ -302,7 +302,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Update the schedule of the FleenStream entity with new start and end times and timezone
-    stream.updateSchedule(
+    stream.reschedule(
       rescheduleStreamDto.getStartDateTime(),
       rescheduleStreamDto.getEndDateTime(),
       rescheduleStreamDto.getTimezone()

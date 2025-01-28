@@ -62,7 +62,7 @@ public class UserStreamController {
       : liveBroadcastService.updateLiveBroadcast(streamId, updateStreamDto, user);
   }
 
-  @PutMapping(value = "/cancel/{streamId}/")
+  @PutMapping(value = "/cancel/{streamId}")
   public CancelStreamResponse cancelStream(
       @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final CancelStreamDto cancelStreamDto,
@@ -72,7 +72,7 @@ public class UserStreamController {
       : liveBroadcastService.cancelLiveBroadcast(streamId, cancelStreamDto, user);
   }
 
-  @DeleteMapping(value = "/delete/{streamId}")
+  @PutMapping(value = "/delete/{streamId}")
   public DeleteStreamResponse deleteStream(
       @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final DeleteStreamDto deleteStreamDto,

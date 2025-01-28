@@ -208,7 +208,7 @@ public class FleenStream extends FleenFeenEntity {
    * @param scheduledEndDate the new end date and time of the schedule to be set
    * @param timezone the new timezone of the schedule to be set
    */
-  public void updateSchedule(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
+  public void reschedule(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
     this.scheduledStartDate = scheduledStartDate;
     this.scheduledEndDate = scheduledEndDate;
     this.timezone = timezone;
@@ -286,7 +286,7 @@ public class FleenStream extends FleenFeenEntity {
    */
   public boolean isOngoing() {
     final LocalDateTime now = LocalDateTime.now();
-    return (now.isEqual(scheduledStartDate) || now.isAfter(scheduledStartDate)) && now.isBefore(scheduledEndDate);
+    return now.isAfter(scheduledStartDate) && now.isBefore(scheduledEndDate);
   }
 
   /**
