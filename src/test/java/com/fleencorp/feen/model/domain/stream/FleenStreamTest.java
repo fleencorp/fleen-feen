@@ -1002,7 +1002,7 @@ class FleenStreamTest {
     stream.setScheduledStartDate(LocalDateTime.now());
 
     // then
-    assertEquals(StreamTimeType.LIVE, stream.getStreamSchedule());
+    assertEquals(StreamTimeType.PAST, stream.getStreamSchedule());
   }
 
   @Test

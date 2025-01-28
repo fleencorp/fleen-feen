@@ -53,7 +53,7 @@ public interface UserFleenStreamRepository extends JpaRepository<FleenStream, Lo
   @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE m = :member")
   Long countTotalStreamsAttended(@Param("member") Member member);
 
-  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.fleenStream.streamType = :streamType AND m = :member")
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.stream.streamType = :streamType AND m = :member")
   Long countTotalStreamsAttended(@Param("streamType") StreamType streamType, @Param("member") Member member);
 
   @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.member = :member")

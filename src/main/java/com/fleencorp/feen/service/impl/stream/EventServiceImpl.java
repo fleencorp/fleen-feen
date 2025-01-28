@@ -784,7 +784,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   protected void processPendingAttendees(final String calendarExternalId, final FleenStream stream) {
     // Retrieve all pending attendees for the specified stream
-    final List<StreamAttendee> pendingAttendees = streamAttendeeRepository.findAllByFleenStreamAndRequestToJoinStatus(stream, PENDING);
+    final List<StreamAttendee> pendingAttendees = streamAttendeeRepository.findAllByStreamAndRequestToJoinStatus(stream, PENDING);
     // Extract email addresses and IDs of the pending attendees or guests
     final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(pendingAttendees);
     // Extract the attendee IDS from pending attendees

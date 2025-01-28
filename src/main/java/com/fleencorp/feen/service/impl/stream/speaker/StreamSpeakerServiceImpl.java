@@ -125,7 +125,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   @Override
   public GetStreamSpeakersResponse getSpeakers(final Long streamId) {
     // Fetch all StreamSpeaker entities associated with the given event or stream ID
-    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByFleenStream(FleenStream.of(streamId));
+    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId));
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final Set<StreamSpeakerResponse> speakerResponses = toStreamSpeakerResponses(speakers);
     // Return a localized response containing the list of speaker responses
@@ -215,7 +215,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   protected void checkIfMemberIsAlreadyASpeakerAndUpdateInfo(final Set<StreamSpeaker> newSpeakers, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
     for (final StreamSpeaker newSpeaker : newSpeakers) {
       // Check if the speaker already exists for the stream
-      final Optional<StreamSpeaker> existingSpeaker = streamSpeakerRepository.findByFleenStreamAndMember(stream, newSpeaker.getMember());
+      final Optional<StreamSpeaker> existingSpeaker = streamSpeakerRepository.findByStreamAndMember(stream, newSpeaker.getMember());
       if (existingSpeaker.isPresent()) {
         // Update the existing speaker details if needed
         final StreamSpeaker speaker = existingSpeaker.get();
@@ -226,7 +226,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
         }
       } else {
         // If no existing speaker, add the new speaker to the set
-        newSpeaker.setFleenStream(stream);
+        newSpeaker.setStream(stream);
         if (nonNull(updatedSpeakers)) {
           updatedSpeakers.add(newSpeaker);
         }

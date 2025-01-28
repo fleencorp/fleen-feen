@@ -35,7 +35,7 @@ public class StreamReview extends FleenFeenEntity {
 
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
-  private FleenStream fleenStream;
+  private FleenStream stream;
 
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
@@ -74,7 +74,7 @@ public class StreamReview extends FleenFeenEntity {
    * @return the title of the stream, or null if the stream is not set.
    */
   public String getStreamTitle() {
-    return nonNull(fleenStream) ? fleenStream.getTitle() : null;
+    return nonNull(stream) ? stream.getTitle() : null;
   }
 
   /**
@@ -101,6 +101,6 @@ public class StreamReview extends FleenFeenEntity {
    * @return the stream ID if the stream is not null; otherwise, null.
    */
   public Long getStreamId() {
-    return nonNull(fleenStream) ? fleenStream.getStreamId() : null;
+    return nonNull(stream) ? stream.getStreamId() : null;
   }
 }

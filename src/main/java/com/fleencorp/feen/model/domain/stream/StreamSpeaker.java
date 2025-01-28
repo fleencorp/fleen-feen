@@ -29,7 +29,7 @@ public class StreamSpeaker extends FleenFeenEntity {
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
-  private FleenStream fleenStream;
+  private FleenStream stream;
 
   @ManyToOne(fetch = LAZY, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id")

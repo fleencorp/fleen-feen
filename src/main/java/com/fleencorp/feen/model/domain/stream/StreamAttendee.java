@@ -29,7 +29,7 @@ public class StreamAttendee extends FleenFeenEntity {
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
-  private FleenStream fleenStream;
+  private FleenStream stream;
 
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -86,19 +86,6 @@ public class StreamAttendee extends FleenFeenEntity {
 
   public String getJoinStatus() {
     return nonNull(requestToJoinStatus) ? requestToJoinStatus.getValue() : null;
-  }
-
-  public static StreamAttendee of(final Member member, final FleenStream stream) {
-    return StreamAttendee.builder()
-      .member(member)
-      .fleenStream(stream)
-      .build();
-  }
-
-  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
-    final StreamAttendee streamAttendee = of(member, stream);
-    streamAttendee.setAttendeeComment(comment);
-    return streamAttendee;
   }
 
   /**
@@ -186,6 +173,19 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public boolean isAttending() {
     return attending;
+  }
+
+  public static StreamAttendee of(final Member member, final FleenStream stream) {
+    StreamAttendee attendee = new StreamAttendee();
+    attendee.setMember(member);
+    attendee.setStream(stream);
+    return attendee;
+  }
+
+  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
+    final StreamAttendee streamAttendee = of(member, stream);
+    streamAttendee.setAttendeeComment(comment);
+    return streamAttendee;
   }
 
 }
