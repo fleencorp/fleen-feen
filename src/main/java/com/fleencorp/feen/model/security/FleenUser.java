@@ -148,16 +148,20 @@ public class FleenUser implements UserDetails {
   }
 
   public Member toMember() {
-    return Member.builder()
-      .memberId(id)
-      .profilePhotoUrl(profilePhoto)
-      .firstName(firstName)
-      .lastName(lastName)
-      .emailAddress(emailAddress)
-      .phoneNumber(phoneNumber)
-      .profileStatus(profileStatus)
-      .verificationStatus(verificationStatus)
-      .build();
+    final Member member = new Member();
+    member.setMemberId(getId());
+    member.setPassword(getPassword());
+    member.setCountry(getCountry());
+    member.setMfaType(getMfaType());
+    member.setLastName(getLastName());
+    member.setFirstName(getFirstName());
+    member.setMfaEnabled(isMfaEnabled());
+    member.setPhoneNumber(getPhoneNumber());
+    member.setEmailAddress(getEmailAddress());
+    member.setProfileStatus(getProfileStatus());
+    member.setVerificationStatus(getVerificationStatus());
+
+    return member;
   }
 
   @Override

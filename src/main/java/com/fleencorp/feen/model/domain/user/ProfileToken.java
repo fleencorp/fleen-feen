@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.isNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor

@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.ORDINAL;
@@ -16,7 +15,6 @@ import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor

@@ -71,12 +71,13 @@ public class StreamSpeakerDto {
   }
 
   public StreamSpeaker toStreamSpeaker() {
-    return StreamSpeaker.builder()
-      .streamSpeakerId(getActualStreamSpeakerId())
-      .fullName(fullName)
-      .description(description)
-      .title(title)
-      .member(Member.of(memberId))
-      .build();
+    final StreamSpeaker speaker = new StreamSpeaker();
+    speaker.setStreamSpeakerId(getActualStreamSpeakerId());
+    speaker.setFullName(fullName);
+    speaker.setTitle(title);
+    speaker.setDescription(description);
+    speaker.setMember(Member.of(memberId));
+
+    return speaker;
   }
 }

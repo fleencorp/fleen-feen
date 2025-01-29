@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -18,7 +17,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -225,9 +223,10 @@ public class ChatSpaceMember extends FleenFeenEntity {
 
 
   public static ChatSpaceMember of(final Long chatSpaceMemberId) {
-    return ChatSpaceMember.builder()
-      .chatSpaceMemberId(chatSpaceMemberId)
-      .build();
+    final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
+    chatSpaceMember.setChatSpaceMemberId(chatSpaceMemberId);
+
+    return chatSpaceMember;
   }
 
   public static ChatSpaceMember of(final ChatSpace chatSpace, final Member member) {
@@ -238,11 +237,12 @@ public class ChatSpaceMember extends FleenFeenEntity {
   }
 
   public static ChatSpaceMember of(final ChatSpace chatSpace, final Member member, final String comment) {
-    return ChatSpaceMember.builder()
-      .chatSpace(chatSpace)
-      .member(member)
-      .role(ChatSpaceMemberRole.MEMBER)
-      .memberComment(comment)
-      .build();
+    final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
+    chatSpaceMember.setChatSpace(chatSpace);
+    chatSpaceMember.setMember(member);
+    chatSpaceMember.setRole(ChatSpaceMemberRole.MEMBER);
+    chatSpaceMember.setMemberComment(comment);
+
+    return chatSpaceMember;
   }
 }

@@ -41,9 +41,9 @@ public class AddStreamReviewDto {
   }
 
   public StreamReview toStreamReview() {
-    return StreamReview.builder()
-      .review(review)
-      .rating(StreamReviewRating.of(rating))
-      .build();
+    final StreamReview streamReview = new StreamReview();
+    streamReview.setReview(review);
+    streamReview.setRating(StreamReviewRating.valueOf(rating));
+    return streamReview;
   }
 }

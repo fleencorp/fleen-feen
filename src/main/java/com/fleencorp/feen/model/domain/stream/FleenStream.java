@@ -9,7 +9,6 @@ import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
@@ -25,7 +24,6 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -113,7 +111,6 @@ public class FleenStream extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
-  @Builder.Default
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
@@ -122,15 +119,12 @@ public class FleenStream extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
   private ChatSpace chatSpace;
 
-  @Builder.Default
   @Column(name = "made_for_kids", nullable = false)
   private Boolean forKids = false;
 
-  @Builder.Default
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
-  @Builder.Default
   @Column(name = "total_attendees", nullable = false)
   private Long totalAttendees = 0L;
 

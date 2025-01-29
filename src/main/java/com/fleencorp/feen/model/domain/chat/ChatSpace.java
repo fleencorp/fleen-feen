@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.HashSet;
@@ -18,7 +17,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -63,19 +61,15 @@ public class ChatSpace extends FleenFeenEntity {
   @Column(name = "space_visibility", nullable = false)
   private ChatSpaceVisibility spaceVisibility;
 
-  @Builder.Default
   @Column(name = "is_active", nullable = false)
   private Boolean isActive = true;
 
-  @Builder.Default
   @Column(name = "total_members", nullable = false)
   private Long totalMembers = 0L;
 
-  @Builder.Default
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
-  @Builder.Default
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
   private Set<ChatSpaceMember> members = new HashSet<>();
 
@@ -217,8 +211,9 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   public static ChatSpace of(final Long chatSpaceId) {
-    return ChatSpace.builder()
-      .chatSpaceId(chatSpaceId)
-      .build();
+    final ChatSpace chatSpace = new ChatSpace();
+    chatSpace.setChatSpaceId(chatSpaceId);
+
+    return chatSpace;
   }
 }

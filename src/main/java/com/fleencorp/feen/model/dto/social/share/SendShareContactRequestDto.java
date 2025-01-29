@@ -43,13 +43,14 @@ public class SendShareContactRequestDto {
   }
 
   public ShareContactRequest toShareContactRequest() {
-    return ShareContactRequest.builder()
-        .isExpected(false)
-        .contactType(ContactType.of(contactType))
-        .requestStatus(ShareContactRequestStatus.SENT)
-        .recipient(Member.of(recipientId))
-        .initiatorComment(comment)
-        .build();
+    final ShareContactRequest shareContactRequest = new ShareContactRequest();
+    shareContactRequest.setIsExpected(false);
+    shareContactRequest.setContactType(ContactType.of(contactType));
+    shareContactRequest.setRequestStatus(ShareContactRequestStatus.SENT);
+    shareContactRequest.setRecipient(Member.of(recipientId));
+    shareContactRequest.setInitiatorComment(comment);
+
+    return shareContactRequest;
   }
 
   public Long getActualRecipientId() {

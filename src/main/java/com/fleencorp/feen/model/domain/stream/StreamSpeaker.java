@@ -7,13 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -81,8 +79,8 @@ public class StreamSpeaker extends FleenFeenEntity {
   }
 
   public static StreamSpeaker of(final Long streamSpeakerId) {
-    return StreamSpeaker.builder()
-      .streamSpeakerId(streamSpeakerId)
-      .build();
+    final StreamSpeaker speaker = new StreamSpeaker();
+    speaker.setStreamSpeakerId(streamSpeakerId);
+    return speaker;
   }
 }

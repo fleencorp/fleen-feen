@@ -6,13 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.ROLE_PREFIX;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -38,24 +36,25 @@ public class Role extends FleenFeenEntity {
   private String description;
 
   public static Role of(final long id) {
-    return Role.builder()
-            .roleId(id)
-            .build();
+    final Role role = new Role();
+    role.setRoleId(id);
+
+    return role;
   }
 
   public static Role of(final String title, final String code) {
-    return Role.builder()
-            .title(title)
-            .code(code)
-            .build();
+    final Role role = new Role();
+    role.setTitle(title);
+    role.setCode(code);
+
+    return role;
   }
 
   public static Role of(final String authority) {
     if (nonNull(authority)) {
-      return Role
-              .builder()
-              .code(authority.replace(ROLE_PREFIX, ""))
-              .build();
+      final Role role = new Role();
+      role.setCode(authority.replace(ROLE_PREFIX, ""));
+      return role;
     }
     return null;
   }
