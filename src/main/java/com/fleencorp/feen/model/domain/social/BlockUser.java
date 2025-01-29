@@ -5,7 +5,6 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -13,7 +12,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,7 +33,6 @@ public class BlockUser extends FleenFeenEntity {
   @JoinColumn(name = "recipient_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member recipient;
 
-  @Builder.Default
   @Enumerated(STRING)
   @Column(name = "block_status", nullable = false)
   private BlockStatus blockStatus = BlockStatus.BLOCKED;
@@ -49,10 +46,11 @@ public class BlockUser extends FleenFeenEntity {
   }
 
   public static BlockUser of(final Member initiator, final Member recipient, final BlockStatus blockStatus) {
-    return BlockUser.builder()
-      .initiator(initiator)
-      .recipient(recipient)
-      .blockStatus(blockStatus)
-      .build();
+    final BlockUser blockUser = new BlockUser();
+    blockUser.setInitiator(initiator);
+    blockUser.setRecipient(recipient);
+    blockUser.setBlockStatus(blockStatus);
+
+    return blockUser;
   }
 }

@@ -16,7 +16,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +23,6 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -92,10 +90,10 @@ public class Notification extends FleenFeenEntity {
 
   @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id")
-  private FleenStream fleenStream;
+  private FleenStream stream;
 
   @Column(name = "fleen_stream_title")
-  private String fleenStreamTitle;
+  private String streamTitle;
 
   @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
   @JoinColumn(name = "stream_attendee_id", referencedColumnName = "stream_attendee_id")

@@ -10,14 +10,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.isNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -61,7 +59,10 @@ public class Oauth2Authorization extends FleenFeenEntity {
   private Member member;
 
   public static Oauth2Authorization of(final Member member) {
-    return Oauth2Authorization.builder().member(member).build();
+    final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
+    oauth2Authorization.setMember(member);
+
+    return oauth2Authorization;
   }
 
   /**

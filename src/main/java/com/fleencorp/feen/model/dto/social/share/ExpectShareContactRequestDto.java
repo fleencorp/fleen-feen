@@ -28,12 +28,13 @@ public class ExpectShareContactRequestDto {
   }
 
   public ShareContactRequest toShareContactRequest() {
-    return ShareContactRequest.builder()
-        .isExpected(true)
-        .contactType(null)
-        .requestStatus(null)
-        .recipient(Member.of(recipientId))
-        .build();
+    final ShareContactRequest shareContactRequest = new ShareContactRequest();
+    shareContactRequest.setIsExpected(true);
+    shareContactRequest.setContactType(null);
+    shareContactRequest.setRequestStatus(null);
+    shareContactRequest.setRecipient(Member.of(recipientId));
+
+    return shareContactRequest;
   }
 
   public Long getActualRecipientId() {

@@ -33,6 +33,10 @@ public class AddContactDto {
   @JsonProperty("contact_type")
   private String contactType;
 
+  public ContactType getActualContactType() {
+    return ContactType.of(contactType);
+  }
+
   public Contact toContact(final Member member) {
     final Contact newContact = toContact();
     newContact.setOwner(member);
@@ -40,13 +44,10 @@ public class AddContactDto {
   }
 
   public Contact toContact() {
-    return Contact.builder()
-        .contactValue(contact)
-        .contactType(getActualContactType())
-        .build();
-  }
+    final Contact newContact = new Contact();
+    newContact.setContactValue(contact);
+    newContact.setContactType(getActualContactType());
 
-  public ContactType getActualContactType() {
-    return ContactType.of(contactType);
+    return newContact;
   }
 }

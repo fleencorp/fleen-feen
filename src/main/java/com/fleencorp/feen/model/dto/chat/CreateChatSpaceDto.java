@@ -55,6 +55,10 @@ public class CreateChatSpaceDto {
   @JsonProperty("visibility")
   private String visibility;
 
+  public ChatSpaceVisibility getActualVisibility() {
+    return ChatSpaceVisibility.of(visibility);
+  }
+
   public ChatSpace toChatSpace(final Member member) {
     final ChatSpace chatSpace = toChatSpace();
     chatSpace.setMember(member);
@@ -62,19 +66,17 @@ public class CreateChatSpaceDto {
   }
 
   public ChatSpace toChatSpace() {
-    return ChatSpace.builder()
-      .title(title)
-      .description(description)
-      .guidelinesOrRules(guidelinesOrRules)
-      .tags(tags)
-      .spaceVisibility(getActualVisibility())
-      .isActive(true)
-      .deleted(false)
-      .totalMembers(0L)
-      .build();
+    final ChatSpace chatSpace = new ChatSpace();
+    chatSpace.setTitle(title);
+    chatSpace.setDescription(description);
+    chatSpace.setGuidelinesOrRules(guidelinesOrRules);
+    chatSpace.setTags(tags);
+    chatSpace.setSpaceVisibility(getActualVisibility());
+    chatSpace.setIsActive(true);
+    chatSpace.setDeleted(false);
+    chatSpace.setTotalMembers(0L);
+
+    return chatSpace;
   }
 
-  public ChatSpaceVisibility getActualVisibility() {
-    return ChatSpaceVisibility.of(visibility);
-  }
 }

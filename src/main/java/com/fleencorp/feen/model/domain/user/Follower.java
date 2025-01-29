@@ -6,12 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -33,10 +32,15 @@ public class Follower extends FleenFeenEntity {
   @JoinColumn(name = "followed_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member followed;
 
+  public String getFollowingName() {
+    return nonNull(following) ? following.getFullName() : null;
+  }
+
   public static Follower of(final Member following, final Member followed) {
-    return Follower.builder()
-      .following(following)
-      .followed(followed)
-      .build();
+    final Follower follower = new Follower();
+    follower.setFollowing(following);
+    follower.setFollowed(followed);
+
+    return follower;
   }
 }

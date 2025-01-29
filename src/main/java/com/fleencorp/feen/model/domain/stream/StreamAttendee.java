@@ -5,7 +5,6 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -13,7 +12,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,7 +37,6 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "request_to_join_status", nullable = false)
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
 
-  @Builder.Default
   @Column(name = "is_attending", nullable = false)
   private Boolean attending = false;
 
@@ -176,7 +173,7 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   public static StreamAttendee of(final Member member, final FleenStream stream) {
-    StreamAttendee attendee = new StreamAttendee();
+    final StreamAttendee attendee = new StreamAttendee();
     attendee.setMember(member);
     attendee.setStream(stream);
     return attendee;

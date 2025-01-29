@@ -49,21 +49,22 @@ public class CreateInstantCalendarEventDto {
   protected String location;
 
   public FleenStream toFleenStream(final Member member) {
-    return FleenStream.builder()
-            .title(title)
-            .description(description)
-            .tags(tags)
-            .location(location)
-            .timezone(NOT_AVAILABLE)
-            .scheduledStartDate(LocalDateTime.now())
-            .scheduledEndDate(LocalDateTime.now())
-            .streamVisibility(PUBLIC)
-            .streamSource(GOOGLE_MEET)
-            .streamCreationType(INSTANT)
-            .streamStatus(ACTIVE)
-            .forKids(true)
-            .deleted(false)
-            .member(member)
-            .build();
+    final FleenStream stream = new FleenStream();
+    stream.setTitle(title);
+    stream.setDescription(description);
+    stream.setTags(tags);
+    stream.setLocation(location);
+    stream.setTimezone(NOT_AVAILABLE);
+    stream.setMember(member);
+    stream.setScheduledStartDate(LocalDateTime.now());
+    stream.setScheduledEndDate(LocalDateTime.now());
+    stream.setStreamSource(GOOGLE_MEET);
+    stream.setStreamVisibility(PUBLIC);
+    stream.setStreamCreationType(INSTANT);
+    stream.setStreamStatus(ACTIVE);
+    stream.setForKids(true);
+    stream.setDeleted(false);
+
+    return stream;
   }
 }
