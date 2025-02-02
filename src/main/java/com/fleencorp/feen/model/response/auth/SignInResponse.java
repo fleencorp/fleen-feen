@@ -62,11 +62,6 @@ public class SignInResponse extends ApiResponse {
   @JsonProperty("is_mfa_enabled_info")
   private IsMfaEnabledInfo mfaEnabledInfo;
 
-  @JsonIgnore
-  public MfaType getMfaType() {
-    return nonNull(mfaTypeInfo) ? mfaTypeInfo.getMfaType() : null;
-  }
-
   @Override
   public String getMessageCode() {
     return "sign.in";
@@ -80,6 +75,11 @@ public class SignInResponse extends ApiResponse {
   @JsonIgnore
   public String getMfaAuthenticatorMessageCode() {
     return "sign.in.mfa.authenticator";
+  }
+
+  @JsonIgnore
+  public MfaType getMfaType() {
+    return nonNull(mfaTypeInfo) ? mfaTypeInfo.getMfaType() : null;
   }
 
   @JsonIgnore
