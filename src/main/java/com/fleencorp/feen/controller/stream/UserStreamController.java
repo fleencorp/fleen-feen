@@ -5,14 +5,12 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.*;
-import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.type.StreamTypeSearchRequest;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
-import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
@@ -121,13 +119,6 @@ public class UserStreamController {
       return eventJoinService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
     }
     throw new FailedOperationException();
-  }
-
-  @GetMapping(value = "/attendees/{streamId}")
-  public StreamAttendeeSearchResult getStreamAttendees(
-      @PathVariable(name = "streamId") final Long streamId,
-      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
-    return streamAttendeeService.getStreamAttendees(streamId, streamAttendeeSearchRequest);
   }
 
   @GetMapping(value = "/total-by-me")

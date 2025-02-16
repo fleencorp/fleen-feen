@@ -10,9 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +23,7 @@ public class ConfirmMfaVerificationCodeDto extends VerificationCodeDto {
   @JsonProperty("mfa_type")
   private String mfaType;
 
-  public MfaType getActualMfaType() {
+  public MfaType getMfaType() {
     return MfaType.of(mfaType);
   }
 }

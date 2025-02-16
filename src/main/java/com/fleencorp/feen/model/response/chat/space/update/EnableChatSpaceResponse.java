@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.chat.space;
+package com.fleencorp.feen.model.response.chat.space.update;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,23 +16,19 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "chat_space_id",
-  "chat_space_member_id"
+  "chat_space_id"
 })
-public class ProcessRequestToJoinChatSpaceResponse extends ApiResponse {
+public class EnableChatSpaceResponse extends ApiResponse {
 
   @JsonProperty("chat_space_id")
   private Long chatSpaceId;
 
-  @JsonProperty("chat_space_member_id")
-  private Long chatSpaceMemberId;
-
   @Override
   public String getMessageCode() {
-    return "process.request.to.join.chat.space";
+    return "enable.chat.space";
   }
 
-  public static ProcessRequestToJoinChatSpaceResponse of(final Long chatSpaceId, final Long chatSpaceMemberId) {
-    return new ProcessRequestToJoinChatSpaceResponse(chatSpaceId, chatSpaceMemberId);
+  public static EnableChatSpaceResponse of(final Long chatSpaceId) {
+    return new EnableChatSpaceResponse(chatSpaceId);
   }
 }

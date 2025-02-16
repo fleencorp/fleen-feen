@@ -2,11 +2,12 @@ package com.fleencorp.feen.model.response.chat.space.base;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
-import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.chat.space.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
+import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.AllArgsConstructor;
@@ -85,6 +86,9 @@ public class ChatSpaceResponse extends FleenFeenResponse {
 
   @JsonProperty("join_status_info")
   private JoinStatusInfo joinStatusInfo;
+
+  @JsonProperty("membership_info")
+  private ChatSpaceMembershipInfo membershipInfo;
 
   @JsonProperty("is_private")
   public boolean isPrivate() {

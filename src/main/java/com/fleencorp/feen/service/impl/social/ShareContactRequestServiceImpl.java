@@ -256,7 +256,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   @Transactional
   public ExpectShareContactRequestResponse expectShareContactRequest(final ExpectShareContactRequestDto expectShareContactRequestDto, final FleenUser user) {
     // Validate that the recipient exists in the repository
-    memberRepository.findById(expectShareContactRequestDto.getActualRecipientId())
+    memberRepository.findById(expectShareContactRequestDto.getRecipientId())
       .orElseThrow(UserNotFoundException.of(expectShareContactRequestDto.getRecipientId()));
 
     // Convert DTO to ShareContactRequest
@@ -299,7 +299,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     // Verify the recipient of the share contact request
     verifyRecipient(shareContactRequest.getRecipient(), user.toMember());
     // Extract and verify the request status and contact details
-    final ShareContactRequestStatus shareContactRequestStatus = processShareContactRequestDto.getActualShareContactRequestStatus();
+    final ShareContactRequestStatus shareContactRequestStatus = processShareContactRequestDto.getShareContactRequestStatus();
     // Ensure the request is to be accepted and if the contact to be shared is valid
     verifyContactRequestStatusAndContact(shareContactRequestStatus, contact);
     // Ensure that the request has not been accepted or rejected already
@@ -309,8 +309,8 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
 
     // Update the share contact request with new details
     shareContactRequest.update(
-      processShareContactRequestDto.getActualShareContactRequestStatus(),
-      processShareContactRequestDto.getActualContactType(),
+      processShareContactRequestDto.getShareContactRequestStatus(),
+      processShareContactRequestDto.getContactType(),
       contact,
       processShareContactRequestDto.getComment());
 
@@ -341,7 +341,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   @Transactional
   public SendShareContactRequestResponse sendShareContactRequest(final SendShareContactRequestDto sendShareContactRequestDto, final FleenUser user) {
     // Validate that the recipient user exists
-    final Member member = memberRepository.findById(sendShareContactRequestDto.getActualRecipientId())
+    final Member member = memberRepository.findById(sendShareContactRequestDto.getRecipientId())
       .orElseThrow(UserNotFoundException.of(sendShareContactRequestDto.getRecipientId()));
 
     // Convert DTO to ShareContactRequest and save it

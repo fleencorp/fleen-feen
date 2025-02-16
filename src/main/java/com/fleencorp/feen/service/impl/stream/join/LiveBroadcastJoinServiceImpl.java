@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
+import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 /**
@@ -173,7 +173,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return localized response of the join stream including status
-    return localizer.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo));
+    return localizer.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo, stream.getTotalAttendees()));
   }
 
   /**
@@ -231,11 +231,11 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     verifyStreamDetails(stream, user);
 
     // Check if the user is already an attendee of the stream and process accordingly
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, Long.parseLong(processAttendeeRequestToJoinStreamDto.getAttendeeUserId()));
+    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // If the attendee exists and is found, process their request to join request
     existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
     // Get a processed attendee request to join stream response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
   }
