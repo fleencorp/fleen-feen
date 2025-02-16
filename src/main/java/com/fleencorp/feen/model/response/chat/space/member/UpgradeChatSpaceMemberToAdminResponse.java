@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.chat.space.member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
+import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

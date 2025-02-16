@@ -400,7 +400,7 @@ public class VerificationServiceImpl implements PasswordService,
     checkIfSignUpIsAlreadyCompleted(user.toMember());
 
     // Prepare the request to resend the sign-up verification code
-    final VerificationType verificationType = resendSignUpVerificationCodeDto.getActualVerificationType();
+    final VerificationType verificationType = resendSignUpVerificationCodeDto.getVerificationType();
     // Send sign up verification message to user
     authenticationService.sendSignUpVerificationMessage(otpCode, verificationType, user);
     // Save the newly generated verification code temporarily for the user
@@ -469,7 +469,7 @@ public class VerificationServiceImpl implements PasswordService,
    */
   protected void sendResendMfaVerificationMessage(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final FleenUser user, final String otpCode) {
     final MfaVerificationRequest resendMfaVerificationCodeRequest = MfaVerificationRequest
-      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), resendMfaVerificationCodeDto.getActualVerificationType());
+      .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), resendMfaVerificationCodeDto.getVerificationType());
     // Resend mfa verification code request
     publisherService.publishMessage(PublishMessageRequest.of(resendMfaVerificationCodeRequest));
   }
@@ -490,7 +490,7 @@ public class VerificationServiceImpl implements PasswordService,
       .orElseThrow(InvalidAuthenticationException.of(username));
 
     // Validate the provided MFA verification code based on its type
-    validateMfaVerificationOrOtpCode(confirmMfaCodeDto.getVerificationCode(), confirmMfaCodeDto.getActualMfaType(), username, member.getMemberId());
+    validateMfaVerificationOrOtpCode(confirmMfaCodeDto.getVerificationCode(), confirmMfaCodeDto.getMfaType(), username, member.getMemberId());
     // Initialize authentication and context for the authenticated user
     final FleenUser authenticatedUser = authenticationService.initializeAuthenticationAndContext(member);
     // Set user timezone after authentication

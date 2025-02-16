@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.chat.space;
 
-import com.fleencorp.feen.constant.stream.JoinStatus;
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
@@ -256,9 +256,14 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
         .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(user.getId()), ChatSpace.of(chatSpaceResponse.getNumberId()))
         .ifPresent(chatSpaceMember -> {
           // Get the join status based on the member's request-to-join status and chat space visibility
-          final JoinStatus joinStatus = JoinStatus.getJoinStatus(chatSpaceMember.getRequestToJoinStatus(), chatSpaceResponse.getVisibility());
+          final JoinStatus joinStatus = JoinStatus.getJoinStatus(
+            chatSpaceMember.getRequestToJoinStatus(),
+            chatSpaceResponse.getVisibility(),
+            chatSpaceMember.isAMember(),
+            chatSpaceMember.isRemoved()
+          );
           // Update the chat space response with the new join status
-          chatSpaceMapper.update(chatSpaceResponse, chatSpaceMember.getRequestToJoinStatus(), joinStatus);
+          chatSpaceMapper.setMembershipInfo(chatSpaceResponse, chatSpaceMember.getRequestToJoinStatus(), joinStatus, chatSpaceMember.isAMember(), chatSpaceMember.isAdmin());
         });
     }
   }
@@ -347,9 +352,9 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Check if both user and responses are valid before proceeding
     if (isUserAndResponsesValid(responses, user)) {
       // Extract chat space IDs from the responses
-      final List<Long> eventIds = extractAndGetChatSpaceIds(responses);
+      final List<Long> chatSpaceIds = extractAndGetChatSpaceIds(responses);
       // Retrieve the user's membership or attendance status for the chat spaces
-      final List<ChatSpaceMemberSelect> userMemberships = chatSpaceMemberRepository.findByMemberAndEventOrStreamIds(user.toMember(), eventIds);
+      final List<ChatSpaceMemberSelect> userMemberships = chatSpaceMemberRepository.findByMemberAndChatSpaceIds(user.toMember(), chatSpaceIds);
       // Group the user's membership statuses by chat space ID
       final Map<Long, ChatSpaceMemberSelect> membershipMap = groupMemberStatusByChatSpaceId(userMemberships);
       // Update the join status of the responses based on the membership status map
@@ -443,7 +448,13 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
           // Retrieve the membership status for the current chat space response
           final Optional<ChatSpaceMemberSelect> existingMembership = Optional.ofNullable(membershipStatusMap.get(chatSpace.getNumberId()));
           // If a membership status exists, set the join status on the response
-          existingMembership.ifPresent(membership -> chatSpaceMapper.update(chatSpace, membership.getRequestToJoinStatus(), membership.getJoinStatus()));
+          existingMembership.ifPresent(membership -> chatSpaceMapper.setMembershipInfo(
+            chatSpace,
+            membership.getRequestToJoinStatus(),
+            membership.getJoinStatus(),
+            membership.isAMember(),
+            membership.isAdmin()
+          ));
       });
     }
   }

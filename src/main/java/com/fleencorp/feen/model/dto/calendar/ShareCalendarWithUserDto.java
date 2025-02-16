@@ -40,11 +40,11 @@ public class ShareCalendarWithUserDto {
   @JsonProperty("acl_role")
   private String aclRole;
 
-  public AclRole getActualAclRole() {
+  public AclRole getAclRole() {
     return AclRole.of(aclRole);
   }
 
-  public AclScopeType getActualAclScopeType() {
+  public AclScopeType getAclScopeType() {
     return AclScopeType.of(aclScopeType);
   }
 }

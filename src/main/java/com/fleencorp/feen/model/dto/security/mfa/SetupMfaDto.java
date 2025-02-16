@@ -22,7 +22,7 @@ public class SetupMfaDto {
   @JsonProperty("mfa_type")
   private String mfaType;
 
-  public MfaType getActualMfaType() {
+  public MfaType getMfaType() {
     return MfaType.of(mfaType);
   }
 }

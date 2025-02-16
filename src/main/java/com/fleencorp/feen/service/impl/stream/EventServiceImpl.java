@@ -6,6 +6,7 @@ import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -44,8 +45,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.getAttendeeIds;
 import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.getAttendeesEmailAddresses;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
@@ -69,6 +70,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   private final OtherEventUpdateService otherEventUpdateService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
+  private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
   private final StreamEventPublisher streamEventPublisher;
   private final Localizer localizer;
@@ -90,6 +92,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param streamAttendeeRepository the repository for accessing stream attendee data.
    * @param localizer       the service for providing localized responses.
    * @param streamEventPublisher    the publisher for publishing stream events.
+   * @param commonMapper            the mapper for converting data to different representations.
    * @param streamMapper            the mapper for converting stream data to different representations.
    */
   public EventServiceImpl(
@@ -102,6 +105,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamEventPublisher streamEventPublisher,
+      final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
@@ -110,6 +114,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     this.otherEventUpdateService = otherEventUpdateService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
+    this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
     this.streamEventPublisher = streamEventPublisher;
     this.localizer = localizer;
@@ -175,7 +180,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createEventExternally(createStreamRequest);
     // Increment attendee count because of creator or organizer of event
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
@@ -273,7 +278,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createInstantEventExternally(createInstantStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
@@ -445,7 +450,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Delete the stream externally
     deleteStreamsExternal(deleteStreamRequest);
     // Get the deleted info
-    final IsDeletedInfo deletedInfo = streamMapper.toIsDeletedInfo(stream.isDeleted());
+    final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(stream.isDeleted());
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the Deleted event

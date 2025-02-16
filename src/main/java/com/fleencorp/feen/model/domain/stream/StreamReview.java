@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.domain.stream;
 
-import com.fleencorp.feen.constant.stream.StreamReviewRating;
+import com.fleencorp.feen.constant.stream.review.StreamReviewRating;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
@@ -10,11 +10,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
-import static jakarta.persistence.EnumType.ORDINAL;
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
+/**
+ * Entity representing a review for a stream in the system.
+ * This class manages user reviews and ratings for streams, including the review text,
+ * rating value, and associations with the stream and the reviewer.
+ */
 @Getter
 @Setter
 @AllArgsConstructor
@@ -40,21 +45,20 @@ public class StreamReview extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
-  @Enumerated(ORDINAL)
+  @Enumerated(STRING)
   @Column(name = "rating", nullable = false)
   private StreamReviewRating rating;
 
   /**
-   * Retrieves the rating number based on the rating's ordinal value.
+   * Retrieves the rating number.
    *
-   * <p>This method returns the rating number as an integer, which is calculated by taking
-   * the ordinal value of the {@code rating} and adding 1 because ordinals in Java Enum start counting from 0.
+   * <p>This method returns the numeric value of the rating (1-5).
    * If the {@code rating} is {@code null}, the method returns {@code null}.</p>
    *
-   * @return the rating number (ordinal value + 1), or {@code null} if the rating is not set.
+   * @return the rating number (1-5), or {@code null} if the rating is not set
    */
   public Integer getRatingNumber() {
-    return nonNull(rating) ? rating.ordinal() + 1 : null;
+    return nonNull(rating) ? rating.getRatingNumber() : null;
   }
 
   /**
@@ -100,5 +104,48 @@ public class StreamReview extends FleenFeenEntity {
    */
   public Long getStreamId() {
     return nonNull(stream) ? stream.getStreamId() : null;
+  }
+
+  /**
+   * Updates the review text and rating.
+   *
+   * @param review the new review text
+   * @param rating the new rating value
+   */
+  public void update(final String review, final StreamReviewRating rating) {
+    this.review = review;
+    this.rating = rating;
+  }
+
+  /**
+   * Creates a new StreamReview instance with the specified details.
+   *
+   * @param stream the stream being reviewed
+   * @param member the member writing the review
+   * @param review the review text
+   * @param rating the rating value
+   * @return a new StreamReview instance
+   */
+  public static StreamReview of(
+      final FleenStream stream,
+      final Member member,
+      final String review,
+      final StreamReviewRating rating) {
+    final StreamReview streamReview = new StreamReview();
+    streamReview.setStream(stream);
+    streamReview.setMember(member);
+    streamReview.setReview(review);
+    streamReview.setRating(rating);
+
+    return streamReview;
+  }
+
+  /**
+   * Returns an empty StreamReview instance (null).
+   *
+   * @return null
+   */
+  public static StreamReview empty() {
+    return null;
   }
 }
