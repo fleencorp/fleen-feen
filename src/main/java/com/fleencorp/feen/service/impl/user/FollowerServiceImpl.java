@@ -126,9 +126,9 @@ public class FollowerServiceImpl implements FollowerService {
   @Transactional
   public FollowUserResponse followUser(final FollowOrUnfollowUserDto followUserDto, final FleenUser user) {
     // Create a Member object for the user to be followed
-    final Member followed = Member.of(followUserDto.getActualMemberId());
+    final Member followed = Member.of(followUserDto.getMemberId());
     // Verify user cannot follow itself
-    verifyUserCannotFollowOrUnfollowSelf(followUserDto.getActualMemberId(), user.getId());
+    verifyUserCannotFollowOrUnfollowSelf(followUserDto.getMemberId(), user.getId());
     // Convert the current FleenUser to a Member object representing the follower
     final Member following = user.toMember();
 
@@ -162,9 +162,9 @@ public class FollowerServiceImpl implements FollowerService {
   @Transactional
   public UnfollowUserResponse unfollowUser(final FollowOrUnfollowUserDto unfollowUserDto, final FleenUser user) {
     // Create a Member object for the user to be unfollowed
-    final Member followed = Member.of(unfollowUserDto.getActualMemberId());
+    final Member followed = Member.of(unfollowUserDto.getMemberId());
     // Verify user cannot unfollow itself
-    verifyUserCannotFollowOrUnfollowSelf(unfollowUserDto.getActualMemberId(), user.getId());
+    verifyUserCannotFollowOrUnfollowSelf(unfollowUserDto.getMemberId(), user.getId());
     // Convert the current FleenUser to a Member object representing the follower
     final Member follower = user.toMember();
 

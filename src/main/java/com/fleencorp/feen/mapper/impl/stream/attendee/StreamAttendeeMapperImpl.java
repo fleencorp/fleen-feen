@@ -39,14 +39,16 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
 
   protected StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry) {
     if (nonNull(entry)) {
-      return StreamAttendeeResponse.builder()
-        .attendeeId(entry.getStreamAttendeeId())
-        .attendeeMemberId(entry.getMemberId())
-        .fullName(entry.getFullName())
-        .displayPhoto(entry.getProfilePhoto())
-        .comment(entry.getAttendeeComment())
-        .organizerComment(entry.getOrganizerComment())
-        .build();
+      final StreamAttendeeResponse response = new StreamAttendeeResponse();
+
+      response.setAttendeeId(entry.getStreamAttendeeId());
+      response.setAttendeeMemberId(entry.getMemberId());
+      response.setFullName(entry.getFullName());
+      response.setDisplayPhoto(entry.getProfilePhoto());
+      response.setComment(entry.getAttendeeComment());
+      response.setOrganizerComment(entry.getOrganizerComment());
+
+      return response;
     }
     return null;
   }
@@ -67,7 +69,6 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
 
       return response;
     }
-
     return null;
   }
 }

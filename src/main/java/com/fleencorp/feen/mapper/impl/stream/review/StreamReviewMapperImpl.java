@@ -64,15 +64,16 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
     if (nonNull(entry)) {
       final StreamRatingInfo ratingInfo = StreamRatingInfo.of(entry.getRating(), entry.getRatingNumber(), entry.getRatingName(), translate(entry.getRating().getMessageCode()));
 
-      return StreamReviewResponse.builder()
-        .id(entry.getStreamReviewId())
-        .review(entry.getReview())
-        .ratingInfo(ratingInfo)
-        .createdOn(entry.getCreatedOn())
-        .updatedOn(entry.getUpdatedOn())
-        .streamTitle(entry.getStreamTitle())
-        .streamId(entry.getStreamId())
-        .build();
+      final StreamReviewResponse response = new StreamReviewResponse();
+      response.setId(entry.getStreamReviewId());
+      response.setReview(entry.getReview());
+      response.setRatingInfo(ratingInfo);
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
+      response.setStreamTitle(entry.getStreamTitle());
+      response.setStreamId(entry.getStreamId());
+
+      return response;
     }
     return null;
   }
@@ -90,6 +91,7 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
   public StreamReviewResponse toStreamReviewResponseMore(final StreamReview entry) {
     if (nonNull(entry)) {
       final StreamReviewResponse streamReviewResponse = toStreamReviewResponse(entry);
+
       if (nonNull(streamReviewResponse)) {
         streamReviewResponse.setReviewerName(entry.getReviewerName());
         streamReviewResponse.setReviewerPhoto(entry.getReviewerPhoto());

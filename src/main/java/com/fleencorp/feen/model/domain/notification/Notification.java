@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -71,7 +72,7 @@ public class Notification extends FleenFeenEntity {
   private String idOrLinkOrUrl;
 
   @Column(name = "is_read", nullable = false)
-  private Boolean isRead;
+  private Boolean isRead = false;
 
   @Enumerated(STRING)
   @Column(name = "notification_status", updatable = false, nullable = false)
@@ -123,12 +124,72 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "follower_name")
   private String followerName;
 
-  public void setIsRead() {
+  /**
+   * Marks the notification as read and updates the read timestamp.
+   */
+  public void markAsRead() {
+    isRead = true;
     notificationStatus = NotificationStatus.read();
+    notificationReadOn = LocalDateTime.now();
   }
 
+  /**
+   * Marks the notification as unread and clears the read timestamp.
+   */
+  public void markAsUnread() {
+    isRead = false;
+    notificationStatus = NotificationStatus.unread();
+    notificationReadOn = null;
+  }
+
+  /**
+   * Checks if the given user ID matches the notification receiver.
+   *
+   * @param userId the user ID to check
+   * @return true if the user is the receiver of this notification
+   */
   public boolean isOwner(final Long userId) {
     return receiverId.equals(userId);
   }
 
+
+  /**
+   * Retrieves the stream title if this notification is related to a stream.
+   *
+   * @return the stream title if available; otherwise, null
+   */
+  public String getStreamTitle() {
+    return nonNull(stream) ? stream.getTitle() : streamTitle;
+  }
+
+  /**
+   * Retrieves the chat space title if this notification is related to a chat space.
+   *
+   * @return the chat space title if available; otherwise, null
+   */
+  public String getChatSpaceTitle() {
+    return nonNull(chatSpace) ? chatSpace.getTitle() : chatSpaceTitle;
+  }
+
+  /**
+   * Creates a new Notification instance with the specified receiver.
+   *
+   * @param receiver the member who will receive the notification
+   * @return a new Notification instance
+   */
+  public static Notification of(final Member receiver) {
+    final Notification notification = new Notification();
+    notification.setReceiver(receiver);
+    notification.setReceiverId(receiver.getMemberId());
+    return notification;
+  }
+
+  /**
+   * Returns an empty Notification instance (null).
+   *
+   * @return null
+   */
+  public static Notification empty() {
+    return null;
+  }
 }

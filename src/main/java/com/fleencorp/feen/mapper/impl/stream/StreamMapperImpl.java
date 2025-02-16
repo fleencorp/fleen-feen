@@ -1,6 +1,10 @@
 package com.fleencorp.feen.mapper.impl.stream;
 
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.constant.stream.attendee.IsAttending;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
@@ -17,6 +21,7 @@ import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -38,12 +43,17 @@ import static java.util.Objects.nonNull;
 * @version 1.0
 */
 @Component
+@Slf4j
 public class StreamMapperImpl implements StreamMapper {
 
+  private final CommonMapper commonMapper;
   private final MessageSource messageSource;
 
-  public StreamMapperImpl(final MessageSource messageSource) {
+  public StreamMapperImpl(
+      final CommonMapper commonMapper,
+      final MessageSource messageSource) {
     this.messageSource = messageSource;
+    this.commonMapper = commonMapper;
   }
 
   /**
@@ -68,46 +78,66 @@ public class StreamMapperImpl implements StreamMapper {
    * @return a {@link FleenStreamResponse} object populated with stream information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public FleenStreamResponse toFleenStreamResponse(final FleenStream entry) {
+  public FleenStreamResponse toStreamResponse(final FleenStream entry) {
     if (nonNull(entry)) {
-      final JoinStatus joinStatusNotJoinedPrivate = JoinStatus.notJoinedPrivate();
-      final JoinStatus joinStatusNotJoinedPublic = JoinStatus.notJoinedPublic();
-      final StreamSource streamSource = entry.getStreamSource();
-      final StreamTimeType scheduleTimeType = entry.getStreamSchedule();
-      final IsForKids forKids = IsForKids.by(entry.isForKids());
-      final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
+
+      final FleenStreamResponse response = new FleenStreamResponse();
+      response.setId(entry.getStreamId());
+      response.setTitle(entry.getTitle());
+      response.setDescription(entry.getDescription());
+      response.setTags(entry.getTags());
+      response.setLocation(entry.getLocation());
+      response.setOtherSchedule(Schedule.of());
+
+      response.setStreamLink(entry.getMaskedStreamLink());
+      response.setStreamLinkUnmasked(entry.getStreamLink());
+      response.setStreamLinkNotMasked(entry.getStreamLink());
+      response.setTotalAttending(entry.getTotalAttendees());
+
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
+
+      final Schedule schedule = Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone());
+      response.setSchedule(schedule);
+
       final StreamStatusInfo streamStatusInfo = toStreamStatusInfo(entry.getStreamStatus());
+      response.setStreamStatusInfo(streamStatusInfo);
+
       final StreamVisibilityInfo visibilityInfo = toStreamVisibilityInfo(entry.getStreamVisibility());
-      final IsDeletedInfo deletedInfo = toIsDeletedInfo(entry.getDeleted());
+      response.setStreamVisibilityInfo(visibilityInfo);
+
+      final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(entry.getDeleted());
+      response.setDeletedInfo(deletedInfo);
+
+      final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
+      response.setStreamTypeInfo(streamTypeInfo);
+
+      final StreamSource streamSource = entry.getStreamSource();
+      final StreamSourceInfo streamSourceInfo = StreamSourceInfo.of(streamSource, translate(streamSource.getMessageCode()));
+      response.setStreamSourceInfo(streamSourceInfo);
+
+      final StreamTimeType scheduleTimeType = entry.getStreamSchedule();
+      final ScheduleTimeTypeInfo scheduleTimeTypeInfo = ScheduleTimeTypeInfo.of(scheduleTimeType, translate(scheduleTimeType.getMessageCode()));
+      response.setScheduleTimeTypeInfo(scheduleTimeTypeInfo);
+
+      final IsForKids forKids = IsForKids.by(entry.isForKids());
+      final IsForKidsInfo forKidsInfo = IsForKidsInfo.of(entry.isForKids(), translate(forKids.getMessageCode()));
+      response.setForKidsInfo(forKidsInfo);
+
+      final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
+      response.setOrganizer(organizer);
+
+      final JoinStatus joinStatus = JoinStatus.byStreamStatus(entry.isPrivateOrProtected());
+      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
 
       final IsAttendingInfo attendingInfo = toIsAttendingInfo(false);
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of();
-      final JoinStatusInfo joinStatusInfo = entry.isPrivateOrProtected()
-        ? JoinStatusInfo.of(joinStatusNotJoinedPrivate, translate(joinStatusNotJoinedPrivate.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()))
-        : JoinStatusInfo.of(joinStatusNotJoinedPublic, translate(joinStatusNotJoinedPublic.getMessageCode()), translate(joinStatusNotJoinedPrivate.getMessageCode2()));
 
-      return FleenStreamResponse.builder()
-          .id(entry.getStreamId())
-          .title(entry.getTitle())
-          .description(entry.getDescription())
-          .tags(entry.getTags())
-          .location(entry.getLocation())
-          .otherSchedule(Schedule.of())
-          .schedule(Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone()))
-          .streamStatusInfo(streamStatusInfo)
-          .streamVisibilityInfo(visibilityInfo)
-          .deletedInfo(deletedInfo)
-          .streamTypeInfo(streamTypeInfo)
-          .streamSourceInfo(StreamSourceInfo.of(streamSource, translate(streamSource.getMessageCode())))
-          .scheduleTimeTypeInfo(ScheduleTimeTypeInfo.of(scheduleTimeType, translate(scheduleTimeType.getMessageCode())))
-          .forKidsIno(IsForKidsInfo.of(entry.isForKids(), translate(forKids.getMessageCode())))
-          .organizer(Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone()))
-          .streamLink(entry.getMaskedStreamLink())
-          .streamLinkUnmasked(entry.getStreamLink())
-          .streamLinkNotMasked(entry.getStreamLink())
-          .totalAttending(entry.getTotalAttendees())
-          .attendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo))
-          .build();
+      final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo);
+      response.setAttendanceInfo(attendanceInfo);
+
+      return response;
+
     }
     return null;
   }
@@ -120,14 +150,16 @@ public class StreamMapperImpl implements StreamMapper {
    * @return a {@link FleenStreamResponse} object with approved status information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public FleenStreamResponse toFleenStreamResponseApproved(final FleenStream entry) {
+  public FleenStreamResponse toStreamResponseByAdminUpdate(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse stream = toFleenStreamResponse(entry);
-      final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
-      final StreamAttendeeRequestToJoinStatus requestToJoinStatus = StreamAttendeeRequestToJoinStatus.approved();
+      final FleenStreamResponse stream = toStreamResponse(entry);
 
       final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(true);
+
+      final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+
+      final StreamAttendeeRequestToJoinStatus requestToJoinStatus = StreamAttendeeRequestToJoinStatus.approved();
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
 
       stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
@@ -145,8 +177,9 @@ public class StreamMapperImpl implements StreamMapper {
   @Override
   public FleenStreamResponse toFleenStreamResponseNoJoinStatus(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse stream = toFleenStreamResponse(entry);
+      final FleenStreamResponse stream = toStreamResponse(entry);
       stream.setAttendanceInfo(AttendanceInfo.of());
+
       return stream;
     }
     return null;
@@ -162,11 +195,11 @@ public class StreamMapperImpl implements StreamMapper {
   * @return a list of FleenStreamResponse DTOs, or an empty list if the input is null or empty
   */
   @Override
-  public List<FleenStreamResponse> toFleenStreamResponses(final List<FleenStream> entries) {
+  public List<FleenStreamResponse> toStreamResponses(final List<FleenStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .filter(Objects::nonNull)
-          .map(this::toFleenStreamResponse)
+          .map(this::toStreamResponse)
           .toList();
     }
     return List.of();
@@ -272,19 +305,6 @@ public class StreamMapperImpl implements StreamMapper {
   }
 
   /**
-   * Converts the given FleenStreamResponse and JoinStatus to JoinStatusInfo.
-   *
-   * @param joinStatus the JoinStatus to be translated.
-   * @return the JoinStatusInfo object with translated messages if both stream and joinStatus are non-null, otherwise null.
-   */
-  public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
-    if (nonNull(joinStatus)) {
-      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
-    }
-    return null;
-  }
-
-  /**
    * Converts the given attendance status into an {@link IsAttendingInfo} object.
    *
    * <p>This method determines the appropriate message code based on the attendance status
@@ -296,21 +316,6 @@ public class StreamMapperImpl implements StreamMapper {
   @Override
   public IsAttendingInfo toIsAttendingInfo(final boolean isAttending) {
     return IsAttendingInfo.of(isAttending, translate(IsAttending.by(isAttending).getMessageCode()));
-  }
-
-  /**
-   * Converts the given attendance status into an {@link IsAttendingInfo} object.
-   *
-   * <p>This method determines the appropriate message code based on the attendance status
-   * and translates it to a localized message.</p>
-   *
-   * @param deleted a boolean indicating whether the attendee is currently attending
-   * @return an {@link IsAttendingInfo} object containing the attendance status and its corresponding localized message
-   */
-  @Override
-  public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
-    final IsDeleted isDeleted = IsDeleted.by(deleted);
-    return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
   }
 
   /**
@@ -337,7 +342,7 @@ public class StreamMapperImpl implements StreamMapper {
   @Override
   public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending) {
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
-    final JoinStatusInfo joinStatusInfo = toJoinStatusInfo(joinStatus);
+    final JoinStatusInfo joinStatusInfo = commonMapper.toJoinStatusInfo(joinStatus);
     final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(isAttending);
 
     stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));

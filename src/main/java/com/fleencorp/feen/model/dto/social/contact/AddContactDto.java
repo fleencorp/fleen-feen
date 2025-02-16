@@ -13,9 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +31,7 @@ public class AddContactDto {
   @JsonProperty("contact_type")
   private String contactType;
 
-  public ContactType getActualContactType() {
+  public ContactType getContactType() {
     return ContactType.of(contactType);
   }
 
@@ -46,7 +44,7 @@ public class AddContactDto {
   public Contact toContact() {
     final Contact newContact = new Contact();
     newContact.setContactValue(contact);
-    newContact.setContactType(getActualContactType());
+    newContact.setContactType(getContactType());
 
     return newContact;
   }

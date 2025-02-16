@@ -29,13 +29,11 @@ public interface ChatSpaceMemberService {
 
   RemoveChatSpaceMemberResponse removeMember(Long chatSpaceId, RemoveChatSpaceMemberDto removeChatSpaceMemberDto, FleenUser user);
 
-  ChatSpaceMember leaveChatSpaceOrRemoveChatSpaceMember(ChatSpace chatSpace, Long memberId);
+  void leaveChatSpace(ChatSpace chatSpace, Long memberId);
 
   ChatSpaceMember findChatSpaceMember(ChatSpace chatSpace, Member member);
 
   void notifyChatSpaceUpdateService(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
 
   boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(FleenStream stream, StreamAttendee streamAttendee);
-
-  Member findMember(Long memberId);
 }

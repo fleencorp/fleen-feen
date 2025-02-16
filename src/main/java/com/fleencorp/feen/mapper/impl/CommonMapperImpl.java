@@ -1,15 +1,17 @@
 package com.fleencorp.feen.mapper.impl;
 
+import com.fleencorp.feen.constant.common.IsDeleted;
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mfa.IsMfaEnabled;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
-import com.fleencorp.feen.constant.stream.JoinStatus;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.impl.stream.StreamMapperImpl;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
@@ -23,6 +25,7 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +61,7 @@ public class CommonMapperImpl implements CommonMapper {
    * @param messageSource The {@link MessageSource} instance for message translation based on locale.
    */
   public CommonMapperImpl(
-      final StreamMapper streamMapper,
+      @Lazy final StreamMapper streamMapper,
       final MessageSource messageSource) {
     this.messageSource = messageSource;
     this.streamMapper = streamMapper;
@@ -239,6 +242,46 @@ public class CommonMapperImpl implements CommonMapper {
       .orElse(null);
   }
 
+  /**
+   * Converts the given deletion status into an {@link IsDeletedInfo} object.
+   *
+   * <p>This method takes a boolean value representing whether an entity has been deleted or not and
+   * maps it to an {@link IsDeleted} enum. It then constructs an {@link IsDeletedInfo} object using
+   * this enum, along with translations of the associated message codes for localization.</p>
+   *
+   * <p>The resulting {@link IsDeletedInfo} provides information on the deletion status, including
+   * localized message codes that can be used to display relevant messages to users.</p>
+   *
+   * @param deleted The boolean flag indicating whether the entity has been deleted.
+   * @return The {@link IsDeletedInfo} object containing the deletion status and message codes.
+   */
+  @Override
+  public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
+    final IsDeleted isDeleted = IsDeleted.by(deleted);
+    return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
+  }
+
+  /**
+   * Converts the given {@link JoinStatus} into a {@link JoinStatusInfo} object.
+   *
+   * <p>This method checks if the provided {@link JoinStatus} is non-null and, if so, creates a
+   * {@link JoinStatusInfo} instance using the {@link JoinStatus}, along with translations of its
+   * associated message codes for localization purposes.</p>
+   *
+   * <p>The resulting {@link JoinStatusInfo} contains the join status details, including localized
+   * messages that can be used to provide feedback to the user based on their join status.</p>
+   *
+   * @param joinStatus The {@link JoinStatus} to be converted into a {@link JoinStatusInfo} object.
+   * @return The {@link JoinStatusInfo} object containing the join status and message codes, or
+   *         <code>null</code> if the {@link JoinStatus} is <code>null</code>.
+   */
+  @Override
+  public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
+    if (nonNull(joinStatus)) {
+      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+    }
+    return null;
+  }
 
   /**
    * Generates a response for a stream where the user is not attending.
