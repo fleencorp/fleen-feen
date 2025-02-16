@@ -107,7 +107,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Find events or streams based on the search request
     final Page<FleenStream> page = streamRepository.findByChatSpace(ChatSpace.of(chatSpaceId), searchRequest.getPage());
     // Get the list of event or stream views from the search result
-    final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponses(page.getContent());
+    final List<FleenStreamResponse> views = streamMapper.toStreamResponses(page.getContent());
     // Determine statuses like schedule, join status, schedules and timezones
     streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(views, user);
     // Set the attendees and total attendee count for each event or stream
@@ -159,7 +159,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Create the event in Google Calendar and announce it in the chat space
     eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response with the created event's details

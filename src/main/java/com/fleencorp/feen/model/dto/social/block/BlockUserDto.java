@@ -29,11 +29,11 @@ public class BlockUserDto {
   @JsonProperty("block_status")
   private String blockStatus;
 
-  public BlockStatus getActualBlockStatus() {
+  public BlockStatus getBlockStatus() {
     return BlockStatus.of(blockStatus);
   }
 
-  public Long getActualRecipientId() {
+  public Long getRecipientId() {
     return Long.parseLong(recipientId);
   }
 }

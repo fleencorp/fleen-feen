@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.projection;
 
-import com.fleencorp.feen.constant.stream.JoinStatus;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

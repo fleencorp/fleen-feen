@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.info.chat.space;
+package com.fleencorp.feen.model.info.chat.space.member;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;

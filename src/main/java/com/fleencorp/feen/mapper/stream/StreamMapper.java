@@ -1,8 +1,11 @@
 package com.fleencorp.feen.mapper.stream;
 
-import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.constant.stream.StreamStatus;
+import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
@@ -16,13 +19,13 @@ import java.util.List;
 
 public interface StreamMapper {
 
-  FleenStreamResponse toFleenStreamResponse(FleenStream entry);
+  FleenStreamResponse toStreamResponse(FleenStream entry);
 
-  FleenStreamResponse toFleenStreamResponseApproved(FleenStream entry);
+  FleenStreamResponse toStreamResponseByAdminUpdate(FleenStream entry);
 
   FleenStreamResponse toFleenStreamResponseNoJoinStatus(FleenStream entry);
 
-  List<FleenStreamResponse> toFleenStreamResponses(List<FleenStream> entries);
+  List<FleenStreamResponse> toStreamResponses(List<FleenStream> entries);
 
   List<FleenStreamResponse> toFleenStreamResponsesNoJoinStatus(List<FleenStream> entries);
 
@@ -39,8 +42,6 @@ public interface StreamMapper {
   StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatus requestToJoinStatus);
 
   IsAttendingInfo toIsAttendingInfo(boolean isAttending);
-
-  IsDeletedInfo toIsDeletedInfo(boolean deleted);
 
   StreamTypeInfo toStreamTypeInfo(StreamType streamType);
 

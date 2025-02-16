@@ -200,7 +200,7 @@ public class NotificationMessageService {
    */
   public Notification ofApproved(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setChatSpace(chatSpace);
     notification.setChatSpaceMember(chatSpaceMember);
@@ -227,7 +227,7 @@ public class NotificationMessageService {
    */
   public Notification ofReceived(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member, final Member requester) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setChatSpace(chatSpace);
     notification.setInitiatorOrRequester(requester);
@@ -269,7 +269,7 @@ public class NotificationMessageService {
    */
   public Notification ofApproved(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setStream(fleenStream);
     notification.setStreamAttendee(streamAttendee);
@@ -296,7 +296,7 @@ public class NotificationMessageService {
    */
   public Notification ofReceived(final FleenStream stream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setStream(stream);
     notification.setStreamAttendee(streamAttendee);
@@ -364,7 +364,7 @@ public class NotificationMessageService {
    */
   public Notification ofApproved(final ShareContactRequest shareContactRequest, final Member member) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setReceiverId(member.getMemberId());
     notification.setShareContactRequest(shareContactRequest);
@@ -390,7 +390,7 @@ public class NotificationMessageService {
    */
   public Notification ofReceived(final ShareContactRequest shareContactRequest, final Member member, final Member requester) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setInitiatorOrRequester(requester);
     notification.setReceiverId(member.getMemberId());
@@ -415,7 +415,7 @@ public class NotificationMessageService {
    */
   public Notification ofFollowing(final Follower follower, final Member member) {
     final Notification notification = new Notification();
-    notification.setIsRead(false);
+    notification.markAsUnread();
     notification.setReceiver(member);
     notification.setFollower(follower);
     notification.setReceiverId(member.getMemberId());

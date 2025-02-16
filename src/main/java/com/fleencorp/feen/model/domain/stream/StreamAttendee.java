@@ -1,10 +1,13 @@
 package com.fleencorp.feen.model.domain.stream;
 
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -183,6 +186,10 @@ public class StreamAttendee extends FleenFeenEntity {
     final StreamAttendee streamAttendee = of(member, stream);
     streamAttendee.setAttendeeComment(comment);
     return streamAttendee;
+  }
+
+  public static StreamAttendee empty() {
+    return null;
   }
 
 }

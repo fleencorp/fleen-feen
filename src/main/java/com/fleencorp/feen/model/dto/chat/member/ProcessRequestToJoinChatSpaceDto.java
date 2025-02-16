@@ -33,15 +33,15 @@ public class ProcessRequestToJoinChatSpaceDto {
   @JsonProperty("comment")
   protected String comment;
 
-  public ChatSpaceRequestToJoinStatus getActualJoinStatus() {
+  public ChatSpaceRequestToJoinStatus getJoinStatus() {
     return ChatSpaceRequestToJoinStatus.of(joinStatus);
   }
 
   public boolean isApproved() {
-    return ChatSpaceRequestToJoinStatus.isApproved(getActualJoinStatus());
+    return ChatSpaceRequestToJoinStatus.isApproved(getJoinStatus());
   }
 
-  public Long getActualMemberId() {
+  public Long getMemberId() {
     return Long.parseLong(memberId);
   }
 }

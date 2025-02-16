@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.response.stream;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
-import com.fleencorp.feen.constant.stream.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
@@ -79,7 +79,7 @@ public class FleenStreamResponse extends FleenFeenResponse {
   private Organizer organizer;
 
   @JsonProperty("is_for_kids_info")
-  private IsForKidsInfo forKidsIno;
+  private IsForKidsInfo forKidsInfo;
 
   @JsonFormat(shape = STRING)
   @JsonProperty("stream_link")

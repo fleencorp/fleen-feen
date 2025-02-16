@@ -14,9 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -41,7 +39,7 @@ public class ResendVerificationCodeDto {
   @JsonProperty("verification_type")
   private String verificationType;
 
-  public VerificationType getActualVerificationType() {
+  public VerificationType getVerificationType() {
     return VerificationType.of(verificationType);
   }
 }

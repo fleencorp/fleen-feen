@@ -40,11 +40,11 @@ public class ProcessShareContactRequestDto {
   @JsonProperty("comment")
   protected String comment;
 
-  public ShareContactRequestStatus getActualShareContactRequestStatus() {
+  public ShareContactRequestStatus getShareContactRequestStatus() {
     return ShareContactRequestStatus.of(shareContactRequestStatus);
   }
 
-  public ContactType getActualContactType() {
+  public ContactType getContactType() {
     return ContactType.of(contactType);
   }
 }
