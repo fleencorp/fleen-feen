@@ -10,9 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,19 +33,15 @@ public class AttendanceInfo {
   private IsAttendingInfo attendingInfo;
 
   public static AttendanceInfo of(final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo, final JoinStatusInfo joinStatusInfo, final IsAttendingInfo isAttendingInfo) {
-    return AttendanceInfo.builder()
-      .requestToJoinStatusInfo(requestToJoinStatusInfo)
-      .joinStatusInfo(joinStatusInfo)
-      .attendingInfo(isAttendingInfo)
-      .build();
+    return new AttendanceInfo(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo);
   }
 
   public static AttendanceInfo of() {
-    return AttendanceInfo.builder()
-      .requestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of())
-      .joinStatusInfo(JoinStatusInfo.of())
-      .attendingInfo(IsAttendingInfo.of())
-      .build();
+    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = new StreamAttendeeRequestToJoinStatusInfo();
+    final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of();
+    final IsAttendingInfo isAttendingInfo = IsAttendingInfo.of();
+
+    return of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo);
   }
 
 }

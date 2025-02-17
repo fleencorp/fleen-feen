@@ -14,11 +14,8 @@ public class CreateInstantCalendarEventRequest {
   private String title;
   private Boolean sendNotifications;
 
-  public static CreateInstantCalendarEventRequest by(final CreateInstantCalendarEventDto createInstantCalendarEventDto) {
-    return CreateInstantCalendarEventRequest.builder()
-            .title(createInstantCalendarEventDto.getTitle())
-            .sendNotifications(true)
-            .build();
+  public static CreateInstantCalendarEventRequest by(final CreateInstantCalendarEventDto createInstantEventDto) {
+    return new CreateInstantCalendarEventRequest(null, createInstantEventDto.getTitle(), true);
   }
 
   public void update(final String calendarId) {

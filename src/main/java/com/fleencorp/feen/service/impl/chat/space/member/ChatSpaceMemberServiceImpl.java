@@ -1,10 +1,10 @@
 package com.fleencorp.feen.service.impl.chat.space.member;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.dto.chat.DowngradeChatSpaceAdminToMemberDto;
 import com.fleencorp.feen.model.dto.chat.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
-import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
+import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.request.chat.space.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.model.request.chat.space.membership.RemoveChatSpaceMemberRequest;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
@@ -29,10 +29,10 @@ import com.fleencorp.feen.model.search.chat.space.member.EmptyChatSpaceMemberSea
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
-import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.chat.space.ChatSpaceUpdateService;
+import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.isNull;
@@ -61,8 +62,8 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
 
   private final ChatSpaceService chatSpaceService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
+  private final MemberService memberService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
-  private final MemberRepository memberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
   private final Localizer localizer;
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
@@ -74,27 +75,27 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * chat spaces, including repositories, mappers, and various utility services. It also injects
    * configuration values like the delegated authority email.</p>
    *
-   * @param chatSpaceService handles chat spaces.
-   * @param chatSpaceUpdateService handles updates to chat spaces.
-   * @param chatSpaceMemberRepository repository for managing chat space members.
-   * @param memberRepository repository for members
-   * @param chatSpaceRepository repository for chat space entities.
-   * @param localizer provides localized responses for API operations.
-   * @param chatSpaceMemberMapper maps chat space member entities to response models.
+   * @param chatSpaceService handles chat spaces
+   * @param chatSpaceUpdateService handles updates to chat spaces
+   * @param memberService the service for managing members and profile information
+   * @param chatSpaceMemberRepository repository for managing chat space members
+   * @param chatSpaceRepository repository for chat space entities
+   * @param localizer provides localized responses for API operations
+   * @param chatSpaceMemberMapper maps chat space member entities to response models
    */
   public ChatSpaceMemberServiceImpl(
       final ChatSpaceService chatSpaceService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
+      final MemberService memberService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
-      final MemberRepository memberRepository,
       final ChatSpaceRepository chatSpaceRepository,
       final Localizer localizer,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
+    this.memberService = memberService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
-    this.memberRepository = memberRepository;
     this.localizer = localizer;
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
   }
@@ -156,22 +157,24 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   public UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(final Long chatSpaceId, final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Admin cannot add self
+    verifyAdminCannotAddOrUpdateSelf(chatSpace, user.getId());
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
 
     // Find the chat space member to be upgraded or throw an exception if not found
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository
-      .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId()), chatSpace)
-      .orElseThrow(ChatSpaceMemberNotFoundException.of(upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId()));
+      .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(upgradeChatSpaceMemberToAdminDto.getChatSpaceMemberId()), chatSpace)
+      .orElseThrow(ChatSpaceMemberNotFoundException.of(upgradeChatSpaceMemberToAdminDto.getChatSpaceMemberId()));
 
     // Upgrade the member's role to admin
     chatSpaceMember.upgradeRole();
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Get the c
-    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember.getRole());
     // Return a localized response confirming the upgrade
-    return localizer.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getActualChatSpaceMemberId(), roleInfo));
+    return localizer.of(UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, upgradeChatSpaceMemberToAdminDto.getChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -195,21 +198,23 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   public DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(final Long chatSpaceId, final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, final FleenUser user) {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Admin cannot add self
+    verifyAdminCannotAddOrUpdateSelf(chatSpace, user.getId());
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
 
     // Find the chat space admin to be downgraded or throw an exception if not found
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository
-      .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId()), chatSpace)
-      .orElseThrow(ChatSpaceMemberNotFoundException.of(downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId()));
+      .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(downgradeChatSpaceAdminToMemberDto.getChatSpaceMemberId()), chatSpace)
+      .orElseThrow(ChatSpaceMemberNotFoundException.of(downgradeChatSpaceAdminToMemberDto.getChatSpaceMemberId()));
     // Downgrade the admin role to a member
     chatSpaceMember.downgradeRole();
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Get chat space member role
-    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember);
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember.getRole());
     // Return a localized response confirming the downgrade
-    return localizer.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getActualChatSpaceMemberId(), roleInfo));
+    return localizer.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, downgradeChatSpaceAdminToMemberDto.getChatSpaceMemberId(), roleInfo));
   }
 
   /**
@@ -229,10 +234,12 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   public AddChatSpaceMemberResponse addMember(final Long chatSpaceId, final AddChatSpaceMemberDto addChatSpaceMemberDto, final FleenUser user) {
     // Find the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Admin cannot add self
+    verifyAdminCannotAddOrUpdateSelf(chatSpace, user.getId());
     // Validate if the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Find the member to be added using the provided member ID
-    final Member member = findMember(addChatSpaceMemberDto.getActualMemberId());
+    final Member member = memberService.findMember(addChatSpaceMemberDto.getMemberId());
     // Find or create the chat space member object
     final ChatSpaceMember chatSpaceMember = findOrCreateChatMember(chatSpace, member);
     // Approve chat space member join status since the request is been made by the admin
@@ -266,10 +273,12 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   public RemoveChatSpaceMemberResponse removeMember(final Long chatSpaceId, final RemoveChatSpaceMemberDto removeChatSpaceMemberDto, final FleenUser user) {
     // Retrieve the chat space using the provided chatSpaceId
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Admin cannot add self
+    verifyAdminCannotAddOrUpdateSelf(chatSpace, user.getId());
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Remove the user from the chat space
-    final ChatSpaceMember chatSpaceMember = leaveChatSpaceOrRemoveChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getActualMemberId());
+    final ChatSpaceMember chatSpaceMember = removeChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getMemberId());
     // Return a localized response indicating the member removal was successful
     return localizer.of(RemoveChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
   }
@@ -283,18 +292,33 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * of the member's removal.</p>
    *
    * @param chatSpace the chat space from which the member is being removed
-   * @param memberId the ID of the member to be removed
-   * @return the deleted {@link ChatSpaceMember}
+   * @param memberId  the ID of the member to be removed
    */
   @Override
-  public ChatSpaceMember leaveChatSpaceOrRemoveChatSpaceMember(final ChatSpace chatSpace, final Long memberId) {
+  public void leaveChatSpace(final ChatSpace chatSpace, final Long memberId) {
     // Locate the chat space member to be removed using the member ID from the DTO
     final ChatSpaceMember chatSpaceMember = findChatSpaceMember(chatSpace, Member.of(memberId));
-    // Remove the member from the chat space repository
-    chatSpaceMemberRepository.delete(chatSpaceMember);
+    // Admin is not allow to leave chat space
+    checkIsTrue(chatSpaceMember.isNotTheOwner(chatSpace.getMemberId()), FailedOperationException::new);
+    // Allow the member to leave chat space
+    chatSpaceMember.leave();
+    // Save the member
+    chatSpaceMemberRepository.save(chatSpaceMember);
     // Decrease total members and save chat space
     decreaseTotalMembersAndSave(chatSpace);
+    // Notify the chat space update service about the removal
+    chatSpaceUpdateService.removeMember(RemoveChatSpaceMemberRequest.of(chatSpace.getExternalIdOrName(), chatSpaceMember.getExternalIdOrName()));
+  }
 
+  protected ChatSpaceMember removeChatSpaceMember(final ChatSpace chatSpace, final Long memberId) {
+    // Locate the chat space member to be removed using the member ID from the DTO
+    final ChatSpaceMember chatSpaceMember = findChatSpaceMember(chatSpace, Member.of(memberId));
+    // Mark the member as removed from the chat space
+    chatSpaceMember.markAsRemoved();
+    // Save the chat space member
+    chatSpaceMemberRepository.save(chatSpaceMember);
+    // Decrease total members and save chat space
+    decreaseTotalMembersAndSave(chatSpace);
     // Notify the chat space update service about the removal
     chatSpaceUpdateService.removeMember(RemoveChatSpaceMemberRequest.of(chatSpace.getExternalIdOrName(), chatSpaceMember.getExternalIdOrName()));
     // Return deleted chat space member details
@@ -319,7 +343,6 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(member.getMemberId()));
   }
-
 
   /**
    * Notifies the chat space update service about the addition of a member to a chat space.
@@ -404,7 +427,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Override
   public boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(final FleenStream stream, final StreamAttendee streamAttendee) {
     // Check if the stream has an associated chat space with a valid ID
-    if (nonNull(stream.getChatSpace()) && nonNull(stream.getChatSpaceId())) {
+    if (stream.hasChatSpaceId()) {
       // Find if the attendee is a member of the chat space
       final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberRepository.findByChatSpaceAndMemberAndStatus(stream.getChatSpace(), streamAttendee.getMember(), ChatSpaceRequestToJoinStatus.approved());
       // Return true if a member exists, otherwise false
@@ -415,20 +438,24 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   }
 
   /**
-   * Finds a member by their unique identifier.
+   * Verifies that an admin cannot add or update their own membership in the chat space.
    *
-   * <p>This method retrieves a member from the repository using the provided member ID. If no member is found
-   * with the specified ID, a {@link MemberNotFoundException} is thrown.</p>
+   * <p>This method checks whether the provided member ID corresponds to the owner of the chat space.
+   * If the member is the owner, an exception is thrown to prevent the admin from adding or updating
+   * their own membership. This ensures that the owner of the chat space cannot manipulate their own
+   * role or membership through this operation.</p>
    *
-   * @param memberId The unique identifier of the member to be retrieved.
-   * @return The {@link Member} associated with the given member ID.
-   * @throws MemberNotFoundException if no member is found with the specified ID.
+   * <p>If the member is not the owner, the method does nothing and the operation can proceed normally.</p>
+   *
+   * @param chatSpace The {@link ChatSpace} in which the verification is being performed.
+   * @param memberId The ID of the member being checked.
+   * @throws FailedOperationException if the member is the owner of the chat space.
    */
-  @Override
-  public Member findMember(final Long memberId) throws MemberNotFoundException {
-    // Retrieve the member by ID and throw an exception if not found
-    return memberRepository.findById(memberId)
-      .orElseThrow(MemberNotFoundException.of(memberId));
+  protected void verifyAdminCannotAddOrUpdateSelf(final ChatSpace chatSpace, final Long memberId) {
+    if (chatSpace.isOwner(memberId)) {
+      throw new FailedOperationException();
+    }
   }
+
 
 }

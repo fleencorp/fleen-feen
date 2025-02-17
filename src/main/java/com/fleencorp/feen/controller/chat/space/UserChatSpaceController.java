@@ -8,11 +8,11 @@ import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest;
-import com.fleencorp.feen.model.response.chat.space.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
+import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;

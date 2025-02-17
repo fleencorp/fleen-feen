@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 public interface UserFleenStreamRepository extends JpaRepository<FleenStream, Long> {
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL AND fs.member = :member ORDER BY fs.updatedOn DESC")
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL AND fs.member = :member ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findManyByMe(@Param("member") Member member, Pageable pageable);
 
   @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.member = :member ORDER BY fs.updatedOn DESC")
@@ -53,7 +53,7 @@ public interface UserFleenStreamRepository extends JpaRepository<FleenStream, Lo
   @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE m = :member")
   Long countTotalStreamsAttended(@Param("member") Member member);
 
-  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.fleenStream.streamType = :streamType AND m = :member")
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.stream.streamType = :streamType AND m = :member")
   Long countTotalStreamsAttended(@Param("streamType") StreamType streamType, @Param("member") Member member);
 
   @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.member = :member")

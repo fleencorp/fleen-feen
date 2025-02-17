@@ -1,14 +1,16 @@
 package com.fleencorp.feen.configuration.message;
 
+import com.fleencorp.localizer.service.ErrorLocalizer;
 import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizerAdapter;
+import com.fleencorp.localizer.service.adapter.ErrorLocalizerAdapter;
 import com.fleencorp.localizer.service.adapter.LocalizerAdapter;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
@@ -31,6 +33,31 @@ import java.util.Locale;
 public class MessageSourceConfiguration {
 
   /**
+   * The encoding to be used for reading the message files.
+   */
+  @Value("${spring.messages.encoding}")
+  private String messageSourceEncoding;
+
+  /**
+   * The base name of the message resource bundle, typically defined in the application's configuration.
+   */
+  @Value("${spring.messages.message.base-name}")
+  private String defaultMessageBaseName;
+
+  /**
+   * The base name of the error message resource bundle, typically defined in the application's configuration.
+   */
+  @Value("${spring.messages.error.base-name}")
+  private String errorMessageBaseName;
+
+  /**
+   * The base name of the response message resource bundle, typically defined in the application's configuration.
+   */
+  @Value("${spring.messages.response.base-name}")
+  private String responseMessageBaseName;
+
+
+  /**
    * Creates and configures a ReloadableResourceBundleMessageSource.
    *
    * <p>This method initializes a ReloadableResourceBundleMessageSource with specific settings:
@@ -47,9 +74,10 @@ public class MessageSourceConfiguration {
     final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
     messageSource.setCacheSeconds(60);
     messageSource.setDefaultLocale(Locale.US);
+    messageSource.setAlwaysUseMessageFormat(true);
     messageSource.setUseCodeAsDefaultMessage(false);
     messageSource.setFallbackToSystemLocale(false);
-    messageSource.setAlwaysUseMessageFormat(true);
+    messageSource.setDefaultEncoding(messageSourceEncoding);
     return messageSource;
   }
 
@@ -60,21 +88,15 @@ public class MessageSourceConfiguration {
    * from {@link #baseMessageSource()}. It sets the message base name and encoding based on the provided
    * configuration properties.</p>
    *
-   * @param baseName the base name of the message resource bundle, typically defined in the application's configuration.
-   * @param encoding the encoding to be used for reading the message files.
    * @return a configured {@link ReloadableResourceBundleMessageSource} bean.
    *
    * @see <a href="https://velog.io/@ksk7584/%EB%A9%94%EC%8B%9C%EC%A7%80-%EA%B5%AD%EC%A0%9C%ED%99%94">
    *   Messages, Internationalization</a>
    */
   @Bean
-  @Primary
-  public MessageSource messageSource(
-      @Value("${spring.messages.message.base-name}") final String baseName,
-      @Value("${spring.messages.encoding}") final String encoding) {
+  public MessageSource messageSource() {
     final ReloadableResourceBundleMessageSource messageSource = baseMessageSource();
-    messageSource.setBasenames(baseName);
-    messageSource.setDefaultEncoding(encoding);
+    messageSource.setBasenames(defaultMessageBaseName);
     return messageSource;
   }
 
@@ -85,20 +107,14 @@ public class MessageSourceConfiguration {
    * error messages. It uses the base settings from {@link #baseMessageSource()} and sets the message base
    * name and encoding according to the provided configuration properties.</p>
    *
-   * @param baseName the base name of the error message resource bundle, typically defined in the application's configuration.
-   * @param encoding the encoding to be used for reading the error message files.
    * @return a configured {@link ReloadableResourceBundleMessageSource} bean for error messages.
    *
    * @see <a href="https://velog.io/@mini-boo/DB%EB%A5%BC-%ED%86%B5%ED%95%9C-%EB%8B%A4%EA%B5%AD%EC%96%B4-%EC%A7%80%EC%9B%90-%EA%B8%B0%EB%8A%A5">
    *   Implementation of multilingual support through DB</a>
    */
-  @Bean("error-message-source")
-  public MessageSource errorMessageSource(
-      @Value("${spring.messages.error.base-name}") final String baseName,
-      @Value("${spring.messages.encoding}") final String encoding) {
+  public MessageSource errorMessageSource() {
     final ReloadableResourceBundleMessageSource messageSource = baseMessageSource();
-    messageSource.setBasenames(baseName);
-    messageSource.setDefaultEncoding(encoding);
+    messageSource.setBasenames(errorMessageBaseName);
     return messageSource;
   }
 
@@ -109,29 +125,30 @@ public class MessageSourceConfiguration {
    * response messages in the application. It uses the base settings from {@link #baseMessageSource()}
    * and applies the message base name and encoding specified by the provided configuration properties.</p>
    *
-   * @param baseName the base name of the response message resource bundle, typically defined in the application's configuration.
-   * @param encoding the encoding to be used for reading the response message files.
    * @return a configured {@link ReloadableResourceBundleMessageSource} bean for response messages.
    *
    * @see <a href="https://velog.io/@wjddn3711/Spring-%EA%B5%AD%EC%A0%9C%ED%99%94-Json-%ED%95%84%ED%84%B0%EB%A7%81-HATEOS-HAL-RestAPI-%EB%B2%84%EC%A0%84%EA%B4%80%EB%A6%AC">
    *   Spring - Internationalization, Json filtering, HATEOS, HAL, RestAPI versioning</a>
    */
-  @Bean("response-message-source")
-  public MessageSource responseMessageSource(
-      @Value("${spring.messages.response.base-name}") final String baseName,
-      @Value("${spring.messages.encoding}") final String encoding) {
+  public MessageSource responseMessageSource() {
     final ReloadableResourceBundleMessageSource messageSource = baseMessageSource();
-    messageSource.setBasenames(baseName);
-    messageSource.setDefaultEncoding(encoding);
+    messageSource.setBasenames(responseMessageBaseName);
     return messageSource;
   }
 
   @Bean
-  public Localizer localizer(
-      final MessageSource messageSource,
-      @Qualifier("response-message-source") final MessageSource responseMessageSource,
-      @Qualifier("error-message-source") final MessageSource errorMessageSource) {
-    return new LocalizerAdapter(messageSource, responseMessageSource, errorMessageSource);
+  public DefaultLocalizer defaultLocalizer(final MessageSource messageSource) {
+    return new DefaultLocalizerAdapter(messageSource);
+  }
+
+  @Bean
+  public Localizer localizer() {
+    return new LocalizerAdapter(responseMessageSource());
+  }
+
+  @Bean
+  public ErrorLocalizer errorLocalizer() {
+    return new ErrorLocalizerAdapter(errorMessageSource());
   }
 
   /**

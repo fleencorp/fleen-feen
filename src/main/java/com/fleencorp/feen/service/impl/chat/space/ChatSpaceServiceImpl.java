@@ -13,7 +13,12 @@ import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
-import com.fleencorp.feen.model.response.chat.space.*;
+import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
@@ -122,8 +127,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     increaseTotalMembersAndSave(chatSpace);
     // Delegate the creation of the chat space to the update service
     chatSpaceUpdateService.createChatSpace(chatSpace, createChatSpaceRequest);
+    // Convert the chat space to its response
+    final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
     // Return a localized response with the chat space details
-    return localizer.of(CreateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
+    return localizer.of(CreateChatSpaceResponse.of(chatSpaceResponse));
   }
 
   /**
@@ -175,14 +182,16 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       updateChatSpaceDto.getDescription(),
       updateChatSpaceDto.getTags(),
       updateChatSpaceDto.getGuidelinesOrRules(),
-      updateChatSpaceDto.getActualVisibility()
+      updateChatSpaceDto.getVisibility()
     );
     // Save the updated chat space entity to the repository
     chatSpaceRepository.save(chatSpace);
     // Create update chat space request and send to external service
     createAndUpdateChatSpaceInExternalService(updateChatSpaceDto, chatSpace);
+    // Convert the chat space to the response
+    final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
     // Return a localized response with the updated chat space details
-    return localizer.of(UpdateChatSpaceResponse.of(chatSpaceMapper.toChatSpaceResponseApproved(chatSpace)));
+    return localizer.of(UpdateChatSpaceResponse.of(chatSpaceResponse));
   }
 
   /**
@@ -337,6 +346,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     if (Objects.equals(chatSpace.getMemberId(), user.getId()) || checkIfUserIsAnAdminInSpace(chatSpace, user)) {
       return;
     }
+
     // If neither, throw exception
     throw new NotAnAdminOfChatSpaceException();
   }

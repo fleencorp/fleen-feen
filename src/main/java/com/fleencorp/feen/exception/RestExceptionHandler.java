@@ -32,7 +32,7 @@ import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
 import com.fleencorp.localizer.model.exception.ApiException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
-import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.ErrorLocalizer;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -69,11 +69,11 @@ import static org.springframework.http.HttpStatus.*;
 @RestControllerAdvice
 public class RestExceptionHandler {
 
-  private final Localizer localizer;
+  private final ErrorLocalizer localizer;
   private static final String DATA_FIELD_NAME = "field";
   private static final String ERRORS_PROPERTY_NAME = "errors";
 
-  public RestExceptionHandler(final Localizer localizer) {
+  public RestExceptionHandler(final ErrorLocalizer localizer) {
     this.localizer = localizer;
   }
 

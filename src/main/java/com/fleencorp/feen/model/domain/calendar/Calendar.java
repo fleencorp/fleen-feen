@@ -3,15 +3,12 @@ package com.fleencorp.feen.model.domain.calendar;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,7 +39,6 @@ public class Calendar extends FleenFeenEntity {
   @Column(name = "code", nullable = false, length = 100)
   private String code;
 
-  @Default
   @Column(name = "is_active", nullable = false)
   private Boolean isActive = true;
 

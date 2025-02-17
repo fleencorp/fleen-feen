@@ -9,6 +9,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.validator.StreamDuration;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -26,11 +26,11 @@ import static com.fleencorp.feen.constant.stream.StreamStatus.ACTIVE;
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@StreamDuration
 @DateRange(start = "startDateTime", end = "endDateTime")
 public class CreateStreamDto {
 
@@ -111,29 +111,32 @@ public class CreateStreamDto {
     return StreamVisibility.of(visibility);
   }
 
-  public LocalDateTime getActualStartDateTime() {
+  public LocalDateTime getStartDateTime() {
     return LocalDateTime.parse(startDateTime);
   }
 
-  public LocalDateTime getActualEndDateTime() {
+  public LocalDateTime getEndDateTime() {
     return LocalDateTime.parse(endDateTime);
   }
 
   public FleenStream toFleenStream() {
-    return FleenStream.builder()
-      .title(title)
-      .description(description)
-      .tags(tags)
-      .location(location)
-      .timezone(timezone)
-      .scheduledStartDate(getActualStartDateTime())
-      .scheduledEndDate(getActualEndDateTime())
-      .streamVisibility(getActualVisibility())
-      .streamCreationType(SCHEDULED)
-      .streamStatus(ACTIVE)
-      .forKids(parseBoolean(forKids))
-      .deleted(false)
-      .build();
+    final FleenStream stream = new FleenStream();
+    stream.setTags(tags);
+    stream.setTitle(title);
+    stream.setLocation(location);
+    stream.setTimezone(timezone);
+    stream.setDescription(description);
+
+    stream.setScheduledStartDate(getStartDateTime());
+    stream.setScheduledEndDate(getEndDateTime());
+    stream.setStreamVisibility(getActualVisibility());
+
+    stream.setStreamStatus(ACTIVE);
+    stream.setStreamCreationType(SCHEDULED);
+
+    stream.setForKids(parseBoolean(forKids));
+    stream.setDeleted(false);
+    return stream;
   }
 
 }

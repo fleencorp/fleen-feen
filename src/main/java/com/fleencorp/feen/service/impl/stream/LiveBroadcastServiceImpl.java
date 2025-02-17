@@ -5,6 +5,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -67,6 +68,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   private final YouTubeChannelService youTubeChannelService;
   private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
   private final FleenStreamRepository streamRepository;
+  private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
   private final Localizer localizer;
 
@@ -85,6 +87,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @param streamRepository the repository for storing and retrieving stream data
    * @param oauth2AuthorizationRepository the repository for handling OAuth2 authorization data
    * @param localizer the service for generating localized responses
+   * @param commonMapper            the mapper for converting data to different representations.
    * @param streamMapper the mapper used to convert stream data to response formats
    */
   public LiveBroadcastServiceImpl(
@@ -95,6 +98,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       final FleenStreamRepository streamRepository,
       final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final Localizer localizer,
+      final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
     this.streamService = streamService;
@@ -102,6 +106,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     this.youTubeChannelService = youTubeChannelService;
     this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
     this.streamRepository = streamRepository;
+    this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
     this.localizer = localizer;
   }
@@ -154,7 +159,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Create a new FleenStream entity based on the DTO and set YouTube response details
     FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
     // Update the stream details
-    stream.updateDetails(
+    stream.update(
       organizerAliasOrDisplayName,
       user.getEmailAddress(),
       user.getPhoneNumber());
@@ -168,7 +173,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseApproved(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response of the created stream
@@ -221,7 +226,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), updateStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamDto.getStreamType());;
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Check if the OAuth2 authorization exists for the user
@@ -241,7 +246,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Patch or update the stream externally
     patchStreamExternally(patchStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponse(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the updated stream
@@ -296,13 +301,13 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the FleenStream entity from the repository based on the stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), rescheduleStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(rescheduleStreamDto.getStreamType());
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Update the schedule of the FleenStream entity with new start and end times and timezone
-    stream.updateSchedule(
+    stream.reschedule(
       rescheduleStreamDto.getStartDateTime(),
       rescheduleStreamDto.getEndDateTime(),
       rescheduleStreamDto.getTimezone()
@@ -382,7 +387,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), deleteStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(deleteStreamDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Validate if the user is the creator of the live broadcast
@@ -399,7 +404,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Reschedule the live broadcast using an external service
     deleteStreamExternally(deleteStreamRequest);
     // Get the deleted info
-    final IsDeletedInfo deletedInfo = streamMapper.toIsDeletedInfo(stream.isDeleted());
+    final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(stream.isDeleted());
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the deleted stream
@@ -437,7 +442,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(broadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), cancelStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(cancelStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
     // Verify if the stream is still ongoing
@@ -453,7 +458,6 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Return a localized response of the cancellation
     return localizer.of(CancelStreamResponse.of(broadcastId, statusInfo, streamTypeInfo));
   }
-
 
   /**
    * Deletes a live broadcast stream externally, such as from YouTube.
@@ -498,7 +502,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), updateStreamVisibilityDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamVisibilityDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Verify stream details like the owner, stream date and active status of the stream
@@ -523,6 +527,17 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     return localizer.of(UpdateStreamVisibilityResponse.of(liveBroadcastId, streamVisibility, streamTypeInfo));
   }
 
+  /**
+   * Updates the visibility of a stream externally through an external service.
+   *
+   * <p>This method is responsible for sending an update request to change the visibility
+   * of a stream, provided the request is for a broadcast and is specifically
+   * for a visibility update. It constructs a visibility update request and
+   * sends it to the external live broadcast update service.</p>
+   *
+   * @param updateStreamVisibilityRequest the request containing stream visibility update details.
+   *                                      It includes access token, external stream ID, and the desired visibility status.
+   */
   protected void updateStreamVisibilityExternally(final ExternalStreamRequest updateStreamVisibilityRequest) {
     if (updateStreamVisibilityRequest.isABroadcast() && updateStreamVisibilityRequest.isVisibilityUpdateRequest()) {
       // Create a request to update the service's visibility

@@ -13,9 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,6 +31,10 @@ public class AddContactDto {
   @JsonProperty("contact_type")
   private String contactType;
 
+  public ContactType getContactType() {
+    return ContactType.of(contactType);
+  }
+
   public Contact toContact(final Member member) {
     final Contact newContact = toContact();
     newContact.setOwner(member);
@@ -40,13 +42,10 @@ public class AddContactDto {
   }
 
   public Contact toContact() {
-    return Contact.builder()
-        .contactValue(contact)
-        .contactType(getActualContactType())
-        .build();
-  }
+    final Contact newContact = new Contact();
+    newContact.setContactValue(contact);
+    newContact.setContactType(getContactType());
 
-  public ContactType getActualContactType() {
-    return ContactType.of(contactType);
+    return newContact;
   }
 }

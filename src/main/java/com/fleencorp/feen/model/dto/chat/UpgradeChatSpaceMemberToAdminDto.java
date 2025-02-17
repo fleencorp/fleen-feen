@@ -19,7 +19,7 @@ public class UpgradeChatSpaceMemberToAdminDto {
   @JsonProperty("chat_space_member_id")
   private String chatSpaceMemberId;
 
-  public Long getActualChatSpaceMemberId() {
+  public Long getChatSpaceMemberId() {
     return Long.parseLong(chatSpaceMemberId);
   }
 }

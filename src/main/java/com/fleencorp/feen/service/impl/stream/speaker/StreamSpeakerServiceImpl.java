@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.*;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.*;
 import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponses;
 import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponsesByMember;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
@@ -125,7 +125,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   @Override
   public GetStreamSpeakersResponse getSpeakers(final Long streamId) {
     // Fetch all StreamSpeaker entities associated with the given event or stream ID
-    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByFleenStream(FleenStream.of(streamId));
+    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId));
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final Set<StreamSpeakerResponse> speakerResponses = toStreamSpeakerResponses(speakers);
     // Return a localized response containing the list of speaker responses
@@ -215,7 +215,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   protected void checkIfMemberIsAlreadyASpeakerAndUpdateInfo(final Set<StreamSpeaker> newSpeakers, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
     for (final StreamSpeaker newSpeaker : newSpeakers) {
       // Check if the speaker already exists for the stream
-      final Optional<StreamSpeaker> existingSpeaker = streamSpeakerRepository.findByFleenStreamAndMember(stream, newSpeaker.getMember());
+      final Optional<StreamSpeaker> existingSpeaker = streamSpeakerRepository.findByStreamAndMember(stream, newSpeaker.getMember());
       if (existingSpeaker.isPresent()) {
         // Update the existing speaker details if needed
         final StreamSpeaker speaker = existingSpeaker.get();
@@ -226,7 +226,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
         }
       } else {
         // If no existing speaker, add the new speaker to the set
-        newSpeaker.setFleenStream(stream);
+        newSpeaker.setStream(stream);
         if (nonNull(updatedSpeakers)) {
           updatedSpeakers.add(newSpeaker);
         }
@@ -301,7 +301,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Initialize a list to hold attendees or guests that require invitations
     final Set<EventAttendeeOrGuest> guests = new HashSet<>();
     // Get id associated with stream
-    final Long eventOrStreamId = stream.getStreamId();
+    final Long streamId = stream.getStreamId();
 
     // Get the member IDs of the current speakers
     final Set<Long> speakerWithMemberIds = getSpeakerMemberIds(speakers);
@@ -309,7 +309,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     final Set<StreamSpeakerDto> speakersWithNoMemberIds = filterSpeakersWithoutIds(speakersDto);
 
     // Find attendees associated with the event/stream by matching speaker member IDs
-    final Set<StreamAttendee> allAttendees = findAttendees(eventOrStreamId, speakerWithMemberIds);
+    final Set<StreamAttendee> allAttendees = findAttendees(streamId, speakerWithMemberIds);
     // Extract disapproved or pending attendee from all the attendees
     final Set<StreamAttendee> pendingOrDisapprovedAttendees = getDisapprovedOrPendingAttendees(allAttendees);
 
@@ -362,14 +362,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   /**
    * Finds attendees for the given event or stream ID who have specific statuses.
    *
-   * @param eventOrStreamId   the ID of the event or stream
+   * @param streamId   the ID of the event or stream
    * @param speakerMemberIds  the set of member IDs to search for
    * @return a set of attendees with approved, disapproved or pending statuses
    */
-  private Set<StreamAttendee> findAttendees(final Long eventOrStreamId, final Set<Long> speakerMemberIds) {
+  private Set<StreamAttendee> findAttendees(final Long streamId, final Set<Long> speakerMemberIds) {
     // Retrieve attendees with PENDING or DISAPPROVED statuses for the given event or stream ID
     return streamAttendeeRepository.findAttendeesByEventOrStreamIdAndMemberIdsAndStatuses(
-      eventOrStreamId,
+      streamId,
       new ArrayList<>(speakerMemberIds),
       List.of(APPROVED, DISAPPROVED, PENDING)
     );
@@ -550,12 +550,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * Checks if an event or stream with the specified ID exists.
    * If the event or stream does not exist, throws a {@link FleenStreamNotFoundException}.
    *
-   * @param eventOrStreamId The ID of the event or stream to check for existence.
+   * @param streamId The ID of the event or stream to check for existence.
    * @throws FleenStreamNotFoundException if the event or stream is not found.
    */
-  protected FleenStream checkEventOrStreamExist(final Long eventOrStreamId) {
-    return streamRepository.findById(eventOrStreamId)
-      .orElseThrow(() -> new FleenStreamNotFoundException(eventOrStreamId));
+  protected FleenStream checkEventOrStreamExist(final Long streamId) {
+    return streamRepository.findById(streamId)
+      .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
   }
 
   /**
@@ -565,14 +565,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * whether the specified user is the creator of the event. If the event or stream
    * does not exist or the user is not the creator, it throws appropriate exceptions.
    *
-   * @param eventOrStreamId the ID of the event or stream to be retrieved and verified
+   * @param streamId the ID of the event or stream to be retrieved and verified
    * @param user the user to be validated as the creator of the event or stream
    * @return the {@link FleenStream} object containing the event or stream details
    * @throws FleenStreamNotFoundException if the event or stream does not exist
    */
-  protected FleenStream getAndVerifyStreamDetails(final Long eventOrStreamId, final FleenUser user) {
+  protected FleenStream getAndVerifyStreamDetails(final Long streamId, final FleenUser user) {
     // Check if the event or stream with the given ID exists, throw exception if not
-    final FleenStream stream = checkEventOrStreamExist(eventOrStreamId);
+    final FleenStream stream = checkEventOrStreamExist(streamId);
     // Validate if the user is the creator of the event
     validateCreatorOfStream(stream, user);
 

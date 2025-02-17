@@ -80,12 +80,13 @@ public class SignUpDto {
   }
 
   public Member toMember() {
-    return Member.builder()
-        .firstName(firstName)
-        .lastName(lastName)
-        .emailAddress(emailAddress)
-        .phoneNumber(phoneNumber)
-        .password(password)
-        .build();
+    final Member member = new Member();
+    member.setFirstName(firstName);
+    member.setLastName(lastName);
+    member.setEmailAddress(emailAddress);
+    member.setPhoneNumber(phoneNumber);
+    member.setPassword(password);
+
+    return member;
   }
 }

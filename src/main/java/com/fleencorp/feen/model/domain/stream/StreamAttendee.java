@@ -1,11 +1,13 @@
 package com.fleencorp.feen.model.domain.stream;
 
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -13,7 +15,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,7 +30,7 @@ public class StreamAttendee extends FleenFeenEntity {
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
-  private FleenStream fleenStream;
+  private FleenStream stream;
 
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -39,7 +40,6 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "request_to_join_status", nullable = false)
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
 
-  @Builder.Default
   @Column(name = "is_attending", nullable = false)
   private Boolean attending = false;
 
@@ -86,19 +86,6 @@ public class StreamAttendee extends FleenFeenEntity {
 
   public String getJoinStatus() {
     return nonNull(requestToJoinStatus) ? requestToJoinStatus.getValue() : null;
-  }
-
-  public static StreamAttendee of(final Member member, final FleenStream stream) {
-    return StreamAttendee.builder()
-      .member(member)
-      .fleenStream(stream)
-      .build();
-  }
-
-  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
-    final StreamAttendee streamAttendee = of(member, stream);
-    streamAttendee.setAttendeeComment(comment);
-    return streamAttendee;
   }
 
   /**
@@ -186,6 +173,23 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public boolean isAttending() {
     return attending;
+  }
+
+  public static StreamAttendee of(final Member member, final FleenStream stream) {
+    final StreamAttendee attendee = new StreamAttendee();
+    attendee.setMember(member);
+    attendee.setStream(stream);
+    return attendee;
+  }
+
+  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
+    final StreamAttendee streamAttendee = of(member, stream);
+    streamAttendee.setAttendeeComment(comment);
+    return streamAttendee;
+  }
+
+  public static StreamAttendee empty() {
+    return null;
   }
 
 }

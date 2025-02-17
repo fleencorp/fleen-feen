@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.chat.space;
+package com.fleencorp.feen.model.response.stream.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,19 +18,19 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "chat_space_id"
+  "timezones"
 })
-public class DisableChatSpaceResponse extends ApiResponse {
+public class DataForRescheduleStreamResponse extends ApiResponse {
 
-  @JsonProperty("chat_space_id")
-  private Long chatSpaceId;
+  @JsonProperty("timezones")
+  private Set<String> timezones;
 
   @Override
   public String getMessageCode() {
-    return "disable.chat.space";
+    return "data.for.reschedule.stream";
   }
 
-  public static DisableChatSpaceResponse of(final Long chatSpaceId) {
-    return new DisableChatSpaceResponse(chatSpaceId);
+  public static DataForRescheduleStreamResponse of(final Set<String> timezones) {
+    return new DataForRescheduleStreamResponse(timezones);
   }
 }

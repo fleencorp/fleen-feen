@@ -185,7 +185,7 @@ public class MfaServiceImpl implements MfaService {
   @Override
   @Transactional
   public SetupMfaResponse setupMfa(final SetupMfaDto dto, final FleenUser user) {
-    final MfaType newMfaType = dto.getActualMfaType();
+    final MfaType newMfaType = dto.getMfaType();
     final Long userId = user.getId();
     // Retrieve member with associated user id
     final Member member = memberRepository.findById(userId)
@@ -228,7 +228,7 @@ public class MfaServiceImpl implements MfaService {
   @Override
   public SetupMfaResponse resendMfaSetupCode(final SetupMfaDto dto, final FleenUser user) {
     final Long userId = user.getId();
-    final MfaType newMfaType = dto.getActualMfaType();
+    final MfaType newMfaType = dto.getMfaType();
     // Retrieve member with associated user id
     final Member member = memberRepository.findById(userId)
       .orElseThrow(FailedOperationException::new);
@@ -259,7 +259,7 @@ public class MfaServiceImpl implements MfaService {
   public ConfirmMfaSetupResponse confirmMfaSetup(final ConfirmSetupMfaDto confirmSetupMfaDto, final FleenUser user) {
     final String emailAddress = user.getEmailAddress();
     final String username = user.getUsername();
-    final MfaType mfaType = confirmSetupMfaDto.getActualMfaType();
+    final MfaType mfaType = confirmSetupMfaDto.getMfaType();
     final Member member = memberRepository.findByEmailAddress(emailAddress)
       .orElseThrow(FailedOperationException::new);
 

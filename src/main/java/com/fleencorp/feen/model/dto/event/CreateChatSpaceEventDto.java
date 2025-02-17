@@ -7,23 +7,21 @@ import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 public class CreateChatSpaceEventDto extends CreateStreamDto {
 
   public FleenStream toFleenStream(final Member member, final ChatSpace chatSpace) {
-    final FleenStream fleenStream = toFleenStream();
-    fleenStream.setMember(member);
-    fleenStream.setChatSpace(chatSpace);
-    fleenStream.setStreamType(EVENT);
-    fleenStream.setStreamSource(GOOGLE_MEET);
-    return fleenStream;
+    final FleenStream stream = toFleenStream();
+    stream.setMember(member);
+    stream.setChatSpace(chatSpace);
+    stream.setStreamType(EVENT);
+    stream.setStreamSource(GOOGLE_MEET);
+    return stream;
   }
 }

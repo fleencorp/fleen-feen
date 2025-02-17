@@ -32,7 +32,9 @@ public interface StreamAttendeeService {
 
   StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws FleenStreamNotFoundException;
 
-  Optional<StreamAttendee> findAttendee(FleenStream stream, Long userId);
+  Optional<StreamAttendee> findAttendeeByMemberId(FleenStream stream, Long userId);
+
+  Optional<StreamAttendee> findAttendee(FleenStream stream, Long attendeeId);
 
   RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
 

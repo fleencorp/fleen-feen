@@ -9,11 +9,11 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface StreamReviewService {
 
-  StreamReviewSearchResult findReviews(Long eventOrStreamId, SearchRequest searchRequest);
+  StreamReviewSearchResult findReviews(Long streamId, SearchRequest searchRequest);
 
   StreamReviewSearchResult findReviews(SearchRequest searchRequest, FleenUser user);
 
-  AddStreamReviewResponse addReview(Long eventOrStreamId, AddStreamReviewDto addStreamReviewDto, FleenUser user);
+  AddStreamReviewResponse addReview(Long streamId, AddStreamReviewDto addStreamReviewDto, FleenUser user);
 
   DeleteStreamReviewResponse deleteReview(Long reviewId, FleenUser user);
 }

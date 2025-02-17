@@ -8,8 +8,10 @@ import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,7 +23,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -72,27 +73,22 @@ public class Member extends FleenFeenEntity {
   @Column(name = "mfa_secret")
   private String mfaSecret;
 
-  @Builder.Default
   @Enumerated(STRING)
   @Column(name = "mfa_type", nullable = false)
   private MfaType mfaType = MfaType.NONE;
 
-  @Builder.Default
   @Enumerated(STRING)
   @Column(name = "verification_status", nullable = false)
   private ProfileVerificationStatus verificationStatus = ProfileVerificationStatus.PENDING;
 
-  @Builder.Default
   @Enumerated(STRING)
   @Column(name = "profile_status", nullable = false)
   private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
 
-  @Builder.Default
   @ManyToMany(fetch = LAZY, targetEntity = Role.class, cascade = CascadeType.ALL)
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 
-  @Builder.Default
   @Column(name = "is_internal", nullable = false)
   private boolean isInternal = false;
 
@@ -295,16 +291,18 @@ public class Member extends FleenFeenEntity {
   }
 
   public static Member of(final Long memberId) {
-    return Member.builder()
-            .memberId(memberId)
-            .build();
+    final Member member = new Member();
+    member.setMemberId(memberId);
+
+    return member;
   }
 
   public static Member of(final String memberId) {
     if (nonNull(memberId)) {
-      return Member.builder()
-        .memberId(Long.parseLong(memberId))
-        .build();
+      final Member member = new Member();
+      member.setMemberId(Long.valueOf(memberId));
+
+      return member;
     }
     return null;
   }

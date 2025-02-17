@@ -31,20 +31,20 @@ public class StreamReviewController {
     return streamReviewService.findReviews(searchRequest, user);
   }
 
-  @GetMapping(value = "/detail/{eventOrStreamId}")
+  @GetMapping(value = "/detail/{streamId}")
   public StreamReviewSearchResult findReviews(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final SearchRequest searchRequest) {
-    return streamReviewService.findReviews(eventOrStreamId, searchRequest);
+    return streamReviewService.findReviews(streamId, searchRequest);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @PostMapping(value = "/add/{eventOrStreamId}")
+  @PostMapping(value = "/add/{streamId}")
   public AddStreamReviewResponse addReview(
-      @PathVariable(name = "eventOrStreamId") final Long eventOrStreamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final AddStreamReviewDto addStreamReviewDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return streamReviewService.addReview(eventOrStreamId, addStreamReviewDto, user);
+    return streamReviewService.addReview(streamId, addStreamReviewDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")

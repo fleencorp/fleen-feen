@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import org.springframework.stereotype.Component;
 
 import static com.fleencorp.feen.constant.notification.NotificationType.*;
@@ -31,14 +32,14 @@ import static java.util.Objects.nonNull;
 @Component
 public class NotificationMessageService {
 
-  private final Localizer localizer;
+  private final DefaultLocalizer localizer;
 
   /**
    * Constructs a new {@code NotificationMessageService} with the provided {@link Localizer}.
    *
    * @param localizer the service responsible for handling localized responses for notifications
    */
-  public NotificationMessageService(final Localizer localizer) {
+  public NotificationMessageService(final DefaultLocalizer localizer) {
     this.localizer = localizer;
   }
 
@@ -79,7 +80,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the request to join the event
    */
   public String ofApprovedRequestToJoinEvent(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getStreamTitle());
   }
 
   /**
@@ -89,7 +90,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the request to join the event
    */
   public String ofDisapprovedRequestToJoinEvent(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getStreamTitle());
   }
 
   /**
@@ -99,7 +100,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the request to join the event
    */
   public String ofReceivedRequestToJoinEvent(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getStreamTitle());
   }
 
   /**
@@ -109,7 +110,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the approval of the request to join the live broadcast
    */
   public String ofApprovedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getStreamTitle());
   }
 
   /**
@@ -119,7 +120,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the disapproval of the request to join the live broadcast
    */
   public String ofDisapprovedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getStreamTitle());
   }
 
   /**
@@ -129,7 +130,7 @@ public class NotificationMessageService {
    * @return the localized message indicating the reception of the request to join the live broadcast
    */
   public String ofReceivedRequestToJoinLiveBroadcast(final Notification notification) {
-    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getFleenStreamTitle());
+    return localizer.getMessage(notification.getMessageKey(), notification.getInitiatorOrRequesterName(), notification.getStreamTitle());
   }
 
   /**
@@ -198,20 +199,21 @@ public class NotificationMessageService {
    * @return a Notification object representing the approved request to join the chat space
    */
   public Notification ofApproved(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
-    return Notification.builder()
-      .notificationType(requestToJoinChatSpaceApproved())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .messageKey(requestToJoinChatSpaceApproved().getCode())
-      .otherComment(chatSpaceMember.getSpaceAdminComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(chatSpace.getChatSpaceId()))
-      .notificationStatus(NotificationStatus.unread())
-      .chatSpace(chatSpace)
-      .chatSpaceTitle(chatSpace.getTitle())
-      .chatSpaceMember(chatSpaceMember)
-      .chatSpaceMemberName(chatSpaceMember.getFullName())
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setChatSpace(chatSpace);
+    notification.setChatSpaceMember(chatSpaceMember);
+    notification.setReceiverId(member.getMemberId());
+    notification.setChatSpaceTitle(chatSpace.getTitle());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setChatSpaceMemberName(chatSpaceMember.getFullName());
+    notification.setNotificationType(requestToJoinChatSpaceApproved());
+    notification.setOtherComment(chatSpaceMember.getSpaceAdminComment());
+    notification.setMessageKey(requestToJoinChatSpaceApproved().getCode());
+    notification.setIdOrLinkOrUrl(String.valueOf(chatSpace.getChatSpaceId()));
+
+    return notification;
   }
 
   /**
@@ -224,22 +226,23 @@ public class NotificationMessageService {
    * @return a Notification object representing the received request to join the chat space
    */
   public Notification ofReceived(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member, final Member requester) {
-    return Notification.builder()
-      .notificationType(requestToJoinChatSpaceReceived())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .initiatorOrRequester(requester)
-      .initiatorOrRequesterName(requester.getFullName())
-      .messageKey(requestToJoinChatSpaceReceived().getCode())
-      .otherComment(chatSpaceMember.getMemberComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(chatSpace.getChatSpaceId()))
-      .notificationStatus(NotificationStatus.unread())
-      .chatSpace(chatSpace)
-      .chatSpaceTitle(chatSpace.getTitle())
-      .chatSpaceMember(chatSpaceMember)
-      .chatSpaceMemberName(chatSpaceMember.getFullName())
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setChatSpace(chatSpace);
+    notification.setInitiatorOrRequester(requester);
+    notification.setReceiverId(member.getMemberId());
+    notification.setChatSpaceMember(chatSpaceMember);
+    notification.setChatSpaceTitle(chatSpace.getTitle());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setOtherComment(chatSpaceMember.getMemberComment());
+    notification.setInitiatorOrRequesterName(requester.getFullName());
+    notification.setNotificationType(requestToJoinChatSpaceReceived());
+    notification.setChatSpaceMemberName(chatSpaceMember.getFullName());
+    notification.setMessageKey(requestToJoinChatSpaceReceived().getCode());
+    notification.setIdOrLinkOrUrl(String.valueOf(chatSpace.getChatSpaceId()));
+
+    return notification;
   }
 
   /**
@@ -265,48 +268,50 @@ public class NotificationMessageService {
    * @return a Notification object representing the approved request to join the event
    */
   public Notification ofApproved(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
-    return Notification.builder()
-      .notificationType(requestToJoinEventApproved())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .messageKey(requestToJoinEventApproved().getCode())
-      .otherComment(streamAttendee.getOrganizerComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(fleenStream.getStreamId()))
-      .notificationStatus(NotificationStatus.unread())
-      .fleenStream(fleenStream)
-      .fleenStreamTitle(fleenStream.getTitle())
-      .streamAttendee(streamAttendee)
-      .streamAttendeeName(streamAttendee.getFullName())
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setStream(fleenStream);
+    notification.setStreamAttendee(streamAttendee);
+    notification.setReceiverId(member.getMemberId());
+    notification.setStreamTitle(fleenStream.getTitle());
+    notification.setNotificationType(requestToJoinEventApproved());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setStreamAttendeeName(streamAttendee.getFullName());
+    notification.setMessageKey(requestToJoinEventApproved().getCode());
+    notification.setOtherComment(streamAttendee.getOrganizerComment());
+    notification.setIdOrLinkOrUrl(String.valueOf(fleenStream.getStreamId()));
+
+    return notification;
   }
 
   /**
    * Builds a notification for a received request to join an event.
    *
-   * @param fleenStream      the event associated with the received request
+   * @param stream      the event associated with the received request
    * @param streamAttendee   the attendee of the event receiving the notification
    * @param member           the member to whom the notification is sent
    * @param requester          the member who made the request to join the event
    * @return a Notification object representing the received request to join the event
    */
-  public Notification ofReceived(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
-    return Notification.builder()
-      .notificationType(requestToJoinEventReceived())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .initiatorOrRequester(requester)
-      .initiatorOrRequesterName(requester.getFullName())
-      .messageKey(requestToJoinEventReceived().getCode())
-      .otherComment(streamAttendee.getAttendeeComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(fleenStream.getStreamId()))
-      .notificationStatus(NotificationStatus.unread())
-      .fleenStream(fleenStream)
-      .fleenStreamTitle(fleenStream.getTitle())
-      .streamAttendee(streamAttendee)
-      .streamAttendeeName(streamAttendee.getFullName())
-      .build();
+  public Notification ofReceived(final FleenStream stream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setStream(stream);
+    notification.setStreamAttendee(streamAttendee);
+    notification.setInitiatorOrRequester(requester);
+    notification.setReceiverId(member.getMemberId());
+    notification.setStreamTitle(stream.getTitle());
+    notification.setNotificationType(requestToJoinEventReceived());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setStreamAttendeeName(streamAttendee.getFullName());
+    notification.setInitiatorOrRequesterName(requester.getFullName());
+    notification.setOtherComment(streamAttendee.getAttendeeComment());
+    notification.setMessageKey(requestToJoinEventReceived().getCode());
+    notification.setIdOrLinkOrUrl(String.valueOf(stream.getStreamId()));
+
+    return notification;
   }
 
   /**
@@ -358,20 +363,21 @@ public class NotificationMessageService {
    * @return a Notification object representing the approved share contact request
    */
   public Notification ofApproved(final ShareContactRequest shareContactRequest, final Member member) {
-    return Notification.builder()
-      .notificationType(shareContactRequestApproved())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .recipient(shareContactRequest.getRecipient())
-      .recipientName(shareContactRequest.getRecipient().getFullName())
-      .messageKey(shareContactRequestApproved().getCode())
-      .otherComment(shareContactRequest.getRecipientComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(shareContactRequest.getShareContactRequestId()))
-      .notificationStatus(NotificationStatus.unread())
-      .shareContactRequest(shareContactRequest)
-      .contactType(shareContactRequest.getContactType())
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setReceiverId(member.getMemberId());
+    notification.setShareContactRequest(shareContactRequest);
+    notification.setRecipient(shareContactRequest.getRecipient());
+    notification.setNotificationType(shareContactRequestApproved());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setContactType(shareContactRequest.getContactType());
+    notification.setMessageKey(shareContactRequestApproved().getCode());
+    notification.setRecipientName(shareContactRequest.getRecipientName());
+    notification.setOtherComment(shareContactRequest.getRecipientComment());
+    notification.setIdOrLinkOrUrl(String.valueOf(shareContactRequest.getShareContactRequestId()));
+
+    return notification;
   }
 
   /**
@@ -383,20 +389,21 @@ public class NotificationMessageService {
    * @return a Notification object representing the received share contact request
    */
   public Notification ofReceived(final ShareContactRequest shareContactRequest, final Member member, final Member requester) {
-    return Notification.builder()
-      .notificationType(shareContactRequestReceived())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .initiatorOrRequester(requester)
-      .initiatorOrRequesterName(requester.getFullName())
-      .messageKey(shareContactRequestReceived().getCode())
-      .otherComment(shareContactRequest.getInitiatorComment())
-      .isRead(false)
-      .idOrLinkOrUrl(String.valueOf(shareContactRequest.getShareContactRequestId()))
-      .notificationStatus(NotificationStatus.unread())
-      .shareContactRequest(shareContactRequest)
-      .contactType(shareContactRequest.getContactType())
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setInitiatorOrRequester(requester);
+    notification.setReceiverId(member.getMemberId());
+    notification.setShareContactRequest(shareContactRequest);
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setNotificationType(shareContactRequestReceived());
+    notification.setInitiatorOrRequesterName(requester.getFullName());
+    notification.setContactType(shareContactRequest.getContactType());
+    notification.setMessageKey(shareContactRequestReceived().getCode());
+    notification.setOtherComment(shareContactRequest.getInitiatorComment());
+    notification.setIdOrLinkOrUrl(String.valueOf(shareContactRequest.getShareContactRequestId()));
+
+    return notification;
   }
 
   /**
@@ -407,17 +414,19 @@ public class NotificationMessageService {
    * @return a Notification object representing the following action
    */
   public Notification ofFollowing(final Follower follower, final Member member) {
-    return Notification.builder()
-      .notificationType(userFollowing())
-      .receiverId(member.getMemberId())
-      .receiver(member)
-      .initiatorOrRequester(follower.getFollowing())
-      .initiatorOrRequesterName(follower.getFollowing().getFullName())
-      .messageKey(userFollowing().getCode())
-      .idOrLinkOrUrl(String.valueOf(follower.getFollowerId()))
-      .notificationStatus(NotificationStatus.unread())
-      .follower(follower)
-      .build();
+    final Notification notification = new Notification();
+    notification.markAsUnread();
+    notification.setReceiver(member);
+    notification.setFollower(follower);
+    notification.setReceiverId(member.getMemberId());
+    notification.setNotificationType(userFollowing());
+    notification.setMessageKey(userFollowing().getCode());
+    notification.setInitiatorOrRequester(follower.getFollowing());
+    notification.setNotificationStatus(NotificationStatus.unread());
+    notification.setInitiatorOrRequesterName(follower.getFollowingName());
+    notification.setIdOrLinkOrUrl(String.valueOf(follower.getFollowerId()));
+
+    return notification;
   }
 
 }

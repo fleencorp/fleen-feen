@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
@@ -50,7 +50,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
+import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 /**
  * Implementation of the {@link EventJoinService} interface that handles the logic for managing attendee participation in events.
@@ -168,7 +169,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(streamType, notAttendingStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(notAttendingStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the event
@@ -254,7 +255,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), joinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
@@ -262,7 +263,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Send invitation to new attendee
     attendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinStreamDto.getComment());
     // Return localized response of the join event including status
-    return localizer.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo));
+    return localizer.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo, stream.getTotalAttendees()));
   }
 
   /**
@@ -289,7 +290,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), requestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Check and handle chat space membership and invitation
@@ -350,23 +351,23 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Retrieve the event (FleenStream) using the event ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), processAttendeeRequestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
     // Check if the user is already an attendee and process accordingly
-    attendeeService.findAttendee(stream, Long.parseLong(processAttendeeRequestToJoinStreamDto.getAttendeeUserId()))
+    attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId())
       .ifPresentOrElse(
         streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto, user),
         () -> {}
       );
 
     // Check if the user is already an attendee of the stream and process accordingly
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, Long.parseLong(processAttendeeRequestToJoinStreamDto.getAttendeeUserId()));
+    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // Process the request to join the event if the attendee exists
     existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto, user));
     // Get a processed attendee request to join event response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
   }
@@ -392,7 +393,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     }
 
     // Get the requested status for joining the event
-    final StreamAttendeeRequestToJoinStatus joinStatus = processRequestToJoinDto.getActualJoinStatus();
+    final StreamAttendeeRequestToJoinStatus joinStatus = processRequestToJoinDto.getJoinStatus();
     // Update the attendee's request status and set any organizer comments
     attendee.updateRequestStatusAndSetOrganizerComment(joinStatus, processRequestToJoinDto.getComment());
     // If the request is approved, proceed with handling the calendar invitation
@@ -469,7 +470,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), addNewAttendeeDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(addNewAttendeeDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
 
