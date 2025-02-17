@@ -40,7 +40,7 @@ import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 @Slf4j
 @Service
 public class MemberServiceImpl implements MemberService,
-    EmailService, PasswordService, PhoneService {
+  EmailService, PasswordService, PhoneService {
 
   private final CacheService cacheService;
   private final MemberRepository memberRepository;
@@ -62,11 +62,11 @@ public class MemberServiceImpl implements MemberService,
    * @param passwordEncoder         the encoder for handling password hashing and verification
    */
   public MemberServiceImpl(
-      final CacheService cacheService,
-      final MemberRepository memberRepository,
-      final UserProfileRepository userProfileRepository,
-      final Localizer localizer,
-      final PasswordEncoder passwordEncoder) {
+    final CacheService cacheService,
+    final MemberRepository memberRepository,
+    final UserProfileRepository userProfileRepository,
+    final Localizer localizer,
+    final PasswordEncoder passwordEncoder) {
     this.cacheService = cacheService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
