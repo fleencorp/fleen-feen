@@ -156,7 +156,7 @@ public final class GoogleApiUtil {
    **/
   public static LocalDateTime convertToLocalDateTime(final Timestamp timestamp) {
     if (nonNull(timestamp)) {
-      LocalDateTime.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos(), ZoneOffset.UTC);
+      return LocalDateTime.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos(), ZoneOffset.UTC);
     }
     return LocalDateTime.now();
   }
