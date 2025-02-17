@@ -123,7 +123,7 @@ public class NotificationServiceImpl implements NotificationService {
     // Check if the user is the owner of the notification
     if (notification.isOwner(user.getId())) {
       // Mark the notification as read and save it
-      notification.setIsRead();
+      notification.markAsRead();
       notificationRepository.save(notification);
     }
 

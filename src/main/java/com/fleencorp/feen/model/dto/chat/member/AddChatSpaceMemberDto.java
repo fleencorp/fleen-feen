@@ -24,7 +24,7 @@ public class AddChatSpaceMemberDto {
   @JsonProperty("comment")
   protected String comment;
 
-  public Long getActualMemberId() {
+  public Long getMemberId() {
     return Long.parseLong(memberId);
   }
 }

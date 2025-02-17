@@ -37,7 +37,7 @@ public class ExpectShareContactRequestDto {
     return shareContactRequest;
   }
 
-  public Long getActualRecipientId() {
+  public Long getRecipientId() {
     return Long.parseLong(recipientId);
   }
 }

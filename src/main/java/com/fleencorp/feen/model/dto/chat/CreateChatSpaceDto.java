@@ -16,9 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -55,13 +53,14 @@ public class CreateChatSpaceDto {
   @JsonProperty("visibility")
   private String visibility;
 
-  public ChatSpaceVisibility getActualVisibility() {
+  public ChatSpaceVisibility getVisibility() {
     return ChatSpaceVisibility.of(visibility);
   }
 
   public ChatSpace toChatSpace(final Member member) {
     final ChatSpace chatSpace = toChatSpace();
     chatSpace.setMember(member);
+
     return chatSpace;
   }
 
@@ -71,8 +70,8 @@ public class CreateChatSpaceDto {
     chatSpace.setDescription(description);
     chatSpace.setGuidelinesOrRules(guidelinesOrRules);
     chatSpace.setTags(tags);
-    chatSpace.setSpaceVisibility(getActualVisibility());
-    chatSpace.setIsActive(true);
+    chatSpace.setSpaceVisibility(getVisibility());
+    chatSpace.setActive(true);
     chatSpace.setDeleted(false);
     chatSpace.setTotalMembers(0L);
 

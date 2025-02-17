@@ -45,10 +45,11 @@ public class StreamAttendeeResponse {
   private String organizerComment;
 
   public static StreamAttendeeResponse of(final Long attendeeId, final Long attendeeMemberId, final String fullName) {
-    return StreamAttendeeResponse.builder()
-        .attendeeId(attendeeId)
-        .fullName(fullName)
-        .attendeeMemberId(attendeeMemberId)
-        .build();
+    final StreamAttendeeResponse attendeeResponse = new StreamAttendeeResponse();
+    attendeeResponse.setAttendeeId(attendeeId);
+    attendeeResponse.setAttendeeMemberId(attendeeMemberId);
+    attendeeResponse.setFullName(fullName);
+
+    return attendeeResponse;
   }
 }

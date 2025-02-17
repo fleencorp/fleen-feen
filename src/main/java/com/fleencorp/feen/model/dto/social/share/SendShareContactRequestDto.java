@@ -53,7 +53,7 @@ public class SendShareContactRequestDto {
     return shareContactRequest;
   }
 
-  public Long getActualRecipientId() {
+  public Long getRecipientId() {
     return Long.parseLong(recipientId);
   }
 

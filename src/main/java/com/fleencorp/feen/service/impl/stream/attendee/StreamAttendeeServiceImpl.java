@@ -41,8 +41,8 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.PENDING;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
 import static java.util.Objects.nonNull;
 
@@ -120,7 +120,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Retrieve the fleen stream
     final FleenStream stream = streamService.findStream(streamId);
     // Convert the list of attendees to response objects
-    final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(streamMapper.toFleenStreamResponse(stream), page.getContent());
+    final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(streamMapper.toStreamResponse(stream), page.getContent());
     // Return a search result view with the attendees responses and pagination details
     return handleSearchResult(
       page,
@@ -304,7 +304,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Find and retrieve the stream
     final FleenStream stream = streamService.findStream(streamId);
     // Perform a search and retrieve the page and search result of attendees
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByFleenStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
     // Get stream attendees
     final Collection<StreamAttendeeResponse> attendeeResponses = getAttendees(stream, page.getContent());
     // Return a search result view with the attendees responses and pagination details
@@ -332,7 +332,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     if (nonNull(attendees) && !attendees.isEmpty()) {
       return attendees.stream()
         .filter(Objects::nonNull)
-        .map(attendee -> attendeeMapper.toStreamAttendeeResponse(attendee, streamMapper.toFleenStreamResponse(stream)))
+        .map(attendee -> attendeeMapper.toStreamAttendeeResponse(attendee, streamMapper.toStreamResponse(stream)))
         .collect(Collectors.toSet());
     }
     return Set.of();
@@ -351,11 +351,32 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @throws FailedOperationException if either the stream or user ID is null
    */
   @Override
-  public Optional<StreamAttendee> findAttendee(final FleenStream stream, final Long userId) throws FailedOperationException {
+  public Optional<StreamAttendee> findAttendeeByMemberId(final FleenStream stream, final Long userId) throws FailedOperationException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
     // Find if the user is already an attendee of the stream
     return streamAttendeeRepository.findAttendeeByStreamAndUser(stream, Member.of(userId));
+  }
+
+  /**
+   * Finds an attendee of a specified stream by their attendee ID.
+   *
+   * <p>This method checks if the provided stream and attendee ID are non-null. If either is null,
+   * it throws a {@link FailedOperationException}. Upon successful validation, it queries the
+   * {@link StreamAttendeeRepository} to find the attendee with the specified ID within the
+   * given stream.</p>
+   *
+   * @param stream The {@link FleenStream} instance representing the stream where the attendee is expected.
+   * @param attendeeId The unique ID of the attendee to find.
+   * @return An {@link Optional} containing the {@link StreamAttendee} if found, or an empty Optional if not found.
+   * @throws FailedOperationException If either the stream or attendeeId is null.
+   */
+  @Override
+  public Optional<StreamAttendee> findAttendee(final FleenStream stream, final Long attendeeId) throws FailedOperationException {
+    // Throw an exception if the any of the provided values is null
+    checkIsNullAny(Set.of(stream, attendeeId), FailedOperationException::new);
+    // Find if the user is already an attendee of the stream
+    return streamAttendeeRepository.findAttendeeByIdAndStream(attendeeId, stream);
   }
 
   /**
@@ -407,7 +428,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Extract the uniquely identify attendees
     final Set<StreamAttendee> streamAttendeesSet = new HashSet<>(streamAttendees);
     // Convert the attendees to their equivalent response
-    final Set<StreamAttendeeResponse> streamAttendeeResponses = toStreamAttendeeResponsesSet(streamMapper.toFleenStreamResponse(stream), streamAttendeesSet);
+    final Set<StreamAttendeeResponse> streamAttendeeResponses = toStreamAttendeeResponsesSet(streamMapper.toStreamResponse(stream), streamAttendeesSet);
     // Return the attendees as an array
     return new ArrayList<>(streamAttendeeResponses);
   }

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -20,10 +20,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ProcessAttendeeRequestToJoinStreamDto {
 
-  @NotNull(message = "{stream.attendeeUserId.NotNull}")
+  @NotNull(message = "{stream.attendeeId.NotNull}")
   @IsNumber
-  @JsonProperty("attendee_user_id")
-  private String attendeeUserId;
+  @JsonProperty("attendeeIs")
+  private String attendeeId;
 
   @NotNull(message = "{stream.joinStatus.NotNull}")
   @OneOf(enumClass = StreamAttendeeRequestToJoinStatus.class, message = "{stream.joinStatus.Type}", ignoreCase = true)
@@ -49,17 +49,21 @@ public class ProcessAttendeeRequestToJoinStreamDto {
     return StreamType.isEvent(getStreamType());
   }
 
-  public StreamAttendeeRequestToJoinStatus getActualJoinStatus() {
+  public Long getAttendeeId() {
+    return Long.parseLong(attendeeId);
+  }
+
+  public StreamAttendeeRequestToJoinStatus getJoinStatus() {
     return StreamAttendeeRequestToJoinStatus.of(joinStatus);
   }
 
   /**
    * Checks if the attendee's request to join status is approved.
    *
-   * @return {@code true} if the attendee's actual join status is {@link StreamAttendeeRequestToJoinStatus#APPROVED},
+   * @return {@code true} if the attendee's join status is {@link StreamAttendeeRequestToJoinStatus#APPROVED},
    *         otherwise {@code false}.
    */
   public boolean isApproved() {
-    return StreamAttendeeRequestToJoinStatus.isApproved(getActualJoinStatus());
+    return StreamAttendeeRequestToJoinStatus.isApproved(getJoinStatus());
   }
 }

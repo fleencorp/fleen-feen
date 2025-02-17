@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.*;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.*;
 import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponses;
 import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponsesByMember;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;

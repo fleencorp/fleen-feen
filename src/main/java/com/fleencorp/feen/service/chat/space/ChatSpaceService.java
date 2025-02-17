@@ -3,7 +3,11 @@ package com.fleencorp.feen.service.chat.space;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
-import com.fleencorp.feen.model.response.chat.space.*;
+import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ChatSpaceService {
