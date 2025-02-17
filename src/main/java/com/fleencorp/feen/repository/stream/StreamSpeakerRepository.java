@@ -10,8 +10,8 @@ import java.util.Set;
 
 public interface StreamSpeakerRepository extends JpaRepository<StreamSpeaker, Long> {
 
-  Set<StreamSpeaker> findAllByFleenStream(FleenStream stream);
+  Set<StreamSpeaker> findAllByStream(FleenStream stream);
 
-  Optional<StreamSpeaker> findByFleenStreamAndMember(FleenStream stream, Member member);
+  Optional<StreamSpeaker> findByStreamAndMember(FleenStream stream, Member member);
 
 }

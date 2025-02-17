@@ -8,6 +8,7 @@ import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public interface StreamService {
 
-  FleenStream findStream(Long eventOrStreamId) throws FleenStreamNotFoundException;
+  FleenStream findStream(Long streamId) throws FleenStreamNotFoundException;
 
   RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
@@ -26,6 +27,8 @@ public interface StreamService {
     CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
 
   FleenStream increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(FleenStream stream);
+
+  DataForRescheduleStreamResponse getDataForRescheduleStream();
 
   void decreaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
 

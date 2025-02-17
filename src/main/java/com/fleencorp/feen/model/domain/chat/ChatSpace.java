@@ -2,11 +2,14 @@ package com.fleencorp.feen.model.domain.chat;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
+import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.HashSet;
@@ -18,7 +21,6 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -63,19 +65,15 @@ public class ChatSpace extends FleenFeenEntity {
   @Column(name = "space_visibility", nullable = false)
   private ChatSpaceVisibility spaceVisibility;
 
-  @Builder.Default
   @Column(name = "is_active", nullable = false)
-  private Boolean isActive = true;
+  private Boolean active = true;
 
-  @Builder.Default
   @Column(name = "total_members", nullable = false)
   private Long totalMembers = 0L;
 
-  @Builder.Default
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
-  @Builder.Default
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
   private Set<ChatSpaceMember> members = new HashSet<>();
 
@@ -124,7 +122,7 @@ public class ChatSpace extends FleenFeenEntity {
    * or a service.
    */
   public void disable() {
-    isActive = false;
+    active = false;
   }
 
   /**
@@ -133,7 +131,7 @@ public class ChatSpace extends FleenFeenEntity {
    * disabled.
    */
   public void enable() {
-    isActive = true;
+    active = true;
   }
 
   /**
@@ -155,12 +153,21 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   /**
-   * Checks if this member is inactive.
+   * Checks if this chat space is inactive.
    *
-   * @return true if the member is inactive; otherwise, returns false.
+   * @return true if the chat space is inactive; otherwise, returns false.
    */
   public boolean isInactive() {
-    return !isActive;
+    return !active;
+  }
+
+  /**
+   * Checks if this chat space is active.
+   *
+   * @return true if the chat space is active; otherwise, returns false.
+   */
+  public boolean isActive() {
+    return active;
   }
 
   /**
@@ -173,6 +180,21 @@ public class ChatSpace extends FleenFeenEntity {
    */
   public boolean isPrivate() {
     return ChatSpaceVisibility.isPrivate(spaceVisibility);
+  }
+
+
+  /**
+   * Checks if the given member ID corresponds to the owner of this chat space.
+   *
+   * <p>This method verifies that the provided member ID is not null and
+   * compares it with the member ID associated with this chat space.</p>
+   *
+   * @param memberId the ID of the member to check
+   * @return {@code true} if the provided member ID matches the owner of the chat space;
+   *         {@code false} otherwise
+   */
+  public boolean isOwner(final Long memberId) {
+    return nonNull(memberId) && this.memberId.equals(memberId);
   }
 
   /**
@@ -208,6 +230,22 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   /**
+   * Returns a masked version of the chat space link.
+   *
+   * <p>This method checks if the `spaceLink` is not null and,
+   * if valid, returns a masked representation of the chat space link
+   * using the {@link MaskedChatSpaceUri}.</p>
+   *
+   * <p>If the `spaceLink` is null, the method returns null.</p>
+   *
+   * @return a {@link MaskedChatSpaceUri} containing the masked chat space link,
+   *         or {@code null} if the `spaceLink` is not set
+   */
+  public MaskedChatSpaceUri getMaskedSpaceLink() {
+    return nonNull(spaceLink) ? MaskedChatSpaceUri.of(spaceLink) : null;
+  }
+
+  /**
    * Retrieves the organizer's phone number.
    *
    * @return The phone number of the organizer if the member is not null; {@code null} otherwise.
@@ -217,8 +255,9 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   public static ChatSpace of(final Long chatSpaceId) {
-    return ChatSpace.builder()
-      .chatSpaceId(chatSpaceId)
-      .build();
+    final ChatSpace chatSpace = new ChatSpace();
+    chatSpace.setChatSpaceId(chatSpaceId);
+
+    return chatSpace;
   }
 }

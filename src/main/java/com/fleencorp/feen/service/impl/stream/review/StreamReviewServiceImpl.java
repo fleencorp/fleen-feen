@@ -72,13 +72,13 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    * <p>This method retrieves a paginated list of reviews associated with the specified event or stream ID
    * and converts them into response views for presentation.</p>
    *
-   * @param eventOrStreamId the ID of the event or stream whose reviews are being retrieved
+   * @param streamId the ID of the event or stream whose reviews are being retrieved
    * @param searchRequest contains pagination and other search parameters for fetching the reviews
    * @return a {@link StreamReviewSearchResult} containing the paginated list of reviews in response format
    */
   @Override
-  public StreamReviewSearchResult findReviews(final Long eventOrStreamId, final SearchRequest searchRequest) {
-    final Page<StreamReview> page = streamReviewRepository.findByStream(FleenStream.of(eventOrStreamId), searchRequest.getPage());
+  public StreamReviewSearchResult findReviews(final Long streamId, final SearchRequest searchRequest) {
+    final Page<StreamReview> page = streamReviewRepository.findByStream(FleenStream.of(streamId), searchRequest.getPage());
     final List<StreamReviewResponse> views = streamReviewMapper.toStreamReviewResponsesMore(page.getContent());
 
     // Return a search result view with the review responses and pagination details
@@ -118,7 +118,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    * <p>This method retrieves the event or stream by its ID, throws a {@link FleenStreamNotFoundException} if not found,
    * and then creates and saves a new review using the provided data.</p>
    *
-   * @param eventOrStreamId the ID of the event or stream to which the review is being added
+   * @param streamId the ID of the event or stream to which the review is being added
    * @param addStreamReviewDto the data transfer object containing review details
    * @param user the current user adding the review, used to associate the review with a member
    * @return an {@link AddStreamReviewResponse} indicating the outcome of the review addition
@@ -126,13 +126,13 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    */
   @Override
   @Transactional
-  public AddStreamReviewResponse addReview(final Long eventOrStreamId, final AddStreamReviewDto addStreamReviewDto, final FleenUser user) {
+  public AddStreamReviewResponse addReview(final Long streamId, final AddStreamReviewDto addStreamReviewDto, final FleenUser user) {
     // Check if the event or stream exists; throw exception if not
-    streamRepository.findById(eventOrStreamId)
-      .orElseThrow(() -> new FleenStreamNotFoundException(eventOrStreamId));
+    streamRepository.findById(streamId)
+      .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
 
     final StreamReview streamReview = addStreamReviewDto
-      .toStreamReview(FleenStream.of(eventOrStreamId), user.toMember());
+      .toStreamReview(FleenStream.of(streamId), user.toMember());
 
     // Save the new StreamReview to the repository
     streamReviewRepository.save(streamReview);

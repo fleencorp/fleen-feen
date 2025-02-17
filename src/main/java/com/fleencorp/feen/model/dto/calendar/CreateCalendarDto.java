@@ -11,9 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -43,13 +41,14 @@ public class CreateCalendarDto {
   private String countryCode;
 
   public Calendar toCalendar() {
-    return Calendar.builder()
-            .title(title)
-            .description(description)
-            .timezone(timezone)
-            .isActive(true)
-            .code(countryCode)
-            .build();
+    final Calendar calendar = new Calendar();
+    calendar.setTitle(title);
+    calendar.setDescription(description);
+    calendar.setTimezone(timezone);
+    calendar.setCode(countryCode);
+    calendar.setIsActive(true);
+
+    return calendar;
   }
 
   public Oauth2ServiceType getOauth2ServiceType() {

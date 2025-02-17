@@ -28,7 +28,6 @@ public class TotalStreamsCreatedByUserResponse extends ApiResponse {
   @JsonProperty("total_count")
   private Long totalCount;
 
-
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
 

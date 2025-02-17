@@ -33,7 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
+import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 /**
  * Implementation of the {@link LiveBroadcastJoinService} interface that handles the logic for managing attendees joining live broadcasts.
@@ -113,7 +114,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), notAttendingStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the stream
     verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
@@ -166,13 +167,13 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), joinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return localized response of the join stream including status
-    return localizer.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo));
+    return localizer.of(JoinStreamResponse.of(liveBroadcastId, attendanceInfo, streamTypeInfo, stream.getTotalAttendees()));
   }
 
   /**
@@ -225,16 +226,16 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Retrieve the stream using the provided stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), processAttendeeRequestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
 
     // Check if the user is already an attendee of the stream and process accordingly
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, Long.parseLong(processAttendeeRequestToJoinStreamDto.getAttendeeUserId()));
+    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // If the attendee exists and is found, process their request to join request
     existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
     // Get a processed attendee request to join stream response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toFleenStreamResponse(stream), existingAttendee);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toStreamResponse(stream), existingAttendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
   }
@@ -262,7 +263,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     }
 
     // Create the notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getFleenStream(), streamAttendee, stream.getMember());
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(streamAttendee.getStream(), streamAttendee, stream.getMember());
     // Save the notification
     notificationService.save(notification);
   }

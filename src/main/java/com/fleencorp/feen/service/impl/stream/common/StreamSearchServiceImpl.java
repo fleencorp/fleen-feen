@@ -38,8 +38,8 @@ import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static java.util.Objects.nonNull;
 
 /**
@@ -154,7 +154,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Determine the appropriate page of streams based on the stream time type
     final Page<FleenStream> page = findByStreamTimeType(searchRequest, streamTimeType);
     // Convert the page content to FleenStreamResponse objects
-    final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponses(page.getContent());
+    final List<FleenStreamResponse> views = streamMapper.toStreamResponses(page.getContent());
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
@@ -229,7 +229,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Convert the streams to response views
-    final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponses(page.getContent());
+    final List<FleenStreamResponse> views = streamMapper.toStreamResponses(page.getContent());
     // Determine the various status of the streams user
     streamService.determineUserJoinStatusForStream(views, user);
     // Set other schedule details if user timezone is different
@@ -370,7 +370,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Update the schedule, timezone details and join status
     updateStreamOtherScheduleAndUserJoinStatus(streamResponse, user);
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
-    final long totalAttendees = streamAttendeeRepository.countByFleenStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
+    final long totalAttendees = streamAttendeeRepository.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response
@@ -480,7 +480,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Return the response with a list of FleenStreams and pagination info
-    return StreamResponsesAndPage.of(streamMapper.toFleenStreamResponses(page.getContent()), page);
+    return StreamResponsesAndPage.of(streamMapper.toStreamResponses(page.getContent()), page);
   }
 
   /**

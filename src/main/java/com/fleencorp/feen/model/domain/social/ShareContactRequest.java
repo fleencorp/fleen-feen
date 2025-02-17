@@ -5,15 +5,17 @@ import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,7 +29,6 @@ public class ShareContactRequest extends FleenFeenEntity {
   @Column(name = "share_contact_request_id", nullable = false, updatable = false, unique = true)
   private Long shareContactRequestId;
 
-  @Builder.Default
   @Column(name = "is_expected", nullable = false)
   private Boolean isExpected = false;
 
@@ -56,6 +57,10 @@ public class ShareContactRequest extends FleenFeenEntity {
 
   @Column(name = "recipient_comment", length = 1000)
   private String recipientComment;
+
+  public String getRecipientName() {
+    return nonNull(recipient) ? recipient.getFullName() : null;
+  }
 
   /**
    * Updates the share contact request with the specified status, contact type, contact information, and comment.

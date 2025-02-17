@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.chat.space;
+package com.fleencorp.feen.model.response.chat.space.update;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,17 +18,17 @@ import lombok.Setter;
   "message",
   "chat_space_id"
 })
-public class EnableChatSpaceResponse extends ApiResponse {
+public class DisableChatSpaceResponse extends ApiResponse {
 
   @JsonProperty("chat_space_id")
   private Long chatSpaceId;
 
   @Override
   public String getMessageCode() {
-    return "enable.chat.space";
+    return "disable.chat.space";
   }
 
-  public static EnableChatSpaceResponse of(final Long chatSpaceId) {
-    return new EnableChatSpaceResponse(chatSpaceId);
+  public static DisableChatSpaceResponse of(final Long chatSpaceId) {
+    return new DisableChatSpaceResponse(chatSpaceId);
   }
 }

@@ -1,7 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
-import com.fleencorp.feen.constant.stream.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
@@ -20,6 +19,7 @@ import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStrea
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
+import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
@@ -37,8 +37,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.fleencorp.base.util.ExceptionUtil.*;
+import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
 import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.groupAttendeeAttendance;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
+import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
 /**
@@ -137,6 +139,10 @@ public class StreamServiceImpl implements StreamService {
       CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Verify the stream details and attempt to join the stream
     final FleenStream stream = verifyDetailsAndTryToJoinStream(streamId, user);
+    // Increase total attendees or guests in the stream
+    stream.increaseTotalAttendees();
+    // Save the stream to the repository
+    streamRepository.save(stream);
     // Create a new StreamAttendee entry for the user
     final StreamAttendee streamAttendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
     // Approve user attendance if the stream is public
@@ -144,7 +150,7 @@ public class StreamServiceImpl implements StreamService {
     // Add the new StreamAttendee to the stream's attendees list and save
     streamAttendeeRepository.save(streamAttendee);
     // Convert the stream to the equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponse(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
     final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
     // Return the stream
@@ -187,8 +193,6 @@ public class StreamServiceImpl implements StreamService {
     checkIfStreamIsPrivate(streamId, stream);
     // Check if the user is already an attendee
     verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
-    // Save the stream to the repository
-    streamRepository.save(stream);
 
     return stream;
   }
@@ -215,7 +219,7 @@ public class StreamServiceImpl implements StreamService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    isStreamTypeEqual(stream.getStreamType(), requestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqualAndFail(requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Extract the attendance info
@@ -226,7 +230,7 @@ public class StreamServiceImpl implements StreamService {
     // Send and save notifications
     sendJoinRequestNotificationForPrivateStream(stream, streamAttendee, user);
     // Return the localized response of the request to join the stream
-    return localizer.of(RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, tryToJoinResponse));
+    return localizer.of(RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, stream.getTotalAttendees(), tryToJoinResponse));
   }
 
   /**
@@ -247,13 +251,15 @@ public class StreamServiceImpl implements StreamService {
     final FleenStream stream = findStream(streamId);
     // Validate the stream details and eligibility of the user
     validateStreamAndUserForProtectedStream(stream, user);
+    // Increase total attendees or guests in the stream
+    stream.increaseTotalAttendees();
     // Handle the join request and update stream attendee info
     final StreamAttendee streamAttendee = handleStreamAttendeeJoinRequestForProtectedStream(stream, requestToJoinStreamDto, user);
     // Save the stream and the attendee
     saveStreamAndAttendee(stream, streamAttendee);
 
     // Convert the stream to equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponse(stream);
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
     final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
     // Return the localized response of the request to join the stream
@@ -410,7 +416,6 @@ public class StreamServiceImpl implements StreamService {
           // If member is an attendee, retrieve the status and set view label
           existingAttendance.ifPresent(attendance -> {
             // Update the request to join status, join status and is attending info
-            log.info("The join status is {}", attendance.getRequestToJoinStatus());
             streamMapper.update(stream, attendance.getRequestToJoinStatus(), attendance.getJoinStatus(), attendance.isAttending());
           });
       });
@@ -466,7 +471,7 @@ public class StreamServiceImpl implements StreamService {
   @Override
   public void updateAttendeeRequestStatus(final StreamAttendee streamAttendee, final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinDto) {
     // Retrieve the requested status for the attendee to join the stream
-    final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinDto.getActualJoinStatus();
+    final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinDto.getJoinStatus();
     // Update the attendee's request status and set any organizer comments
     streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinDto.getComment());
   }
@@ -483,6 +488,22 @@ public class StreamServiceImpl implements StreamService {
     stream.increaseTotalAttendees();
     // Save the updated stream to the repository
     return streamRepository.save(stream);
+  }
+
+  /**
+   * Retrieves the necessary data for rescheduling a stream, including the available time zones.
+   *
+   * <p>This method fetches the available time zones from the system and returns a response object
+   * that contains the time zone details needed for rescheduling a stream.</p>
+   *
+   * @return a {@link DataForRescheduleStreamResponse} object containing the time zones available for rescheduling the stream
+   */
+  @Override
+  public DataForRescheduleStreamResponse getDataForRescheduleStream() {
+    // Retrieve the available timezones from the system
+    final Set<String> timezones = getAvailableTimezones();
+    // Return the response containing the details to reschedule stream
+    return DataForRescheduleStreamResponse.of(timezones);
   }
 
   /**
@@ -567,31 +588,6 @@ public class StreamServiceImpl implements StreamService {
   protected boolean isUserAndResponsesValid(final Collection<FleenStreamResponse> responses, final FleenUser user) {
     // Check if user is non-null, user's member is non-null, and responses list is non-null
     return nonNull(user) && nonNull(user.toMember()) && nonNull(responses);
-  }
-
-  /**
-   * Verifies if the given user is the owner and throws an exception if the user is attempting to perform an action
-   * they are not authorized to perform.
-   *
-   * <p>This method checks if both the {@link Member} owner and the {@link FleenUser} are provided.
-   * If the user is the owner (i.e., their user IDs match), a {@link FailedOperationException} is thrown.</p>
-   *
-   * @param owner the member who is the owner of the resource; must not be null
-   * @param user  the user attempting to perform the action; must not be null
-   * @throws FailedOperationException if the user is the owner of the resource
-   */
-  public static void verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(final Member owner, final FleenUser user) throws FailedOperationException {
-    // Check if both the owner and user are provided
-    if (nonNull(owner) && nonNull(user)) {
-      // Retrieve the ID of the owner of a resource
-      final Long ownerUserId = owner.getMemberId();
-      // Get the user's ID
-      final Long userId = user.getId();
-      // If the user is the owner, throw an exception
-      if (ownerUserId.equals(userId)) {
-        throw new FailedOperationException();
-      }
-    }
   }
 
   /**
@@ -740,7 +736,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws CannotJointStreamWithoutApprovalException if the stream is private
    */
   protected static void checkIfStreamIsPrivate(final Long streamId, final FleenStream stream) {
-    if (nonNull(stream) && stream.isJustPrivate()) {
+    if (nonNull(stream) && stream.isPrivate()) {
       throw CannotJointStreamWithoutApprovalException.of(streamId);
     }
   }
@@ -770,7 +766,7 @@ public class StreamServiceImpl implements StreamService {
    * @param stream         the stream to check for privacy status
    */
   protected static void setAttendeeRequestToJoinPendingIfStreamIsPrivate(final StreamAttendee streamAttendee, final FleenStream stream) {
-    if (nonNull(streamAttendee) && nonNull(stream) && stream.isPrivate()) {
+    if (nonNull(streamAttendee) && nonNull(stream) && stream.isPrivateOrProtected()) {
       // If the stream is private, set the request-to-join status to pending
       streamAttendee.markRequestAsPending();
     }
@@ -794,7 +790,7 @@ public class StreamServiceImpl implements StreamService {
     checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
 
     // Try to check if the user is an existing attendee
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, userId);
+    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendeeByMemberId(stream, userId);
     // If the user is found as an attendee, throw an exception with the attendee's request to join status
     existingAttendee
       .ifPresent(streamAttendee -> {
@@ -809,25 +805,6 @@ public class StreamServiceImpl implements StreamService {
           throw AlreadyApprovedRequestToJoinException.of(requestToJoinStatus);
         }
     });
-  }
-
-  /**
-   * Verifies if the provided stream type is equal to the original stream type.
-   *
-   * <p>This method checks whether the given {@code streamType} is equal to
-   * the {@code originalStreamType}. If the {@code originalStreamType} is null or
-   * not equal to the {@code originalStreamType}, a {@link FailedOperationException}
-   * is thrown.</p>
-   *
-   * @param originalStreamType the original {@link StreamType} to compare against
-   * @param streamType the {@link StreamType} to verify
-   * @throws FailedOperationException if the {@code streamType} is null or not equal
-   *                                  to the {@code originalStreamType}
-   */
-  public static void isStreamTypeEqual(final StreamType originalStreamType, final StreamType streamType) {
-    if (originalStreamType == null || originalStreamType != streamType) {
-      throw new FailedOperationException();
-    }
   }
 
 }

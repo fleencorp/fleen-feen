@@ -351,8 +351,8 @@ public class CalendarServiceImpl implements CalendarService {
     final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest.of(
       calendar.getExternalId(),
       shareCalendarWithUserDto.getEmailAddress(),
-      shareCalendarWithUserDto.getActualAclScopeType(),
-      shareCalendarWithUserDto.getActualAclRole(),
+      shareCalendarWithUserDto.getAclScopeType(),
+      shareCalendarWithUserDto.getAclRole(),
       oauth2Authorization.getAccessToken()
     );
 

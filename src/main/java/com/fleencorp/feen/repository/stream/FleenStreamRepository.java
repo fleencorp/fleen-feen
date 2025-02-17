@@ -21,7 +21,7 @@ public interface FleenStreamRepository extends JpaRepository<FleenStream, Long> 
   @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.streamStatus = :status")
   Page<FleenStream> findByTitle(@Param("title") String title, @Param("status") StreamStatus status, Pageable pageable);
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL AND fs.streamStatus = :status ORDER BY fs.updatedOn DESC")
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL AND fs.streamStatus = :status ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findMany(@Param("status") StreamStatus status, Pageable pageable);
 
   @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.scheduledStartDate > :currentDate ORDER BY fs.scheduledStartDate ASC")
@@ -45,6 +45,6 @@ public interface FleenStreamRepository extends JpaRepository<FleenStream, Long> 
           "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
   Page<FleenStream> findLiveStreamsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.fleenStreamId IS NOT NULL ORDER BY fs.updatedOn DESC")
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByChatSpace(ChatSpace chatSpace, Pageable pageable);
 }

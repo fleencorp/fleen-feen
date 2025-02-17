@@ -1,4 +1,4 @@
-package com.fleencorp.feen.constant.stream;
+package com.fleencorp.feen.constant.common;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;

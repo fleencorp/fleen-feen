@@ -56,27 +56,28 @@ public class StreamSpeakerDto {
   private String emailAddress;
 
   /**
-   * Retrieves the actual stream speaker ID by converting it to a Long.
+   * Retrieves the stream speaker ID by converting it to a Long.
    *
    * @return the stream speaker ID as a {@link Long}, or null if the ID is not set.
    */
-  private Long getActualStreamSpeakerId() {
+  private Long getStreamSpeakerId() {
     return nonNull(streamSpeakerId) ? Long.parseLong(streamSpeakerId) : null;
   }
 
   public StreamSpeaker toStreamSpeaker(final FleenStream stream) {
     final StreamSpeaker streamSpeaker = toStreamSpeaker();
-    streamSpeaker.setFleenStream(stream);
+    streamSpeaker.setStream(stream);
     return streamSpeaker;
   }
 
   public StreamSpeaker toStreamSpeaker() {
-    return StreamSpeaker.builder()
-      .streamSpeakerId(getActualStreamSpeakerId())
-      .fullName(fullName)
-      .description(description)
-      .title(title)
-      .member(Member.of(memberId))
-      .build();
+    final StreamSpeaker speaker = new StreamSpeaker();
+    speaker.setStreamSpeakerId(getStreamSpeakerId());
+    speaker.setFullName(fullName);
+    speaker.setTitle(title);
+    speaker.setDescription(description);
+    speaker.setMember(Member.of(memberId));
+
+    return speaker;
   }
 }

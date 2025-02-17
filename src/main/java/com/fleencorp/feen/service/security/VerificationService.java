@@ -15,7 +15,6 @@ import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static java.util.Objects.nonNull;
@@ -67,7 +66,6 @@ public interface VerificationService {
 
   InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto);
 
-  @Transactional
   ForgotPasswordResponse forgotPassword(ForgotPasswordDto forgotPasswordDto);
 
   ChangePasswordResponse changePassword(ChangePasswordDto changePasswordDto, FleenUser user);

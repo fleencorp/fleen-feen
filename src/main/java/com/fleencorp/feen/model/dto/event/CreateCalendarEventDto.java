@@ -14,14 +14,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 import static com.fleencorp.feen.constant.stream.StreamSource.GOOGLE_MEET;
 import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -63,11 +61,11 @@ public class CreateCalendarEventDto extends CreateStreamDto {
   }
 
   public FleenStream toFleenStream(final Member member) {
-    final FleenStream fleenStream = toFleenStream();
-    fleenStream.setMember(member);
-    fleenStream.setStreamType(EVENT);
-    fleenStream.setStreamSource(GOOGLE_MEET);
-    return fleenStream;
+    final FleenStream stream = toFleenStream();
+    stream.setMember(member);
+    stream.setStreamType(EVENT);
+    stream.setStreamSource(GOOGLE_MEET);
+    return stream;
   }
 
 }
