@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.chat.space;
+package com.fleencorp.feen.model.response.chat.space.update;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

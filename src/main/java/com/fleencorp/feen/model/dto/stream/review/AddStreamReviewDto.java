@@ -1,10 +1,9 @@
 package com.fleencorp.feen.model.dto.stream.review;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.EnumOrdinalValid;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.constant.stream.StreamReviewRating;
+import com.fleencorp.feen.constant.stream.review.StreamReviewRating;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamReview;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -32,6 +31,10 @@ public class AddStreamReviewDto {
   @JsonProperty("review_rating")
   private String rating;
 
+  public StreamReviewRating getRating() {
+    return StreamReviewRating.of(rating);
+  }
+
   public StreamReview toStreamReview(final FleenStream stream, final Member member) {
     final StreamReview streamReview = toStreamReview();
     streamReview.setStream(stream);
@@ -43,7 +46,7 @@ public class AddStreamReviewDto {
   public StreamReview toStreamReview() {
     final StreamReview streamReview = new StreamReview();
     streamReview.setReview(review);
-    streamReview.setRating(StreamReviewRating.valueOf(rating));
+    streamReview.setRating(getRating());
     return streamReview;
   }
 }

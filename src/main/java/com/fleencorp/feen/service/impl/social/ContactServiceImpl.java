@@ -94,10 +94,10 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public AddContactResponse addContact(final AddContactDto addContactDto, final FleenUser user) {
     // Find existing contact by owner and contact type
-    final Contact contact = contactRepository.findByOwnerAndContactType(user.toMember(), addContactDto.getActualContactType())
+    final Contact contact = contactRepository.findByOwnerAndContactType(user.toMember(), addContactDto.getContactType())
       .map(existingContact -> {
         // If contact exists, update it with the new details
-        existingContact.update(addContactDto.getActualContactType(), addContactDto.getContact());
+        existingContact.update(addContactDto.getContactType(), addContactDto.getContact());
         return existingContact;
       })
       // If contact does not exist, create a new contact
@@ -128,7 +128,7 @@ public class ContactServiceImpl implements ContactService {
     final Contact contact = contactRepository.findByContactIdAndOwner(contactId, user.toMember())
       .map(existingContact -> {
         // Update the contact with new details from the DTO
-        existingContact.update(updateContactDto.getActualContactType(), updateContactDto.getContact());
+        existingContact.update(updateContactDto.getContactType(), updateContactDto.getContact());
         return existingContact;
       })
       .orElseThrow(ContactNotFoundException.of(contactId));

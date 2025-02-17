@@ -111,11 +111,11 @@ public class CreateStreamDto {
     return StreamVisibility.of(visibility);
   }
 
-  public LocalDateTime getActualStartDateTime() {
+  public LocalDateTime getStartDateTime() {
     return LocalDateTime.parse(startDateTime);
   }
 
-  public LocalDateTime getActualEndDateTime() {
+  public LocalDateTime getEndDateTime() {
     return LocalDateTime.parse(endDateTime);
   }
 
@@ -127,8 +127,8 @@ public class CreateStreamDto {
     stream.setTimezone(timezone);
     stream.setDescription(description);
 
-    stream.setScheduledStartDate(getActualStartDateTime());
-    stream.setScheduledEndDate(getActualEndDateTime());
+    stream.setScheduledStartDate(getStartDateTime());
+    stream.setScheduledEndDate(getEndDateTime());
     stream.setStreamVisibility(getActualVisibility());
 
     stream.setStreamStatus(ACTIVE);

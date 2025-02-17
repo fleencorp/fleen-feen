@@ -1,8 +1,10 @@
-package com.fleencorp.feen.constant.stream;
+package com.fleencorp.feen.constant.common;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
+import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import lombok.Getter;
 
 /**
@@ -19,14 +21,16 @@ public enum JoinStatus implements ApiParameter {
 
   DISAPPROVED("Disapproved", "join.status.disapproved", "join.status.disapproved.2"),
   JOINED("Joined", "join.status.joined", "join.status.joined.2"),
-  ATTENDED("Attended", "join.status.attended", "join.status.attended.2"),
-  ATTENDING("Attending", "join.status.attending", "join.status.attending.2"),
-  NOT_ATTENDING("Not Attending", "join.status.not.attending", "join.status.not.attending.2"),
+  ATTENDED("Attended", "join.status.attended.stream", "join.status.attended.2"),
+  ATTENDING_STREAM("Attending", "join.status.attending.stream", "join.status.attending.stream.2"),
+  NOT_ATTENDING_STREAM("Not Attending", "join.status.not.attending.stream", "join.status.not.attending.stream.2"),
   JOINED_STREAM("Going", "join.status.joined.stream", "join.status.joined.stream.2"),
   JOINED_CHAT_SPACE("Joined", "join.status.joined.chat.space", "join.status.joined.chat.space.2"),
   NOT_JOINED("Join", "join.status.not.joined", "join.status.not.joined.2"),
   NOT_JOINED_PUBLIC("Join", "join.status.not.joined.public", "join.status.not.joined.public.2"),
   NOT_JOINED_PRIVATE("Request to Join", "join.status.not.joined.private", "join.status.not.joined.private.2"),
+  LEFT_CHAT_SPACE("Left Chat Space", "left.chat.space", "left.chat.space.2"),
+  REMOVED_CHAT_SPACE("Left Chat Space", "removed.from.chat.space", "removed.from.chat.space.2"),
   PENDING("Pending", "join.status.pending", "join.status.pending.2");
 
   private final String value;
@@ -63,6 +67,7 @@ public enum JoinStatus implements ApiParameter {
     } else if (isDisapprovedForPublic(visibility, requestToJoinStatus)) {
       return JoinStatus.notJoinedPublic();
     }
+
     return JoinStatus.pending();
   }
 
@@ -97,7 +102,7 @@ public enum JoinStatus implements ApiParameter {
    * @return {@code true} if the stream is private, protected, or public and the request is approved, {@code false} otherwise
    */
   private static boolean isApprovedAndVisible(final StreamVisibility visibility, final StreamAttendeeRequestToJoinStatus status) {
-    return StreamVisibility.isPrivateOrProtected(visibility) || StreamVisibility.isPublic(visibility)
+    return (StreamVisibility.isPrivateOrProtected(visibility) || StreamVisibility.isPublic(visibility))
       && StreamAttendeeRequestToJoinStatus.isApproved(status);
   }
 
@@ -123,16 +128,13 @@ public enum JoinStatus implements ApiParameter {
     return StreamVisibility.isPublic(visibility) && StreamAttendeeRequestToJoinStatus.isDisapproved(status);
   }
 
-  /**
-   * Returns the join status based on the chat space visibility and request-to-join status.
-   *
-   * @param requestToJoinStatus the status of the request to join the chat space
-   * @param visibility the visibility of the chat space, indicating whether it is public or private
-   * @return the join status based on the parameters
-   */
-  public static JoinStatus getJoinStatus(final ChatSpaceRequestToJoinStatus requestToJoinStatus, final ChatSpaceVisibility visibility) {
-    if (isApprovedAndVisible(visibility, requestToJoinStatus)) {
+  public static JoinStatus getJoinStatus(final ChatSpaceRequestToJoinStatus requestToJoinStatus, final ChatSpaceVisibility visibility, final boolean aMember, final boolean removed) {
+    if (isApprovedAndVisibleAndAMember(visibility, requestToJoinStatus, aMember)) {
       return JoinStatus.joinedChatSpace();
+    } else if (isApprovedAndVisibleAndRemoved(visibility, requestToJoinStatus, removed)) {
+      return JoinStatus.removedFromChatSpace();
+    } else if (isApprovedAndVisibleAndLeft(visibility, requestToJoinStatus, aMember)) {
+      return JoinStatus.leftChatSpace();
     } else if (isDisapprovedForPrivate(visibility, requestToJoinStatus)) {
       return JoinStatus.notJoinedPrivate();
     } else if (isDisapprovedForPublic(visibility, requestToJoinStatus)) {
@@ -153,6 +155,18 @@ public enum JoinStatus implements ApiParameter {
   private static boolean isApprovedAndVisible(final ChatSpaceVisibility visibility, final ChatSpaceRequestToJoinStatus status) {
     return (ChatSpaceVisibility.isPrivate(visibility) || ChatSpaceVisibility.isPublic(visibility))
       && ChatSpaceRequestToJoinStatus.isApproved(status);
+  }
+
+  private static boolean isApprovedAndVisibleAndRemoved(final ChatSpaceVisibility visibility, final ChatSpaceRequestToJoinStatus status, final Boolean removed) {
+    return (isApprovedAndVisible(visibility, status)) && removed;
+  }
+
+  private static boolean isApprovedAndVisibleAndLeft(final ChatSpaceVisibility visibility, final ChatSpaceRequestToJoinStatus status, final Boolean left) {
+    return (isApprovedAndVisible(visibility, status)) && left;
+  }
+
+  private static boolean isApprovedAndVisibleAndAMember(final ChatSpaceVisibility visibility, final ChatSpaceRequestToJoinStatus status, final Boolean aMember) {
+    return (isApprovedAndVisible(visibility, status)) && !aMember;
   }
 
   /**
@@ -194,7 +208,22 @@ public enum JoinStatus implements ApiParameter {
    * @return {@code true} if the status is not "Joined", {@code false} otherwise
    */
   public static boolean isNotApproved(final JoinStatus joinStatus) {
-    return JOINED != joinStatus && JOINED_STREAM != joinStatus;
+    return JOINED_CHAT_SPACE != joinStatus && JOINED_STREAM != joinStatus;
+  }
+
+  public static JoinStatus byStatus(final boolean isPrivateOrProtected) {
+    if (isPrivateOrProtected) {
+      return JoinStatus.notJoinedPrivate();
+    }
+    return JoinStatus.notJoinedPublic();
+  }
+
+  public static JoinStatus byStreamStatus(final boolean isStreamPrivateOrProtected) {
+    return byStatus(isStreamPrivateOrProtected);
+  }
+
+  public static JoinStatus byChatSpaceStatus(final boolean isChatSpacePrivateOrProtected) {
+    return byStatus(isChatSpacePrivateOrProtected);
   }
 
   public static JoinStatus pending() {
@@ -222,10 +251,18 @@ public enum JoinStatus implements ApiParameter {
   }
 
   public static JoinStatus notAttending() {
-    return NOT_ATTENDING;
+    return NOT_ATTENDING_STREAM;
   }
 
   public static JoinStatus attending() {
-    return ATTENDING;
+    return ATTENDING_STREAM;
+  }
+
+  public static JoinStatus leftChatSpace() {
+    return LEFT_CHAT_SPACE;
+  }
+
+  public static JoinStatus removedFromChatSpace() {
+    return REMOVED_CHAT_SPACE;
   }
 }

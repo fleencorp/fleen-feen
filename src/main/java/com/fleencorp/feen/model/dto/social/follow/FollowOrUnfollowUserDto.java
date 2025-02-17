@@ -19,7 +19,7 @@ public class FollowOrUnfollowUserDto {
   @JsonProperty("member_id")
   private String memberId;
 
-  public Long getActualMemberId() {
+  public Long getMemberId() {
     return Long.parseLong(memberId);
   }
 

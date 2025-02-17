@@ -3,9 +3,8 @@ package com.fleencorp.feen.model.response.chat.space.member.base;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.chat.space.ChatSpaceMemberRoleInfo;
-import com.fleencorp.feen.model.info.chat.space.ChatSpaceRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
+import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import lombok.*;
 
 @Builder
@@ -36,9 +35,6 @@ public class ChatSpaceMemberResponse {
   @JsonProperty("role_info")
   private ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo;
 
-  @JsonProperty("request_to_join_status_info")
-  private ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo;
-
-  @JsonProperty("join_status_info")
-  private JoinStatusInfo joinStatusInfo;
+  @JsonProperty("membership_info")
+  private ChatSpaceMembershipInfo membershipInfo;
 }

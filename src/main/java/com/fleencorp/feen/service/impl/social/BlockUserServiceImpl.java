@@ -119,11 +119,11 @@ public class BlockUserServiceImpl implements BlockUserService {
       .orElseThrow(FailedOperationException::new);
 
     // Retrieve the user to be blocked or unblocked, or throw an exception if not found
-    final Member userToBeBlockedOrUnblocked = memberRepository.findById(blockUserDto.getActualRecipientId())
-      .orElseThrow(UserNotFoundException.of(blockUserDto.getActualRecipientId()));
+    final Member userToBeBlockedOrUnblocked = memberRepository.findById(blockUserDto.getRecipientId())
+      .orElseThrow(UserNotFoundException.of(blockUserDto.getRecipientId()));
 
     final Member initiator = Member.of(user.getId());
-    final BlockStatus blockStatus = blockUserDto.getActualBlockStatus();
+    final BlockStatus blockStatus = blockUserDto.getBlockStatus();
 
     // Find or create a BlockUser entity for the given recipient
     final BlockUser blockUser = blockUserRepository.findByRecipient(userToBeBlockedOrUnblocked)

@@ -75,6 +75,13 @@ public class StreamSearchController {
   }
 
   @GetMapping(value = "/attendees/{streamId}")
+  public StreamAttendeeSearchResult getStreamAttendees(
+    @PathVariable(name = "streamId") final Long streamId,
+    @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
+    return streamAttendeeService.getStreamAttendees(streamId, streamAttendeeSearchRequest);
+  }
+
+  @GetMapping(value = "/attendees-2/{streamId}")
   public StreamAttendeeSearchResult findStreamAttendees(
       @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final StreamAttendeeSearchRequest searchRequest) {

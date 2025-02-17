@@ -41,6 +41,9 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
   private ChatSpace chatSpace;
 
+  @Column(name = "member_id", insertable = false, updatable = false)
+  private Long memberId;
+
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -53,6 +56,15 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @Enumerated(STRING)
   @Column(name = "request_to_join_status", nullable = false)
   private ChatSpaceRequestToJoinStatus requestToJoinStatus;
+
+  @Column(name = "has_left", nullable = false)
+  private Boolean left;
+
+  @Column(name = "is_removed", nullable = false)
+  private Boolean removed;
+
+  @Column(name = "is_admin", nullable = false)
+  private Boolean admin;
 
   @Column(name = "member_comment", length = 1000)
   private String memberComment;
@@ -93,16 +105,68 @@ public class ChatSpaceMember extends FleenFeenEntity {
     return nonNull(member) ? member.getFullName() : null;
   }
 
+  /**
+   * Checks if the member has left the chat space.
+   *
+   * <p>This method checks if the member has left the chat space by verifying if the `left` field
+   * is non-null. If the member has left, the field will be non-null, and the method will return true.</p>
+   *
+   * @return true if the member has left the chat space, false otherwise
+   */
+  public boolean hasLeft() {
+    return nonNull(left);
+  }
+
+  /**
+   * Checks if the member is currently a member of the chat space.
+   *
+   * <p>This method checks if the member is still part of the chat space by ensuring they haven't been
+   * removed and haven't left. If both conditions are satisfied (i.e., the member is not removed and
+   * hasn't left), it returns true.</p>
+   *
+   * <p>This is useful to determine the current membership status of a user in the chat space.</p>
+   *
+   * @return true if the user is still a member of the chat space, false otherwise
+   */
+  public boolean isAMember() {
+    return !isRemoved() && !hasLeft();
+  }
+
+  /**
+   * Checks if the member has been removed from the chat space.
+   *
+   * <p>This method checks if the member has been removed from the chat space by verifying if the `removed`
+   * field is non-null. If the member has been removed, the field will be non-null, and the method will return true.</p>
+   *
+   * @return true if the member has been removed from the chat space, false otherwise
+   */
+  public boolean isRemoved() {
+    return nonNull(removed);
+  }
+
+  /**
+   * Checks if the member is an admin of the chat space.
+   *
+   * <p>This method checks if the member has admin privileges within the chat space by verifying
+   * if the `admin` field is non-null. If the user is an admin, the field will be non-null, and
+   * the method will return true.</p>
+   *
+   * @return true if the member is an admin of the chat space, false otherwise
+   */
+  public boolean isAdmin() {
+    return nonNull(admin);
+  }
+
 
   /**
    * Approves the join status of the member with an associated comment.
    *
    * <p>Sets the space admin comment to the provided comment and changes the join status to approved.</p>
    *
-   * @param comment the comment to associate with the approval.
+   * @param adminComment the comment to associate with the approval.
    */
-  public void approveJoinStatusWithComment(final String comment) {
-    spaceAdminComment = comment;
+  public void approveJoinRequest(final String adminComment) {
+    spaceAdminComment = adminComment;
     approveJoinStatus();
   }
 
@@ -122,7 +186,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    *
    * @param comment the comment to associate with the pending status.
    */
-  public void pendingJoinStatusWithComment(final String comment) {
+  public void markJoinRequestAsPendingWithComment(final String comment) {
     memberComment = comment;
     pendingJoinStatus();
   }
@@ -141,7 +205,8 @@ public class ChatSpaceMember extends FleenFeenEntity {
    *
    * <p>Changes the join status to indicate that the request to join has been disapproved.</p>
    */
-  public void disapprovedRequestToJoin() {
+  public void disapprovedJoinRequest(final String adminComment) {
+    spaceAdminComment = adminComment;
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.DISAPPROVED;
   }
 
@@ -204,23 +269,69 @@ public class ChatSpaceMember extends FleenFeenEntity {
   }
 
   /**
-   * Upgrades the role of the chat space member to ADMIN.
+   * Upgrades the member's role to admin in the chat space.
    *
-   * <p>This method sets the member's role to ADMIN.</p>
+   * <p>This method changes the member's role to {@link ChatSpaceMemberRole#ADMIN} and sets the `admin`
+   * field to true. It effectively grants the member admin privileges within the chat space.</p>
+   *
+   * <p>Use this method to promote a member to an admin in the chat space.</p>
    */
   public void upgradeRole() {
     role = ChatSpaceMemberRole.ADMIN;
+    admin = true;
   }
 
   /**
-   * Downgrades the role of the chat space member to MEMBER.
+   * Downgrades the member's role to a regular member in the chat space.
    *
-   * <p>This method sets the member's role to MEMBER.</p>
+   * <p>This method changes the member's role to {@link ChatSpaceMemberRole#MEMBER} and sets the `admin`
+   * field to false. It effectively revokes admin privileges and returns the member to a regular member
+   * status within the chat space.</p>
+   *
+   * <p>Use this method to demote an admin back to a regular member in the chat space.</p>
    */
   public void downgradeRole() {
     role = ChatSpaceMemberRole.MEMBER;
+    admin = false;
   }
 
+  /**
+   * Marks the member as removed from the chat space.
+   *
+   * <p>This method sets the `removed` field to true, indicating that the member has been removed
+   * from the chat space. This can be used to update the removal status of a user within the chat space.</p>
+   */
+  public void markAsRemoved() {
+    removed = true;
+  }
+
+  /**
+   * Marks the member as having left the chat space.
+   *
+   * <p>This method sets the `left` field to true, indicating that the member has voluntarily left
+   * the chat space. This is useful for tracking users who have exited the chat space.</p>
+   */
+  public void leave() {
+    left = true;
+  }
+
+  /**
+   * Checks if the member is not the admin (organizer) of the chat space.
+   *
+   * <p>This method verifies whether the current member is part of the chat space and
+   * whether their `memberId` does not match the `organizerId`, implying that the member
+   * is not the admin (organizer).</p>
+   *
+   * <p>It returns true if the member is part of the chat space and their `memberId` is
+   * different from the `organizerId`. Otherwise, it returns false if the member is either
+   * not part of the chat space or they are the organizer.</p>
+   *
+   * @param organizerId the ID of the chat space organizer to compare with the member's ID.
+   * @return true if the member is not the organizer, otherwise false.
+   */
+  public boolean isNotTheOwner(final Long organizerId) {
+    return isAMember() && nonNull(memberId) && !(memberId.equals(organizerId));
+  }
 
   public static ChatSpaceMember of(final Long chatSpaceMemberId) {
     final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();

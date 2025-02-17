@@ -36,8 +36,8 @@ public class StreamDurationValidator implements ConstraintValidator<StreamDurati
     if (nonNull(dto)) {
       try {
         // Retrieve the actual start and end date times
-        final LocalDateTime start = dto.getActualStartDateTime();
-        final LocalDateTime end = dto.getActualEndDateTime();
+        final LocalDateTime start = dto.getStartDateTime();
+        final LocalDateTime end = dto.getEndDateTime();
 
         // Calculate the duration between start and end date-times
         final Duration duration = Duration.between(start, end);

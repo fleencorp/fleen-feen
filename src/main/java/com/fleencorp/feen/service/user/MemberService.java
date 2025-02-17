@@ -1,9 +1,12 @@
 package com.fleencorp.feen.service.user;
 
 
-import com.fleencorp.feen.model.dto.user.profile.*;
+import com.fleencorp.feen.exception.member.MemberNotFoundException;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.other.EntityExistsResponse;
-import com.fleencorp.feen.model.response.user.profile.*;
+import com.fleencorp.feen.model.response.user.profile.RetrieveMemberInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.RetrieveMemberUpdateInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.RetrieveProfileStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 
@@ -11,29 +14,13 @@ public interface MemberService {
 
   boolean isIdExists(Long memberId);
 
+  Member findMember(Long memberId) throws MemberNotFoundException;
+
   RetrieveMemberInfoResponse getMemberInfo(FleenUser user);
 
   RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(FleenUser user);
 
   RetrieveProfileStatusResponse getProfileStatus(FleenUser user);
-
-  UpdatePasswordResponse updatePassword(UpdatePasswordDto updatePasswordDto, FleenUser user);
-
-  UpdateProfileInfoResponse updateInfo(UpdateProfileInfoDto updateProfileInfoDto, FleenUser user);
-
-  SendUpdateEmailOrPhoneVerificationCodeResponse sendUpdateEmailAddressOrPhoneNumberVerificationCode(UpdateEmailAddressOrPhoneNumberDto updateEmailAddressOrPhoneNumberDto, FleenUser user);
-
-  UpdateEmailAddressResponse updateEmailAddress(ConfirmUpdateEmailAddressDto updateEmailAddressDto, FleenUser user);
-
-  UpdatePhoneNumberResponse updatePhoneNumber(ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, FleenUser user);
-
-  UpdateProfilePhotoResponse updateProfilePhoto(UpdateProfilePhotoDto updateProfilePhotoDto, FleenUser user);
-
-  UpdateProfileStatusResponse updateProfileActive(FleenUser user);
-
-  UpdateProfileStatusResponse updateProfileInactive(FleenUser user);
-
-  RemoveProfilePhotoResponse removeProfilePhoto(FleenUser user);
 
   EntityExistsResponse verifyMemberEmailAddressExists(String emailAddress);
 
