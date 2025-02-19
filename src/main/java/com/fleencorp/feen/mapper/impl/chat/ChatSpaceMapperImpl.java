@@ -117,8 +117,8 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of();
       response.setRequestToJoinStatusInfo(requestToJoinStatusInfo);
 
-      final JoinStatus joinStatus = JoinStatus.byStreamStatus(entry.isPrivate());
-      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+      final JoinStatus joinStatus = JoinStatus.byChatSpaceStatus(entry.isPrivate());
+      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
       response.setJoinStatusInfo(joinStatusInfo);
 
       return response;
@@ -263,7 +263,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
    */
   private JoinStatusInfo toJoinStatusInfo(final ChatSpaceResponse chatSpace, final JoinStatus joinStatus) {
     if (nonNull(chatSpace) && nonNull(joinStatus)) {
-      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
     }
     return null;
   }

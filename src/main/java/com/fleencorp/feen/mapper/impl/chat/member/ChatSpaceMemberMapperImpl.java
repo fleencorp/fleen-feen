@@ -104,7 +104,7 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
       final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
 
       final JoinStatus joinStatus = JoinStatus.getJoinStatus(entry.getRequestToJoinStatus(), chatSpace.getSpaceVisibility(), entry.isAMember(), entry.isRemoved());
-      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+      final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
 
       final IsAChatSpaceMember isAChatSpaceMember = IsAChatSpaceMember.by(entry.isAMember());
       final IsAChatSpaceMemberInfo isAChatSpaceMemberInfo = IsAChatSpaceMemberInfo.of(entry.isAMember(), translate(isAChatSpaceMember.getMessageCode()));
