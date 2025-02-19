@@ -20,7 +20,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @JsonPropertyOrder({
   "join_status",
   "join_status_text",
-  "join_status_text_2"
+  "join_status_text_2",
+  "join_status_text_3"
 })
 public class JoinStatusInfo {
 
@@ -34,8 +35,11 @@ public class JoinStatusInfo {
   @JsonProperty("join_status_text_2")
   private String joinStatusText2;
 
-  public static JoinStatusInfo of(final JoinStatus joinStatus, final String joinStatusText, final String joinStatusText2) {
-    return new JoinStatusInfo(joinStatus, joinStatusText, joinStatusText2);
+  @JsonProperty("join_status_text_3")
+  private String joinStatusText3;
+
+  public static JoinStatusInfo of(final JoinStatus joinStatus, final String joinStatusText, final String joinStatusText2, final String joinStatusText3) {
+    return new JoinStatusInfo(joinStatus, joinStatusText, joinStatusText2, joinStatusText3);
   }
 
   public static JoinStatusInfo of() {
