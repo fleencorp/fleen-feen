@@ -278,7 +278,7 @@ public class CommonMapperImpl implements CommonMapper {
   @Override
   public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
     if (nonNull(joinStatus)) {
-      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()));
+      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
     }
     return null;
   }
@@ -304,7 +304,7 @@ public class CommonMapperImpl implements CommonMapper {
     notAttendingStreamResponse.setAttendingInfo(streamMapper.toIsAttendingInfo(false));
 
     // Set the join status info with translated messages for the join status
-    notAttendingStreamResponse.setJoinStatusInfo(JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2())));
+    notAttendingStreamResponse.setJoinStatusInfo(JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3())));
     // Return the fully populated NotAttendingStreamResponse
     return notAttendingStreamResponse;
   }

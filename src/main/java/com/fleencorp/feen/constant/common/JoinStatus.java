@@ -19,23 +19,80 @@ import lombok.Getter;
 @Getter
 public enum JoinStatus implements ApiParameter {
 
-  DISAPPROVED("Disapproved", "join.status.disapproved", "join.status.disapproved.2"),
-  JOINED("Joined", "join.status.joined", "join.status.joined.2"),
-  ATTENDED("Attended", "join.status.attended.stream", "join.status.attended.2"),
-  ATTENDING_STREAM("Attending", "join.status.attending.stream", "join.status.attending.stream.2"),
-  NOT_ATTENDING_STREAM("Not Attending", "join.status.not.attending.stream", "join.status.not.attending.stream.2"),
-  JOINED_STREAM("Going", "join.status.joined.stream", "join.status.joined.stream.2"),
-  JOINED_CHAT_SPACE("Joined", "join.status.joined.chat.space", "join.status.joined.chat.space.2"),
-  NOT_JOINED("Join", "join.status.not.joined", "join.status.not.joined.2"),
-  NOT_JOINED_PUBLIC("Join", "join.status.not.joined.public", "join.status.not.joined.public.2"),
-  NOT_JOINED_PRIVATE("Request to Join", "join.status.not.joined.private", "join.status.not.joined.private.2"),
-  LEFT_CHAT_SPACE("Left Chat Space", "left.chat.space", "left.chat.space.2"),
-  REMOVED_CHAT_SPACE("Left Chat Space", "removed.from.chat.space", "removed.from.chat.space.2"),
-  PENDING("Pending", "join.status.pending", "join.status.pending.2");
+  DISAPPROVED(
+    "Disapproved",
+    "join.status.disapproved",
+    "join.status.disapproved.2"),
+
+  JOINED(
+    "Joined",
+    "join.status.joined",
+    "join.status.joined.2"),
+
+  ATTENDED(
+    "Attended",
+    "join.status.attended.stream",
+    "join.status.attended.2",
+    "join.status.attended.3"),
+
+  ATTENDING_STREAM(
+    "Attending",
+    "join.status.attending.stream",
+    "join.status.attending.stream.2",
+    "join.status.attending.stream.3"),
+
+  NOT_ATTENDING_STREAM(
+    "Not Attending",
+    "join.status.not.attending.stream",
+    "join.status.not.attending.stream.2",
+    "join.status.not.attending.stream.3"),
+
+  JOINED_STREAM(
+    "Going",
+    "join.status.joined.stream",
+    "join.status.joined.stream.2",
+    "join.status.joined.stream.3"),
+
+  JOINED_CHAT_SPACE(
+    "Joined",
+    "join.status.joined.chat.space",
+    "join.status.joined.chat.space.2"),
+
+  NOT_JOINED(
+    "Join",
+    "join.status.not.joined",
+    "join.status.not.joined.2"),
+
+  NOT_JOINED_PUBLIC(
+    "Join",
+    "join.status.not.joined.public",
+    "join.status.not.joined.public.2"),
+
+  NOT_JOINED_PRIVATE(
+    "Request to Join",
+    "join.status.not.joined.private",
+    "join.status.not.joined.private.2"),
+
+  LEFT_CHAT_SPACE(
+    "Left Chat Space",
+    "left.chat.space",
+    "left.chat.space.2"),
+
+  REMOVED_CHAT_SPACE(
+    "Left Chat Space",
+    "removed.from.chat.space",
+    "removed.from.chat.space.2"),
+
+  PENDING(
+    "Pending",
+    "join.status.pending",
+    "join.status.pending.2");
+
 
   private final String value;
   private final String messageCode;
   private final String messageCode2;
+  private final String messageCode3;
 
   JoinStatus(
       final String value,
@@ -44,6 +101,18 @@ public enum JoinStatus implements ApiParameter {
     this.value = value;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
+    this.messageCode3 = "empty";
+  }
+
+  JoinStatus(
+      final String value,
+      final String messageCode,
+      final String messageCode2,
+      final String messageCode3) {
+    this.value = value;
+    this.messageCode = messageCode;
+    this.messageCode2 = messageCode2;
+    this.messageCode3 = messageCode3;
   }
 
   /**
