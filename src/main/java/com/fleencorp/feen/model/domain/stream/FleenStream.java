@@ -131,6 +131,9 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "total_attendees", nullable = false)
   private Long totalAttendees = 0L;
 
+  @Column(name = "total_speakers", nullable = false)
+  private Long totalSpeakers = 0L;
+
   public boolean isForKids() {
     return nonNull(forKids);
   }
