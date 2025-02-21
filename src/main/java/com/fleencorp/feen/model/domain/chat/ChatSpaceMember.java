@@ -58,13 +58,13 @@ public class ChatSpaceMember extends FleenFeenEntity {
   private ChatSpaceRequestToJoinStatus requestToJoinStatus;
 
   @Column(name = "has_left", nullable = false)
-  private Boolean left;
+  private Boolean left = false;
 
   @Column(name = "is_removed", nullable = false)
-  private Boolean removed;
+  private Boolean removed = false;
 
   @Column(name = "is_admin", nullable = false)
-  private Boolean admin;
+  private Boolean admin = false;
 
   @Column(name = "member_comment", length = 1000)
   private String memberComment;
