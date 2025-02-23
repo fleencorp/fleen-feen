@@ -3,7 +3,6 @@ package com.fleencorp.feen.service.stream.common;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -26,9 +25,9 @@ public interface StreamService {
     throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
     CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
 
-  FleenStream increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(FleenStream stream);
-
   DataForRescheduleStreamResponse getDataForRescheduleStream();
+
+  void increaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
 
   void decreaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
 
@@ -42,5 +41,4 @@ public interface StreamService {
 
   void setOtherScheduleBasedOnUserTimezone(Collection<FleenStreamResponse> responses, FleenUser user);
 
-  void updateAttendeeRequestStatus(StreamAttendee streamAttendee, ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinDto);
 }

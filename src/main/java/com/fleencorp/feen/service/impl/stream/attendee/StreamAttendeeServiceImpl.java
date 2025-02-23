@@ -116,7 +116,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Set default number of attendees to retrieve during the search
     searchRequest.setDefaultPageSize();
     // Retrieve paginated list of attendees associated with the given event or stream
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByStream(FleenStream.of(streamId), searchRequest.getPage());
+    final Page<StreamAttendee> page = streamAttendeeRepository.findAttendeesGoingToStream(FleenStream.of(streamId), searchRequest.getPage());
     // Retrieve the fleen stream
     final FleenStream stream = streamService.findStream(streamId);
     // Convert the list of attendees to response objects

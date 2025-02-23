@@ -172,7 +172,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     );
 
     // Increase attendees count, save the event and and add the event in Google Calendar
-    stream = streamService.increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(stream);
+    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create an event
@@ -268,7 +268,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       user.getPhoneNumber());
 
     // Increase attendees count, save the event and and add the event in Google Calendar
-    stream = streamService.increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(stream);
+    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Save stream and create event in Google Calendar Event Service externally
