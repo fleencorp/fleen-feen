@@ -28,12 +28,10 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query("UPDATE StreamAttendee SET requestToJoinStatus = :status WHERE member.memberId IN (:userIds)")
   void approveAllAttendeeRequestInvitation(@Param("status") StreamAttendeeRequestToJoinStatus status, List<Long> userIds);
 
-  @Query("SELECT DISTINCT sa FROM StreamAttendee sa WHERE sa.stream = :stream")
-  Page<StreamAttendee> findByStream(@Param("stream") FleenStream stream, Pageable pageable);
-
   @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.stream.streamType = :streamType")
   Page<StreamAttendee> findByStreamAndStreamType(FleenStream stream, StreamType streamType, Pageable pageable);
 
+  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.requestToJoinStatus = :requestToJoinStatus")
   Page<StreamAttendee> findByStreamAndRequestToJoinStatus(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
 
   Page<StreamAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
@@ -55,4 +53,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   @Query("SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.attending = true")
   Set<StreamAttendee> findAttendeesGoingToStream(@Param("stream") FleenStream stream);
+
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.attending = true")
+  Page<StreamAttendee> findAttendeesGoingToStream(@Param("stream") FleenStream stream, Pageable pageable);
 }

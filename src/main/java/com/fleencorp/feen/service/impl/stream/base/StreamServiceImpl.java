@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
-import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
@@ -8,7 +7,6 @@ import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -459,38 +457,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Updates the request status of an attendee for a stream.
-   *
-   * <p>This method retrieves the requested status for the attendee to join the stream from the
-   * provided DTO. It then updates the attendee's status and sets any organizer's comments
-   * regarding the request.</p>
-   *
-   * @param streamAttendee the StreamAttendee object representing the attendee whose status is being updated.
-   * @param processAttendeeRequestToJoinDto the {@link ProcessAttendeeRequestToJoinStreamDto} containing the new status and any comments from the organizer.
-   */
-  @Override
-  public void updateAttendeeRequestStatus(final StreamAttendee streamAttendee, final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinDto) {
-    // Retrieve the requested status for the attendee to join the stream
-    final StreamAttendeeRequestToJoinStatus requestToJoinStatus = processAttendeeRequestToJoinDto.getJoinStatus();
-    // Update the attendee's request status and set any organizer comments
-    streamAttendee.updateRequestStatusAndSetOrganizerComment(requestToJoinStatus, processAttendeeRequestToJoinDto.getComment());
-  }
-
-  /**
-   * Increases the total number of attendees or guests for a given stream and saves the updated stream.
-   *
-   * @param stream The stream where the number of attendees or guests is to be increased.
-   */
-  @Override
-  @Transactional
-  public FleenStream increaseTotalAttendeesOrGuestsAndSaveBecauseOfOrganizer(final FleenStream stream) {
-    // Increase total attendees or guests in the stream
-    stream.increaseTotalAttendees();
-    // Save the updated stream to the repository
-    return streamRepository.save(stream);
-  }
-
-  /**
    * Retrieves the necessary data for rescheduling a stream, including the available time zones.
    *
    * <p>This method fetches the available time zones from the system and returns a response object
@@ -504,6 +470,20 @@ public class StreamServiceImpl implements StreamService {
     final Set<String> timezones = getAvailableTimezones();
     // Return the response containing the details to reschedule stream
     return DataForRescheduleStreamResponse.of(timezones);
+  }
+
+  /**
+   * Increase the total number of attendees or guests for a given stream and saves the updated stream.
+   *
+   * @param stream The stream where the number of attendees or guests is to be increased.
+   */
+  @Override
+  @Transactional
+  public void increaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
+    // Increase total attendees or guests in the stream
+    stream.increaseTotalAttendees();
+    // Save the updated stream to the repository
+    streamRepository.save(stream);
   }
 
   /**

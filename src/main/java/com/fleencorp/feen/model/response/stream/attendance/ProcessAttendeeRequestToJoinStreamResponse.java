@@ -24,6 +24,7 @@ import static java.util.Objects.nonNull;
   "stream_id",
   "request_to_join_status_info",
   "stream_type_info",
+  "total_attending",
   "stream"
 })
 public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
@@ -36,6 +37,9 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
+
+  @JsonProperty("total_attending")
+  private Long totalAttending;
 
   @JsonProperty("stream")
   private FleenStreamResponse stream;
@@ -52,7 +56,7 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
       : "process.attendee.request.to.join.live.broadcast";
   }
 
-  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final StreamTypeInfo streamTypeInfo, final FleenStreamResponse stream) {
-    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, null, streamTypeInfo, stream);
+  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final StreamTypeInfo streamTypeInfo, final Long totalAttending, final FleenStreamResponse stream) {
+    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, null, streamTypeInfo, totalAttending, stream);
   }
 }
