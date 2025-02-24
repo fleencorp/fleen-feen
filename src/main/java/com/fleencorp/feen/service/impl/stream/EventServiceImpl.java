@@ -337,7 +337,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(updateStreamDto.getStreamType());
 
     // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
@@ -433,7 +433,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(deleteStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(deleteStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Validate if the user is the creator of the event
@@ -525,7 +525,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(cancelStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(cancelStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
 
@@ -612,7 +612,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(rescheduleStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), streamType);
     // Verify stream details like the owner, event date and active status of the event
@@ -694,7 +694,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamVisibilityDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(updateStreamVisibilityDto.getStreamType());
     // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event

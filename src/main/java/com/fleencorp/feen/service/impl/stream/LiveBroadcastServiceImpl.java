@@ -226,7 +226,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamDto.getStreamType());;
+    stream.verifyIfStreamTypeNotEqual(updateStreamDto.getStreamType());;
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Check if the OAuth2 authorization exists for the user
@@ -301,7 +301,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Retrieve the FleenStream entity from the repository based on the stream ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(rescheduleStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
     // Validate if the user is the creator of the live broadcast
     validateCreatorOfStream(stream, user);
     // Retrieve the Oauth2 Authorization associated with the user
@@ -387,7 +387,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(deleteStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(deleteStreamDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Validate if the user is the creator of the live broadcast
@@ -442,7 +442,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(broadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(cancelStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(cancelStreamDto.getStreamType());
     // Verify stream details like the owner, stream date and active status of the stream
     verifyStreamDetails(stream, user);
     // Verify if the stream is still ongoing
@@ -502,7 +502,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(liveBroadcastId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(updateStreamVisibilityDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(updateStreamVisibilityDto.getStreamType());
     // Retrieve the Oauth2 Authorization associated with the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user);
     // Verify stream details like the owner, stream date and active status of the stream

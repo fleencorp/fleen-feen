@@ -31,8 +31,8 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.stream.streamType = :streamType")
   Page<StreamAttendee> findByStreamAndStreamType(FleenStream stream, StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.requestToJoinStatus = :requestToJoinStatus")
-  Page<StreamAttendee> findByStreamAndRequestToJoinStatus(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.requestToJoinStatus IN (:requestToJoinStatuses)")
+  Page<StreamAttendee> findByStreamAndRequestToJoinStatus(FleenStream stream, @Param("requestToJoinStatuses") Set<StreamAttendeeRequestToJoinStatus> requestToJoinStatuses, Pageable pageable);
 
   Page<StreamAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 

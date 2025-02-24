@@ -127,10 +127,6 @@ public class StreamAttendee extends FleenFeenEntity {
     return StreamAttendeeRequestToJoinStatus.isPending(requestToJoinStatus);
   }
 
-  public boolean isRequestToJoinNotPending() {
-    return !(isRequestToJoinPending());
-  }
-
   /**
    * Checks if the status of the stream attendee request is DISAPPROVED.
    *
@@ -138,6 +134,10 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public boolean isRequestToJoinDisapproved() {
     return StreamAttendeeRequestToJoinStatus.isDisapproved(requestToJoinStatus);
+  }
+
+  public boolean isRequestToJoinNotDisapprovedOrPending() {
+    return !(isRequestToJoinPending() && isRequestToJoinDisapproved());
   }
 
   /**

@@ -41,8 +41,7 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.*;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
 import static java.util.Objects.nonNull;
 
@@ -403,7 +402,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     validateCreatorOfStream(stream, user);
 
     // Find pending attendees requesting to join a stream
-    final Page<StreamAttendee> page = streamAttendeeRepository.findByStreamAndRequestToJoinStatus(stream, PENDING, searchRequest.getPage());
+    final Page<StreamAttendee> page = streamAttendeeRepository.findByStreamAndRequestToJoinStatus(stream, Set.of(DISAPPROVED, PENDING), searchRequest.getPage());
     // Convert the stream attendee to their equivalent responses
     final List<StreamAttendeeResponse> views = toStreamAttendeeResponsesWithStatus(page.getContent(), stream);
     // Return a search result view with the attendee responses and pagination details

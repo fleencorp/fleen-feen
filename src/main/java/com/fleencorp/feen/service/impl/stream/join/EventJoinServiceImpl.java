@@ -170,7 +170,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(notAttendingStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(notAttendingStreamDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry(), notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the event
@@ -256,7 +256,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(joinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(joinStreamDto.getStreamType());
     // Extract the attendance info
     final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
     // Get stream type info
@@ -291,7 +291,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(requestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Check and handle chat space membership and invitation
@@ -352,7 +352,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Retrieve the event (FleenStream) using the event ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(processAttendeeRequestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(processAttendeeRequestToJoinStreamDto.getStreamType());
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
 
@@ -384,7 +384,7 @@ public class EventJoinServiceImpl implements EventJoinService {
   protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto,
       final FleenUser user) {
     // Check if the attendee's request is still pending
-    if (attendee.isRequestToJoinNotPending()) {
+    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
       return;
     }
 
@@ -452,7 +452,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(addNewAttendeeDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(addNewAttendeeDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
 
