@@ -232,7 +232,7 @@ public class CommonMapperImpl implements CommonMapper {
         // Retrieve the stream type info
         final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
         // Create a response object with the stream ID and stream details
-        final ProcessAttendeeRequestToJoinStreamResponse response = ProcessAttendeeRequestToJoinStreamResponse.of(stream.getNumberId(), streamTypeInfo, stream);
+        final ProcessAttendeeRequestToJoinStreamResponse response = ProcessAttendeeRequestToJoinStreamResponse.of(stream.getNumberId(), streamTypeInfo, stream.getTotalAttending(), stream);
         // Set the request-to-join status information with localized messages
         response.setRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode())));
         // Return the response
