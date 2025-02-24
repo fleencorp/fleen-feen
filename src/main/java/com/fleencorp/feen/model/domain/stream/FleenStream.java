@@ -405,7 +405,7 @@ public class FleenStream extends FleenFeenEntity {
    * @throws FailedOperationException if the {@code streamType} is null or not equal
    *                                  to the {@code originalStreamType}
    */
-  public void verifyIfStreamTypeNotEqualAndFail(final StreamType streamType) {
+  public void verifyIfStreamTypeNotEqual(final StreamType streamType) {
     if (isNull(this.streamType) || this.streamType != streamType) {
       throw new FailedOperationException();
     }

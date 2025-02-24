@@ -217,7 +217,7 @@ public class StreamServiceImpl implements StreamService {
     // Extract the stream
     final FleenStream stream = tryToJoinResponse.stream();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqualAndFail(requestToJoinStreamDto.getStreamType());
+    stream.verifyIfStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
     // Extract the attendee
     final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
     // Extract the attendance info
