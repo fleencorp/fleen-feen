@@ -66,4 +66,14 @@ public class ProcessAttendeeRequestToJoinStreamDto {
   public boolean isApproved() {
     return StreamAttendeeRequestToJoinStatus.isApproved(getJoinStatus());
   }
+
+  /**
+   * Checks if the attendee's request to join status is disapproved.
+   *
+   * @return {@code true} if the attendee's join status is {@link StreamAttendeeRequestToJoinStatus#DISAPPROVED},
+   *         otherwise {@code false}.
+   */
+  public boolean isDisapproved() {
+    return StreamAttendeeRequestToJoinStatus.isDisapproved(getJoinStatus());
+  }
 }

@@ -14,9 +14,9 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum StreamAttendeeRequestToJoinStatus implements ApiParameter {
 
-  APPROVED("APPROVED", "stream.attendee.request.to.join.status.approved"),
-  DISAPPROVED("DISAPPROVED", "stream.attendee.request.to.join.status.disapproved"),
-  PENDING("PENDING", "stream.attendee.request.to.join.status.pending");
+  APPROVED("Approved", "stream.attendee.request.to.join.status.approved"),
+  DISAPPROVED("Disapproved", "stream.attendee.request.to.join.status.disapproved"),
+  PENDING("Pending", "stream.attendee.request.to.join.status.pending");
 
   private final String value;
   private final String messageCode;

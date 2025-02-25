@@ -84,24 +84,6 @@ public class StreamAttendee extends FleenFeenEntity {
     return nonNull(member) ? member.getProfilePhotoUrl() : null;
   }
 
-  public String getJoinStatus() {
-    return nonNull(requestToJoinStatus) ? requestToJoinStatus.getValue() : null;
-  }
-
-  /**
-   * Updates the request status for joining a event or stream and sets the organizer's comment.
-   * This method updates the status of the user's request to join by setting it to the provided
-   * {@link StreamAttendeeRequestToJoinStatus}. It also sets the organizer's comment to the provided string.
-   *
-   * @param requestToJoinStatus The new status of the user's request to join, represented by
-   *                            {@link StreamAttendeeRequestToJoinStatus}.
-   * @param organizerComment The comment provided by the organizer regarding the user's request.
-   */
-  public void updateRequestStatusAndSetOrganizerComment(final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final String organizerComment) {
-    this.requestToJoinStatus = requestToJoinStatus;
-    this.organizerComment = organizerComment;
-  }
-
   /**
    * Approves the user's attendance for a event or stream.
    * This method sets the user's request to join status to {@link StreamAttendeeRequestToJoinStatus#APPROVED}
@@ -110,6 +92,16 @@ public class StreamAttendee extends FleenFeenEntity {
   public void approveUserAttendance() {
     requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
     attending = true;
+  }
+
+  /**
+   * Disapprove the user's attendance for a event or stream.
+   * This method sets the user's request to join status to {@link StreamAttendeeRequestToJoinStatus#DISAPPROVED}
+   * and marks the user as not attending by setting {@code attending} to {@code false}.
+   */
+  public void disapproveUserAttendance() {
+    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.DISAPPROVED;
+    attending = false;
   }
 
   /**

@@ -14,7 +14,6 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
-import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
 import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
@@ -32,7 +31,6 @@ public class UserStreamController {
   private final EventJoinService eventJoinService;
   private final LiveBroadcastService liveBroadcastService;
   private final LiveBroadcastJoinService liveBroadcastJoinService;
-  private final StreamAttendeeService streamAttendeeService;
   private final StreamSearchService streamSearchService;
 
   public UserStreamController(
@@ -40,13 +38,11 @@ public class UserStreamController {
       final EventJoinService eventJoinService,
       final LiveBroadcastService liveBroadcastService,
       final LiveBroadcastJoinService liveBroadcastJoinService,
-      final StreamAttendeeService streamAttendeeService,
       final StreamSearchService streamSearchService) {
     this.eventService = eventService;
     this.eventJoinService = eventJoinService;
     this.liveBroadcastService = liveBroadcastService;
     this.liveBroadcastJoinService = liveBroadcastJoinService;
-    this.streamAttendeeService = streamAttendeeService;
     this.streamSearchService = streamSearchService;
   }
 
