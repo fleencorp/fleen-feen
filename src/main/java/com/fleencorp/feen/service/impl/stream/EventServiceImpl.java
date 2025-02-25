@@ -164,7 +164,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final EventAttendeeOrGuest attendeeOrGuest = EventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
-    FleenStream stream = createEventDto.toFleenStream(user.toMember());
+    final FleenStream stream = createEventDto.toFleenStream(user.toMember());
     stream.update(
       organizerAliasOrDisplayName,
       user.getEmailAddress(),

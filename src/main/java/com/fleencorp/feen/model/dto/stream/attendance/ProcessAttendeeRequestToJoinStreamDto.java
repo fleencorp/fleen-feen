@@ -22,7 +22,7 @@ public class ProcessAttendeeRequestToJoinStreamDto {
 
   @NotNull(message = "{stream.attendeeId.NotNull}")
   @IsNumber
-  @JsonProperty("attendeeIs")
+  @JsonProperty("attendee_id")
   private String attendeeId;
 
   @NotNull(message = "{stream.joinStatus.NotNull}")
