@@ -539,7 +539,7 @@ CREATE TABLE notification (
   recipient_id BIGINT,
   recipient_name VARCHAR(1000),
   message_key VARCHAR(1000) NOT NULL,
-  other_comment VARCHAR(1000) NOT NULL,
+  other_comment VARCHAR(1000) NULL,
   is_read BOOLEAN NOT NULL,
   id_or_link_or_url VARCHAR(1000) NOT NULL,
   notification_read_on TIMESTAMP NULL,

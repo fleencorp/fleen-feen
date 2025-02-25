@@ -474,14 +474,14 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Processes an attendee's request to join a stream (event) and updates the request status accordingly.
+   * Processes an attendee's request to join a stream and updates the request status accordingly.
    *
    * <p>This method checks whether the attendee's request is still pending. If so, it updates the request status
    * and sets any comments provided by the organizer. If the request is approved, the necessary calendar invitation
    * is handled. Additionally, a notification is created and saved to notify the attendee of the approval or
    * disapproval of their request.</p>
    *
-   * @param stream the event (stream) the attendee is requesting to join
+   * @param stream the stream the attendee is requesting to join
    * @param attendee the attendee whose request is being processed
    * @param processRequestToJoinDto contains details of the attendee's join request, including the requested status and comments
    */
@@ -508,7 +508,7 @@ public class StreamServiceImpl implements StreamService {
     streamAttendeeRepository.save(attendee);
 
     // Create and save notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, stream.getMember());
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, attendee.getMember());
     notificationService.save(notification);
   }
 
@@ -822,7 +822,7 @@ public class StreamServiceImpl implements StreamService {
    * <p>This method checks if the user has previously requested to join the stream and whether that request is pending
    * or already approved. If the user has a pending request or is already approved and attending, an exception will be thrown.</p>
    *
-   * @param stream the {@link FleenStream} representing the event the user wants to join
+   * @param stream the {@link FleenStream} representing the stream the user wants to join
    * @param userId the unique identifier of the user
    * @throws AlreadyRequestedToJoinStreamException if the user has already requested to join the stream
    * @throws AlreadyApprovedRequestToJoinException if the user's request to join the stream has been approved and they are attending
