@@ -418,6 +418,8 @@ public class EventJoinServiceImpl implements EventJoinService {
       final Calendar calendar = miscService.findCalendar(user.getCountry());
       // Increase the total number of attendees to stream
       streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+      // Approve attendee request to join the stream
+      attendee.approveUserAttendance();
       // Save the attendee details in the repository
       streamAttendeeRepository.save(attendee);
       // Add the attendee to the event associated with the stream

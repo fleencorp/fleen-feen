@@ -16,12 +16,12 @@ import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
+import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
@@ -56,7 +56,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
   private final StreamService streamService;
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
-  private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
@@ -72,7 +71,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * @param streamService the service for handling stream operations
    * @param notificationMessageService the service for creating notification messages
    * @param notificationService the service for saving notifications
-   * @param streamRepository    the repository for accessing stream data
    * @param streamAttendeeRepository the repository for stream attendee records
    * @param localizer the service for generating localized responses
    * @param commonMapper the mapper for common data transformations
@@ -83,7 +81,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
       final StreamService streamService,
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
-      final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final CommonMapper commonMapper,
@@ -91,7 +88,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     this.attendeeService = attendeeService;
     this.streamService = streamService;
     this.notificationMessageService = notificationMessageService;
-    this.streamRepository = streamRepository;
     this.notificationService = notificationService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.commonMapper = commonMapper;
@@ -240,8 +236,10 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // If the attendee exists and is found, process their request to join request
     existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
+    // Convert the stream to response
+    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get a processed attendee request to join stream response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamMapper.toStreamResponse(stream), existingAttendee);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, existingAttendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
   }

@@ -18,7 +18,7 @@ import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -231,12 +231,15 @@ public class CommonMapperImpl implements CommonMapper {
         final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();
         // Retrieve the stream type info
         final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-        // Create a response object with the stream ID and stream details
-        final ProcessAttendeeRequestToJoinStreamResponse response = ProcessAttendeeRequestToJoinStreamResponse.of(stream.getNumberId(), streamTypeInfo, stream.getTotalAttending(), stream);
-        // Set the request-to-join status information with localized messages
-        response.setRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode())));
-        // Return the response
-        return response;
+        // Get the attendance information for the stream attendee
+        final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending());
+        // Create and return a response object with the processed to join details
+        return ProcessAttendeeRequestToJoinStreamResponse.of(
+          stream.getNumberId(),
+          attendanceInfo,
+          streamTypeInfo,
+          stream.getTotalAttending()
+        );
       })
       // Return null if no existing attendee is found
       .orElse(null);

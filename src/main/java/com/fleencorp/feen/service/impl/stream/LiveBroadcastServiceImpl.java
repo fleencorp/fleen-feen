@@ -157,7 +157,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Create a request object to create the live broadcast on YouTube
     final String organizerAliasOrDisplayName = createLiveBroadcastDto.getOrganizerAlias(user.getFullName());
     // Create a new FleenStream entity based on the DTO and set YouTube response details
-    FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
+    final FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
     // Update the stream details
     stream.update(
       organizerAliasOrDisplayName,

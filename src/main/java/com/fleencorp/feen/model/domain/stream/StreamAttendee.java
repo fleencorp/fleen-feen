@@ -112,6 +112,16 @@ public class StreamAttendee extends FleenFeenEntity {
     attending = true;
   }
 
+  /**
+   * Approves the attendee's request to join by the organizer.
+   *
+   * <p></p>This method sets the attendee's request-to-join status to {@code APPROVED}
+   * when the organizer manually decides to add the attendee. The organizer
+   * can provide a comment, which will be stored as part of the action.</p>
+   *
+   * @param organizerComment the comment provided by the organizer regarding
+   *                         the approval of the attendee's request to join.
+   */
   public void approvedByOrganizer(final String organizerComment) {
     requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
     this.organizerComment = organizerComment;
@@ -183,12 +193,14 @@ public class StreamAttendee extends FleenFeenEntity {
     final StreamAttendee attendee = new StreamAttendee();
     attendee.setMember(member);
     attendee.setStream(stream);
+
     return attendee;
   }
 
   public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
     final StreamAttendee streamAttendee = of(member, stream);
     streamAttendee.setAttendeeComment(comment);
+
     return streamAttendee;
   }
 

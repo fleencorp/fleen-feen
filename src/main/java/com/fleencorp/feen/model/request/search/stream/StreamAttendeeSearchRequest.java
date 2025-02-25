@@ -4,12 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.validator.ValidBoolean;
 import com.fleencorp.feen.constant.stream.StreamSource;
 import com.fleencorp.feen.constant.stream.StreamType;
+import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Set;
+
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.DISAPPROVED;
+import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -23,8 +31,23 @@ public class StreamAttendeeSearchRequest extends SearchRequest {
   @ToUpperCase
   protected String streamType;
 
+  @JsonProperty("disapproved")
+  @ValidBoolean
+  protected String disapproved;
+
   public StreamType getStreamType() {
     return StreamType.of(streamType);
+  }
+
+  public boolean isDisapproved() {
+    return nonNull(disapproved) && Boolean.parseBoolean(disapproved);
+  }
+
+  public Set<StreamAttendeeRequestToJoinStatus> forPendingOrDisapprovedRequestToJoinStatus() {
+    if (isDisapproved()) {
+      return Set.of(DISAPPROVED);
+    }
+    return Set.of(PENDING);
   }
 
   @JsonIgnore

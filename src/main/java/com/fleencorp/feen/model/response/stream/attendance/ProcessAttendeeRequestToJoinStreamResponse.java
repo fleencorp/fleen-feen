@@ -6,8 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +21,7 @@ import static java.util.Objects.nonNull;
 @JsonPropertyOrder({
   "message",
   "stream_id",
-  "request_to_join_status_info",
+  "attendance_info",
   "stream_type_info",
   "total_attending",
   "stream"
@@ -32,17 +31,14 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
   @JsonProperty("stream_id")
   private Long streamId;
 
-  @JsonProperty("request_to_join_status_info")
-  private StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo;
+  @JsonProperty("attendance_info")
+  private AttendanceInfo attendanceInfo;
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
 
   @JsonProperty("total_attending")
   private Long totalAttending;
-
-  @JsonProperty("stream")
-  private FleenStreamResponse stream;
 
   @JsonIgnore
   protected StreamType getStreamType() {
@@ -56,7 +52,7 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
       : "process.attendee.request.to.join.live.broadcast";
   }
 
-  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final StreamTypeInfo streamTypeInfo, final Long totalAttending, final FleenStreamResponse stream) {
-    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, null, streamTypeInfo, totalAttending, stream);
+  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Long totalAttending) {
+    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending);
   }
 }
