@@ -1,11 +1,9 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
-import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -23,8 +21,6 @@ import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeReques
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
-import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
-import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
@@ -54,8 +50,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
 
   private final StreamAttendeeService attendeeService;
   private final StreamService streamService;
-  private final NotificationMessageService notificationMessageService;
-  private final NotificationService notificationService;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
@@ -69,8 +63,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    *
    * @param attendeeService the service for managing stream attendees
    * @param streamService the service for handling stream operations
-   * @param notificationMessageService the service for creating notification messages
-   * @param notificationService the service for saving notifications
    * @param streamAttendeeRepository the repository for stream attendee records
    * @param localizer the service for generating localized responses
    * @param commonMapper the mapper for common data transformations
@@ -79,16 +71,12 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
   public LiveBroadcastJoinServiceImpl(
       final StreamAttendeeService attendeeService,
       final StreamService streamService,
-      final NotificationMessageService notificationMessageService,
-      final NotificationService notificationService,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.attendeeService = attendeeService;
     this.streamService = streamService;
-    this.notificationMessageService = notificationMessageService;
-    this.notificationService = notificationService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
@@ -122,13 +110,9 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
 
     // Find the existing attendee record for the user and stream
     streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember())
-      .ifPresent(streamAttendee -> {
-        // If an attendee record exists, update their attendance status to false
-        streamAttendee.markAsNotAttending();
-        // Decrease the total number of attendees to stream
-        streamService.decreaseTotalAttendeesOrGuestsAndSave(stream);
-        // Save the updated attendee record
-        streamAttendeeRepository.save(streamAttendee);
+      .ifPresent(attendee -> {
+        // Process the not attending stream request
+        streamService.processNotAttendingStream(stream, attendee);
     });
 
     // Get a not attending stream response with the details
@@ -235,48 +219,13 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
     // Check if the user is already an attendee of the stream and process accordingly
     final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // If the attendee exists and is found, process their request to join request
-    existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
+    existingAttendee.ifPresent(streamAttendee -> streamService.processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
     // Convert the stream to response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get a processed attendee request to join stream response
     final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, existingAttendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
-  }
-
-  /**
-   * Processes the attendee's request to join a stream and handles approval or disapproval.
-   *
-   * <p>If the attendee's request to join the stream is still pending, the method updates the request status
-   * based on the provided details. If the request is approved, the attendee's information is saved. A notification
-   * regarding the request's approval or disapproval is created and saved as well.</p>
-   *
-   * @param stream the stream to which the attendee is requesting to join
-   * @param attendee the attendee whose request is being processed
-   * @param processRequestToJoinDto the data transfer object containing the request details, including approval status and comments
-   */
-  protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto) {
-    // Process the request if the attendee's status is pending
-    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
-      return;
-    }
-
-    // Get the requested status for joining the event
-    final StreamAttendeeRequestToJoinStatus joinStatus = processRequestToJoinDto.getJoinStatus();
-    // Update the attendee's request status and set any organizer comments
-    attendee.updateRequestStatusAndSetOrganizerComment(joinStatus, processRequestToJoinDto.getComment());
-    // If the attendee's request is approved, save the attendee
-    if (processRequestToJoinDto.isApproved()) {
-      // Decrease the total number of attendees to event
-      streamService.decreaseTotalAttendeesOrGuestsAndSave(stream);
-      // Save the attendee details in the repository
-      streamAttendeeRepository.save(attendee);
-    }
-
-    // Create the notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(attendee.getStream(), attendee, stream.getMember());
-    // Save the notification
-    notificationService.save(notification);
   }
 
 }

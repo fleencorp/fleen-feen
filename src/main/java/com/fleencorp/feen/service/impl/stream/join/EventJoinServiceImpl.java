@@ -1,14 +1,12 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
 import com.fleencorp.feen.constant.stream.StreamType;
-import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
-import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -36,8 +34,6 @@ import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
-import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
@@ -75,8 +71,6 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final AttendeeUpdateService attendeeUpdateService;
   private final EventUpdateService eventUpdateService;
   private final OtherEventUpdateService otherEventUpdateService;
-  private final NotificationMessageService notificationMessageService;
-  private final NotificationService notificationService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
@@ -99,8 +93,6 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param attendeeUpdateService      the service for handling attendee updates
    * @param eventUpdateService         the service for updating event details
    * @param otherEventUpdateService    the service for handling other types of event updates
-   * @param notificationMessageService the service for composing notification messages
-   * @param notificationService        the service for sending notifications
    * @param memberRepository           the repository for accessing member data
    * @param streamRepository           the repository for accessing stream data
    * @param streamAttendeeRepository   the repository for accessing stream attendee data
@@ -116,8 +108,6 @@ public class EventJoinServiceImpl implements EventJoinService {
       final AttendeeUpdateService attendeeUpdateService,
       final EventUpdateService eventUpdateService,
       final OtherEventUpdateService otherEventUpdateService,
-      final NotificationMessageService notificationMessageService,
-      final NotificationService notificationService,
       final FleenStreamRepository streamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
@@ -131,8 +121,6 @@ public class EventJoinServiceImpl implements EventJoinService {
     this.attendeeUpdateService = attendeeUpdateService;
     this.eventUpdateService = eventUpdateService;
     this.otherEventUpdateService = otherEventUpdateService;
-    this.notificationMessageService = notificationMessageService;
-    this.notificationService = notificationService;
     this.memberRepository = memberRepository;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
@@ -177,18 +165,15 @@ public class EventJoinServiceImpl implements EventJoinService {
     verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
 
     // Find the existing attendee record for the user and event
-    streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember())
-      .ifPresent(streamAttendee -> {
-        // If an attendee record exists, update their attendance status to false
-        streamAttendee.markAsNotAttending();
-        // Decrease the total number of attendees to stream
-        streamService.decreaseTotalAttendeesOrGuestsAndSave(stream);
-        // Save the updated attendee record
-        streamAttendeeRepository.save(streamAttendee);
-        // Create a request that remove the attendee from the Google Calendar event
-        final ExternalStreamRequest notAttendingStreamRequest = ExternalStreamRequest.ofNotAttending(calendar, stream, user.getEmailAddress(), streamType);
-        // Send the request for the update of non-attendance
-        notAttendingStreamExternally(notAttendingStreamRequest);
+    final Optional<StreamAttendee> existingAttendee = streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember());
+    // Process the not attending stream request
+    existingAttendee.ifPresent(attendee -> streamService.processNotAttendingStream(stream, attendee));
+
+    existingAttendee.ifPresent(_ -> {
+      // Create a request that remove the attendee from the Google Calendar event
+      final ExternalStreamRequest notAttendingStreamRequest = ExternalStreamRequest.ofNotAttending(calendar, stream, user.getEmailAddress(), streamType);
+      // Send the request for the update of non-attendance
+      notAttendingStreamExternally(notAttendingStreamRequest);
     });
 
     final NotAttendingStreamResponse notAttendingStreamResponse = commonMapper.notAttendingStream();
@@ -359,7 +344,9 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Check if the user is already an attendee of the stream and process accordingly
     final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
     // Process the request to join the event if the attendee exists
-    existingAttendee.ifPresent(streamAttendee -> processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto, user));
+    existingAttendee.ifPresent(attendee -> streamService.processAttendeeRequestToJoin(stream, attendee, processAttendeeRequestToJoinStreamDto));
+    // Check if the attendee request is approved and send invitation
+    existingAttendee.ifPresent(attendee -> checkProcessedJoinRequestAndSendInviteExternally(processAttendeeRequestToJoinStreamDto, stream, attendee, user));
     // Convert the stream to response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get a processed attendee request to join event response
@@ -369,59 +356,22 @@ public class EventJoinServiceImpl implements EventJoinService {
   }
 
   /**
-   * Processes an attendee's request to join a stream (event) and updates the request status accordingly.
+   * Processes the attendee's join request and sends an external invite if approved.
    *
-   * <p>This method checks whether the attendee's request is still pending. If so, it updates the request status
-   * and sets any comments provided by the organizer. If the request is approved, the necessary calendar invitation
-   * is handled. Additionally, a notification is created and saved to notify the attendee of the approval or
-   * disapproval of their request.</p>
+   * <p>This method checks if the attendee's request to join a stream has been approved. If approved,
+   * it retrieves the calendar associated with the user's country and adds the attendee to the external
+   * event corresponding to the stream.</p>
    *
-   * @param stream the event (stream) the attendee is requesting to join
-   * @param attendee the attendee whose request is being processed
-   * @param processRequestToJoinDto contains details of the attendee's join request, including the requested status and comments
-   * @param user the user processing the attendee's request to join
+   * @param processRequestToJoinDto  the data transfer object containing the details of the attendee's
+   *                                 request to join the stream.
+   * @param stream                   the stream to which the attendee has requested to join.
+   * @param attendee                 the attendee whose request is being processed.
+   * @param user                     the user associated with the attendee and their request.
    */
-  protected void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto,
-      final FleenUser user) {
-    // Check if the attendee's request is still pending
-    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
-      return;
-    }
-
-    // Get the requested status for joining the event
-    final StreamAttendeeRequestToJoinStatus joinStatus = processRequestToJoinDto.getJoinStatus();
-    // Update the attendee's request status and set any organizer comments
-    attendee.updateRequestStatusAndSetOrganizerComment(joinStatus, processRequestToJoinDto.getComment());
-    // Check if the request is approved and handle the approval
-    checkIfRequestToJoinApprovedAndHandleApproval(processRequestToJoinDto, stream, attendee, user);
-
-    // Create and save notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, stream.getMember());
-    notificationService.save(notification);
-  }
-
-  /**
-   * Checks if the request to join has been approved and handles the approval process.
-   *
-   * <p>This method verifies if the request to join a event or stream has been approved. If the request is approved,
-   * it proceeds to handle the approval by adding the attendee to the event through {@code handleApprovedRequest}.</p>
-   *
-   * @param processAttendeeRequestToJoinStreamDto the data transfer object containing the request details, including approval status and comments
-   * @param stream The event or stream that the attendee is requesting to join.
-   * @param attendee The stream attendee whose request is being evaluated.
-   * @param user The user responsible for handling the request.
-   */
-  protected void checkIfRequestToJoinApprovedAndHandleApproval(final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto, final FleenStream stream, final StreamAttendee attendee, final FleenUser user) {
-    // If the request is approved, proceed with handling the approval
-    if (processAttendeeRequestToJoinStreamDto.isApproved()) {
+  private void checkProcessedJoinRequestAndSendInviteExternally(final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenStream stream, final StreamAttendee attendee, final FleenUser user) {
+    if (processRequestToJoinDto.isApproved()) {
       // Retrieve the calendar based on the user's country
       final Calendar calendar = miscService.findCalendar(user.getCountry());
-      // Increase the total number of attendees to stream
-      streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
-      // Approve attendee request to join the stream
-      attendee.approveUserAttendance();
-      // Save the attendee details in the repository
-      streamAttendeeRepository.save(attendee);
       // Add the attendee to the event associated with the stream
       addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), attendee.getEmailAddress(), null);
     }

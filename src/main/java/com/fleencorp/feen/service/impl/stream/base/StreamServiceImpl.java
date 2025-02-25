@@ -7,6 +7,7 @@ import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -473,6 +474,69 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
+   * Processes an attendee's request to join a stream (event) and updates the request status accordingly.
+   *
+   * <p>This method checks whether the attendee's request is still pending. If so, it updates the request status
+   * and sets any comments provided by the organizer. If the request is approved, the necessary calendar invitation
+   * is handled. Additionally, a notification is created and saved to notify the attendee of the approval or
+   * disapproval of their request.</p>
+   *
+   * @param stream the event (stream) the attendee is requesting to join
+   * @param attendee the attendee whose request is being processed
+   * @param processRequestToJoinDto contains details of the attendee's join request, including the requested status and comments
+   */
+  @Transactional
+  @Override
+  public void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto) {
+    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
+      return;
+    }
+
+    if (processRequestToJoinDto.isApproved()) {
+      // Increase the total number of attendees to stream
+      increaseTotalAttendeesOrGuestsAndSave(stream);
+      // Approve attendee request to join the stream
+      attendee.approveUserAttendance();
+    } else if (processRequestToJoinDto.isDisapproved()) {
+      // Disapprove attendee request to join the stream
+      attendee.disapproveUserAttendance();
+    }
+
+    // Update the organizer comment
+    attendee.setOrganizerComment(processRequestToJoinDto.getComment());
+    // Save the attendee details in the repository
+    streamAttendeeRepository.save(attendee);
+
+    // Create and save notification
+    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, stream.getMember());
+    notificationService.save(notification);
+  }
+
+  /**
+   * Processes the attendee's decision to not attend the stream.
+   *
+   * <p>This method handles the case where an attendee who was previously marked as attending
+   * decides not to attend the stream. It decreases the total number of attendees for the stream,
+   * updates the attendee's attendance status to indicate they are no longer attending, and saves
+   * the updated attendee record.</p>
+   *
+   * @param stream   the stream for which the attendee's attendance is being processed.
+   * @param attendee the attendee who is no longer attending the stream.
+   */
+  @Transactional
+  @Override
+  public void processNotAttendingStream(final FleenStream stream, final StreamAttendee attendee) {
+    if (nonNull(attendee) && attendee.isAttending()) {
+      // Decrease the total number of attendees to stream
+      decreaseTotalAttendeesOrGuestsAndSave(stream);
+      // If an attendee record exists, update their attendance status to false
+      attendee.markAsNotAttending();
+      // Save the updated attendee record
+      streamAttendeeRepository.save(attendee);
+    }
+  }
+
+  /**
    * Increase the total number of attendees or guests for a given stream and saves the updated stream.
    *
    * @param stream The stream where the number of attendees or guests is to be increased.
@@ -775,14 +839,14 @@ public class StreamServiceImpl implements StreamService {
     existingAttendee
       .ifPresent(streamAttendee -> {
         // Retrieve the attendee request to join status
-        final String requestToJoinStatus = streamAttendee.getJoinStatus();
+        final String requestToJoinStatusLabel = streamAttendee.getRequestToJoinStatus().getValue();
 
         if (streamAttendee.isRequestToJoinPending()) {
           // If the user is found as an attendee and the request is pending, throw an exception with the attendee's request to join status
-          throw AlreadyRequestedToJoinStreamException.of(requestToJoinStatus);
+          throw AlreadyRequestedToJoinStreamException.of(requestToJoinStatusLabel);
         } else if (streamAttendee.isRequestToJoinApproved() && streamAttendee.isAttending()) {
           // If the user is found as an attendee and the request is approved, throw an exception with the attendee's request to join status
-          throw AlreadyApprovedRequestToJoinException.of(requestToJoinStatus);
+          throw AlreadyApprovedRequestToJoinException.of(requestToJoinStatusLabel);
         }
     });
   }
