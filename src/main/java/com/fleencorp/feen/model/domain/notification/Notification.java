@@ -65,7 +65,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "message_key", nullable = false, updatable = false)
   private String messageKey;
 
-  @Column(name = "other_comment", nullable = false, updatable = false)
+  @Column(name = "other_comment")
   private String otherComment;
 
   @Column(name = "id_or_link_or_url", nullable = false, updatable = false)
@@ -75,7 +75,7 @@ public class Notification extends FleenFeenEntity {
   private Boolean isRead = false;
 
   @Enumerated(STRING)
-  @Column(name = "notification_status", updatable = false, nullable = false)
+  @Column(name = "notification_status", nullable = false)
   private NotificationStatus notificationStatus;
 
   @Column(name = "notification_read_on")

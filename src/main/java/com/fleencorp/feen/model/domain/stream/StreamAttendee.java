@@ -139,7 +139,7 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   public boolean isRequestToJoinNotDisapprovedOrPending() {
-    return !(isRequestToJoinPending() && isRequestToJoinDisapproved());
+    return !(isRequestToJoinDisapproved() || isRequestToJoinPending());
   }
 
   /**
