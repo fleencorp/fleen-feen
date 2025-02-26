@@ -16,8 +16,6 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 
-import java.util.Optional;
-
 public interface CommonMapper {
 
   ShareContactRequestStatusInfo toShareContactRequestStatusInfo(ShareContactRequestStatus requestStatus);
@@ -32,7 +30,7 @@ public interface CommonMapper {
 
   void setVerificationType(SignUpResponse signUpResponse, VerificationType verificationType);
 
-  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(FleenStreamResponse stream, Optional<StreamAttendee> existingAttendee);
+  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(FleenStreamResponse stream, StreamAttendee existingAttendee);
 
   IsDeletedInfo toIsDeletedInfo(boolean deleted);
 

@@ -14,6 +14,7 @@ import com.fleencorp.feen.repository.notification.NotificationRepository;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,13 +87,18 @@ public class NotificationServiceImpl implements NotificationService {
     );
   }
 
-
   /**
-   * Saves the given notification to the repository if it is not null.
+   * Asynchronously saves a notification to the repository.
    *
-   * @param notification the {@link Notification} to be saved; if {@code null}, the operation is skipped
+   * <p>This method saves the provided {@link Notification} to the notification repository,
+   * if the notification is not null. It runs asynchronously, allowing other operations
+   * to continue without waiting for this process to complete.</p>
+   *
+   * @param notification the notification entity to be saved
+   * @throws IllegalArgumentException if the notification is null
    */
   @Override
+  @Async
   @Transactional
   public void save(final Notification notification) {
     if (nonNull(notification)) {

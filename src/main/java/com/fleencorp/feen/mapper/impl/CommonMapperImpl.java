@@ -30,7 +30,6 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
-import java.util.Optional;
 
 import static java.util.Objects.nonNull;
 
@@ -217,32 +216,31 @@ public class CommonMapperImpl implements CommonMapper {
    * If the attendee does not exist, the method returns null.
    *
    * @param stream The {@link FleenStreamResponse} containing the stream details.
-   * @param existingAttendee An {@link Optional} containing the existing {@link StreamAttendee},
-   *                         or empty if no attendee exists for this request.
+   * @param attendee the {@link StreamAttendee} of the stream
    *
    * @return A {@link ProcessAttendeeRequestToJoinStreamResponse} populated with stream details
    *         and the request to join status if the attendee exists, or null if no attendee is found.
    */
   @Override
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final FleenStreamResponse stream, final Optional<StreamAttendee> existingAttendee) {
-    return existingAttendee
-      .map(attendee -> {
-        // Get the request-to-join status of the attendee
-        final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();
-        // Retrieve the stream type info
-        final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-        // Get the attendance information for the stream attendee
-        final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending());
-        // Create and return a response object with the processed to join details
-        return ProcessAttendeeRequestToJoinStreamResponse.of(
-          stream.getNumberId(),
-          attendanceInfo,
-          streamTypeInfo,
-          stream.getTotalAttending()
-        );
-      })
-      // Return null if no existing attendee is found
-      .orElse(null);
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final FleenStreamResponse stream, final StreamAttendee attendee) {
+    if (nonNull(stream) && nonNull(attendee)) {
+      // Get the request-to-join status of the attendee
+      final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();
+      // Retrieve the stream type info
+      final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+      // Get the attendance information for the stream attendee
+      final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending());
+      // Create and return a response object with the processed to join details
+      return ProcessAttendeeRequestToJoinStreamResponse.of(
+        stream.getNumberId(),
+        attendanceInfo,
+        streamTypeInfo,
+        stream.getTotalAttending()
+      );
+    }
+
+    // Return null if no existing attendee is found
+    return null;
   }
 
   /**

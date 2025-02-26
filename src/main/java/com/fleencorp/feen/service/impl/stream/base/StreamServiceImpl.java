@@ -2,6 +2,10 @@ package com.fleencorp.feen.service.impl.stream.base;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -16,6 +20,7 @@ import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStreamResponse;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
+import com.fleencorp.feen.model.response.holder.TryToProcessRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
@@ -135,7 +140,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public TryToJoinPublicStreamResponse tryToJoinPublicStream(final Long streamId, final String comment, final FleenUser user)
     throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-      CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
+    CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Verify the stream details and attempt to join the stream
     final FleenStream stream = verifyDetailsAndTryToJoinStream(streamId, user);
     // Increase total attendees or guests in the stream
@@ -175,7 +180,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if any validation or stream state check fails
    * @throws StreamAlreadyCanceledException if the stream is cancelled
    * @throws StreamAlreadyHappenedException if the stream has already ended
-   * @throws CannotJointStreamWithoutApprovalException if the stream is private
+   * @throws CannotJoinStreamWithoutApprovalException if the stream is private
    * @throws AlreadyRequestedToJoinStreamException is the user already requested to join the stream
    * @throws AlreadyApprovedRequestToJoinException if the user's request to join is already approved
    */
@@ -344,7 +349,7 @@ public class StreamServiceImpl implements StreamService {
   @Override
   public void sendJoinRequestNotificationForPrivateStream(final FleenStream stream, final StreamAttendee streamAttendee, final FleenUser user) {
     // Create and save notification
-    final Notification notification = notificationMessageService.ofReceived(stream, streamAttendee, stream.getOrganizer(), user.toMember());
+    final Notification notification = notificationMessageService.ofReceivedStreamJoinRequest(stream, streamAttendee, stream.getOrganizer(), user.toMember());
     // Save the notification
     notificationService.save(notification);
   }
@@ -458,6 +463,70 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
+   * Attempts to process a request for an attendee to join a stream.
+   *
+   * <p>This method retrieves the stream by its ID, verifies the stream details (such as type, owner, event date,
+   * and active status), and processes the attendee's request to join the stream. It handles both approval
+   * and disapproval of requests, updating the necessary stream and attendee information accordingly.</p>
+   *
+   * <p>If the attendee is already an attendee of the stream and their request is not pending or disapproved,
+   * the method simply returns without further action. If the request is approved or disapproved, it updates
+   * the attendee's status, adjusts the stream's attendee count if approved, and creates a notification.</p>
+   *
+   * @param streamId the ID of the stream the attendee wants to join
+   * @param processRequestToJoinDto contains the details of the request to join the stream, including attendee ID,
+   *        request type (approval/disapproval), and organizer comment
+   * @param user the user requesting to process the attendee's request, typically the stream owner or authorized user
+   * @return a response object containing the result of the attempt to process the attendee's request
+   * @throws FleenStreamNotFoundException if the stream with the given ID is not found
+   * @throws StreamAttendeeNotFoundException if the attendee with the given ID is not found in the stream
+   */
+  @Transactional
+  @Override
+  public TryToProcessRequestToJoinStreamResponse attemptToProcessAttendeeRequestToJoin(final Long streamId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
+    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
+    StreamAlreadyCanceledException, FailedOperationException {
+    // Retrieve the stream using the event ID
+    final FleenStream stream = findStream(streamId);
+    // Verify if the stream's type is the same as the stream type of the request
+    stream.verifyIfStreamTypeNotEqual(processRequestToJoinDto.getStreamType());
+    // Verify stream details like the owner, event date and active status of the event
+    verifyStreamDetails(stream, user);
+
+    final Long attendeeId = processRequestToJoinDto.getAttendeeId();
+    // Check if the user is already an attendee of the stream and process accordingly
+    final StreamAttendee attendee = attendeeService.findAttendee(stream, attendeeId)
+      .orElseThrow(StreamAttendeeNotFoundException.of(attendeeId));
+
+    if (nonNull(attendee) && attendee.isRequestToJoinNotDisapprovedOrPending()) {
+      // Check if the attendee request is approved
+      if (processRequestToJoinDto.isApproved()) {
+        // Increase the total number of attendees to stream
+        increaseTotalAttendeesOrGuestsAndSave(stream);
+        // Approve attendee request to join the stream
+        attendee.approveUserAttendance();
+      } else if (processRequestToJoinDto.isDisapproved()) {
+        // Disapprove attendee request to join the stream
+        attendee.disapproveUserAttendance();
+      }
+
+      // Update the organizer comment
+      attendee.setOrganizerComment(processRequestToJoinDto.getComment());
+      // Save the attendee details in the repository
+      streamAttendeeRepository.save(attendee);
+
+      // Create and save notification
+      final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(stream, attendee, attendee.getMember());
+      notificationService.save(notification);
+
+      // Return the response
+      return TryToProcessRequestToJoinStreamResponse.of(stream, attendee);
+    }
+
+    return TryToProcessRequestToJoinStreamResponse.of();
+  }
+
+  /**
    * Retrieves the necessary data for rescheduling a stream, including the available time zones.
    *
    * <p>This method fetches the available time zones from the system and returns a response object
@@ -471,45 +540,6 @@ public class StreamServiceImpl implements StreamService {
     final Set<String> timezones = getAvailableTimezones();
     // Return the response containing the details to reschedule stream
     return DataForRescheduleStreamResponse.of(timezones);
-  }
-
-  /**
-   * Processes an attendee's request to join a stream and updates the request status accordingly.
-   *
-   * <p>This method checks whether the attendee's request is still pending. If so, it updates the request status
-   * and sets any comments provided by the organizer. If the request is approved, the necessary calendar invitation
-   * is handled. Additionally, a notification is created and saved to notify the attendee of the approval or
-   * disapproval of their request.</p>
-   *
-   * @param stream the stream the attendee is requesting to join
-   * @param attendee the attendee whose request is being processed
-   * @param processRequestToJoinDto contains details of the attendee's join request, including the requested status and comments
-   */
-  @Transactional
-  @Override
-  public void processAttendeeRequestToJoin(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto) {
-    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
-      return;
-    }
-
-    if (processRequestToJoinDto.isApproved()) {
-      // Increase the total number of attendees to stream
-      increaseTotalAttendeesOrGuestsAndSave(stream);
-      // Approve attendee request to join the stream
-      attendee.approveUserAttendance();
-    } else if (processRequestToJoinDto.isDisapproved()) {
-      // Disapprove attendee request to join the stream
-      attendee.disapproveUserAttendance();
-    }
-
-    // Update the organizer comment
-    attendee.setOrganizerComment(processRequestToJoinDto.getComment());
-    // Save the attendee details in the repository
-    streamAttendeeRepository.save(attendee);
-
-    // Create and save notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(stream, attendee, attendee.getMember());
-    notificationService.save(notification);
   }
 
   /**
@@ -772,16 +802,16 @@ public class StreamServiceImpl implements StreamService {
   /**
    * Checks if the given stream is private and throws an exception if it is.
    *
-   * <p>If the stream is private, this method throws a {@link CannotJointStreamWithoutApprovalException}
+   * <p>If the stream is private, this method throws a {@link CannotJoinStreamWithoutApprovalException}
    * with the provided stream ID. The exception indicates that joining a private stream requires approval.</p>
    *
    * @param streamId the ID of the stream associated with the stream
    * @param stream  the stream to check; if the stream is private, an exception will be thrown
-   * @throws CannotJointStreamWithoutApprovalException if the stream is private
+   * @throws CannotJoinStreamWithoutApprovalException if the stream is private
    */
   protected static void checkIfStreamIsPrivate(final Long streamId, final FleenStream stream) {
     if (nonNull(stream) && stream.isPrivate()) {
-      throw CannotJointStreamWithoutApprovalException.of(streamId);
+      throw CannotJoinStreamWithoutApprovalException.of(streamId);
     }
   }
 
