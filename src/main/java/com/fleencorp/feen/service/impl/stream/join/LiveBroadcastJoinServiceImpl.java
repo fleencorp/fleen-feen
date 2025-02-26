@@ -1,7 +1,13 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -14,6 +20,7 @@ import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
+import com.fleencorp.feen.model.response.holder.TryToProcessRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
@@ -21,7 +28,6 @@ import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeReques
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
-import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.LiveBroadcastJoinService;
 import com.fleencorp.localizer.service.Localizer;
@@ -29,10 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 /**
  * Implementation of the {@link LiveBroadcastJoinService} interface that handles the logic for managing attendees joining live broadcasts.
@@ -48,7 +51,6 @@ import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.veri
 @Service
 public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
 
-  private final StreamAttendeeService attendeeService;
   private final StreamService streamService;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
@@ -61,7 +63,6 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * <p>This constructor initializes the service with the necessary dependencies to manage live broadcast
    * stream join requests and attendee notifications.</p>
    *
-   * @param attendeeService the service for managing stream attendees
    * @param streamService the service for handling stream operations
    * @param streamAttendeeRepository the repository for stream attendee records
    * @param localizer the service for generating localized responses
@@ -69,13 +70,11 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * @param streamMapper the mapper for stream-specific data transformations
    */
   public LiveBroadcastJoinServiceImpl(
-      final StreamAttendeeService attendeeService,
       final StreamService streamService,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
-    this.attendeeService = attendeeService;
     this.streamService = streamService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.commonMapper = commonMapper;
@@ -139,7 +138,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
    * @throws FleenStreamNotFoundException if the live broadcast stream is not found
    * @throws StreamAlreadyCanceledException if the stream has already been canceled
    * @throws StreamAlreadyHappenedException if the stream has already taken place
-   * @throws CannotJointStreamWithoutApprovalException if the user cannot join the stream without approval
+   * @throws CannotJoinStreamWithoutApprovalException if the user cannot join the stream without approval
    * @throws AlreadyRequestedToJoinStreamException if the user has already requested to join the stream
    * @throws AlreadyApprovedRequestToJoinException if the user has already had their join request approved
    */
@@ -147,7 +146,7 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
   @Transactional
   public JoinStreamResponse joinLiveBroadcast(final Long liveBroadcastId, final JoinStreamDto joinStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-        CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
+    CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Verify the user details and attempt to join the live broadcast
     final TryToJoinPublicStreamResponse tryToJoinResponse = streamService.tryToJoinPublicStream(liveBroadcastId, joinStreamDto.getComment(), user);
     // Extract the stream
@@ -188,42 +187,40 @@ public class LiveBroadcastJoinServiceImpl implements LiveBroadcastJoinService {
   }
 
   /**
-   * Processes an attendee's request to join a live broadcast stream and returns the response.
+   * Processes an attendee's request to join a live broadcast.
    *
-   * <p>This method retrieves the stream using the provided stream ID, verifies the stream's details such as
-   * its owner, date, and active status, and then checks if the user is already an attendee of the stream.
-   * If the user is found as an attendee, their request to join the stream is processed and a response is returned.</p>
+   * <p>This method handles an attendee's request to join a specified live broadcast. It
+   * attempts to process the request by checking the stream and attendee details. The
+   * method converts the stream information and attendee status into a response object
+   * and returns a localized response with the processed details.</p>
    *
-   * @param liveBroadcastId the ID of the live broadcast stream to process the attendee's request
-   * @param processAttendeeRequestToJoinStreamDto the data transfer object containing the attendee's request details
-   * @param user the user who is processing the request to join the live broadcast stream
-   * @return a {@link ProcessAttendeeRequestToJoinStreamResponse} containing the details of the processed request
-   * @throws FleenStreamNotFoundException if the live broadcast stream is not found
+   * @param liveBroadcastId the ID of the live broadcast the attendee wants to join
+   * @param processAttendeeRequestToJoinStreamDto contains the details of the request to join the live broadcast,
+   *        including attendee ID, request type (approval/disapproval), and organizer comment
+   * @param user the user processing the request, typically the broadcast owner or authorized user
+   * @return a localized response containing the processed stream and attendee details
+   * @throws FleenStreamNotFoundException if the stream with the given live broadcast ID is not found
    * @throws StreamNotCreatedByUserException if the stream was not created by the user
-   * @throws StreamAlreadyHappenedException if the stream has already taken place
-   * @throws StreamAlreadyCanceledException if the stream has already been canceled
-   * @throws FailedOperationException if the operation to process the request fails
+   * @throws StreamAlreadyHappenedException if the live broadcast has already occurred
+   * @throws StreamAlreadyCanceledException if the live broadcast has been canceled
+   * @throws FailedOperationException if processing the request fails for any reason
    */
   @Override
   @Transactional
   public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinLiveBroadcast(final Long liveBroadcastId, final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto, final FleenUser user)
       throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
         StreamAlreadyCanceledException, FailedOperationException {
-    // Retrieve the stream using the provided stream ID
-    final FleenStream stream = streamService.findStream(liveBroadcastId);
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(processAttendeeRequestToJoinStreamDto.getStreamType());
-    // Verify stream details like the owner, stream date and active status of the stream
-    verifyStreamDetails(stream, user);
+    // Attempt to process the attendee join request
+    final TryToProcessRequestToJoinStreamResponse tryToProcessRequestToJoinStreamResponse = streamService.attemptToProcessAttendeeRequestToJoin(liveBroadcastId, processAttendeeRequestToJoinStreamDto, user);
+    // Retrieve the stream
+    final FleenStream stream = tryToProcessRequestToJoinStreamResponse.stream();
+    // Retrieve the attendee
+    final StreamAttendee attendee = tryToProcessRequestToJoinStreamResponse.attendee();
 
-    // Check if the user is already an attendee of the stream and process accordingly
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendee(stream, processAttendeeRequestToJoinStreamDto.getAttendeeId());
-    // If the attendee exists and is found, process their request to join request
-    existingAttendee.ifPresent(streamAttendee -> streamService.processAttendeeRequestToJoin(stream, streamAttendee, processAttendeeRequestToJoinStreamDto));
     // Convert the stream to response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get a processed attendee request to join stream response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, existingAttendee);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, attendee);
     // Return a localized response with the processed stream details
     return localizer.of(processedRequestToJoin);
   }

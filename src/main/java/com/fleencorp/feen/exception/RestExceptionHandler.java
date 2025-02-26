@@ -26,6 +26,10 @@ import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException
 import com.fleencorp.feen.exception.social.*;
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
 import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
@@ -118,7 +122,7 @@ public class RestExceptionHandler {
     CannotCancelShareContactRequestException.class,
     CannotCancelOrDeleteOngoingStreamException.class,
     CannotJoinPrivateChatSpaceException.class,
-    CannotJointStreamWithoutApprovalException.class,
+    CannotJoinStreamWithoutApprovalException.class,
     CannotProcessShareContactRequestException.class,
     ChatSpaceNotActiveException.class,
     DisabledAccountException.class,
@@ -164,7 +168,7 @@ public class RestExceptionHandler {
     Oauth2InvalidScopeException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
-  public Object handleExternalBadRequest(final ApiException e) {
+  public ErrorResponse handleExternalBadRequest(final ApiException e) {
     return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
@@ -249,6 +253,7 @@ public class RestExceptionHandler {
     MemberNotFoundException.class,
     NotificationNotFoundException.class,
     ObjectNotFoundException.class,
+    StreamAttendeeNotFoundException.class,
     ShareContactRequestNotFoundException.class,
     UserNotFoundException.class,
   })
@@ -273,7 +278,7 @@ public class RestExceptionHandler {
     UsernameNotFoundException.class
   })
   @ResponseStatus(value = UNAUTHORIZED)
-  public Object handleUnauthorized(final ApiException e) {
+  public ErrorResponse handleUnauthorized(final ApiException e) {
     return localizer.withStatus(e, FleenHttpStatus.unauthorized());
   }
 
@@ -290,7 +295,7 @@ public class RestExceptionHandler {
    */
   @ResponseStatus(BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public Object handleDataValidationError(final MethodArgumentNotValidException ex) {
+  public ErrorResponse handleDataValidationError(final MethodArgumentNotValidException ex) {
     // List to store field-specific validation errors
     final List<Map<String, Object>> fieldErrors = new ArrayList<>();
 

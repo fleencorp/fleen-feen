@@ -2,7 +2,13 @@ package com.fleencorp.feen.service.stream.join;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
+import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
@@ -22,12 +28,12 @@ public interface EventJoinService {
 
   JoinStreamResponse joinEvent(Long eventId, JoinStreamDto joinStreamDto, FleenUser user)
     throws CalendarNotFoundException, FleenStreamNotFoundException, StreamAlreadyCanceledException,
-    StreamAlreadyHappenedException, CannotJointStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
+    StreamAlreadyHappenedException, CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
     AlreadyApprovedRequestToJoinException;
 
   RequestToJoinStreamResponse requestToJoinEvent(Long eventId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
+    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamAlreadyCanceledException,
+    StreamAlreadyHappenedException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
 
   ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,

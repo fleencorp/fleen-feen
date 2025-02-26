@@ -181,8 +181,8 @@ public class NotificationMessageService {
    * @param member the member receiving the notification
    * @return a notification indicating whether the request to join the chat space was approved or disapproved
    */
-  public Notification ofApprovedOrDisapproved(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
-    final Notification notification = ofApproved(chatSpace, chatSpaceMember, member);
+  public Notification ofApprovedOrDisapprovedChatSpaceJoinRequest(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
+    final Notification notification = ofApprovedChatSpaceJoinRequest(chatSpace, chatSpaceMember, member);
     if (chatSpaceMember.isRequestToJoinDisapproved()) {
       notification.setMessageKey(requestToJoinChatSpaceDisapproved().getCode());
       notification.setNotificationType(requestToJoinChatSpaceDisapproved());
@@ -198,7 +198,7 @@ public class NotificationMessageService {
    * @param member         the member who approved the request
    * @return a Notification object representing the approved request to join the chat space
    */
-  public Notification ofApproved(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
+  public Notification ofApprovedChatSpaceJoinRequest(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
@@ -225,7 +225,7 @@ public class NotificationMessageService {
    * @param requester        the member who made the request to join the chat space
    * @return a Notification object representing the received request to join the chat space
    */
-  public Notification ofReceived(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member, final Member requester) {
+  public Notification ofReceivedChatSpaceJoinRequest(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member, final Member requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
@@ -253,8 +253,8 @@ public class NotificationMessageService {
    * @param member the member receiving the notification
    * @return a notification indicating whether the request to join was approved or disapproved
    */
-  public Notification ofApprovedOrDisapproved(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
-    final Notification notification = ofApproved(fleenStream, streamAttendee, member);
+  public Notification ofApprovedOrDisapprovedStreamJoinRequest(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
+    final Notification notification = ofApprovedStreamJoinRequest(fleenStream, streamAttendee, member);
     updateNotificationTypeAndMessageKey(fleenStream, notification, streamAttendee.isRequestToJoinApproved());
     return notification;
   }
@@ -267,7 +267,7 @@ public class NotificationMessageService {
    * @param member           the member who approved the request
    * @return a Notification object representing the approved request to join the event
    */
-  public Notification ofApproved(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
+  public Notification ofApprovedStreamJoinRequest(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
@@ -294,7 +294,7 @@ public class NotificationMessageService {
    * @param requester          the member who made the request to join the event
    * @return a Notification object representing the received request to join the event
    */
-  public Notification ofReceived(final FleenStream stream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
+  public Notification ofReceivedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
@@ -347,7 +347,7 @@ public class NotificationMessageService {
    * @return a notification indicating whether the share contact request was approved or disapproved
    */
   public Notification ofApprovedOrDisapproved(final ShareContactRequest shareContactRequest, final Member member) {
-    final Notification notification = ofApproved(shareContactRequest, member);
+    final Notification notification = ofApprovedShareContactRequest(shareContactRequest, member);
     if (shareContactRequest.isRejected()) {
       notification.setNotificationType(shareContactRequestDisapproved());
       notification.setMessageKey(shareContactRequestDisapproved().getCode());
@@ -362,7 +362,7 @@ public class NotificationMessageService {
    * @param member              the member who approved the request
    * @return a Notification object representing the approved share contact request
    */
-  public Notification ofApproved(final ShareContactRequest shareContactRequest, final Member member) {
+  public Notification ofApprovedShareContactRequest(final ShareContactRequest shareContactRequest, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
@@ -388,7 +388,7 @@ public class NotificationMessageService {
    * @param requester           the member who is requesting for a contact
    * @return a Notification object representing the received share contact request
    */
-  public Notification ofReceived(final ShareContactRequest shareContactRequest, final Member member, final Member requester) {
+  public Notification ofReceivedShareContactRequest(final ShareContactRequest shareContactRequest, final Member member, final Member requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);

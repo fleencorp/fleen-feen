@@ -349,7 +349,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
     shareContactRequestRepository.save(shareContactRequest);
 
     // Create and save notification
-    final Notification notification = notificationMessageService.ofReceived(shareContactRequest, sendShareContactRequestDto.getRecipient(), member);
+    final Notification notification = notificationMessageService.ofReceivedShareContactRequest(shareContactRequest, sendShareContactRequestDto.getRecipient(), member);
     notificationService.save(notification);
 
     // Get the request to share status info

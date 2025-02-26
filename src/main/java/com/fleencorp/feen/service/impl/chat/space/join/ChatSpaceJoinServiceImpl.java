@@ -275,7 +275,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     }
 
     // Create and save notification
-    final Notification notification = notificationMessageService.ofReceived(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
+    final Notification notification = notificationMessageService.ofReceivedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
     notificationService.save(notification);
     // Return a localized response confirming the request to join the chat space
     return localizer.of(RequestToJoinChatSpaceResponse.of());
@@ -385,7 +385,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     }
 
     // Create and save notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapproved(chatSpace, chatSpaceMember, chatSpace.getMember());
+    final Notification notification = notificationMessageService.ofApprovedOrDisapprovedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember());
     notificationService.save(notification);
     // Return the localized response indicating the result of the processing
     return localizer.of(ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, processRequestToJoinChatSpaceDto.getMemberId()));
