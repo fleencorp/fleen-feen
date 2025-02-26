@@ -518,12 +518,10 @@ public class StreamServiceImpl implements StreamService {
       // Create and save notification
       final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(stream, attendee, attendee.getMember());
       notificationService.save(notification);
-
-      // Return the response
-      return TryToProcessRequestToJoinStreamResponse.of(stream, attendee);
     }
 
-    return TryToProcessRequestToJoinStreamResponse.of();
+    // Return the response
+    return TryToProcessRequestToJoinStreamResponse.of(stream, attendee);
   }
 
   /**
