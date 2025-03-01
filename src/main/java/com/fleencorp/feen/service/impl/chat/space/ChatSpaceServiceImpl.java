@@ -351,24 +351,6 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   }
 
   /**
-   * Verifies if the specified chat space has already been marked as deleted.
-   *
-   * <p>This method checks if the provided chat space is not null and if it has been marked
-   * as deleted. If the chat space is found to be deleted, an exception is thrown to indicate
-   * that the chat space cannot be operated on.</p>
-   *
-   * @param chatSpace The chat space to verify.
-   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
-   */
-  protected void verifyIfChatSpaceAlreadyDeleted(final ChatSpace chatSpace) {
-    // Check if the chat space is not null and if it is marked as deleted
-    if (nonNull(chatSpace) && chatSpace.isDeleted()) {
-      // Throw an exception if the chat space is already deleted
-      throw new ChatSpaceAlreadyDeletedException();
-    }
-  }
-
-  /**
    * Validates that the chat space has not been deleted and that the user is either the creator or an admin of the chat space.
    *
    * <p>This method first checks if the provided {@code chatSpace} has been deleted. If the chat space is not
