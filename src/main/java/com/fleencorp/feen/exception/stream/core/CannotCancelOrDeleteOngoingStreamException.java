@@ -1,8 +1,6 @@
-package com.fleencorp.feen.exception.stream;
+package com.fleencorp.feen.exception.stream.core;
 
 import com.fleencorp.localizer.model.exception.ApiException;
-
-import java.util.function.Supplier;
 
 public class CannotCancelOrDeleteOngoingStreamException extends ApiException {
 
@@ -15,7 +13,7 @@ public class CannotCancelOrDeleteOngoingStreamException extends ApiException {
     super(params);
   }
 
-  public static Supplier<CannotCancelOrDeleteOngoingStreamException> of(final Object streamId) {
-    return () -> new CannotCancelOrDeleteOngoingStreamException(streamId);
+  public static CannotCancelOrDeleteOngoingStreamException of(final Object streamId) {
+    return new CannotCancelOrDeleteOngoingStreamException(streamId);
   }
 }
