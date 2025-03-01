@@ -335,7 +335,7 @@ public class FleenStream extends FleenFeenEntity {
    *         is not null; {@code false} otherwise.
    */
   public boolean hasChatSpaceId() {
-    return nonNull(chatSpace) && nonNull(getChatSpaceId());
+    return nonNull(getChatSpaceId());
   }
 
   /**
