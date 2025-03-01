@@ -32,11 +32,13 @@ import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
  */
 public enum ExternalStreamRequestType {
 
+  PROCESS_ATTENDEE_JOIN_REQUEST,
   CANCEL,
   CREATE_EVENT,
   CREATE_INSTANT_EVENT,
   CREATE_LIVE_BROADCAST,
   DELETE,
+  JOIN_STREAM,
   NOT_ATTENDING,
   PATCH,
   RESCHEDULE,
@@ -62,6 +64,10 @@ public enum ExternalStreamRequestType {
     return CREATE_INSTANT_EVENT;
   }
 
+  public static ExternalStreamRequestType joinStream() {
+    return JOIN_STREAM;
+  }
+
   public static ExternalStreamRequestType notAttending() {
     return NOT_ATTENDING;
   }
@@ -70,13 +76,20 @@ public enum ExternalStreamRequestType {
     return PATCH;
   }
 
+  public static ExternalStreamRequestType processAttendeeJoinRequest() {
+    return PROCESS_ATTENDEE_JOIN_REQUEST;
+  }
+
   public static ExternalStreamRequestType reschedule() {
     return RESCHEDULE;
   }
 
   public static ExternalStreamRequestType visibilityUpdate() {
-    
     return VISIBILITY_UPDATE;
+  }
+
+  public static boolean isProcessAttendeeJoinRequest(final ExternalStreamRequestType requestType) {
+    return requestType == PROCESS_ATTENDEE_JOIN_REQUEST;
   }
 
   public static boolean isCancelRequest(final ExternalStreamRequestType requestType) {
@@ -97,6 +110,10 @@ public enum ExternalStreamRequestType {
 
   public static boolean isDeleteRequest(final ExternalStreamRequestType requestType) {
     return requestType == DELETE;
+  }
+
+  public static boolean isJoinStreamRequest(final ExternalStreamRequestType requestType) {
+    return requestType == JOIN_STREAM;
   }
 
   public static boolean isNotAttendingRequest(final ExternalStreamRequestType requestType) {

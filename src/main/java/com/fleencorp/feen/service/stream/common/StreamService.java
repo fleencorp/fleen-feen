@@ -1,21 +1,12 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
-import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
-import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
-import com.fleencorp.feen.model.response.holder.TryToProcessRequestToJoinStreamResponse;
+import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
@@ -26,19 +17,9 @@ public interface StreamService {
 
   FleenStream findStream(Long streamId) throws FleenStreamNotFoundException;
 
-  RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
-
-  TryToJoinPublicStreamResponse tryToJoinPublicStream(Long eventId, String comment, FleenUser user)
-    throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
-
-  TryToProcessRequestToJoinStreamResponse attemptToProcessAttendeeRequestToJoin(Long streamId, ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
-    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
-    StreamAlreadyCanceledException, FailedOperationException;
-
   DataForRescheduleStreamResponse getDataForRescheduleStream();
+
+  void verifyStreamDetailAllDetails(FleenStream stream, FleenUser user);
 
   void processNotAttendingStream(FleenStream stream, StreamAttendee attendee);
 
@@ -46,7 +27,7 @@ public interface StreamService {
 
   void decreaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
 
-  void sendJoinRequestNotificationForPrivateStream(FleenStream stream, StreamAttendee streamAttendee, FleenUser user);
+  void validateStreamAndUserForProtectedStream(FleenStream stream, FleenUser user);
 
   void determineUserJoinStatusForStream(List<FleenStreamResponse> responses, FleenUser user);
 
@@ -56,4 +37,5 @@ public interface StreamService {
 
   void setOtherScheduleBasedOnUserTimezone(Collection<FleenStreamResponse> responses, FleenUser user);
 
+  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, FleenUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 }

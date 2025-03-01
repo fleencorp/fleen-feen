@@ -109,6 +109,9 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "group_or_organization_name", length = 1000)
   private String groupOrOrganizationName;
 
+  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  private Long memberId;
+
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -116,6 +119,9 @@ public class FleenStream extends FleenFeenEntity {
 
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
+
+  @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
+  private Long chatSpaceId;
 
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
@@ -138,16 +144,16 @@ public class FleenStream extends FleenFeenEntity {
     return nonNull(forKids);
   }
 
-  public Long getChatSpaceId() {
-    return nonNull(chatSpace) ? chatSpace.getChatSpaceId() : null;
-  }
-
   public String getExternalSpaceIdOrName() {
     return nonNull(chatSpace) ? chatSpace.getExternalIdOrName() : null;
   }
 
   public Member getOrganizer() {
     return member;
+  }
+
+  public Long getOrganizerId() {
+    return memberId;
   }
 
   /**
@@ -300,15 +306,6 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
-   * Retrieves the member ID if the member is not null.
-   *
-   * @return the member ID, or null if the member is not available.
-   */
-  public Long getMemberId() {
-    return nonNull(member) ? member.getMemberId() : null;
-  }
-
-  /**
    * Checks if the stream source is an event hosted via Google Meet.
    *
    * @return true if the stream source is Google Meet, false otherwise.
@@ -338,7 +335,7 @@ public class FleenStream extends FleenFeenEntity {
    *         is not null; {@code false} otherwise.
    */
   public boolean hasChatSpaceId() {
-    return nonNull(chatSpace) && nonNull(getChatSpaceId());
+    return nonNull(getChatSpaceId());
   }
 
   /**

@@ -138,8 +138,28 @@ public class StreamAttendee extends FleenFeenEntity {
     return StreamAttendeeRequestToJoinStatus.isDisapproved(requestToJoinStatus);
   }
 
+  /**
+   * Checks whether the request to join the stream is neither disapproved nor pending.
+   *
+   * <p>This method returns {@code true} if the request to join the stream has been approved or any status
+   * other than disapproved or pending. Otherwise, it returns {@code false}.</p>
+   *
+   * @return {@code true} if the request is not disapproved or pending, {@code false} otherwise
+   */
   public boolean isRequestToJoinNotDisapprovedOrPending() {
     return !(isRequestToJoinDisapproved() || isRequestToJoinPending());
+  }
+
+  /**
+   * Checks whether the request to join the stream is either disapproved or still pending.
+   *
+   * <p>This method returns {@code true} if the request to join the stream has been disapproved or is still awaiting
+   * approval. Otherwise, it returns {@code false}.</p>
+   *
+   * @return {@code true} if the request is disapproved or pending, {@code false} otherwise
+   */
+  public boolean isRequestToJoinDisapprovedOrPending() {
+    return isRequestToJoinDisapproved() || isRequestToJoinPending();
   }
 
   /**

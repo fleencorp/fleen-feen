@@ -1,39 +1,17 @@
 package com.fleencorp.feen.service.impl.stream.join;
 
-import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
-import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
-import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.model.request.calendar.event.NotAttendingEventRequest;
-import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
-import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStreamResponse;
-import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
-import com.fleencorp.feen.model.response.holder.TryToProcessRequestToJoinStreamResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
@@ -44,19 +22,13 @@ import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
-import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
-import com.fleencorp.feen.service.stream.update.EventUpdateService;
 import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
-import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
 import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
-import static java.util.Objects.nonNull;
 
 /**
  * Implementation of the {@link EventJoinService} interface that handles the logic for managing attendee participation in events.
@@ -76,12 +48,9 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final MiscService miscService;
   private final StreamAttendeeService attendeeService;
   private final StreamService streamService;
-  private final AttendeeUpdateService attendeeUpdateService;
-  private final EventUpdateService eventUpdateService;
   private final OtherEventUpdateService otherEventUpdateService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
-  private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
   private final MemberRepository memberRepository;
   private final Localizer localizer;
@@ -98,14 +67,11 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param miscService                the service for miscellaneous operations
    * @param attendeeService            the service for managing event attendees
    * @param streamService              the service for stream-related operations
-   * @param attendeeUpdateService      the service for handling attendee updates
-   * @param eventUpdateService         the service for updating event details
    * @param otherEventUpdateService    the service for handling other types of event updates
    * @param memberRepository           the repository for accessing member data
    * @param streamRepository           the repository for accessing stream data
    * @param streamAttendeeRepository   the repository for accessing stream attendee data
    * @param localizer                  the service for handling localization of messages
-   * @param commonMapper               the mapper for transforming common data models
    * @param streamMapper               the mapper for transforming stream-related data models
    */
   public EventJoinServiceImpl(
@@ -113,186 +79,23 @@ public class EventJoinServiceImpl implements EventJoinService {
       final MiscService miscService,
       final StreamAttendeeService attendeeService,
       final StreamService streamService,
-      final AttendeeUpdateService attendeeUpdateService,
-      final EventUpdateService eventUpdateService,
       final OtherEventUpdateService otherEventUpdateService,
       final FleenStreamRepository streamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
-      final CommonMapper commonMapper,
       final StreamMapper streamMapper) {
     this.chatSpaceMemberService = chatSpaceMemberService;
     this.miscService = miscService;
     this.attendeeService = attendeeService;
     this.streamService = streamService;
-    this.attendeeUpdateService = attendeeUpdateService;
-    this.eventUpdateService = eventUpdateService;
     this.otherEventUpdateService = otherEventUpdateService;
     this.memberRepository = memberRepository;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
-    this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
     this.localizer = localizer;
   }
-
-  /**
-   * Marks the user as not attending a specified event and updates their attendance status.
-   *
-   * <p>This method retrieves the event by its ID, checks the user's ownership or attendance status,
-   * and updates their status to "not attending" if applicable. It also decreases the total number of attendees
-   * for the event and updates the associated external services (e.g., Google Calendar) to reflect the user's
-   * non-attendance. The method returns a localized response indicating the successful update.</p>
-   *
-   * <p>It may throw exceptions if the event is not found, if no calendar is associated with the user's country,
-   * or if the operation fails for some reason.</p>
-   *
-   * @param eventId the ID of the event the user is opting out of
-   * @param notAttendingStreamDto the DTO containing stream-related details for the non-attendance action
-   * @param user the user opting out of the event
-   * @return a {@link NotAttendingStreamResponse} containing details about the updated non-attendance status
-   * @throws FleenStreamNotFoundException if the event with the given ID cannot be found
-   * @throws CalendarNotFoundException if no calendar is found for the user's country and stream type
-   * @throws FailedOperationException if the operation fails due to external service issues or other reasons
-   */
-
-  @Override
-  @Transactional
-  public NotAttendingStreamResponse notAttendingEvent(final Long eventId, final NotAttendingStreamDto notAttendingStreamDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CalendarNotFoundException, FailedOperationException {
-    // Find the stream by its ID
-    final FleenStream stream = streamService.findStream(eventId);
-    // Retrieve the stream type
-    final StreamType streamType = stream.getStreamType();
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(notAttendingStreamDto.getStreamType());
-    // Find the calendar associated with the user's country
-    final Calendar calendar = miscService.findCalendar(user.getCountry(), notAttendingStreamDto.getStreamType());
-    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the event
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
-
-    // Find the existing attendee record for the user and event
-    final Optional<StreamAttendee> existingAttendee = streamAttendeeRepository.findAttendeeByStreamAndUser(stream, user.toMember());
-    // Process the not attending stream request
-    existingAttendee.ifPresent(attendee -> streamService.processNotAttendingStream(stream, attendee));
-
-    existingAttendee.ifPresent(_ -> {
-      // Create a request that remove the attendee from the Google Calendar event
-      final ExternalStreamRequest notAttendingStreamRequest = ExternalStreamRequest.ofNotAttending(calendar, stream, user.getEmailAddress(), streamType);
-      // Send the request for the update of non-attendance
-      notAttendingStreamExternally(notAttendingStreamRequest);
-    });
-
-    final NotAttendingStreamResponse notAttendingStreamResponse = commonMapper.notAttendingStream();
-    // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-    // Set the stream type info
-    notAttendingStreamResponse.setStreamTypeInfo(streamTypeInfo);
-    // Return a localized response
-    return localizer.of(notAttendingStreamResponse);
-  }
-
-  /**
-   * Handles the external operation for marking a user as not attending an event.
-   *
-   * <p>This method checks if the stream is an event, and if so, it creates a request to remove the user
-   * from the associated external service event. It then sends the non-attendance update to the external
-   * event service to complete the operation.</p>
-   *
-   * @param notAttendingStreamRequest the request containing details for the non-attendance update
-   */
-  protected void notAttendingStreamExternally(final ExternalStreamRequest notAttendingStreamRequest) {
-    if (notAttendingStreamRequest.isAnEvent() && notAttendingStreamRequest.isNotAttendingRequest()) {
-      // Create a request that remove the attendee from the external service
-      final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(
-        notAttendingStreamRequest.calendarExternalId(),
-        notAttendingStreamRequest.streamExternalId(),
-        notAttendingStreamRequest.getAttendeeEmailAddress()
-      );
-      // Send the request for the update of non-attendance
-      eventUpdateService.notAttendingEvent(notAttendingEventRequest);
-    }
-  }
-
-  /**
-   * Attempts to join a stream event and sends an invitation to the attendee.
-   *
-   * <p>This method finds the calendar associated with the user's country, verifies the user's details,
-   * and attempts to join the specified event. If successful, it creates an invitation for the attendee
-   * and returns a localized response containing the event join status and stream type information.</p>
-   *
-   * <p>This method may throw exceptions if the stream is not found, already canceled or happened,
-   * or if the user cannot join the stream without approval.</p>
-   *
-   * @param eventId the ID of the event to join
-   * @param joinStreamDto the data transfer object containing additional join details
-   * @param user the user attempting to join the event
-   * @return a {@link JoinStreamResponse} with details of the join event operation
-   * @throws CalendarNotFoundException if no calendar is found for the user's country
-   * @throws FleenStreamNotFoundException if the stream with the given ID is not found
-   * @throws StreamAlreadyCanceledException if the stream has been canceled
-   * @throws StreamAlreadyHappenedException if the stream has already occurred
-   * @throws CannotJoinStreamWithoutApprovalException if the user requires approval to join the stream
-   * @throws AlreadyRequestedToJoinStreamException if the user has already requested to join the stream
-   * @throws AlreadyApprovedRequestToJoinException if the user is already approved to join the stream
-   */
-  @Override
-  @Transactional
-  public JoinStreamResponse joinEvent(final Long eventId, final JoinStreamDto joinStreamDto, final FleenUser user)
-      throws CalendarNotFoundException, FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
-    // Find the calendar associated with the user's country
-    final Calendar calendar = miscService.findCalendar(user.getCountry());
-    // Verify the user details and attempt to join the event
-    final TryToJoinPublicStreamResponse tryToJoinResponse = streamService.tryToJoinPublicStream(eventId, joinStreamDto.getComment(), user);
-    // Extract the stream
-    final FleenStream stream = tryToJoinResponse.stream();
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(joinStreamDto.getStreamType());
-    // Extract the attendance info
-    final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
-    // Get stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-
-    // Send invitation to new attendee
-    attendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), stream.getExternalId(), user.getEmailAddress(), joinStreamDto.getComment());
-    // Return localized response of the join event including status
-    return localizer.of(JoinStreamResponse.of(eventId, attendanceInfo, streamTypeInfo, stream.getTotalAttendees()));
-  }
-
-  /**
-   * Handles a user's request to join a private or protected event.
-   *
-   * <p>This method processes the user's request to join a specific event (stream) by verifying the user's
-   * details and attempting to join the event. It retrieves the necessary information such as the stream,
-   * the user's attendance status, and stream type information. Notifications for the join request are
-   * sent and saved, and chat space membership or invitations are handled if applicable.</p>
-   *
-   * @param eventId the ID of the event (stream) the user is requesting to join
-   * @param requestToJoinStreamDto the {@link RequestToJoinStreamDto} containing the join request details (e.g., comment)
-   * @param user the {@link FleenUser} attempting to join the event
-   * @return a {@link RequestToJoinStreamResponse} containing the localized response of the request,
-   *         including the stream ID, attendance information, and stream type details
-   */
-  @Override
-  @Transactional
-  public RequestToJoinStreamResponse requestToJoinEvent(final Long eventId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user) {
-    // Verify the user details and attempt to join the event
-    final RequestToJoinStreamResponse requestToJoinStreamResponse = streamService.requestToJoinStream(eventId, requestToJoinStreamDto, user);
-    // Verify the user details and attempt to join the event
-    final TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse = requestToJoinStreamResponse.getTryToJoinResponse();
-    // Extract the stream
-    final FleenStream stream = tryToJoinResponse.stream();
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
-    // Extract the attendee
-    final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
-    // Check and handle chat space membership and invitation
-    handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, streamAttendee, requestToJoinStreamDto.getComment(), user);
-    // Return the request to join response
-    return requestToJoinStreamResponse;
-   }
 
   /**
    * Handles the join request for a private stream based on the attendee's membership in a chat space.
@@ -306,7 +109,9 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param comment any comment provided by the attendee with their join request
    * @param user the user making the join request
    */
-  protected void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final FleenUser user) {
+  @Override
+  @Transactional
+  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final FleenUser user) {
     // Check if the attendee is a member of a chat space if there is one associated with the stream and approve their join request
     final boolean isMemberPartOfChatSpace = chatSpaceMemberService.checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(stream, streamAttendee);
 
@@ -318,73 +123,6 @@ public class EventJoinServiceImpl implements EventJoinService {
     }
     // Verify if the attendee is a member of the chat space and send invitation
     attendeeService.checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(isMemberPartOfChatSpace, stream.getExternalId(), comment, user);
-  }
-
-  /**
-   * Processes an attendee's request to join an event.
-   *
-   * <p>This method attempts to process an attendee's request to join a specified event.
-   * It retrieves the stream and the attendee associated with the request. If the attendee's
-   * request is approved, an external invitation is sent. The method then converts the
-   * stream and attendee information into a response object and returns a localized response.</p>
-   *
-   * @param eventId the ID of the event the attendee wants to join
-   * @param processRequestToJoinDto contains the details of the request to join the event,
-   *        including attendee ID, request type (approval/disapproval), and organizer comment
-   * @param user the user processing the request, typically the stream owner or authorized user
-   * @return a localized response containing the processed stream and attendee details
-   * @throws FleenStreamNotFoundException if the stream with the given event ID is not found
-   * @throws StreamNotCreatedByUserException if the stream was not created by the user
-   * @throws StreamAlreadyHappenedException if the event has already occurred
-   * @throws StreamAlreadyCanceledException if the event has already been canceled
-   * @throws FailedOperationException if processing the request fails for any reason
-   */
-  @Override
-  @Transactional
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinEvent(final Long eventId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
-    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
-      StreamAlreadyCanceledException, FailedOperationException {
-    // Attempt to process the attendee join request
-    final TryToProcessRequestToJoinStreamResponse tryToProcessRequestToJoinStreamResponse = streamService.attemptToProcessAttendeeRequestToJoin(eventId, processRequestToJoinDto, user);
-    // Retrieve the stream
-    final FleenStream stream = tryToProcessRequestToJoinStreamResponse.stream();
-    // Retrieve the attendee
-    final StreamAttendee attendee = tryToProcessRequestToJoinStreamResponse.attendee();
-
-    if (nonNull(attendee)) {
-      // Check if the attendee request is approved and send invitation
-      checkProcessedJoinRequestAndSendInviteExternally(processRequestToJoinDto, stream, attendee, user);
-    }
-
-    // Convert the stream to response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
-    // Get a processed attendee request to join event response
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, attendee);
-    // Return a localized response with the processed stream details
-    return localizer.of(processedRequestToJoin);
-  }
-
-  /**
-   * Processes the attendee's join request and sends an external invite if approved.
-   *
-   * <p>This method checks if the attendee's request to join a stream has been approved. If approved,
-   * it retrieves the calendar associated with the user's country and adds the attendee to the external
-   * event corresponding to the stream.</p>
-   *
-   * @param processRequestToJoinDto  the data transfer object containing the details of the attendee's
-   *                                 request to join the stream.
-   * @param stream                   the stream to which the attendee has requested to join.
-   * @param attendee                 the attendee whose request is being processed.
-   * @param user                     the user associated with the attendee and their request.
-   */
-  private void checkProcessedJoinRequestAndSendInviteExternally(final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenStream stream, final StreamAttendee attendee, final FleenUser user)
-      throws CalendarNotFoundException {
-    if (nonNull(stream) && nonNull(attendee) && nonNull(processRequestToJoinDto) && processRequestToJoinDto.isApproved()) {
-      // Retrieve the calendar based on the user's country
-      final Calendar calendar = miscService.findCalendar(user.getCountry());
-      // Add the attendee to the event associated with the stream
-      addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), attendee.getEmailAddress(), null);
-    }
   }
 
   /**
@@ -465,11 +203,11 @@ public class EventJoinServiceImpl implements EventJoinService {
    */
   protected void processExistingAttendee(final Calendar calendar, final FleenStream stream, final StreamAttendee streamAttendee, final AddNewStreamAttendeeDto addNewAttendeeDto) {
       // Check if the stream attendee's request is pending or disapproved
-    if (isStreamAttendeeRequestPendingOrDisapproved(streamAttendee)) {
+    if (streamAttendee.isRequestToJoinDisapprovedOrPending()) {
       // Approve the attendee request to join
       streamAttendee.approvedByOrganizer(addNewAttendeeDto.getComment());
       // Add the attendee to the event using the external service
-      addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewAttendeeDto.getEmailAddress(), addNewAttendeeDto.getAliasOrDisplayName());
+      addAttendeeToEventExternally(calendar.getExternalId(), stream.getExternalId(), addNewAttendeeDto.getEmailAddress(), addNewAttendeeDto.getAliasOrDisplayName());
       // Save the updated stream attendee information to the repository
       streamAttendeeRepository.save(streamAttendee);
     }
@@ -514,21 +252,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Approve the attendee and add them to the stream's attendees list
     approveAndAddAttendeeToStreamAttendees(stream, addNewStreamAttendeeDto);
     // Add attendee to the event using an external service
-    addAttendeeToEvent(calendar.getExternalId(), stream.getExternalId(), addNewStreamAttendeeDto.getEmailAddress(), addNewStreamAttendeeDto.getAliasOrDisplayName());
-  }
-
-  /**
-   * Checks if the request status of a given {@link StreamAttendee} is either pending or disapproved.
-   *
-   * <p>This method evaluates the request-to-join status of a {@link StreamAttendee} and returns true if the status
-   * is either {@code PENDING} or {@code DISAPPROVED}. It can be used to determine if further action is needed
-   * for the given attendee's request.</p>
-   *
-   * @param streamAttendee the {@link StreamAttendee} whose request status is to be checked.
-   * @return {@code true} if the request status is {@code PENDING} or {@code DISAPPROVED}, {@code false} otherwise.
-   */
-  protected boolean isStreamAttendeeRequestPendingOrDisapproved(final StreamAttendee streamAttendee) {
-    return streamAttendee.isRequestToJoinPending() || streamAttendee.isRequestToJoinDisapproved();
+    addAttendeeToEventExternally(calendar.getExternalId(), stream.getExternalId(), addNewStreamAttendeeDto.getEmailAddress(), addNewStreamAttendeeDto.getAliasOrDisplayName());
   }
 
   /**
@@ -543,7 +267,8 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param attendeeEmailAddress the email address of the attendee to be added
    * @param displayOrAliasName the alias to use for the attendee which is optional
    */
-  public void addAttendeeToEvent(final String calendarExternalId, final String streamExternalId, final String attendeeEmailAddress, final String displayOrAliasName) {
+  @Override
+  public void addAttendeeToEventExternally(final String calendarExternalId, final String streamExternalId, final String attendeeEmailAddress, final String displayOrAliasName) {
     // Create a request to add the user as an attendee to the calendar event
     final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.of(
       calendarExternalId,

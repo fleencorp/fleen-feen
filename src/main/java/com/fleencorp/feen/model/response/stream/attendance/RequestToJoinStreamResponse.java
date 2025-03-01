@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
-import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStreamResponse;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,9 +40,6 @@ public class RequestToJoinStreamResponse extends ApiResponse {
   private Long totalAttending;
 
   @JsonIgnore
-  private TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse;
-
-  @JsonIgnore
   protected StreamType getStreamType() {
     return nonNull(streamTypeInfo) ? streamTypeInfo.getStreamType() : null;
   }
@@ -53,7 +49,7 @@ public class RequestToJoinStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "request.to.join.event" : "request.to.join.live.broadcast";
   }
 
-  public static RequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Long totalAttending, final TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse) {
-    return new RequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending, tryToJoinResponse);
+  public static RequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Long totalAttending) {
+    return new RequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending);
   }
 }
