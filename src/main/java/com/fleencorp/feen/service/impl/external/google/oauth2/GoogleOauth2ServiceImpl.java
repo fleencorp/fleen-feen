@@ -160,9 +160,9 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @return A CompletedOauth2AuthorizationResponse containing authorization details if successful,
    *         or null if the authorization code is invalid or expired.
    */
-  @MeasureExecutionTime
-  @Transactional
   @Override
+  @Transactional
+  @MeasureExecutionTime
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest, final FleenUser user) {
     // Verify the authorization code and obtain the completed OAuth2 authorization response
     final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
@@ -594,8 +594,8 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
    *         specified user and service type.
    */
-  @Transactional
   @Override
+  @Transactional
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
@@ -621,7 +621,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * @param oauth2ServiceType the type of OAuth2 service being validated, e.g., Google, Facebook
    * @param user the authenticated user for whom the token validation and refresh are being performed
    */
-  public void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+  protected void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     // Create a new authentication request for the specified OAuth2 service type
     final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);
     // Set the refresh token in the authentication request

@@ -7,6 +7,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -47,4 +48,14 @@ public interface FleenStreamRepository extends JpaRepository<FleenStream, Long> 
 
   @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByChatSpace(ChatSpace chatSpace, Pageable pageable);
+
+  @Modifying
+  @Query("UPDATE FleenStream fs SET fs.totalAttendees = fs.totalAttendees + 1 WHERE fs.streamId = :id")
+  void incrementTotalAttendees(@Param("id") Long streamId);
+
+  @Modifying
+  @Query("UPDATE FleenStream fs SET fs.totalAttendees = fs.totalAttendees - 1 WHERE fs.streamId = :id")
+  void decrementTotalAttendees(@Param("id") Long streamId);
+
+
 }

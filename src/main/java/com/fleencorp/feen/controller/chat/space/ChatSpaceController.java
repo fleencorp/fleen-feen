@@ -1,15 +1,12 @@
 package com.fleencorp.feen.controller.chat.space;
 
-import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
-import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
@@ -17,10 +14,7 @@ import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceRespo
 import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
-import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
-import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
@@ -35,32 +29,14 @@ public class ChatSpaceController {
   private final ChatSpaceService chatSpaceService;
   private final ChatSpaceEventService chatSpaceEventService;
   private final ChatSpaceJoinService chatSpaceJoinService;
-  private final ChatSpaceSearchService chatSpaceSearchService;
 
   public ChatSpaceController(
       final ChatSpaceService chatSpaceService,
       final ChatSpaceEventService chatSpaceEventService,
-      final ChatSpaceJoinService chatSpaceJoinService,
-      final ChatSpaceSearchService chatSpaceSearchService) {
+      final ChatSpaceJoinService chatSpaceJoinService) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceEventService = chatSpaceEventService;
     this.chatSpaceJoinService = chatSpaceJoinService;
-    this.chatSpaceSearchService = chatSpaceSearchService;
-  }
-
-  @GetMapping(value = "/find-spaces")
-  public ChatSpaceSearchResult findSpaces(
-      @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceSearchService.findSpaces(chatSpaceSearchRequest, user);
-  }
-
-  @GetMapping(value = "/find-events/{chatSpaceId}")
-  public ChatSpaceEventSearchResult findChatSpaceEvents(
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-      @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceEventService.findChatSpaceEvents(chatSpaceId, chatSpaceSearchRequest, user);
   }
 
   @PostMapping(value = "/create")
@@ -76,13 +52,6 @@ public class ChatSpaceController {
       @Valid @RequestBody final CreateChatSpaceEventDto createChatSpaceEventDto,
       @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceEventService.createChatSpaceEvent(chatSpaceId, createChatSpaceEventDto, user);
-  }
-
-  @GetMapping(value = "/detail/{chatSpaceId}")
-  public RetrieveChatSpaceResponse detail(
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-      @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceSearchService.retrieveChatSpace(chatSpaceId, user);
   }
 
   @PutMapping(value = "/update/{chatSpaceId}")
