@@ -25,11 +25,11 @@ public interface StreamRequestService {
   default ExternalStreamRequest createPatchStreamRequest(final Calendar calendar, final Oauth2Authorization oauth2Authorization, final FleenStream stream, final UpdateStreamDto updateStreamDto) {
     return ExternalStreamRequest.ofPatch(
       calendar,
+      oauth2Authorization,
       stream,
       updateStreamDto.getTitle(),
       updateStreamDto.getDescription(),
       updateStreamDto.getLocation(),
-      oauth2Authorization,
       stream.getStreamType()
     );
   }
@@ -73,8 +73,8 @@ public interface StreamRequestService {
   default ExternalStreamRequest createDeleteStreamRequest(final Calendar calendar, final Oauth2Authorization oauth2Authorization, final FleenStream stream) {
     return ExternalStreamRequest.ofDelete(
       calendar,
-      stream,
       oauth2Authorization,
+      stream,
       stream.getStreamType()
     );
   }

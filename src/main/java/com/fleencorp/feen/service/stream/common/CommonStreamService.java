@@ -3,7 +3,11 @@ package com.fleencorp.feen.service.stream.common;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -16,7 +20,7 @@ public interface CommonStreamService {
 
   CancelStreamResponse cancelStream(Long streamId, CancelStreamDto cancelStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-      StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
+    StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
       FailedOperationException;
 
   RescheduleStreamResponse rescheduleStream(Long streamId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)

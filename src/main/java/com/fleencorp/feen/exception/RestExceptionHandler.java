@@ -10,7 +10,13 @@ import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.chat.space.*;
+import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
+import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
+import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.exception.common.ObjectNotFoundException;
@@ -25,11 +31,15 @@ import com.fleencorp.feen.exception.security.mfa.MfaVerificationFailed;
 import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException;
 import com.fleencorp.feen.exception.social.*;
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
@@ -121,8 +131,8 @@ public class RestExceptionHandler {
     BannedAccountException.class,
     CannotCancelShareContactRequestException.class,
     CannotCancelOrDeleteOngoingStreamException.class,
-    CannotJoinPrivateChatSpaceException.class,
-    CannotJoinStreamWithoutApprovalException.class,
+    CannotJoinPrivateChatSpaceWithoutApprovalException.class,
+    CannotJoinPrivateStreamWithoutApprovalException.class,
     CannotProcessShareContactRequestException.class,
     ChatSpaceNotActiveException.class,
     DisabledAccountException.class,

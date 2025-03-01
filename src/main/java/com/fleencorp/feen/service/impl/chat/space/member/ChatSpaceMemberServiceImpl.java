@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.impl.chat.space.member;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.chat.space.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
@@ -408,9 +408,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   protected void decreaseTotalMembersAndSave(final ChatSpace chatSpace) {
     // Decrease total members in chat space
-    chatSpace.decreaseTotalMembers();
-    // Save chat space to repository
-    chatSpaceRepository.save(chatSpace);
+    chatSpaceRepository.decrementTotalMembers(chatSpace.getChatSpaceId());
   }
 
   /**
@@ -452,7 +450,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws FailedOperationException if the member is the owner of the chat space.
    */
   protected void verifyAdminCannotAddOrUpdateSelf(final ChatSpace chatSpace, final Long memberId) {
-    if (chatSpace.isOwner(memberId)) {
+    if (chatSpace.isOrganizer(memberId)) {
       throw new FailedOperationException();
     }
   }

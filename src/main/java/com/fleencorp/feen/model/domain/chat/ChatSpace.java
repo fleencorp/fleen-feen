@@ -3,6 +3,10 @@ package com.fleencorp.feen.model.domain.chat;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
+import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
@@ -13,6 +17,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -84,6 +89,14 @@ public class ChatSpace extends FleenFeenEntity {
    */
   public Long getMemberId() {
     return nonNull(member) ? member.getMemberId() : null;
+  }
+
+  public Member getOrganizer() {
+    return member;
+  }
+
+  public Long getOrganizerId() {
+    return memberId;
   }
 
   /**
@@ -184,31 +197,17 @@ public class ChatSpace extends FleenFeenEntity {
 
 
   /**
-   * Checks if the given member ID corresponds to the owner of this chat space.
+   * Checks if the given member ID corresponds to the organizer of this chat space.
    *
    * <p>This method verifies that the provided member ID is not null and
    * compares it with the member ID associated with this chat space.</p>
    *
-   * @param memberId the ID of the member to check
-   * @return {@code true} if the provided member ID matches the owner of the chat space;
+   * @param memberUserId the ID of the member to check
+   * @return {@code true} if the provided member ID matches the organizer of the chat space;
    *         {@code false} otherwise
    */
-  public boolean isOwner(final Long memberId) {
-    return nonNull(memberId) && this.memberId.equals(memberId);
-  }
-
-  /**
-   * Increments the total number of members in the chat space by one.
-   */
-  public void increaseTotalMembers() {
-    totalMembers++;
-  }
-
-  /**
-   * Decrements the total number of members in the chat space by one.
-   */
-  public void decreaseTotalMembers() {
-    totalMembers--;
+  public boolean isOrganizer(final Long memberUserId) {
+    return getOrganizerId().equals(memberUserId);
   }
 
   /**
@@ -252,6 +251,55 @@ public class ChatSpace extends FleenFeenEntity {
    */
   public String getOrganizerPhone() {
     return nonNull(member) ? member.getPhoneNumber() : null;
+  }
+
+  /**
+   * Ensures that the user is not the organizer of the chat space.
+   *
+   * @param memberOrUserId the ID of the user or member to check
+   * @throws FailedOperationException if the user is the organizer of the chat space
+   */
+  public void checkIsNotOrganizer(final Long memberOrUserId) {
+    // Check if the chat space organizer's ID matches the user's ID
+    final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
+    if (isSame) {
+      throw FailedOperationException.of();
+    }
+  }
+
+  /**
+   * Ensures the chat space has not been deleted.
+   *
+   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
+   */
+  public void checkNotDeleted() {
+    if (isDeleted()) {
+      // Throw an exception if the chat space is already deleted
+      throw new ChatSpaceAlreadyDeletedException();
+    }
+  }
+
+  /**
+   * Ensures the chat space is inactive.
+   *
+   * @throws ChatSpaceNotActiveException if the chat space is active or enabled
+   */
+  public void checkIsInactive() {
+    if (isInactive()) {
+      // Throw an exception if the chat space is disabled or inactive
+      throw new ChatSpaceNotActiveException();
+    }
+  }
+
+  /**
+   * Ensures the chat space is not private for joining without approval.
+   *
+   * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is private and requires approval to join
+   */
+  public void checkNotPrivateForJoining() {
+    if (isPrivate()) {
+      throw CannotJoinPrivateChatSpaceWithoutApprovalException.of(chatSpaceId);
+    }
   }
 
   public static ChatSpace of(final Long chatSpaceId) {

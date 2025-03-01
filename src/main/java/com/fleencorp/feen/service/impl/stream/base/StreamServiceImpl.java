@@ -5,10 +5,12 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
@@ -36,8 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.fleencorp.base.util.ExceptionUtil.*;
-import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.groupAttendeeAttendance;
 import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
@@ -150,13 +152,13 @@ public class StreamServiceImpl implements StreamService {
   public void verifyStreamDetailAllDetails(final FleenStream stream, final FleenUser user) {
     if (nonNull(stream)) {
       // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-      verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getOrganizerId()), user);
+      stream.checkIsNotOrganizer(user.getId());
       // Verify stream is not canceled
-      verifyStreamIsNotCancelled(stream);
+      stream.checkNotCancelled();
       // Check if the stream is still active and can be joined.
-      verifyStreamHasNotHappenedAlready(stream);
+      stream.checkNotEnded();
       // Check if the stream is private
-      checkIfStreamIsPrivate(stream.getStreamId(), stream);
+      stream.checkNotPrivateForJoining();
       // Check if the user is already an attendee
       verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
     }
@@ -179,13 +181,13 @@ public class StreamServiceImpl implements StreamService {
   @Override
   public void validateStreamAndUserForProtectedStream(final FleenStream stream, final FleenUser user) {
     // Check if the stream is public and halt the operation
-    checkIsTrue(stream.isPublic(), FailedOperationException::new);
+    stream.checkIsPublicForRequestToJoin();
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getOrganizerId()), user);
+    stream.checkIsNotOrganizer(user.getId());
     // Check if the stream is still active and can be joined.
-    verifyStreamHasNotHappenedAlready(stream);
+    stream.checkNotEnded();
     // Check if stream is not cancelled
-    verifyStreamIsNotCancelled(stream);
+    stream.checkNotCancelled();
     // CHeck if the user is already an attendee
     verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
   }
@@ -451,7 +453,7 @@ public class StreamServiceImpl implements StreamService {
    */
   public static void verifyStreamDetails(final FleenStream stream, final FleenUser user) {
     // Validate if the user is the creator of the stream
-    validateCreatorOfStream(stream, user);
+    stream.checkIsOrganizer(user.getId());
     // Check if the stream is still active and can be joined.
     verifyStreamHasNotHappenedAlready(stream);
     // Verify the stream is not cancelled
@@ -549,37 +551,6 @@ public class StreamServiceImpl implements StreamService {
     }
     // Return an empty list if the input list is null
     return List.of();
-  }
-
-  /**
-   * Checks if the given stream is private and throws an exception if it is.
-   *
-   * <p>If the stream is private, this method throws a {@link CannotJoinStreamWithoutApprovalException}
-   * with the provided stream ID. The exception indicates that joining a private stream requires approval.</p>
-   *
-   * @param streamId the ID of the stream associated with the stream
-   * @param stream  the stream to check; if the stream is private, an exception will be thrown
-   * @throws CannotJoinStreamWithoutApprovalException if the stream is private
-   */
-  protected static void checkIfStreamIsPrivate(final Long streamId, final FleenStream stream) throws CannotJoinStreamWithoutApprovalException {
-    if (nonNull(stream) && stream.isPrivate()) {
-      throw CannotJoinStreamWithoutApprovalException.of(streamId);
-    }
-  }
-
-  /**
-   * Verifies if the given stream is ongoing.
-   *
-   * <p>This method checks whether the specified stream is currently ongoing. If the stream is ongoing, it throws an exception,
-   * preventing any actions like cancellation or deletion.</p>
-   *
-   * @param streamId the unique identifier of the stream being checked
-   * @param stream the {@link FleenStream} representing the stream to be verified
-   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing, preventing cancellation or deletion
-   */
-  public static void verifyIfStreamIsOngoing(final Long streamId, final FleenStream stream) throws CannotCancelOrDeleteOngoingStreamException {
-    // Verify if the stream is still ongoing
-    checkIsTrue(stream.isOngoing(), CannotCancelOrDeleteOngoingStreamException.of(streamId));
   }
 
   /**

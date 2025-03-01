@@ -1,4 +1,4 @@
-package com.fleencorp.feen.exception.stream;
+package com.fleencorp.feen.exception.stream.core;
 
 import com.fleencorp.localizer.model.exception.ApiException;
 

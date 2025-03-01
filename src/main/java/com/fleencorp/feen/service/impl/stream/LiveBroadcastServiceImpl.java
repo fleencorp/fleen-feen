@@ -143,7 +143,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Register the organizer of the live broadcast as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create a live broadcast
-    final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(stream, stream.getStreamType(), createLiveBroadcastDto, oauth2Authorization);
+    final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(oauth2Authorization, stream, stream.getStreamType(), createLiveBroadcastDto);
     // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
     // Get the stream response

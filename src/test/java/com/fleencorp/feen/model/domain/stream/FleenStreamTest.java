@@ -1053,7 +1053,7 @@ class FleenStreamTest {
     stream.setStreamType(StreamType.EVENT);
 
     // act and then
-    assertThrows(FailedOperationException.class, () -> stream.verifyIfStreamTypeNotEqual(StreamType.LIVE_STREAM));
+    assertThrows(FailedOperationException.class, () -> stream.checkStreamTypeNotEqual(StreamType.LIVE_STREAM));
   }
 
   @Test

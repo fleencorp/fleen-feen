@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.impl.stream.attendee;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
@@ -43,7 +43,6 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
 import static java.util.Objects.nonNull;
 
 /**
@@ -400,7 +399,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate owner of the stream
-    validateCreatorOfStream(stream, user);
+    stream.checkIsOrganizer(user.getId());
 
     final Set<StreamAttendeeRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
     // Find pending attendees requesting to join a stream
