@@ -6,40 +6,19 @@ import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
-import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
-import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
-import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface EventJoinService {
 
-  NotAttendingStreamResponse notAttendingEvent(Long eventId, NotAttendingStreamDto notAttendingStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, FailedOperationException;
-
-  JoinStreamResponse joinEvent(Long eventId, JoinStreamDto joinStreamDto, FleenUser user)
-    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamAlreadyCanceledException,
-    StreamAlreadyHappenedException, CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
-    AlreadyApprovedRequestToJoinException;
-
-  RequestToJoinStreamResponse requestToJoinEvent(Long eventId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
-    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamAlreadyCanceledException,
-    StreamAlreadyHappenedException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException;
-
-  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinEvent(Long eventId, ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
-    StreamAlreadyCanceledException, FailedOperationException;
+  void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(FleenStream stream, StreamAttendee streamAttendee, String comment, FleenUser user);
 
   AddNewStreamAttendeeResponse addEventAttendee(Long eventId, AddNewStreamAttendeeDto addNewStreamAttendeeDto, FleenUser user)
-    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamNotCreatedByUserException,
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
+
+  void addAttendeeToEventExternally(String calendarExternalId, String streamExternalId, String attendeeEmailAddress, String displayOrAliasName);
 }

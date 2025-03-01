@@ -14,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/stream-review")
+@RequestMapping(value = "/api/stream/review")
 public class StreamReviewController {
 
   private final StreamReviewService streamReviewService;
@@ -31,7 +31,7 @@ public class StreamReviewController {
     return streamReviewService.findReviews(searchRequest, user);
   }
 
-  @GetMapping(value = "/detail/{streamId}")
+  @GetMapping(value = "/entries/{streamId}")
   public StreamReviewSearchResult findReviews(
       @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final SearchRequest searchRequest) {

@@ -1,12 +1,12 @@
 package com.fleencorp.feen.service.stream;
 
+import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
-import com.fleencorp.feen.model.dto.stream.base.*;
-import com.fleencorp.feen.model.response.stream.base.*;
+import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
@@ -18,24 +18,6 @@ public interface EventService {
 
   CreateStreamResponse createInstantEvent(CreateInstantCalendarEventDto createInstantEventDto, FleenUser user) throws CalendarNotFoundException;
 
-  UpdateStreamResponse updateEvent(Long eventId, UpdateStreamDto updateStreamDto, FleenUser user)
-    throws CalendarNotFoundException, FleenStreamNotFoundException, StreamNotCreatedByUserException,
-    StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
-
-  DeleteStreamResponse deleteEvent(Long eventId, DeleteStreamDto deleteStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-    CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
-
-  CancelStreamResponse cancelEvent(Long eventId, CancelStreamDto cancelStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-    StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
-
-  RescheduleStreamResponse rescheduleEvent(Long eventId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-    StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
-
-  UpdateStreamVisibilityResponse updateEventVisibility(Long eventId, UpdateStreamVisibilityDto updateStreamVisibilityDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-    StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
-    FailedOperationException;
+  void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(String calendarExternalId, FleenStream stream, StreamVisibility previousStreamVisibility)
+    throws FailedOperationException;
 }

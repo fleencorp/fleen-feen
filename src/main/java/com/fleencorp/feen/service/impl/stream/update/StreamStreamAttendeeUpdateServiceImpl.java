@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.stream.update;
 
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
 import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import com.fleencorp.feen.service.stream.update.StreamAttendeeUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Service
-public class StreamAttendeeUpdateServiceImpl implements AttendeeUpdateService {
+public class StreamStreamAttendeeUpdateServiceImpl implements StreamAttendeeUpdateService {
 
   private final OtherEventUpdateService otherEventUpdateService;
 
-  public StreamAttendeeUpdateServiceImpl(final OtherEventUpdateService otherEventUpdateService) {
+  public StreamStreamAttendeeUpdateServiceImpl(final OtherEventUpdateService otherEventUpdateService) {
     this.otherEventUpdateService = otherEventUpdateService;
   }
 
