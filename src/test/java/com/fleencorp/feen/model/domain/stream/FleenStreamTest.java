@@ -18,7 +18,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream is empty")
   void ensure_stream_is_empty() {
     // given
-    FleenStream stream = FleenStream.empty();
+    final FleenStream stream = FleenStream.empty();
 
     // then
     assertNull(stream);
@@ -28,7 +28,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream is not empty")
   void ensure_stream_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNotNull(stream);
@@ -38,7 +38,7 @@ class FleenStreamTest {
   @DisplayName("Ensure id is empty")
   void ensure_id_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamId());
@@ -48,7 +48,7 @@ class FleenStreamTest {
   @DisplayName("Ensure id is not empty")
   void ensure_id_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamId(1L);
 
     // then
@@ -59,7 +59,7 @@ class FleenStreamTest {
   @DisplayName("Ensure external id is empty")
   void ensure_external_id_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getExternalId());
@@ -69,7 +69,7 @@ class FleenStreamTest {
   @DisplayName("Ensure external id is not empty")
   void ensure_external_id_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setExternalId("buBeVoDdOk");
 
     // then
@@ -80,7 +80,7 @@ class FleenStreamTest {
   @DisplayName("Ensure title is empty")
   void ensure_title_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getTitle());
@@ -90,7 +90,7 @@ class FleenStreamTest {
   @DisplayName("Ensure title is not empty")
   void ensure_title_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setTitle("Java Conference");
 
     // then
@@ -101,7 +101,7 @@ class FleenStreamTest {
   @DisplayName("Ensure description is empty")
   void ensure_description_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getDescription());
@@ -111,7 +111,7 @@ class FleenStreamTest {
   @DisplayName("Ensure description is not empty")
   void ensure_description_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setDescription("Java Conference for Programmers & Software Engineers");
 
     // then
@@ -122,7 +122,7 @@ class FleenStreamTest {
   @DisplayName("Ensure tags is empty")
   void ensure_tags_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getTags());
@@ -132,7 +132,7 @@ class FleenStreamTest {
   @DisplayName("Ensure tags is not empty")
   void ensure_tags_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setTags("Coding, Programming, Tech, Web");
 
     // then
@@ -143,7 +143,7 @@ class FleenStreamTest {
   @DisplayName("Ensure location is empty")
   void ensure_location_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getLocation());
@@ -153,7 +153,7 @@ class FleenStreamTest {
   @DisplayName("Ensure location is not empty")
   void ensure_location_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setLocation("Paris");
 
     // then
@@ -164,7 +164,7 @@ class FleenStreamTest {
   @DisplayName("Ensure timezone is empty")
   void ensure_timezone_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getTimezone());
@@ -174,7 +174,7 @@ class FleenStreamTest {
   @DisplayName("Ensure timezone is not empty")
   void ensure_timezone_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setTimezone("Europe/Paris");
 
     // then
@@ -185,7 +185,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer name is empty")
   void ensure_organizer_name_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOrganizerName());
@@ -195,7 +195,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer name is not empty")
   void ensure_organizer_name_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setOrganizerName("Jimmy Jones");
 
     // then
@@ -206,7 +206,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer email is empty")
   void ensure_organizer_email_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOrganizerEmail());
@@ -216,7 +216,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer email is not empty")
   void ensure_organizer_email_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setOrganizerEmail("Jimmy Jones");
 
     // then
@@ -227,7 +227,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer phone is empty")
   void ensure_organizer_phone_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOrganizerPhone());
@@ -237,7 +237,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer phone is not empty")
   void ensure_organizer_phone_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setOrganizerPhone("+2348012345678");
 
     // then
@@ -248,7 +248,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream link is empty")
   void ensure_stream_link_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamLink());
@@ -258,7 +258,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream link is not empty")
   void ensure_stream_link_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamLink("https://meet.google.com/zue-zvfj-iks");
 
     // then
@@ -269,7 +269,7 @@ class FleenStreamTest {
   @DisplayName("Ensure thumbnail link is empty")
   void ensure_thumbnail_link_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getThumbnailLink());
@@ -279,7 +279,7 @@ class FleenStreamTest {
   @DisplayName("Ensure thumbnail link is not empty")
   void ensure_thumbnail_link_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setThumbnailLink("https://www.feenlive.com/photo.jpg");
 
     // then
@@ -290,7 +290,7 @@ class FleenStreamTest {
   @DisplayName("Ensure source is empty")
   void ensure_source_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamSource());
@@ -300,7 +300,7 @@ class FleenStreamTest {
   @DisplayName("Ensure source is not empty")
   void ensure_source_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamSource(StreamSource.GOOGLE_MEET);
 
     // then
@@ -311,7 +311,7 @@ class FleenStreamTest {
   @DisplayName("Ensure type is empty")
   void ensure_type_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamType());
@@ -321,7 +321,7 @@ class FleenStreamTest {
   @DisplayName("Ensure type is not empty")
   void ensure_type_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamType(StreamType.EVENT);
 
     // then
@@ -332,7 +332,7 @@ class FleenStreamTest {
   @DisplayName("Ensure creation type is empty")
   void ensure_creation_type_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamCreationType());
@@ -342,7 +342,7 @@ class FleenStreamTest {
   @DisplayName("Ensure creation type is not empty")
   void ensure_creation_type_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamCreationType(StreamCreationType.INSTANT);
 
     // then
@@ -353,7 +353,7 @@ class FleenStreamTest {
   @DisplayName("Ensure visibility is empty")
   void ensure_visibility_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamVisibility());
@@ -363,7 +363,7 @@ class FleenStreamTest {
   @DisplayName("Ensure visibility is not empty")
   void ensure_visibility_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamVisibility(StreamVisibility.PUBLIC);
 
     // then
@@ -374,7 +374,7 @@ class FleenStreamTest {
   @DisplayName("Ensure status is empty")
   void ensure_status_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getStreamStatus());
@@ -384,7 +384,7 @@ class FleenStreamTest {
   @DisplayName("Ensure status is not empty")
   void ensure_status_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamStatus(StreamStatus.ACTIVE);
 
     // then
@@ -395,7 +395,7 @@ class FleenStreamTest {
   @DisplayName("Ensure start date is empty")
   void ensure_start_date_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getScheduledStartDate());
@@ -405,9 +405,9 @@ class FleenStreamTest {
   @DisplayName("Ensure start date is not empty")
   void ensure_start_date_is_not_empty() {
     // given
-    LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0,0,0);
+    final LocalDateTime startDate = LocalDateTime.of(2025, 1, 1, 0,0,0);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDate);
 
     // then
@@ -418,7 +418,7 @@ class FleenStreamTest {
   @DisplayName("Ensure end date is empty")
   void ensure_end_date_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getScheduledEndDate());
@@ -428,9 +428,9 @@ class FleenStreamTest {
   @DisplayName("Ensure end date is not empty")
   void ensure_end_date_is_not_empty() {
     // given
-    LocalDateTime endDate = LocalDateTime.of(2025, 1, 1, 3,0,0);
+    final LocalDateTime endDate = LocalDateTime.of(2025, 1, 1, 3,0,0);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledEndDate(endDate);
 
     // then
@@ -441,7 +441,7 @@ class FleenStreamTest {
   @DisplayName("Ensure other details is empty")
   void ensure_other_details_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOtherDetails());
@@ -451,7 +451,7 @@ class FleenStreamTest {
   @DisplayName("Ensure other details is not empty")
   void ensure_other_details_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setOtherDetails("For Java Professionals & Enthusiast");
 
     // then
@@ -462,7 +462,7 @@ class FleenStreamTest {
   @DisplayName("Ensure other link is empty")
   void ensure_other_link_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOtherLink());
@@ -471,7 +471,7 @@ class FleenStreamTest {
   @Test
   @DisplayName("Ensure other link is not empty")
   void ensure_other_link_is_not_empty() {
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setOtherLink("https://www.mycompany.com");
 
     assertNotNull(stream.getOtherLink());
@@ -481,7 +481,7 @@ class FleenStreamTest {
   @DisplayName("Ensure group or organization name is empty")
   void ensure_group_or_organization_name_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getGroupOrOrganizationName());
@@ -491,7 +491,7 @@ class FleenStreamTest {
   @DisplayName("Ensure group or organization name is not empty")
   void ensure_group_or_organization_name_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setGroupOrOrganizationName("Tech & Lifestyle");
 
     // then
@@ -502,7 +502,7 @@ class FleenStreamTest {
   @DisplayName("Ensure member is empty")
   void ensure_member_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getMember());
@@ -512,9 +512,9 @@ class FleenStreamTest {
   @DisplayName("Ensure stream member is not empty")
   void ensure_member_is_not_empty() {
     // given
-    Member member = new Member();
+    final Member member = new Member();
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setMember(member);
 
     // then
@@ -525,7 +525,7 @@ class FleenStreamTest {
   @DisplayName("Ensure attendees is set by default")
   void ensure_attendees_is_set_by_default() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNotNull(stream.getAttendees());
@@ -535,7 +535,7 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space is empty")
   void ensure_chat_space_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getChatSpace());
@@ -545,9 +545,9 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space is not empty")
   void ensure_chat_space_is_not_empty() {
     // given
-    ChatSpace chatSpace = new ChatSpace();
+    final ChatSpace chatSpace = new ChatSpace();
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setChatSpace(chatSpace);
 
     // then
@@ -558,7 +558,7 @@ class FleenStreamTest {
   @DisplayName("Ensure made for kids is set by default")
   void ensure_for_kids_is_set_by_default() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNotNull(stream.getForKids());
@@ -568,7 +568,7 @@ class FleenStreamTest {
   @DisplayName("Ensure deleted is set by default")
   void ensure_deleted_is_set_by_default() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNotNull(stream.getDeleted());
@@ -578,7 +578,7 @@ class FleenStreamTest {
   @DisplayName("Ensure total attendees is set by default")
   void ensure_total_attendees_is_set_by_default() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNotNull(stream.getTotalAttendees());
@@ -588,7 +588,7 @@ class FleenStreamTest {
   @DisplayName("Ensure for kids is false by default")
   void ensure_for_kids_is_false() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.getForKids());
@@ -598,7 +598,7 @@ class FleenStreamTest {
   @DisplayName("Ensure deleted is false by default")
   void ensure_deleted_is_false() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.getDeleted());
@@ -608,7 +608,7 @@ class FleenStreamTest {
   @DisplayName("Ensure is for kids is not empty")
   void ensure_for_kids_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertTrue(stream.isForKids());
@@ -618,7 +618,7 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space id is empty")
   void ensure_chat_space_id_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getChatSpaceId());
@@ -628,10 +628,10 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space id is not empty")
   void ensure_chat_space_id_is_not_empty() {
     // given
-    ChatSpace chatSpace = new ChatSpace();
+    final ChatSpace chatSpace = new ChatSpace();
     chatSpace.setChatSpaceId(1L);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setChatSpace(chatSpace);
 
     // then
@@ -642,7 +642,7 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space external id or name is empty")
   void ensure_chat_space_external_id_or_name_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getExternalSpaceIdOrName());
@@ -652,10 +652,10 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space external id or name is not empty")
   void ensure_chat_space_external_id_or_name_is_not_empty() {
     // given
-    ChatSpace chatSpace = new ChatSpace();
+    final ChatSpace chatSpace = new ChatSpace();
     chatSpace.setExternalIdOrName("AaAbVH8QN6o");
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setChatSpace(chatSpace);
 
     // then
@@ -666,7 +666,7 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer is empty")
   void ensure_organizer_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getOrganizer());
@@ -676,8 +676,8 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer is not empty")
   void ensure_organizer_is_not_empty() {
     // given
-    FleenStream stream = new FleenStream();
-    Member member = new Member();
+    final FleenStream stream = new FleenStream();
+    final Member member = new Member();
     stream.setMember(member);
 
     // then
@@ -688,11 +688,11 @@ class FleenStreamTest {
   @DisplayName("Ensure update of title, description, tags and location")
   void ensure_update_of_title_description_tags_and_location() {
     // given
-    FleenStream stream = new FleenStream();
-    String title = "Python";
-    String description = "Java Conference for Programmers & Software Engineers";
-    String tags = "Coding, Programming, Tech, Web, AI";
-    String location = "Monaco";
+    final FleenStream stream = new FleenStream();
+    final String title = "Python";
+    final String description = "Java Conference for Programmers & Software Engineers";
+    final String tags = "Coding, Programming, Tech, Web, AI";
+    final String location = "Monaco";
 
     // act
     stream.update(title, description, tags, location);
@@ -708,9 +708,9 @@ class FleenStreamTest {
   @DisplayName("Ensure update of external id and link")
   void ensure_update_of_external_id_and_link() {
     // given
-    FleenStream stream = new FleenStream();
-    String externalId = "buBeVoDdOd";
-    String link = "https://meet.google.com/zue-ghfs-iks";
+    final FleenStream stream = new FleenStream();
+    final String externalId = "buBeVoDdOd";
+    final String link = "https://meet.google.com/zue-ghfs-iks";
 
     // act
     stream.update(externalId, link);
@@ -724,10 +724,10 @@ class FleenStreamTest {
   @DisplayName("Ensure update of organizer name, email and phone")
   void ensure_update_of_organizer_name_and_email_and_phone() {
     // given
-    FleenStream stream = new FleenStream();
-    String name = "Jimmy Jones";
-    String email = "jimmy@example.com";
-    String phone = "+2348023456789";
+    final FleenStream stream = new FleenStream();
+    final String name = "Jimmy Jones";
+    final String email = "jimmy@example.com";
+    final String phone = "+2348023456789";
 
     // act
     stream.update(name, email, phone);
@@ -742,10 +742,10 @@ class FleenStreamTest {
   @DisplayName("Ensure reschedule by start date, end date and timezone")
   void ensure_update_by_start_date_and_timezone() {
     // given
-    FleenStream stream = new FleenStream();
-    LocalDateTime startDateTime = LocalDateTime.now();
-    LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
-    String timezone = "Europe/Monaco";
+    final FleenStream stream = new FleenStream();
+    final LocalDateTime startDateTime = LocalDateTime.now();
+    final LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
+    final String timezone = "Europe/Monaco";
 
     // act
     stream.reschedule(startDateTime, endDateTime, timezone);
@@ -760,7 +760,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is marked as deleted")
   void ensure_stream_is_marked_as_deleted() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // act
     stream.delete();
@@ -773,7 +773,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is marked as canceled")
   void ensure_stream_is_marked_as_canceled() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // act
     stream.cancel();
@@ -786,7 +786,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not private or protected")
   void ensure_stream_is_not_private_or_protected() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.isPrivateOrProtected());
@@ -796,7 +796,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not public")
   void ensure_stream_is_not_public() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.isPublic());
@@ -806,7 +806,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not private")
   void ensure_stream_is_not_private() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.isPrivate());
@@ -816,7 +816,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not canceled")
   void ensure_stream_is_not_canceled() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.isCanceled());
@@ -826,10 +826,10 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not ongoing")
   void ensure_stream_is_not_ongoing() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now().plusHours(1);
-    LocalDateTime endDateTime = LocalDateTime.now().plusHours(2);
+    final LocalDateTime startDateTime = LocalDateTime.now().plusHours(1);
+    final LocalDateTime endDateTime = LocalDateTime.now().plusHours(2);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
     stream.setScheduledEndDate(endDateTime);
 
@@ -842,10 +842,10 @@ class FleenStreamTest {
   @DisplayName("Ensure it is ongoing")
   void ensure_stream_is_ongoing() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now().minusMinutes(30);
-    LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
+    final LocalDateTime startDateTime = LocalDateTime.now().minusMinutes(30);
+    final LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
     stream.setScheduledEndDate(endDateTime);
 
@@ -857,9 +857,9 @@ class FleenStreamTest {
   @Test
   @DisplayName("Ensure it has not ended")
   void ensure_stream_has_not_ended() {
-    LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
+    final LocalDateTime endDateTime = LocalDateTime.now().plusHours(1);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledEndDate(endDateTime);
 
     // then
@@ -869,9 +869,9 @@ class FleenStreamTest {
   @Test
   @DisplayName("Ensure it has ended")
   void ensure_stream_has_ended() {
-    LocalDateTime endDateTime = LocalDateTime.now().minusHours(1);
+    final LocalDateTime endDateTime = LocalDateTime.now().minusHours(1);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledEndDate(endDateTime);
 
     // then
@@ -879,34 +879,34 @@ class FleenStreamTest {
   }
 
   @Test
-  @DisplayName("Ensure member id is empty")
-  void ensure_member_id_is_empty() {
+  @DisplayName("Ensure organizer id is empty")
+  void ensure_organizer_id_is_empty() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
-    assertNull(stream.getMemberId());
+    assertNull(stream.getOrganizerId());
   }
 
   @Test
-  @DisplayName("Ensure member id is not empty")
-  void ensure_member_id_is_not_empty() {
+  @DisplayName("Ensure organizer id is not empty")
+  void ensure_organizer_id_is_not_empty() {
     // given
-    Member member = new Member();
+    final Member member = new Member();
     member.setMemberId(1L);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setMember(member);
 
     // then
-    assertNotNull(stream.getMemberId());
+    assertNotNull(stream.getOrganizerId());
   }
 
   @Test
   @DisplayName("Ensure it is not an event")
   void ensure_it_is_not_an_event() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.isAnEvent());
@@ -916,7 +916,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is an event")
   void ensure_it_is_an_event() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamType(StreamType.EVENT);
 
     // then
@@ -927,7 +927,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is not a live stream")
   void ensure_it_is_not_a_live_stream() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // them
     assertFalse(stream.isALiveStream());
@@ -937,7 +937,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it is a live stream")
   void ensure_it_is_a_live_stream() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamType(StreamType.LIVE_STREAM);
 
     // then
@@ -948,7 +948,7 @@ class FleenStreamTest {
   @DisplayName("Ensure it has no chat space id")
   void ensure_it_has_no_chat_space_id() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertFalse(stream.hasChatSpaceId());
@@ -958,10 +958,10 @@ class FleenStreamTest {
   @DisplayName("Ensure it has a chat space id")
   void ensure_it_has_a_chat_space_id() {
     // given
-    ChatSpace chatSpace = new ChatSpace();
+    final ChatSpace chatSpace = new ChatSpace();
     chatSpace.setChatSpaceId(1L);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setChatSpace(chatSpace);
 
     // then
@@ -972,7 +972,7 @@ class FleenStreamTest {
   @DisplayName("Ensure increase of total attendees")
   void ensure_increase_of_total_attendees() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // act
     stream.increaseTotalAttendees();
@@ -985,7 +985,7 @@ class FleenStreamTest {
   @DisplayName("Ensure decrease of total attendees")
   void ensure_decrease_of_total_attendees() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // act
     stream.decreaseTotalAttendees();
@@ -998,7 +998,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream time type is live")
   void ensure_stream_time_type_is_live() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(LocalDateTime.now());
 
     // then
@@ -1009,7 +1009,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream time type is upcoming if no start date")
   void ensure_stream_time_type_is_upcoming_if_no_start_date() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertEquals(StreamTimeType.UPCOMING, stream.getStreamSchedule(LocalDateTime.now()));
@@ -1019,9 +1019,9 @@ class FleenStreamTest {
   @DisplayName("Ensure stream time type is upcoming")
   void ensure_stream_time_type_is_upcoming() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now().plusHours(1);
+    final LocalDateTime startDateTime = LocalDateTime.now().plusHours(1);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
 
     // then
@@ -1032,9 +1032,9 @@ class FleenStreamTest {
   @DisplayName("Ensure stream time type is past")
   void ensure_stream_time_type_is_past() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now().minusHours(1);
+    final LocalDateTime startDateTime = LocalDateTime.now().minusHours(1);
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
 
     // then
@@ -1045,9 +1045,9 @@ class FleenStreamTest {
   @DisplayName("Ensure stream time type is live")
   void ensure_stream_time_type_is_live_by_default() {
     // given
-    LocalDateTime startDateTime = LocalDateTime.now();
+    final LocalDateTime startDateTime = LocalDateTime.now();
 
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setScheduledStartDate(startDateTime);
 
     // then
@@ -1058,7 +1058,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream type not equal")
   void ensure_stream_type_not_equal() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamType(StreamType.EVENT);
 
     // act and then
@@ -1069,7 +1069,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream link is not masked")
   void ensure_stream_link_is_not_masked() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
 
     // then
     assertNull(stream.getMaskedStreamLink());
@@ -1079,7 +1079,7 @@ class FleenStreamTest {
   @DisplayName("Ensure stream link is masked")
   void ensure_stream_link_masked() {
     // given
-    FleenStream stream = new FleenStream();
+    final FleenStream stream = new FleenStream();
     stream.setStreamLink("https://meet.google.com/zue-zvfj-iks");
 
     // then

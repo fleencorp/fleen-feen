@@ -128,7 +128,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
   public void broadcastEventOrStreamCreated(final FleenStream stream) {
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
-      .of(stream.getMemberId(),
+      .of(stream.getOrganizerId(),
         stream.getStreamId(),
         stream.getExternalId(),
         stream.getStreamLink(),

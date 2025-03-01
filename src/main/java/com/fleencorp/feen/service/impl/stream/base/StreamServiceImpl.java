@@ -1,37 +1,33 @@
 package com.fleencorp.feen.service.impl.stream.base;
 
+import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.*;
-import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.model.domain.notification.Notification;
+import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
-import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.model.response.holder.TryToJoinPrivateOrProtectedStreamResponse;
-import com.fleencorp.feen.model.response.holder.TryToJoinPublicStreamResponse;
-import com.fleencorp.feen.model.response.holder.TryToProcessRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
-import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
-import com.fleencorp.feen.service.notification.NotificationService;
+import com.fleencorp.feen.service.common.MiscService;
+import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -67,12 +63,11 @@ import static java.util.Objects.nonNull;
 @Service
 public class StreamServiceImpl implements StreamService {
 
-  private final NotificationService notificationService;
-  private final NotificationMessageService notificationMessageService;
+  private final GoogleOauth2Service googleOauth2Service;
+  private final MiscService miscService;
   private final StreamAttendeeService attendeeService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
-  private final Localizer localizer;
   private final StreamMapper streamMapper;
 
   /**
@@ -82,28 +77,23 @@ public class StreamServiceImpl implements StreamService {
    * through the constructor. The dependencies include services for notifications, attendee management, stream data repository,
    * and mapping for stream-related objects.</p>
    *
-   * @param notificationService the service responsible for managing notifications
-   * @param notificationMessageService the service for managing notification messages
    * @param attendeeService the service responsible for handling stream attendees
    * @param streamRepository the repository for managing stream data
    * @param streamAttendeeRepository the repository for managing stream attendee data
-   * @param localizer the service for handling localized responses
    * @param streamMapper the mapper for converting stream-related objects to different representations
    */
   public StreamServiceImpl(
-      final NotificationService notificationService,
-      final NotificationMessageService notificationMessageService,
+      final GoogleOauth2Service googleOauth2Service,
+      final MiscService miscService,
       @Lazy final StreamAttendeeService attendeeService,
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
-      final Localizer localizer,
       final StreamMapper streamMapper) {
-    this.notificationService = notificationService;
-    this.notificationMessageService = notificationMessageService;
+    this.googleOauth2Service = googleOauth2Service;
+    this.miscService = miscService;
     this.attendeeService = attendeeService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
-    this.localizer = localizer;
     this.streamMapper = streamMapper;
   }
 
@@ -124,152 +114,54 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Handles a request to join a public stream.
+   * Retrieves the necessary data for rescheduling a stream, including the available time zones.
    *
-   * <p>This method verifies the stream details, processes the user's request to join a public stream, creates a
-   * new StreamAttendee entry, approves user attendance, and saves the stream and attendee information. It then
-   * converts the stream to a response and generates attendance information to be included in the response.</p>
+   * <p>This method fetches the available time zones from the system and returns a response object
+   * that contains the time zone details needed for rescheduling a stream.</p>
    *
-   * @param streamId the ID of the stream the user is requesting to join
-   * @param comment an optional comment provided by the user when joining the stream
-   * @param user the {@link FleenUser} attempting to join the public stream
-   * @return a {@link TryToJoinPublicStreamResponse} containing the stream, the stream attendee, and
-   *         attendance information
+   * @return a {@link DataForRescheduleStreamResponse} object containing the time zones available for rescheduling the stream
    */
   @Override
-  @Transactional
-  public TryToJoinPublicStreamResponse tryToJoinPublicStream(final Long streamId, final String comment, final FleenUser user)
-    throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
-    // Verify the stream details and attempt to join the stream
-    final FleenStream stream = verifyDetailsAndTryToJoinStream(streamId, user);
-    // Increase total attendees or guests in the stream
-    stream.increaseTotalAttendees();
-    // Save the stream to the repository
-    streamRepository.save(stream);
-    // Create a new StreamAttendee entry for the user
-    final StreamAttendee streamAttendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
-    // Approve user attendance if the stream is public
-    streamAttendee.approveUserAttendance();
-    // Add the new StreamAttendee to the stream's attendees list and save
-    streamAttendeeRepository.save(streamAttendee);
-    // Convert the stream to the equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
-    // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
-    // Return the stream
-    return TryToJoinPublicStreamResponse.of(stream, streamAttendee, attendanceInfo);
+  public DataForRescheduleStreamResponse getDataForRescheduleStream() {
+    // Retrieve the available timezones from the system
+    final Set<String> timezones = getAvailableTimezones();
+    // Return the response containing the details to reschedule stream
+    return DataForRescheduleStreamResponse.of(timezones);
   }
 
   /**
-   * Verifies the details of the stream and user, then attempts to allow the user to join the stream.
+   * Verifies the details of the stream and checks whether the user can join the stream.
    *
-   * <p>This method performs several checks to ensure that the user can join the specified stream.
-   * It first retrieves the stream using the provided stream ID. It then verifies whether the user is the owner
-   * of the stream, failing the operation if so, since the owner is automatically considered a member of the entity.</p>
+   * <p>This method begins by ensuring that the provided {@link FleenStream} is not {@code null}.
+   * It checks whether the user is the owner or author of the stream, as owners are automatically
+   * members and cannot request to join.</p>
    *
-   * <p>Next, it checks that the stream has not been cancelled and that it has not already ended.
-   * If the stream is private, it checks the privacy settings to ensure proper access control.
-   * The method also verifies that the user is not already an attendee of the stream.</p>
+   * <p>The method then verifies that the stream has not been canceled and has not already occurred.
+   * If the stream is private, it performs additional checks to handle private access, and finally,
+   * ensures that the user is not already listed as an attendee.</p>
    *
-   * <p>After all checks pass, the stream is saved to the repository and returned.</p>
+   * <p>If any of these conditions are not met, an appropriate exception is thrown to indicate the failure.</p>
    *
-   * @param streamId the ID of the stream to join; must not be null
-   * @param user     the user attempting to join the stream; must not be null
-   * @return the {@link FleenStream} if all verifications pass
-   * @throws FailedOperationException if any validation or stream state check fails
-   * @throws StreamAlreadyCanceledException if the stream is cancelled
-   * @throws StreamAlreadyHappenedException if the stream has already ended
-   * @throws CannotJoinStreamWithoutApprovalException if the stream is private
-   * @throws AlreadyRequestedToJoinStreamException is the user already requested to join the stream
-   * @throws AlreadyApprovedRequestToJoinException if the user's request to join is already approved
-   */
-  protected FleenStream verifyDetailsAndTryToJoinStream(final Long streamId, final FleenUser user) {
-    final FleenStream stream = findStream(streamId);
-
-    // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
-    // Verify stream is not canceled
-    verifyStreamIsNotCancelled(stream);
-    // Check if the stream is still active and can be joined.
-    verifyStreamHasNotHappenedAlready(stream);
-    // Check if the stream is private
-    checkIfStreamIsPrivate(streamId, stream);
-    // Check if the user is already an attendee
-    verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
-
-    return stream;
-  }
-
-  /**
-   * Handles the process of requesting to join a private or protected stream and returns a response.
-   *
-   * <p>This method verifies the user details and attempts to join the stream. It processes the request by checking the
-   * eligibility of the user and stream, creating or retrieving the corresponding stream attendee entry, and handling
-   * notifications. Finally, it returns a localized response with the attendance information and stream type details.</p>
-   *
-   * @param streamId the ID of the stream the user is attempting to join
-   * @param requestToJoinStreamDto the data transfer object containing the request details for joining the stream
-   * @param user the {@link FleenUser} who is requesting to join the stream
-   * @return a {@link RequestToJoinStreamResponse} containing the details of the join request and related information
+   * @param stream the stream to verify
+   * @param user   the user attempting to join the stream
+   * @throws FailedOperationException if the verification fails
    */
   @Override
-  @Transactional
-  public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user)
-      throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-        AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
-    // Verify the user details and attempt to join the stream
-    final TryToJoinPrivateOrProtectedStreamResponse tryToJoinResponse = tryToRequestToToJoinPrivateOrProtectedStream(streamId, requestToJoinStreamDto, user);
-    // Extract the stream
-    final FleenStream stream = tryToJoinResponse.stream();
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
-    // Extract the attendee
-    final StreamAttendee streamAttendee = tryToJoinResponse.attendee();
-    // Extract the attendance info
-    final AttendanceInfo attendanceInfo = tryToJoinResponse.attendanceInfo();
-    // Get stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-
-    // Send and save notifications
-    sendJoinRequestNotificationForPrivateStream(stream, streamAttendee, user);
-    // Return the localized response of the request to join the stream
-    return localizer.of(RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, stream.getTotalAttendees(), tryToJoinResponse));
+  public void verifyStreamDetailAllDetails(final FleenStream stream, final FleenUser user) {
+    if (nonNull(stream)) {
+      // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
+      verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getOrganizerId()), user);
+      // Verify stream is not canceled
+      verifyStreamIsNotCancelled(stream);
+      // Check if the stream is still active and can be joined.
+      verifyStreamHasNotHappenedAlready(stream);
+      // Check if the stream is private
+      checkIfStreamIsPrivate(stream.getStreamId(), stream);
+      // Check if the user is already an attendee
+      verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
+    }
+    throw new FailedOperationException();
   }
-
-  /**
-   * Handles a request to join a private or protected stream.
-   *
-   * <p>This method processes a user's request to join a specific private or protected stream by validating the
-   * stream's details, ensuring the user's eligibility, and updating the stream attendee information. The stream
-   * and attendee details are saved, and attendance information is generated for the response.</p>
-   *
-   * @param streamId the ID of the stream the user is requesting to join
-   * @param requestToJoinStreamDto the {@link RequestToJoinStreamDto} containing the join request details (e.g., comment)
-   * @param user the {@link FleenUser} attempting to join the stream
-   * @return a {@link TryToJoinPrivateOrProtectedStreamResponse} containing the stream, the stream attendee, and
-   *         attendance information
-   */
-  protected TryToJoinPrivateOrProtectedStreamResponse tryToRequestToToJoinPrivateOrProtectedStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user) {
-    // Find the stream by its ID
-    final FleenStream stream = findStream(streamId);
-    // Validate the stream details and eligibility of the user
-    validateStreamAndUserForProtectedStream(stream, user);
-    // Increase total attendees or guests in the stream
-    stream.increaseTotalAttendees();
-    // Handle the join request and update stream attendee info
-    final StreamAttendee streamAttendee = handleStreamAttendeeJoinRequestForProtectedStream(stream, requestToJoinStreamDto, user);
-    // Save the stream and the attendee
-    saveStreamAndAttendee(stream, streamAttendee);
-
-    // Convert the stream to equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
-    // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
-    // Return the localized response of the request to join the stream
-    return TryToJoinPrivateOrProtectedStreamResponse.of(stream, streamAttendee, attendanceInfo);
-  }
-
 
   /**
    * Validates the {@link FleenStream} and {@link FleenUser} for a protected stream.
@@ -284,74 +176,18 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if the stream is public, already happened, is canceled, or the user
    *         is already an attendee.
    */
-  protected void validateStreamAndUserForProtectedStream(final FleenStream stream, final FleenUser user) {
+  @Override
+  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final FleenUser user) {
     // Check if the stream is public and halt the operation
     checkIsTrue(stream.isPublic(), FailedOperationException::new);
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getMemberId()), user);
+    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(stream.getOrganizerId()), user);
     // Check if the stream is still active and can be joined.
     verifyStreamHasNotHappenedAlready(stream);
     // Check if stream is not cancelled
     verifyStreamIsNotCancelled(stream);
     // CHeck if the user is already an attendee
     verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
-  }
-
-  /**
-   * Handles the join request of a {@link StreamAttendee} for a protected stream.
-   *
-   * <p>This method retrieves an existing {@link StreamAttendee} for the specified {@link FleenUser}
-   * and {@link FleenStream}, or creates a new one if none exists. If the stream is private, the attendee's
-   * request to join status is set to pending. The method returns the {@link StreamAttendee}.</p>
-   *
-   * @param stream the {@link FleenStream} to which the attendee wants to join
-   * @param requestToJoinStreamDto the DTO containing information such as a comment
-   * @param user the {@link FleenUser} making the join request
-   * @return the {@link StreamAttendee} associated with the user and stream
-   */
-  protected StreamAttendee handleStreamAttendeeJoinRequestForProtectedStream(final FleenStream stream, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user) {
-    // Retrieve the stream attendee entry associated with the user or create a new StreamAttendee entry if none for the user
-    final StreamAttendee streamAttendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user);
-    // If the stream is private, set the request to join status to pending
-    setAttendeeRequestToJoinPendingIfStreamIsPrivate(streamAttendee, stream);
-    // Return the stream attendee
-    return streamAttendee;
-  }
-
-  /**
-   * Saves the given {@link FleenStream} and {@link StreamAttendee} to their respective repositories.
-   *
-   * <p>This method first saves the {@link StreamAttendee} to the attendee repository,
-   * and then saves the {@link FleenStream} to the stream repository. It ensures that any changes
-   * made to the attendee or stream are persisted in the database.</p>
-   *
-   * @param stream the {@link FleenStream} to be saved
-   * @param streamAttendee the {@link StreamAttendee} to be saved
-   */
-  protected void saveStreamAndAttendee(final FleenStream stream, final StreamAttendee streamAttendee) {
-    // Add the new StreamAttendee to the stream's attendees list and save
-    streamAttendeeRepository.save(streamAttendee);
-    // Save the stream to the repository
-    streamRepository.save(stream);
-  }
-
-  /**
-   * Sends a join request notification for a private stream to the stream's owner.
-   *
-   * <p>This method creates a notification for the owner of the stream when a user submits a request to join the private stream.
-   * The notification is generated using the details of the {@link FleenStream}, the {@link StreamAttendee}, and the requesting {@link FleenUser},
-   * and is then saved to the notification service.</p>
-   *
-   * @param stream the {@link FleenStream} the user is attempting to join
-   * @param streamAttendee the {@link StreamAttendee} representing the user's join request
-   * @param user the {@link FleenUser} who is attempting to join the stream
-   */
-  @Override
-  public void sendJoinRequestNotificationForPrivateStream(final FleenStream stream, final StreamAttendee streamAttendee, final FleenUser user) {
-    // Create and save notification
-    final Notification notification = notificationMessageService.ofReceivedStreamJoinRequest(stream, streamAttendee, stream.getOrganizer(), user.toMember());
-    // Save the notification
-    notificationService.save(notification);
   }
 
   /**
@@ -463,84 +299,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Attempts to process a request for an attendee to join a stream.
-   *
-   * <p>This method retrieves the stream by its ID, verifies the stream details (such as type, owner, event date,
-   * and active status), and processes the attendee's request to join the stream. It handles both approval
-   * and disapproval of requests, updating the necessary stream and attendee information accordingly.</p>
-   *
-   * <p>If the attendee is already an attendee of the stream and their request is not pending or disapproved,
-   * the method simply returns without further action. If the request is approved or disapproved, it updates
-   * the attendee's status, adjusts the stream's attendee count if approved, and creates a notification.</p>
-   *
-   * @param streamId the ID of the stream the attendee wants to join
-   * @param processRequestToJoinDto contains the details of the request to join the stream, including attendee ID,
-   *        request type (approval/disapproval), and organizer comment
-   * @param user the user requesting to process the attendee's request, typically the stream owner or authorized user
-   * @return a response object containing the result of the attempt to process the attendee's request
-   * @throws FleenStreamNotFoundException if the stream with the given ID is not found
-   * @throws StreamAttendeeNotFoundException if the attendee with the given ID is not found in the stream
-   */
-  @Transactional
-  @Override
-  public TryToProcessRequestToJoinStreamResponse attemptToProcessAttendeeRequestToJoin(final Long streamId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
-    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
-    StreamAlreadyCanceledException, FailedOperationException {
-    // Retrieve the stream using the event ID
-    final FleenStream stream = findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(processRequestToJoinDto.getStreamType());
-    // Verify stream details like the owner, event date and active status of the event
-    verifyStreamDetails(stream, user);
-
-    final Long attendeeId = processRequestToJoinDto.getAttendeeId();
-    // Check if the user is already an attendee of the stream and process accordingly
-    final StreamAttendee attendee = attendeeService.findAttendee(stream, attendeeId)
-      .orElseThrow(StreamAttendeeNotFoundException.of(attendeeId));
-
-    if (nonNull(attendee) && attendee.isRequestToJoinNotDisapprovedOrPending()) {
-      // Check if the attendee request is approved
-      if (processRequestToJoinDto.isApproved()) {
-        // Increase the total number of attendees to stream
-        increaseTotalAttendeesOrGuestsAndSave(stream);
-        // Approve attendee request to join the stream
-        attendee.approveUserAttendance();
-      } else if (processRequestToJoinDto.isDisapproved()) {
-        // Disapprove attendee request to join the stream
-        attendee.disapproveUserAttendance();
-      }
-
-      // Update the organizer comment
-      attendee.setOrganizerComment(processRequestToJoinDto.getComment());
-      // Save the attendee details in the repository
-      streamAttendeeRepository.save(attendee);
-
-      // Create and save notification
-      final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(stream, attendee, attendee.getMember());
-      notificationService.save(notification);
-    }
-
-    // Return the response
-    return TryToProcessRequestToJoinStreamResponse.of(stream, attendee);
-  }
-
-  /**
-   * Retrieves the necessary data for rescheduling a stream, including the available time zones.
-   *
-   * <p>This method fetches the available time zones from the system and returns a response object
-   * that contains the time zone details needed for rescheduling a stream.</p>
-   *
-   * @return a {@link DataForRescheduleStreamResponse} object containing the time zones available for rescheduling the stream
-   */
-  @Override
-  public DataForRescheduleStreamResponse getDataForRescheduleStream() {
-    // Retrieve the available timezones from the system
-    final Set<String> timezones = getAvailableTimezones();
-    // Return the response containing the details to reschedule stream
-    return DataForRescheduleStreamResponse.of(timezones);
-  }
-
-  /**
    * Processes the attendee's decision to not attend the stream.
    *
    * <p>This method handles the case where an attendee who was previously marked as attending
@@ -551,8 +309,8 @@ public class StreamServiceImpl implements StreamService {
    * @param stream   the stream for which the attendee's attendance is being processed.
    * @param attendee the attendee who is no longer attending the stream.
    */
-  @Transactional
   @Override
+  @Transactional
   public void processNotAttendingStream(final FleenStream stream, final StreamAttendee attendee) {
     if (nonNull(attendee) && attendee.isAttending()) {
       // Decrease the total number of attendees to stream
@@ -573,9 +331,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public void increaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
     // Increase total attendees or guests in the stream
-    stream.increaseTotalAttendees();
-    // Save the updated stream to the repository
-    streamRepository.save(stream);
+    streamRepository.incrementTotalAttendees(stream.getStreamId());
   }
 
   /**
@@ -587,9 +343,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public void decreaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
     // Decrease total attendees or guests in the stream
-    stream.decreaseTotalAttendees();
-    // Save the updated stream to the repository
-    streamRepository.save(stream);
+    streamRepository.decrementTotalAttendees(stream.getStreamId());
   }
 
   /**
@@ -680,7 +434,7 @@ public class StreamServiceImpl implements StreamService {
     checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
     // Check if the stream creator's ID matches the user's ID
-    final boolean isSame = Objects.equals(stream.getMemberId(), user.getId());
+    final boolean isSame = Objects.equals(stream.getOrganizerId(), user.getId());
     if (!isSame) {
       throw StreamNotCreatedByUserException.of(user.getId());
     }
@@ -747,7 +501,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if the provided stream is null
    * @throws StreamAlreadyHappenedException if the stream has already ended
    */
-  protected static void verifyStreamHasNotHappenedAlready(final FleenStream stream) {
+  protected static void verifyStreamHasNotHappenedAlready(final FleenStream stream) throws StreamAlreadyHappenedException, FailedOperationException {
     // Throw an exception if the provided value is null
     checkIsNull(stream, FailedOperationException::new);
 
@@ -767,7 +521,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if the provided stream is null
    * @throws StreamAlreadyCanceledException if the stream has been canceled
    */
-  protected static void verifyStreamIsNotCancelled(final FleenStream stream) throws FailedOperationException {
+  protected static void verifyStreamIsNotCancelled(final FleenStream stream) throws StreamAlreadyCanceledException, FailedOperationException {
     // Throw an exception if the provided stream is null
     checkIsNull(stream, FailedOperationException::new);
 
@@ -807,7 +561,7 @@ public class StreamServiceImpl implements StreamService {
    * @param stream  the stream to check; if the stream is private, an exception will be thrown
    * @throws CannotJoinStreamWithoutApprovalException if the stream is private
    */
-  protected static void checkIfStreamIsPrivate(final Long streamId, final FleenStream stream) {
+  protected static void checkIfStreamIsPrivate(final Long streamId, final FleenStream stream) throws CannotJoinStreamWithoutApprovalException {
     if (nonNull(stream) && stream.isPrivate()) {
       throw CannotJoinStreamWithoutApprovalException.of(streamId);
     }
@@ -877,6 +631,44 @@ public class StreamServiceImpl implements StreamService {
           throw AlreadyApprovedRequestToJoinException.of(requestToJoinStatusLabel);
         }
     });
+  }
+
+  /**
+   * Retrieves additional details related to the stream, such as calendar information and OAuth2 authorization,
+   * based on the stream type and user information.
+   *
+   * <p>The method first checks if the provided {@link FleenStream} is {@code null}, throwing a
+   * {@link FailedOperationException} if it is. Then, it retrieves the {@link StreamType} to determine
+   * the appropriate external details to fetch.</p>
+   *
+   * <p>If the stream is of type event, the method retrieves the associated {@link Calendar} from an external
+   * service based on the user's country and the stream type. If the stream is a live or broadcast stream,
+   * it retrieves the {@link Oauth2Authorization} by checking the validity of the user's YouTube access token,
+   * refreshing it if necessary.</p>
+   *
+   * @param stream the stream for which additional details are being retrieved
+   * @param user   the user associated with the stream
+   * @return a {@link StreamOtherDetailsHolder} object containing the retrieved calendar and OAuth2 authorization details
+   * @throws FailedOperationException if the stream is {@code null}
+   */
+  @Override
+  @Transactional
+  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final FleenUser user)
+      throws CalendarNotFoundException, Oauth2InvalidAuthorizationException, FailedOperationException {
+    checkIsNull(stream, FailedOperationException::new);
+
+    // Retrieve the stream type
+    final StreamType streamType = stream.getStreamType();
+
+    // If the stream is an event, retrieve the calendar and handle external cancellation
+    final Calendar calendar = StreamType.isEvent(streamType)
+      ? miscService.findCalendar(user.getCountry(), streamType) : null;
+
+    // If the stream is a broadcast or live stream, retrieve the oauth2 authorization
+    final Oauth2Authorization oauth2Authorization = StreamType.isLiveStream(streamType)
+      ? googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user) : null;
+
+    return StreamOtherDetailsHolder.of(calendar, oauth2Authorization);
   }
 
 }

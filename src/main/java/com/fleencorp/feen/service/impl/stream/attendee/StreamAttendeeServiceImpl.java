@@ -27,7 +27,7 @@ import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.feen.service.stream.update.AttendeeUpdateService;
+import com.fleencorp.feen.service.stream.update.StreamAttendeeUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,7 +63,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
 
   private final MiscService miscService;
   private final StreamService streamService;
-  private final AttendeeUpdateService attendeeUpdateService;
+  private final StreamAttendeeUpdateService streamAttendeeUpdateService;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final Localizer localizer;
   private final StreamAttendeeMapper attendeeMapper;
@@ -75,7 +75,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    *
    * @param miscService               the service for miscellaneous operations
    * @param streamService             the service for managing streams
-   * @param attendeeUpdateService     the service for handling attendee updates
+   * @param streamAttendeeUpdateService     the service for handling attendee updates
    * @param streamAttendeeRepository  the repository for managing stream attendee data
    * @param localizer                 the service for localization tasks
    * @param attendeeMapper            the mapper for mapping attendee data
@@ -84,14 +84,14 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   public StreamAttendeeServiceImpl(
       final MiscService miscService,
       final StreamService streamService,
-      final AttendeeUpdateService attendeeUpdateService,
+      final StreamAttendeeUpdateService streamAttendeeUpdateService,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
       final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
-    this.attendeeUpdateService = attendeeUpdateService;
+    this.streamAttendeeUpdateService = streamAttendeeUpdateService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.localizer = localizer;
     this.attendeeMapper = attendeeMapper;
@@ -263,7 +263,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       // Find calendar associated with user's country
       final Calendar calendar = miscService.findCalendar(user.getCountry());
       // Create and add stream attendee to Calendar Event and send invitation
-      attendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), streamExternalId, user.getEmailAddress(), comment);
+      streamAttendeeUpdateService.createNewEventAttendeeRequestAndSendInvitation(calendar.getExternalId(), streamExternalId, user.getEmailAddress(), comment);
     }
   }
 
