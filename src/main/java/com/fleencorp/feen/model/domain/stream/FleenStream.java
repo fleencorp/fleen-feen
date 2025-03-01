@@ -4,10 +4,7 @@ import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
-import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
-import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
-import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.core.*;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
@@ -493,7 +490,7 @@ public class FleenStream extends FleenFeenEntity {
    */
   public void checkNotOngoingForUpdate() {
     if (isOngoing()) {
-      throw CannotCancelOrDeleteOngoingStreamException.of(streamId);
+      throw CannotUpdateOngoingStreamException.of(streamId);
     }
   }
 
