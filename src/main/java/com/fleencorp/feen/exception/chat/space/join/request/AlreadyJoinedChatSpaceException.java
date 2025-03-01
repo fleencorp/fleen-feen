@@ -1,4 +1,4 @@
-package com.fleencorp.feen.exception.chat.space;
+package com.fleencorp.feen.exception.chat.space.join.request;
 
 import com.fleencorp.localizer.model.exception.ApiException;
 
