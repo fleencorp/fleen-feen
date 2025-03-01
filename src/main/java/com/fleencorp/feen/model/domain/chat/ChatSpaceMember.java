@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.domain.chat;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
+import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
@@ -163,10 +164,8 @@ public class ChatSpaceMember extends FleenFeenEntity {
    *
    * <p>Sets the space admin comment to the provided comment and changes the join status to approved.</p>
    *
-   * @param adminComment the comment to associate with the approval.
    */
-  public void approveJoinRequest(final String adminComment) {
-    spaceAdminComment = adminComment;
+  public void approveJoinRequest() {
     approveJoinStatus();
   }
 
@@ -205,8 +204,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    *
    * <p>Changes the join status to indicate that the request to join has been disapproved.</p>
    */
-  public void disapprovedJoinRequest(final String adminComment) {
-    spaceAdminComment = adminComment;
+  public void disapprovedJoinRequest() {
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.DISAPPROVED;
   }
 
@@ -331,6 +329,17 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public boolean isNotTheOwner(final Long organizerId) {
     return isAMember() && nonNull(memberId) && !(memberId.equals(organizerId));
+  }
+
+  /**
+   * Ensures the chat space member has not been removed.
+   *
+   * @throws ChatSpaceMemberRemovedException if the member has been removed from the chat space
+   */
+  public void checkNotRemoved() {
+    if (isRemoved()) {
+      throw ChatSpaceMemberRemovedException.of(chatSpaceMemberId);
+    }
   }
 
   public static ChatSpaceMember of(final Long chatSpaceMemberId) {

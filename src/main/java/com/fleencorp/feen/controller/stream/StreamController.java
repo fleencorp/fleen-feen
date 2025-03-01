@@ -3,11 +3,11 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
@@ -45,7 +45,7 @@ public class StreamController {
     @ApiResponse(responseCode = "200", description = "Successfully joined the stream", content = @Content(schema = @Schema(implementation = JoinStreamResponse.class))),
     @ApiResponse(responseCode = "400", description = "Bad Request",
       content = {
-        @Content(schema = @Schema(implementation = CannotJoinStreamWithoutApprovalException.class)),
+        @Content(schema = @Schema(implementation = CannotJoinPrivateStreamWithoutApprovalException.class)),
         @Content(schema = @Schema(implementation = FailedOperationException.class))
       }),
     @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),

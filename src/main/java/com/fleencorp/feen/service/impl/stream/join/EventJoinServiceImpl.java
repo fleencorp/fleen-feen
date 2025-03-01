@@ -3,9 +3,9 @@ package com.fleencorp.feen.service.impl.stream.join;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
-import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -152,7 +152,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(addNewAttendeeDto.getStreamType());
+    stream.checkStreamTypeNotEqual(addNewAttendeeDto.getStreamType());
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
 

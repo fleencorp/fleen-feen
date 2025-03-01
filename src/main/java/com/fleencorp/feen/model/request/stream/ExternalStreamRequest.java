@@ -173,15 +173,15 @@ public class ExternalStreamRequest {
     return request;
   }
 
-  public static ExternalStreamRequest ofCreateLiveBroadcast(final FleenStream stream, final StreamType streamType, final CreateLiveBroadcastDto createLiveBroadcastDto, final Oauth2Authorization oauth2Authorization) {
-    final ExternalStreamRequest request = of(null, stream, oauth2Authorization, streamType);
+  public static ExternalStreamRequest ofCreateLiveBroadcast(final Oauth2Authorization oauth2Authorization, final FleenStream stream, final StreamType streamType, final CreateLiveBroadcastDto createLiveBroadcastDto) {
+    final ExternalStreamRequest request = of(null, oauth2Authorization, stream, streamType);
     request.setCreateLiveBroadcastDto(createLiveBroadcastDto);
     request.setRequestType(ExternalStreamRequestType.createLiveBroadcast());
     return request;
   }
 
-  public static ExternalStreamRequest ofDelete(final Calendar calendar, final FleenStream stream, final Oauth2Authorization oauth2Authorization, final StreamType streamType) {
-    final ExternalStreamRequest request = of(calendar, stream, oauth2Authorization, streamType);
+  public static ExternalStreamRequest ofDelete(final Calendar calendar, final Oauth2Authorization oauth2Authorization, final FleenStream stream, final StreamType streamType) {
+    final ExternalStreamRequest request = of(calendar, oauth2Authorization, stream, streamType);
     request.setRequestType(ExternalStreamRequestType.delete());
     return request;
   }
@@ -193,8 +193,8 @@ public class ExternalStreamRequest {
     return request;
   }
 
-  public static ExternalStreamRequest ofPatch(final Calendar calendar, final FleenStream stream, final String title, final String description, final String location, final Oauth2Authorization oauth2Authorization, final StreamType streamType) {
-    final ExternalStreamRequest request = of(calendar, stream, oauth2Authorization, streamType);
+  public static ExternalStreamRequest ofPatch(final Calendar calendar, final Oauth2Authorization oauth2Authorization, final FleenStream stream, final String title, final String description, final String location, final StreamType streamType) {
+    final ExternalStreamRequest request = of(calendar, oauth2Authorization, stream, streamType);
     request.setTitle(title);
     request.setDescription(description);
     request.setLocation(location);
@@ -235,15 +235,8 @@ public class ExternalStreamRequest {
     return request;
   }
 
-
-  public static ExternalStreamRequest of(final Calendar calendar, final FleenStream stream, final Oauth2Authorization oauth2Authorization, final StreamType streamType) {
-    final ExternalStreamRequest request = of(calendar, stream, streamType);
-    request.setOauth2Authorization(oauth2Authorization);
-    return request;
-  }
-
   public static ExternalStreamRequest of(final Calendar calendar, final Oauth2Authorization oauth2Authorization, final FleenStream stream, final StreamType streamType) {
-    ExternalStreamRequest request = of(calendar, stream, streamType);
+    final ExternalStreamRequest request = of(calendar, stream, streamType);
     request.setOauth2Authorization(oauth2Authorization);
     return request;
   }

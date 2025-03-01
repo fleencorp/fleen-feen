@@ -8,4 +8,8 @@ public class FailedOperationException extends ApiException {
   public String getMessageCode() {
     return "failed.operation";
   }
+
+  public static FailedOperationException of() {
+    return new FailedOperationException();
+  }
 }

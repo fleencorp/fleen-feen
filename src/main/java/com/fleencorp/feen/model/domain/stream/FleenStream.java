@@ -4,6 +4,11 @@ import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -16,6 +21,7 @@ import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PRIVATE;
@@ -402,9 +408,103 @@ public class FleenStream extends FleenFeenEntity {
    * @throws FailedOperationException if the {@code streamType} is null or not equal
    *                                  to the {@code originalStreamType}
    */
-  public void verifyIfStreamTypeNotEqual(final StreamType streamType) {
+  public void checkStreamTypeNotEqual(final StreamType streamType) {
     if (isNull(this.streamType) || this.streamType != streamType) {
       throw new FailedOperationException();
+    }
+  }
+
+  /**
+   * Validates if the current user is the organizer of the stream.
+   *
+   * @param memberOrUserId the ID of the user or member to check
+   * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
+   */
+  public void checkIsOrganizer(final Long memberOrUserId) {
+    // Check if the stream organizer's ID matches the user's ID
+    final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
+    if (!isSame) {
+      throw StreamNotCreatedByUserException.of(memberOrUserId);
+    }
+  }
+
+  /**
+   * Validates that the user is not the organizer of the stream.
+   *
+   * @param memberOrUserId the ID of the user or member to check
+   * @throws FailedOperationException if the user is the organizer of the stream
+   */
+  public void checkIsNotOrganizer(final Long memberOrUserId) {
+    // Check if the stream organizer's ID matches the user's ID
+    final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
+    if (isSame) {
+      throw FailedOperationException.of();
+    }
+  }
+
+  /**
+   * Ensures the stream has not been canceled.
+   *
+   * @throws StreamAlreadyCanceledException if the stream has been canceled
+   */
+  public void checkNotCancelled() {
+    if (isCanceled()) {
+      throw StreamAlreadyCanceledException.of(streamId);
+    }
+  }
+
+  /**
+   * Ensures the stream has not already ended.
+   *
+   * @throws StreamAlreadyHappenedException if the stream has already ended
+   */
+  public void checkNotEnded() {
+    if (hasEnded()) {
+      throw new StreamAlreadyHappenedException(streamId, scheduledEndDate);
+    }
+  }
+
+  /**
+   * Ensures the stream is not private for joining without approval.
+   *
+   * @throws CannotJoinPrivateStreamWithoutApprovalException if the stream is private and cannot be joined without approval
+   */
+  public void checkNotPrivateForJoining() {
+    if (isPrivate()) {
+      throw CannotJoinPrivateStreamWithoutApprovalException.of(streamId);
+    }
+  }
+
+  /**
+   * Ensures the stream is not ongoing for cancellation, deletion, or update.
+   *
+   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be canceled, deleted, or updated
+   */
+  public void checkNotOngoingForCancelOrDeleteOrUpdate() {
+    if (isOngoing()) {
+      throw CannotCancelOrDeleteOngoingStreamException.of(streamId);
+    }
+  }
+
+  /**
+   * Ensures the stream is not ongoing before allowing updates.
+   *
+   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be updated
+   */
+  public void checkNotOngoingForUpdate() {
+    if (isOngoing()) {
+      throw CannotCancelOrDeleteOngoingStreamException.of(streamId);
+    }
+  }
+
+  /**
+   * Ensures the stream is not public for requesting to join.
+   *
+   * @throws FailedOperationException if the stream is public and cannot accept join requests
+   */
+  public void checkIsPublicForRequestToJoin() {
+    if (isPublic()) {
+      throw FailedOperationException.of();
     }
   }
 

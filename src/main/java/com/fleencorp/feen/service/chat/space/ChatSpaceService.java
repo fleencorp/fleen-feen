@@ -27,4 +27,6 @@ public interface ChatSpaceService {
   DisableChatSpaceResponse disableChatSpace(Long chatSpaceId, FleenUser user);
 
   void verifyCreatorOrAdminOfSpace(ChatSpace chatSpace, FleenUser user);
+
+  void increaseTotalMembersAndSave(ChatSpace chatSpace);
 }

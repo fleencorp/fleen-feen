@@ -4,12 +4,12 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyCanceledException;
-import com.fleencorp.feen.exception.stream.StreamAlreadyHappenedException;
-import com.fleencorp.feen.exception.stream.StreamNotCreatedByUserException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.exception.stream.join.request.CannotJoinStreamWithoutApprovalException;
+import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.NotAttendingStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
@@ -28,7 +28,7 @@ public interface CommonStreamJoinService {
 
   JoinStreamResponse joinStream(Long streamId, JoinStreamDto joinStreamDto, FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
-      StreamAlreadyHappenedException, CannotJoinStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
+      StreamAlreadyHappenedException, CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
       AlreadyApprovedRequestToJoinException, FailedOperationException;
 
   RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)

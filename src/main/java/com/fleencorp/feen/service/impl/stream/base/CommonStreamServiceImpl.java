@@ -5,7 +5,11 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.*;
+import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
@@ -37,7 +41,8 @@ import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
+import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
 
 @Service
 public class CommonStreamServiceImpl implements CommonStreamService, StreamRequestService {
@@ -119,7 +124,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(deleteStreamDto.getStreamType());
+    stream.checkStreamTypeNotEqual(deleteStreamDto.getStreamType());
 
     // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user);
@@ -131,7 +136,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Validate if the user is the creator of the event
     validateCreatorOfStream(stream, user);
     // Verify if stream is still ongoing
-    verifyIfStreamIsOngoing(streamId, stream);
+    stream.checkNotOngoingForCancelOrDeleteOrUpdate();
     // Update delete status of event
     stream.delete();
     // Save the stream
@@ -233,11 +238,11 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(cancelStreamDto.getStreamType());
+    stream.checkStreamTypeNotEqual(cancelStreamDto.getStreamType());
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
     // Verify if the event or stream is still ongoing
-    verifyIfStreamIsOngoing(streamId, stream);
+    stream.checkNotOngoingForCancelOrDeleteOrUpdate();
     // Update event status to canceled
     stream.cancel();
 
@@ -330,7 +335,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
+    stream.checkStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
 
     // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user);
@@ -442,7 +447,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(updateStreamDto.getStreamType());
+    stream.checkStreamTypeNotEqual(updateStreamDto.getStreamType());
     // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
     // Update the FleenStream object with the response from Google Calendar
@@ -536,7 +541,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * stream visibility information, the stream type, and its ID. It ensures all interactions with external services
    * are handled correctly, and if any issues arise during the update process, appropriate exceptions are thrown.</p>
    *
-   * @param eventId                   the unique identifier of the stream (event or broadcast) to update visibility for
+   * @param streamId                   the unique identifier of the stream (event or broadcast) to update visibility for
    * @param updateStreamVisibilityDto  the DTO containing the new visibility status for the stream
    * @param user                      the user making the update request; must be the creator of the stream
    * @return                          a localized response object containing details about the updated stream visibility
@@ -551,20 +556,20 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   @Transactional
-  public UpdateStreamVisibilityResponse updateStreamVisibility(final Long eventId, final UpdateStreamVisibilityDto updateStreamVisibilityDto, final FleenUser user)
+  public UpdateStreamVisibilityResponse updateStreamVisibility(final Long streamId, final UpdateStreamVisibilityDto updateStreamVisibilityDto, final FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
-    final FleenStream stream = streamService.findStream(eventId);
+    final FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
-    stream.verifyIfStreamTypeNotEqual(updateStreamVisibilityDto.getStreamType());
+    stream.checkStreamTypeNotEqual(updateStreamVisibilityDto.getStreamType());
     // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
     // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
     // Verify if the stream is still ongoing
-    verifyIfStreamIsOngoing(eventId, stream);
+    stream.checkNotOngoingForUpdate();
     // Update the visibility of an event or stream
     stream.setStreamVisibility(updateStreamVisibilityDto.getActualVisibility());
     // Save the updated stream in the repository
@@ -587,7 +592,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the update
-    return localizer.of(UpdateStreamVisibilityResponse.of(eventId, streamVisibility, streamTypeInfo));
+    return localizer.of(UpdateStreamVisibilityResponse.of(streamId, streamVisibility, streamTypeInfo));
   }
 
   /**

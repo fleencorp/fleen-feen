@@ -189,7 +189,9 @@ public class StreamAttendee extends FleenFeenEntity {
    * {@code StreamAttendeeRequestToJoinStatus.PENDING}, indicating that their request is pending approval.</p>
    */
   public void markRequestAsPending() {
-    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.PENDING;
+    if (stream.isPrivateOrProtected()) {
+      requestToJoinStatus = StreamAttendeeRequestToJoinStatus.PENDING;
+    }
   }
 
   /**

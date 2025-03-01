@@ -2,9 +2,9 @@ package com.fleencorp.feen.service.impl.chat.space;
 
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.chat.space.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
+import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -343,7 +342,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 
     // Check if the user is the creator or an admin of the space
-    if (Objects.equals(chatSpace.getMemberId(), user.getId()) || checkIfUserIsAnAdminInSpace(chatSpace, user)) {
+    if (chatSpace.isOrganizer(user.getId()) || checkIfUserIsAnAdminInSpace(chatSpace, user)) {
       return;
     }
 
@@ -382,7 +381,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
     // Verify if the chat space has already been deleted
-    verifyIfChatSpaceAlreadyDeleted(chatSpace);
+    chatSpace.checkNotDeleted();
     // Verify that the user is the creator or an admin of the chat space
     verifyCreatorOrAdminOfSpace(chatSpace, user);
   }
@@ -455,11 +454,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    *
    * @param chatSpace the chat space where the total number of members should be increased
    */
-  protected void increaseTotalMembersAndSave(final ChatSpace chatSpace) {
+  @Override
+  public void increaseTotalMembersAndSave(final ChatSpace chatSpace) {
     // Increase total members in chat space
-    chatSpace.increaseTotalMembers();
-    // Save chat space to repository
-    chatSpaceRepository.save(chatSpace);
+    chatSpaceRepository.incrementTotalMembers(chatSpace.getChatSpaceId());
   }
 
 }

@@ -41,6 +41,11 @@ public class ProcessRequestToJoinChatSpaceDto {
     return ChatSpaceRequestToJoinStatus.isApproved(getJoinStatus());
   }
 
+  public boolean isDisapproved() {
+    return ChatSpaceRequestToJoinStatus.isDisapproved(getJoinStatus());
+  }
+
+
   public Long getMemberId() {
     return Long.parseLong(memberId);
   }

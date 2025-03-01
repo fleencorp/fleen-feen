@@ -1,9 +1,14 @@
 package com.fleencorp.feen.service.impl.chat.space.join;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
-import com.fleencorp.feen.exception.chat.space.*;
+import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
+import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
+import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -19,7 +24,6 @@ import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJ
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
-import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
@@ -33,9 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.fleencorp.feen.service.common.CommonService.verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction;
-import static java.util.Objects.nonNull;
 
 /**
  * Implementation of the {@link ChatSpaceService} interface, providing methods
@@ -57,7 +58,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
   private final NotificationService notificationService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
-  private final ChatSpaceRepository chatSpaceRepository;
   private final Localizer localizer;
 
   /**
@@ -74,7 +74,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param notificationService processes and sends general notifications.
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
-   * @param chatSpaceRepository repository for chat space entities.
    * @param localizer provides localized responses for API operations.
    */
   public ChatSpaceJoinServiceImpl(
@@ -85,7 +84,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       final NotificationService notificationService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
-      final ChatSpaceRepository chatSpaceRepository,
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceMemberService = chatSpaceMemberService;
@@ -93,7 +91,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
-    this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.localizer = localizer;
   }
@@ -111,7 +108,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @return A response confirming the user’s successful joining of the chat space, localized based on the user's locale.
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID does not exist.
    * @throws ChatSpaceNotActiveException if the chat space is inactive.
-   * @throws CannotJoinPrivateChatSpaceException if the chat space is not public.
+   * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is not public.
    */
   @Override
   @Transactional
@@ -119,15 +116,15 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(chatSpace.getMemberId()), user);
+    chatSpace.checkIsNotOrganizer(user.getId());
     // Verify if the chat space is inactive and throw an exception if it is
-    verifyIfChatSpaceInactive(chatSpace);
+    chatSpace.checkIsInactive();
     // Verify that the chat space is public and throw an exception if it is not
-    validatePublicSpace(chatSpace);
+    chatSpace.checkNotPrivateForJoining();
     // Find or create a membership entry for the user in the chat space
     findOrCreateChatSpaceMemberAndAddToChatSpace(chatSpace, joinChatSpaceDto, user);
     // Increase total members and save chat space
-    increaseTotalMembersAndSave(chatSpace);
+    chatSpaceService.increaseTotalMembersAndSave(chatSpace);
     // Return a localized response indicating successful joining
     return localizer.of(JoinChatSpaceResponse.of());
   }
@@ -149,7 +146,8 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       .ifPresentOrElse(
         chatSpaceMember -> {
           // Verify the user is not removed from the chat space
-          verifyChatSpaceMemberIsNotRemoved(chatSpaceMember);
+          chatSpaceMember.checkNotRemoved();
+          // Handle the approval
           handleApprovalOfExistingChatSpaceMember(chatSpace, chatSpaceMember, user);
           },
         () -> createAndApproveNewChatSpaceMember(chatSpace, joinChatSpaceDto, user)
@@ -169,22 +167,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   private Optional<ChatSpaceMember> findChatSpaceMemberByChatSpace(final ChatSpace chatSpace, final Member member) {
     return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member);
-  }
-
-  /**
-   * Verifies that the given chat space member has not been removed.
-   * If the member has been marked as removed, an exception is thrown.
-   *
-   * <p>If the chat space member is removed, this method will throw a
-   * {@code ChatSpaceMemberRemovedException} to indicate the removal status.</p>
-   *
-   * @param chatSpaceMember  the chat space member to be verified.
-   * @throws ChatSpaceMemberRemovedException if the member has been removed.
-   */
-  private void verifyChatSpaceMemberIsNotRemoved(final ChatSpaceMember chatSpaceMember) {
-    if (chatSpaceMember.isRemoved()) {
-      throw new ChatSpaceMemberRemovedException();
-    }
   }
 
   /**
@@ -264,11 +246,11 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Create a chat space member to update later
     ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
-    verifyIfUserIsAuthorOrCreatorOrOwnerTryingToPerformAction(Member.of(chatSpace.getMemberId()), user);
+    chatSpace.checkIsNotOrganizer(user.getId());
     // Verify that member has not been removed
-    verifyChatSpaceMemberIsNotRemoved(chatSpaceMember);
+    chatSpaceMember.checkNotRemoved();
     // Verify if the chat space is inactive
-    verifyIfChatSpaceInactive(chatSpace);
+    chatSpace.checkIsInactive();
     // If the chat space is private, handle the join request
     if (chatSpace.isPrivate()) {
       chatSpaceMember = handleJoinRequest(chatSpace, requestToJoinChatSpaceDto, user);
@@ -298,7 +280,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, user.toMember())
       .ifPresentOrElse(chatSpaceMember -> {
         // Verify the user is not removed from the chat space
-        verifyChatSpaceMemberIsNotRemoved(chatSpaceMember);
+        chatSpaceMember.checkNotRemoved();
         // Update the join status based on the existing request
         updateJoinStatusBasedOnExistingRequest(chatSpaceMember, requestToJoinChatSpaceDto.getComment());
         // Save the updated chat space member
@@ -363,7 +345,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Find the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted
-    verifyIfChatSpaceAlreadyDeleted(chatSpace);
+    chatSpace.checkNotDeleted();
     // Verify if user is an admin
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -405,12 +387,16 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
   protected void processJoinRequestStatus(final ChatSpaceMember chatSpaceMember, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto) {
     // Check if the join request is disapproved or pending
     if (chatSpaceMember.isRequestToJoinDisapprovedOrPending()) {
+      // Set the admin comment based on the join request
+      chatSpaceMember.setSpaceAdminComment(processRequestToJoinChatSpaceDto.getComment());
       // Approve the join request if the actual status is approved
-      if (ChatSpaceRequestToJoinStatus.isApproved(processRequestToJoinChatSpaceDto.getJoinStatus())) {
+      if (processRequestToJoinChatSpaceDto.isApproved()) {
+        // Approve the join request if the actual status is approved
+        chatSpaceMember.approveJoinRequest();
+
+      } else if (processRequestToJoinChatSpaceDto.isDisapproved()) {
         // Disapprove the join request if the actual status is disapproved
-        chatSpaceMember.approveJoinRequest(processRequestToJoinChatSpaceDto.getComment());
-      } else if (ChatSpaceRequestToJoinStatus.isDisapproved(processRequestToJoinChatSpaceDto.getJoinStatus())) {
-        chatSpaceMember.disapprovedJoinRequest(processRequestToJoinChatSpaceDto.getComment());
+        chatSpaceMember.disapprovedJoinRequest();
       }
       // Save the updated chat space member to the repository
       chatSpaceMemberRepository.save(chatSpaceMember);
@@ -435,26 +421,10 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Remove the user from the chat space
     chatSpaceMemberService.leaveChatSpace(chatSpace, user.getId());
+    // Create the response
+    final LeaveChatSpaceResponse leaveChatSpaceResponse = LeaveChatSpaceResponse.of();
     // Return a localized response indicating the member removal was successful
-    return localizer.of(LeaveChatSpaceResponse.of());
-  }
-
-  /**
-   * Verifies if the specified chat space has already been marked as deleted.
-   *
-   * <p>This method checks if the provided chat space is not null and if it has been marked
-   * as deleted. If the chat space is found to be deleted, an exception is thrown to indicate
-   * that the chat space cannot be operated on.</p>
-   *
-   * @param chatSpace The chat space to verify.
-   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
-   */
-  protected void verifyIfChatSpaceAlreadyDeleted(final ChatSpace chatSpace) {
-    // Check if the chat space is not null and if it is marked as deleted
-    if (nonNull(chatSpace) && chatSpace.isDeleted()) {
-      // Throw an exception if the chat space is already deleted
-      throw new ChatSpaceAlreadyDeletedException();
-    }
+    return localizer.of(leaveChatSpaceResponse);
   }
 
   /**
@@ -470,55 +440,9 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
     // Verify if the chat space has already been deleted
-    verifyIfChatSpaceAlreadyDeleted(chatSpace);
+    chatSpace.checkNotDeleted();
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
-  }
-
-  /**
-   * Verifies if the specified chat space is inactive.
-   *
-   * <p>This method checks if the provided chat space is not null and if it is marked
-   * as inactive. If the chat space is found to be inactive, an exception is thrown to indicate
-   * that the chat space cannot be operated on.</p>
-   *
-   * @param chatSpace The chat space to verify.
-   * @throws ChatSpaceNotActiveException if the chat space is inactive.
-   */
-  protected void verifyIfChatSpaceInactive(final ChatSpace chatSpace) {
-    // Check if the chat space is not null and if it is marked as inactive
-    if (nonNull(chatSpace) && chatSpace.isInactive()) {
-      // Throw an exception if the chat space is disabled or inactive
-      throw new ChatSpaceNotActiveException();
-    }
-  }
-
-  /**
-   * Validates whether the specified chat space is public.
-   *
-   * <p>This method checks if the provided chat space is private. If the chat space is private,
-   * it throws an exception, preventing users from joining.</p>
-   *
-   * @param chatSpace The chat space to validate for public access.
-   * @throws CannotJoinPrivateChatSpaceException if the chat space is private and cannot be joined.
-   */
-  protected void validatePublicSpace(final ChatSpace chatSpace) {
-    // Check if the chat space is private and throw an exception if it is
-    if (chatSpace.isPrivate()) {
-      throw new CannotJoinPrivateChatSpaceException();
-    }
-  }
-
-  /**
-   * Increases the total number of members in the specified chat space and saves the updated chat space entity.
-   *
-   * @param chatSpace the chat space where the total number of members should be increased
-   */
-  protected void increaseTotalMembersAndSave(final ChatSpace chatSpace) {
-    // Increase total members in chat space
-    chatSpace.increaseTotalMembers();
-    // Save chat space to repository
-    chatSpaceRepository.save(chatSpace);
   }
 
 }

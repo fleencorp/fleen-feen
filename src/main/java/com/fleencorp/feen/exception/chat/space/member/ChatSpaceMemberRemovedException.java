@@ -2,8 +2,6 @@ package com.fleencorp.feen.exception.chat.space.member;
 
 import com.fleencorp.localizer.model.exception.ApiException;
 
-import java.util.function.Supplier;
-
 public class ChatSpaceMemberRemovedException extends ApiException {
 
   @Override
@@ -15,7 +13,7 @@ public class ChatSpaceMemberRemovedException extends ApiException {
     super(params);
   }
 
-  public static Supplier<ChatSpaceMemberRemovedException> of(final Object memberId) {
-    return () -> new ChatSpaceMemberRemovedException(memberId);
+  public static ChatSpaceMemberRemovedException of(final Object memberId) {
+    return new ChatSpaceMemberRemovedException(memberId);
   }
 }
