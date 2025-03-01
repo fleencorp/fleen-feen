@@ -27,8 +27,6 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
-import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
@@ -47,21 +45,32 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   private final EventService eventService;
   private final EventUpdateService eventUpdateService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
-  private final MiscService miscService;
   private final StreamService streamService;
-  private final GoogleOauth2Service googleOauth2Service;
   private final FleenStreamRepository streamRepository;
   private final StreamMapper streamMapper;
   private final CommonMapper commonMapper;
   private final Localizer localizer;
 
+  /**
+   * Constructs an instance of {@code CommonStreamServiceImpl} with the specified services and repositories.
+   *
+   * <p>This constructor initializes the necessary services, repositories, and mappers used in stream management,
+   * event handling, and live broadcast updates. It also supports localization for responses.</p>
+   *
+   * @param eventService the service responsible for managing events
+   * @param eventUpdateService the service responsible for updating events
+   * @param liveBroadcastUpdateService the service responsible for managing live broadcast updates
+   * @param streamService the service responsible for managing stream operations
+   * @param streamRepository the repository for accessing stream data
+   * @param streamMapper the mapper for transforming stream-related data
+   * @param commonMapper the mapper for common transformations
+   * @param localizer the service responsible for localizing responses
+   */
   public CommonStreamServiceImpl(
       final EventService eventService,
       final EventUpdateService eventUpdateService,
       final LiveBroadcastUpdateService liveBroadcastUpdateService,
-      final MiscService miscService,
       final StreamService streamService,
-      final GoogleOauth2Service googleOauth2Service,
       final FleenStreamRepository streamRepository,
       final StreamMapper streamMapper,
       final CommonMapper commonMapper,
@@ -69,9 +78,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     this.eventService = eventService;
     this.eventUpdateService = eventUpdateService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
-    this.miscService = miscService;
     this.streamService = streamService;
-    this.googleOauth2Service = googleOauth2Service;
     this.streamRepository = streamRepository;
     this.streamMapper = streamMapper;
     this.commonMapper = commonMapper;

@@ -5,7 +5,6 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationExce
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
@@ -15,8 +14,6 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
@@ -29,10 +26,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.Set;
 
-import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 
 /**
@@ -57,8 +52,6 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   private final StreamService streamService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
   private final YouTubeChannelService youTubeChannelService;
-  private final Oauth2AuthorizationRepository oauth2AuthorizationRepository;
-  private final FleenStreamRepository streamRepository;
   private final StreamMapper streamMapper;
   private final Localizer localizer;
 
@@ -74,8 +67,6 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @param streamService the service responsible for managing streams
    * @param liveBroadcastUpdateService the service used to update live broadcasts
    * @param youTubeChannelService the service for interacting with YouTube channels
-   * @param streamRepository the repository for storing and retrieving stream data
-   * @param oauth2AuthorizationRepository the repository for handling OAuth2 authorization data
    * @param localizer the service for generating localized responses
    * @param streamMapper the mapper used to convert stream data to response formats
    */
@@ -84,16 +75,12 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       final StreamService streamService,
       @Lazy final LiveBroadcastUpdateService liveBroadcastUpdateService,
       final YouTubeChannelService youTubeChannelService,
-      final FleenStreamRepository streamRepository,
-      final Oauth2AuthorizationRepository oauth2AuthorizationRepository,
       final Localizer localizer,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
     this.streamService = streamService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
-    this.oauth2AuthorizationRepository = oauth2AuthorizationRepository;
-    this.streamRepository = streamRepository;
     this.streamMapper = streamMapper;
     this.localizer = localizer;
   }
@@ -199,41 +186,6 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
     return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
-  }
-
-  /**
-   * Verifies and retrieves the OAuth2 authorization details for the specified FleenUser.
-   *
-   * <p>This method delegates to {@link #verifyAndGetUserOauth2Authorization(Member)}
-   * using the Member representation of the provided FleenUser.</p>
-   *
-   * @param user The FleenUser whose OAuth2 authorization needs to be verified and retrieved.
-   * @return The {@link Oauth2Authorization} entity associated with the specified FleenUser.
-   * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the FleenUser.
-   */
-  public Oauth2Authorization verifyAndGetUserOauth2Authorization(final FleenUser user) {
-    // Delegate to verifyAndGetUserOauth2Authorization(Member) method
-    return verifyAndGetUserOauth2Authorization(user.toMember());
-  }
-
-  /**
-   * Verifies and retrieves the OAuth2 authorization details for the specified member.
-   *
-   * <p>This method retrieves the {@link Oauth2Authorization} entity associated with the provided member
-   * from the repository. If no authorization is found, an {@link Oauth2InvalidAuthorizationException} is thrown.
-   * Otherwise, it returns the retrieved {@link Oauth2Authorization}.</p>
-   *
-   * @param member The member whose OAuth2 authorization needs to be verified and retrieved.
-   * @return The {@link Oauth2Authorization} entity associated with the specified member.
-   * @throws Oauth2InvalidAuthorizationException If no valid OAuth2 authorization is found for the member.
-   */
-  public Oauth2Authorization verifyAndGetUserOauth2Authorization(final Member member) {
-    // Retrieve the OAuth2 authorization entity associated with the member
-    final Optional<Oauth2Authorization> existingGoogleOauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(member, Oauth2ServiceType.youTube());
-    // Throw exception if no authorization is found
-    checkIsTrue(existingGoogleOauth2Authorization.isEmpty(), Oauth2InvalidAuthorizationException.of(Oauth2ServiceType.youTube()));
-    // Return the retrieved OAuth2 authorization
-    return existingGoogleOauth2Authorization.get();
   }
 
 }
