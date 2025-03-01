@@ -628,11 +628,8 @@ class FleenStreamTest {
   @DisplayName("Ensure chat space id is not empty")
   void ensure_chat_space_id_is_not_empty() {
     // given
-    final ChatSpace chatSpace = new ChatSpace();
-    chatSpace.setChatSpaceId(1L);
-
     final FleenStream stream = new FleenStream();
-    stream.setChatSpace(chatSpace);
+    stream.setChatSpaceId(1L);
 
     // then
     assertNotNull(stream.getChatSpaceId());
@@ -892,11 +889,8 @@ class FleenStreamTest {
   @DisplayName("Ensure organizer id is not empty")
   void ensure_organizer_id_is_not_empty() {
     // given
-    final Member member = new Member();
-    member.setMemberId(1L);
-
     final FleenStream stream = new FleenStream();
-    stream.setMember(member);
+    stream.setMemberId(1L);
 
     // then
     assertNotNull(stream.getOrganizerId());
@@ -958,11 +952,8 @@ class FleenStreamTest {
   @DisplayName("Ensure it has a chat space id")
   void ensure_it_has_a_chat_space_id() {
     // given
-    final ChatSpace chatSpace = new ChatSpace();
-    chatSpace.setChatSpaceId(1L);
-
     final FleenStream stream = new FleenStream();
-    stream.setChatSpace(chatSpace);
+    stream.setChatSpaceId(1L);
 
     // then
     assertTrue(stream.hasChatSpaceId());
