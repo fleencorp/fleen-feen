@@ -411,19 +411,17 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param externalStreamRequest the request containing stream and attendee details
    */
   private void joinStreamExternally(final ExternalStreamRequest externalStreamRequest) {
-    if (nonNull(externalStreamRequest) && externalStreamRequest.isJoinStreamRequest()) {
+    if (nonNull(externalStreamRequest) && externalStreamRequest.isJoinStreamRequest()
+        && externalStreamRequest.isAnEvent()) {
+      final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.withComment(
+        externalStreamRequest.calendarExternalId(),
+        externalStreamRequest.streamExternalId(),
+        externalStreamRequest.getAttendeeEmailAddress(),
+        externalStreamRequest.getJoinStreamDto().getComment()
+      );
 
-      if (externalStreamRequest.isAnEvent()) {
-        final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.withComment(
-          externalStreamRequest.calendarExternalId(),
-          externalStreamRequest.streamExternalId(),
-          externalStreamRequest.getAttendeeEmailAddress(),
-          externalStreamRequest.getJoinStreamDto().getComment()
-        );
-
-        // Send an invitation to the user in the Calendar & Event API
-        otherEventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
-      }
+      // Send an invitation to the user in the Calendar & Event API
+      otherEventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
     }
   }
 
