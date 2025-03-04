@@ -7,7 +7,9 @@ import com.fleencorp.feen.repository.word.bank.NounRepository;
 import com.fleencorp.feen.service.user.WordBankService;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -35,7 +37,7 @@ public class WordBankServiceImpl implements WordBankService {
    */
   @Override
   public Adjective findRandomAdjective() {
-    final ThreadLocalRandom random = ThreadLocalRandom.current();
+    final Random random = new SecureRandom();
     final int minId = adjectiveRepository.findMinAdjectiveId();
     final int maxId = adjectiveRepository.findMaxAdjectiveId();
 
@@ -59,7 +61,7 @@ public class WordBankServiceImpl implements WordBankService {
    */
   @Override
   public Noun findRandomNoun() {
-    final ThreadLocalRandom random = ThreadLocalRandom.current();
+    final Random random = new SecureRandom();
     final int minId = nounRepository.findMinNounId();
     final int maxId = nounRepository.findMaxNounId();
 
