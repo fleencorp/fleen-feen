@@ -10,6 +10,8 @@ import com.fleencorp.feen.service.user.WordBankService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.isNull;
@@ -37,7 +39,7 @@ public class UsernameServiceImpl implements UsernameService {
    * @return a randomly selected {@code Adjective} from the adjective repository
    */
   private String generateRandomUsername() {
-    final ThreadLocalRandom random = ThreadLocalRandom.current();
+    final Random random = new SecureRandom();
     final Adjective adjective = wordBankService.findRandomAdjective();
     final Noun noun = wordBankService.findRandomNoun();
 
