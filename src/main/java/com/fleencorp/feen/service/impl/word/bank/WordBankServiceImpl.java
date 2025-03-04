@@ -8,14 +8,14 @@ import com.fleencorp.feen.service.user.WordBankService;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class WordBankServiceImpl implements WordBankService {
 
   private final AdjectiveRepository adjectiveRepository;
   private final NounRepository nounRepository;
-  private final Random random = new Random();
+  private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
   public WordBankServiceImpl(
       final AdjectiveRepository adjectiveRepository,
