@@ -10,7 +10,7 @@ import com.fleencorp.feen.service.user.WordBankService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.util.Objects.isNull;
 
@@ -19,7 +19,7 @@ public class UsernameServiceImpl implements UsernameService {
 
   private final MemberService memberService;
   private final WordBankService wordBankService;
-  private final Random random = new Random();
+  private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
   public UsernameServiceImpl(
       final MemberService memberService,
