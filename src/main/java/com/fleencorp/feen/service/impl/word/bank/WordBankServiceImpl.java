@@ -15,7 +15,6 @@ public class WordBankServiceImpl implements WordBankService {
 
   private final AdjectiveRepository adjectiveRepository;
   private final NounRepository nounRepository;
-  private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
   public WordBankServiceImpl(
       final AdjectiveRepository adjectiveRepository,
@@ -36,6 +35,7 @@ public class WordBankServiceImpl implements WordBankService {
    */
   @Override
   public Adjective findRandomAdjective() {
+    final ThreadLocalRandom random = ThreadLocalRandom.current();
     final int minId = adjectiveRepository.findMinAdjectiveId();
     final int maxId = adjectiveRepository.findMaxAdjectiveId();
 
@@ -59,6 +59,7 @@ public class WordBankServiceImpl implements WordBankService {
    */
   @Override
   public Noun findRandomNoun() {
+    final ThreadLocalRandom random = ThreadLocalRandom.current();
     final int minId = nounRepository.findMinNounId();
     final int maxId = nounRepository.findMaxNounId();
 
