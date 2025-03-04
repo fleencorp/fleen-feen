@@ -14,6 +14,8 @@ public interface MemberService {
 
   boolean isIdExists(Long memberId);
 
+  boolean isUsernameExist(String username);
+
   Member findMember(Long memberId) throws MemberNotFoundException;
 
   RetrieveMemberInfoResponse getMemberInfo(FleenUser user);
@@ -27,4 +29,5 @@ public interface MemberService {
   EntityExistsResponse verifyMemberPhoneNumberExists(String phoneNumber);
 
   void clearAuthenticationTokens(String username);
+
 }

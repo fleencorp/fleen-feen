@@ -39,6 +39,7 @@ import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.service.user.RoleService;
+import com.fleencorp.feen.service.user.UsernameService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
@@ -68,6 +69,7 @@ public class VerificationServiceImpl implements PasswordService,
   private final MfaService mfaService;
   private final RoleService roleService;
   private final TokenService tokenService;
+  private final UsernameService usernameService;
   private final MemberRepository memberRepository;
   private final ProfileTokenRepository profileTokenRepository;
   private final PasswordEncoder passwordEncoder;
@@ -80,6 +82,7 @@ public class VerificationServiceImpl implements PasswordService,
       final MfaService mfaService,
       final RoleService roleService,
       final TokenService tokenService,
+      final UsernameService usernameService,
       final MemberRepository memberRepository,
       final ProfileTokenRepository profileTokenRepository,
       final PasswordEncoder passwordEncoder,
@@ -90,6 +93,7 @@ public class VerificationServiceImpl implements PasswordService,
     this.mfaService = mfaService;
     this.roleService = roleService;
     this.tokenService = tokenService;
+    this.usernameService = usernameService;
     this.memberRepository = memberRepository;
     this.profileTokenRepository = profileTokenRepository;
     this.passwordEncoder = passwordEncoder;
@@ -139,6 +143,9 @@ public class VerificationServiceImpl implements PasswordService,
     checkIfSignUpIsAlreadyCompleted(member);
     // Update member profile details
     updateMemberProfile(member, verificationType);
+    // Assign a unique username to the member
+    usernameService.assignUniqueUsername(member);
+
 
     // Initialize authentication and context for the new user
     final FleenUser newUser = authenticationService.initializeAuthenticationAndContext(member);

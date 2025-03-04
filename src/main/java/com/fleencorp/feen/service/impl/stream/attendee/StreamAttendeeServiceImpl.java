@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.projection.StreamAttendeeSelect;
+import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
@@ -177,7 +177,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
           // Determine the is attending information based on the user's status attendee status
           final IsAttendingInfo attendingInfo = streamMapper.toIsAttendingInfo(attendee.isAttending());
           // Create a stream attendee response with basic info
-          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getStreamAttendeeId(), attendee.getMemberId(), attendee.getFullName());
+          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getAttendeeId(), attendee.getMemberId(), attendee.getFullName());
           // Add the attendance info on the attendee response
           attendeeResponse.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo));
           // Return a new StreamAttendeeResponse object with the attendee's details and status info
@@ -444,7 +444,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     if (nonNull(attendees)) {
       // Map each StreamAttendee to its StreamAttendeeId and collect the IDs into a set
       return attendees.stream()
-        .map(StreamAttendee::getStreamAttendeeId)
+        .map(StreamAttendee::getAttendeeId)
         .collect(Collectors.toSet());
     }
     return Set.of();

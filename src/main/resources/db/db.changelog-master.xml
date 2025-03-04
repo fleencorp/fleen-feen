@@ -8,4 +8,12 @@
   <include file="classpath:/db/initialization/db.changelog-init-data.sql"/>
   <include file="classpath:/db/initialization/db.changelog-update-constraint.sql"/>
 
+  <changeSet id="insert_adjectives" author="alamu">
+    <sqlFile path="classpath:/db/initialization/data/insert_adjectives.sql" relativeToChangelogFile="false"/>
+  </changeSet>
+
+  <changeSet id="insert_nouns" author="alamu">
+    <sqlFile path="classpath:/db/initialization/data/insert_nouns.sql" relativeToChangelogFile="false"/>
+  </changeSet>
+
 </databaseChangeLog>

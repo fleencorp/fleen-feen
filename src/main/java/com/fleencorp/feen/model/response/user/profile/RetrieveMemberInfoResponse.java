@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.user.profile;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.projection.MemberInfoSelect;
+import com.fleencorp.feen.model.projection.member.MemberInfoSelect;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

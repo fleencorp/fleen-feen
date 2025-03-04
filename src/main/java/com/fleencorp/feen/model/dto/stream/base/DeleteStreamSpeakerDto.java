@@ -22,7 +22,17 @@ public class DeleteStreamSpeakerDto {
   @Valid
   @NotNull(message = "{speaker.speakers.NotNull}")
   @JsonProperty("speakers")
-  private Set<DeleteSpeakersDto> speakerIds;
+  private Set<DeleteSpeakerDto> speakers;
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class DeleteSpeakerDto {
+
+    @JsonProperty("speaker_id")
+    private String speakerId;
+  }
 
   /**
    * Converts a set of speaker IDs into a set of {@link StreamSpeaker} objects.
@@ -31,22 +41,11 @@ public class DeleteStreamSpeakerDto {
    * @return a set of {@link StreamSpeaker} objects created from the valid speaker IDs.
    */
   public Set<StreamSpeaker> toStreamSpeakers() {
-    return speakerIds.stream()
-      .map(DeleteSpeakersDto::getSpeakerId)
+    return speakers.stream()
+      .map(DeleteSpeakerDto::getSpeakerId)
       .filter(FleenUtil::isValidNumber)
       .map(Long::parseLong)
       .map(StreamSpeaker::of)
       .collect(Collectors.toSet());
   }
-
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class DeleteSpeakersDto {
-
-    @JsonProperty("speaker_id")
-    private String speakerId;
-  }
-
 }

@@ -5,9 +5,9 @@ import com.fleencorp.base.service.PhoneService;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.projection.MemberInfoSelect;
-import com.fleencorp.feen.model.projection.MemberProfileStatusSelect;
-import com.fleencorp.feen.model.projection.MemberUpdateSelect;
+import com.fleencorp.feen.model.projection.member.MemberInfoSelect;
+import com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect;
+import com.fleencorp.feen.model.projection.member.MemberUpdateSelect;
 import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
 import com.fleencorp.feen.model.response.common.EmailAddressNotExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
@@ -62,11 +62,11 @@ public class MemberServiceImpl implements MemberService,
    * @param passwordEncoder         the encoder for handling password hashing and verification
    */
   public MemberServiceImpl(
-    final CacheService cacheService,
-    final MemberRepository memberRepository,
-    final UserProfileRepository userProfileRepository,
-    final Localizer localizer,
-    final PasswordEncoder passwordEncoder) {
+      final CacheService cacheService,
+      final MemberRepository memberRepository,
+      final UserProfileRepository userProfileRepository,
+      final Localizer localizer,
+      final PasswordEncoder passwordEncoder) {
     this.cacheService = cacheService;
     this.memberRepository = memberRepository;
     this.userProfileRepository = userProfileRepository;
@@ -157,6 +157,20 @@ public class MemberServiceImpl implements MemberService,
   @Override
   public boolean isIdExists(final Long memberId) {
     return memberRepository.existsByMemberId(memberId);
+  }
+
+  /**
+   * Checks whether a username already exists in the repository.
+   *
+   * <p>This method checks the member repository to determine if a member with the given username already exists.
+   * It returns {@code true} if the username exists and {@code false} otherwise.</p>
+   *
+   * @param username the username to check for existence
+   * @return {@code true} if the username exists, {@code false} otherwise
+   */
+  @Override
+  public boolean isUsernameExist(final String username) {
+    return memberRepository.existsByUsername(username);
   }
 
   /**

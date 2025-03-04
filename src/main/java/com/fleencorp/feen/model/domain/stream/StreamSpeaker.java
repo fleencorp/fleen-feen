@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,15 +22,15 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "stream_speaker_id", nullable = false, updatable = false, unique = true)
-  private Long streamSpeakerId;
+  private Long speakerId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
-  @ManyToOne(fetch = LAZY, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id")
-  private Member member;
+  @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
+  @JoinColumn(name = "attendee_id", referencedColumnName = "stream_attendee_id")
+  private StreamAttendee attendee;
 
   @Column(name = "full_name", nullable = false)
   private String fullName;
@@ -47,8 +46,8 @@ public class StreamSpeaker extends FleenFeenEntity {
    *
    * @return the member ID if the member is not null; otherwise, null.
    */
-  public Long getMemberId() {
-    return nonNull(member) ? member.getMemberId() : null;
+  public Long getAttendeeId() {
+    return nonNull(attendee) ? attendee.getAttendeeId() : null;
   }
 
   /**
@@ -63,6 +62,14 @@ public class StreamSpeaker extends FleenFeenEntity {
       return fullName;
     }
     return defaultFullName;
+  }
+
+  public boolean hasAttendeeId() {
+    return nonNull(getAttendeeId());
+  }
+
+  public boolean hasSpeakerId() {
+    return nonNull(getSpeakerId());
   }
 
   /**
@@ -80,7 +87,7 @@ public class StreamSpeaker extends FleenFeenEntity {
 
   public static StreamSpeaker of(final Long streamSpeakerId) {
     final StreamSpeaker speaker = new StreamSpeaker();
-    speaker.setStreamSpeakerId(streamSpeakerId);
+    speaker.setSpeakerId(streamSpeakerId);
     return speaker;
   }
 }
