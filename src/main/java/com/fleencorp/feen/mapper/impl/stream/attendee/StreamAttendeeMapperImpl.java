@@ -37,11 +37,20 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
     this.streamMapper = streamMapper;
   }
 
+  /**
+   * Converts a {@link StreamAttendee} entry to a {@link StreamAttendeeResponse}.
+   *
+   * <p>This method takes a {@code StreamAttendee} object and maps its fields to a new {@code StreamAttendeeResponse} object.
+   * If the provided {@code StreamAttendee} is {@code null}, it returns {@code null}.</p>
+   *
+   * @param entry the {@code StreamAttendee} object to convert
+   * @return the populated {@code StreamAttendeeResponse} object, or {@code null} if the input is {@code null}
+   */
   protected StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry) {
     if (nonNull(entry)) {
       final StreamAttendeeResponse response = new StreamAttendeeResponse();
 
-      response.setAttendeeId(entry.getStreamAttendeeId());
+      response.setAttendeeId(entry.getAttendeeId());
       response.setAttendeeMemberId(entry.getMemberId());
       response.setFullName(entry.getFullName());
       response.setDisplayPhoto(entry.getProfilePhoto());
@@ -53,6 +62,18 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
     return null;
   }
 
+  /**
+   * Converts a {@link StreamAttendee} entry to a {@link StreamAttendeeResponse} and populates attendance-related information.
+   *
+   * <p>This method maps a {@code StreamAttendee} object to a {@code StreamAttendeeResponse}, along with attendance details
+   * based on the attendee's request to join status, the stream details, and the attendee's current attending status.
+   * It uses the {@code streamMapper} to convert various status-related information into response-friendly formats.
+   * If the {@code StreamAttendee} is {@code null}, it returns {@code null}.</p>
+   *
+   * @param entry the {@code StreamAttendee} object to convert
+   * @param streamResponse the {@code FleenStreamResponse} containing the stream details
+   * @return the populated {@code StreamAttendeeResponse} with attendance information, or {@code null} if the input {@code StreamAttendee} is {@code null}
+   */
   @Override
   public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
     if (nonNull(entry)) {

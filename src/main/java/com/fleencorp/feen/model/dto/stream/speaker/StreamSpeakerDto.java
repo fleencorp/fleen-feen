@@ -1,14 +1,11 @@
 package com.fleencorp.feen.model.dto.stream.speaker;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.base.validator.ValidEmail;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
-import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.validator.MemberExist;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -29,9 +26,8 @@ public class StreamSpeakerDto {
   private String streamSpeakerId;
 
   @IsNumber
-  @MemberExist
-  @JsonProperty("member_id")
-  private String memberId;
+  @JsonProperty("attendee_id")
+  private String attendeeId;
 
   @NotBlank(message = "{speaker.fullName.NotBlank}")
   @Size(min = 10, max = 500, message = "{speaker.fullName.Size}")
@@ -49,12 +45,6 @@ public class StreamSpeakerDto {
   @JsonProperty("description")
   private String description;
 
-  @Size(max = 50, message = "{user.emailAddress.Size}")
-  @ValidEmail
-  @ToLowerCase
-  @JsonProperty("email_address")
-  private String emailAddress;
-
   /**
    * Retrieves the stream speaker ID by converting it to a Long.
    *
@@ -67,16 +57,17 @@ public class StreamSpeakerDto {
   public StreamSpeaker toStreamSpeaker(final FleenStream stream) {
     final StreamSpeaker streamSpeaker = toStreamSpeaker();
     streamSpeaker.setStream(stream);
+
     return streamSpeaker;
   }
 
   public StreamSpeaker toStreamSpeaker() {
     final StreamSpeaker speaker = new StreamSpeaker();
-    speaker.setStreamSpeakerId(getStreamSpeakerId());
+    speaker.setSpeakerId(getStreamSpeakerId());
     speaker.setFullName(fullName);
     speaker.setTitle(title);
     speaker.setDescription(description);
-    speaker.setMember(Member.of(memberId));
+    speaker.setAttendee(StreamAttendee.of(attendeeId));
 
     return speaker;
   }

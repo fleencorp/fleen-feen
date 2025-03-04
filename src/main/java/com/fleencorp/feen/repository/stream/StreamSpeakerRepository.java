@@ -2,7 +2,6 @@ package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
-import com.fleencorp.feen.model.domain.user.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -12,6 +11,6 @@ public interface StreamSpeakerRepository extends JpaRepository<StreamSpeaker, Lo
 
   Set<StreamSpeaker> findAllByStream(FleenStream stream);
 
-  Optional<StreamSpeaker> findByStreamAndMember(FleenStream stream, Member member);
+  Optional<StreamSpeaker> findBySpeakerIdAndStream(StreamSpeaker speaker, FleenStream stream);
 
 }
