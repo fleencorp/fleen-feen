@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 
---changeset alamu:1
+--changeset alamu:insert_roles
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM role;
@@ -18,7 +18,7 @@ INSERT INTO role (title, code) VALUES
 
 
 
---changeset alamu:2
+--changeset alamu:insert_countries
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM country;

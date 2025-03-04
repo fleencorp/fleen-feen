@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 
---changeset alamu:1
+--changeset alamu:create_table_member
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'member';
@@ -12,6 +12,7 @@ CREATE TABLE member (
   last_name VARCHAR(100) NOT NULL,
   email_address VARCHAR(50) NOT NULL,
   phone_number VARCHAR(20) NOT NULL,
+  username VARCHAR(50) NULL,
   password_hash VARCHAR(500) NOT NULL,
   profile_photo_url VARCHAR(1000),
   country VARCHAR(50),
@@ -38,7 +39,7 @@ CREATE TABLE member (
 
 
 
---changeset alamu:2
+--changeset alamu:create_table_profile_token
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'profile_token';
@@ -62,7 +63,7 @@ CREATE TABLE profile_token (
 
 
 
---changeset alamu:3
+--changeset alamu:create_table_role
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'role';
@@ -81,7 +82,7 @@ CREATE TABLE role (
 
 
 
---changeset alamu:4
+--changeset alamu:create_table_oauth2_authorization
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'oauth2_authorization';
@@ -113,7 +114,7 @@ CREATE TABLE oauth2_authorization (
 
 
 
--- changeset alamu:5
+-- changeset alamu:create_table_member_role
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'member_role';
@@ -135,7 +136,7 @@ CREATE TABLE member_role (
 --rollback DROP TABLE IF EXISTS `member_role`;
 
 
---changeset alamu:6
+--changeset alamu:create_table_chat_space
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'chat_space';
@@ -169,7 +170,7 @@ CREATE TABLE chat_space (
 
 
 
---changeset alamu:7
+--changeset alamu:create_table_chat_space_member
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'chat_space_member';
@@ -205,7 +206,7 @@ CREATE TABLE chat_space_member (
 
 
 
--- changeset alamu:8
+-- changeset alamu:create_table_fleen_stream
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'fleen_stream';
@@ -264,7 +265,7 @@ CREATE TABLE fleen_stream (
 
 
 
--- changeset alamu:9
+-- changeset alamu:create_table_calendar
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'calendar';
@@ -286,7 +287,7 @@ CREATE TABLE calendar (
 
 
 
--- changeset alamu:10
+-- changeset alamu:create_table_stream_attendee
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_attendee';
@@ -319,7 +320,7 @@ CREATE TABLE stream_attendee (
 
 
 
--- changeset alamu:11
+-- changeset alamu:create_table_stream_review
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_review';
@@ -349,7 +350,7 @@ CREATE TABLE stream_review (
 
 
 
--- changeset alamu:12
+-- changeset alamu:create_table_country
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'country';
@@ -368,7 +369,7 @@ CREATE TABLE country (
 
 
 
---changeset alamu:13
+--changeset alamu:create_table_follower
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'follower';
@@ -395,7 +396,7 @@ CREATE TABLE follower (
 
 
 
---changeset alamu:14
+--changeset alamu:create_table_stream_speaker
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_speaker';
@@ -403,7 +404,7 @@ CREATE TABLE follower (
 CREATE TABLE stream_speaker (
   stream_speaker_id BIGSERIAL PRIMARY KEY,
   fleen_stream_id BIGINT NOT NULL,
-  member_id BIGINT NULL,
+  attendee_id BIGINT NULL,
   full_name VARCHAR(100) NOT NULL,
   title VARCHAR(100) NULL,
   description VARCHAR(1000) NULL,
@@ -415,9 +416,9 @@ CREATE TABLE stream_speaker (
     FOREIGN KEY (fleen_stream_id)
       REFERENCES fleen_stream (fleen_stream_id)
         ON DELETE CASCADE,
-  CONSTRAINT stream_speaker_fk_member_id
-    FOREIGN KEY (member_id)
-      REFERENCES member (member_id)
+  CONSTRAINT stream_speaker_fk_attendee_id
+    FOREIGN KEY (attendee_id)
+      REFERENCES stream_attendee (stream_attendee_id)
         ON DELETE CASCADE
 );
 
@@ -425,7 +426,7 @@ CREATE TABLE stream_speaker (
 
 
 
---changeset alamu:15
+--changeset alamu:create_table_share_contact_request
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'share_contact_request';
@@ -461,7 +462,7 @@ CREATE TABLE share_contact_request (
 
 
 
---changeset alamu:16
+--changeset alamu:create_table_block_user
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'block_user';
@@ -490,7 +491,7 @@ CREATE TABLE block_user (
 
 
 
---changeset alamu:17
+--changeset alamu:create_table_contact
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'contact';
@@ -516,7 +517,7 @@ CREATE TABLE contact (
 
 
 
---changeset alamu:18
+--changeset alamu:create_table_notification
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'notification';
@@ -605,3 +606,30 @@ CREATE TABLE notification (
 
 --rollback DROP TABLE IF EXISTS `notification`;
 
+
+
+--changeset alamu:create_table_adjectives
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'adjectives';
+
+CREATE TABLE adjectives (
+  id BIGSERIAL PRIMARY KEY,
+  word VARCHAR(255)
+);
+
+--rollback DROP TABLE IF EXISTS `adjectives`;
+
+
+
+--changeset alamu:create_table_nouns
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'nouns';
+
+CREATE TABLE nouns (
+  id BIGSERIAL PRIMARY KEY,
+  word VARCHAR(255)
+);
+
+--rollback DROP TABLE IF EXISTS `nouns`;

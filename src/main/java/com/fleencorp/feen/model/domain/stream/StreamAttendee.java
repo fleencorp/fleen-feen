@@ -26,7 +26,10 @@ public class StreamAttendee extends FleenFeenEntity {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   @Column(name = "stream_attendee_id", nullable = false, updatable = false, unique = true)
-  private Long streamAttendeeId;
+  private Long attendeeId;
+
+  @Column(name = "fleen_stream_id", nullable = false, updatable = false, insertable = false)
+  private Long streamId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
@@ -216,6 +219,13 @@ public class StreamAttendee extends FleenFeenEntity {
     streamAttendee.setAttendeeComment(comment);
 
     return streamAttendee;
+  }
+
+  public static StreamAttendee of(final String attendeeId) {
+    final StreamAttendee attendee = new StreamAttendee();
+    attendee.setAttendeeId(Long.valueOf(attendeeId));
+
+    return attendee;
   }
 
   public static StreamAttendee empty() {

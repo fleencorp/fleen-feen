@@ -30,7 +30,8 @@ import static java.util.Objects.nonNull;
 @Entity
 @Table(name = "member", uniqueConstraints = {
   @UniqueConstraint(columnNames = "email_address"),
-  @UniqueConstraint(columnNames = "phone_number")
+  @UniqueConstraint(columnNames = "phone_number"),
+  @UniqueConstraint(columnNames = "username")
 })
 public class Member extends FleenFeenEntity {
 
@@ -44,6 +45,9 @@ public class Member extends FleenFeenEntity {
 
   @Column(name = "last_name", nullable = false, length = 100)
   private String lastName;
+
+  @Column(name = "username", nullable = false, unique = true, length = 50)
+  private String username;
 
   @Column(name = "email_address", nullable = false, unique = true, length = 50)
   private String emailAddress;
