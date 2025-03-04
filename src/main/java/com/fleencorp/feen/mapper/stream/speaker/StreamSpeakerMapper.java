@@ -1,8 +1,8 @@
 package com.fleencorp.feen.mapper.stream.speaker;
 
-import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 
 import java.util.List;
@@ -41,24 +41,25 @@ public final class StreamSpeakerMapper {
    */
   public static StreamSpeakerResponse toStreamSpeakerResponse(final StreamSpeaker entry) {
     if (nonNull(entry)) {
-      return StreamSpeakerResponse.builder()
-        .speakerId(entry.getStreamSpeakerId())
-        .memberId(entry.getMemberId())
-        .title(entry.getTitle())
-        .description(entry.getDescription())
-        .fullName(entry.getFullName())
-        .build();
+      final StreamSpeakerResponse speakerResponse = new StreamSpeakerResponse();
+      speakerResponse.setSpeakerId(entry.getSpeakerId());
+      speakerResponse.setAttendeeId(entry.getAttendeeId());
+      speakerResponse.setFullName(entry.getFullName());
+      speakerResponse.setTitle(entry.getTitle());
+      speakerResponse.setDescription(entry.getDescription());
+
+      return speakerResponse;
     }
     return null;
   }
 
-  public static StreamSpeakerResponse toStreamSpeakerResponseByMember(final Member entry) {
+  public static StreamSpeakerResponse toStreamSpeakerResponse(final StreamAttendeeInfoSelect entry) {
     if (nonNull(entry)) {
-      return StreamSpeakerResponse.builder()
-        .memberId(entry.getMemberId())
-        .fullName(entry.getFullName())
-        .emailAddress(MaskedEmailAddress.of(entry.getEmailAddress()))
-        .build();
+      final StreamSpeakerResponse speakerResponse = new StreamSpeakerResponse();
+      speakerResponse.setAttendeeId(entry.getAttendeeId());
+      speakerResponse.setFullName(entry.getFullName());
+
+      return speakerResponse;
     }
     return null;
   }
@@ -88,16 +89,16 @@ public final class StreamSpeakerMapper {
    *
    * <p>This method processes a list of {@link Member} objects, filtering out any null entries,
    * and maps each non-null {@link Member} to a {@link StreamSpeakerResponse} using the
-   * {@link StreamSpeakerMapper#toStreamSpeakerResponseByMember(Member)} method.</p>
+   * {@link StreamSpeakerMapper#toStreamSpeakerResponse(StreamAttendeeInfoSelect)} (Member)} method.</p>
    *
    * @param entries the list of {@link Member} objects to be converted
    * @return a list of {@link StreamSpeakerResponse} objects, or an empty list if the input is null
    */
-  public static List<StreamSpeakerResponse> toStreamSpeakerResponsesByMember(final List<Member> entries) {
+  public static List<StreamSpeakerResponse> toStreamSpeakerResponses(final List<StreamAttendeeInfoSelect> entries) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(StreamSpeakerMapper::toStreamSpeakerResponseByMember)
+        .map(StreamSpeakerMapper::toStreamSpeakerResponse)
         .toList();
     }
     return List.of();

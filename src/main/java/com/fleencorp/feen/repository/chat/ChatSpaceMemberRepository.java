@@ -5,8 +5,8 @@ import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.projection.ChatSpaceMemberSelect;
-import com.fleencorp.feen.model.projection.ChatSpaceRequestToJoinPendingSelect;
+import com.fleencorp.feen.model.projection.chat.space.ChatSpaceMemberSelect;
+import com.fleencorp.feen.model.projection.chat.space.ChatSpaceRequestToJoinPendingSelect;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -78,7 +78,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
 
   @Query(value =
     """
-        SELECT new com.fleencorp.feen.model.projection.ChatSpaceMemberSelect(cs.chatSpaceId, csm.requestToJoinStatus, csm.chatSpace.spaceVisibility, csm.admin, csm.left, csm.removed)
+        SELECT new com.fleencorp.feen.model.projection.chat.space.ChatSpaceMemberSelect(cs.chatSpaceId, csm.requestToJoinStatus, csm.chatSpace.spaceVisibility, csm.admin, csm.left, csm.removed)
         FROM ChatSpaceMember csm LEFT JOIN csm.member m LEFT JOIN csm.chatSpace cs WHERE m = :member AND cs.chatSpaceId IN (:ids)
     """)
   List<ChatSpaceMemberSelect> findByMemberAndChatSpaceIds(Member member, @Param("ids") List<Long> chatSpaceIds);
@@ -86,7 +86,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
 
   @Query(value =
     """
-        SELECT new com.fleencorp.feen.model.projection.ChatSpaceRequestToJoinPendingSelect(csm.chatSpace.chatSpaceId, COUNT(csm))
+        SELECT new com.fleencorp.feen.model.projection.chat.space.ChatSpaceRequestToJoinPendingSelect(csm.chatSpace.chatSpaceId, COUNT(csm))
         FROM ChatSpaceMember csm WHERE csm.chatSpace.chatSpaceId IN :chatSpaceIds
         AND csm.requestToJoinStatus = :status GROUP BY csm.chatSpace.chatSpaceId
     """)

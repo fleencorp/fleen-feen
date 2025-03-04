@@ -3,7 +3,6 @@ package com.fleencorp.feen.model.response.stream.speaker;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "speaker_id",
-  "member_id",
+  "attendee_id",
   "full_name",
   "email_address",
   "title",
@@ -27,8 +26,8 @@ public class StreamSpeakerResponse {
   @JsonProperty("speaker_id")
   private Long speakerId;
 
-  @JsonProperty("member_id")
-  private Long memberId;
+  @JsonProperty("attendee_id")
+  private Long attendeeId;
 
   @JsonProperty("full_name")
   private String fullName;
@@ -38,7 +37,4 @@ public class StreamSpeakerResponse {
 
   @JsonProperty("description")
   private String description;
-
-  @JsonProperty("email_address")
-  private MaskedEmailAddress emailAddress;
 }
