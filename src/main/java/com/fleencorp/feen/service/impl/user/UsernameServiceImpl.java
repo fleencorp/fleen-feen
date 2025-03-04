@@ -19,7 +19,6 @@ public class UsernameServiceImpl implements UsernameService {
 
   private final MemberService memberService;
   private final WordBankService wordBankService;
-  private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
   public UsernameServiceImpl(
       final MemberService memberService,
@@ -38,6 +37,7 @@ public class UsernameServiceImpl implements UsernameService {
    * @return a randomly selected {@code Adjective} from the adjective repository
    */
   private String generateRandomUsername() {
+    final ThreadLocalRandom random = ThreadLocalRandom.current();
     final Adjective adjective = wordBankService.findRandomAdjective();
     final Noun noun = wordBankService.findRandomNoun();
 
