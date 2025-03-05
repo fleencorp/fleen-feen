@@ -22,8 +22,8 @@ import static java.util.Objects.nonNull;
 public class StreamSpeakerDto {
 
   @IsNumber
-  @JsonProperty("stream_speaker_id")
-  private String streamSpeakerId;
+  @JsonProperty("speakerId")
+  private String speakerId;
 
   @IsNumber
   @JsonProperty("attendee_id")
@@ -51,7 +51,7 @@ public class StreamSpeakerDto {
    * @return the stream speaker ID as a {@link Long}, or null if the ID is not set.
    */
   private Long getStreamSpeakerId() {
-    return nonNull(streamSpeakerId) ? Long.parseLong(streamSpeakerId) : null;
+    return nonNull(speakerId) ? Long.parseLong(speakerId) : null;
   }
 
   public StreamSpeaker toStreamSpeaker(final FleenStream stream) {

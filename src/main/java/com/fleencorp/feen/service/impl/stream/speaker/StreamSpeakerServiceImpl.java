@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.stream.speaker;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -16,7 +17,10 @@ import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
-import com.fleencorp.feen.model.response.stream.speaker.*;
+import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
+import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerResponse;
+import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
+import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.EmptyStreamSpeakerSearchResult;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -38,7 +42,6 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.*;
-import static com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper.toStreamSpeakerResponses;
 import static java.util.Objects.nonNull;
 
 /**
@@ -59,8 +62,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private final StreamService streamService;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamSpeakerRepository streamSpeakerRepository;
-  private final Localizer localizer;
   private final StreamEventPublisher streamEventPublisher;
+  private final StreamSpeakerMapper streamSpeakerMapper;
+  private final Localizer localizer;
 
   /**
    * Constructs an instance of {@code StreamSpeakerImpl} with the provided dependencies.
@@ -68,22 +72,25 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param miscService the {@link MiscService} used for handling miscellaneous tasks
    * @param streamAttendeeRepository the repository to manage stream attendee entities
    * @param streamSpeakerRepository the repository to manage stream speaker entities
-   * @param localizer the service to handle localized responses
    * @param streamEventPublisher the publisher to handle stream event-related operations
+   * @param streamSpeakerMapper the mapper service for mapping stream speaker domain entity to responses
+   * @param localizer the service to handle localized responses
    */
   public StreamSpeakerServiceImpl(
       final MiscService miscService,
       final StreamService streamService,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamSpeakerRepository streamSpeakerRepository,
-      final Localizer localizer,
-      final StreamEventPublisher streamEventPublisher) {
+      final StreamEventPublisher streamEventPublisher,
+      final StreamSpeakerMapperImpl streamSpeakerMapper,
+      final Localizer localizer) {
     this.miscService = miscService;
     this.streamService = streamService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamSpeakerRepository = streamSpeakerRepository;
-    this.localizer = localizer;
     this.streamEventPublisher = streamEventPublisher;
+    this.streamSpeakerMapper = streamSpeakerMapper;
+    this.localizer = localizer;
   }
 
   /**
@@ -99,7 +106,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Retrieve a paginated list of Member entities matching the search criteria
     final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findAttendeeByStreamAndEmailAddressOrFirstNameOrLastName(streamId, nameOrFullNameOrUsernameOrEmailAddress, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> views = StreamSpeakerMapper.toStreamSpeakerResponses(page.getContent());
+    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
     // Return a search result view with the speaker responses and pagination details
     return handleSearchResult(
       page,
@@ -109,21 +116,31 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   }
 
   /**
-   * Retrieves the speakers for a specified stream.
+   * Searches for stream speakers based on the provided stream ID and search request.
    *
-   * @param streamId The ID of the stream for which to retrieve speakers.
-   * @return A {@link GetStreamSpeakersResponse} containing the details of the speakers.
+   * <p>This method fetches all {@link StreamSpeaker} entities associated with the specified stream ID,
+   * paginates the results according to the given {@code StreamSpeakerSearchRequest}, and converts
+   * them into a list of {@code StreamSpeakerResponse} DTOs. The result is returned as a localized
+   * {@code StreamSpeakerSearchResult}. If no speakers are found, an empty result is returned.</p>
+   *
+   * @param streamId the ID of the stream for which speakers are being searched
+   * @param searchRequest the search request object containing pagination details
+   * @return a {@code StreamSpeakerSearchResult} containing a list of speakers, or an empty result if no speakers are found
    */
   @Override
-  public GetStreamSpeakersResponse findStreamSpeakers(final Long streamId) {
+  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, StreamSpeakerSearchRequest searchRequest) {
+    // Set default number of speakers to retrieve
+    searchRequest.setDefaultPageSize();
     // Fetch all StreamSpeaker entities associated with the given stream ID
-    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId));
+    final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId), searchRequest.getPage());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
-    final Set<StreamSpeakerResponse> speakerResponses = toStreamSpeakerResponses(speakers);
-    // Create the responses
-    final GetStreamSpeakersResponse getStreamSpeakersResponse = GetStreamSpeakersResponse.of(speakerResponses);
+    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(page.getContent());
     // Return a localized response containing the list of speaker responses
-    return localizer.of(getStreamSpeakersResponse);
+    return handleSearchResult(
+      page,
+      localizer.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
+      localizer.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
+    );
   }
 
   /**

@@ -2,14 +2,15 @@ package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
-import java.util.Set;
 
 public interface StreamSpeakerRepository extends JpaRepository<StreamSpeaker, Long> {
 
-  Set<StreamSpeaker> findAllByStream(FleenStream stream);
+  Page<StreamSpeaker> findAllByStream(FleenStream stream, Pageable pageable);
 
   Optional<StreamSpeaker> findBySpeakerIdAndStream(StreamSpeaker speaker, FleenStream stream);
 
