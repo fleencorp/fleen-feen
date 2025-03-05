@@ -5,7 +5,6 @@ import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
-import com.fleencorp.feen.model.response.stream.speaker.GetStreamSpeakersResponse;
 import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
@@ -15,7 +14,7 @@ public interface StreamSpeakerService {
 
   StreamSpeakerSearchResult findSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest);
 
-  GetStreamSpeakersResponse findStreamSpeakers(Long streamId);
+  StreamSpeakerSearchResult findStreamSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest);
 
   MarkAsStreamSpeakerResponse markAsSpeaker(Long streamId, MarkAsStreamSpeakerDto dto, FleenUser user);
 

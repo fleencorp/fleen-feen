@@ -17,4 +17,8 @@ public class StreamSpeakerSearchRequest extends SearchRequest {
 
   @JsonProperty("q")
   protected String userIdOrName;
+
+  public void setDefaultPageSize() {
+    setPageSize(100);
+  }
 }
