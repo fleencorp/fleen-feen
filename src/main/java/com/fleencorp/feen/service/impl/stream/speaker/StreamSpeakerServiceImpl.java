@@ -419,7 +419,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param streamAttendees the set of {@link StreamAttendee} objects to filter.
    * @return a set of {@link StreamAttendee} objects where the status is either DISAPPROVED or PENDING.
    */
-  private Set<StreamAttendee> getDisapprovedOrPendingAttendees(final Set<StreamAttendee> streamAttendees) {
+  private static Set<StreamAttendee> getDisapprovedOrPendingAttendees(final Set<StreamAttendee> streamAttendees) {
     // Retrieve attendees with DISAPPROVED or PENDING statuses for the given stream ID
     return streamAttendees.stream()
       .filter(StreamAttendee::isRequestToJoinDisapprovedOrPending)
@@ -432,7 +432,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param attendees the set of attendees to filter
    * @return a set of attendee attendee IDs with disapproved or pending statuses
    */
-  private Set<Long> getDisapprovedOrPendingAttendeeIds(final Set<StreamAttendee> attendees) {
+  private static Set<Long> getDisapprovedOrPendingAttendeeIds(final Set<StreamAttendee> attendees) {
     // Filter attendees with DISAPPROVED or PENDING status and collect their attendee IDs
     return attendees.stream()
       .filter(Objects::nonNull)
@@ -454,7 +454,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speakers                        the set of speakers associated with the attendees
    * @param guests                          the set of guests to which the processed attendees and speakers will be added
    */
-  private void processPendingOrDisapprovedAttendeesAndAddToGuestsList(
+  private static void processPendingOrDisapprovedAttendeesAndAddToGuestsList(
     final Set<Long> pendingOrDisapprovedAttendeeIds,
     final Set<StreamAttendee> pendingOrDisapprovedAttendees,
     final Set<StreamSpeaker> speakers,
@@ -482,7 +482,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param attendees  the set of attendees to search through
    * @return the attendee whose attendee ID matches the given {@code attendeeId}, or {@code null} if no match is found
    */
-  private StreamAttendee findAttendeeById(final Long attendeeId, final Set<StreamAttendee> attendees) {
+  private static StreamAttendee findAttendeeById(final Long attendeeId, final Set<StreamAttendee> attendees) {
     return attendees.stream()
       .filter(Objects::nonNull)
       .filter(attendee -> attendee.getAttendeeId().equals(attendeeId))
@@ -500,7 +500,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speakers   the set of speakers to search through
    * @return the speaker whose attendee ID matches the given {@code attendeeId}, or {@code null} if no match is found
    */
-  private StreamSpeaker findSpeakerById(final Long attendeeId, final Set<StreamSpeaker> speakers) {
+  private static StreamSpeaker findSpeakerById(final Long attendeeId, final Set<StreamSpeaker> speakers) {
     return speakers.stream()
       .filter(Objects::nonNull)
       .filter(speaker -> speaker.getAttendeeId().equals(attendeeId))
@@ -518,11 +518,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speaker  the speaker associated with the attendee, whose full name will be updated
    * @param guests   the set of guests or attendees to which the processed attendee will be added
    */
-  private void processAttendeeAndSpeaker(final StreamAttendee attendee, final StreamSpeaker speaker, final Set<EventAttendeeOrGuest> guests) {
+  private static void processAttendeeAndSpeaker(final StreamAttendee attendee, final StreamSpeaker speaker, final Set<EventAttendeeOrGuest> guests) {
     final String fullName = speaker.getName(attendee.getFullName());
     speaker.setFullName(fullName);
     attendee.approveUserAttendance();
-    guests.add(EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName(), false));
+
+    EventAttendeeOrGuest eventAttendeeOrGuest = EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName(), false);
+    guests.add(eventAttendeeOrGuest);
   }
 
   /**
