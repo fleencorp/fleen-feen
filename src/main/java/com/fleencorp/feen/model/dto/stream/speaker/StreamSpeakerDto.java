@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -36,7 +38,7 @@ public class StreamSpeakerDto {
   private String fullName;
 
   @NotBlank(message = "{speaker.title.NotBlank}")
-  @Size(min = 10, max = 500, message = "{speaker.title.Size}")
+  @Size(min = 5, max = 500, message = "{speaker.title.Size}")
   @ToTitleCase
   @JsonProperty("title")
   private String title;
@@ -52,6 +54,19 @@ public class StreamSpeakerDto {
    */
   private Long getStreamSpeakerId() {
     return nonNull(speakerId) ? Long.parseLong(speakerId) : null;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    StreamSpeakerDto that = (StreamSpeakerDto) o;
+    return Objects.equals(attendeeId, that.attendeeId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(attendeeId);
   }
 
   public StreamSpeaker toStreamSpeaker(final FleenStream stream) {

@@ -42,10 +42,10 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query("SELECT sa FROM StreamAttendee sa WHERE sa.attendeeId IN (:attendeeIds) AND sa.streamId = :streamId AND sa.requestToJoinStatus IN (:statuses)")
   Set<StreamAttendee> findAttendeesByIdsAndStreamIdAndStatuses(@Param("attendeeIds") List<Long> speakerAttendeeIds, @Param("streamId") Long streamId, @Param("statuses") List<StreamAttendeeRequestToJoinStatus> statuses);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect(sa.attendeeId, fs.streamId, m.firstName, m.lastName, m.emailAddress) " +
+  @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect(sa.attendeeId, fs.streamId, m.firstName, m.lastName, m.username) " +
     "FROM StreamAttendee sa LEFT JOIN sa.stream fs LEFT JOIN sa.member m WHERE fs.streamId = :streamId " +
-    "AND (m.emailAddress = :q OR m.firstName = :q OR m.lastName = :q)")
-  Page<StreamAttendeeInfoSelect> findAttendeeByStreamAndEmailAddressOrFirstNameOrLastName(@Param("streamId") Long streamId, @Param("q") String userIdOrName, Pageable pageable);
+    "AND (m.username = :q OR m.firstName = :q OR m.lastName = :q)")
+  Page<StreamAttendeeInfoSelect> findAttendeeByStreamAndFullNameOrUsername(@Param("streamId") Long streamId, @Param("q") String userIdOrName, Pageable pageable);
 
   @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect(fs.streamId, sa.requestToJoinStatus, sa.attending, sa.stream.streamVisibility, sa.stream.scheduledEndDate) " +
     "FROM StreamAttendee sa LEFT JOIN sa.member m LEFT JOIN sa.stream fs WHERE m = :member AND fs.streamId IN (:ids)")

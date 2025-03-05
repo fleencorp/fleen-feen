@@ -102,9 +102,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   @Override
   public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest) {
     // Extract the name, full name, username, or email address from the search request
-    final String nameOrFullNameOrUsernameOrEmailAddress = searchRequest.getUserIdOrName();
+    final String fullNameOrUsername = searchRequest.getUserIdOrName();
     // Retrieve a paginated list of Member entities matching the search criteria
-    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findAttendeeByStreamAndEmailAddressOrFirstNameOrLastName(streamId, nameOrFullNameOrUsernameOrEmailAddress, searchRequest.getPage());
+    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findAttendeeByStreamAndFullNameOrUsername(streamId, fullNameOrUsername, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
     // Return a search result view with the speaker responses and pagination details
@@ -221,8 +221,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
+    // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
+    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
+    // Create the response
+    final UpdateStreamSpeakerResponse updateStreamSpeakerResponse = UpdateStreamSpeakerResponse.of(views);
     // Return a response indicating that the speakers have been successfully updated
-    return localizer.of(UpdateStreamSpeakerResponse.of());
+    return localizer.of(updateStreamSpeakerResponse);
   }
 
   /**

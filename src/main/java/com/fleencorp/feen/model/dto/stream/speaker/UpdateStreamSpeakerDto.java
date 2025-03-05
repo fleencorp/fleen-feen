@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,5 +20,5 @@ public class UpdateStreamSpeakerDto extends AddStreamSpeakerDto {
   @NotNull(message = "{speaker.speakers.NotNull}")
   @Size(max = 10, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
-  protected Set<StreamSpeakerDto> speakers;
+  protected List<StreamSpeakerDto> speakers = new ArrayList<>();
 }

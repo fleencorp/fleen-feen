@@ -19,6 +19,6 @@ public class StreamSpeakerSearchRequest extends SearchRequest {
   protected String userIdOrName;
 
   public void setDefaultPageSize() {
-    setPageSize(100);
+    setPageSize(1000);
   }
 }

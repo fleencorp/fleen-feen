@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
   "speaker_id",
   "attendee_id",
   "full_name",
-  "email_address",
+  "username",
   "title",
   "description",
 })
@@ -31,6 +31,9 @@ public class StreamSpeakerResponse {
 
   @JsonProperty("full_name")
   private String fullName;
+
+  @JsonProperty("username")
+  private String username;
 
   @JsonProperty("title")
   private String title;
