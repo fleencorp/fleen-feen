@@ -15,7 +15,7 @@ public class StreamAttendeeInfoSelect {
   private Long streamId;
   private String firstName;
   private String lastName;
-  private String emailAddress;
+  private String username;
 
   public String getFullName() {
     return firstName + " " + lastName;

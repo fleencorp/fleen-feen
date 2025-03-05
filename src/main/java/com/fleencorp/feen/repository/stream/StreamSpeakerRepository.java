@@ -5,11 +5,13 @@ import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
 public interface StreamSpeakerRepository extends JpaRepository<StreamSpeaker, Long> {
 
+  @Query("SELECT ss FROM StreamSpeaker ss WHERE ss.speakerId IS NOT NULL")
   Page<StreamSpeaker> findAllByStream(FleenStream stream, Pageable pageable);
 
   Optional<StreamSpeaker> findBySpeakerIdAndStream(StreamSpeaker speaker, FleenStream stream);

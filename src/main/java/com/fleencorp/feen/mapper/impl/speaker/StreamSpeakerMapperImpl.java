@@ -73,6 +73,7 @@ public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
       final StreamSpeakerResponse speakerResponse = new StreamSpeakerResponse();
       speakerResponse.setAttendeeId(entry.getAttendeeId());
       speakerResponse.setFullName(entry.getFullName());
+      speakerResponse.setUsername(entry.getUsername());
 
       return speakerResponse;
     }
