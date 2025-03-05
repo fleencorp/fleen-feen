@@ -6,7 +6,6 @@ import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
-import com.fleencorp.feen.model.response.stream.speaker.GetStreamSpeakersResponse;
 import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
@@ -29,15 +28,16 @@ public class StreamSpeakerController {
 
   @GetMapping(value = "/search/{streamId}")
   public StreamSpeakerSearchResult findStreamSpeakers(
-    @PathVariable(name = "streamId") final Long streamId,
+      @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final StreamSpeakerSearchRequest searchRequest) {
     return streamSpeakerService.findSpeakers(streamId, searchRequest);
   }
 
   @GetMapping(value = "/entries/{streamId}")
-  public GetStreamSpeakersResponse getStreamSpeakers(
-      @PathVariable(name = "streamId") final Long streamId) {
-    return streamSpeakerService.findStreamSpeakers(streamId);
+  public StreamSpeakerSearchResult getStreamSpeakers(
+      @PathVariable(name = "streamId") final Long streamId,
+      @SearchParam final StreamSpeakerSearchRequest searchRequest) {
+    return streamSpeakerService.findStreamSpeakers(streamId, searchRequest);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
