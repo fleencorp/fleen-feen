@@ -55,6 +55,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
       response.setFullName(entry.getFullName());
       response.setDisplayPhoto(entry.getProfilePhoto());
       response.setComment(entry.getAttendeeComment());
+      response.setIsOrganizerOfStream(entry.isOrganizer());
       response.setOrganizerComment(entry.getOrganizerComment());
 
       return response;

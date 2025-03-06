@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.stream.speaker;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
@@ -12,15 +13,15 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
-import com.fleencorp.feen.model.dto.stream.base.DeleteStreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
-import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerResponse;
+import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.EmptyStreamSpeakerSearchResult;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
@@ -329,22 +331,24 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   }
 
   /**
-   * Deletes the specified speakers from a given stream.
+   * Removed the specified speakers from a given stream.
    *
    * @param streamId The ID of the stream from which speakers are to be deleted.
-   * @param dto A {@link DeleteStreamSpeakerDto} containing the details of the speakers to be deleted.
+   * @param dto A {@link RemoveStreamSpeakerDto} containing the details of the speakers to be deleted.
    * @param user The user performing the delete operation.
-   * @return A {@link DeleteStreamSpeakerResponse} indicating the result of the delete operation.
+   * @return A {@link RemoveStreamSpeakerResponse} indicating the result of the delete operation.
    */
   @Override
   @Transactional
-  public DeleteStreamSpeakerResponse deleteSpeakers(final Long streamId, final DeleteStreamSpeakerDto dto, final FleenUser user) {
+  public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final FleenUser user) {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
     // Get all stream speakers from dto
     final Set<StreamSpeaker> speakers = dto.toStreamSpeakers();
+    // Verify organizer is not part of the speakers to be removed
+    checkOrganizerOfStreamCannotBeRemovedAsSpeaker(stream, stream.getOrganizer(), speakers);
 
     // Check if the list or set of speakers is not empty
     if (!speakers.isEmpty()) {
@@ -352,7 +356,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       streamSpeakerRepository.deleteAll(speakers);
     }
 
-    return localizer.of(DeleteStreamSpeakerResponse.of());
+    return localizer.of(RemoveStreamSpeakerResponse.of());
   }
 
   /**
@@ -590,6 +594,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     }
   }
 
+  /**
+   * Marks attendees as speakers.
+   *
+   * <p>This method takes a set of {@code StreamSpeaker} entities, retrieves their associated attendee IDs,
+   * and marks all the corresponding attendees as speakers by updating the database.</p>
+   *
+   * @param speakers the set of {@code StreamSpeaker} entities representing attendees to be marked as speakers
+   */
   private void markAttendeeAsSpeaker(final Set<StreamSpeaker> speakers) {
     if (nonNull(speakers) && !speakers.isEmpty()) {
       // Get the attendee IDs of the current speakers
@@ -597,6 +609,44 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
       // Mark all the attendees as speakers
       streamAttendeeRepository.markAllAttendeesAsSpeaker(new ArrayList<>(speakerAttendeeIds));
+    }
+  }
+
+  /**
+   * Validates that the organizer of the stream cannot be removed as a speaker.
+   *
+   * <p>This method checks if the organizer of the stream is included in the list of speakers to be removed.
+   * If the organizer is included, an {@code OrganizerOfStreamCannotBeRemovedAsSpeakerException} is thrown.
+   * It first validates that none of the input parameters are null and that the set of speakers is not empty.
+   * If any of these conditions fail, a {@code FailedOperationException} is thrown.</p>
+   *
+   * @param stream the stream associated with the speakers
+   * @param organizerOfStream the member who is the organizer of the stream
+   * @param speakers the set of {@code StreamSpeaker} entities representing speakers
+   * @throws FailedOperationException if any of the parameters are null or the set of speakers is empty
+   * @throws OrganizerOfStreamCannotBeRemovedAsSpeakerException if the organizer is found in the list of speakers
+   */
+  private void checkOrganizerOfStreamCannotBeRemovedAsSpeaker(final FleenStream stream, final Member organizerOfStream, final Set<StreamSpeaker> speakers) {
+    // Check if any of the input parameters (stream, organizerOfStream, speakers) are null
+    checkIsNullAny(List.of(stream, organizerOfStream, speakers), FailedOperationException::new);
+
+    // Throw exception if the set of speakers is empty
+    if (speakers.isEmpty()) {
+      throw new FailedOperationException();
+    }
+
+    // Find the stream attendee who is the organizer of the stream
+    final StreamAttendee streamAttendee = streamAttendeeRepository.findOrganizerByStream(stream, organizerOfStream)
+      .orElseThrow(FailedOperationException::new);
+
+    // Get the attendee ID of the stream organizer
+    final Long streamOrganizerAttendeeId = streamAttendee.getAttendeeId();
+    // Get the set of attendee IDs of the speakers
+    final Set<Long> speakerAttendeeIds = getSpeakerAttendeeIds(speakers);
+
+    // Check if the organizer is in the list of speaker attendee IDs and throw exception if so
+    if (speakerAttendeeIds.contains(streamOrganizerAttendeeId)) {
+      throw new OrganizerOfStreamCannotBeRemovedAsSpeakerException();
     }
   }
 }

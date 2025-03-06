@@ -20,6 +20,9 @@ import java.util.Set;
 
 public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, Long> {
 
+  @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.member = :member")
+  Optional<StreamAttendee> findOrganizerByStream(FleenStream stream, Member member);
+
   @Query("SELECT DISTINCT sa FROM StreamAttendee sa WHERE sa.member.emailAddress = :emailAddress")
   Optional<StreamAttendee> findDistinctByEmail(@Param("emailAddress") String emailAddress);
 

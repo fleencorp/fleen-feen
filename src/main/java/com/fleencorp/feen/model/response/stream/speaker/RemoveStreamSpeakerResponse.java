@@ -14,14 +14,14 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "message"
 })
-public class DeleteStreamSpeakerResponse extends ApiResponse {
+public class RemoveStreamSpeakerResponse extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "delete.stream.speaker";
+    return "remove.stream.speaker";
   }
 
-  public static DeleteStreamSpeakerResponse of() {
-    return new DeleteStreamSpeakerResponse();
+  public static RemoveStreamSpeakerResponse of() {
+    return new RemoveStreamSpeakerResponse();
   }
 }
