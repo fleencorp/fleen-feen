@@ -211,6 +211,16 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   /**
+   * Marks the organizer as a speaker.
+   *
+   * <p>This method sets the organizer's speaker status to {@code true}, indicating that
+   * the organizer is now considered a speaker in the context of the stream.</p>
+   */
+  public void markOrganizerAsSpeaker() {
+    aSpeaker = true;
+  }
+
+  /**
    * Returns whether the attendee is currently attending.
    *
    * @return true if the attendee is attending, false otherwise.

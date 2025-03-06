@@ -11,11 +11,7 @@ import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 import static java.util.Objects.nonNull;
 
@@ -30,7 +26,6 @@ import static java.util.Objects.nonNull;
 @Component
 public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
 
-  private final MessageSource messageSource;
   private final StreamMapper streamMapper;
 
   /**
@@ -38,24 +33,8 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    *
    * @param streamMapper the {@link StreamMapperImpl} used for mapping stream-related entities
    */
-  public StreamAttendeeMapperImpl(
-      final MessageSource messageSource,
-      final StreamMapper streamMapper) {
-    this.messageSource = messageSource;
+  public StreamAttendeeMapperImpl(final StreamMapper streamMapper) {
     this.streamMapper = streamMapper;
-  }
-
-  /**
-   * Translates a message code into the corresponding message based on the current locale.
-   * The method uses the {@link MessageSource} to fetch the translated message.
-   * It retrieves the locale from the {@link LocaleContextHolder} and looks up the message code in the resource bundle.
-   *
-   * @param messageCode the code of the message to translate
-   * @return the translated message for the given message code, based on the current locale
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
   }
 
   /**
@@ -72,7 +51,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
       final StreamAttendeeResponse response = new StreamAttendeeResponse();
 
       response.setAttendeeId(entry.getAttendeeId());
-      response.setUsername(entry.getMemberId());
+      response.setUsername(entry.getUsername());
       response.setFullName(entry.getFullName());
       response.setDisplayPhoto(entry.getProfilePhoto());
       response.setComment(entry.getAttendeeComment());

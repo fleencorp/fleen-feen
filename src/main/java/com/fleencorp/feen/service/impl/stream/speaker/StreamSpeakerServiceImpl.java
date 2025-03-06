@@ -4,6 +4,7 @@ import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
+import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -15,6 +16,7 @@ import com.fleencorp.feen.model.dto.stream.base.DeleteStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
@@ -63,6 +65,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamSpeakerRepository streamSpeakerRepository;
   private final StreamEventPublisher streamEventPublisher;
+  private final StreamMapper streamMapper;
   private final StreamSpeakerMapper streamSpeakerMapper;
   private final Localizer localizer;
 
@@ -73,6 +76,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param streamAttendeeRepository the repository to manage stream attendee entities
    * @param streamSpeakerRepository the repository to manage stream speaker entities
    * @param streamEventPublisher the publisher to handle stream event-related operations
+   * @param streamMapper the mapper service for mapping stream entities to responses
    * @param streamSpeakerMapper the mapper service for mapping stream speaker domain entity to responses
    * @param localizer the service to handle localized responses
    */
@@ -82,6 +86,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamSpeakerRepository streamSpeakerRepository,
       final StreamEventPublisher streamEventPublisher,
+      final StreamMapper streamMapper,
       final StreamSpeakerMapperImpl streamSpeakerMapper,
       final Localizer localizer) {
     this.miscService = miscService;
@@ -89,6 +94,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamSpeakerRepository = streamSpeakerRepository;
     this.streamEventPublisher = streamEventPublisher;
+    this.streamMapper = streamMapper;
     this.streamSpeakerMapper = streamSpeakerMapper;
     this.localizer = localizer;
   }
@@ -174,14 +180,24 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Validate that all attendee IDs associated with the speakers exist
     checkIfNonNullAttendeeIdsExists(speakers);
+    // Process the speakers by checking for existing entries in the database
+    final Set<StreamSpeaker> updatedSpeakers = new HashSet<>();
+    // Check if a user is already a speaker and update their details or info
+    checkIfSpeakerExistsAndUpdateInfoOrAddNewSpeaker(speakers, stream, updatedSpeakers);
+
+    // Save all the speakers to the repository
+    streamSpeakerRepository.saveAll(updatedSpeakers);
+    // Mark the speakers as attendees
+    markAttendeeAsSpeaker(updatedSpeakers);
+
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers);
-    // Save all the speakers to the repository
-    streamSpeakerRepository.saveAll(speakers);
-    // Mark the speakers as attendees
-    markAttendeeAsSpeaker(speakers);
+    // Create the is a speaker information
+    final IsASpeakerInfo isASpeakerInfo = streamMapper.toIsASpeakerInfo(true);
+    // Create the response
+    MarkAsStreamSpeakerResponse markResponse = MarkAsStreamSpeakerResponse.of(isASpeakerInfo);
     // Create and return the response
-    return localizer.of(MarkAsStreamSpeakerResponse.of());
+    return localizer.of(markResponse);
   }
 
   /**
@@ -262,15 +278,23 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * If the speaker is found, their details (full name, title, and description) are updated
    * with the values from the {@code newSpeaker}, and the updated speaker is added to the {@code updatedSpeakers} set.</p>
    *
+   * <p>If a speaker with the ID is not found, a new speaker is created and is added to the {@code updatedSpeakers} set</p>
+   *
    * @param newSpeaker      the speaker with updated details to be applied to the existing speaker
    * @param stream          the stream to which the speaker belongs
    * @param updatedSpeakers the set of updated speakers, which will include the updated speaker if found
    */
   private void updateExistingSpeaker(final StreamSpeaker newSpeaker, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
     streamSpeakerRepository.findBySpeakerIdAndStream(newSpeaker, stream)
-      .ifPresent(existingSpeaker -> {
+      .map(existingSpeaker -> {
         existingSpeaker.update(newSpeaker.getFullName(), newSpeaker.getTitle(), newSpeaker.getDescription());
         addToUpdatedSpeakers(existingSpeaker, updatedSpeakers);
+
+        return existingSpeaker;
+      })
+      .orElseGet(() -> {
+        addNewSpeaker(newSpeaker, stream, updatedSpeakers);
+        return newSpeaker;
     });
   }
 
