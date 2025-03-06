@@ -180,7 +180,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
           // Determine the is a speaker information based on the user's speaker status
           final IsASpeakerInfo isASpeakerInfo = streamMapper.toIsASpeakerInfo(attendee.isASpeaker());
           // Create a stream attendee response with basic info
-          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getAttendeeId(), attendee.getMemberId(), attendee.getFullName());
+          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getAttendeeId(), attendee.getUsername(), attendee.getFullName());
           // Get the attendance info
           final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo, isASpeakerInfo);
           // Add the attendance info on the attendee response

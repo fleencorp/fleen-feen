@@ -27,7 +27,7 @@ public class StreamAttendeeResponse {
   private Long attendeeId;
 
   @JsonProperty("username")
-  private Long username;
+  private String username;
 
   @JsonProperty("full_name")
   private String fullName;
@@ -44,7 +44,7 @@ public class StreamAttendeeResponse {
   @JsonProperty("organizer_comment")
   private String organizerComment;
 
-  public static StreamAttendeeResponse of(final Long attendeeId, final Long username, final String fullName) {
+  public static StreamAttendeeResponse of(final Long attendeeId, final String username, final String fullName) {
     final StreamAttendeeResponse attendeeResponse = new StreamAttendeeResponse();
     attendeeResponse.setAttendeeId(attendeeId);
     attendeeResponse.setUsername(username);
