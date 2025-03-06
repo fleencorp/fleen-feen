@@ -2,6 +2,7 @@ package com.fleencorp.feen.mapper.impl.stream;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.*;
+import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
@@ -16,6 +17,7 @@ import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.other.Organizer;
@@ -130,10 +132,11 @@ public class StreamMapperImpl implements StreamMapper {
       final JoinStatus joinStatus = JoinStatus.byStreamStatus(entry.isPrivateOrProtected());
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
 
-      final IsAttendingInfo attendingInfo = toIsAttendingInfo(false);
+      final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(false);
+      final IsASpeakerInfo isASpeakerInfo = toIsASpeakerInfo(false);
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of();
 
-      final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo);
+      final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
       response.setAttendanceInfo(attendanceInfo);
 
       return response;
@@ -155,6 +158,7 @@ public class StreamMapperImpl implements StreamMapper {
       final FleenStreamResponse stream = toStreamResponse(entry);
 
       final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(true);
+      final IsASpeakerInfo isASpeakerInfo = toIsASpeakerInfo(true);
 
       final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
@@ -162,7 +166,9 @@ public class StreamMapperImpl implements StreamMapper {
       final StreamAttendeeRequestToJoinStatus requestToJoinStatus = StreamAttendeeRequestToJoinStatus.approved();
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
 
-      stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
+      final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
+
+      stream.setAttendanceInfo(attendanceInfo);
       return stream;
     }
     return null;
@@ -261,13 +267,28 @@ public class StreamMapperImpl implements StreamMapper {
     return null;
   }
 
+  /**
+   * Converts the provided stream and attendee details into an {@code AttendanceInfo} object.
+   *
+   * <p>This method generates an {@code AttendanceInfo} object using the provided stream details,
+   * attendee request-to-join status, attendance status, and speaker status. It internally
+   * converts each of these components into their respective response-friendly formats:
+   * {@code StreamAttendeeRequestToJoinStatusInfo}, {@code JoinStatusInfo}, and {@code IsAttendingInfo}.</p>
+   *
+   * @param stream the stream details represented by {@code FleenStreamResponse}
+   * @param requestToJoinStatus the attendee's request-to-join status
+   * @param isAttending boolean flag indicating if the attendee is attending
+   * @param isASpeaker boolean flag indicating if the attendee is also a speaker
+   * @return an {@code AttendanceInfo} object containing the attendee's request-to-join, join, and attendance info
+   */
   @Override
-  public AttendanceInfo toAttendanceInfo(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending) {
+  public AttendanceInfo toAttendanceInfo(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending, final boolean isASpeaker) {
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
     final JoinStatusInfo joinStatusInfo = toJoinStatus(stream, requestToJoinStatus, isAttending);
     final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(isAttending);
+    final IsASpeakerInfo isASpeakerInfo = toIsASpeakerInfo(isASpeaker);
 
-    return AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo);
+    return AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
   }
 
   /**
@@ -319,6 +340,22 @@ public class StreamMapperImpl implements StreamMapper {
   }
 
   /**
+   * Converts the given speaker status into an {@code IsASpeakerInfo} object.
+   *
+   * <p>This method determines whether the provided status indicates the user is a speaker
+   * and constructs an {@code IsASpeakerInfo} instance with the appropriate translated message.
+   * The message is resolved using the {@code IsASpeaker} enum, which provides the relevant
+   * message code for translation based on the speaker status.</p>
+   *
+   * @param isASpeaker the boolean flag indicating whether the user is a speaker
+   * @return an {@code IsASpeakerInfo} object containing the speaker status and a localized message
+   */
+  @Override
+  public IsASpeakerInfo toIsASpeakerInfo(final boolean isASpeaker) {
+    return IsASpeakerInfo.of(isASpeaker, translate(IsASpeaker.by(isASpeaker).getMessageCode()));
+  }
+
+  /**
    * Converts the given attendance status into an {@link IsAttendingInfo} object.
    *
    * <p>This method determines the appropriate message code based on the attendance status
@@ -338,14 +375,17 @@ public class StreamMapperImpl implements StreamMapper {
    * @param requestToJoinStatus the status of the request to join the stream
    * @param joinStatus the join status to be set in the stream response
    * @param isAttending {@code true} if the user is attending the stream, {@code false} otherwise
+   * @param isASpeaker {@code true} if the user is a speaker in the stream, {@code false} otherwise
    */
   @Override
-  public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending) {
+  public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending, final boolean isASpeaker) {
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
     final JoinStatusInfo joinStatusInfo = commonMapper.toJoinStatusInfo(joinStatus);
     final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(isAttending);
+    final IsASpeakerInfo isASpeakerInfo = toIsASpeakerInfo(isASpeaker);
 
-    stream.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo));
+    final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
+    stream.setAttendanceInfo(attendanceInfo);
   }
 
 }

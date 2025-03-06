@@ -12,6 +12,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
@@ -176,10 +177,14 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
           final JoinStatusInfo joinStatusInfo = streamMapper.toJoinStatus(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending());
           // Determine the is attending information based on the user's status attendee status
           final IsAttendingInfo attendingInfo = streamMapper.toIsAttendingInfo(attendee.isAttending());
+          // Determine the is a speaker information based on the user's speaker status
+          final IsASpeakerInfo isASpeakerInfo = streamMapper.toIsASpeakerInfo(attendee.isASpeaker());
           // Create a stream attendee response with basic info
           final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getAttendeeId(), attendee.getMemberId(), attendee.getFullName());
+          // Get the attendance info
+          final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo, isASpeakerInfo);
           // Add the attendance info on the attendee response
-          attendeeResponse.setAttendanceInfo(AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo));
+          attendeeResponse.setAttendanceInfo(attendanceInfo);
           // Return a new StreamAttendeeResponse object with the attendee's details and status info
           return attendeeResponse;
         })

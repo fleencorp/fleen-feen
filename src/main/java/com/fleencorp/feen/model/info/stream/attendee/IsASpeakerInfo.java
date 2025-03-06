@@ -1,0 +1,35 @@
+package com.fleencorp.feen.model.info.stream.attendee;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+  "is_a_speaker",
+  "is_a_speaker_text"
+})
+public class IsASpeakerInfo {
+
+  @JsonProperty("is_a_speaker")
+  private Boolean isASpeaker;
+
+  @JsonProperty("is_a_speaker_text")
+  private String isASpeakerText;
+
+  public static IsASpeakerInfo of(final Boolean isASpeaker, final String isASpeakerText) {
+    return new IsASpeakerInfo(isASpeaker, isASpeakerText);
+  }
+
+  public static IsASpeakerInfo of() {
+    return new IsASpeakerInfo();
+  }
+}

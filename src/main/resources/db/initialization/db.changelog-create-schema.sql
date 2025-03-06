@@ -297,6 +297,7 @@ CREATE TABLE stream_attendee (
   attendee_comment VARCHAR(1000) NULL,
   organizer_comment VARCHAR(1000) NULL,
   is_attending BOOLEAN NOT NULL DEFAULT false,
+  is_a_speaker BOOLEAN NOT NULL DEFAULT false,
   request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
     NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
 
