@@ -104,7 +104,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Extract the name, full name, username, or email address from the search request
     final String fullNameOrUsername = searchRequest.getUserIdOrName();
     // Retrieve a paginated list of Member entities matching the search criteria
-    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findAttendeeByStreamAndFullNameOrUsername(streamId, fullNameOrUsername, searchRequest.getPage());
+    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, fullNameOrUsername, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
     // Return a search result view with the speaker responses and pagination details
@@ -128,7 +128,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @return a {@code StreamSpeakerSearchResult} containing a list of speakers, or an empty result if no speakers are found
    */
   @Override
-  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, StreamSpeakerSearchRequest searchRequest) {
+  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest) {
     // Set default number of speakers to retrieve
     searchRequest.setDefaultPageSize();
     // Fetch all StreamSpeaker entities associated with the given stream ID
@@ -178,6 +178,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers);
     // Save all the speakers to the repository
     streamSpeakerRepository.saveAll(speakers);
+    // Mark the speakers as attendees
+    markAttendeeAsSpeaker(speakers);
     // Create and return the response
     return localizer.of(MarkAsStreamSpeakerResponse.of());
   }
@@ -221,6 +223,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
+    // Mark the speakers as attendees
+    markAttendeeAsSpeaker(updatedSpeakers);
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
     // Create the response
@@ -370,10 +374,10 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Get id associated with stream
     final Long streamId = stream.getStreamId();
     // Get the attendee IDs of the current speakers
-    final Set<Long> speakerWithAttendeeIds = getSpeakerAttendeeIds(speakers);
+    final Set<Long> speakerAttendeeIds = getSpeakerAttendeeIds(speakers);
 
     // Find attendees associated with the stream by matching speaker attendee IDs
-    final Set<StreamAttendee> allAttendees = findAttendees(streamId, speakerWithAttendeeIds);
+    final Set<StreamAttendee> allAttendees = findAttendees(streamId, speakerAttendeeIds);
     // Extract disapproved or pending attendee from all the attendees
     final Set<StreamAttendee> disapprovedOrPendingAttendees = getDisapprovedOrPendingAttendees(allAttendees);
     // Get the IDs of attendees who are either pending or disapproved
@@ -381,6 +385,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Process attendees who are pending or disapproved
     processPendingOrDisapprovedAttendeesAndAddToGuestsList(disapprovedOrPendingAttendeeIds, disapprovedOrPendingAttendees, speakers, guests);
+    // Save all attendees
+    streamAttendeeRepository.saveAll(allAttendees);
     // Send invitations to the new attendees or guests
     sendInvitationToNewAttendeesOrGuests(stream, stream.getMember(), guests);
   }
@@ -527,7 +533,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     speaker.setFullName(fullName);
     attendee.approveUserAttendance();
 
-    EventAttendeeOrGuest eventAttendeeOrGuest = EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName(), false);
+    final EventAttendeeOrGuest eventAttendeeOrGuest = EventAttendeeOrGuest.of(attendee.getEmailAddress(), speaker.getFullName(), false);
     guests.add(eventAttendeeOrGuest);
   }
 
@@ -557,6 +563,16 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
       // Publish the event to add new attendees
       streamEventPublisher.addNewAttendees(addCalendarEventAttendeesEvent);
+    }
+  }
+
+  private void markAttendeeAsSpeaker(final Set<StreamSpeaker> speakers) {
+    if (nonNull(speakers) && !speakers.isEmpty()) {
+      // Get the attendee IDs of the current speakers
+      final Set<Long> speakerAttendeeIds = getSpeakerAttendeeIds(speakers);
+
+      // Mark all the attendees as speakers
+      streamAttendeeRepository.markAllAttendeesAsSpeaker(new ArrayList<>(speakerAttendeeIds));
     }
   }
 }

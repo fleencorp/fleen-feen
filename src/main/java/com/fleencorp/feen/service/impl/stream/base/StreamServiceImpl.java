@@ -256,9 +256,9 @@ public class StreamServiceImpl implements StreamService {
           // Retrieve the attendee status for a specific ID which can be null because the member has not join or requested to join the stream
           final Optional<StreamAttendeeSelect> existingAttendance = Optional.ofNullable(attendanceStatusMap.get(stream.getNumberId()));
           // If member is an attendee, retrieve the status and set view label
-          existingAttendance.ifPresent(attendance -> {
+          existingAttendance.ifPresent(attendee -> {
             // Update the request to join status, join status and is attending info
-            streamMapper.update(stream, attendance.getRequestToJoinStatus(), attendance.getJoinStatus(), attendance.isAttending());
+            streamMapper.update(stream, attendee.getRequestToJoinStatus(), attendee.getJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
           });
       });
     }

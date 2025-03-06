@@ -11,6 +11,7 @@ import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -35,7 +36,7 @@ public interface StreamMapper {
 
   StreamStatusInfo toStreamStatusInfo(StreamStatus streamStatus);
 
-  AttendanceInfo toAttendanceInfo(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending);
+  AttendanceInfo toAttendanceInfo(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending, boolean isASpeaker);
 
   StreamVisibilityInfo toStreamVisibilityInfo(StreamVisibility streamVisibility);
 
@@ -43,7 +44,9 @@ public interface StreamMapper {
 
   IsAttendingInfo toIsAttendingInfo(boolean isAttending);
 
+  IsASpeakerInfo toIsASpeakerInfo(boolean isASpeaker);
+
   StreamTypeInfo toStreamTypeInfo(StreamType streamType);
 
-  void update(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, boolean isAttending);
+  void update(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, boolean isAttending, boolean isASpeaker);
 }

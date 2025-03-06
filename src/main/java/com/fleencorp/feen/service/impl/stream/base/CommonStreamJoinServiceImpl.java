@@ -344,7 +344,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Verify the user details and attempt to join the event
-    final StreamAttendee streamAttendee = attemptToJoinPublicStream(stream, joinStreamDto.getComment(), user);
+    final StreamAttendee attendee = attemptToJoinPublicStream(stream, joinStreamDto.getComment(), user);
 
     // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user);
@@ -359,7 +359,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Convert the stream to the equivalent stream response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
+    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
 
     // Create the external stream request
     final ExternalStreamRequest externalStreamRequest = ExternalStreamRequest.ofJoinStream(calendar, oauth2Authorization, stream, streamType, user.getEmailAddress(), joinStreamDto);
@@ -472,22 +472,22 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     streamService.validateStreamAndUserForProtectedStream(stream, user);
     // Handle the join request and update stream attendee info
     // Retrieve the stream attendee entry associated with the user or create a new StreamAttendee entry if none for the user
-    final StreamAttendee streamAttendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user);
+    final StreamAttendee attendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user);
     // If the stream is private, set the request to join status to pending
-    setAttendeeRequestToJoinPendingIfStreamIsPrivate(streamAttendee, stream);
+    setAttendeeRequestToJoinPendingIfStreamIsPrivate(attendee, stream);
     // Save the stream and the attendee
-    saveStreamAndAttendee(stream, streamAttendee);
+    saveStreamAndAttendee(stream, attendee);
 
     // Convert the stream to equivalent stream response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, streamAttendee.getRequestToJoinStatus(), streamAttendee.isAttending());
+    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Send and save notifications
-    sendJoinRequestNotificationForPrivateStream(stream, streamAttendee, user);
+    sendJoinRequestNotificationForPrivateStream(stream, attendee, user);
     // Check and handle chat space membership and invitation
-    handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, streamAttendee, requestToJoinStreamDto.getComment(), user);
+    handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, attendee, requestToJoinStreamDto.getComment(), user);
     // Create the response
     final RequestToJoinStreamResponse requestToJoinStreamResponse = RequestToJoinStreamResponse.of(stream.getStreamId(), attendanceInfo, streamTypeInfo, stream.getTotalAttendees());
     // Return the localized response of the request to join the stream

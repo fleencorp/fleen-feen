@@ -43,12 +43,15 @@ public class StreamAttendeeSelect {
   private Long streamId;
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
   private Boolean attending;
+  private Boolean aSpeaker;
   private StreamVisibility streamVisibility;
   private LocalDateTime endDate;
 
   public boolean isAttending() {
     return nonNull(attending) && attending;
   }
+
+  public boolean isASpeaker() { return nonNull(aSpeaker) && aSpeaker; }
 
   public JoinStatus getJoinStatus() {
     return JoinStatus.getJoinStatus(requestToJoinStatus, streamVisibility, endDate.isBefore(LocalDateTime.now()), attending);

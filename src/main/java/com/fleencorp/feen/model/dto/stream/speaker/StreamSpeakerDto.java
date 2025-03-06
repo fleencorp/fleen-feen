@@ -57,10 +57,10 @@ public class StreamSpeakerDto {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    StreamSpeakerDto that = (StreamSpeakerDto) o;
+    final StreamSpeakerDto that = (StreamSpeakerDto) o;
     return Objects.equals(attendeeId, that.attendeeId);
   }
 

@@ -46,6 +46,9 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "is_attending", nullable = false)
   private Boolean attending = false;
 
+  @Column(name = "is_a_speaker", nullable = false)
+  private Boolean aSpeaker = false;
+
   @Column(name = "attendee_comment", length = 1000)
   private String attendeeComment;
 
@@ -81,6 +84,16 @@ public class StreamAttendee extends FleenFeenEntity {
   public String getFullName() {
     // Return the full name of the member if the member is not null
     return nonNull(member) ? member.getFullName() : null;
+  }
+
+  /**
+   * Retrieves the username of the member.
+   *
+   * @return the username if the member is not null; otherwise, null.
+   */
+  public String getUsername() {
+    // Return the username of the member if the member is not null
+    return nonNull(member) ? member.getUsername() : null;
   }
 
   public String getProfilePhoto() {
@@ -204,6 +217,15 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public boolean isAttending() {
     return attending;
+  }
+
+  /**
+   * Returns whether the attendee is a speaker.
+   *
+   * @return true if the attendee is a speaker, false otherwise.
+   */
+  public boolean isASpeaker() {
+    return aSpeaker;
   }
 
   public static StreamAttendee of(final Member member, final FleenStream stream) {

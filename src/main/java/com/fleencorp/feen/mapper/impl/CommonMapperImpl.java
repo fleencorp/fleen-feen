@@ -229,7 +229,7 @@ public class CommonMapperImpl implements CommonMapper {
       // Retrieve the stream type info
       final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
       // Get the attendance information for the stream attendee
-      final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending());
+      final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending(), attendee.isASpeaker());
       // Create and return a response object with the processed to join details
       return ProcessAttendeeRequestToJoinStreamResponse.of(
         stream.getNumberId(),

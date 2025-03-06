@@ -14,7 +14,7 @@ import lombok.*;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "attendee_id",
-  "attendee_user_id",
+  "username",
   "full_name",
   "display_photo",
   "comment",
@@ -26,8 +26,8 @@ public class StreamAttendeeResponse {
   @JsonProperty("attendee_id")
   private Long attendeeId;
 
-  @JsonProperty("attendee_user_id")
-  private Long attendeeMemberId;
+  @JsonProperty("username")
+  private Long username;
 
   @JsonProperty("full_name")
   private String fullName;
@@ -44,10 +44,10 @@ public class StreamAttendeeResponse {
   @JsonProperty("organizer_comment")
   private String organizerComment;
 
-  public static StreamAttendeeResponse of(final Long attendeeId, final Long attendeeMemberId, final String fullName) {
+  public static StreamAttendeeResponse of(final Long attendeeId, final Long username, final String fullName) {
     final StreamAttendeeResponse attendeeResponse = new StreamAttendeeResponse();
     attendeeResponse.setAttendeeId(attendeeId);
-    attendeeResponse.setAttendeeMemberId(attendeeMemberId);
+    attendeeResponse.setUsername(username);
     attendeeResponse.setFullName(fullName);
 
     return attendeeResponse;
