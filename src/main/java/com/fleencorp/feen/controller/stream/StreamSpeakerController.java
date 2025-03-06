@@ -1,12 +1,12 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.model.dto.stream.base.DeleteStreamSpeakerDto;
+import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;
-import com.fleencorp.feen.model.response.stream.speaker.DeleteStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerResponse;
+import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -59,11 +59,11 @@ public class StreamSpeakerController {
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @DeleteMapping(value = "/delete/{streamId}")
-  public DeleteStreamSpeakerResponse deleteStreamSpeaker(
+  @PutMapping(value = "/remove/{streamId}")
+  public RemoveStreamSpeakerResponse removeStreamSpeaker(
       @PathVariable(name = "streamId") final Long streamId,
-      @Valid @RequestBody final DeleteStreamSpeakerDto deleteStreamSpeakerDto,
+      @Valid @RequestBody final RemoveStreamSpeakerDto removeStreamSpeakerDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return streamSpeakerService.deleteSpeakers(streamId, deleteStreamSpeakerDto, user);
+    return streamSpeakerService.removeSpeakers(streamId, removeStreamSpeakerDto, user);
   }
 }

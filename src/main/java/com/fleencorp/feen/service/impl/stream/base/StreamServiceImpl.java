@@ -371,7 +371,7 @@ public class StreamServiceImpl implements StreamService {
    *
    * <p>This method adds the stream organizer as an attendee of the stream and automatically
    * approves their request to join. The attendee is then saved to the repository for future
-   * reference.</p>
+   * reference. Also mark the attendee as an organizer and speaker in the stream.</p>
    *
    * @param stream the FleenStream object representing the stream to which the organizer is joining.
    * @param user the FleenUser object representing the user (organizer) joining the stream as an attendee.
@@ -384,7 +384,7 @@ public class StreamServiceImpl implements StreamService {
     // Approve the organizer's request to join automatically
     streamAttendee.approveUserAttendance();
     // Mark the organizer as a speaker
-    streamAttendee.markOrganizerAsSpeaker();
+    streamAttendee.markAsOrganizerAndSpeaker();
     // Save attendee to the repository
     streamAttendeeRepository.save(streamAttendee);
   }

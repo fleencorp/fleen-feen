@@ -40,6 +40,7 @@ import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
+import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
@@ -204,6 +205,7 @@ public class RestExceptionHandler {
     CalendarAlreadyExistException.class,
     ChatSpaceAlreadyDeletedException.class,
     EmailAddressAlreadyExistsException.class,
+    OrganizerOfStreamCannotBeRemovedAsSpeakerException.class,
     PhoneNumberAlreadyExistsException.class,
     ShareContactRequestAlreadyCanceledException.class,
     ShareContactRequestAlreadyProcessedException.class,

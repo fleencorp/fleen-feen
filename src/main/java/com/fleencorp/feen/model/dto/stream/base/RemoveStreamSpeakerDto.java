@@ -5,11 +5,13 @@ import com.fleencorp.base.util.FleenUtil;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,12 +19,13 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeleteStreamSpeakerDto {
+public class RemoveStreamSpeakerDto {
 
   @Valid
   @NotNull(message = "{speaker.speakers.NotNull}")
+  @Size(max = 1, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
-  private Set<DeleteSpeakerDto> speakers;
+  private List<DeleteSpeakerDto> speakers;
 
   @Getter
   @Setter

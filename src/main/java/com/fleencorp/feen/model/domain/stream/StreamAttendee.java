@@ -35,6 +35,9 @@ public class StreamAttendee extends FleenFeenEntity {
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
+  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  private Long memberId;
+
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
@@ -49,21 +52,14 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "is_a_speaker", nullable = false)
   private Boolean aSpeaker = false;
 
+  @Column(name = "is_organizer", nullable = false)
+  private Boolean isOrganizer = false;
+
   @Column(name = "attendee_comment", length = 1000)
   private String attendeeComment;
 
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
-
-  /**
-   * Retrieves the member ID of the attendee.
-   *
-   * @return the member ID if the member is not null; otherwise, null.
-   */
-  public Long getMemberId() {
-    // Return the member ID of the attendee if the member is not null
-    return nonNull(member) ? member.getMemberId() : null;
-  }
 
   /**
    * Retrieves the email address of the associated member.
@@ -211,13 +207,14 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   /**
-   * Marks the organizer as a speaker.
+   * Marks the user as both an organizer and a speaker.
    *
-   * <p>This method sets the organizer's speaker status to {@code true}, indicating that
-   * the organizer is now considered a speaker in the context of the stream.</p>
+   * <p>This method sets the internal flag indicating that the user is a speaker.
+   * It assumes that the user is already designated as an organizer.</p>
    */
-  public void markOrganizerAsSpeaker() {
+  public void markAsOrganizerAndSpeaker() {
     aSpeaker = true;
+    isOrganizer = true;
   }
 
   /**
@@ -236,6 +233,15 @@ public class StreamAttendee extends FleenFeenEntity {
    */
   public boolean isASpeaker() {
     return aSpeaker;
+  }
+
+  /**
+   * Returns whether the attendee is the organizer.
+   *
+   * @return true if the attendee is the organize of the stream, false otherwise.
+   */
+  public boolean isOrganizer() {
+    return isOrganizer;
   }
 
   public static StreamAttendee of(final Member member, final FleenStream stream) {
