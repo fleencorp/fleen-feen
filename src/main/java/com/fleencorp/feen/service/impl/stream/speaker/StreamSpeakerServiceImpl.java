@@ -110,6 +110,10 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
+    // Retrieve the stream with the given ID
+    final FleenStream stream = streamService.findStream(streamId);
+    // Validate if the user is the creator of the stream
+    stream.checkIsOrganizer(user.getId());
     // Extract the name, full name, username, or email address from the search request
     final String fullNameOrUsername = searchRequest.getUserIdOrName();
     // Retrieve a paginated list of Member entities matching the search criteria
@@ -141,10 +145,16 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
     // Set default number of speakers to retrieve
     searchRequest.setDefaultPageSize();
+    // Retrieve the stream with the given ID
+    final FleenStream stream = streamService.findStream(streamId);
+    // Validate if the user is the creator of the stream
+    stream.checkIsOrganizer(user.getId());
     // Fetch all StreamSpeaker entities associated with the given stream ID
-    final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStreamExcludingOrganizer(FleenStream.of(streamId), Member.of(user.getId()), searchRequest.getPage());
+    final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId), searchRequest.getPage());
+    // Filter out the organizer using a separate method
+    final List<StreamSpeaker> filteredSpeakers = filterOutOrganizer(page.getContent(), stream.getOrganizerId());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(page.getContent());
+    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
     // Return a localized response containing the list of speaker responses
     return handleSearchResult(
       page,
@@ -193,6 +203,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     streamSpeakerRepository.saveAll(updatedSpeakers);
     // Mark the speakers as attendees
     markAttendeeAsSpeaker(updatedSpeakers);
+    // Set the member id for each speaker
+    setMemberIdsForSpeakers(updatedSpeakers);
 
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers);
@@ -245,6 +257,8 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
     // Mark the speakers as attendees
     markAttendeeAsSpeaker(updatedSpeakers);
+    // Set the member id for each speaker
+    setMemberIdsForSpeakers(updatedSpeakers);
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
     // Create the response
@@ -651,4 +665,67 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       throw new OrganizerOfStreamCannotBeRemovedAsSpeakerException();
     }
   }
+
+  /**
+   * Sets the {@code memberId} for speakers who do not yet have a member assigned.
+   *
+   * <p>This method filters out speakers that don't have an assigned member. It then retrieves
+   * the corresponding attendees based on the filtered attendee IDs and creates a mapping from
+   * {@code attendeeId} to {@link StreamAttendee}. The speakers are updated with the
+   * corresponding {@link Member} from the attendees, and the updated speakers are saved
+   * back to the repository.</p>
+   *
+   * @param speakers a set of {@link StreamSpeaker} entities whose member information needs
+   *                 to be set for speakers without a member
+   */
+  public void setMemberIdsForSpeakers(Set<StreamSpeaker> speakers) {
+    // Filter speakers without memberId
+    Set<Long> attendeeIdsWithoutMember = speakers.stream()
+      .filter(StreamSpeaker::hasNoMember)
+      .map(StreamSpeaker::getAttendeeId)
+      .collect(Collectors.toSet());
+
+    if (attendeeIdsWithoutMember.isEmpty()) {
+      return;
+    }
+
+    // Fetch all attendees whose IDs match the filtered set
+    List<StreamAttendee> attendees = streamAttendeeRepository.findAllByAttendeeIds(attendeeIdsWithoutMember);
+
+    // Create a map from attendeeId to StreamAttendee for faster lookup
+    Map<Long, StreamAttendee> attendeeMap = attendees.stream()
+      .collect(Collectors.toMap(StreamAttendee::getAttendeeId, attendee -> attendee));
+
+    // Map attendees to their corresponding speakers and set the memberId
+    for (StreamSpeaker speaker : speakers) {
+      if (speaker.hasNoMember()) {
+        StreamAttendee attendee = attendeeMap.get(speaker.getAttendeeId());
+        if (nonNull(attendee)) {
+          speaker.setMember(attendee.getMember());
+        }
+      }
+    }
+
+    // Save all updated speakers to the repository
+    streamSpeakerRepository.saveAll(speakers);
+  }
+
+  /**
+   * Filters out the organizer from the list of stream speakers.
+   *
+   * <p>This method removes the speaker who is also the organizer of the stream.
+   * The organizer is identified by comparing the organizer's ID with the
+   * {@code memberId} of each {@link StreamSpeaker}.</p>
+   *
+   * @param speakers    the list of {@link StreamSpeaker} entities to be filtered
+   * @param organizerId the ID of the organizer used for filtering
+   * @return a list of {@link StreamSpeaker} entities excluding the organizer
+   */
+  private List<StreamSpeaker> filterOutOrganizer(final List<StreamSpeaker> speakers, final Long organizerId) {
+    // Filter out the organizer by comparing the FleenUser ID and StreamSpeaker memberId
+    return speakers.stream()
+      .filter(speaker -> !speaker.getMemberId().equals(organizerId))
+      .collect(Collectors.toList());
+  }
+
 }
