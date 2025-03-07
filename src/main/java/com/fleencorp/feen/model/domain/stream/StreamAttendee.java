@@ -212,8 +212,8 @@ public class StreamAttendee extends FleenFeenEntity {
    * <p>This method sets the internal flag indicating that the user is a speaker.
    * It assumes that the user is already designated as an organizer.</p>
    */
-  public void markAsOrganizerAndSpeaker() {
-    aSpeaker = true;
+  public void markAsOrganizer() {
+    aSpeaker = false;
     isOrganizer = true;
   }
 
