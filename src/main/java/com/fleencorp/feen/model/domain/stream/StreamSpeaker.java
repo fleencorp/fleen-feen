@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -28,6 +29,9 @@ public class StreamSpeaker extends FleenFeenEntity {
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
   private FleenStream stream;
+
+  @Column(name = "attendee_id", updatable = false, insertable = false)
+  private Long attendeeId;
 
   @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
   @JoinColumn(name = "attendee_id", referencedColumnName = "stream_attendee_id")
@@ -50,15 +54,6 @@ public class StreamSpeaker extends FleenFeenEntity {
   private String description;
 
   /**
-   * Retrieves the member ID.
-   *
-   * @return the member ID if the member is not null; otherwise, null.
-   */
-  public Long getAttendeeId() {
-    return nonNull(attendee) ? attendee.getAttendeeId() : null;
-  }
-
-  /**
    * Retrieves the name of the member.
    * If the full name is not null or blank, it returns the full name; otherwise, it returns the provided default name.
    *
@@ -74,6 +69,10 @@ public class StreamSpeaker extends FleenFeenEntity {
 
   public boolean hasSpeakerId() {
     return nonNull(getSpeakerId());
+  }
+
+  public boolean hasNoMember() {
+    return isNull(getMemberId());
   }
 
   /**
