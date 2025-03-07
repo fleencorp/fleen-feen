@@ -44,7 +44,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
 
   @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect(sa.attendeeId, fs.streamId, m.firstName, m.lastName, m.username) " +
     "FROM StreamAttendee sa LEFT JOIN sa.stream fs LEFT JOIN sa.member m WHERE (fs.streamId = :streamId AND sa.aSpeaker = false) " +
-    "AND (sa.stream.organizerId =: organizerId) AND (m.username = :q OR m.firstName = :q OR m.lastName = :q) ")
+    "AND (fs.organizerId = :organizerId) AND (m.username = :q OR m.firstName = :q OR m.lastName = :q) ")
   Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
     @Param("streamId") Long streamId, @Param("organizerId") Long organizerId, @Param("q") String userIdOrName, Pageable pageable);
 
