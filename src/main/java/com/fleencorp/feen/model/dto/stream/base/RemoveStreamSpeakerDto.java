@@ -23,7 +23,7 @@ public class RemoveStreamSpeakerDto {
 
   @Valid
   @NotNull(message = "{speaker.speakers.NotNull}")
-  @Size(max = 1, message = "{speaker.speakers.Size}")
+  @Size(max = 10, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
   private List<DeleteSpeakerDto> speakers;
 
