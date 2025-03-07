@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.domain.stream;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,13 @@ public class StreamSpeaker extends FleenFeenEntity {
   @JoinColumn(name = "attendee_id", referencedColumnName = "stream_attendee_id")
   private StreamAttendee attendee;
 
+  @Column(name = "member_id", updatable = false, insertable = false)
+  private Long memberId;
+
+  @ManyToOne(fetch = LAZY, targetEntity = Member.class)
+  @JoinColumn(name = "member_id", referencedColumnName = "member_id")
+  private Member member;
+
   @Column(name = "full_name", nullable = false)
   private String fullName;
 
@@ -62,10 +70,6 @@ public class StreamSpeaker extends FleenFeenEntity {
       return fullName;
     }
     return defaultFullName;
-  }
-
-  public boolean hasAttendeeId() {
-    return nonNull(getAttendeeId());
   }
 
   public boolean hasSpeakerId() {

@@ -105,14 +105,15 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * Searches for speakers based on the provided search criteria.
    *
    * @param searchRequest the search request containing filtering criteria and pagination information
+   * @param user the authenticated user who might be the owner of a stream
    * @return a StreamSpeakerSearchResult containing the list of speakers matching the search criteria
    */
   @Override
-  public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest) {
+  public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
     // Extract the name, full name, username, or email address from the search request
     final String fullNameOrUsername = searchRequest.getUserIdOrName();
     // Retrieve a paginated list of Member entities matching the search criteria
-    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, fullNameOrUsername, searchRequest.getPage());
+    final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
     // Return a search result view with the speaker responses and pagination details
@@ -133,14 +134,15 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    *
    * @param streamId the ID of the stream for which speakers are being searched
    * @param searchRequest the search request object containing pagination details
+   * @param user the authenticated user who might be the owner of a stream
    * @return a {@code StreamSpeakerSearchResult} containing a list of speakers, or an empty result if no speakers are found
    */
   @Override
-  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest) {
+  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
     // Set default number of speakers to retrieve
     searchRequest.setDefaultPageSize();
     // Fetch all StreamSpeaker entities associated with the given stream ID
-    final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId), searchRequest.getPage());
+    final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStreamExcludingOrganizer(FleenStream.of(streamId), Member.of(user.getId()), searchRequest.getPage());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(page.getContent());
     // Return a localized response containing the list of speaker responses

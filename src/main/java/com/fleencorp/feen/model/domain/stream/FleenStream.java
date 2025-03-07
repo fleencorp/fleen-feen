@@ -113,6 +113,9 @@ public class FleenStream extends FleenFeenEntity {
   private String groupOrOrganizationName;
 
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  private Long organizerId;
+
+  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
   private Long memberId;
 
   @CreatedBy
