@@ -384,7 +384,7 @@ public class StreamServiceImpl implements StreamService {
     // Approve the organizer's request to join automatically
     streamAttendee.approveUserAttendance();
     // Mark the organizer as a speaker
-    streamAttendee.markAsOrganizerAndSpeaker();
+    streamAttendee.markAsOrganizer();
     // Save attendee to the repository
     streamAttendeeRepository.save(streamAttendee);
   }

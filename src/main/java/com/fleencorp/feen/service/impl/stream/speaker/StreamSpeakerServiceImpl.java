@@ -724,7 +724,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private List<StreamSpeaker> filterOutOrganizer(final List<StreamSpeaker> speakers, final Long organizerId) {
     // Filter out the organizer by comparing the FleenUser ID and StreamSpeaker memberId
     return speakers.stream()
-      .filter(speaker -> !speaker.getMemberId().equals(organizerId))
+      .filter(speaker -> !speaker.isNotOrganizer(organizerId))
       .collect(Collectors.toList());
   }
 

@@ -75,6 +75,10 @@ public class StreamSpeaker extends FleenFeenEntity {
     return isNull(getMemberId());
   }
 
+  public boolean isNotOrganizer(Long organizerId) {
+    return nonNull(memberId) && !(memberId.equals(organizerId));
+  }
+
   /**
    * Updates the speaker's information with the provided full name, title, and description.
    *
