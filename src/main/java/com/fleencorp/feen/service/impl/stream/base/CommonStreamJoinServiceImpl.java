@@ -14,6 +14,7 @@ import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinSt
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.notification.Notification;
@@ -66,6 +67,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
+  private final ToInfoMapper toInfoMapper;
   private final Localizer localizer;
 
   /**
@@ -91,6 +93,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param streamAttendeeRepository  the repository for accessing stream attendee data
    * @param commonMapper              the mapper for common data transformations
    * @param streamMapper              the mapper for stream-specific data transformations
+   * @param toInfoMapper              the mapper for mapping information of chat space, streams and attendee data
    * @param localizer                 the service for localizing responses
    */
   public CommonStreamJoinServiceImpl(
@@ -105,6 +108,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper,
+      final ToInfoMapper toInfoMapper,
       final Localizer localizer) {
     this.attendeeService = attendeeService;
     this.eventJoinService = eventJoinService;
@@ -118,6 +122,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     this.localizer = localizer;
     this.commonMapper = commonMapper;
     this.streamMapper = streamMapper;
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -359,7 +364,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Convert the stream to the equivalent stream response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
+    final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
 
     // Create the external stream request
     final ExternalStreamRequest externalStreamRequest = ExternalStreamRequest.ofJoinStream(calendar, oauth2Authorization, stream, streamType, user.getEmailAddress(), joinStreamDto);
@@ -481,7 +486,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Convert the stream to equivalent stream response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
-    final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
+    final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Send and save notifications

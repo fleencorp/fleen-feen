@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import lombok.*;
 
 @Builder
@@ -19,7 +20,7 @@ import lombok.*;
   "display_photo",
   "comment",
   "organizer_comment",
-  "is_organizer_of_stream",
+  "is_organizer_info",
   "attendance_info"
 })
 public class StreamAttendeeResponse {
@@ -33,8 +34,8 @@ public class StreamAttendeeResponse {
   @JsonProperty("full_name")
   private String fullName;
 
-  @JsonProperty("is_organizer_of_stream")
-  private Boolean isOrganizerOfStream;
+  @JsonProperty("is_organizer_info")
+  private IsOrganizerInfo isOrganizerInfo;
 
   @JsonProperty("attendance_info")
   private AttendanceInfo attendanceInfo;
@@ -47,14 +48,4 @@ public class StreamAttendeeResponse {
 
   @JsonProperty("organizer_comment")
   private String organizerComment;
-
-  public static StreamAttendeeResponse of(final Long attendeeId, final String username, final String fullName, final Boolean isOrganizerOfStream) {
-    final StreamAttendeeResponse attendeeResponse = new StreamAttendeeResponse();
-    attendeeResponse.setAttendeeId(attendeeId);
-    attendeeResponse.setUsername(username);
-    attendeeResponse.setFullName(fullName);
-    attendeeResponse.setIsOrganizerOfStream(isOrganizerOfStream);
-
-    return attendeeResponse;
-  }
 }

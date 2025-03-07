@@ -5,16 +5,12 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
-import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
-import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
-import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -80,6 +76,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param localizer                 the service for localization tasks
    * @param attendeeMapper            the mapper for mapping attendee data
    * @param streamMapper              the mapper for mapping stream data
+   * @param toInfoMapper              the mapper for mapping information of chat space, streams and attendee data
    */
   public StreamAttendeeServiceImpl(
       final MiscService miscService,
@@ -88,7 +85,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
-      final StreamMapper streamMapper) {
+      final StreamMapper streamMapper,
+      final ToInfoMapper toInfoMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
     this.streamAttendeeUpdateService = streamAttendeeUpdateService;
@@ -169,25 +167,8 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       return streamAttendees.stream()
         // Filter for non empty attendee
         .filter(Objects::nonNull)
-        // Map each attendee to a response object
-        .map(attendee -> {
-          // Convert the attendee's request to join status to a response-friendly format
-          final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = streamMapper.toRequestToJoinStatus(attendee.getRequestToJoinStatus());
-          // Determine the join status info based on the stream and attendee details
-          final JoinStatusInfo joinStatusInfo = streamMapper.toJoinStatus(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending());
-          // Determine the is attending information based on the user's status attendee status
-          final IsAttendingInfo attendingInfo = streamMapper.toIsAttendingInfo(attendee.isAttending());
-          // Determine the is a speaker information based on the user's speaker status
-          final IsASpeakerInfo isASpeakerInfo = streamMapper.toIsASpeakerInfo(attendee.isASpeaker());
-          // Create a stream attendee response with basic info
-          final StreamAttendeeResponse attendeeResponse = StreamAttendeeResponse.of(attendee.getAttendeeId(), attendee.getUsername(), attendee.getFullName(), attendee.isOrganizer());
-          // Get the attendance info
-          final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo, isASpeakerInfo);
-          // Add the attendance info on the attendee response
-          attendeeResponse.setAttendanceInfo(attendanceInfo);
-          // Return a new StreamAttendeeResponse object with the attendee's details and status info
-          return attendeeResponse;
-        })
+        // Map each attendee to a stream attendee response
+        .map(attendee -> attendeeMapper.toStreamAttendeeResponsePublic(attendee, streamResponse))
         // Collect all mapped responses into a set
         .collect(Collectors.toSet());
     }
