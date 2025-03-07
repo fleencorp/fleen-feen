@@ -13,7 +13,7 @@ import java.util.Set;
 
 public interface StreamSpeakerRepository extends JpaRepository<StreamSpeaker, Long> {
 
-  @Query("SELECT ss FROM StreamSpeaker ss WHERE ss.speakerId = (:ids)")
+  @Query("SELECT ss FROM StreamSpeaker ss WHERE ss.speakerId IN (:ids)")
   Set<StreamSpeaker> findAllByIds(@Param("ids") Set<Long> speakersIds);
 
   @Query("SELECT ss FROM StreamSpeaker ss WHERE ss.stream = :stream")

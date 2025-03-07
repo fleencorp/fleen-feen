@@ -26,7 +26,7 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   @Query("SELECT DISTINCT sa FROM StreamAttendee sa WHERE sa.member.emailAddress = :emailAddress")
   Optional<StreamAttendee> findDistinctByEmail(@Param("emailAddress") String emailAddress);
 
-  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.attendeeId IN :attendeeIds")
+  @Query("SELECT sa FROM StreamAttendee sa WHERE sa.attendeeId IN (:attendeeIds)")
   List<StreamAttendee> findAllByAttendeeIds(@Param("attendeeIds") Set<Long> attendeeIds);
 
   List<StreamAttendee> findAllByStreamAndRequestToJoinStatus(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus);

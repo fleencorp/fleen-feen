@@ -79,6 +79,11 @@ public class StreamSpeaker extends FleenFeenEntity {
     return nonNull(memberId) && !(memberId.equals(organizerId));
   }
 
+  public void setAttendee(final StreamAttendee attendee) {
+    this.attendee = attendee;
+    this.attendeeId = nonNull(attendee) ? attendee.getAttendeeId() : null;
+  }
+
   /**
    * Updates the speaker's information with the provided full name, title, and description.
    *

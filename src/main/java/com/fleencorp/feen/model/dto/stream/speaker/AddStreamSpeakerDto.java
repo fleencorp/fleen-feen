@@ -27,7 +27,6 @@ public abstract class AddStreamSpeakerDto {
   public Set<StreamSpeaker> toStreamSpeakers(final FleenStream stream) {
     final List<StreamSpeaker> streamSpeakers = new ArrayList<>();
 
-    System.out.println("The total number of speakers is " + getSpeakers().size());
     // Iterate through each StreamSpeakerDto in the speakers list
     for (final StreamSpeakerDto speakerDto : getSpeakers()) {
       // Convert the StreamSpeakerDto to a StreamSpeaker

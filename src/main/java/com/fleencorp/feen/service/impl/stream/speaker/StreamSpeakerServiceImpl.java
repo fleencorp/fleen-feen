@@ -199,12 +199,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Check if a user is already a speaker and update their details or info
     checkIfSpeakerExistsAndUpdateInfoOrAddNewSpeaker(speakers, stream, updatedSpeakers);
 
+    // Set the member id for each speaker
+    setMemberIdsForSpeakers(updatedSpeakers);
     // Save all the speakers to the repository
     streamSpeakerRepository.saveAll(updatedSpeakers);
     // Mark the speakers as attendees
-    markAttendeeAsSpeaker(updatedSpeakers);
-    // Set the member id for each speaker
-    setMemberIdsForSpeakers(updatedSpeakers);
+    markAttendeesAsSpeaker(updatedSpeakers);
 
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers);
@@ -247,18 +247,20 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Check if a user is already a speaker and update their details or info
     checkIfSpeakerExistsAndUpdateInfoOrAddNewSpeaker(newSpeakers, stream, updatedSpeakers);
 
+    // Check if speakers are not already attendees and send invitations if needed
+    checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
+
+    // Set the member id for each speaker
+    setMemberIdsForSpeakers(updatedSpeakers);
+
     // Check if the list or set of speakers is not empty
     if (!updatedSpeakers.isEmpty()) {
       // Save the updated speakers to the repository
       streamSpeakerRepository.saveAll(updatedSpeakers);
     }
-
-    // Check if speakers are not already attendees and send invitations if needed
-    checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
     // Mark the speakers as attendees
-    markAttendeeAsSpeaker(updatedSpeakers);
-    // Set the member id for each speaker
-    setMemberIdsForSpeakers(updatedSpeakers);
+    markAttendeesAsSpeaker(updatedSpeakers);
+
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
     // Create the response
@@ -623,7 +625,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    *
    * @param speakers the set of {@code StreamSpeaker} entities representing attendees to be marked as speakers
    */
-  private void markAttendeeAsSpeaker(final Set<StreamSpeaker> speakers) {
+  private void markAttendeesAsSpeaker(final Set<StreamSpeaker> speakers) {
     if (nonNull(speakers) && !speakers.isEmpty()) {
       // Get the attendee IDs of the current speakers
       final Set<Long> speakerAttendeeIds = getSpeakerAttendeeIds(speakers);
@@ -710,9 +712,6 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
         }
       }
     }
-
-    // Save all updated speakers to the repository
-    streamSpeakerRepository.saveAll(speakers);
   }
 
   /**
