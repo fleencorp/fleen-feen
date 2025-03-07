@@ -14,17 +14,20 @@ import lombok.Getter;
 @Getter
 public enum IsASpeaker implements ApiParameter {
 
-  NO("No", "is.a.speaker.no"),
-  YES("Yes", "is.a.speaker.yes");
+  NO("No", "is.a.speaker.no", "is.a.speaker.no.2"),
+  YES("Yes", "is.a.speaker.yes", "is.a.speaker.yes.2"),;
 
   private final String value;
   private final String messageCode;
+  private final String messageCode2;
 
   IsASpeaker(
       final String value,
-      final String messageCode) {
+      final String messageCode,
+      final String messageCode2) {
     this.value = value;
     this.messageCode = messageCode;
+    this.messageCode2 = messageCode2;
   }
 
   /**

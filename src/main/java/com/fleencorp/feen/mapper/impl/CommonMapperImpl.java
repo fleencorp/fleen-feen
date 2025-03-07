@@ -10,6 +10,7 @@ import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinSt
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.impl.stream.StreamMapperImpl;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
@@ -19,6 +20,7 @@ import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
@@ -48,6 +50,7 @@ import static java.util.Objects.nonNull;
 public class CommonMapperImpl implements CommonMapper {
 
   private final StreamMapper streamMapper;
+  private final ToInfoMapper toInfoMapper;
   private final MessageSource messageSource;
 
   /**
@@ -61,9 +64,11 @@ public class CommonMapperImpl implements CommonMapper {
    */
   public CommonMapperImpl(
       @Lazy final StreamMapper streamMapper,
+      final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
-    this.messageSource = messageSource;
     this.streamMapper = streamMapper;
+    this.toInfoMapper = toInfoMapper;
+    this.messageSource = messageSource;
   }
 
   /**
@@ -229,7 +234,7 @@ public class CommonMapperImpl implements CommonMapper {
       // Retrieve the stream type info
       final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
       // Get the attendance information for the stream attendee
-      final AttendanceInfo attendanceInfo = streamMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending(), attendee.isASpeaker());
+      final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending(), attendee.isASpeaker());
       // Create and return a response object with the processed to join details
       return ProcessAttendeeRequestToJoinStreamResponse.of(
         stream.getNumberId(),
@@ -263,28 +268,6 @@ public class CommonMapperImpl implements CommonMapper {
   }
 
   /**
-   * Converts the given {@link JoinStatus} into a {@link JoinStatusInfo} object.
-   *
-   * <p>This method checks if the provided {@link JoinStatus} is non-null and, if so, creates a
-   * {@link JoinStatusInfo} instance using the {@link JoinStatus}, along with translations of its
-   * associated message codes for localization purposes.</p>
-   *
-   * <p>The resulting {@link JoinStatusInfo} contains the join status details, including localized
-   * messages that can be used to provide feedback to the user based on their join status.</p>
-   *
-   * @param joinStatus The {@link JoinStatus} to be converted into a {@link JoinStatusInfo} object.
-   * @return The {@link JoinStatusInfo} object containing the join status and message codes, or
-   *         <code>null</code> if the {@link JoinStatus} is <code>null</code>.
-   */
-  @Override
-  public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
-    if (nonNull(joinStatus)) {
-      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
-    }
-    return null;
-  }
-
-  /**
    * Generates a response for a stream where the user is not attending.
    *
    * <p>This method creates a {@link NotAttendingStreamResponse} object, sets its
@@ -296,16 +279,19 @@ public class CommonMapperImpl implements CommonMapper {
    */
   @Override
   public NotAttendingStreamResponse notAttendingStream() {
+    // Set the join status to 'not attending'
+    final JoinStatus joinStatus = JoinStatus.notAttending();
+    // Create the join status info
+    final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
+    // Not attending info
+    final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(false);
     // Create a new NotAttendingStreamResponse instance
     final NotAttendingStreamResponse notAttendingStreamResponse = NotAttendingStreamResponse.of();
 
-    // Set the join status to 'not attending'
-    final JoinStatus joinStatus = JoinStatus.notAttending();
     // Set the 'is attending' info to false, using the translated message
-    notAttendingStreamResponse.setAttendingInfo(streamMapper.toIsAttendingInfo(false));
-
+    notAttendingStreamResponse.setAttendingInfo(isAttendingInfo);
     // Set the join status info with translated messages for the join status
-    notAttendingStreamResponse.setJoinStatusInfo(JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3())));
+    notAttendingStreamResponse.setJoinStatusInfo(joinStatusInfo);
     // Return the fully populated NotAttendingStreamResponse
     return notAttendingStreamResponse;
   }

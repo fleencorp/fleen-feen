@@ -15,7 +15,8 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "is_a_speaker",
-  "is_a_speaker_text"
+  "is_a_speaker_text",
+  "is_a_speaker_text_2"
 })
 public class IsASpeakerInfo {
 
@@ -25,8 +26,11 @@ public class IsASpeakerInfo {
   @JsonProperty("is_a_speaker_text")
   private String isASpeakerText;
 
-  public static IsASpeakerInfo of(final Boolean isASpeaker, final String isASpeakerText) {
-    return new IsASpeakerInfo(isASpeaker, isASpeakerText);
+  @JsonProperty("is_a_speaker_text_2")
+  private String isASpeakerText2;
+
+  public static IsASpeakerInfo of(final Boolean isASpeaker, final String isASpeakerText, final String isASpeakerText2) {
+    return new IsASpeakerInfo(isASpeaker, isASpeakerText, isASpeakerText2);
   }
 
   public static IsASpeakerInfo of() {

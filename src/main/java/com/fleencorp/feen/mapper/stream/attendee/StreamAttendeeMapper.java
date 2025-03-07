@@ -5,5 +5,8 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 
 public interface StreamAttendeeMapper {
+
   StreamAttendeeResponse toStreamAttendeeResponse(StreamAttendee entry, FleenStreamResponse streamResponse);
+
+  StreamAttendeeResponse toStreamAttendeeResponsePublic(StreamAttendee entry, FleenStreamResponse streamResponse);
 }
