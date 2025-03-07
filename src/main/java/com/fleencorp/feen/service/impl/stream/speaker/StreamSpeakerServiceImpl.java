@@ -361,14 +361,19 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
-    // Get all stream speakers from dto
-    final Set<StreamSpeaker> speakers = dto.toStreamSpeakers();
+    // Get all stream speakers ids from dto
+    final Set<Long> speakersIds = dto.toSpeakerIds();
+    // Fetch the managed speakers from the database
+    final Set<StreamSpeaker> speakers = streamSpeakerRepository.findAllByIds(speakersIds);
+
     // Verify organizer is not part of the speakers to be removed
     checkOrganizerOfStreamCannotBeRemovedAsSpeaker(stream, stream.getOrganizer(), speakers);
 
     // Check if the list or set of speakers is not empty
     if (!speakers.isEmpty()) {
-    // Delete all speakers requested
+      // Fetch the associated attendees and mark them as non-speakers
+      markAttendeesAsNonSpeakers(speakers);
+      // Delete all speakers requested
       streamSpeakerRepository.deleteAll(speakers);
     }
 
@@ -727,5 +732,36 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       .filter(speaker -> speaker.isNotOrganizer(organizerId))
       .collect(Collectors.toList());
   }
+
+  /**
+   * Marks all attendees associated with the given set of speakers as non-speakers.
+   *
+   * <p>This method iterates through the provided set of {@code StreamSpeaker} entities,
+   * retrieves the associated {@code StreamAttendee}, and marks each attendee as a
+   * non-speaker. The attendees marked as non-speakers are collected in a list and
+   * then persisted to the database in a batch operation.</p>
+   *
+   * @param speakers the set of {@code StreamSpeaker} entities whose associated attendees
+   *                 are to be marked as non-speakers
+   */
+  private void markAttendeesAsNonSpeakers(Set<StreamSpeaker> speakers) {
+    List<StreamAttendee> attendeesToBeNonSpeakers = new ArrayList<>();
+
+    for (StreamSpeaker speaker : speakers) {
+      // Fetch the associated attendee (already managed by JPA now)
+      StreamAttendee attendee = speaker.getAttendee();
+
+      if (attendee != null) {
+        // Mark attendee as non-speaker
+        attendee.markAsNonSpeaker();
+        // Add the attendee to list of attendees removed as non-speakers
+        attendeesToBeNonSpeakers.add(attendee);
+      }
+    }
+
+    // Save the updated attendees
+    streamAttendeeRepository.saveAll(attendeesToBeNonSpeakers);
+  }
+
 
 }

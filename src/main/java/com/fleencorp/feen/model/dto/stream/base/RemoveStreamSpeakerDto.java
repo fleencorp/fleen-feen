@@ -2,7 +2,6 @@ package com.fleencorp.feen.model.dto.stream.base;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.util.FleenUtil;
-import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -38,17 +37,19 @@ public class RemoveStreamSpeakerDto {
   }
 
   /**
-   * Converts a set of speaker IDs into a set of {@link StreamSpeaker} objects.
-   * The method filters out any invalid IDs before converting the valid ones to {@link StreamSpeaker} objects.
+   * Converts the list of {@code DeleteSpeakerDto} objects into a set of valid speaker IDs.
    *
-   * @return a set of {@link StreamSpeaker} objects created from the valid speaker IDs.
+   * <p>This method processes a list of speaker DTOs, extracts the speaker ID as a string,
+   * filters out any invalid IDs using {@code FleenUtil::isValidNumber}, and then converts
+   * the valid string IDs into a {@code Set<Long>}.</p>
+   *
+   * @return a set of valid speaker IDs as {@code Long} values
    */
-  public Set<StreamSpeaker> toStreamSpeakers() {
+  public Set<Long> toSpeakerIds() {
     return speakers.stream()
       .map(DeleteSpeakerDto::getSpeakerId)
       .filter(FleenUtil::isValidNumber)
       .map(Long::parseLong)
-      .map(StreamSpeaker::of)
       .collect(Collectors.toSet());
   }
 }
