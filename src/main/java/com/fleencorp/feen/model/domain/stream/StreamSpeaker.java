@@ -67,21 +67,44 @@ public class StreamSpeaker extends FleenFeenEntity {
     return defaultFullName;
   }
 
+  /**
+   * Checks if the speaker has a valid speaker ID.
+   *
+   * @return {@code true} if the speaker ID is not {@code null}, {@code false} otherwise
+   */
   public boolean hasSpeakerId() {
     return nonNull(getSpeakerId());
   }
 
+  /**
+   * Checks if the speaker does not have an associated member (i.e., if the member ID is {@code null}).
+   *
+   * @return {@code true} if the member ID is {@code null}, {@code false} otherwise
+   */
   public boolean hasNoMember() {
     return isNull(getMemberId());
   }
 
+  /**
+   * Checks if the speaker is not the organizer of the stream.
+   *
+   * @param organizerId the ID of the stream organizer to compare
+   * @return {@code true} if the speaker's member ID is not {@code null} and is different from the organizer ID,
+   *         {@code false} otherwise
+   */
   public boolean isNotOrganizer(Long organizerId) {
     return nonNull(memberId) && !(memberId.equals(organizerId));
   }
 
+  /**
+   * Sets the associated attendee for the speaker and updates the attendee ID.
+   *
+   * @param attendee the {@code StreamAttendee} entity to associate with this speaker,
+   *                 or {@code null} to disassociate the attendee
+   */
   public void setAttendee(final StreamAttendee attendee) {
     this.attendee = attendee;
-    this.attendeeId = nonNull(attendee) ? attendee.getAttendeeId() : null;
+    this.attendeeId = nonNull(attendee) ? attendee.getAttendeeId() : attendeeId;
   }
 
   /**
