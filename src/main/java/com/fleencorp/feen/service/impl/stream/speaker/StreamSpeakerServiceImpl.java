@@ -152,6 +152,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Fetch all StreamSpeaker entities associated with the given stream ID
     final Page<StreamSpeaker> page = streamSpeakerRepository.findAllByStream(FleenStream.of(streamId), searchRequest.getPage());
     // Filter out the organizer using a separate method
+    log.info("The stream organizer id is {}", stream.getOrganizerId());
     final List<StreamSpeaker> filteredSpeakers = filterOutOrganizer(page.getContent(), stream.getOrganizerId());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
@@ -724,7 +725,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private List<StreamSpeaker> filterOutOrganizer(final List<StreamSpeaker> speakers, final Long organizerId) {
     // Filter out the organizer by comparing the FleenUser ID and StreamSpeaker memberId
     return speakers.stream()
-      .filter(speaker -> !speaker.isNotOrganizer(organizerId))
+      .filter(speaker -> speaker.isNotOrganizer(organizerId))
       .collect(Collectors.toList());
   }
 
