@@ -218,6 +218,17 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   /**
+   * Marks the entity as a non-speaker.
+   *
+   * <p>This method updates the speaker status of the entity by setting the
+   * {@code aSpeaker} flag to {@code false}, indicating that the entity
+   * is no longer a speaker.</p>
+   */
+  public void markAsNonSpeaker() {
+    aSpeaker = false;
+  }
+
+  /**
    * Returns whether the attendee is currently attending.
    *
    * @return true if the attendee is attending, false otherwise.
