@@ -246,13 +246,11 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     final Set<StreamSpeaker> updatedSpeakers = new HashSet<>();
     // Check if a user is already a speaker and update their details or info
     checkIfSpeakerExistsAndUpdateInfoOrAddNewSpeaker(newSpeakers, stream, updatedSpeakers);
-
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, updatedSpeakers);
 
     // Set the member id for each speaker
     setMemberIdsForSpeakers(updatedSpeakers);
-
     // Check if the list or set of speakers is not empty
     if (!updatedSpeakers.isEmpty()) {
       // Save the updated speakers to the repository
