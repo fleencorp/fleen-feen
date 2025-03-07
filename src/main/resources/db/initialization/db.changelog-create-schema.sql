@@ -407,6 +407,7 @@ CREATE TABLE stream_speaker (
   stream_speaker_id BIGSERIAL PRIMARY KEY,
   fleen_stream_id BIGINT NOT NULL,
   attendee_id BIGINT NULL,
+  member_id BIGINT NULL,
   full_name VARCHAR(100) NOT NULL,
   title VARCHAR(100) NULL,
   description VARCHAR(1000) NULL,
@@ -421,6 +422,10 @@ CREATE TABLE stream_speaker (
   CONSTRAINT stream_speaker_fk_attendee_id
     FOREIGN KEY (attendee_id)
       REFERENCES stream_attendee (stream_attendee_id)
+        ON DELETE CASCADE,
+  CONSTRAINT stream_speaker_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
         ON DELETE CASCADE
 );
 

@@ -40,9 +40,10 @@ public interface StreamAttendeeRepository extends JpaRepository<StreamAttendee, 
   Page<StreamAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
   @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect(sa.attendeeId, fs.streamId, m.firstName, m.lastName, m.username) " +
-    "FROM StreamAttendee sa LEFT JOIN sa.stream fs LEFT JOIN sa.member m WHERE fs.streamId = :streamId AND sa.aSpeaker = false " +
-    "AND (m.username = :q OR m.firstName = :q OR m.lastName = :q)")
-  Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(@Param("streamId") Long streamId, @Param("q") String userIdOrName, Pageable pageable);
+    "FROM StreamAttendee sa LEFT JOIN sa.stream fs LEFT JOIN sa.member m WHERE (fs.streamId = :streamId AND sa.aSpeaker = false) " +
+    "AND (sa.stream.organizerId =: organizerId) AND (m.username = :q OR m.firstName = :q OR m.lastName = :q) ")
+  Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
+    @Param("streamId") Long streamId, @Param("organizerId") Long organizerId, @Param("q") String userIdOrName, Pageable pageable);
 
   @Query("SELECT new com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect(fs.streamId, sa.requestToJoinStatus, sa.attending, sa.aSpeaker, sa.stream.streamVisibility, sa.stream.scheduledEndDate) " +
     "FROM StreamAttendee sa LEFT JOIN sa.member m LEFT JOIN sa.stream fs WHERE m = :member AND fs.streamId IN (:ids)")

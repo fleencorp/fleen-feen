@@ -26,18 +26,22 @@ public class StreamSpeakerController {
     this.streamSpeakerService = streamSpeakerService;
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @GetMapping(value = "/search/{streamId}")
   public StreamSpeakerSearchResult findStreamSpeakers(
       @PathVariable(name = "streamId") final Long streamId,
-      @SearchParam final StreamSpeakerSearchRequest searchRequest) {
-    return streamSpeakerService.findSpeakers(streamId, searchRequest);
+      @SearchParam final StreamSpeakerSearchRequest searchRequest,
+      @AuthenticationPrincipal FleenUser user) {
+    return streamSpeakerService.findSpeakers(streamId, searchRequest, user);
   }
 
+  @PreAuthorize("isFullyAuthenticated()")
   @GetMapping(value = "/entries/{streamId}")
   public StreamSpeakerSearchResult getStreamSpeakers(
       @PathVariable(name = "streamId") final Long streamId,
-      @SearchParam final StreamSpeakerSearchRequest searchRequest) {
-    return streamSpeakerService.findStreamSpeakers(streamId, searchRequest);
+      @SearchParam final StreamSpeakerSearchRequest searchRequest,
+      @AuthenticationPrincipal FleenUser user) {
+    return streamSpeakerService.findStreamSpeakers(streamId, searchRequest, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
