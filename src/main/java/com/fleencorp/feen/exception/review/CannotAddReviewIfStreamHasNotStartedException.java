@@ -1,4 +1,4 @@
-package com.fleencorp.feen.exception.stream.review;
+package com.fleencorp.feen.exception.review;
 
 import com.fleencorp.localizer.model.exception.ApiException;
 

@@ -32,14 +32,17 @@ public final class ContactMapper {
    */
   public static ContactResponse toContactResponse(final Contact entry) {
     if (nonNull(entry)) {
-      return ContactResponse.builder()
-          .id(entry.getContactId())
-          .contactType(entry.getContactType())
-          .contactTypeLabel(nonNull(entry.getContactType()) ? entry.getContactType().getValue() : null)
-          .contact(entry.getContactValue())
-          .createdOn(entry.getCreatedOn())
-          .updatedOn(entry.getUpdatedOn())
-          .build();
+      final ContactResponse response = new ContactResponse();
+
+      response.setId(entry.getContactId());
+      response.setContactType(entry.getContactType());
+      response.setContactTypeLabel(entry.getContactLabel());
+      response.setContact(entry.getContactValue());
+
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
+
+      return response;
     }
     return null;
   }

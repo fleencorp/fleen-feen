@@ -5,14 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

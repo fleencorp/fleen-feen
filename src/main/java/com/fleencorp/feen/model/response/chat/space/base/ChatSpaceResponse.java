@@ -14,13 +14,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import lombok.extern.slf4j.Slf4j;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -44,7 +41,6 @@ import static java.util.Objects.nonNull;
   "created_on",
   "updated_on"
 })
-@Slf4j
 public class ChatSpaceResponse extends FleenFeenResponse {
 
   @JsonProperty("title")

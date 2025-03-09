@@ -1,16 +1,18 @@
-package com.fleencorp.feen.model.response.stream.review;
+package com.fleencorp.feen.model.response.review;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.model.info.stream.rating.StreamRatingInfo;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,10 +25,14 @@ import lombok.experimental.SuperBuilder;
   "stream_id",
   "stream_title",
 })
-public class StreamReviewResponse extends FleenFeenResponse {
+public class ReviewResponse extends FleenFeenResponse {
 
   @JsonProperty("review")
   private String review;
+
+  @JsonFormat(shape = STRING)
+  @JsonProperty("review_type")
+  private ReviewType reviewType;
 
   @JsonProperty("rating_info")
   private StreamRatingInfo ratingInfo;

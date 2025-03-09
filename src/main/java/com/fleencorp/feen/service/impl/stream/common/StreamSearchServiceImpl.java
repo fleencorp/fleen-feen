@@ -11,11 +11,11 @@ import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.type.StreamTypeSearchRequest;
+import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponsesAndPage;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
-import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
 import com.fleencorp.feen.model.search.stream.common.EmptyStreamSearchResult;
@@ -24,9 +24,9 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
+import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.feen.service.stream.review.StreamReviewService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +66,7 @@ import static java.util.Objects.nonNull;
 public class StreamSearchServiceImpl implements StreamSearchService {
 
   private final StreamAttendeeService streamAttendeeService;
-  private final StreamReviewService streamReviewService;
+  private final ReviewService reviewService;
   private final StreamService streamService;
   private final FleenStreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
@@ -80,7 +80,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * and searching streams, stream attendees, and user-specific stream details.
    *
    * @param streamAttendeeService the service responsible for handling operations related to stream attendees
-   * @param streamReviewService the service responsible for handling operations related to stream reviews
+   * @param reviewService the service responsible for handling operations related to stream reviews
    * @param streamService the service responsible for handling operations related to streams
    * @param streamRepository the repository used to interact with the `FleenStream` data
    * @param streamAttendeeRepository the repository used to interact with the `StreamAttendee` data
@@ -90,7 +90,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   public StreamSearchServiceImpl(
       final StreamAttendeeService streamAttendeeService,
-      final StreamReviewService streamReviewService,
+      final ReviewService reviewService,
       final StreamService streamService,
       final FleenStreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
@@ -98,7 +98,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final Localizer localizer,
       final StreamMapper streamMapper) {
     this.streamAttendeeService = streamAttendeeService;
-    this.streamReviewService = streamReviewService;
+    this.reviewService = reviewService;
     this.streamService = streamService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
@@ -370,7 +370,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Get all stream or stream attendees
     final Set<StreamAttendee> streamAttendeesGoingToStream = streamAttendeeService.getAttendeesGoingToStream(stream);
     // Get most recent review of the stream
-    final StreamReviewResponse mostRecentReview = streamReviewService.findMostRecentReview(streamId);
+    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(streamId);
     // The Stream converted to a response
     final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
     // Set the reviews
