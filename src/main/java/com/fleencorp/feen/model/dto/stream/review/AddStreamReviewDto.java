@@ -23,12 +23,13 @@ public class AddStreamReviewDto {
 
   @NotBlank(message = "{review.review.NotBlank}")
   @Size(min = 10, max = 1000, message = "{review.review.Size}")
+  @JsonProperty("review")
   private String review;
 
   @NotNull(message = "{review.rating.NotNull}")
   @IsNumber
   @EnumOrdinalValid(enumClass = StreamReviewRating.class, message = "{review.rating.Type}")
-  @JsonProperty("review_rating")
+  @JsonProperty("rating")
   private String rating;
 
   public StreamReviewRating getRating() {
@@ -46,6 +47,8 @@ public class AddStreamReviewDto {
   public StreamReview toStreamReview() {
     final StreamReview streamReview = new StreamReview();
     streamReview.setReview(review);
+    System.out.println("Actual rating " + getRating());
+    System.out.println("Checking the rating " + rating);
     streamReview.setRating(getRating());
 
     return streamReview;

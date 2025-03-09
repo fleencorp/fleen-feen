@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
-import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.EnumType.ORDINAL;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
@@ -45,7 +45,7 @@ public class StreamReview extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
-  @Enumerated(STRING)
+  @Enumerated(ORDINAL)
   @Column(name = "rating", nullable = false)
   private StreamReviewRating rating;
 
