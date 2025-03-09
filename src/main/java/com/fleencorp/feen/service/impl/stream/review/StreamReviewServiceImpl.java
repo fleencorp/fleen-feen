@@ -2,18 +2,22 @@ package com.fleencorp.feen.service.impl.stream.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.review.CannotAddReviewIfStreamHasNotStartedException;
+import com.fleencorp.feen.exception.stream.review.ReviewNotFoundException;
 import com.fleencorp.feen.mapper.stream.review.StreamReviewMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamReview;
 import com.fleencorp.feen.model.dto.stream.review.AddStreamReviewDto;
+import com.fleencorp.feen.model.dto.stream.review.UpdateStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
+import com.fleencorp.feen.model.response.stream.review.UpdateStreamReviewResponse;
 import com.fleencorp.feen.model.search.stream.review.EmptyStreamReviewSearchResult;
 import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamReviewRepository;
+import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.review.StreamReviewService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
@@ -40,7 +44,7 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 @Service
 public class StreamReviewServiceImpl implements StreamReviewService {
 
-  private final FleenStreamRepository streamRepository;
+  private final StreamService streamService;
   private final StreamReviewRepository streamReviewRepository;
   private final StreamReviewMapper streamReviewMapper;
   private final Localizer localizer;
@@ -51,16 +55,16 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    * <p>This constructor initializes the service with repositories for managing streams and reviews,
    * as well as a localized response handler for returning user-friendly messages.</p>
    *
-   * @param streamRepository the repository for accessing stream data
+   * @param streamService the service for accessing and managing streams
    * @param streamReviewRepository the repository for accessing stream review data
    * @param localizer the service for generating localized responses
    */
   public StreamReviewServiceImpl(
-      final FleenStreamRepository streamRepository,
+      final StreamService streamService,
       final StreamReviewRepository streamReviewRepository,
       final StreamReviewMapper streamReviewMapper,
       final Localizer localizer) {
-    this.streamRepository = streamRepository;
+    this.streamService = streamService;
     this.streamReviewRepository = streamReviewRepository;
     this.streamReviewMapper = streamReviewMapper;
     this.localizer = localizer;
@@ -115,21 +119,27 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   /**
    * Adds a review for the specified event or stream.
    *
-   * <p>This method retrieves the event or stream by its ID, throws a {@link FleenStreamNotFoundException} if not found,
-   * and then creates and saves a new review using the provided data.</p>
+   * <p>This method retrieves the event or stream by its ID, throwing a {@link FleenStreamNotFoundException}
+   * if the stream does not exist. It then ensures the stream has started or completed before allowing
+   * the review to be added. Finally, the review is created and saved using the provided data.</p>
    *
    * @param streamId the ID of the event or stream to which the review is being added
-   * @param addStreamReviewDto the data transfer object containing review details
+   * @param addStreamReviewDto the data transfer object containing the details of the review to be added
    * @param user the current user adding the review, used to associate the review with a member
-   * @return an {@link AddStreamReviewResponse} indicating the outcome of the review addition
-   * @throws FleenStreamNotFoundException if no event or stream is found with the provided ID
+   * @return an {@link AddStreamReviewResponse} indicating the result of the review addition
+   * @throws FleenStreamNotFoundException if no event or stream is found with the specified ID
+   * @throws CannotAddReviewIfStreamHasNotStartedException if the stream has not yet started and cannot be reviewed
    */
   @Override
   @Transactional
-  public AddStreamReviewResponse addReview(final Long streamId, final AddStreamReviewDto addStreamReviewDto, final FleenUser user) {
-    // Check if the event or stream exists; throw exception if not
-    streamRepository.findById(streamId)
-      .orElseThrow(() -> new FleenStreamNotFoundException(streamId));
+  public AddStreamReviewResponse addReview(final Long streamId, final AddStreamReviewDto addStreamReviewDto, final FleenUser user)
+      throws FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
+    // Retrieve the stream
+    final FleenStream stream = streamService.findStream(streamId);
+    // Only streams that are ongoing or completed can be reviewed
+    if (stream.hasNotStarted()) {
+      throw CannotAddReviewIfStreamHasNotStartedException.of();
+    }
 
     final StreamReview streamReview = addStreamReviewDto
       .toStreamReview(FleenStream.of(streamId), user.toMember());
@@ -138,6 +148,38 @@ public class StreamReviewServiceImpl implements StreamReviewService {
     streamReviewRepository.save(streamReview);
     // Return a localized response for the added review
     return localizer.of(AddStreamReviewResponse.of());
+  }
+
+  /**
+   * Updates an existing review for the specified event or stream.
+   *
+   * <p>This method finds the review by its ID, the associated stream, and the member who added it.
+   * If the review is not found, a {@link ReviewNotFoundException} is thrown. The review is then
+   * updated with the provided details, and the changes are saved.</p>
+   *
+   * @param streamId the ID of the event or stream to which the review belongs
+   * @param reviewId the ID of the review to be updated
+   * @param updateStreamReviewDto the data transfer object containing the updated review details
+   * @param user the current user updating the review, used to verify the ownership of the review
+   * @return an {@link UpdateStreamReviewResponse} indicating the result of the review update
+   * @throws ReviewNotFoundException if no review is found with the specified ID for the stream and member
+   * @throws FleenStreamNotFoundException if no stream is found with the specified stream ID
+   */
+  @Override
+  @Transactional
+  public UpdateStreamReviewResponse updateReview(final Long streamId, final Long reviewId, final UpdateStreamReviewDto updateStreamReviewDto, final FleenUser user)
+      throws ReviewNotFoundException, FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
+    // Find the associated review
+    final StreamReview streamReview = streamReviewRepository.findByReviewIdAndStreamAndMember(reviewId, FleenStream.of(streamId), user.toMember())
+      .orElseThrow(ReviewNotFoundException.of(reviewId));
+
+    // Update the existing review with the new details
+    streamReview.update(updateStreamReviewDto.getReview(), updateStreamReviewDto.getRating());
+
+    // Save the StreamReview to the repository
+    streamReviewRepository.save(streamReview);
+    // Return a localized response for the updated review
+    return localizer.of(UpdateStreamReviewResponse.of());
   }
 
   /**

@@ -3,8 +3,10 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.stream.review.AddStreamReviewDto;
+import com.fleencorp.feen.model.dto.stream.review.UpdateStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
+import com.fleencorp.feen.model.response.stream.review.UpdateStreamReviewResponse;
 import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.review.StreamReviewService;
@@ -45,6 +47,16 @@ public class StreamReviewController {
       @Valid @RequestBody final AddStreamReviewDto addStreamReviewDto,
       @AuthenticationPrincipal final FleenUser user) {
     return streamReviewService.addReview(streamId, addStreamReviewDto, user);
+  }
+
+  @PreAuthorize("isFullyAuthenticated()")
+  @PostMapping(value = "/update/{streamId}/{reviewId}")
+  public UpdateStreamReviewResponse updateReview(
+      @PathVariable(name = "streamId") final Long streamId,
+      @PathVariable(name = "reviewId") final Long reviewId,
+      @Valid @RequestBody final UpdateStreamReviewDto updateStreamReviewDto,
+      @AuthenticationPrincipal final FleenUser user) {
+    return streamReviewService.updateReview(streamId, reviewId, updateStreamReviewDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")

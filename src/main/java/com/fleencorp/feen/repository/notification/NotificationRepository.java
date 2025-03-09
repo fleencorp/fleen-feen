@@ -9,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -17,7 +16,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
   Page<Notification> findMany(@Param("member") Member member, Pageable pageable);
 
   @Modifying
-  @Transactional
   @Query("UPDATE Notification n SET n.notificationStatus = :status WHERE n.receiver = :receiver AND n.notificationStatus = :unreadStatus")
   void markAllAsRead(@Param("status")NotificationStatus notificationStatus, @Param("unreadStatus") NotificationStatus unreadStatus, @Param("receiver") Member member);
 }

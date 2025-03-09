@@ -683,9 +683,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speakers a set of {@link StreamSpeaker} entities whose member information needs
    *                 to be set for speakers without a member
    */
-  public void setMemberIdsForSpeakers(Set<StreamSpeaker> speakers) {
+  public void setMemberIdsForSpeakers(final Set<StreamSpeaker> speakers) {
     // Filter speakers without memberId
-    Set<Long> attendeeIdsWithoutMember = speakers.stream()
+    final Set<Long> attendeeIdsWithoutMember = speakers.stream()
       .filter(StreamSpeaker::hasNoMember)
       .map(StreamSpeaker::getAttendeeId)
       .collect(Collectors.toSet());
@@ -695,16 +695,16 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     }
 
     // Fetch all attendees whose IDs match the filtered set
-    List<StreamAttendee> attendees = streamAttendeeRepository.findAllByAttendeeIds(attendeeIdsWithoutMember);
+    final List<StreamAttendee> attendees = streamAttendeeRepository.findAllByAttendeeIds(attendeeIdsWithoutMember);
 
     // Create a map from attendeeId to StreamAttendee for faster lookup
-    Map<Long, StreamAttendee> attendeeMap = attendees.stream()
+    final Map<Long, StreamAttendee> attendeeMap = attendees.stream()
       .collect(Collectors.toMap(StreamAttendee::getAttendeeId, attendee -> attendee));
 
     // Map attendees to their corresponding speakers and set the memberId
-    for (StreamSpeaker speaker : speakers) {
+    for (final StreamSpeaker speaker : speakers) {
       if (speaker.hasNoMember()) {
-        StreamAttendee attendee = attendeeMap.get(speaker.getAttendeeId());
+        final StreamAttendee attendee = attendeeMap.get(speaker.getAttendeeId());
         if (nonNull(attendee)) {
           speaker.setMember(attendee.getMember());
         }
@@ -741,12 +741,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speakers the set of {@code StreamSpeaker} entities whose associated attendees
    *                 are to be marked as non-speakers
    */
-  private void markAttendeesAsNonSpeakers(Set<StreamSpeaker> speakers) {
-    List<StreamAttendee> attendeesToBeNonSpeakers = new ArrayList<>();
+  private void markAttendeesAsNonSpeakers(final Set<StreamSpeaker> speakers) {
+    final List<StreamAttendee> attendeesToBeNonSpeakers = new ArrayList<>();
 
-    for (StreamSpeaker speaker : speakers) {
+    for (final StreamSpeaker speaker : speakers) {
       // Fetch the associated attendee (already managed by JPA now)
-      StreamAttendee attendee = speaker.getAttendee();
+      final StreamAttendee attendee = speaker.getAttendee();
 
       if (attendee != null) {
         // Mark attendee as non-speaker

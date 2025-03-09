@@ -31,7 +31,7 @@ public class StreamSpeakerController {
   public StreamSpeakerSearchResult findStreamSpeakers(
       @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final StreamSpeakerSearchRequest searchRequest,
-      @AuthenticationPrincipal FleenUser user) {
+      @AuthenticationPrincipal final FleenUser user) {
     return streamSpeakerService.findSpeakers(streamId, searchRequest, user);
   }
 
@@ -40,7 +40,7 @@ public class StreamSpeakerController {
   public StreamSpeakerSearchResult getStreamSpeakers(
       @PathVariable(name = "streamId") final Long streamId,
       @SearchParam final StreamSpeakerSearchRequest searchRequest,
-      @AuthenticationPrincipal FleenUser user) {
+      @AuthenticationPrincipal final FleenUser user) {
     return streamSpeakerService.findStreamSpeakers(streamId, searchRequest, user);
   }
 

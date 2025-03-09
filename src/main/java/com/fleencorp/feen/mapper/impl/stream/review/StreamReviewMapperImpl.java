@@ -65,7 +65,7 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
       final StreamRatingInfo ratingInfo = StreamRatingInfo.of(entry.getRating(), entry.getRatingNumber(), entry.getRatingName(), translate(entry.getRating().getMessageCode()));
 
       final StreamReviewResponse response = new StreamReviewResponse();
-      response.setId(entry.getStreamReviewId());
+      response.setId(entry.getReviewId());
       response.setReview(entry.getReview());
       response.setRatingInfo(ratingInfo);
       response.setCreatedOn(entry.getCreatedOn());

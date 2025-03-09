@@ -92,7 +92,7 @@ public class StreamSpeaker extends FleenFeenEntity {
    * @return {@code true} if the speaker's member ID is not {@code null} and is different from the organizer ID,
    *         {@code false} otherwise
    */
-  public boolean isNotOrganizer(Long organizerId) {
+  public boolean isNotOrganizer(final Long organizerId) {
     return nonNull(memberId) && !(memberId.equals(organizerId));
   }
 
