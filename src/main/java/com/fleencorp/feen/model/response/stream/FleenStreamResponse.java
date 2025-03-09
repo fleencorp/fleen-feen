@@ -24,6 +24,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -121,6 +122,11 @@ public class FleenStreamResponse extends FleenFeenResponse {
   @JsonProperty("is_private")
   public boolean isPrivate() {
     return StreamVisibility.isPrivateOrProtected(getVisibility());
+  }
+
+  @JsonProperty("ended")
+  public boolean hasEnded() {
+    return LocalDateTime.now(ZoneId.of(schedule.getTimezone())).isAfter(schedule.getEndDate());
   }
 
   @JsonProperty("stream_link_unmasked")
