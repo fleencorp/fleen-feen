@@ -21,6 +21,7 @@ import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.review.StreamReviewService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,7 +105,7 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    */
   @Override
   public StreamReviewResponse findMostRecentReview(final Long streamId) {
-    return streamReviewRepository.findMostRecentReviewByStream(FleenStream.of(streamId))
+    return streamReviewRepository.findMostRecentReviewByStream(FleenStream.of(streamId), PageRequest.of(0, 10))
       .map(streamReviewMapper::toStreamReviewResponse)
       .orElse(null);
   }
