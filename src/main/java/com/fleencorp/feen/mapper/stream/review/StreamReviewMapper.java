@@ -1,15 +1,15 @@
 package com.fleencorp.feen.mapper.stream.review;
 
-import com.fleencorp.feen.model.domain.stream.StreamReview;
-import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
+import com.fleencorp.feen.model.domain.review.Review;
+import com.fleencorp.feen.model.response.review.ReviewResponse;
 
 import java.util.List;
 
 public interface StreamReviewMapper {
 
-  StreamReviewResponse toStreamReviewResponse(StreamReview entry);
+  ReviewResponse toStreamReviewResponsePublic(Review entry);
 
-  List<StreamReviewResponse> toStreamReviewResponses(List<StreamReview> entries);
+  List<ReviewResponse> toStreamReviewResponsesPublic(List<Review> entries);
 
-  List<StreamReviewResponse> toStreamReviewResponsesMore(List<StreamReview> entries);
+  List<ReviewResponse> toStreamReviewResponsesPrivate(List<Review> entries);
 }

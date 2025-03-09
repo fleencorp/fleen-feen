@@ -1,7 +1,9 @@
-package com.fleencorp.feen.model.domain.stream;
+package com.fleencorp.feen.model.domain.review;
 
-import com.fleencorp.feen.constant.stream.review.StreamReviewRating;
+import com.fleencorp.feen.constant.review.ReviewRating;
+import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.ORDINAL;
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
@@ -25,8 +28,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "stream_review")
-public class StreamReview extends FleenFeenEntity {
+@Table(name = "review")
+public class Review extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -36,9 +39,19 @@ public class StreamReview extends FleenFeenEntity {
   @Column(name = "review", nullable = false, length = 1000)
   private String review;
 
-  @ManyToOne(fetch = EAGER, optional = false, targetEntity = FleenStream.class)
-  @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
+  @Enumerated(STRING)
+  @Column(name = "review_type", nullable = false)
+  private ReviewType reviewType;
+
+  @Column(name = "fleen_stream_id", updatable = false, insertable = false)
+  private Long streamId;
+
+  @ManyToOne(fetch = EAGER, targetEntity = FleenStream.class)
+  @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id")
   private FleenStream stream;
+
+  @Column(name = "stream_title", updatable = false)
+  private String streamTitle;
 
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
@@ -47,7 +60,7 @@ public class StreamReview extends FleenFeenEntity {
 
   @Enumerated(ORDINAL)
   @Column(name = "rating", nullable = false)
-  private StreamReviewRating rating;
+  private ReviewRating rating;
 
   /**
    * Retrieves the rating number.
@@ -71,21 +84,12 @@ public class StreamReview extends FleenFeenEntity {
   }
 
   /**
-   * Retrieves the title of the stream associated with this review.
+   * Retrieves the username of the reviewer associated with this review.
    *
-   * @return the title of the stream, or null if the stream is not set.
-   */
-  public String getStreamTitle() {
-    return nonNull(stream) ? stream.getTitle() : null;
-  }
-
-  /**
-   * Retrieves the full name of the reviewer associated with this review.
-   *
-   * @return the full name of the reviewer, or null if the reviewer is not set.
+   * @return the username of the reviewer, or null if the reviewer is not set.
    */
   public String getReviewerName() {
-    return nonNull(member) ? member.getFullName() : null;
+    return nonNull(member) ? member.getUsername() : null;
   }
 
   /**
@@ -98,21 +102,12 @@ public class StreamReview extends FleenFeenEntity {
   }
 
   /**
-   * Retrieves the stream ID.
-   *
-   * @return the stream ID if the stream is not null; otherwise, null.
-   */
-  public Long getStreamId() {
-    return nonNull(stream) ? stream.getStreamId() : null;
-  }
-
-  /**
    * Updates the review text and rating.
    *
    * @param review the new review text
    * @param rating the new rating value
    */
-  public void update(final String review, final StreamReviewRating rating) {
+  public void update(final String review, final ReviewRating rating) {
     this.review = review;
     this.rating = rating;
   }
@@ -126,12 +121,12 @@ public class StreamReview extends FleenFeenEntity {
    * @param rating the rating value
    * @return a new StreamReview instance
    */
-  public static StreamReview of(
+  public static Review of(
       final FleenStream stream,
       final Member member,
       final String review,
-      final StreamReviewRating rating) {
-    final StreamReview streamReview = new StreamReview();
+      final ReviewRating rating) {
+    final Review streamReview = new Review();
     streamReview.setStream(stream);
     streamReview.setMember(member);
     streamReview.setReview(review);
@@ -145,7 +140,7 @@ public class StreamReview extends FleenFeenEntity {
    *
    * @return null
    */
-  public static StreamReview empty() {
+  public static Review empty() {
     return null;
   }
 }

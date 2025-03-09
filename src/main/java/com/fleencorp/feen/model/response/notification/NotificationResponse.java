@@ -12,12 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,12 +48,13 @@ public class NotificationResponse extends FleenFeenResponse {
 
   public static NotificationResponse toNotificationResponse(final Notification entry) {
     if (nonNull(entry)) {
-      return NotificationResponse.builder()
-        .id(entry.getNotificationId())
-        .type(entry.getNotificationType())
-        .status(entry.getNotificationStatus())
-        .idOrLinkOrUrl(nonNull(entry.getIdOrLinkOrUrl()) ? entry.getIdOrLinkOrUrl() : null)
-        .build();
+      final NotificationResponse response = new NotificationResponse();
+      response.setId(entry.getNotificationId());
+      response.setType(entry.getNotificationType());
+      response.setStatus(entry.getNotificationStatus());
+      response.setIdOrLinkOrUrl(entry.getIdOrLinkOrUrl());
+
+      return response;
     }
     return null;
   }

@@ -16,13 +16,12 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -32,7 +31,6 @@ import java.util.Set;
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -117,7 +115,7 @@ public class FleenStreamResponse extends FleenFeenResponse {
   private Set<StreamAttendeeResponse> someAttendees = new HashSet<>();
 
   @JsonProperty("reviews")
-  private Set<StreamReviewResponse> reviews = new HashSet<>();
+  private Set<ReviewResponse> reviews = new HashSet<>();
 
   @JsonProperty("attendance_info")
   private AttendanceInfo attendanceInfo;

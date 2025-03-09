@@ -1,9 +1,10 @@
-package com.fleencorp.feen.model.search.stream.review;
+package com.fleencorp.feen.model.search.review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,17 +21,17 @@ import java.util.function.Supplier;
   "message",
   "result"
 })
-public class EmptyStreamReviewSearchResult extends StreamReviewSearchResult {
+public class ReviewSearchResult extends ApiResponse {
 
   @JsonProperty("result")
   private SearchResultView result;
 
   @Override
   public String getMessageCode() {
-    return "empty.stream.review.search";
+    return "review.search";
   }
 
-  public static Supplier<StreamReviewSearchResult> of(final SearchResultView result) {
-    return () -> new EmptyStreamReviewSearchResult(result);
+  public static Supplier<ReviewSearchResult> of(final SearchResultView result) {
+    return () -> new ReviewSearchResult(result);
   }
 }

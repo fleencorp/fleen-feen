@@ -30,14 +30,17 @@ public final class CountryMapper {
   */
   public static CountryResponse toCountryResponse(final Country entry) {
     if (nonNull(entry)) {
-      return CountryResponse.builder()
-          .id(entry.getCountryId())
-          .title(entry.getTitle())
-          .code(entry.getCode())
-          .timezone(entry.getTimezone())
-          .createdOn(entry.getCreatedOn())
-          .updatedOn(entry.getUpdatedOn())
-          .build();
+      final CountryResponse response = new CountryResponse();
+
+      response.setId(entry.getCountryId());
+      response.setTitle(entry.getTitle());
+      response.setCode(entry.getCode());
+      response.setTimezone(entry.getTimezone());
+
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
+
+      return response;
     }
     return null;
   }

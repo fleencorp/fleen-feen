@@ -1,4 +1,4 @@
-package com.fleencorp.feen.constant.stream.review;
+package com.fleencorp.feen.constant.review;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import lombok.Getter;
 * @version 1.0
 */
 @Getter
-public enum StreamReviewRating implements ApiParameter {
+public enum ReviewRating implements ApiParameter {
 
   EXCELLENT("Excellent", 5, "stream.review.rating.excellent"),
   FAIR("Fair", 2, "stream.review.rating.fair"),
@@ -24,7 +24,7 @@ public enum StreamReviewRating implements ApiParameter {
   private final String messageCode;
   private final int ratingNumber;
 
-  StreamReviewRating(
+  ReviewRating(
       final String value,
       final int ratingNumber,
       final String messageCode) {
@@ -34,27 +34,27 @@ public enum StreamReviewRating implements ApiParameter {
   }
 
   /**
-   * Creates an instance of {@link StreamReviewRating} from a string representation of the rating.
+   * Creates an instance of {@link ReviewRating} from a string representation of the rating.
    *
    * @param rating the string representation of the rating (can be the enum name or rating number)
-   * @return the corresponding {@link StreamReviewRating} instance, or null if the rating does not match any enum constant
+   * @return the corresponding {@link ReviewRating} instance, or null if the rating does not match any enum constant
    */
-  public static StreamReviewRating of(final String rating) {
+  public static ReviewRating of(final String rating) {
     try {
       // Try to parse as enum name first
-      return StreamReviewRating.valueOf(rating.toUpperCase());
+      return ReviewRating.valueOf(rating.toUpperCase());
     } catch (final IllegalArgumentException e) {
       try {
         // Try to parse as rating number
         final int ratingNumber = Integer.parseInt(rating);
-        for (final StreamReviewRating r : values()) {
+        for (final ReviewRating r : values()) {
           if (r.getRatingNumber() == ratingNumber) {
             return r;
           }
         }
       } catch (final NumberFormatException ignored) {
         // Not a number, try to match by value
-        for (final StreamReviewRating r : values()) {
+        for (final ReviewRating r : values()) {
           if (r.getValue().equalsIgnoreCase(rating)) {
             return r;
           }

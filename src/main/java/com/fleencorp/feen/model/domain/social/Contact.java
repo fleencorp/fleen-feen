@@ -13,6 +13,7 @@ import org.springframework.data.annotation.CreatedBy;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -38,6 +39,18 @@ public class Contact extends FleenFeenEntity {
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member owner;
+
+  /**
+   * Retrieves the label associated with the contact type.
+   *
+   * <p>This method returns the value of the {@link ContactType} if it is not {@code null}.
+   * If the contact type is {@code null}, the method returns {@code null}.</p>
+   *
+   * @return the label of the contact type, or {@code null} if the contact type is not available
+   */
+  public String getContactLabel() {
+    return nonNull(contactType) ? contactType.getValue() : null;
+  }
 
   public void update(final ContactType contactType, final String contact) {
     this.contactType = contactType;

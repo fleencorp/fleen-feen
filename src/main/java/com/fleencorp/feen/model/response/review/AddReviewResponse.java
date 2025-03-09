@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.stream.review;
+package com.fleencorp.feen.model.response.review;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -14,14 +14,14 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "message"
 })
-public class AddStreamReviewResponse extends ApiResponse {
+public class AddReviewResponse extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "add.stream.review";
+    return "add.review";
   }
 
-  public static AddStreamReviewResponse of() {
-    return new AddStreamReviewResponse();
+  public static AddReviewResponse of() {
+    return new AddReviewResponse();
   }
 }

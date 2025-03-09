@@ -26,15 +26,18 @@ public final class CalendarMapper {
   */
   public static CalendarResponse toCalendarResponse(final Calendar entry) {
     if (nonNull(entry)) {
-      return CalendarResponse.builder()
-          .id(entry.getCalendarId())
-          .title(entry.getTitle())
-          .description(entry.getDescription())
-          .timezone(entry.getTimezone())
-          .code(entry.getCode())
-          .createdOn(entry.getCreatedOn())
-          .updatedOn(entry.getUpdatedOn())
-          .build();
+      final CalendarResponse response = new CalendarResponse();
+
+      response.setId(entry.getCalendarId());
+      response.setTitle(entry.getTitle());
+      response.setDescription(entry.getDescription());
+      response.setTimezone(entry.getTimezone());
+      response.setCode(entry.getCode());
+
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
+
+      return response;
     }
     return null;
   }

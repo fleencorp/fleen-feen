@@ -7,5 +7,5 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateStreamReviewDto extends AddStreamReviewDto {
+public class UpdateReviewDto extends AddReviewDto {
 }
