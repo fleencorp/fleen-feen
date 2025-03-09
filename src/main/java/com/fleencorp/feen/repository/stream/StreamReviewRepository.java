@@ -17,6 +17,9 @@ public interface StreamReviewRepository extends JpaRepository<StreamReview, Long
   @Query("SELECT r FROM StreamReview r WHERE r.stream = :stream")
   Page<StreamReview> findByStream(FleenStream stream, Pageable pageable);
 
+  @Query("SELECT sr FROM StreamReview sr WHERE sr.stream = :stream ORDER BY sr.createdOn DESC")
+  Optional<StreamReview> findMostRecentReviewByStream(@Param("stream") FleenStream stream);
+
   @Query("SELECT r FROM StreamReview r WHERE r.member = :member")
   Page<StreamReview> findByMember(Member member, Pageable pageable);
 
