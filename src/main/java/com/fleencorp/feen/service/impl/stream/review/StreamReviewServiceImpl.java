@@ -105,7 +105,14 @@ public class StreamReviewServiceImpl implements StreamReviewService {
    */
   @Override
   public StreamReviewResponse findMostRecentReview(final Long streamId) {
-    return streamReviewRepository.findMostRecentReviewByStream(FleenStream.of(streamId), PageRequest.of(0, 10))
+    // Prepare search request details
+    final FleenStream stream = FleenStream.of(streamId);
+    final PageRequest pageRequest = PageRequest.of(0, 1);
+
+    // Return the most recent review
+    return streamReviewRepository.findMostRecentReviewByStream(stream, pageRequest)
+      .stream()
+      .findFirst()
       .map(streamReviewMapper::toStreamReviewResponse)
       .orElse(null);
   }
