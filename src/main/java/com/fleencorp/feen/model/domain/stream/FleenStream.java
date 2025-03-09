@@ -302,6 +302,20 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
+   * Checks if the stream or event has not yet started based on the scheduled start date.
+   *
+   * <p>This method compares the current time with the scheduled start date of the stream. If the
+   * scheduled start date is in the future, the stream is considered to have not started.</p>
+   *
+   * @return {@code true} if the stream has not started (i.e., the scheduled start date is in the future),
+   *         {@code false} otherwise
+   */
+  public boolean hasNotStarted() {
+    final LocalDateTime now = LocalDateTime.now();
+    return nonNull(scheduledStartDate) && scheduledStartDate.isAfter(now);
+  }
+
+  /**
    * Checks if the current time is after the scheduled end date, indicating the event has ended.
    *
    * @return {@code true} if the current time is after the {@code scheduledEndDate}; {@code false} otherwise

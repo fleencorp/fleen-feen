@@ -14,11 +14,11 @@ import lombok.Getter;
 @Getter
 public enum StreamReviewRating implements ApiParameter {
 
-  POOR("Poor", 1, "stream.review.rating.poor"),
+  EXCELLENT("Excellent", 5, "stream.review.rating.excellent"),
   FAIR("Fair", 2, "stream.review.rating.fair"),
   GOOD("Good", 3, "stream.review.rating.good"),
-  VERY_GOOD("Very Good", 4, "stream.review.rating.very.good"),
-  EXCELLENT("Excellent", 5, "stream.review.rating.excellent");
+  POOR("Poor", 1, "stream.review.rating.poor"),
+  VERY_GOOD("Very Good", 4, "stream.review.rating.very.good");
 
   private final String value;
   private final String messageCode;

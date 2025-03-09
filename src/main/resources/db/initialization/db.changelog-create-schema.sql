@@ -328,7 +328,7 @@ CREATE TABLE stream_attendee (
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream_review';
 
 CREATE TABLE stream_review (
-  stream_review_id BIGSERIAL PRIMARY KEY,
+  review_id BIGSERIAL PRIMARY KEY,
   rating INT NOT NULL,
   review VARCHAR(1000) NULL,
 

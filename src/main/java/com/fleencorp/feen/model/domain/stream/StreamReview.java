@@ -30,8 +30,8 @@ public class StreamReview extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "stream_review_id", nullable = false, updatable = false, unique = true)
-  private Long streamReviewId;
+  @Column(name = "review_id", nullable = false, updatable = false, unique = true)
+  private Long reviewId;
 
   @Column(name = "review", nullable = false, length = 1000)
   private String review;

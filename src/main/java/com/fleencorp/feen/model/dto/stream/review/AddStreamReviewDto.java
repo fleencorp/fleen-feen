@@ -47,6 +47,7 @@ public class AddStreamReviewDto {
     final StreamReview streamReview = new StreamReview();
     streamReview.setReview(review);
     streamReview.setRating(getRating());
+
     return streamReview;
   }
 }

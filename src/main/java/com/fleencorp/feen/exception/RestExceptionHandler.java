@@ -40,6 +40,8 @@ import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
+import com.fleencorp.feen.exception.stream.review.CannotAddReviewIfStreamHasNotStartedException;
+import com.fleencorp.feen.exception.stream.review.ReviewNotFoundException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
@@ -135,6 +137,7 @@ public class RestExceptionHandler {
     CannotJoinPrivateChatSpaceWithoutApprovalException.class,
     CannotJoinPrivateStreamWithoutApprovalException.class,
     CannotProcessShareContactRequestException.class,
+    CannotAddReviewIfStreamHasNotStartedException.class,
     ChatSpaceNotActiveException.class,
     DisabledAccountException.class,
     ExpiredVerificationCodeException.class,
@@ -166,11 +169,11 @@ public class RestExceptionHandler {
    * are thrown during request processing. These exceptions typically indicate issues with third-party services like reCAPTCHA or OAuth2.</p>
    *
    * <p>The method uses the {@code localizer} service to generate a localized error response,
-   * though the status in the response is mapped to {@code NOT_FOUND} (404), despite the original request error leading to a {@code BAD_REQUEST}.
+   * though the status in the response is mapped to {@code BAD_REQUEST} (404), despite the original request error leading to a {@code BAD_REQUEST}.
    * This custom handling may be intended to mask certain error details.</p>
    *
    * @param e the exception thrown, representing an external error such as invalid reCAPTCHA or OAuth2 authorization issues
-   * @return a localized error response with a {@code NOT_FOUND} status
+   * @return a localized error response with a {@code BAD_REQUEST} status
    */
   @ExceptionHandler(value = {
     InvalidReCaptchaException.class,
@@ -210,7 +213,7 @@ public class RestExceptionHandler {
     ShareContactRequestAlreadyCanceledException.class,
     ShareContactRequestAlreadyProcessedException.class,
     StreamAlreadyCanceledException.class,
-    StreamAlreadyHappenedException.class
+    StreamAlreadyHappenedException.class,
   })
   @ResponseStatus(value = CONFLICT)
   public ErrorResponse handleConflict(final ApiException e) {
@@ -266,6 +269,7 @@ public class RestExceptionHandler {
     NotificationNotFoundException.class,
     ObjectNotFoundException.class,
     StreamAttendeeNotFoundException.class,
+    ReviewNotFoundException.class,
     ShareContactRequestNotFoundException.class,
     UserNotFoundException.class,
   })
