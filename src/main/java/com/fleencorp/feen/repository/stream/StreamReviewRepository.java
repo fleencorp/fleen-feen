@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface StreamReviewRepository extends JpaRepository<StreamReview, Long> {
@@ -19,7 +20,7 @@ public interface StreamReviewRepository extends JpaRepository<StreamReview, Long
   Page<StreamReview> findByStream(FleenStream stream, Pageable pageable);
 
   @Query("SELECT sr FROM StreamReview sr WHERE sr.stream = :stream ORDER BY sr.createdOn DESC")
-  Optional<StreamReview> findMostRecentReviewByStream(@Param("stream") FleenStream stream, PageRequest pageRequest);
+  List<StreamReview> findMostRecentReviewByStream(@Param("stream") FleenStream stream, PageRequest pageRequest);
 
   @Query("SELECT r FROM StreamReview r WHERE r.member = :member")
   Page<StreamReview> findByMember(Member member, Pageable pageable);
