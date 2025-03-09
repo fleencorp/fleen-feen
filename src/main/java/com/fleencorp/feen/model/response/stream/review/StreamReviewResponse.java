@@ -36,10 +36,4 @@ public class StreamReviewResponse extends FleenFeenResponse {
 
   @JsonProperty("reviewer_photo")
   private String reviewerPhoto;
-
-  @JsonProperty("stream_id")
-  private Long streamId;
-
-  @JsonProperty("stream_title")
-  private String streamTitle;
 }

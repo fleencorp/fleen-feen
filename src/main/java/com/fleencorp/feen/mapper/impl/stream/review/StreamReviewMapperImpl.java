@@ -62,41 +62,24 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
   @Override
   public StreamReviewResponse toStreamReviewResponse(final StreamReview entry) {
     if (nonNull(entry)) {
-      final StreamRatingInfo ratingInfo = StreamRatingInfo.of(entry.getRating(), entry.getRatingNumber(), entry.getRatingName(), translate(entry.getRating().getMessageCode()));
+      final StreamRatingInfo ratingInfo = StreamRatingInfo.of(
+        entry.getRating(),
+        entry.getRatingNumber(),
+        entry.getRatingName(),
+        translate(entry.getRating().getMessageCode())
+      );
 
       final StreamReviewResponse response = new StreamReviewResponse();
       response.setId(entry.getReviewId());
       response.setReview(entry.getReview());
       response.setRatingInfo(ratingInfo);
+      response.setReviewerName(entry.getReviewerName());
+      response.setReviewerPhoto(entry.getReviewerPhoto());
+
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
-      response.setStreamTitle(entry.getStreamTitle());
-      response.setStreamId(entry.getStreamId());
 
       return response;
-    }
-    return null;
-  }
-
-  /**
-   * Converts a {@link StreamReview} entity to a {@link StreamReviewResponse} DTO and includes additional details.
-   *
-   * <p>This method first checks if the provided {@link StreamReview} entry is non-null.
-   * It then calls {@link StreamReviewMapperImpl#toStreamReviewResponse(StreamReview)} to create a
-   * {@link StreamReviewResponse} and adds the stream title to the response, if applicable.</p>
-   *
-   * @param entry the {@link StreamReview} entity to be converted
-   * @return a {@link StreamReviewResponse} DTO with the stream title included, or {@code null} if the input is null
-   */
-  public StreamReviewResponse toStreamReviewResponseMore(final StreamReview entry) {
-    if (nonNull(entry)) {
-      final StreamReviewResponse streamReviewResponse = toStreamReviewResponse(entry);
-
-      if (nonNull(streamReviewResponse)) {
-        streamReviewResponse.setReviewerName(entry.getReviewerName());
-        streamReviewResponse.setReviewerPhoto(entry.getReviewerPhoto());
-      }
-      return streamReviewResponse;
     }
     return null;
   }
@@ -122,25 +105,4 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
     return List.of();
   }
 
-  /**
-   * Converts a list of {@link StreamReview} entities to a list of {@link StreamReviewResponse} DTOs,
-   * including additional details for each response.
-   *
-   * <p>This method checks if the provided list of {@link StreamReview} entries is non-null, filters out any null entries,
-   * and then maps each valid entry to a {@link StreamReviewResponse} using the {@link StreamReviewMapperImpl#toStreamReviewResponseMore(StreamReview)} method.
-   * The resulting list of responses will contain additional information, such as the stream title, for each review.</p>
-   *
-   * @param entries the list of {@link StreamReview} entities to be converted
-   * @return a list of {@link StreamReviewResponse} DTOs, or an empty list if the input is null
-   */
-  @Override
-  public List<StreamReviewResponse> toStreamReviewResponsesMore(final List<StreamReview> entries) {
-    if (nonNull(entries)) {
-      return entries.stream()
-        .filter(Objects::nonNull)
-        .map(this::toStreamReviewResponseMore)
-        .toList();
-    }
-    return List.of();
-  }
 }
