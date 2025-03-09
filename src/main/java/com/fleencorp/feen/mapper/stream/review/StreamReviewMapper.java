@@ -10,6 +10,4 @@ public interface StreamReviewMapper {
   StreamReviewResponse toStreamReviewResponse(StreamReview entry);
 
   List<StreamReviewResponse> toStreamReviewResponses(List<StreamReview> entries);
-
-  List<StreamReviewResponse> toStreamReviewResponsesMore(List<StreamReview> entries);
 }

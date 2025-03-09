@@ -84,7 +84,8 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   @Override
   public StreamReviewSearchResult findReviews(final Long streamId, final SearchRequest searchRequest) {
     final Page<StreamReview> page = streamReviewRepository.findByStream(FleenStream.of(streamId), searchRequest.getPage());
-    final List<StreamReviewResponse> views = streamReviewMapper.toStreamReviewResponsesMore(page.getContent());
+    // Convert the reviews to the response
+    final List<StreamReviewResponse> views = streamReviewMapper.toStreamReviewResponses(page.getContent());
 
     // Return a search result view with the review responses and pagination details
     return handleSearchResult(

@@ -71,21 +71,12 @@ public class StreamReview extends FleenFeenEntity {
   }
 
   /**
-   * Retrieves the title of the stream associated with this review.
+   * Retrieves the username of the reviewer associated with this review.
    *
-   * @return the title of the stream, or null if the stream is not set.
-   */
-  public String getStreamTitle() {
-    return nonNull(stream) ? stream.getTitle() : null;
-  }
-
-  /**
-   * Retrieves the full name of the reviewer associated with this review.
-   *
-   * @return the full name of the reviewer, or null if the reviewer is not set.
+   * @return the username of the reviewer, or null if the reviewer is not set.
    */
   public String getReviewerName() {
-    return nonNull(member) ? member.getFullName() : null;
+    return nonNull(member) ? member.getUsername() : null;
   }
 
   /**
@@ -95,15 +86,6 @@ public class StreamReview extends FleenFeenEntity {
    */
   public String getReviewerPhoto() {
     return nonNull(member) ? member.getProfilePhotoUrl() : null;
-  }
-
-  /**
-   * Retrieves the stream ID.
-   *
-   * @return the stream ID if the stream is not null; otherwise, null.
-   */
-  public Long getStreamId() {
-    return nonNull(stream) ? stream.getStreamId() : null;
   }
 
   /**
