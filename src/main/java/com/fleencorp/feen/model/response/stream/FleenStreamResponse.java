@@ -17,6 +17,7 @@ import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
+import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -59,6 +61,7 @@ import static java.util.Objects.nonNull;
   "schedule_time_type_info",
   "total_attending",
   "some_attendees",
+  "reviews",
   "is_private",
   "attendance_info"
 })
@@ -111,7 +114,10 @@ public class FleenStreamResponse extends FleenFeenResponse {
   private long totalAttending;
 
   @JsonProperty("some_attendees")
-  private Set<StreamAttendeeResponse> someAttendees;
+  private Set<StreamAttendeeResponse> someAttendees = new HashSet<>();
+
+  @JsonProperty("reviews")
+  private Set<StreamReviewResponse> reviews = new HashSet<>();
 
   @JsonProperty("attendance_info")
   private AttendanceInfo attendanceInfo;

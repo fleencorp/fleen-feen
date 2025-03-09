@@ -35,11 +35,11 @@ public class StreamSearchController {
   }
 
   @GetMapping(value = "")
-  public StreamSearchResult findStreams(
+  public StreamSearchResult findStreamsPublic(
       @SearchParam final StreamSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     searchRequest.setStreamType(StreamType.event());
-    return streamSearchService.findStreams(searchRequest, user);
+    return streamSearchService.findStreamsPublic(searchRequest, user);
   }
 
   @GetMapping(value = "/type")
@@ -47,7 +47,7 @@ public class StreamSearchController {
       @SearchParam final EventSearchRequest searchRequest,
       final StreamTimeType streamTimeType) {
     searchRequest.setStreamType(StreamType.event());
-    return streamSearchService.findStreams(searchRequest, streamTimeType);
+    return streamSearchService.findStreamsPublic(searchRequest, streamTimeType);
   }
 
   @GetMapping(value = "/detail/{streamId}")
@@ -59,11 +59,11 @@ public class StreamSearchController {
 
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @GetMapping(value = "/mine")
-  public StreamSearchResult findMyStreams(
+  public StreamSearchResult findStreamsPrivate(
       @SearchParam final StreamSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
     searchRequest.setDefaultStreamType();
-    return streamSearchService.findMyStreams(searchRequest, user);
+    return streamSearchService.findStreamsPrivate(searchRequest, user);
   }
 
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")

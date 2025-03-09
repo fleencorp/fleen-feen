@@ -94,6 +94,22 @@ public class StreamReviewServiceImpl implements StreamReviewService {
   }
 
   /**
+   * Retrieves the most recent review for the specified stream or event.
+   *
+   * <p>This method looks up the review associated with the given stream ID. If a review is found, it is
+   * mapped to a {@link StreamReviewResponse} and returned. If no review is found, {@code null} is returned.</p>
+   *
+   * @param streamId the ID of the stream or event whose most recent review is being retrieved
+   * @return the {@link StreamReviewResponse} for the most recent review, or {@code null} if no review is found
+   */
+  @Override
+  public StreamReviewResponse findMostRecentReview(final Long streamId) {
+    return streamReviewRepository.findMostRecentReviewByStream(FleenStream.of(streamId))
+      .map(streamReviewMapper::toStreamReviewResponse)
+      .orElse(null);
+  }
+
+  /**
    * Retrieves stream reviews submitted by a specific user.
    *
    * <p>This method fetches a paginated list of reviews associated with the user,

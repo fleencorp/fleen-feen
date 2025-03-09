@@ -5,6 +5,7 @@ import com.fleencorp.feen.model.dto.stream.review.AddStreamReviewDto;
 import com.fleencorp.feen.model.dto.stream.review.UpdateStreamReviewDto;
 import com.fleencorp.feen.model.response.stream.review.AddStreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.DeleteStreamReviewResponse;
+import com.fleencorp.feen.model.response.stream.review.StreamReviewResponse;
 import com.fleencorp.feen.model.response.stream.review.UpdateStreamReviewResponse;
 import com.fleencorp.feen.model.search.stream.review.StreamReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -12,6 +13,8 @@ import com.fleencorp.feen.model.security.FleenUser;
 public interface StreamReviewService {
 
   StreamReviewSearchResult findReviews(Long streamId, SearchRequest searchRequest);
+
+  StreamReviewResponse findMostRecentReview(Long streamId);
 
   StreamReviewSearchResult findReviews(SearchRequest searchRequest, FleenUser user);
 
