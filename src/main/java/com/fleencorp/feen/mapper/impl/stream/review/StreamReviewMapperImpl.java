@@ -149,3 +149,4 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
   }
 
 }
+
