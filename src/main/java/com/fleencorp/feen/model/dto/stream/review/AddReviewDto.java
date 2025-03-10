@@ -3,7 +3,9 @@ package com.fleencorp.feen.model.dto.stream.review;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.EnumOrdinalValid;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.review.ReviewRating;
+import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -14,8 +16,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import static com.fleencorp.feen.constant.review.ReviewType.STREAM;
 
 @Getter
 @Setter
@@ -34,20 +34,29 @@ public class AddReviewDto {
   @JsonProperty("rating")
   private String rating;
 
+  @NotNull(message = "{review.type.NotNull}")
+  @OneOf(enumClass = ReviewType.class, message = "{review.type.Type}")
+  @JsonProperty("review_type")
+  private String reviewType;
+
   public ReviewRating getRating() {
     return ReviewRating.of(rating);
   }
 
+  public ReviewType getReviewType() {
+    return ReviewType.of(reviewType);
+  }
+
   public Review toStreamReview(final FleenStream stream, final Member member) {
-    final Review review = toStreamReview();
+    final Review review = toReview();
     review.setStream(stream);
     review.setMember(member);
-    review.setReviewType(STREAM);
+    review.setStreamTitle(stream.getTitle());
 
     return review;
   }
 
-  public Review toStreamReview() {
+  public Review toReview() {
     final Review review = new Review();
     review.setReview(this.review);
     review.setRating(getRating());

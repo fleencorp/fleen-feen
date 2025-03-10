@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.review;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
  * Enumeration representing different types of reviews.
  *
@@ -24,5 +26,13 @@ public enum ReviewType implements ApiParameter {
 
   ReviewType(final String value) {
     this.value = value;
+  }
+
+  public static ReviewType of(final String value) {
+    return parseEnumOrNull(value, ReviewType.class);
+  }
+
+  public static boolean isStream(final ReviewType reviewType) {
+    return reviewType == STREAM;
   }
 }
