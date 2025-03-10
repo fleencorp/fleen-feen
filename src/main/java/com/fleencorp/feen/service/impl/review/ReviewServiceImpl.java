@@ -61,10 +61,10 @@ public class ReviewServiceImpl implements ReviewService {
    * @param localizer the service for generating localized responses
    */
   public ReviewServiceImpl(
-      final StreamService streamService,
-      final ReviewRepository reviewRepository,
-      final StreamReviewMapper streamReviewMapper,
-      final Localizer localizer) {
+    final StreamService streamService,
+    final ReviewRepository reviewRepository,
+    final StreamReviewMapper streamReviewMapper,
+    final Localizer localizer) {
     this.streamService = streamService;
     this.reviewRepository = reviewRepository;
     this.streamReviewMapper = streamReviewMapper;
@@ -160,7 +160,7 @@ public class ReviewServiceImpl implements ReviewService {
   @Override
   @Transactional
   public AddReviewResponse addReview(final Long streamId, final AddReviewDto addReviewDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
+    throws FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     // Retrieve the stream
     final FleenStream stream = streamService.findStream(streamId);
     // Only streams that are ongoing or completed can be reviewed
@@ -197,7 +197,7 @@ public class ReviewServiceImpl implements ReviewService {
   @Override
   @Transactional
   public UpdateReviewResponse updateReview(final Long streamId, final Long reviewId, final UpdateReviewDto updateStreamReviewDto, final FleenUser user)
-      throws ReviewNotFoundException, FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
+    throws ReviewNotFoundException, FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     // Find the associated review
     final Review review = reviewRepository.findByReviewIdAndStreamAndMember(reviewId, FleenStream.of(streamId), user.toMember())
       .orElseThrow(ReviewNotFoundException.of(reviewId));
