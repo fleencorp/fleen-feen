@@ -34,10 +34,11 @@ public final class FollowerMapper {
    */
   public static UserResponse toFollowerResponse(final Follower entry) {
     if (nonNull(entry)) {
-      return UserResponse.builder()
-        .userId(entry.getFollowed().getMemberId())
-        .fullName(entry.getFollowed().getFullName())
-        .build();
+      final UserResponse userResponse = new UserResponse();
+      userResponse.setUserId(entry.getFollowed().getMemberId());
+      userResponse.setFullName(entry.getFollowed().getFullName());
+
+      return userResponse;
     }
     return null;
   }
@@ -55,10 +56,11 @@ public final class FollowerMapper {
    */
   public static UserResponse toFollowingResponse(final Follower entry) {
     if (nonNull(entry)) {
-      return UserResponse.builder()
-        .userId(entry.getFollowing().getMemberId())
-        .fullName(entry.getFollowing().getFullName())
-        .build();
+      final UserResponse userResponse = new UserResponse();
+      userResponse.setUserId(entry.getFollowing().getMemberId());
+      userResponse.setFullName(entry.getFollowing().getFullName());
+
+      return userResponse;
     }
     return null;
   }
