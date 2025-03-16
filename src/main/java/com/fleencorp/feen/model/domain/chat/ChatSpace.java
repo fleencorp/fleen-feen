@@ -82,15 +82,6 @@ public class ChatSpace extends FleenFeenEntity {
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
   private Set<ChatSpaceMember> members = new HashSet<>();
 
-  /**
-   * Retrieves the member ID associated with this member.
-   *
-   * @return the member ID if the member is not null; otherwise, returns null.
-   */
-  public Long getMemberId() {
-    return nonNull(member) ? member.getMemberId() : null;
-  }
-
   public Member getOrganizer() {
     return member;
   }

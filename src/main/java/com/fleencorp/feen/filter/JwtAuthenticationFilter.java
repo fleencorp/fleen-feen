@@ -105,8 +105,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     try {
       // Extract and validate JWT token
       final String token = extractAndValidateJwtToken(request);
+      final UsernamePasswordAuthenticationToken unauthenticatedUser = new UsernamePasswordAuthenticationToken(FleenUser.of(), null);
+
       if (isNull(token)) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(null, null));
+        SecurityContextHolder.getContext().setAuthentication(unauthenticatedUser);
         filterChain.doFilter(request, response);
         return;
       }
@@ -114,7 +116,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // Retrieve email address from the JWT token
       final String emailAddress = getEmailAddressFromToken(token);
       if (!StringUtils.isNotEmpty(emailAddress)) {
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(null, null));
+        SecurityContextHolder.getContext().setAuthentication(unauthenticatedUser);
         filterChain.doFilter(request, response);
         return;
       }

@@ -39,6 +39,10 @@ public class AddReviewDto {
   @JsonProperty("review_type")
   private String reviewType;
 
+  @JsonProperty("parent_id")
+  @IsNumber
+  protected String parentId;
+
   public ReviewRating getRating() {
     return ReviewRating.of(rating);
   }
@@ -47,11 +51,20 @@ public class AddReviewDto {
     return ReviewType.of(reviewType);
   }
 
+  public Long getParentId() {
+    return Long.parseLong(parentId);
+  }
+
+  public boolean isStreamReviewType() {
+    return ReviewType.isStream(getReviewType());
+  }
+
   public Review toStreamReview(final FleenStream stream, final Member member) {
     final Review review = toReview();
     review.setStream(stream);
     review.setMember(member);
     review.setStreamTitle(stream.getTitle());
+    review.setReviewType(getReviewType());
 
     return review;
   }

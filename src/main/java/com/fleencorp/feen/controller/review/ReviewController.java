@@ -4,6 +4,7 @@ import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.dto.stream.review.AddReviewDto;
 import com.fleencorp.feen.model.dto.stream.review.UpdateReviewDto;
+import com.fleencorp.feen.model.request.search.review.ReviewSearchRequest;
 import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
@@ -33,30 +34,28 @@ public class ReviewController {
     return reviewService.findReviewsPrivate(searchRequest, user);
   }
 
-  @GetMapping(value = "/entries/{streamId}")
+  @PostMapping(value = "/entries")
   public ReviewSearchResult findReviewsPublic(
-      @PathVariable(name = "streamId") final Long streamId,
-      @SearchParam final SearchRequest searchRequest) {
-    return reviewService.findReviewsPublic(streamId, searchRequest);
+      @SearchParam final ReviewSearchRequest searchRequest,
+      @AuthenticationPrincipal final FleenUser user) {
+    return reviewService.findReviewsPublic(searchRequest, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @PostMapping(value = "/add/{streamId}")
+  @PostMapping(value = "/add")
   public AddReviewResponse addReview(
-      @PathVariable(name = "streamId") final Long streamId,
       @Valid @RequestBody final AddReviewDto addReviewDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return reviewService.addReview(streamId, addReviewDto, user);
+    return reviewService.addReview(addReviewDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")
-  @PostMapping(value = "/update/{streamId}/{reviewId}")
+  @PutMapping(value = "/update/{reviewId}")
   public UpdateReviewResponse updateReview(
-      @PathVariable(name = "streamId") final Long streamId,
       @PathVariable(name = "reviewId") final Long reviewId,
       @Valid @RequestBody final UpdateReviewDto updateStreamReviewDto,
       @AuthenticationPrincipal final FleenUser user) {
-    return reviewService.updateReview(streamId, reviewId, updateStreamReviewDto, user);
+    return reviewService.updateReview(reviewId, updateStreamReviewDto, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")

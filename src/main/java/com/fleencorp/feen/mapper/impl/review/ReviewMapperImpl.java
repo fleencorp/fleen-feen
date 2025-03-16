@@ -1,8 +1,8 @@
-package com.fleencorp.feen.mapper.impl.stream.review;
+package com.fleencorp.feen.mapper.impl.review;
 
-import com.fleencorp.feen.mapper.stream.review.StreamReviewMapper;
+import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
-import com.fleencorp.feen.model.info.stream.rating.StreamRatingInfo;
+import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -27,11 +27,11 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public final class StreamReviewMapperImpl implements StreamReviewMapper {
+public final class ReviewMapperImpl implements ReviewMapper {
 
   private final MessageSource messageSource;
 
-  public StreamReviewMapperImpl(final MessageSource messageSource) {
+  public ReviewMapperImpl(final MessageSource messageSource) {
     this.messageSource = messageSource;
   }
 
@@ -60,9 +60,9 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
    * @return a {@link ReviewResponse} object containing the converted data, or {@code null} if the input is null
    */
   @Override
-  public ReviewResponse toStreamReviewResponsePublic(final Review entry) {
+  public ReviewResponse toReviewResponsePublic(final Review entry) {
     if (nonNull(entry)) {
-      final StreamRatingInfo ratingInfo = StreamRatingInfo.of(
+      final RatingInfo ratingInfo = RatingInfo.of(
         entry.getRating(),
         entry.getRatingNumber(),
         entry.getRatingName(),
@@ -72,12 +72,15 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
       final ReviewResponse response = new ReviewResponse();
       response.setId(entry.getReviewId());
       response.setReview(entry.getReview());
+      response.setReviewType(entry.getReviewType());
       response.setRatingInfo(ratingInfo);
       response.setReviewerName(entry.getReviewerName());
       response.setReviewerPhoto(entry.getReviewerPhoto());
+      response.setMemberId(entry.getMemberId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+      response.setStreamId(entry.getStreamId());
 
       return response;
     }
@@ -87,19 +90,19 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
   /**
    * Converts a {@link Review} entity to a private {@link ReviewResponse} object.
    *
-   * <p>This method extends the functionality of {@link #toStreamReviewResponsePublic(Review)} by adding
+   * <p>This method extends the functionality of {@link #toReviewResponsePublic(Review)} by adding
    * additional private stream-related details to the response, such as the stream ID and stream title.</p>
    *
    * @param entry the {@link Review} entity to be converted to a private {@link ReviewResponse}
    * @return the private {@link ReviewResponse} containing both public and private review details,
    *         or {@code null} if the input {@link Review} is {@code null}
    */
-  public ReviewResponse toStreamReviewResponsePrivate(final Review entry) {
-    final ReviewResponse response = toStreamReviewResponsePublic(entry);
+  public ReviewResponse toReviewResponsePrivate(final Review entry) {
+    final ReviewResponse response = toReviewResponsePublic(entry);
 
     if (nonNull(response)) {
-      response.setStreamId(entry.getStreamId());
       response.setStreamTitle(entry.getStreamTitle());
+      response.setIsUpdatable(true);
     }
 
     return response;
@@ -110,17 +113,17 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
    *
    * <p>This method checks if the provided list of {@link Review} entities is non-null.
    * It then filters out any null entries and maps each valid {@link Review} to a {@link ReviewResponse}
-   * using the {@link StreamReviewMapperImpl#toStreamReviewResponsePublic(Review)} method.</p>
+   * using the {@link ReviewMapperImpl#toReviewResponsePublic(Review)} method.</p>
    *
    * @param entries the list of {@link Review} entities to be converted
    * @return a list of {@link ReviewResponse} DTOs, or an empty list if the input is null
    */
   @Override
-  public List<ReviewResponse> toStreamReviewResponsesPublic(final List<Review> entries) {
+  public List<ReviewResponse> toReviewResponsesPublic(final List<Review> entries) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(this::toStreamReviewResponsePublic)
+        .map(this::toReviewResponsePublic)
         .toList();
     }
     return List.of();
@@ -130,7 +133,7 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
    * Converts a list of {@link Review} entities to a list of private {@link ReviewResponse} objects.
    *
    * <p>This method processes each {@link Review} in the provided list and converts it to a private
-   * {@link ReviewResponse} using {@link #toStreamReviewResponsePrivate(Review)}. It filters out any
+   * {@link ReviewResponse} using {@link #toReviewResponsePrivate(Review)}. It filters out any
    * {@code null} values from the input list.</p>
    *
    * @param entries the list of {@link Review} entities to be converted to private {@link ReviewResponse} objects
@@ -138,11 +141,11 @@ public final class StreamReviewMapperImpl implements StreamReviewMapper {
    *         or an empty list if the input list is {@code null} or contains no valid entries
    */
   @Override
-  public List<ReviewResponse> toStreamReviewResponsesPrivate(final List<Review> entries) {
+  public List<ReviewResponse> toReviewResponsesPrivate(final List<Review> entries) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(this::toStreamReviewResponsePrivate)
+        .map(this::toReviewResponsePrivate)
         .toList();
     }
     return List.of();

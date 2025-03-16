@@ -53,6 +53,9 @@ public class Review extends FleenFeenEntity {
   @Column(name = "stream_title", updatable = false)
   private String streamTitle;
 
+  @Column(name = "member_id", insertable = false, updatable = false)
+  private Long memberId;
+
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)

@@ -1,11 +1,8 @@
 package com.fleencorp.feen.model.response.review;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.review.ReviewType;
-import com.fleencorp.feen.model.info.stream.rating.StreamRatingInfo;
+import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,11 +16,13 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "review",
+  "review_type",
   "reviewer_name",
   "reviewer_photo",
   "rating_info",
-  "stream_id",
-  "stream_title",
+  "parent_id",
+  "parent_title",
+  "is_updatable"
 })
 public class ReviewResponse extends FleenFeenResponse {
 
@@ -35,7 +34,7 @@ public class ReviewResponse extends FleenFeenResponse {
   private ReviewType reviewType;
 
   @JsonProperty("rating_info")
-  private StreamRatingInfo ratingInfo;
+  private RatingInfo ratingInfo;
 
   @JsonProperty("reviewer_name")
   private String reviewerName;
@@ -43,9 +42,29 @@ public class ReviewResponse extends FleenFeenResponse {
   @JsonProperty("reviewer_photo")
   private String reviewerPhoto;
 
-  @JsonProperty("stream_id")
+  @JsonProperty("is_updatable")
+  private Boolean isUpdatable;
+
+  @JsonProperty("parent_id")
+  private Long getParentId() {
+    return ReviewType.isStream(reviewType) ? streamId : null;
+  }
+
+  @JsonProperty("parent_title")
+  private String getParentTitle() {
+    return ReviewType.isStream(reviewType) ? streamTitle : null;
+  }
+
+  @JsonIgnore
   private Long streamId;
 
-  @JsonProperty("stream_title")
+  @JsonIgnore
   private String streamTitle;
+
+  @JsonIgnore
+  private Long memberId;
+
+  public void markAsUpdatable() {
+    this.isUpdatable = true;
+  }
 }

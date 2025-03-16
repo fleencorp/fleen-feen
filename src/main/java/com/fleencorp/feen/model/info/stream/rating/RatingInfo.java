@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "rating_name",
   "rating_text"
 })
-public class StreamRatingInfo {
+public class RatingInfo {
 
   @JsonFormat(shape = STRING)
   @JsonProperty("review_rating")
@@ -38,7 +38,7 @@ public class StreamRatingInfo {
   @JsonProperty("rating_text")
   private String ratingText;
 
-  public static StreamRatingInfo of(final ReviewRating reviewRating, final Integer rating, final String ratingName, final String ratingText) {
-    return new StreamRatingInfo(reviewRating, rating, ratingName, ratingText);
+  public static RatingInfo of(final ReviewRating reviewRating, final Integer rating, final String ratingName, final String ratingText) {
+    return new RatingInfo(reviewRating, rating, ratingName, ratingText);
   }
 }

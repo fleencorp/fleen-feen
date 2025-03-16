@@ -74,17 +74,6 @@ public class ChatSpaceMember extends FleenFeenEntity {
   private String spaceAdminComment;
 
   /**
-   * Retrieves the member ID.
-   *
-   * <p>If the member is not null, returns the member's ID; otherwise, returns null.</p>
-   *
-   * @return the member ID or null if the member is not set.
-   */
-  public Long getMemberId() {
-    return nonNull(member) ? member.getMemberId() : null;
-  }
-
-  /**
    * Retrieves the email address of the member.
    *
    * <p>If the member is not null, returns the member's email address; otherwise, returns null.</p>

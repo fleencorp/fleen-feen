@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.common;
 
+import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -370,11 +371,11 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Get all stream or stream attendees
     final Set<StreamAttendee> streamAttendeesGoingToStream = streamAttendeeService.getAttendeesGoingToStream(stream);
     // Get most recent review of the stream
-    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(streamId);
+    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(ReviewType.STREAM, streamId, user);
     // The Stream converted to a response
     final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
     // Set the reviews
-    streamResponse.setReviews(Set.of(mostRecentReview));
+    streamResponse.setReviews(mostRecentReview);
     // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = streamAttendeeService.toStreamAttendeeResponsesSet(streamResponse, streamAttendeesGoingToStream);
     // Update the schedule, timezone details and join status

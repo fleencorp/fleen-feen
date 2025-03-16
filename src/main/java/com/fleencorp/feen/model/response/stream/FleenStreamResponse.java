@@ -192,4 +192,10 @@ public class FleenStreamResponse extends FleenFeenResponse {
     }
   }
 
+  public void setReviews(final ReviewResponse review) {
+    if (nonNull(review)) {
+      reviews.add(review);
+    }
+  }
+
 }
