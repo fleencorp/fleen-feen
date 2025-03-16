@@ -1,8 +1,10 @@
 package com.fleencorp.feen.service.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.model.dto.stream.review.AddReviewDto;
 import com.fleencorp.feen.model.dto.stream.review.UpdateReviewDto;
+import com.fleencorp.feen.model.request.search.review.ReviewSearchRequest;
 import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
@@ -12,15 +14,15 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ReviewService {
 
-  ReviewSearchResult findReviewsPublic(Long streamId, SearchRequest searchRequest);
+  ReviewSearchResult findReviewsPublic(ReviewSearchRequest searchRequest, FleenUser user);
 
-  ReviewResponse findMostRecentReview(Long streamId);
+  ReviewResponse findMostRecentReview(ReviewType reviewType, Long entryId, FleenUser user);
 
   ReviewSearchResult findReviewsPrivate(SearchRequest searchRequest, FleenUser user);
 
-  AddReviewResponse addReview(Long streamId, AddReviewDto addReviewDto, FleenUser user);
+  AddReviewResponse addReview(AddReviewDto addReviewDto, FleenUser user);
 
-  UpdateReviewResponse updateReview(Long streamId, Long reviewId, UpdateReviewDto updateStreamReviewDto, FleenUser user);
+  UpdateReviewResponse updateReview(Long reviewId, UpdateReviewDto updateStreamReviewDto, FleenUser user);
 
   DeleteReviewResponse deleteReview(Long reviewId, FleenUser user);
 }

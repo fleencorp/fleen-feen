@@ -17,6 +17,7 @@ import java.util.Objects;
 
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.buildAuthorities;
 import static java.util.Arrays.asList;
+import static java.util.Objects.isNull;
 
 @Builder
 @Getter
@@ -50,9 +51,14 @@ public class FleenUser implements UserDetails {
   }
 
   public static FleenUser of(final Long userId) {
-    return FleenUser.builder()
-        .id(userId)
-        .build();
+    final FleenUser user = new FleenUser();
+    user.setId(userId);
+
+    return user;
+  }
+
+  public static FleenUser of() {
+    return new FleenUser();
   }
 
   /**
@@ -83,9 +89,9 @@ public class FleenUser implements UserDetails {
     // Set additional properties on the FleenUser object
     user.setFirstName(member.getFirstName());
     user.setLastName(member.getLastName());
-    user.setProfilePhoto(member.getProfilePhotoUrl());
-    user.setMfaEnabled(member.isMfaEnabled());
     user.setMfaType(member.getMfaType());
+    user.setMfaEnabled(member.isMfaEnabled());
+    user.setProfilePhoto(member.getProfilePhotoUrl());
     user.setVerificationStatus(member.getVerificationStatus());
     return user;
   }
@@ -97,14 +103,15 @@ public class FleenUser implements UserDetails {
    * @return A basic FleenUser object populated with minimal data from the Member entity.
    */
   public static FleenUser fromMemberBasic(final Member member) {
-    return FleenUser.builder()
-      .id(member.getMemberId())
-      .firstName(member.getFirstName())
-      .lastName(member.getLastName())
-      .emailAddress(member.getEmailAddress())
-      .phoneNumber(member.getPhoneNumber())
-      .password(member.getPassword())
-      .build();
+    final FleenUser user = new FleenUser();
+    user.setId(member.getMemberId());
+    user.setFirstName(member.getFirstName());
+    user.setLastName(member.getLastName());
+    user.setPassword(member.getPassword());
+    user.setPhoneNumber(member.getPhoneNumber());
+    user.setEmailAddress(member.getEmailAddress());
+
+    return user;
   }
 
   /**
@@ -118,19 +125,20 @@ public class FleenUser implements UserDetails {
     final List<GrantedAuthority> authorities = buildAuthorities(asList(details.getAuthorities()));
 
     // Build a FleenUser object from the JwtTokenDetails data
-    return FleenUser.builder()
-      .firstName(details.getFirstName())
-      .lastName(details.getLastName())
-      .emailAddress(details.getSub())
-      .phoneNumber(details.getPhoneNumber())
-      .authorities(authorities)
-      .id(details.getUserId())
-      .profileStatus(details.getProfileStatus())
-      .verificationStatus(details.getProfileVerificationStatus())
-      .profilePhoto(details.getProfilePhoto())
-      .country(details.getCountry())
-      .timezone(details.getTimezone())
-      .build();
+    final FleenUser user = new FleenUser();
+    user.setId(details.getUserId());
+    user.setAuthorities(authorities);
+    user.setCountry(details.getCountry());
+    user.setEmailAddress(details.getSub());
+    user.setTimezone(details.getTimezone());
+    user.setFirstName(details.getFirstName());
+    user.setLastName(details.getLastName());
+    user.setPhoneNumber(details.getPhoneNumber());
+    user.setProfilePhoto(details.getProfilePhoto());
+    user.setProfileStatus(details.getProfileStatus());
+    user.setVerificationStatus(details.getProfileVerificationStatus());
+
+    return user;
   }
 
   /**
@@ -148,6 +156,10 @@ public class FleenUser implements UserDetails {
   }
 
   public Member toMember() {
+    if (isNull(getId())) {
+      return null;
+    }
+
     final Member member = new Member();
     member.setMemberId(getId());
     member.setPassword(getPassword());

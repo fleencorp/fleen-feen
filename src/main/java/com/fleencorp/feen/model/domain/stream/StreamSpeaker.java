@@ -82,7 +82,7 @@ public class StreamSpeaker extends FleenFeenEntity {
    * @return {@code true} if the member ID is {@code null}, {@code false} otherwise
    */
   public boolean hasNoMember() {
-    return isNull(getMemberId());
+    return isNull(memberId);
   }
 
   /**

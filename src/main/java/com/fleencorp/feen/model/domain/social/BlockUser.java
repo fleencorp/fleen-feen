@@ -32,6 +32,9 @@ public class BlockUser extends FleenFeenEntity {
   @JoinColumn(name = "initiator_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member initiator;
 
+  @Column(name = "recipient_id", nullable = false, updatable = false, insertable = false)
+  private Long recipientId;
+
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "recipient_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member recipient;
@@ -41,7 +44,7 @@ public class BlockUser extends FleenFeenEntity {
   private BlockStatus blockStatus = BlockStatus.BLOCKED;
 
   public Long getRecipientMemberId() {
-    return nonNull(recipient) ? recipient.getMemberId() : null;
+    return recipientId;
   }
 
   public String getRecipientName() {
