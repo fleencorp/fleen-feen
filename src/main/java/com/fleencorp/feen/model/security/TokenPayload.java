@@ -16,6 +16,7 @@ import lombok.Setter;
 public class TokenPayload {
 
   private Long userId;
+  private String username;
   private String firstName;
   private String lastName;
   private String phoneNumber;

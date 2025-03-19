@@ -336,7 +336,7 @@ CREATE TABLE review (
   review_id BIGSERIAL PRIMARY KEY,
   rating INT NOT NULL,
   review VARCHAR(1000) NULL,
-  stream_title varchar(1000) NULL,
+  parent_title varchar(1000) NULL,
 
   fleen_stream_id BIGINT NULL,
   member_id BIGINT NOT NULL,

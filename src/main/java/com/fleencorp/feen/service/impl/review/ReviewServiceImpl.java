@@ -25,6 +25,7 @@ import com.fleencorp.feen.repository.review.ReviewRepository;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
@@ -276,8 +278,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     // Save the new StreamReview to the repository
     reviewRepository.save(review);
+
+    // Create the review response
+    final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
+    // Set the review is-updatable check
+    setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
+    // Get the response
+    final AddReviewResponse addReviewResponse = AddReviewResponse.of(reviewResponse);
     // Return a localized response for the added review
-    return localizer.of(AddReviewResponse.of());
+    return localizer.of(addReviewResponse);
   }
 
   /**
@@ -309,8 +318,15 @@ public class ReviewServiceImpl implements ReviewService {
 
       // Save the StreamReview to the repository
       reviewRepository.save(review);
+
+      // Create the review response
+      final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
+      // Set the review is-updatable check
+      setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
+      // Get the response
+      final UpdateReviewResponse updateReviewResponse = UpdateReviewResponse.of(reviewResponse);
       // Return a localized response for the updated review
-      return localizer.of(UpdateReviewResponse.of());
+      return localizer.of(updateReviewResponse);
     }
 
     throw new ReviewNotFoundException(reviewId);

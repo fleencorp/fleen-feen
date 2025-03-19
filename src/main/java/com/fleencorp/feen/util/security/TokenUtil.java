@@ -359,9 +359,10 @@ public class TokenUtil {
    */
   public void setUserDetails(final FleenUser user, final Map<String, Object> claims) {
     if (nonNull(claims) && nonNull(user)) {
+      claims.put(COUNTRY.getValue(), user.getCountry());
       claims.put(FIRST_NAME.getValue(), user.getFirstName());
       claims.put(LAST_NAME.getValue(), user.getLastName());
-      claims.put(COUNTRY.getValue(), user.getCountry());
+      claims.put(USERNAME.getValue(), user.getDisplayName());
       claims.put(EMAIL_ADDRESS.getValue(), user.getEmailAddress());
       claims.put(PHONE_NUMBER.getValue(), user.getPhoneNumber());
       claims.put(PROFILE_PHOTO.getValue(), user.getProfilePhoto());

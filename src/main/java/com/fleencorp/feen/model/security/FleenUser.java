@@ -30,6 +30,7 @@ public class FleenUser implements UserDetails {
   private static final long serialVersionUID = 1L;
 
   private Long id;
+  private String displayName;
   private String emailAddress;
   private String phoneNumber;
   private String password;
@@ -78,12 +79,13 @@ public class FleenUser implements UserDetails {
     // Build a FleenUser object from the Member entity data
     final FleenUser user = builder()
       .id(member.getMemberId())
-      .emailAddress(member.getEmailAddress())
-      .phoneNumber(member.getPhoneNumber())
-      .password(member.getPassword())
       .authorities(authorities)
-      .profileStatus(member.getProfileStatus())
       .country(member.getCountry())
+      .displayName(member.getUsername())
+      .password(member.getPassword())
+      .phoneNumber(member.getPhoneNumber())
+      .emailAddress(member.getEmailAddress())
+      .profileStatus(member.getProfileStatus())
       .build();
 
     // Set additional properties on the FleenUser object
@@ -93,6 +95,7 @@ public class FleenUser implements UserDetails {
     user.setMfaEnabled(member.isMfaEnabled());
     user.setProfilePhoto(member.getProfilePhotoUrl());
     user.setVerificationStatus(member.getVerificationStatus());
+
     return user;
   }
 
@@ -107,6 +110,7 @@ public class FleenUser implements UserDetails {
     user.setId(member.getMemberId());
     user.setFirstName(member.getFirstName());
     user.setLastName(member.getLastName());
+    user.setDisplayName(member.getUsername());
     user.setPassword(member.getPassword());
     user.setPhoneNumber(member.getPhoneNumber());
     user.setEmailAddress(member.getEmailAddress());
@@ -133,6 +137,7 @@ public class FleenUser implements UserDetails {
     user.setTimezone(details.getTimezone());
     user.setFirstName(details.getFirstName());
     user.setLastName(details.getLastName());
+    user.setDisplayName(details.getUsername());
     user.setPhoneNumber(details.getPhoneNumber());
     user.setProfilePhoto(details.getProfilePhoto());
     user.setProfileStatus(details.getProfileStatus());
@@ -162,6 +167,7 @@ public class FleenUser implements UserDetails {
 
     final Member member = new Member();
     member.setMemberId(getId());
+    member.setUsername(getDisplayName());
     member.setPassword(getPassword());
     member.setCountry(getCountry());
     member.setMfaType(getMfaType());
