@@ -46,20 +46,10 @@ public class ReviewResponse extends FleenFeenResponse {
   private Boolean isUpdatable;
 
   @JsonProperty("parent_id")
-  private Long getParentId() {
-    return ReviewType.isStream(reviewType) ? streamId : null;
-  }
+  private Long parentId;
 
   @JsonProperty("parent_title")
-  private String getParentTitle() {
-    return ReviewType.isStream(reviewType) ? streamTitle : null;
-  }
-
-  @JsonIgnore
-  private Long streamId;
-
-  @JsonIgnore
-  private String streamTitle;
+  private String parentTitle;
 
   @JsonIgnore
   private Long memberId;

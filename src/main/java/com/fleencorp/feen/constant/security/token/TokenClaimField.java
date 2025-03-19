@@ -24,7 +24,8 @@ public enum TokenClaimField implements ApiParameter {
   VERIFICATION_STATUS("verificationStatus"),
   TIMEZONE("timezone"),
   TOKEN_TYPE("tokenType"),
-  USER_ID("userId");
+  USER_ID("userId"),
+  USERNAME("username");
 
   private final String value;
 

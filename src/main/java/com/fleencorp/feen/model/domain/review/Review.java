@@ -50,8 +50,8 @@ public class Review extends FleenFeenEntity {
   @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id")
   private FleenStream stream;
 
-  @Column(name = "stream_title", updatable = false)
-  private String streamTitle;
+  @Column(name = "parent_title", updatable = false)
+  private String parentTitle;
 
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
@@ -102,6 +102,14 @@ public class Review extends FleenFeenEntity {
    */
   public String getReviewerPhoto() {
     return nonNull(member) ? member.getProfilePhotoUrl() : null;
+  }
+
+  public Long getParentId() {
+    return ReviewType.isStream(reviewType) ? streamId : null;
+  }
+
+  public String getParentTitle() {
+    return ReviewType.isStream(reviewType) ? parentTitle : null;
   }
 
   /**

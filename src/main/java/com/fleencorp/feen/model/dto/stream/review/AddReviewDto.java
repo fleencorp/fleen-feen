@@ -62,9 +62,11 @@ public class AddReviewDto {
   public Review toStreamReview(final FleenStream stream, final Member member) {
     final Review review = toReview();
     review.setStream(stream);
-    review.setMember(member);
-    review.setStreamTitle(stream.getTitle());
+    review.setParentTitle(stream.getTitle());
     review.setReviewType(getReviewType());
+
+    review.setMemberId(member.getMemberId());
+    review.setMember(member);
 
     return review;
   }

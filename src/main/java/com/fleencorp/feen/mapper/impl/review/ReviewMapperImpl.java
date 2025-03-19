@@ -78,9 +78,11 @@ public final class ReviewMapperImpl implements ReviewMapper {
       response.setReviewerPhoto(entry.getReviewerPhoto());
       response.setMemberId(entry.getMemberId());
 
+      response.setParentId(entry.getParentId());
+      response.setParentTitle(entry.getParentTitle());
+
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
-      response.setStreamId(entry.getStreamId());
 
       return response;
     }
@@ -101,7 +103,6 @@ public final class ReviewMapperImpl implements ReviewMapper {
     final ReviewResponse response = toReviewResponsePublic(entry);
 
     if (nonNull(response)) {
-      response.setStreamTitle(entry.getStreamTitle());
       response.setIsUpdatable(true);
     }
 
