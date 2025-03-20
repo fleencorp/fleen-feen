@@ -159,6 +159,8 @@ public class GoogleCalendarAttendeeServiceImpl implements GoogleCalendarAttendee
       eventAttendee.setResponseStatus(EventAttendeeDecisionToJoin.accepted());
       // Set any additional comment for the event attendee
       eventAttendee.setComment(addNewEventAttendeeRequest.getComment());
+      // Set as an organizer if possible
+      eventAttendee.setOrganizer(addNewEventAttendeeRequest.isOrganizer());
     }
   }
 

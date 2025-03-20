@@ -111,7 +111,8 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
       calendarId,
       eventId,
       organizerEmail,
-      organizerDisplayName
+      organizerDisplayName,
+      true
     );
 
     // Call the external service (e.g., Google Calendar) to add the organizer as an attendee
@@ -122,17 +123,19 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
    * Broadcasts an event or stream creation notification to notify listeners or external systems.
    * It creates an event stream created result and sends it using the broadcast service.
    *
-   * @param stream the event or stream object that has been created and will be broadcasted
+   * @param stream the event or stream object that has been created and will be broadcast
    */
   @Override
   public void broadcastEventOrStreamCreated(final FleenStream stream) {
     // Create an event stream created result
-    final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
-      .of(stream.getOrganizerId(),
+    final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult.of(
+        stream.getOrganizerId(),
         stream.getStreamId(),
         stream.getExternalId(),
         stream.getStreamLink(),
-        ResultType.EVENT_STREAM_CREATED);
+        ResultType.EVENT_STREAM_CREATED
+    );
+
     // Broadcast the event creation result
     broadcastService.broadcastEventCreated(eventStreamCreatedResult);
   }
