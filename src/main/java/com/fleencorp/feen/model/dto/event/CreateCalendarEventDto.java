@@ -60,11 +60,14 @@ public class CreateCalendarEventDto extends CreateStreamDto {
     }
   }
 
-  public FleenStream toFleenStream(final Member member) {
+  public FleenStream toStream(final Member member) {
     final FleenStream stream = toFleenStream();
-    stream.setMember(member);
     stream.setStreamType(EVENT);
     stream.setStreamSource(GOOGLE_MEET);
+
+    stream.setMemberId(member.getMemberId());
+    stream.setMember(member);
+
     return stream;
   }
 
