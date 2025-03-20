@@ -128,8 +128,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpaceUpdateService.createChatSpace(chatSpace, createChatSpaceRequest);
     // Convert the chat space to its response
     final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
+    // Create the response
+    final CreateChatSpaceResponse createChatSpaceResponse = CreateChatSpaceResponse.of(chatSpaceResponse);
     // Return a localized response with the chat space details
-    return localizer.of(CreateChatSpaceResponse.of(chatSpaceResponse));
+    return localizer.of(createChatSpaceResponse);
   }
 
   /**
@@ -167,10 +169,13 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
    * @throws NotAnAdminOfChatSpaceException if the user is not authorized to disable the chat space.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public UpdateChatSpaceResponse updateChatSpace(final Long chatSpaceId, final UpdateChatSpaceDto updateChatSpaceDto, final FleenUser user) {
+  public UpdateChatSpaceResponse updateChatSpace(final Long chatSpaceId, final UpdateChatSpaceDto updateChatSpaceDto, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException {
     // Find the chat space by ID or throw an exception if it doesn't exist
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -183,14 +188,17 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
       updateChatSpaceDto.getGuidelinesOrRules(),
       updateChatSpaceDto.getVisibility()
     );
+
     // Save the updated chat space entity to the repository
     chatSpaceRepository.save(chatSpace);
     // Create update chat space request and send to external service
     createAndUpdateChatSpaceInExternalService(updateChatSpaceDto, chatSpace);
     // Convert the chat space to the response
     final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
+    // Create the response
+    final UpdateChatSpaceResponse updateChatSpaceResponse = UpdateChatSpaceResponse.of(chatSpaceResponse);
     // Return a localized response with the updated chat space details
-    return localizer.of(UpdateChatSpaceResponse.of(chatSpaceResponse));
+    return localizer.of(updateChatSpaceResponse);
   }
 
   /**
@@ -223,11 +231,15 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param user The user requesting the deletion operation.
    * @return A response confirming the deletion of the chat space, localized based on the user's locale.
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
+   * @throws ChatSpaceAlreadyDeletedException if the chat space is already deleted
    * @throws NotAnAdminOfChatSpaceException if the user is not authorized to disable the chat space.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public DeleteChatSpaceResponse deleteChatSpace(final Long chatSpaceId, final FleenUser user) {
+  public DeleteChatSpaceResponse deleteChatSpace(final Long chatSpaceId, final FleenUser user)
+      throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+        FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -236,8 +248,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpace.delete();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Create the response
+    final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId);
     // Return a localized response confirming the deletion
-    return localizer.of(DeleteChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(deleteChatSpaceResponse);
   }
 
   /**
@@ -254,15 +268,18 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public DeleteChatSpaceResponse deleteChatSpaceByAdmin(final Long chatSpaceId, final FleenUser user) {
+  public DeleteChatSpaceResponse deleteChatSpaceByAdmin(final Long chatSpaceId, final FleenUser user)
+      throws ChatSpaceNotFoundException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Mark the chat space as deleted
     chatSpace.delete();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Create external request
+    final DeleteChatSpaceRequest deleteChatSpaceRequest = DeleteChatSpaceRequest.of(chatSpace.getExternalIdOrName());
     // Send a request to delete the chat space from external systems
-    chatSpaceUpdateService.deleteChatSpace(DeleteChatSpaceRequest.of(chatSpace.getExternalIdOrName()));
+    chatSpaceUpdateService.deleteChatSpace(deleteChatSpaceRequest);
     // Return a localized response confirming the deletion
     return localizer.of(DeleteChatSpaceResponse.of(chatSpaceId));
   }
@@ -279,10 +296,13 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
    * @throws NotAnAdminOfChatSpaceException if the user is not authorized to disable the chat space.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public EnableChatSpaceResponse enableChatSpace(final Long chatSpaceId, final FleenUser user) {
+  public EnableChatSpaceResponse enableChatSpace(final Long chatSpaceId, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -308,10 +328,13 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
    * @throws NotAnAdminOfChatSpaceException if the user is not authorized to enable the chat space.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public DisableChatSpaceResponse disableChatSpace(final Long chatSpaceId, final FleenUser user) {
+  public DisableChatSpaceResponse disableChatSpace(final Long chatSpaceId, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -337,7 +360,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
    */
   @Override
-  public void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
+  public void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user)
+      throws FailedOperationException, NotAnAdminOfChatSpaceException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 
@@ -361,7 +385,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceAlreadyDeletedException If the chat space has been deleted.
    * @throws NotAnAdminOfChatSpaceException If the user is not the creator or an admin of the chat space.
    */
-  protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
+  protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user)
+    throws ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException, FailedOperationException {
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
     // Verify that the user is the creator or an admin of the chat space

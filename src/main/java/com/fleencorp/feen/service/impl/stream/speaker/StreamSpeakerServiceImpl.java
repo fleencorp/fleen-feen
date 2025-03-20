@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.stream.speaker;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
 import com.fleencorp.feen.mapper.stream.ToInfoMapper;
@@ -179,12 +180,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param user the {@code FleenUser} who must be the organizer of the stream
    * @return a localized {@code MarkAsStreamSpeakerResponse} indicating the success of the operation
    * @throws FleenStreamNotFoundException if the stream with the specified ID cannot be found
-   * @throws com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException if the user is not the organizer of the stream
+   * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
    * @throws FailedOperationException if the attendee IDs associated with the speakers are invalid
    */
   @Override
   @Transactional
-  public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final FleenUser user) {
+  public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final FleenUser user)
+      throws FleenStreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream
@@ -229,11 +231,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param user the {@link FleenUser} performing the update operation
    * @return an {@link UpdateStreamSpeakerResponse} indicating the outcome of the update
    * @throws FleenStreamNotFoundException if the stream with the given ID does not exist
+   * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
    * @throws FailedOperationException if the attendee ID validation fails
    */
   @Override
   @Transactional
-  public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final FleenUser user) {
+  public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final FleenUser user)
+      throws FleenStreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the organizer of the stream
@@ -353,10 +357,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param dto A {@link RemoveStreamSpeakerDto} containing the details of the speakers to be deleted.
    * @param user The user performing the delete operation.
    * @return A {@link RemoveStreamSpeakerResponse} indicating the result of the delete operation.
+   * @throws FleenStreamNotFoundException if the stream with the given ID does not exist
+   * @throws OrganizerOfStreamCannotBeRemovedAsSpeakerException if the organizer is found in the list of speakers
    */
   @Override
   @Transactional
-  public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final FleenUser user) {
+  public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final FleenUser user)
+      throws FleenStreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream

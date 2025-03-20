@@ -1,5 +1,9 @@
 package com.fleencorp.feen.service.chat.space;
 
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
+import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
+import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
@@ -12,21 +16,31 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ChatSpaceService {
 
-  ChatSpace findChatSpace(Long chatSpaceId);
+  ChatSpace findChatSpace(Long chatSpaceId) throws ChatSpaceNotFoundException;
 
   CreateChatSpaceResponse createChatSpace(CreateChatSpaceDto createChatSpaceDto, FleenUser user);
 
-  UpdateChatSpaceResponse updateChatSpace(Long chatSpaceId, UpdateChatSpaceDto updateChatSpaceDto, FleenUser user);
+  UpdateChatSpaceResponse updateChatSpace(Long chatSpaceId, UpdateChatSpaceDto updateChatSpaceDto, FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException;
 
-  DeleteChatSpaceResponse deleteChatSpace(Long chatSpaceId, FleenUser user);
+  DeleteChatSpaceResponse deleteChatSpace(Long chatSpaceId, FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException;
 
-  DeleteChatSpaceResponse deleteChatSpaceByAdmin(Long chatSpaceId, FleenUser user);
+  DeleteChatSpaceResponse deleteChatSpaceByAdmin(Long chatSpaceId, FleenUser user)
+    throws ChatSpaceNotFoundException;
 
-  EnableChatSpaceResponse enableChatSpace(Long chatSpaceId, FleenUser user);
+  EnableChatSpaceResponse enableChatSpace(Long chatSpaceId, FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException;
 
-  DisableChatSpaceResponse disableChatSpace(Long chatSpaceId, FleenUser user);
+  DisableChatSpaceResponse disableChatSpace(Long chatSpaceId, FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+      FailedOperationException;
 
-  void verifyCreatorOrAdminOfSpace(ChatSpace chatSpace, FleenUser user);
+  void verifyCreatorOrAdminOfSpace(ChatSpace chatSpace, FleenUser user)
+    throws FailedOperationException, NotAnAdminOfChatSpaceException;
 
   void increaseTotalMembersAndSave(ChatSpace chatSpace);
 }

@@ -317,7 +317,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * @return true if the member is not the organizer, otherwise false.
    */
   public boolean isNotTheOwner(final Long organizerId) {
-    return isAMember() && nonNull(memberId) && !(memberId.equals(organizerId));
+    return isAMember() && nonNull(memberId) && memberId.equals(organizerId);
   }
 
   /**

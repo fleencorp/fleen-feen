@@ -5,7 +5,5 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 
 public interface GoogleCalendarUpdateService {
 
-  void shareCalendarWithServiceAccountEmail(String calendarId, String calendarCreatorEmailAddress, String accessToken);
-
   GoogleShareCalendarWithUserResponse shareCalendarWithUser(ShareCalendarWithUserRequest shareCalendarWithUserRequest);
 }
