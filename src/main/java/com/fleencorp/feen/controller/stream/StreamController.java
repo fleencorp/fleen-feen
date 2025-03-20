@@ -39,18 +39,23 @@ public class StreamController {
   }
 
   @Operation(summary = "Join a stream",
-    description = "Allows an authenticated user to join a specific stream by providing stream details and joining information."
+    description = "Allows an authenticated user to join a specific stream by providing stream details and joining information. " +
+                 "For public streams, grants immediate access. For private streams, users must request to join using the dedicated endpoint."
   )
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully joined the stream", content = @Content(schema = @Schema(implementation = JoinStreamResponse.class))),
-    @ApiResponse(responseCode = "400", description = "Bad Request",
+    @ApiResponse(responseCode = "200", description = "Successfully joined the stream. User now has access to the stream.",
+      content = @Content(schema = @Schema(implementation = JoinStreamResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Bad Request - Attempted to directly join a private stream or operation failed",
       content = {
         @Content(schema = @Schema(implementation = CannotJoinPrivateStreamWithoutApprovalException.class)),
         @Content(schema = @Schema(implementation = FailedOperationException.class))
       }),
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = CalendarNotFoundException.class))),
-    @ApiResponse(responseCode = "409", description = "Conflict",
+    @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
+      content = {
+        @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
+        @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
+      }),
+    @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled/happened or user has existing join status",
       content = {
         @Content(schema = @Schema(implementation = StreamAlreadyCanceledException.class)),
         @Content(schema = @Schema(implementation = StreamAlreadyHappenedException.class)),
@@ -69,18 +74,22 @@ public class StreamController {
     return commonStreamJoinService.joinStream(streamId, joinStreamDto, user);
   }
 
-  @Operation(summary = "Request to join a stream",
-    description = "Allows an authenticated user to request to join a specific stream by providing stream details and request information."
+  @Operation(summary = "Request to join a private stream",
+    description = "Allows an authenticated user to submit a request to join a private stream. " +
+                 "This is required for private streams as they cannot be joined directly. " +
+                 "The stream organizer will need to approve the request before access is granted."
   )
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully requested to join the stream", content = @Content(schema = @Schema(implementation = RequestToJoinStreamResponse.class))),
-    @ApiResponse(responseCode = "400", description = "Bad Request",
+    @ApiResponse(responseCode = "200", description = "Successfully submitted request to join the stream. Awaiting approval.",
+      content = @Content(schema = @Schema(implementation = RequestToJoinStreamResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Bad Request - Invalid request parameters or operation not allowed",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
       content = {
-        @Content(schema = @Schema(implementation = FailedOperationException.class))
+        @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
+        @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
       }),
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = CalendarNotFoundException.class))),
-    @ApiResponse(responseCode = "409", description = "Conflict",
+    @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled/happened or request already exists",
       content = {
         @Content(schema = @Schema(implementation = StreamAlreadyCanceledException.class)),
         @Content(schema = @Schema(implementation = StreamAlreadyHappenedException.class)),
@@ -100,18 +109,21 @@ public class StreamController {
   }
 
   @Operation(summary = "Mark user as not attending a stream",
-    description = "Allows an authenticated user to indicate that they will not attend a specific stream by providing stream details."
+    description = "Allows an authenticated user to indicate that they will not attend a stream they previously joined " +
+                 "or requested to join. This helps stream organizers manage attendance and update capacity planning. " +
+                 "The user's spot may be offered to others on the waiting list."
   )
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully marked as not attending the stream", content = @Content(schema = @Schema(implementation = NotAttendingStreamResponse.class))),
-    @ApiResponse(responseCode = "400", description = "Bad Request",
+    @ApiResponse(responseCode = "200", description = "Successfully marked user as not attending the stream. Attendance status updated.",
+      content = @Content(schema = @Schema(implementation = NotAttendingStreamResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Bad Request - Invalid parameters or operation not allowed",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
-    @ApiResponse(responseCode = "404", description = "Not found",
+    @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
       content = {
         @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
         @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
       }),
-    @ApiResponse(responseCode = "409", description = "Conflict",
+    @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled or has already happened",
       content = {
         @Content(schema = @Schema(implementation = StreamAlreadyCanceledException.class)),
         @Content(schema = @Schema(implementation = StreamAlreadyHappenedException.class))

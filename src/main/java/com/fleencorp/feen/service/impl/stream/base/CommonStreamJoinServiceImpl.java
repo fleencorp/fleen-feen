@@ -571,8 +571,8 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   @Override
   @Transactional
   public NotAttendingStreamResponse notAttendingStream(final Long streamId, final NotAttendingStreamDto notAttendingStreamDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
-        StreamAlreadyHappenedException, FailedOperationException {
+    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+      StreamAlreadyHappenedException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
     // Retrieve the stream type

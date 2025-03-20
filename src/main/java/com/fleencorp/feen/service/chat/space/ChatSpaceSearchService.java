@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.chat.space;
 
+import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
@@ -17,5 +18,5 @@ public interface ChatSpaceSearchService {
 
   RequestToJoinSearchResult findRequestToJoinSpace(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
 
-  RetrieveChatSpaceResponse retrieveChatSpace(Long chatSpaceId, FleenUser user);
+  RetrieveChatSpaceResponse retrieveChatSpace(Long chatSpaceId, FleenUser user) throws ChatSpaceMemberNotFoundException;
 }

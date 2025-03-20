@@ -1,6 +1,8 @@
 package com.fleencorp.feen.service.impl.chat.space.event;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
@@ -132,10 +134,14 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    * @param createChatSpaceEventDto DTO containing the event details.
    * @param user The user creating the event.
    * @return A response with details of the created event.
+   * @throws ChatSpaceNotFoundException if the chat space is not found
+   * @throws CalendarNotFoundException if the calendar cannot be found
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final FleenUser user) {
+  public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final FleenUser user)
+    throws ChatSpaceNotFoundException, CalendarNotFoundException, FailedOperationException {
     // Find the chat space by its ID
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Find a calendar based on the user's country

@@ -263,7 +263,7 @@ public class ChatSpace extends FleenFeenEntity {
    *
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
    */
-  public void checkNotDeleted() {
+  public void checkNotDeleted() throws ChatSpaceAlreadyDeletedException {
     if (isDeleted()) {
       // Throw an exception if the chat space is already deleted
       throw new ChatSpaceAlreadyDeletedException();

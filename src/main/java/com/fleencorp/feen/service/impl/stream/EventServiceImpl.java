@@ -154,13 +154,15 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final EventAttendeeOrGuest attendeeOrGuest = EventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
 
     // Create a FleenStream object from the DTO and update its details with the Google Calendar response
-    final FleenStream stream = createEventDto.toFleenStream(user.toMember());
+    FleenStream stream = createEventDto.toFleenStream(user.toMember());
     stream.update(
       organizerAliasOrDisplayName,
       user.getEmailAddress(),
       user.getPhoneNumber()
     );
 
+    // Save stream and create event in Google Calendar Event Service externally
+    stream = streamRepository.save(stream);
     // Increase attendees count, save the event and and add the event in Google Calendar
     streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
     // Register the organizer of the event as an attendee or guest
@@ -271,8 +273,10 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    // Create the response
+    final CreateStreamResponse createStreamResponse = CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
     // Return a localized response of the created event
-    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(createStreamResponse);
   }
 
   /**

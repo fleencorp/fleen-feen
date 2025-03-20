@@ -11,14 +11,12 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.AclRule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static com.fleencorp.feen.mapper.external.GoogleCalendarMapper.mapToCalendarResponse;
-import static com.fleencorp.feen.model.domain.user.Member.isInternalEmailOrEmailIsAnOriginEmail;
 import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getHttpRequestInitializer;
 import static java.util.Objects.nonNull;
@@ -39,8 +37,6 @@ public class GoogleCalendarUpdateServiceImpl implements GoogleCalendarUpdateServ
 
   private final ReporterService reporterService;
   private final String applicationName;
-  private final String serviceAccountDelegatedAuthorityEmail;
-  private final String originDomain;
 
   /**
    * Constructs a new {@link GoogleCalendarUpdateServiceImpl} configured to interact with the Google Calendar API.
@@ -50,45 +46,14 @@ public class GoogleCalendarUpdateServiceImpl implements GoogleCalendarUpdateServ
    * @param applicationName the name of the application, used in the User-Agent header for requests to the Google Calendar API.
    *                        This helps identify the application in API usage logs, and is typically specified via the
    *                        {@code application.name} property.
-   * @param serviceAccountDelegatedAuthorityEmail the email address of the service account with domain-wide delegation.
-   *                                              This account is used to perform actions on behalf of users within the domain,
-   *                                              as configured via the {@code service.account.delegated.authority.email} property.
-   * @param originDomain the domain that is used for defining the context of operations within the service, such as setting
-   *                     the appropriate origin for access and permissions. This is specified via the {@code origin-domain} property.
    * @param reporterService the service responsible for reporting events, errors, or other significant actions taken by
    *                        this service. It helps in monitoring and logging interactions with the Google Calendar API.
    */
-
   public GoogleCalendarUpdateServiceImpl(
     @Value("${application.name}") final String applicationName,
-    @Value("${service.account.delegated.authority.email}") final String serviceAccountDelegatedAuthorityEmail,
-    @Value("${origin-domain}") final String originDomain,
     final ReporterService reporterService) {
     this.applicationName = applicationName;
-    this.serviceAccountDelegatedAuthorityEmail = serviceAccountDelegatedAuthorityEmail;
-    this.originDomain = originDomain;
     this.reporterService = reporterService;
-  }
-
-  /**
-   * Asynchronously shares a calendar with the service account's email address if the calendar creator's
-   * email is internal or matches the specified origin domain. This method checks if the calendar creator's
-   * email belongs to the internal domain and, if so, proceeds to share the calendar with the service account
-   * using the provided access token.
-   *
-   * @param calendarId the ID of the calendar to be shared. This uniquely identifies the calendar in the Google Calendar API.
-   * @param calendarCreatorEmailAddress the email address of the calendar creator. This is checked against the
-   *                                    origin domain to determine if it is internal or authorized.
-   * @param accessToken the OAuth 2.0 access token used for authentication and authorization of the calendar sharing request.
-   *                    This token must have the necessary permissions to modify the calendar's ACL (Access Control List).
-   */
-  @Async
-  @Override
-  public void shareCalendarWithServiceAccountEmail(final String calendarId, final String calendarCreatorEmailAddress, final String accessToken) {
-    if (isInternalEmailOrEmailIsAnOriginEmail(originDomain, calendarCreatorEmailAddress)) {
-      final ShareCalendarWithUserRequest scheduleWithUserRequest = ShareCalendarWithUserRequest.of(calendarId, serviceAccountDelegatedAuthorityEmail, accessToken);
-      shareCalendarWithUser(scheduleWithUserRequest);
-    }
   }
 
   /**
@@ -133,10 +98,11 @@ public class GoogleCalendarUpdateServiceImpl implements GoogleCalendarUpdateServ
           .insert(shareCalendarWithUserRequest.getCalendarId(), aclRule)
           .execute();
 
-        return GoogleShareCalendarWithUserResponse
-          .of(shareCalendarWithUserRequest.getCalendarId(),
-            shareCalendarWithUserRequest.getEmailAddress(),
-            mapToCalendarResponse(calendar));
+        return GoogleShareCalendarWithUserResponse.of(
+          shareCalendarWithUserRequest.getCalendarId(),
+          shareCalendarWithUserRequest.getEmailAddress(),
+          mapToCalendarResponse(calendar)
+        );
       }
       logIfEnabled(log::isErrorEnabled, () -> log.error("Cannot share calendar with user. Calendar does not exist or cannot be found. {}", shareCalendarWithUserRequest.getCalendarId()));
     } catch (final IOException ex) {

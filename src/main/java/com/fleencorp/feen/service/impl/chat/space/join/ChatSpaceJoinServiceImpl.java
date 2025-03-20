@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.chat.space.join;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
+import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
@@ -9,6 +10,7 @@ import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpa
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
+import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -109,10 +111,13 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID does not exist.
    * @throws ChatSpaceNotActiveException if the chat space is inactive.
    * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is not public.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public JoinChatSpaceResponse joinSpace(final Long chatSpaceId, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
+  public JoinChatSpaceResponse joinSpace(final Long chatSpaceId, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, CannotJoinPrivateChatSpaceWithoutApprovalException,
+      FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
@@ -237,10 +242,16 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param requestToJoinChatSpaceDto The DTO containing the request details for joining the chat space.
    * @param user The user requesting to join the chat space.
    * @return A localized response confirming the request to join the chat space.
+   * @throws ChatSpaceNotFoundException if the chat space with the specified ID does not exist.
+   * @throws ChatSpaceNotActiveException if the chat space is inactive.
+   * @throws ChatSpaceMemberRemovedException if the user has been removed from the chat space
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public RequestToJoinChatSpaceResponse requestToJoinSpace(final Long chatSpaceId, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user) {
+  public RequestToJoinChatSpaceResponse requestToJoinSpace(final Long chatSpaceId, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, ChatSpaceMemberRemovedException,
+      FailedOperationException  {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Create a chat space member to update later
@@ -256,8 +267,9 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       chatSpaceMember = handleJoinRequest(chatSpace, requestToJoinChatSpaceDto, user);
     }
 
-    // Create and save notification
+    // Create a notification
     final Notification notification = notificationMessageService.ofReceivedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
+    // Save the notification
     notificationService.save(notification);
     // Return a localized response confirming the request to join the chat space
     return localizer.of(RequestToJoinChatSpaceResponse.of());
@@ -335,15 +347,21 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param user The user processing the request, which must be the creator or an admin of the chat space.
    * @return A response indicating the result of processing the join request.
    * @throws ChatSpaceNotFoundException if the chat space does not exist.
+   * @throws ChatSpaceAlreadyDeletedException if the chat space has been deleted.
    * @throws MemberNotFoundException if the member does not exist.
    * @throws ChatSpaceMemberNotFoundException if the chat space member does not exist.
    * @throws AlreadyJoinedChatSpaceException if the member is already a part of the chat space.
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(final Long chatSpaceId, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, final FleenUser user) {
+  public ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(final Long chatSpaceId, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, final FleenUser user)
+      throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, MemberNotFoundException,
+        ChatSpaceMemberNotFoundException, AlreadyJoinedChatSpaceException, FailedOperationException {
     // Find the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Get the member Id
+    final Long memberId = processRequestToJoinChatSpaceDto.getMemberId();
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
     // Verify if user is an admin
@@ -351,7 +369,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
     verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(chatSpace, user);
     // Find the member using the provided member ID from the DTO
-    final Member member = memberService.findMember(processRequestToJoinChatSpaceDto.getMemberId());
+    final Member member = memberService.findMember(memberId);
     // Find the chat space member related to the chat space and member
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.findChatSpaceMember(chatSpace, member);
     // Set the admin comment for the space member
@@ -366,11 +384,14 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       chatSpaceMemberService.notifyChatSpaceUpdateService(chatSpaceMember, chatSpace, member);
     }
 
-    // Create and save notification
+    // Create a notification
     final Notification notification = notificationMessageService.ofApprovedOrDisapprovedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember());
+    // Save the notification
     notificationService.save(notification);
+    // Create the response
+    final ProcessRequestToJoinChatSpaceResponse processRequestToJoinChatSpaceResponse = ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, memberId);
     // Return the localized response indicating the result of the processing
-    return localizer.of(ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, processRequestToJoinChatSpaceDto.getMemberId()));
+    return localizer.of(processRequestToJoinChatSpaceResponse);
   }
 
   /**
@@ -413,10 +434,11 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param chatSpaceId the ID of the {@link ChatSpace} the user wishes to leave
    * @param user        the {@link FleenUser} who is leaving the chat space
    * @return a localized {@link LeaveChatSpaceResponse} indicating successful removal from the chat space
+   * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public LeaveChatSpaceResponse leaveChatSpace(final Long chatSpaceId, final FleenUser user) {
+  public LeaveChatSpaceResponse leaveChatSpace(final Long chatSpaceId, final FleenUser user) throws FailedOperationException {
     // Retrieve the chat space using the provided chatSpaceId
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Remove the user from the chat space

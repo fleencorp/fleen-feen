@@ -1,7 +1,13 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
+import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.*;
@@ -16,6 +22,12 @@ import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,58 +54,193 @@ public class UserStreamController {
     this.streamSearchService = streamSearchService;
   }
 
+  @Operation(summary = "Update stream details",
+    description = "Updates the details of a stream. Only the stream owner can perform this operation. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully updated stream details",
+      content = @Content(schema = @Schema(implementation = UpdateStreamResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner",
+      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/update/{streamId}")
   public UpdateStreamResponse updateStream(
+      @Parameter(description = "ID of the stream to update", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Updated stream details", required = true)
       @Valid @RequestBody final UpdateStreamDto updateStreamDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamService.updateStream(streamId, updateStreamDto, user);
   }
 
+  @Operation(summary = "Cancel stream",
+    description = "Cancels a stream. Cannot cancel ongoing streams or already canceled streams. Only the stream owner can perform this operation. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully canceled the stream",
+      content = @Content(schema = @Schema(implementation = CancelStreamResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner, stream is ongoing, or already canceled",
+      content = @Content(schema = @Schema(oneOf = {
+        StreamNotCreatedByUserException.class,
+        CannotCancelOrDeleteOngoingStreamException.class,
+        StreamAlreadyCanceledException.class
+      }))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/cancel/{streamId}")
   public CancelStreamResponse cancelStream(
+      @Parameter(description = "ID of the stream to cancel", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Stream cancellation details", required = true)
       @Valid @RequestBody final CancelStreamDto cancelStreamDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamService.cancelStream(streamId, cancelStreamDto, user);
   }
 
+  @Operation(summary = "Delete stream",
+    description = "Deletes a stream. Cannot delete ongoing streams. Only the stream owner can perform this operation. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully deleted the stream",
+      content = @Content(schema = @Schema(implementation = DeleteStreamResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner or stream is ongoing",
+      content = @Content(schema = @Schema(oneOf = {
+        StreamNotCreatedByUserException.class,
+        CannotCancelOrDeleteOngoingStreamException.class
+      }))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/delete/{streamId}")
   public DeleteStreamResponse deleteStream(
+      @Parameter(description = "ID of the stream to delete", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Stream deletion details", required = true)
       @Valid @RequestBody final DeleteStreamDto deleteStreamDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamService.deleteStream(streamId, deleteStreamDto, user);
   }
 
+  @Operation(summary = "Process stream join request",
+    description = "Processes (approve/reject) a request to join a stream. Only the stream owner can perform this operation. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully processed join request",
+      content = @Content(schema = @Schema(implementation = ProcessAttendeeRequestToJoinStreamResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner",
+      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/process-join-request/{streamId}")
   public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(
+      @Parameter(description = "ID of the stream to process join request for", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Join request processing details", required = true)
       @Valid @RequestBody final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamJoinService.processAttendeeRequestToJoinStream(streamId, processAttendeeRequestToJoinStreamDto, user);
   }
 
+  @Operation(summary = "Reschedule stream",
+    description = "Changes the scheduled time of a stream. Only the stream owner can perform this operation. Cannot reschedule ongoing or past streams. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully rescheduled the stream",
+      content = @Content(schema = @Schema(implementation = RescheduleStreamResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner or stream cannot be rescheduled",
+      content = @Content(schema = @Schema(oneOf = {
+        StreamNotCreatedByUserException.class,
+        StreamAlreadyHappenedException.class,
+        CannotCancelOrDeleteOngoingStreamException.class
+      }))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/reschedule/{streamId}")
   public RescheduleStreamResponse rescheduleStream(
+      @Parameter(description = "ID of the stream to reschedule", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "New schedule details", required = true)
       @Valid @RequestBody final RescheduleStreamDto rescheduleStreamDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamService.rescheduleStream(streamId, rescheduleStreamDto, user);
   }
 
+  @Operation(summary = "Update stream visibility",
+    description = "Changes the visibility settings of a stream (public/private). Only the stream owner can perform this operation. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully updated stream visibility",
+      content = @Content(schema = @Schema(implementation = UpdateStreamVisibilityResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not the stream owner",
+      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PutMapping(value = "/update-visibility/{streamId}")
   public UpdateStreamVisibilityResponse updateStreamVisibility(
+      @Parameter(description = "ID of the stream to update visibility", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "New visibility settings", required = true)
       @Valid @RequestBody final UpdateStreamVisibilityDto updateStreamVisibilityDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return commonStreamService.updateStreamVisibility(streamId, updateStreamVisibilityDto, user);
   }
 
+  @Operation(summary = "Add attendee to stream",
+    description = "Adds a new attendee to a stream. Only works for event-type streams. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully added attendee to stream",
+      content = @Content(schema = @Schema(implementation = AddNewStreamAttendeeResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid request parameters or non-event stream",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @PostMapping(value = "/add-attendee/{streamId}")
   public AddNewStreamAttendeeResponse addStreamAttendee(
+      @Parameter(description = "ID of the stream to add attendee to", required = true)
       @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Details of the attendee to add", required = true)
       @Valid @RequestBody final AddNewStreamAttendeeDto addNewStreamAttendeeDto,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     if (addNewStreamAttendeeDto.isEvent()) {
       return eventJoinService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
@@ -101,16 +248,42 @@ public class UserStreamController {
     throw new FailedOperationException();
   }
 
+  @Operation(summary = "Count total streams created by user",
+    description = "Returns the total number of streams created by the authenticated user. Can be filtered by stream type. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved stream count",
+      content = @Content(schema = @Schema(implementation = TotalStreamsCreatedByUserResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid search parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @GetMapping(value = "/total-by-me")
   public TotalStreamsCreatedByUserResponse countTotalStreamsCreatedByUser(
+      @Parameter(description = "Search criteria for stream types", required = true)
       @SearchParam final StreamTypeSearchRequest searchRequest,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.countTotalStreamsByUser(searchRequest, user);
   }
 
+  @Operation(summary = "Count total streams attended by user",
+    description = "Returns the total number of streams attended by the authenticated user. Can be filtered by stream type. Requires authentication."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved attended stream count",
+      content = @Content(schema = @Schema(implementation = TotalStreamsAttendedByUserResponse.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid search parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
   @GetMapping(value = "/total-attended-by-me")
   public TotalStreamsAttendedByUserResponse countTotalEventsAttendedByUser(
+      @Parameter(description = "Search criteria for stream types", required = true)
       @SearchParam final StreamTypeSearchRequest searchRequest,
+      @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.countTotalStreamsAttendedByUser(searchRequest, user);
   }
