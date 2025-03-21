@@ -86,11 +86,11 @@ public class ExternalStreamRequest {
   private ExternalStreamRequestType requestType;
 
   public String calendarExternalId() {
-    return (calendar != null) ? calendar.getExternalId() : null;
+    return calendar != null ? calendar.getExternalId() : null;
   }
 
   public String streamExternalId() {
-    return (stream != null) ? stream.getExternalId() : null;
+    return stream != null ? stream.getExternalId() : null;
   }
 
   public String userEmailAddress() {

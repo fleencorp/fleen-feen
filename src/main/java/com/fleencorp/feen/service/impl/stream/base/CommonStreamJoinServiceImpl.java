@@ -339,7 +339,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   @Transactional
   public JoinStreamResponse joinStream(final Long streamId, final JoinStreamDto joinStreamDto, final FleenUser user)
     throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
-    CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
+      CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Retrieve the stream using the event ID
     final FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
@@ -357,7 +357,6 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
-
 
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());

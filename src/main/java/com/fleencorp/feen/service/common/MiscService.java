@@ -10,5 +10,5 @@ public interface MiscService {
 
   Calendar findCalendar(String countryTitle);
 
-  Calendar findCalendar(String countryTitle, StreamType streamType);
+  Calendar findCalendarByStreamType(String countryTitle, StreamType streamType);
 }
