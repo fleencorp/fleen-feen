@@ -166,7 +166,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
     // Attempt to process the attendee join request
-    final StreamAttendee attendee = attemptToProcessAttendeeRequestToJoin(stream, processRequestToJoinDto);
+    final StreamAttendee attendee = processAttendeeRequestToJoin(stream, processRequestToJoinDto);
 
     // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user);
@@ -192,7 +192,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * stream based on the provided DTO and checks if their request to join has not been disapproved or is still pending.
    * It then handles the approval or disapproval of the request, updates the organizer's comment, and saves the attendee's details.
    *
-   * <p>If the attendee's request is already approved or pending, the method processes the request by either
+   * <p>If the attendee's request is already disapproved or pending, the method processes the request by either
    * approving or disapproving the attendee's status in the stream. Afterward, it updates any comments made by
    * the organizer and persists the attendee information in the repository.</p>
    *
@@ -202,7 +202,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @throws StreamAttendeeNotFoundException      if the attendee with the provided ID is not found
    * @throws FailedOperationException            if any operation within the process fails
    */
-  private StreamAttendee attemptToProcessAttendeeRequestToJoin(final FleenStream stream, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto)
+  private StreamAttendee processAttendeeRequestToJoin(final FleenStream stream, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto)
       throws StreamAttendeeNotFoundException, FailedOperationException {
     // Retrieve the stream attendee from the dto
     final Long attendeeId = processRequestToJoinDto.getAttendeeId();
@@ -210,11 +210,18 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final StreamAttendee attendee = attendeeService.findAttendee(stream, attendeeId)
       .orElseThrow(StreamAttendeeNotFoundException.of(attendeeId));
 
-    if (attendee.isRequestToJoinNotDisapprovedOrPending()) {
+    if (attendee.isRequestToJoinDisapprovedOrPending()) {
+      // Update the organizer comment
+      attendee.setOrganizerComment(processRequestToJoinDto.getComment());
       // Handle approved or disapproved request
       handleAttendeeRequestApproval(stream, attendee, processRequestToJoinDto);
-      // Update the organizer comment and save attendee
-      updateAttendeeWithCommentAndSave(attendee, processRequestToJoinDto);
+      // Save the attendee details in the repository
+      streamAttendeeRepository.save(attendee);
+
+      // Create the notification
+      final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(attendee.getStream(), attendee, attendee.getMember());
+      // Save the notification
+      notificationService.save(notification);
     } else {
       // Throw an error due to invalid input because attendee status cannot be approved twice
       throw new FailedOperationException();
@@ -246,31 +253,6 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       // Disapprove attendee request to join the stream
       attendee.disapproveUserAttendance();
     }
-  }
-
-  /**
-   * Updates the attendee's record with the organizer's comment and saves the updated details to the repository.
-   * Additionally, this method generates a notification for the attendee based on whether their request to join
-   * the stream was approved or disapproved, and saves this notification.
-   *
-   * <p>The method starts by updating the attendee's comment with the organizer's note from the provided
-   * {@code ProcessAttendeeRequestToJoinStreamDto}. It then saves the updated attendee details to the repository.</p>
-   *
-   * <p>After the attendee is saved, a notification is created based on whether their request to join the stream
-   * was approved or disapproved. This notification is then persisted in the notification service.</p>
-   *
-   * @param attendee                   the stream attendee whose details are being updated
-   * @param processRequestToJoinDto     the DTO containing the organizer's comment and details about the request to join
-   */
-  private void updateAttendeeWithCommentAndSave(final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto) {
-    // Update the organizer comment
-    attendee.setOrganizerComment(processRequestToJoinDto.getComment());
-    // Save the attendee details in the repository
-    streamAttendeeRepository.save(attendee);
-
-    // Create and save notification
-    final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(attendee.getStream(), attendee, attendee.getMember());
-    notificationService.save(notification);
   }
 
   /**
