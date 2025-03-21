@@ -182,7 +182,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    * @param userDetails the user details containing the email to check
    * @return {@code true} if the email exists, {@code false} otherwise
    */
-  private boolean isEmailExists(UserDetails userDetails) {
+  private boolean isEmailExists(final UserDetails userDetails) {
     return emailService.isEmailAddressExist(userDetails.getUsername());
   }
 
