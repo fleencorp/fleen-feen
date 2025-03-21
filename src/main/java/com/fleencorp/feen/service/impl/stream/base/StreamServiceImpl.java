@@ -161,6 +161,8 @@ public class StreamServiceImpl implements StreamService {
       stream.checkNotPrivateForJoining();
       // Check if the user is already an attendee
       verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
+
+      return;
     }
     throw new FailedOperationException();
   }
@@ -622,6 +624,8 @@ public class StreamServiceImpl implements StreamService {
    * @param stream the stream for which additional details are being retrieved
    * @param user   the user associated with the stream
    * @return a {@link StreamOtherDetailsHolder} object containing the retrieved calendar and OAuth2 authorization details
+   * @throws CalendarNotFoundException           if the external calendar associated with the stream cannot be found
+   * @throws Oauth2InvalidAuthorizationException   if the OAuth2 authorization required for external services is invalid
    * @throws FailedOperationException if the stream is {@code null}
    */
   @Override
@@ -635,7 +639,7 @@ public class StreamServiceImpl implements StreamService {
 
     // If the stream is an event, retrieve the calendar and handle external cancellation
     final Calendar calendar = StreamType.isEvent(streamType)
-      ? miscService.findCalendar(user.getCountry(), streamType) : null;
+      ? miscService.findCalendarByStreamType(user.getCountry(), streamType) : null;
 
     // If the stream is a broadcast or live stream, retrieve the oauth2 authorization
     final Oauth2Authorization oauth2Authorization = StreamType.isLiveStream(streamType)

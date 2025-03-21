@@ -105,9 +105,9 @@ public class MiscServiceImpl implements
    *         or null if the conditions are not satisfied
    */
   @Override
-  public Calendar findCalendar(final String countryTitle, final StreamType streamType) {
+  public Calendar findCalendarByStreamType(final String countryTitle, final StreamType streamType) {
     if (nonNull(countryTitle) && nonNull(streamType) && StreamType.isEvent(streamType))  {
-      findCalendar(countryTitle);
+      return findCalendar(countryTitle);
     }
     return null;
   }
