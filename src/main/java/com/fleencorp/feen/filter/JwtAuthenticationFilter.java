@@ -129,7 +129,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       // Continue with the filter chain
       filterChain.doFilter(request, response);
-    } catch (final IOException | ServletException ex) {
+    } catch (final InvalidAuthenticationTokenException | IOException | ServletException ex) {
       handleException(request, response, ex);
     }
   }
@@ -159,8 +159,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
           // Set authentication in SecurityContextHolder based on conditions
           // Extract checks for if user is existing in the record even if the token is valid
-          if (shouldSetAuthentication(key, savedToken, userDetails) &&
-              emailService.isEmailAddressExist(userDetails.getUsername())) {
+          if (shouldSetAuthentication(key, savedToken, userDetails) && isEmailExists(userDetails)) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
           } else {
             return false;
@@ -172,6 +171,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     }
     return true;
+  }
+
+  /**
+   * Checks whether the email associated with the given user details already exists.
+   *
+   * <p>This method retrieves the email address from the provided user details and checks
+   * if it already exists using the {@code emailService}.</p>
+   *
+   * @param userDetails the user details containing the email to check
+   * @return {@code true} if the email exists, {@code false} otherwise
+   */
+  private boolean isEmailExists(UserDetails userDetails) {
+    return emailService.isEmailAddressExist(userDetails.getUsername());
   }
 
   /**
