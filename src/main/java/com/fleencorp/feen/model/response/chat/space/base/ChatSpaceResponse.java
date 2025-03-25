@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
+import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.feen.model.other.Organizer;
@@ -31,13 +32,14 @@ import static java.util.Objects.nonNull;
   "guidelines_or_rules",
   "space_link",
   "space_link_unmasked",
-  "is_active",
   "total_members",
   "total_request_to_join",
   "visibility_info",
+  "is_active_info",
   "organizer",
   "request_to_join_status_info",
   "join_status_info",
+  "membership_info",
   "created_on",
   "updated_on"
 })
@@ -59,12 +61,6 @@ public class ChatSpaceResponse extends FleenFeenResponse {
   @JsonProperty("space_link")
   private MaskedChatSpaceUri spaceLink;
 
-  @JsonIgnore
-  private String spaceLinkUnMasked;
-
-  @JsonProperty("is_active")
-  private Boolean isActive;
-
   @JsonProperty("total_members")
   private Long totalMembers;
 
@@ -73,6 +69,9 @@ public class ChatSpaceResponse extends FleenFeenResponse {
 
   @JsonProperty("visibility_info")
   private ChatSpaceVisibilityInfo visibilityInfo;
+
+  @JsonProperty("is_active_info")
+  private IsActiveInfo isActiveInfo;
 
   @JsonProperty("organizer")
   private Organizer organizer;
@@ -112,6 +111,10 @@ public class ChatSpaceResponse extends FleenFeenResponse {
     }
   }
 
+  @JsonIgnore
+  private String spaceLinkUnMasked;
+
+  @JsonIgnore
   public ChatSpaceVisibility getVisibility() {
     return nonNull(visibilityInfo) ? visibilityInfo.getVisibility() : null;
   }

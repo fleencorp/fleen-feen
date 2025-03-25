@@ -96,6 +96,16 @@ public class ChatSpaceMember extends FleenFeenEntity {
   }
 
   /**
+   * Retrieves the username of the member.
+   * If the member object is non-null, the username is returned. Otherwise, null is returned.
+   *
+   * @return the username of the member if the member is not null, otherwise null.
+   */
+  public String getUsername() {
+    return nonNull(member) ? member.getUsername() : null;
+  }
+
+  /**
    * Checks if the member has left the chat space.
    *
    * <p>This method checks if the member has left the chat space by verifying if the `left` field
