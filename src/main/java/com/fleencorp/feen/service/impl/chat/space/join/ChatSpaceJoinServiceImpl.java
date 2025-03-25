@@ -12,6 +12,7 @@ import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpa
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
+import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.notification.Notification;
@@ -19,6 +20,7 @@ import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;
+import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.feen.model.request.chat.space.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
@@ -60,6 +62,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
   private final NotificationService notificationService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
+  private final ChatSpaceMemberMapper chatSpaceMemberMapper;
   private final Localizer localizer;
 
   /**
@@ -76,6 +79,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param notificationService processes and sends general notifications.
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
+   * @param chatSpaceMemberMapper the mapper for mapping chat space member related details
    * @param localizer provides localized responses for API operations.
    */
   public ChatSpaceJoinServiceImpl(
@@ -86,6 +90,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       final NotificationService notificationService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
+      final ChatSpaceMemberMapper chatSpaceMemberMapper,
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceMemberService = chatSpaceMemberService;
@@ -94,6 +99,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     this.notificationService = notificationService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
+    this.chatSpaceMemberMapper = chatSpaceMemberMapper;
     this.localizer = localizer;
   }
 
@@ -127,11 +133,15 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Verify that the chat space is public and throw an exception if it is not
     chatSpace.checkNotPrivateForJoining();
     // Find or create a membership entry for the user in the chat space
-    findOrCreateChatSpaceMemberAndAddToChatSpace(chatSpace, joinChatSpaceDto, user);
+    final ChatSpaceMember chatSpaceMember = findOrCreateChatSpaceMemberAndAddToChatSpace(chatSpace, joinChatSpaceDto, user);
     // Increase total members and save chat space
     chatSpaceService.increaseTotalMembersAndSave(chatSpace);
+    // Get the membership info
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    // Create the response
+    final JoinChatSpaceResponse joinChatSpaceResponse = JoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getTotalMembers());
     // Return a localized response indicating successful joining
-    return localizer.of(JoinChatSpaceResponse.of());
+    return localizer.of(joinChatSpaceResponse);
   }
 
   /**
@@ -145,18 +155,23 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param joinChatSpaceDto  DTO containing details necessary to join the chat space.
    * @param user              the user attempting to join the chat space.
    */
-  protected void findOrCreateChatSpaceMemberAndAddToChatSpace(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
+  protected ChatSpaceMember findOrCreateChatSpaceMemberAndAddToChatSpace(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
+    final ChatSpaceMember chatSpaceMember;
     // Find the chat space member or create a new one if none exists
-    findChatSpaceMemberByChatSpace(chatSpace, user.toMember())
-      .ifPresentOrElse(
-        chatSpaceMember -> {
-          // Verify the user is not removed from the chat space
-          chatSpaceMember.checkNotRemoved();
-          // Handle the approval
-          handleApprovalOfExistingChatSpaceMember(chatSpace, chatSpaceMember, user);
-          },
-        () -> createAndApproveNewChatSpaceMember(chatSpace, joinChatSpaceDto, user)
-      );
+    final Optional<ChatSpaceMember> existingChatSpaceMember = findChatSpaceMemberByChatSpace(chatSpace, user.toMember());
+    // Check if the chat space was found
+    if (existingChatSpaceMember.isPresent()) {
+      // Extract the chat space member
+      chatSpaceMember = existingChatSpaceMember.get();
+      // Verify the user is not removed from the chat space
+      chatSpaceMember.checkNotRemoved();
+      // Handle the approval
+      handleApprovalOfExistingChatSpaceMember(chatSpace, chatSpaceMember, user);
+    } else {
+      chatSpaceMember = createAndApproveNewChatSpaceMember(chatSpace, joinChatSpaceDto, user);
+    }
+
+    return chatSpaceMember;
   }
 
   /**
@@ -205,11 +220,13 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @param joinChatSpaceDto The DTO containing the user's comment for the join request.
    * @param user The user attempting to join the chat space.
    */
-  protected void createAndApproveNewChatSpaceMember(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
+  protected ChatSpaceMember createAndApproveNewChatSpaceMember(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
     // Create a new chat space member with the provided details
     final ChatSpaceMember newChatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember(), joinChatSpaceDto.getComment());
     // Approve the join request and send an invitation to the user
     approveChatSpaceMemberJoinRequestAndSendInvitation(user, newChatSpaceMember, chatSpace);
+
+    return newChatSpaceMember;
   }
 
   /**
@@ -271,8 +288,12 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final Notification notification = notificationMessageService.ofReceivedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
     // Save the notification
     notificationService.save(notification);
+    // Get the membership info
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    // Create the response
+    final RequestToJoinChatSpaceResponse requestToJoinChatSpaceResponse = RequestToJoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getTotalMembers());
     // Return a localized response confirming the request to join the chat space
-    return localizer.of(RequestToJoinChatSpaceResponse.of());
+    return localizer.of(requestToJoinChatSpaceResponse);
   }
 
   /**
@@ -388,8 +409,15 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final Notification notification = notificationMessageService.ofApprovedOrDisapprovedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember());
     // Save the notification
     notificationService.save(notification);
+    // Get the membership info
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
-    final ProcessRequestToJoinChatSpaceResponse processRequestToJoinChatSpaceResponse = ProcessRequestToJoinChatSpaceResponse.of(chatSpaceId, memberId);
+    final ProcessRequestToJoinChatSpaceResponse processRequestToJoinChatSpaceResponse = ProcessRequestToJoinChatSpaceResponse.of(
+      chatSpaceId,
+      memberId,
+      chatSpaceMembershipInfo,
+      chatSpace.getTotalMembers()
+    );
     // Return the localized response indicating the result of the processing
     return localizer.of(processRequestToJoinChatSpaceResponse);
   }

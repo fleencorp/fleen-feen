@@ -2,15 +2,16 @@ package com.fleencorp.feen.mapper.impl.chat;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
-import com.fleencorp.feen.constant.chat.space.membership.IsAChatSpaceAdmin;
-import com.fleencorp.feen.constant.chat.space.membership.IsAChatSpaceMember;
-import com.fleencorp.feen.constant.chat.space.membership.IsChatSpaceMemberLeft;
-import com.fleencorp.feen.constant.chat.space.membership.IsChatSpaceMemberRemoved;
+import com.fleencorp.feen.constant.chat.space.IsActive;
+import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
+import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
+import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
+import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.*;
 import com.fleencorp.feen.model.other.Organizer;
@@ -40,6 +41,7 @@ import static java.util.Objects.nonNull;
 @Component
 public class ChatSpaceMapperImpl implements ChatSpaceMapper {
 
+  private final ChatSpaceMemberMapper chatSpaceMemberMapper;
   private final MessageSource messageSource;
 
   /**
@@ -48,10 +50,13 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
    * <p>The {@link MessageSource} is used to retrieve localized messages
    * for various components of the chat space mapping process.</p>
    *
+   * @param chatSpaceMemberMapper the mapper for mapping chat space member related details
    * @param messageSource the source for localized messages; must not be {@code null}.
    */
   public ChatSpaceMapperImpl(
+      final ChatSpaceMemberMapper chatSpaceMemberMapper,
       final MessageSource messageSource) {
+    this.chatSpaceMemberMapper = chatSpaceMemberMapper;
     this.messageSource = messageSource;
   }
 
@@ -102,7 +107,6 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());
-      response.setIsActive(entry.isActive());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
@@ -110,6 +114,9 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final ChatSpaceVisibility visibility = entry.getSpaceVisibility();
       final ChatSpaceVisibilityInfo visibilityInfo = ChatSpaceVisibilityInfo.of(visibility, translate(visibility.getMessageCode()));
       response.setVisibilityInfo(visibilityInfo);
+
+      final IsActiveInfo isActiveInfo = toIsActiveInfo(entry.isActive());
+      response.setIsActiveInfo(isActiveInfo);
 
       final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
       response.setOrganizer(organizer);
@@ -144,7 +151,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final ChatSpaceRequestToJoinStatus requestToJoinStatus = ChatSpaceRequestToJoinStatus.approved();
 
-      setMembershipInfo(chatSpaceResponse, requestToJoinStatus, joinStatus, true, true);
+      setMembershipInfo(chatSpaceResponse, requestToJoinStatus, joinStatus, ChatSpaceMemberRole.ADMIN, true, true);
       return chatSpaceResponse;
     }
     return null;
@@ -189,6 +196,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
    * @param chatSpace the chat space object to update with membership info
    * @param requestToJoinStatus the status of the user's request to join the chat space
    * @param joinStatus the current join status of the user in the chat space
+   * @param chatSpaceMemberRole the role information of the chat space member
    * @param isAMember whether the user is currently a member of the chat space
    * @param isAdmin whether the user is an admin of the chat space
    */
@@ -197,147 +205,45 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final ChatSpaceResponse chatSpace,
       final ChatSpaceRequestToJoinStatus requestToJoinStatus,
       final JoinStatus joinStatus,
+      final ChatSpaceMemberRole chatSpaceMemberRole,
       final boolean isAMember,
       final boolean isAdmin) {
     if (nonNull(chatSpace)) {
-      final JoinStatusInfo joinStatusInfo = toJoinStatusInfo(chatSpace, joinStatus);
-      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(chatSpace, requestToJoinStatus);
-      final IsAChatSpaceMemberInfo isAChatSpaceMemberInfo = toIsAChatSpaceMemberInfo(isAMember);
-      final IsAChatSpaceAdminInfo isAChatSpaceAdminInfo = toIsAChatSpaceAdminInfo(isAdmin);
-      final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = toIsChatSpaceMemberLeftInfo(isAMember);
-      final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = toIsChatSpaceMemberRemovedInfo(isAMember);
+      final JoinStatusInfo joinStatusInfo = chatSpaceMemberMapper.toJoinStatusInfo(chatSpace, joinStatus);
+      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = chatSpaceMemberMapper.toRequestToJoinStatusInfo(chatSpace, requestToJoinStatus);
+      final IsAChatSpaceMemberInfo isAChatSpaceMemberInfo = chatSpaceMemberMapper.toIsAChatSpaceMemberInfo(isAMember);
+      final IsAChatSpaceAdminInfo isAChatSpaceAdminInfo = chatSpaceMemberMapper.toIsAChatSpaceAdminInfo(isAdmin);
+      final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = chatSpaceMemberMapper.toIsChatSpaceMemberLeftInfo(isAMember);
+      final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = chatSpaceMemberMapper.toIsChatSpaceMemberRemovedInfo(isAMember);
+      final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo = chatSpaceMemberMapper.toMemberRoleInfo(chatSpaceMemberRole);
 
       final ChatSpaceMembershipInfo chatSpaceMembershipInfo = ChatSpaceMembershipInfo.of(
         requestToJoinStatusInfo,
         joinStatusInfo,
+        chatSpaceMemberRoleInfo,
         isAChatSpaceMemberInfo,
         isAChatSpaceAdminInfo,
         isChatSpaceMemberLeftInfo,
-        isChatSpaceMemberRemovedInfo);
+        isChatSpaceMemberRemovedInfo
+      );
+
       chatSpace.setMembershipInfo(chatSpaceMembershipInfo);
     }
   }
 
   /**
-   * Converts a {@link ChatSpaceRequestToJoinStatus} to a {@link ChatSpaceRequestToJoinStatusInfo}.
+   * Converts a Boolean value representing activeness into an {@link IsActiveInfo} object.
+   * This method determines the appropriate {@link IsActive} enum value based on the provided Boolean
+   * and returns a corresponding {@link IsActiveInfo} object, which includes localized message codes.
    *
-   * <p>This method takes a {@link ChatSpaceResponse} and a {@link ChatSpaceRequestToJoinStatus}
-   * as input and converts them into a {@link ChatSpaceRequestToJoinStatusInfo} object,
-   * which contains information about the request to join the chat space.</p>
-   *
-   * <p>If both the `chatSpace` and `requestToJoinStatus` are non-null, the method constructs
-   * a {@link ChatSpaceRequestToJoinStatusInfo} by providing the request status and its
-   * localized message (translated via the status' message code).</p>
-   *
-   * <p>If either the `chatSpace` or `requestToJoinStatus` is null, the method returns {@code null}.</p>
-   *
-   * @param chatSpace the chat space response object
-   * @param requestToJoinStatus the request to join status of the chat space
-   * @return a {@link ChatSpaceRequestToJoinStatusInfo} object with the request status information,
-   *         or {@code null} if either input parameter is null
+   * @param isActive a {@link Boolean} indicating whether the entity is active (true) or inactive (false).
+   * @return an {@link IsActiveInfo} object containing the original Boolean value for activeness,
+   *         along with localized message codes representing the active or inactive state.
    */
-  private ChatSpaceRequestToJoinStatusInfo toRequestToJoinStatusInfo(final ChatSpaceResponse chatSpace, final ChatSpaceRequestToJoinStatus requestToJoinStatus) {
-    if (nonNull(chatSpace) && nonNull(requestToJoinStatus)) {
-      return ChatSpaceRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
-    }
-    return null;
-  }
-
-  /**
-   * Converts a {@link JoinStatus} to a {@link JoinStatusInfo}.
-   *
-   * <p>This method takes a {@link ChatSpaceResponse} and a {@link JoinStatus}
-   * as input and converts them into a {@link JoinStatusInfo} object,
-   * which contains information about the join status of the chat space.</p>
-   *
-   * <p>If both the `chatSpace` and `joinStatus` are non-null, the method constructs
-   * a {@link JoinStatusInfo} by providing the join status along with its two
-   * localized messages (translated via the status' message codes).</p>
-   *
-   * <p>If either the `chatSpace` or `joinStatus` is null, the method returns {@code null}.</p>
-   *
-   * @param chatSpace the chat space response object
-   * @param joinStatus the join status of the chat space
-   * @return a {@link JoinStatusInfo} object with the join status information,
-   *         or {@code null} if either input parameter is null
-   */
-  private JoinStatusInfo toJoinStatusInfo(final ChatSpaceResponse chatSpace, final JoinStatus joinStatus) {
-    if (nonNull(chatSpace) && nonNull(joinStatus)) {
-      return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
-    }
-    return null;
-  }
-
-  /**
-   * Converts a boolean representing membership status to an {@link IsAChatSpaceMemberInfo}.
-   *
-   * <p>This method takes a boolean flag `isAMember` that indicates whether the user is a member of
-   * the chat space. It converts this flag into an {@link IsAChatSpaceMember} enum by using
-   * {@link IsAChatSpaceMember#by(boolean)}.</p>
-   *
-   * <p>The method then constructs an {@link IsAChatSpaceMemberInfo} object, which contains
-   * the membership status and its localized message (translated via the membership status' message code).</p>
-   *
-   * @param isAMember a boolean indicating if the user is a member of the chat space
-   * @return an {@link IsAChatSpaceMemberInfo} object containing the membership status information
-   */
-  public IsAChatSpaceMemberInfo toIsAChatSpaceMemberInfo(final boolean isAMember) {
-    final IsAChatSpaceMember isAChatSpaceMember = IsAChatSpaceMember.by(isAMember);
-    return IsAChatSpaceMemberInfo.of(isAMember, translate(isAChatSpaceMember.getMessageCode()));
-  }
-
-  /**
-   * Converts a boolean representing admin status to an {@link IsAChatSpaceAdminInfo}.
-   *
-   * <p>This method takes a boolean flag `isAdmin` that indicates whether the user is an admin of
-   * the chat space. It converts this flag into an {@link IsAChatSpaceAdmin} enum using
-   * {@link IsAChatSpaceAdmin#by(boolean)}.</p>
-   *
-   * <p>The method then constructs an {@link IsAChatSpaceAdminInfo} object, which contains
-   * the admin status and its two localized messages (translated via the admin status' message codes).</p>
-   *
-   * @param isAdmin a boolean indicating if the user is an admin of the chat space
-   * @return an {@link IsAChatSpaceAdminInfo} object containing the admin status information
-   */
-  public IsAChatSpaceAdminInfo toIsAChatSpaceAdminInfo(final boolean isAdmin) {
-    final IsAChatSpaceAdmin isAChatSpaceAdmin = IsAChatSpaceAdmin.by(isAdmin);
-    return IsAChatSpaceAdminInfo.of(isAdmin, translate(isAChatSpaceAdmin.getMessageCode()), translate(isAChatSpaceAdmin.getMessageCode2()));
-  }
-
-  /**
-   * Converts a boolean representing whether a member has been removed from the chat space to an {@link IsChatSpaceMemberRemovedInfo}.
-   *
-   * <p>This method takes a boolean flag `isRemoved` that indicates whether the user has been removed
-   * from the chat space. It converts this flag into an {@link IsChatSpaceMemberRemoved} enum using
-   * {@link IsChatSpaceMemberRemoved#by(boolean)}.</p>
-   *
-   * <p>The method then constructs an {@link IsChatSpaceMemberRemovedInfo} object, which contains
-   * the removal status and its localized message (translated via the removal status' message code).</p>
-   *
-   * @param isRemoved a boolean indicating if the user has been removed from the chat space
-   * @return an {@link IsChatSpaceMemberRemovedInfo} object containing the removal status information
-   */
-  public IsChatSpaceMemberRemovedInfo toIsChatSpaceMemberRemovedInfo(final boolean isRemoved) {
-    final IsChatSpaceMemberRemoved isChatSpaceMemberRemoved = IsChatSpaceMemberRemoved.by(isRemoved);
-    return IsChatSpaceMemberRemovedInfo.of(isRemoved, translate(isChatSpaceMemberRemoved.getMessageCode()));
-  }
-
-  /**
-   * Converts a boolean representing whether a member has left the chat space to an {@link IsChatSpaceMemberLeftInfo}.
-   *
-   * <p>This method takes a boolean flag `hasLeft` that indicates whether the user has left the
-   * chat space. It converts this flag into an {@link IsChatSpaceMemberLeft} enum using
-   * {@link IsChatSpaceMemberLeft#by(boolean)}.</p>
-   *
-   * <p>The method then constructs an {@link IsChatSpaceMemberLeftInfo} object, which contains
-   * the left status and its localized message (translated via the left status' message code).</p>
-   *
-   * @param hasLeft a boolean indicating if the user has left the chat space
-   * @return an {@link IsChatSpaceMemberLeftInfo} object containing the left status information
-   */
-  public IsChatSpaceMemberLeftInfo toIsChatSpaceMemberLeftInfo(final boolean hasLeft) {
-    final IsChatSpaceMemberLeft isChatSpaceMemberLeft = IsChatSpaceMemberLeft.by(hasLeft);
-    return IsChatSpaceMemberLeftInfo.of(hasLeft, translate(isChatSpaceMemberLeft.getMessageCode()));
+  @Override
+  public IsActiveInfo toIsActiveInfo(final Boolean isActive) {
+    final IsActive isActiveEnum = IsActive.by(isActive);
+    return IsActiveInfo.of(isActive, translate(isActiveEnum.getMessageCode()), translate(isActiveEnum.getMessageCode2()));
   }
 
 }

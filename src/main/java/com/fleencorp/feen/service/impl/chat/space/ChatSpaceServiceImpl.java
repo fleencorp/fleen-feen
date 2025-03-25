@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
+import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
 import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
@@ -311,8 +312,12 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpace.enable();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Get the is active info
+    final IsActiveInfo isActiveInfo = chatSpaceMapper.toIsActiveInfo(chatSpace.isActive());
+    // Create the response
+    final EnableChatSpaceResponse enableChatSpaceResponse = EnableChatSpaceResponse.of(chatSpaceId, isActiveInfo);
     // Return a localized response confirming the enabling of the chat space
-    return localizer.of(EnableChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(enableChatSpaceResponse);
   }
 
   /**
@@ -343,8 +348,12 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpace.disable();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Get the is active info
+    final IsActiveInfo isActiveInfo = chatSpaceMapper.toIsActiveInfo(chatSpace.isActive());
+    // Create the response
+    final DisableChatSpaceResponse disableChatSpaceResponse = DisableChatSpaceResponse.of(chatSpaceId, isActiveInfo);
     // Return a localized response confirming the disabling of the chat space
-    return localizer.of(DisableChatSpaceResponse.of(chatSpaceId));
+    return localizer.of(disableChatSpaceResponse);
   }
 
   /**

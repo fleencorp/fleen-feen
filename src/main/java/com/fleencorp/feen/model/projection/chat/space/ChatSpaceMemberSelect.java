@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.projection.chat.space;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
+import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class ChatSpaceMemberSelect {
   private Boolean admin;
   private Boolean left;
   private Boolean removed;
+  private ChatSpaceMemberRole role;
 
   public JoinStatus getJoinStatus() {
     return JoinStatus.getJoinStatus(requestToJoinStatus, visibility, isAMember(), removed);

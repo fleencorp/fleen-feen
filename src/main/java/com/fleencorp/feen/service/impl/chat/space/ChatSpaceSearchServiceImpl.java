@@ -255,6 +255,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       chatSpaceMemberRepository
         .findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(user.getId()), ChatSpace.of(chatSpaceResponse.getNumberId()))
         .ifPresent(chatSpaceMember -> {
+
           // Get the join status based on the member's request-to-join status and chat space visibility
           final JoinStatus joinStatus = JoinStatus.getJoinStatus(
             chatSpaceMember.getRequestToJoinStatus(),
@@ -262,8 +263,16 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
             chatSpaceMember.isAMember(),
             chatSpaceMember.isRemoved()
           );
+
           // Update the chat space response with the new join status
-          chatSpaceMapper.setMembershipInfo(chatSpaceResponse, chatSpaceMember.getRequestToJoinStatus(), joinStatus, chatSpaceMember.isAMember(), chatSpaceMember.isAdmin());
+          chatSpaceMapper.setMembershipInfo(
+            chatSpaceResponse,
+            chatSpaceMember.getRequestToJoinStatus(),
+            joinStatus,
+            chatSpaceMember.getRole(),
+            chatSpaceMember.isAMember(),
+            chatSpaceMember.isAdmin()
+          );
         });
     }
   }
@@ -452,6 +461,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
             chatSpace,
             membership.getRequestToJoinStatus(),
             membership.getJoinStatus(),
+            membership.getRole(),
             membership.isAMember(),
             membership.isAdmin()
           ));

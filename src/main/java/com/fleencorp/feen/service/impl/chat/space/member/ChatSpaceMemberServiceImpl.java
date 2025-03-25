@@ -173,7 +173,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Get the role info
-    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember.getRole());
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toMemberRoleInfo(chatSpaceMember.getRole());
     // Create the response
     final UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdminResponse = UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, chatSpaceMemberId, roleInfo);
     // Return a localized response confirming the upgrade
@@ -215,7 +215,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Save the updated chat space member information to the repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Get chat space member role
-    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toRole(chatSpaceMember.getRole());
+    final ChatSpaceMemberRoleInfo roleInfo = chatSpaceMemberMapper.toMemberRoleInfo(chatSpaceMember.getRole());
     // Return a localized response confirming the downgrade
     return localizer.of(DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, chatSpaceMemberId, roleInfo));
   }

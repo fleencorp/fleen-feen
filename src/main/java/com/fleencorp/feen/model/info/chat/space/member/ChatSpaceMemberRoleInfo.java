@@ -34,4 +34,8 @@ public class ChatSpaceMemberRoleInfo {
     return new ChatSpaceMemberRoleInfo(chatSpaceMemberRole, roleText);
   }
 
+  public static ChatSpaceMemberRoleInfo of() {
+    return new ChatSpaceMemberRoleInfo();
+  }
+
 }
