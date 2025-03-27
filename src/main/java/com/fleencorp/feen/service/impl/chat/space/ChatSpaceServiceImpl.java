@@ -17,9 +17,8 @@ import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
 import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
@@ -286,74 +285,92 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   }
 
   /**
-   * Enables a chat space by its ID.
+   * Enables the chat space with the specified ID.
    *
-   * <p>This method retrieves the chat space using the specified ID, verifies that it has not been
-   * deleted, and then enables it. The updated chat space is saved to the repository.</p>
+   * <p>This method enables the chat space by calling {@link #updateChatSpaceStatus(Long, FleenUser, boolean)}
+   * with {@code enable} set to {@code true}. The user must be either the creator or an admin of the chat space
+   * to perform this operation. If the chat space is not found, already deleted, or the user does not have the
+   * necessary permissions, appropriate exceptions are thrown.</p>
    *
-   * @param chatSpaceId The ID of the chat space to be enabled.
-   * @param user The user performing the enable operation.
-   * @return A response confirming the enabling of the chat space, localized based on the user's locale.
-   * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
-   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
-   * @throws NotAnAdminOfChatSpaceException if the user is not authorized to disable the chat space.
-   * @throws FailedOperationException if there is an invalid input
+   * @param chatSpaceId the ID of the chat space to be enabled
+   * @param user the user attempting to enable the chat space
+   * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
+   * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
+   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
+   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
+   * @throws FailedOperationException if the operation fails for any other reason
    */
   @Override
   @Transactional
-  public EnableChatSpaceResponse enableChatSpace(final Long chatSpaceId, final FleenUser user)
+  public UpdateChatSpaceStatusResponse enableChatSpace(final Long chatSpaceId, final FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
-    // Find the chat space by its ID or throw an exception if not found
-    final ChatSpace chatSpace = findChatSpace(chatSpaceId);
-    // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
-    verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(chatSpace, user);
-    // Enable the chat space
-    chatSpace.enable();
-    // Save the updated chat space status to the repository
-    chatSpaceRepository.save(chatSpace);
-    // Get the is active info
-    final IsActiveInfo isActiveInfo = chatSpaceMapper.toIsActiveInfo(chatSpace.isActive());
-    // Create the response
-    final EnableChatSpaceResponse enableChatSpaceResponse = EnableChatSpaceResponse.of(chatSpaceId, isActiveInfo);
-    // Return a localized response confirming the enabling of the chat space
-    return localizer.of(enableChatSpaceResponse);
+    return updateChatSpaceStatus(chatSpaceId, user, true);
   }
 
   /**
-   * Enables a chat space by its ID.
+   * Disables the chat space with the specified ID.
    *
-   * <p>This method retrieves the chat space using the specified ID, verifies that it has not been
-   * deleted, and checks if the user is the creator or an admin of the chat space. If all checks pass,
-   * the chat space is enabled. The updated chat space is then saved to the repository.</p>
+   * <p>This method disables the chat space by calling {@link #updateChatSpaceStatus(Long, FleenUser, boolean)}
+   * with {@code enable} set to {@code false}. The user must be either the creator or an admin of the chat space
+   * to perform this operation. If the chat space is not found, already deleted, or the user does not have the
+   * necessary permissions, appropriate exceptions are thrown.</p>
    *
-   * @param chatSpaceId The ID of the chat space to be enabled.
-   * @param user The user performing the enable operation.
-   * @return A response confirming the enabling of the chat space, localized based on the user's locale.
-   * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
-   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted.
-   * @throws NotAnAdminOfChatSpaceException if the user is not authorized to enable the chat space.
-   * @throws FailedOperationException if there is an invalid input
+   * @param chatSpaceId the ID of the chat space to be disabled
+   * @param user the user attempting to disable the chat space
+   * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
+   * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
+   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
+   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
+   * @throws FailedOperationException if the operation fails for any other reason
    */
   @Override
   @Transactional
-  public DisableChatSpaceResponse disableChatSpace(final Long chatSpaceId, final FleenUser user)
+  public UpdateChatSpaceStatusResponse disableChatSpace(final Long chatSpaceId, final FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
+    return updateChatSpaceStatus(chatSpaceId, user, false);
+  }
+
+  /**
+   * Toggles the status of a chat space between enabled and disabled.
+   *
+   * <p>If the chat space is not found, has already been deleted, or the user is not the creator
+   * or an admin of the chat space, appropriate exceptions are thrown. The status is toggled
+   * based on the provided {@code enable} flag.</p>
+   *
+   * @param chatSpaceId the ID of the chat space to be toggled
+   * @param user the user performing the operation, who must be the creator or an admin of the chat space
+   * @param enable a boolean flag indicating whether to enable (true) or disable (false) the chat space
+   * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
+   * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
+   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
+   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
+   * @throws FailedOperationException if the operation fails for any other reason
+   */
+  protected UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final FleenUser user, final boolean enable)
+    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
+    FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
     verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(chatSpace, user);
-    // Disable the chat space
-    chatSpace.disable();
+
+    // Toggle the chat space status based on the 'enable' flag
+    if (enable) {
+      chatSpace.enable();
+    } else {
+      chatSpace.disable();
+    }
+
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Get the is active info
     final IsActiveInfo isActiveInfo = chatSpaceMapper.toIsActiveInfo(chatSpace.isActive());
-    // Create the response
-    final DisableChatSpaceResponse disableChatSpaceResponse = DisableChatSpaceResponse.of(chatSpaceId, isActiveInfo);
-    // Return a localized response confirming the disabling of the chat space
-    return localizer.of(disableChatSpaceResponse);
+    // Create the response for the updated chat space status
+    final UpdateChatSpaceStatusResponse updateChatSpaceStatusResponse = UpdateChatSpaceStatusResponse.of(chatSpaceId, isActiveInfo);
+    // Return a localized response confirming the updated chat space status
+    return localizer.of(updateChatSpaceStatusResponse);
   }
 
   /**

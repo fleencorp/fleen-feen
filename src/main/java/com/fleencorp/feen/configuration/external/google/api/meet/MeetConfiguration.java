@@ -13,19 +13,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Set;
 
 /**
- * This class provides configuration for interacting with Google Calendar API.
- * It includes methods for obtaining calendar instances, credentials, and other necessary configurations.
+ * This class provides configuration for interacting with Google Meet API.
+ * It includes methods for obtaining meet space instances, credentials, and other necessary configurations.
  *
- * @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0">
- *   Using Google Calendar API with a service account</a>
- * @see <a href="https://velog.io/@minwest/%EC%84%9C%EB%B9%84%EC%8A%A4-%EA%B3%84%EC%A0%95%EC%9C%BC%EB%A1%9C-Google-Calendar-API-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-2-b9drsetp">
- *   Using Google Calendar API with a service account (2)</a>
- * @see <a href="https://sree394.medium.com/leveraging-service-accounts-for-seamless-google-calendar-integration-in-spring-boot-applications-52ee0d65652a">
- *   Leveraging Service Accounts for Seamless Google Calendar Integration in Spring Boot Applications</a>
  * @see <a href="https://developers.google.com/cloud-search/docs/guides/delegation">
  *   Perform Google Workspace domain-wide delegation of authority</a>
  *
@@ -38,9 +31,9 @@ public class MeetConfiguration extends GoogleApiConfiguration {
 
 
   /**
-   * Constructs a new CalendarConfiguration instance with the provided dependencies.
+   * Constructs a new MeetConfiguration instance with the provided dependencies.
    *
-   * @param delegatedAuthorityEmail   The email address associated with the Google Calendar
+   * @param delegatedAuthorityEmail   The email address associated with the Google Meet
    *                                  and with delegated authority.
    * @param applicationName           The name of the application
    * @param serviceAccountProperties  The properties required for service account authentication.
@@ -56,10 +49,15 @@ public class MeetConfiguration extends GoogleApiConfiguration {
 
 
   /**
-   * Retrieves a Google Calendar instance with configured properties.
+   * Creates and returns a client for interacting with the Google Spaces Service API.
    *
-   * @return A Calendar instance configured for interacting with Google Calendar API.
-   * @throws IOException              If an I/O exception occurs.
+   * <p>This method initializes the {@link SpacesServiceClient} by obtaining the required Google API credentials
+   * from a service account and applying the necessary scopes for accessing the Google Meetings and Drive APIs.
+   * The client can then be used to interact with Google Spaces and related resources, such as creating, reading,
+   * or managing spaces.</p>
+   *
+   * @return a {@link SpacesServiceClient} instance configured with the required credentials and settings
+   * @throws IOException if an error occurs while retrieving the credentials or creating the service client
    */
   @Bean
   public SpacesServiceClient getSpaceService() throws IOException {
@@ -70,7 +68,7 @@ public class MeetConfiguration extends GoogleApiConfiguration {
       "https://www.googleapis.com/auth/drive.readonly"
     );
     final Credentials credentials = getGoogleClientCredentialFromServiceAccount(scopes);
-    SpacesServiceSettings serviceSettings = SpacesServiceSettings.newBuilder()
+    final SpacesServiceSettings serviceSettings = SpacesServiceSettings.newBuilder()
       .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
       .build();
 
