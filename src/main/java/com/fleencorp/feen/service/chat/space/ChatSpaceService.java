@@ -9,9 +9,8 @@ import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ChatSpaceService {
@@ -31,11 +30,11 @@ public interface ChatSpaceService {
   DeleteChatSpaceResponse deleteChatSpaceByAdmin(Long chatSpaceId, FleenUser user)
     throws ChatSpaceNotFoundException;
 
-  EnableChatSpaceResponse enableChatSpace(Long chatSpaceId, FleenUser user)
+  UpdateChatSpaceStatusResponse enableChatSpace(Long chatSpaceId, FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  DisableChatSpaceResponse disableChatSpace(Long chatSpaceId, FleenUser user)
+  UpdateChatSpaceStatusResponse disableChatSpace(Long chatSpaceId, FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 

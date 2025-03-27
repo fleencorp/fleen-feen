@@ -20,9 +20,8 @@ import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.DisableChatSpaceResponse;
-import com.fleencorp.feen.model.response.chat.space.update.EnableChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
+import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
@@ -189,7 +188,7 @@ public class ChatSpaceController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Chat space successfully enabled",
-      content = @Content(schema = @Schema(implementation = EnableChatSpaceResponse.class))),
+      content = @Content(schema = @Schema(implementation = UpdateChatSpaceStatusResponse.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to enable this chat space",
@@ -200,7 +199,7 @@ public class ChatSpaceController {
       content = @Content(schema = @Schema(implementation = ChatSpaceAlreadyDeletedException.class)))
   })
   @PutMapping(value = "/enable/{chatSpaceId}")
-  public EnableChatSpaceResponse enable(
+  public UpdateChatSpaceStatusResponse enable(
       @Parameter(description = "ID of the chat space to enable", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
@@ -215,7 +214,7 @@ public class ChatSpaceController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Chat space successfully disabled",
-      content = @Content(schema = @Schema(implementation = DisableChatSpaceResponse.class))),
+      content = @Content(schema = @Schema(implementation = UpdateChatSpaceStatusResponse.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to disable this chat space",
@@ -226,7 +225,7 @@ public class ChatSpaceController {
       content = @Content(schema = @Schema(implementation = ChatSpaceNotActiveException.class)))
   })
   @PutMapping(value = "/disable/{chatSpaceId}")
-  public DisableChatSpaceResponse disable(
+  public UpdateChatSpaceStatusResponse disable(
       @Parameter(description = "ID of the chat space to disable", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
