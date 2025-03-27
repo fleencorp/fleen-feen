@@ -44,7 +44,7 @@ public interface ChatSpaceMemberService {
 
   void leaveChatSpace(ChatSpace chatSpace, Long memberId) throws ChatSpaceMemberNotFoundException, FailedOperationException;
 
-  ChatSpaceMember findChatSpaceMember(ChatSpace chatSpace, Member member) throws ChatSpaceMemberNotFoundException;
+  ChatSpaceMember findByChatSpaceAndChatSpaceMemberId(ChatSpace chatSpace, Long chatSpaceMemberId) throws ChatSpaceMemberNotFoundException;
 
   void notifyChatSpaceUpdateService(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
 

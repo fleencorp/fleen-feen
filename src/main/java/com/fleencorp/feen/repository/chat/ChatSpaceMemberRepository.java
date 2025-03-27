@@ -29,6 +29,9 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
 
   Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Member member);
 
+  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.chatSpaceMemberId =: chatSpaceMemberId")
+  Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Long chatSpaceMemberId);
+
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.member = :member AND csm.requestToJoinStatus = :joinStatus")
   Optional<ChatSpaceMember> findByChatSpaceAndMemberAndStatus(@Param("chatSpace") ChatSpace chatSpace, @Param("member") Member member, @Param("joinStatus") ChatSpaceRequestToJoinStatus requestToJoinStatus);
 

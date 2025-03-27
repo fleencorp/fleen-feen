@@ -73,9 +73,9 @@ public class ChatSpaceController {
   @PostMapping(value = "/create")
   public CreateChatSpaceResponse create(
       @Parameter(description = "Chat space configuration details", required = true)
-      @Valid @RequestBody final CreateChatSpaceDto createChatSpaceDto,
+        @Valid @RequestBody final CreateChatSpaceDto createChatSpaceDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.createChatSpace(createChatSpaceDto, user);
   }
 
@@ -99,11 +99,11 @@ public class ChatSpaceController {
   @PostMapping(value = "/create-event/{chatSpaceId}")
   public CreateStreamResponse createEvent(
       @Parameter(description = "ID of the chat space where the event will be created", required = true)
-      @PathVariable(value = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(value = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Event configuration details", required = true)
-      @Valid @RequestBody final CreateChatSpaceEventDto createChatSpaceEventDto,
+        @Valid @RequestBody final CreateChatSpaceEventDto createChatSpaceEventDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceEventService.createChatSpaceEvent(chatSpaceId, createChatSpaceEventDto, user);
   }
 
@@ -127,11 +127,11 @@ public class ChatSpaceController {
   @PutMapping(value = "/update/{chatSpaceId}")
   public UpdateChatSpaceResponse update(
       @Parameter(description = "ID of the chat space to update", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Updated chat space configuration", required = true)
-      @Valid @RequestBody final UpdateChatSpaceDto updateChatSpaceDto,
+        @Valid @RequestBody final UpdateChatSpaceDto updateChatSpaceDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.updateChatSpace(chatSpaceId, updateChatSpaceDto, user);
   }
 
@@ -149,12 +149,12 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
-  @DeleteMapping(value = "/delete/{chatSpaceId}")
+  @PutMapping(value = "/delete/{chatSpaceId}")
   public DeleteChatSpaceResponse delete(
       @Parameter(description = "ID of the chat space to delete", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.deleteChatSpace(chatSpaceId, user);
   }
 
@@ -173,12 +173,12 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
-  @DeleteMapping(value = "/admin/delete/{chatSpaceId}")
+  @PutMapping(value = "/admin/delete/{chatSpaceId}")
   public DeleteChatSpaceResponse deleteByAdmin(
       @Parameter(description = "ID of the chat space to delete", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.deleteChatSpaceByAdmin(chatSpaceId, user);
   }
 
@@ -202,9 +202,9 @@ public class ChatSpaceController {
   @PutMapping(value = "/enable/{chatSpaceId}")
   public EnableChatSpaceResponse enable(
       @Parameter(description = "ID of the chat space to enable", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.enableChatSpace(chatSpaceId, user);
   }
 
@@ -228,9 +228,9 @@ public class ChatSpaceController {
   @PutMapping(value = "/disable/{chatSpaceId}")
   public DisableChatSpaceResponse disable(
       @Parameter(description = "ID of the chat space to disable", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceService.disableChatSpace(chatSpaceId, user);
   }
 
@@ -256,11 +256,11 @@ public class ChatSpaceController {
   @PostMapping(value = "/join/{chatSpaceId}")
   public JoinChatSpaceResponse join(
       @Parameter(description = "ID of the chat space to join", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Join request details", required = true)
-      @Valid @RequestBody final JoinChatSpaceDto joinChatSpaceDto,
+        @Valid @RequestBody final JoinChatSpaceDto joinChatSpaceDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceJoinService.joinSpace(chatSpaceId, joinChatSpaceDto, user);
   }
 

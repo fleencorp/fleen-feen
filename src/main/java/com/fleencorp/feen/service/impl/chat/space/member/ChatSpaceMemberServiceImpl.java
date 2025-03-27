@@ -349,7 +349,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   public void leaveChatSpace(final ChatSpace chatSpace, final Long memberId)
       throws ChatSpaceMemberNotFoundException, FailedOperationException {
     // Locate the chat space member to be removed using the member ID from the DTO
-    final ChatSpaceMember chatSpaceMember = findChatSpaceMember(chatSpace, Member.of(memberId));
+    final ChatSpaceMember chatSpaceMember = findByChatSpaceAndMember(chatSpace, Member.of(memberId));
     // Admin is not allow to leave chat space
     checkIsTrue(chatSpaceMember.isNotTheOwner(chatSpace.getMemberId()), FailedOperationException::new);
     // Allow the member to leave chat space
@@ -379,17 +379,41 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   protected ChatSpaceMember removeChatSpaceMember(final ChatSpace chatSpace, final Long memberId) {
     // Locate the chat space member to be removed using the member ID from the DTO
-    final ChatSpaceMember chatSpaceMember = findChatSpaceMember(chatSpace, Member.of(memberId));
+    final ChatSpaceMember chatSpaceMember = findByChatSpaceAndMember(chatSpace, Member.of(memberId));
     // Mark the member as removed from the chat space
     chatSpaceMember.markAsRemoved();
     // Save the chat space member
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Decrease total members and save chat space
     decreaseTotalMembersAndSave(chatSpace);
+    // Create external removal request
+    final RemoveChatSpaceMemberRequest removeChatSpaceMemberRequest = RemoveChatSpaceMemberRequest.of(
+      chatSpace.getExternalIdOrName(),
+      chatSpaceMember.getExternalIdOrName()
+    );
     // Notify the chat space update service about the removal
-    chatSpaceUpdateService.removeMember(RemoveChatSpaceMemberRequest.of(chatSpace.getExternalIdOrName(), chatSpaceMember.getExternalIdOrName()));
+    chatSpaceUpdateService.removeMember(removeChatSpaceMemberRequest);
     // Return deleted chat space member details
     return chatSpaceMember;
+  }
+
+  /**
+   * Finds a chat space member based on the provided chat space and chat space member id.
+   *
+   * <p>This method retrieves a {@link ChatSpaceMember} from the repository using the specified chat space and chat space member ID.
+   * If no chat space member is found for the given chat space and chat space member id, a {@link ChatSpaceMemberNotFoundException}
+   * is thrown.</p>
+   *
+   * @param chatSpace The chat space in which to find the member.
+   * @param chatSpaceMemberId The id associated with a chat space member in a chat space.
+   * @return The {@link ChatSpaceMember} associated with the specified chat space and member.
+   * @throws ChatSpaceMemberNotFoundException if no chat space member is found for the specified chat space and member.
+   */
+  @Override
+  public ChatSpaceMember findByChatSpaceAndChatSpaceMemberId(final ChatSpace chatSpace, final Long chatSpaceMemberId) throws ChatSpaceMemberNotFoundException {
+    // Retrieve the chat space member and throw an exception if not found
+    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, chatSpaceMemberId)
+      .orElseThrow(ChatSpaceMemberNotFoundException.of(chatSpaceMemberId));
   }
 
   /**
@@ -400,12 +424,11 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * is thrown.</p>
    *
    * @param chatSpace The chat space in which to find the member.
-   * @param member The member whose association with the chat space is to be retrieved.
+   * @param member The member associated with a chat space member in a chat space.
    * @return The {@link ChatSpaceMember} associated with the specified chat space and member.
    * @throws ChatSpaceMemberNotFoundException if no chat space member is found for the specified chat space and member.
    */
-  @Override
-  public ChatSpaceMember findChatSpaceMember(final ChatSpace chatSpace, final Member member) throws ChatSpaceMemberNotFoundException {
+  public ChatSpaceMember findByChatSpaceAndMember(final ChatSpace chatSpace, final Member member) throws ChatSpaceMemberNotFoundException {
     // Retrieve the chat space member and throw an exception if not found
     return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(member.getMemberId()));

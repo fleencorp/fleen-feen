@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/chat-space")
+@RequestMapping(value = "/api/chat-space/search")
 public class ChatSpaceSearchController {
 
   private final ChatSpaceEventService chatSpaceEventService;
@@ -58,12 +58,12 @@ public class ChatSpaceSearchController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class)))
   })
-  @GetMapping(value = "/entries")
+  @GetMapping(value = "")
   public ChatSpaceSearchResult findSpaces(
       @Parameter(description = "Search criteria and pagination parameters", required = true)
-      @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
+        @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.findSpaces(chatSpaceSearchRequest, user);
   }
 
@@ -83,14 +83,14 @@ public class ChatSpaceSearchController {
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
-  @GetMapping(value = "/find-events/{chatSpaceId}")
+  @GetMapping(value = "/event/{chatSpaceId}")
   public ChatSpaceEventSearchResult findChatSpaceEvents(
       @Parameter(description = "ID of the chat space to search events in", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Search criteria and pagination parameters", required = true)
-      @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
+        @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceEventService.findChatSpaceEvents(chatSpaceId, chatSpaceSearchRequest, user);
   }
 
@@ -112,9 +112,9 @@ public class ChatSpaceSearchController {
   @GetMapping(value = "/detail/{chatSpaceId}")
   public RetrieveChatSpaceResponse detail(
       @Parameter(description = "ID of the chat space to retrieve details for", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.retrieveChatSpace(chatSpaceId, user);
   }
 
@@ -138,11 +138,11 @@ public class ChatSpaceSearchController {
   @GetMapping(value = "/find-members/{chatSpaceId}")
   public ChatSpaceMemberSearchResult findSpaceMembers(
       @Parameter(description = "ID of the chat space to search members in", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Member search criteria and pagination parameters", required = true)
-      @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
+        @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.findChatSpaceMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -162,9 +162,9 @@ public class ChatSpaceSearchController {
   @GetMapping(value = "/belong-to")
   public ChatSpaceSearchResult findSpaceIBelong(
       @Parameter(description = "Search criteria and pagination parameters", required = true)
-      final ChatSpaceSearchRequest createdSpaceSearchRequest,
+        @SearchParam final ChatSpaceSearchRequest createdSpaceSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.findSpacesIBelongTo(createdSpaceSearchRequest, user);
   }
 
@@ -184,9 +184,9 @@ public class ChatSpaceSearchController {
   @GetMapping(value = "/created")
   public ChatSpaceSearchResult findSpaceCreated(
       @Parameter(description = "Search criteria and pagination parameters", required = true)
-      @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
+        @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.findSpacesCreated(chatSpaceSearchRequest, user);
   }
 }

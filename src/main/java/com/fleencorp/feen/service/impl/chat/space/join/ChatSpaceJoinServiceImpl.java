@@ -381,18 +381,18 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
         ChatSpaceMemberNotFoundException, AlreadyJoinedChatSpaceException, FailedOperationException {
     // Find the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
-    // Get the member Id
-    final Long memberId = processRequestToJoinChatSpaceDto.getMemberId();
+    // Retrieve the chat space member id
+    final Long chatSpaceMemberId = processRequestToJoinChatSpaceDto.getChatSpaceMemberId();
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
     // Verify if user is an admin
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
     verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(chatSpace, user);
-    // Find the member using the provided member ID from the DTO
-    final Member member = memberService.findMember(memberId);
     // Find the chat space member related to the chat space and member
-    final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.findChatSpaceMember(chatSpace, member);
+    final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.findByChatSpaceAndChatSpaceMemberId(chatSpace, chatSpaceMemberId);
+    // Find the member using the provided member ID from the DTO
+    final Member member = chatSpaceMember.getMember();
     // Set the admin comment for the space member
     chatSpaceMember.setSpaceAdminComment(processRequestToJoinChatSpaceDto.getComment());
 
@@ -414,7 +414,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Create the response
     final ProcessRequestToJoinChatSpaceResponse processRequestToJoinChatSpaceResponse = ProcessRequestToJoinChatSpaceResponse.of(
       chatSpaceId,
-      memberId,
+      chatSpaceMemberId,
       chatSpaceMembershipInfo,
       chatSpace.getTotalMembers()
     );

@@ -20,8 +20,8 @@ public class ProcessRequestToJoinChatSpaceDto {
 
   @NotNull(message = "{chat.space.member.NotNull}")
   @IsNumber
-  @JsonProperty("member_id")
-  private String memberId;
+  @JsonProperty("chat_space_member_id")
+  private String chatSpaceMemberId;
 
   @NotNull(message = "{chatSpace.joinStatus.NotNull}")
   @OneOf(enumClass = ChatSpaceRequestToJoinStatus.class, message = "{chatSpace.joinStatus.Type}", ignoreCase = true)
@@ -45,8 +45,7 @@ public class ProcessRequestToJoinChatSpaceDto {
     return ChatSpaceRequestToJoinStatus.isDisapproved(getJoinStatus());
   }
 
-
-  public Long getMemberId() {
-    return Long.parseLong(memberId);
+  public Long getChatSpaceMemberId() {
+    return Long.parseLong(chatSpaceMemberId);
   }
 }

@@ -1,10 +1,12 @@
-package com.fleencorp.feen.configuration.external.google.api.calendar;
+package com.fleencorp.feen.configuration.external.google.api.meet;
 
 import com.fleencorp.base.util.JsonUtil;
 import com.fleencorp.feen.configuration.external.google.api.GoogleApiConfiguration;
 import com.fleencorp.feen.configuration.external.google.service.account.ServiceAccountProperties;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.apps.meet.v2beta.SpacesServiceClient;
+import com.google.apps.meet.v2beta.SpacesServiceSettings;
+import com.google.auth.Credentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +34,7 @@ import java.util.Set;
 */
 @Configuration
 @Slf4j
-public class CalendarConfiguration extends GoogleApiConfiguration {
+public class MeetConfiguration extends GoogleApiConfiguration {
 
 
   /**
@@ -44,7 +46,7 @@ public class CalendarConfiguration extends GoogleApiConfiguration {
    * @param serviceAccountProperties  The properties required for service account authentication.
    * @param jsonUtil                  Utility class for JSON operations.
    */
-  public CalendarConfiguration(
+  public MeetConfiguration(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
       @Value("${application.name}") final String applicationName,
       final ServiceAccountProperties serviceAccountProperties,
@@ -57,20 +59,22 @@ public class CalendarConfiguration extends GoogleApiConfiguration {
    * Retrieves a Google Calendar instance with configured properties.
    *
    * @return A Calendar instance configured for interacting with Google Calendar API.
-   * @throws GeneralSecurityException If a security exception occurs during transport initialization.
    * @throws IOException              If an I/O exception occurs.
    */
   @Bean
-  public Calendar getCalendar() throws GeneralSecurityException, IOException {
-    final Set<String> scopes = CalendarScopes.all();
-
-    return new Calendar.Builder(
-        getHttpTransport(),
-        getJsonFactory(),
-        getHttpCredentialsAdapter(scopes)
-      )
-      .setApplicationName(applicationName)
+  public SpacesServiceClient getSpaceService() throws IOException {
+    final Set<String> scopes = Set.of(
+      "https://www.googleapis.com/auth/meetings.space.settings",
+      "https://www.googleapis.com/auth/meetings.space.created",
+      "https://www.googleapis.com/auth/meetings.space.readonly",
+      "https://www.googleapis.com/auth/drive.readonly"
+    );
+    final Credentials credentials = getGoogleClientCredentialFromServiceAccount(scopes);
+    SpacesServiceSettings serviceSettings = SpacesServiceSettings.newBuilder()
+      .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
       .build();
+
+    return SpacesServiceClient.create(serviceSettings);
   }
 
 }
