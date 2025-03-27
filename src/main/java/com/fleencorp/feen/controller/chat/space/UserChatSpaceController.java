@@ -33,7 +33,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/user/chat-space")
+@RequestMapping(value = "/api/chat-space")
 public class UserChatSpaceController {
 
   private final ChatSpaceJoinService chatSpaceJoinService;
@@ -69,11 +69,11 @@ public class UserChatSpaceController {
   @GetMapping(value = "/request-to-join/{chatSpaceId}")
   public RequestToJoinSearchResult findSpaceRequestToJoin(
       @Parameter(description = "ID of the chat space to view join requests for", required = true)
-      @PathVariable final Long chatSpaceId,
+        @PathVariable final Long chatSpaceId,
       @Parameter(description = "Search criteria and pagination parameters", required = true)
-      @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
+        @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -99,11 +99,11 @@ public class UserChatSpaceController {
   @PutMapping(value = "/upgrade-member/{chatSpaceId}")
   public UpgradeChatSpaceMemberToAdminResponse upgradeMember(
       @Parameter(description = "ID of the chat space where the member will be promoted", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Details of the member to be promoted", required = true)
-      @Valid @RequestBody final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto,
+        @Valid @RequestBody final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.upgradeChatSpaceMemberToAdmin(chatSpaceId, upgradeChatSpaceMemberToAdminDto, user);
   }
 
@@ -129,11 +129,11 @@ public class UserChatSpaceController {
   @PutMapping(value = "/downgrade-member/{chatSpaceId}")
   public DowngradeChatSpaceAdminToMemberResponse downgradeMember(
       @Parameter(description = "ID of the chat space where the administrator will be demoted", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Details of the administrator to be demoted", required = true)
-      @Valid @RequestBody final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto,
+        @Valid @RequestBody final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
   }
 
@@ -159,11 +159,11 @@ public class UserChatSpaceController {
   @PutMapping(value = "/process-join-request/{chatSpaceId}")
   public ProcessRequestToJoinChatSpaceResponse processRequestToJoin(
       @Parameter(description = "ID of the chat space where the join request will be processed", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Processing details including approval/rejection decision", required = true)
-      @Valid @RequestBody final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto,
+        @Valid @RequestBody final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceJoinService.processRequestToJoinSpace(chatSpaceId, processRequestToJoinChatSpaceDto, user);
   }
 
@@ -189,11 +189,11 @@ public class UserChatSpaceController {
   @PostMapping(value = "/add-member/{chatSpaceId}")
   public AddChatSpaceMemberResponse addMember(
       @Parameter(description = "ID of the chat space where the member will be added", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Details of the user to be added as member", required = true)
-      @Valid @RequestBody final AddChatSpaceMemberDto addChatSpaceMemberDto,
+        @Valid @RequestBody final AddChatSpaceMemberDto addChatSpaceMemberDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.addMember(chatSpaceId, addChatSpaceMemberDto, user);
   }
 
@@ -219,11 +219,11 @@ public class UserChatSpaceController {
   @DeleteMapping(value = "/remove-member/{chatSpaceId}")
   public RemoveChatSpaceMemberResponse removeMember(
       @Parameter(description = "ID of the chat space where the member will be removed from", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Details of the member to be removed", required = true)
-      @Valid @RequestBody final RemoveChatSpaceMemberDto removeChatSpaceMemberDto,
+        @Valid @RequestBody final RemoveChatSpaceMemberDto removeChatSpaceMemberDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.removeMember(chatSpaceId, removeChatSpaceMemberDto, user);
   }
 }
