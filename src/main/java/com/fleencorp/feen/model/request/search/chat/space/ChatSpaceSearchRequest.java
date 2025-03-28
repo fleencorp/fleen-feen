@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.request.search.chat.space;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class ChatSpaceSearchRequest extends SearchRequest {
   @JsonProperty("is_active")
   private Boolean isActive;
 
-  public Boolean getDefaultActive() {
-    return true;
+  public ChatSpaceStatus getDefaultActive() {
+    return ChatSpaceStatus.ACTIVE;
   }
 }

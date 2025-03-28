@@ -28,6 +28,7 @@ import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJ
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
+import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
@@ -57,7 +58,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
 
   private final ChatSpaceService chatSpaceService;
   private final ChatSpaceMemberService chatSpaceMemberService;
-  private final MemberService memberService;
+  private final ChatSpaceSearchService chatSpaceSearchService;
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
@@ -85,6 +86,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
   public ChatSpaceJoinServiceImpl(
       final ChatSpaceService chatSpaceService,
       final ChatSpaceMemberService chatSpaceMemberService,
+      final ChatSpaceSearchService chatSpaceSearchService,
       final MemberService memberService,
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
@@ -94,7 +96,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceMemberService = chatSpaceMemberService;
-    this.memberService = memberService;
+    this.chatSpaceSearchService = chatSpaceSearchService;
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
@@ -411,12 +413,15 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     notificationService.save(notification);
     // Get the membership info
     final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    // Get the total request to join
+    final Long totalRequestToJoin = chatSpaceSearchService.getTotalRequestToJoinForChatSpace(chatSpaceId);
     // Create the response
     final ProcessRequestToJoinChatSpaceResponse processRequestToJoinChatSpaceResponse = ProcessRequestToJoinChatSpaceResponse.of(
       chatSpaceId,
       chatSpaceMemberId,
       chatSpaceMembershipInfo,
-      chatSpace.getTotalMembers()
+      chatSpace.getTotalMembers(),
+      totalRequestToJoin
     );
     // Return the localized response indicating the result of the processing
     return localizer.of(processRequestToJoinChatSpaceResponse);

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -19,19 +22,19 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "message",
   "chat_space_id",
-  "is_active_info"
+  "status_info"
 })
 public class UpdateChatSpaceStatusResponse extends ApiResponse {
 
   @JsonProperty("chat_space_id")
   private Long chatSpaceId;
 
-  @JsonProperty("is_active_info")
-  private IsActiveInfo isActiveInfo;
+  @JsonProperty("status_info")
+  private ChatSpaceStatusInfo statusInfo;
 
   @JsonIgnore
   private boolean isActive() {
-    return isActiveInfo != null ? isActiveInfo.getActive() : false;
+    return nonNull(statusInfo.getStatus()) && ChatSpaceStatus.isActive(statusInfo.getStatus());
   }
 
   @Override
@@ -39,7 +42,7 @@ public class UpdateChatSpaceStatusResponse extends ApiResponse {
     return isActive() ? "enable.chat.space" : "disable.chat.space";
   }
 
-  public static UpdateChatSpaceStatusResponse of(final Long chatSpaceId, final IsActiveInfo isActiveInfo) {
-    return new UpdateChatSpaceStatusResponse(chatSpaceId, isActiveInfo);
+  public static UpdateChatSpaceStatusResponse of(final Long chatSpaceId, final ChatSpaceStatusInfo statusInfo) {
+    return new UpdateChatSpaceStatusResponse(chatSpaceId, statusInfo);
   }
 }

@@ -502,4 +502,35 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     }
   }
 
+  /**
+   * Retrieves the total number of pending requests to join a specific chat space.
+   *
+   * <p>This method checks for pending join requests for the given {@code chatSpaceId}.
+   * If the {@code chatSpaceId} is not null, it queries the repository to count the
+   * pending join requests. The result is returned as a long value representing the
+   * total pending join requests for that chat space.</p>
+   *
+   * @param chatSpaceId the ID of the chat space to get the pending join request count for
+   * @return the total number of pending requests to join the specified chat space, or {@code 0L} if the ID is null or no pending requests exist
+   */
+  @Override
+  public Long getTotalRequestToJoinForChatSpace(final Long chatSpaceId) {
+    if (nonNull(chatSpaceId)) {
+      // Create a list based on the chat space id
+      final List<Long> chatSpaceIds = List.of(chatSpaceId);
+
+      // Fetch the pending join request counts for the chat spaces
+      final List<ChatSpaceRequestToJoinPendingSelect> pendingRequests = chatSpaceMemberRepository
+        .countPendingJoinRequestsForChatSpaces(chatSpaceIds, PENDING);
+
+      // Map the counts back to the ChatSpaceResponse objects
+      final Map<Long, Long> pendingRequestsMap = pendingRequests.stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(ChatSpaceRequestToJoinPendingSelect::getChatSpaceId, ChatSpaceRequestToJoinPendingSelect::getRequestToJoinTotal));
+
+      return pendingRequestsMap.getOrDefault(chatSpaceId, 0L);
+    }
+    return 0L;
+  }
+
 }

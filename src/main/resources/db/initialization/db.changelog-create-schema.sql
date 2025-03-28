@@ -159,6 +159,9 @@ CREATE TABLE chat_space (
   space_visibility VARCHAR(255) DEFAULT 'PUBLIC'
     NOT NULL CHECK (space_visibility IN ('PUBLIC', 'PRIVATE')),
 
+  space_status VARCHAR(255) DEFAULT 'ACTIVE'
+    NOT NULL CHECK (space_visibility IN ('ACTIVE', 'INACTIVE')),
+
   member_id BIGINT NOT NULL,
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

@@ -71,9 +71,9 @@ public class CreateChatSpaceDto {
     chatSpace.setGuidelinesOrRules(guidelinesOrRules);
     chatSpace.setTags(tags);
     chatSpace.setSpaceVisibility(getVisibility());
-    chatSpace.setActive(true);
     chatSpace.setDeleted(false);
     chatSpace.setTotalMembers(0L);
+    chatSpace.enable();
 
     return chatSpace;
   }

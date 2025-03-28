@@ -19,4 +19,6 @@ public interface ChatSpaceSearchService {
   RequestToJoinSearchResult findRequestToJoinSpace(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
 
   RetrieveChatSpaceResponse retrieveChatSpace(Long chatSpaceId, FleenUser user) throws ChatSpaceMemberNotFoundException;
+
+  Long getTotalRequestToJoinForChatSpace(Long chatSpaceId);
 }
