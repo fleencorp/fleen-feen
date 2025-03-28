@@ -16,6 +16,7 @@ import lombok.*;
   "chat_space_member_id",
   "member_name",
   "username",
+  "display_photo",
   "request_to_join_status_info",
   "join_status_info"
 })
@@ -29,6 +30,9 @@ public class ChatSpaceMemberResponse {
 
   @JsonProperty("username")
   private String username;
+
+  @JsonProperty("display_photo")
+  private String displayPhoto;
 
   @JsonProperty("membership_info")
   private ChatSpaceMembershipInfo membershipInfo;

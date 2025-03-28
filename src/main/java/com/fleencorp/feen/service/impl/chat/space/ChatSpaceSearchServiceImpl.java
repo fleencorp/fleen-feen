@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.chat.space;
 
+import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
@@ -27,6 +28,8 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -58,6 +61,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   private final Localizer localizer;
   private final ChatSpaceMapper chatSpaceMapper;
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
+  private static final int DEFAULT_NUMBER_OF_MEMBERS_TO_GET_FOR_CHAT_SPACE = 10;
 
   /**
    * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
@@ -123,6 +127,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     final List<ChatSpaceResponse> views = chatSpaceMapper.toChatSpaceResponses(page.getContent());
     // Determine user join status of spaces
     determineUserJoinStatusFoChatSpace(views, user);
+    // Get the first 10 attendees for each chat space
+    setFirst10MembersInAnyOrderOnChatSpaces(views);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
@@ -166,6 +172,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     updateTotalRequestToJoinForChatSpaces(views);
     // Determine user join status of spaces
     determineUserJoinStatusFoChatSpace(views, user);
+    // Get the first 10 attendees for each chat space
+    setFirst10MembersInAnyOrderOnChatSpaces(views);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
@@ -207,6 +215,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     final List<ChatSpaceResponse> views = extractUserChatSpaceFromMembershipAndCreateChatResponse(page.getContent());
     // Determine user join status of spaces
     determineUserJoinStatusFoChatSpace(views, user);
+    // Get the first 10 attendees for each chat space
+    setFirst10MembersInAnyOrderOnChatSpaces(views);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
@@ -234,6 +244,10 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponse(chatSpace);
     // Update join status of user in the chat space response
     updateUserJoinStatus(chatSpaceResponse, user);
+    // Create a list
+    final List<ChatSpaceResponse> chatSpaceResponses = List.of(chatSpaceResponse);
+    // Get the first 10 attendees for each chat space
+    setFirst10MembersInAnyOrderOnChatSpaces(chatSpaceResponses);
     // Return a localized response containing the chat space details
     return localizer.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
   }
@@ -531,6 +545,35 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       return pendingRequestsMap.getOrDefault(chatSpaceId, 0L);
     }
     return 0L;
+  }
+
+  /**
+   * Sets the first 10 members in any order on a list of {@link ChatSpaceResponse} objects.
+   *
+   * <p>This method processes a list of {@code ChatSpaceResponse} objects by retrieving up to 10
+   * approved members for each chat space. It fetches the members from the repository using pagination,
+   * ensuring that only active members with an approved status are considered. These members are then
+   * mapped to {@link ChatSpaceMemberResponse} objects and set on the {@code someMembers} field of each chat space.</p>
+   *
+   * @param chatSpaces the list of {@link ChatSpaceResponse} objects to update with member details
+   */
+  protected void setFirst10MembersInAnyOrderOnChatSpaces(final List<ChatSpaceResponse> chatSpaces) {
+    if (nonNull(chatSpaces)) {
+      chatSpaces.stream()
+        .filter(Objects::nonNull)
+        .forEach(chatSpace -> {
+          final Long chatSpaceId = Long.parseLong(chatSpace.getId().toString());
+          // Create a pageable request to get the first 10 members
+          final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_MEMBERS_TO_GET_FOR_CHAT_SPACE);
+          // Fetch attendees who are approved and are members of the chat space
+          final Page<ChatSpaceMember> page = chatSpaceMemberRepository
+            .findActiveChatSpaceMembers(ChatSpace.of(chatSpaceId), ChatSpaceRequestToJoinStatus.APPROVED, pageable);
+          // Convert the list of chat space member to list of chat space member responses
+          final List<ChatSpaceMemberResponse> chatSpaceMembers = chatSpaceMemberMapper.toChatSpaceMemberResponsesPublic(page.getContent());
+          // Set the attendees on the response
+          chatSpace.setSomeMembers(new HashSet<>(chatSpaceMembers));
+        });
+    }
   }
 
 }

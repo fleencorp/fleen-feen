@@ -11,10 +11,14 @@ import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinSta
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
@@ -37,6 +41,7 @@ import static java.util.Objects.nonNull;
   "visibility_info",
   "status_info",
   "organizer",
+  "some_members",
   "request_to_join_status_info",
   "join_status_info",
   "membership_info",
@@ -75,6 +80,9 @@ public class ChatSpaceResponse extends FleenFeenResponse {
 
   @JsonProperty("organizer")
   private Organizer organizer;
+
+  @JsonProperty("some_members")
+  private Set<ChatSpaceMemberResponse> someMembers = new HashSet<>();
 
   @JsonProperty("request_to_join_status_info")
   private ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo;
