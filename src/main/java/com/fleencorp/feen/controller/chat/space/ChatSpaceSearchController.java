@@ -187,6 +187,6 @@ public class ChatSpaceSearchController {
         @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
         @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceSearchService.findSpacesCreated(chatSpaceSearchRequest, user);
+    return chatSpaceSearchService.findSpacesICreated(chatSpaceSearchRequest, user);
   }
 }

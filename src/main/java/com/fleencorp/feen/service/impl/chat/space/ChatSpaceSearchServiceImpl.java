@@ -151,7 +151,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @return A ChatSpaceSearchResult containing the search results of chat spaces created by the user matching the criteria.
    */
   @Override
-  public ChatSpaceSearchResult findSpacesCreated(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceSearchResult findSpacesICreated(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
     final Page<ChatSpace> page;
 
     // Check if all required date parameters are set in the search request
@@ -172,8 +172,6 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     updateTotalRequestToJoinForChatSpaces(views);
     // Determine user join status of spaces
     determineUserJoinStatusFoChatSpace(views, user);
-    // Get the first 10 attendees for each chat space
-    setFirst10MembersInAnyOrderOnChatSpaces(views);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
