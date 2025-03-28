@@ -5,8 +5,8 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
-import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.feen.model.other.Organizer;
@@ -35,7 +35,7 @@ import static java.util.Objects.nonNull;
   "total_members",
   "total_request_to_join",
   "visibility_info",
-  "is_active_info",
+  "status_info",
   "organizer",
   "request_to_join_status_info",
   "join_status_info",
@@ -70,8 +70,8 @@ public class ChatSpaceResponse extends FleenFeenResponse {
   @JsonProperty("visibility_info")
   private ChatSpaceVisibilityInfo visibilityInfo;
 
-  @JsonProperty("is_active_info")
-  private IsActiveInfo isActiveInfo;
+  @JsonProperty("status_info")
+  private ChatSpaceStatusInfo statusInfo;
 
   @JsonProperty("organizer")
   private Organizer organizer;

@@ -1,6 +1,7 @@
 package com.fleencorp.feen.model.domain.chat;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.exception.base.FailedOperationException;
@@ -70,8 +71,9 @@ public class ChatSpace extends FleenFeenEntity {
   @Column(name = "space_visibility", nullable = false)
   private ChatSpaceVisibility spaceVisibility;
 
-  @Column(name = "is_active", nullable = false)
-  private Boolean active = true;
+  @Enumerated(STRING)
+  @Column(name = "space_status", nullable = false)
+  private ChatSpaceStatus status = ChatSpaceStatus.ACTIVE;
 
   @Column(name = "total_members", nullable = false)
   private Long totalMembers = 0L;
@@ -121,21 +123,17 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   /**
-   * Disables this member, setting their active status to false.
-   * This method is typically called to deactivate a member from a chat space
-   * or a service.
+   * Disables the chat space by setting its status to {@code INACTIVE}.
    */
   public void disable() {
-    active = false;
+    status = ChatSpaceStatus.INACTIVE;
   }
 
   /**
-   * Enables this member, setting their active status to true.
-   * This method is typically called to reactivate a member who was previously
-   * disabled.
+   * Enable the chat space by setting its status to {@code ACTIVE}.
    */
   public void enable() {
-    active = true;
+    status = ChatSpaceStatus.ACTIVE;
   }
 
   /**
@@ -162,16 +160,7 @@ public class ChatSpace extends FleenFeenEntity {
    * @return true if the chat space is inactive; otherwise, returns false.
    */
   public boolean isInactive() {
-    return !active;
-  }
-
-  /**
-   * Checks if this chat space is active.
-   *
-   * @return true if the chat space is active; otherwise, returns false.
-   */
-  public boolean isActive() {
-    return active;
+    return ChatSpaceStatus.isInactive(status);
   }
 
   /**

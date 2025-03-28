@@ -20,7 +20,8 @@ import lombok.Setter;
   "chat_space_id",
   "chat_space_member_id",
   "membership_info",
-  "total_members"
+  "total_members",
+  "total_request_to_join"
 })
 public class ProcessRequestToJoinChatSpaceResponse extends ApiResponse {
 
@@ -36,12 +37,15 @@ public class ProcessRequestToJoinChatSpaceResponse extends ApiResponse {
   @JsonProperty("total_members")
   private Long totalMembers;
 
+  @JsonProperty("total_request_to_join")
+  private Long totalRequestToJoin;
+
   @Override
   public String getMessageCode() {
     return "process.request.to.join.chat.space";
   }
 
-  public static ProcessRequestToJoinChatSpaceResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers) {
-    return new ProcessRequestToJoinChatSpaceResponse(chatSpaceId, chatSpaceMemberId, membershipInfo, totalMembers);
+  public static ProcessRequestToJoinChatSpaceResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers, final Long totalRequestToJoin) {
+    return new ProcessRequestToJoinChatSpaceResponse(chatSpaceId, chatSpaceMemberId, membershipInfo, totalMembers, totalRequestToJoin);
   }
 }

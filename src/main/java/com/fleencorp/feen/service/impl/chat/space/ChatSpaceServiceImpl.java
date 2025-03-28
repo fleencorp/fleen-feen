@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
-import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
@@ -365,10 +365,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
-    // Get the is active info
-    final IsActiveInfo isActiveInfo = chatSpaceMapper.toIsActiveInfo(chatSpace.isActive());
+    // Get the status info
+    final ChatSpaceStatusInfo chatSpaceStatusInfo = chatSpaceMapper.toChatSpaceStatusInfo(chatSpace.getStatus());
     // Create the response for the updated chat space status
-    final UpdateChatSpaceStatusResponse updateChatSpaceStatusResponse = UpdateChatSpaceStatusResponse.of(chatSpaceId, isActiveInfo);
+    final UpdateChatSpaceStatusResponse updateChatSpaceStatusResponse = UpdateChatSpaceStatusResponse.of(chatSpaceId, chatSpaceStatusInfo);
     // Return a localized response confirming the updated chat space status
     return localizer.of(updateChatSpaceStatusResponse);
   }

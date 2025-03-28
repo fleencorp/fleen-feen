@@ -1,16 +1,16 @@
 package com.fleencorp.feen.mapper.impl.chat;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
+import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
-import com.fleencorp.feen.constant.chat.space.IsActive;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
-import com.fleencorp.feen.model.info.chat.space.IsActiveInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.*;
@@ -115,8 +115,8 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final ChatSpaceVisibilityInfo visibilityInfo = ChatSpaceVisibilityInfo.of(visibility, translate(visibility.getMessageCode()));
       response.setVisibilityInfo(visibilityInfo);
 
-      final IsActiveInfo isActiveInfo = toIsActiveInfo(entry.isActive());
-      response.setIsActiveInfo(isActiveInfo);
+      final ChatSpaceStatusInfo chatSpaceStatusInfo = toChatSpaceStatusInfo(entry.getStatus());
+      response.setStatusInfo(chatSpaceStatusInfo);
 
       final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
       response.setOrganizer(organizer);
@@ -232,18 +232,25 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
   }
 
   /**
-   * Converts a Boolean value representing activeness into an {@link IsActiveInfo} object.
-   * This method determines the appropriate {@link IsActive} enum value based on the provided Boolean
-   * and returns a corresponding {@link IsActiveInfo} object, which includes localized message codes.
+   * Converts the provided {@link ChatSpaceStatus} into a {@link ChatSpaceStatusInfo} object.
    *
-   * @param isActive a {@link Boolean} indicating whether the entity is active (true) or inactive (false).
-   * @return an {@link IsActiveInfo} object containing the original Boolean value for activeness,
-   *         along with localized message codes representing the active or inactive state.
+   * <p>This method takes a {@code ChatSpaceStatus} and translates its associated message codes.
+   * The translated messages are then used to create a {@link ChatSpaceStatusInfo} object,
+   * which contains the status and the translated messages for display or further processing.</p>
+   *
+   * @param status the {@link ChatSpaceStatus} to convert, containing message codes to be translated
+   * @return a {@link ChatSpaceStatusInfo} containing the status and its translated messages
    */
   @Override
-  public IsActiveInfo toIsActiveInfo(final Boolean isActive) {
-    final IsActive isActiveEnum = IsActive.by(isActive);
-    return IsActiveInfo.of(isActive, translate(isActiveEnum.getMessageCode()), translate(isActiveEnum.getMessageCode2()), translate(isActiveEnum.getMessageCode3()));
+  public ChatSpaceStatusInfo toChatSpaceStatusInfo(final ChatSpaceStatus status) {
+    return ChatSpaceStatusInfo.of(
+      status,
+      translate(status.getMessageCode()),
+      translate(status.getMessageCode2()),
+      translate(status.getMessageCode3()),
+      translate(status.getMessageCode4()),
+      translate(status.getMessageCode5())
+    );
   }
 
 }
