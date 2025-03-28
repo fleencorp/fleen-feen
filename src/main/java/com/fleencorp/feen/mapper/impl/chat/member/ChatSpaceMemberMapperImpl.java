@@ -106,6 +106,28 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
   }
 
   /**
+   * Converts a {@link ChatSpaceMember} object to a {@link ChatSpaceMemberResponse} for public view.
+   *
+   * <p>This method takes a {@code ChatSpaceMember} entry, extracts relevant fields such as the member ID, username,
+   * and profile photo, and maps them to a {@link ChatSpaceMemberResponse} object. If the entry is null, it returns {@code null}.</p>
+   *
+   * @param entry the {@link ChatSpaceMember} object to convert
+   * @return a {@link ChatSpaceMemberResponse} containing the member's public details, or {@code null} if the entry is null
+   */
+  protected ChatSpaceMemberResponse toChatSpaceMemberResponsePublic(final ChatSpaceMember entry) {
+    if (nonNull(entry)) {
+      final ChatSpaceMemberResponse response = new ChatSpaceMemberResponse();
+
+      response.setChatSpaceMemberId(entry.getChatSpaceMemberId());
+      response.setUsername(entry.getUsername());
+      response.setDisplayPhoto(entry.getProfilePhoto());
+
+      return response;
+    }
+    return null;
+  }
+
+  /**
    * Retrieves detailed membership information for a specific member in a chat space.
    * This method processes various statuses and roles associated with the member
    * and the chat space, and returns an aggregated {@link ChatSpaceMembershipInfo}.
@@ -171,6 +193,27 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(chatSpaceMember -> this.toChatSpaceMemberResponse(chatSpaceMember, chatSpace))
+        .toList();
+    }
+    return List.of();
+  }
+
+  /**
+   * Converts a list of {@link ChatSpaceMember} objects to a list of {@link ChatSpaceMemberResponse} objects for public view.
+   *
+   * <p>This method processes the provided list of {@code ChatSpaceMember} entries by filtering out any null values
+   * and converting each entry to a {@link ChatSpaceMemberResponse} for public consumption.
+   * If the input list is null, an empty list is returned.</p>
+   *
+   * @param entries the list of {@link ChatSpaceMember} objects to convert
+   * @return a list of {@link ChatSpaceMemberResponse} objects, or an empty list if the input is null
+   */
+  @Override
+  public List<ChatSpaceMemberResponse> toChatSpaceMemberResponsesPublic(final List<ChatSpaceMember> entries) {
+    if (nonNull(entries)) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(this::toChatSpaceMemberResponsePublic)
         .toList();
     }
     return List.of();

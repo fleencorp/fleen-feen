@@ -22,6 +22,8 @@ public interface ChatSpaceMemberMapper {
 
   List<ChatSpaceMemberResponse> toChatSpaceMemberResponses(List<ChatSpaceMember> entries, ChatSpace chatSpace);
 
+  List<ChatSpaceMemberResponse> toChatSpaceMemberResponsesPublic(List<ChatSpaceMember> entries);
+
   ChatSpaceMemberRoleInfo toMemberRoleInfo(ChatSpaceMemberRole chatSpaceMemberRole);
 
   ChatSpaceRequestToJoinStatusInfo toRequestToJoinStatusInfo(ChatSpaceResponse chatSpace, ChatSpaceRequestToJoinStatus requestToJoinStatus);

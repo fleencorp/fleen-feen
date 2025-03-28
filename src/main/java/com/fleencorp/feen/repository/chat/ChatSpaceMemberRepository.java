@@ -95,4 +95,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
     """)
   List<ChatSpaceRequestToJoinPendingSelect> countPendingJoinRequestsForChatSpaces(@Param("chatSpaceIds") List<Long> chatSpaceIds, @Param("status") ChatSpaceRequestToJoinStatus status);
 
+
+  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.requestToJoinStatus = :requestToJoinStatus AND csm.left = false AND csm.removed = false")
+  Page<ChatSpaceMember> findActiveChatSpaceMembers(@Param("chatSpace") ChatSpace chatSpace, @Param("requestToJoinStatus") ChatSpaceRequestToJoinStatus requestToJoinStatus, Pageable pageable);
 }

@@ -106,6 +106,16 @@ public class ChatSpaceMember extends FleenFeenEntity {
   }
 
   /**
+   * Retrieves the photo of the member.
+   * If the member object is non-null, the photo is returned. Otherwise, null is returned.
+   *
+   * @return the photo of the member if the member is not null, otherwise null.
+   */
+  public String getProfilePhoto() {
+    return nonNull(member) ? member.getProfilePhotoUrl() : null;
+  }
+
+  /**
    * Checks if the member has left the chat space.
    *
    * <p>This method checks if the member has left the chat space by verifying if the `left` field

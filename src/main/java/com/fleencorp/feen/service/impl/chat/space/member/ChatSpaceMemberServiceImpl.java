@@ -545,5 +545,4 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     }
   }
 
-
 }
