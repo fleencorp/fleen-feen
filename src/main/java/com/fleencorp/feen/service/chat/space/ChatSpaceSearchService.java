@@ -12,7 +12,7 @@ public interface ChatSpaceSearchService {
 
   ChatSpaceSearchResult findSpaces(ChatSpaceSearchRequest searchRequest, FleenUser user);
 
-  ChatSpaceSearchResult findSpacesCreated(ChatSpaceSearchRequest searchRequest, FleenUser user);
+  ChatSpaceSearchResult findSpacesICreated(ChatSpaceSearchRequest searchRequest, FleenUser user);
 
   ChatSpaceSearchResult findSpacesIBelongTo(ChatSpaceSearchRequest searchRequest, FleenUser user);
 
