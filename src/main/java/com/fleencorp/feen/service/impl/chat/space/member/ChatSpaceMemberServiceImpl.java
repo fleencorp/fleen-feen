@@ -326,7 +326,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
     // Remove the user from the chat space
-    final ChatSpaceMember chatSpaceMember = removeChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getMemberId());
+    final ChatSpaceMember chatSpaceMember = removeChatSpaceMember(chatSpace, removeChatSpaceMemberDto.getChatSpaceMemberId());
     // Return a localized response indicating the member removal was successful
     return localizer.of(RemoveChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMember.getChatSpaceMemberId()));
   }
@@ -373,13 +373,13 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * about the removal. The removed chat space member details are then returned.</p>
    *
    * @param chatSpace the chat space from which the member is to be removed
-   * @param memberId the ID of the member to be removed
+   * @param chatSpaceMemberId the ID of the chat space member to be removed
    * @return the {@link ChatSpaceMember} that was removed
    * @throws ChatSpaceMemberNotFoundException if the member is not found in the chat space
    */
-  protected ChatSpaceMember removeChatSpaceMember(final ChatSpace chatSpace, final Long memberId) {
+  protected ChatSpaceMember removeChatSpaceMember(final ChatSpace chatSpace, final Long chatSpaceMemberId) {
     // Locate the chat space member to be removed using the member ID from the DTO
-    final ChatSpaceMember chatSpaceMember = findByChatSpaceAndMember(chatSpace, Member.of(memberId));
+    final ChatSpaceMember chatSpaceMember = findByChatSpaceAndChatSpaceMemberId(chatSpace, chatSpaceMemberId);
     // Mark the member as removed from the chat space
     chatSpaceMember.markAsRemoved();
     // Save the chat space member

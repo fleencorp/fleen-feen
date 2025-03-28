@@ -16,7 +16,8 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "active",
   "active_text",
-  "active_text_2"
+  "active_text_2",
+  "active_text_3"
 })
 public class IsActiveInfo {
 
@@ -29,7 +30,10 @@ public class IsActiveInfo {
   @JsonProperty("active_text_2")
   private String activeText2;
 
-  public static IsActiveInfo of(final Boolean active, final String activeText, final String activeText2) {
-    return new IsActiveInfo(active, activeText, activeText2);
+  @JsonProperty("active_text_3")
+  private String activeText3;
+
+  public static IsActiveInfo of(final Boolean active, final String activeText, final String activeText2, final String activeText3) {
+    return new IsActiveInfo(active, activeText, activeText2, activeText3);
   }
 }

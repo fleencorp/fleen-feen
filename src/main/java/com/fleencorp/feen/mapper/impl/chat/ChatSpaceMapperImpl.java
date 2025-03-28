@@ -243,7 +243,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
   @Override
   public IsActiveInfo toIsActiveInfo(final Boolean isActive) {
     final IsActive isActiveEnum = IsActive.by(isActive);
-    return IsActiveInfo.of(isActive, translate(isActiveEnum.getMessageCode()), translate(isActiveEnum.getMessageCode2()));
+    return IsActiveInfo.of(isActive, translate(isActiveEnum.getMessageCode()), translate(isActiveEnum.getMessageCode2()), translate(isActiveEnum.getMessageCode3()));
   }
 
 }
