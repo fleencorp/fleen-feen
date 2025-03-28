@@ -13,20 +13,23 @@ import lombok.Getter;
 @Getter
 public enum IsActive implements ApiParameter {
 
-  NO("No", "is.active.no", "is.active.no.2"),
-  YES("Yes", "is.active.yes", "is.active.yes.2");
+  NO("No", "is.active.no", "is.active.no.2", "is.active.no.3"),
+  YES("Yes", "is.active.yes", "is.active.yes.2", "is.active.yes.3");
 
   private final String value;
   private final String messageCode;
   private final String messageCode2;
+  private final String messageCode3;
 
   IsActive(
       final String value,
       final String messageCode,
-      final String messageCode2) {
+      final String messageCode2,
+      final String messageCode3) {
     this.value = value;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
+    this.messageCode3 = messageCode3;
   }
 
   public static IsActive by(final boolean isActive) {

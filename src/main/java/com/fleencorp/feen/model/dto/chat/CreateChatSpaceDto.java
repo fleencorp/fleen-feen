@@ -42,7 +42,7 @@ public class CreateChatSpaceDto {
   private String guidelinesOrRules;
 
   @NotBlank(message = "{tags.NotBlank}")
-  @Size(min = 1, max = 300, message = "{tags.Size}")
+  @Size(min = 1, max = 500, message = "{tags.Size}")
   @ToLowerCase
   @JsonProperty("tags")
   protected String tags;
