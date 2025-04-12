@@ -6,7 +6,7 @@ import com.fleencorp.feen.configuration.external.google.service.account.ServiceA
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.apps.meet.v2beta.SpacesServiceClient;
 import com.google.apps.meet.v2beta.SpacesServiceSettings;
-import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -65,7 +65,7 @@ public class MeetConfiguration extends GoogleApiConfiguration {
       "https://www.googleapis.com/auth/meetings.space.readonly",
       "https://www.googleapis.com/auth/drive.readonly"
     );
-    final Credentials credentials = getGoogleClientCredentialFromServiceAccount(scopes);
+    final GoogleCredentials credentials = getGoogleClientCredentialFromServiceAccount(scopes);
     final SpacesServiceSettings serviceSettings = SpacesServiceSettings.newBuilder()
       .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
       .build();
