@@ -18,7 +18,7 @@ public interface ChatSpaceMapper {
 
   List<ChatSpaceResponse> toChatSpaceResponses(List<ChatSpace> entries);
 
-  void setMembershipInfo(ChatSpaceResponse chatSpace, ChatSpaceRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, ChatSpaceMemberRole memberRole, boolean isAMember, boolean isAdmin);
+  void setMembershipInfo(ChatSpaceResponse chatSpace, ChatSpaceRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, ChatSpaceMemberRole memberRole, boolean isAMember, boolean isAdmin, boolean hasLeft, boolean isRemoved);
 
   ChatSpaceStatusInfo toChatSpaceStatusInfo(ChatSpaceStatus status);
 }

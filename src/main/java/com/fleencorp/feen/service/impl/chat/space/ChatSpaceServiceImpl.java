@@ -119,7 +119,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     final CreateChatSpaceRequest createChatSpaceRequest = getCreateChatSpaceRequest(createChatSpaceDto, user);
 
     // Create and add admin or organizer of space as chat space member
-    final ChatSpaceMember chatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember());
+    final ChatSpaceMember chatSpaceMember = ChatSpaceMember.ofOrganizer(chatSpace, user.toMember());
     // Save chat space member to repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Increase total members and save chat space

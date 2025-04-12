@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.chat.space.member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
+import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +19,7 @@ import lombok.Setter;
   "message",
   "chat_space_id",
   "chat_space_member_id",
-  "role_info"
+  "membership_info"
 })
 public class UpgradeChatSpaceMemberToAdminResponse extends ApiResponse {
 
@@ -29,15 +29,15 @@ public class UpgradeChatSpaceMemberToAdminResponse extends ApiResponse {
   @JsonProperty("chat_space_member_id")
   private Long chatSpaceMemberId;
 
-  @JsonProperty("role_info")
-  private ChatSpaceMemberRoleInfo roleInfo;
+  @JsonProperty("membership_info")
+  private ChatSpaceMembershipInfo membershipInfo;
 
   @Override
   public String getMessageCode() {
     return "upgrade.chat.space.member.to.admin";
   }
 
-  public static UpgradeChatSpaceMemberToAdminResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo) {
-    return new UpgradeChatSpaceMemberToAdminResponse(chatSpaceId, chatSpaceMemberId, chatSpaceMemberRoleInfo);
+  public static UpgradeChatSpaceMemberToAdminResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMembershipInfo membershipInfo) {
+    return new UpgradeChatSpaceMemberToAdminResponse(chatSpaceId, chatSpaceMemberId, membershipInfo);
   }
 }

@@ -46,7 +46,9 @@ public interface ChatSpaceMemberService {
 
   ChatSpaceMember findByChatSpaceAndChatSpaceMemberId(ChatSpace chatSpace, Long chatSpaceMemberId) throws ChatSpaceMemberNotFoundException;
 
-  void notifyChatSpaceUpdateService(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
+  ChatSpaceMember getExistingOrCreateNewChatSpaceMember(ChatSpace chatSpace, FleenUser user) throws FailedOperationException;
+
+  void addMemberToChatSpaceExternally(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
 
   boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(FleenStream stream, StreamAttendee streamAttendee);
 }
