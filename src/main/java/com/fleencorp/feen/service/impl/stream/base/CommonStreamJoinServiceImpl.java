@@ -354,7 +354,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Calculate total employees going to stream
     final Long totalAttendeesGoing = stream.getTotalAttendees() + 1;
     // Create the response
-    final JoinStreamResponse joinStreamResponse = JoinStreamResponse.of(streamId, attendanceInfo, streamTypeInfo, totalAttendeesGoing);
+    final JoinStreamResponse joinStreamResponse = JoinStreamResponse.of(streamId, attendanceInfo, streamTypeInfo, stream.getStreamLink(), totalAttendeesGoing);
     // Return localized response of the joined stream including status
     return localizer.of(joinStreamResponse);
   }
@@ -457,7 +457,6 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     stream.checkStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
     // Validate the stream details and eligibility of the user
     streamService.validateStreamAndUserForProtectedStream(stream, user);
-    // Handle the join request and update stream attendee info
     // Retrieve the stream attendee entry associated with the user or create a new StreamAttendee entry if none for the user
     final StreamAttendee attendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user);
     // If the stream is private, set the request to join status to pending

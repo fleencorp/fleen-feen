@@ -8,7 +8,6 @@ import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
-import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
@@ -21,7 +20,6 @@ import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
-import com.fleencorp.feen.model.request.chat.space.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
@@ -35,13 +33,11 @@ import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.chat.space.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
-import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import static java.util.Objects.nonNull;
 
 /**
  * Implementation of the {@link ChatSpaceService} interface, providing methods
@@ -75,7 +71,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    *
    * @param chatSpaceService for managing chat spaces
    * @param chatSpaceMemberService for managing chat space members
-   * @param memberService the service for managing members and profile information
    * @param notificationMessageService manages notifications sent as messages.
    * @param notificationService processes and sends general notifications.
    * @param chatSpaceUpdateService handles updates to chat spaces.
@@ -87,7 +82,6 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       final ChatSpaceService chatSpaceService,
       final ChatSpaceMemberService chatSpaceMemberService,
       final ChatSpaceSearchService chatSpaceSearchService,
-      final MemberService memberService,
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
@@ -128,127 +122,41 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
-    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
-    chatSpace.checkIsNotOrganizer(user.getId());
     // Verify if the chat space is inactive and throw an exception if it is
     chatSpace.checkIsInactive();
+    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
+    chatSpace.checkIsNotOrganizer(user.getId());
     // Verify that the chat space is public and throw an exception if it is not
-    chatSpace.checkNotPrivateForJoining();
-    // Find or create a membership entry for the user in the chat space
-    final ChatSpaceMember chatSpaceMember = findOrCreateChatSpaceMemberAndAddToChatSpace(chatSpace, joinChatSpaceDto, user);
+    chatSpace.checkIsNotPrivate();
+    // Find an existing chat space member associated with the user or create a new one
+    final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.getExistingOrCreateNewChatSpaceMember(chatSpace, user);
+    // Handle user request to join the chat space
+    handleJoinRequestForPublicChatSpace(chatSpaceMember, joinChatSpaceDto.getComment());
+    // Handle user request to join the chat space externally
+    addMemberToChatSpaceExternally(chatSpace, chatSpaceMember, user.toMember());
     // Increase total members and save chat space
     chatSpaceService.increaseTotalMembersAndSave(chatSpace);
     // Get the membership info
     final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
-    final JoinChatSpaceResponse joinChatSpaceResponse = JoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getTotalMembers());
+    final JoinChatSpaceResponse joinChatSpaceResponse = JoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getSpaceLink(), chatSpace.getTotalMembers());
     // Return a localized response indicating successful joining
     return localizer.of(joinChatSpaceResponse);
   }
 
-  /**
-   * This method finds or creates a member for the given chat space. It checks if the user
-   * is already a member of the chat space. If the user is found, the membership is verified
-   * to ensure that the user has not been removed, and if necessary, approval is handled.
-   *
-   * <p>If the user is not found, a new chat space member is created and approved.</p>
-   *
-   * @param chatSpace         the chat space where the user is attempting to join.
-   * @param joinChatSpaceDto  DTO containing details necessary to join the chat space.
-   * @param user              the user attempting to join the chat space.
-   */
-  protected ChatSpaceMember findOrCreateChatSpaceMemberAndAddToChatSpace(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
-    final ChatSpaceMember chatSpaceMember;
-    // Find the chat space member or create a new one if none exists
-    final Optional<ChatSpaceMember> existingChatSpaceMember = findChatSpaceMemberByChatSpace(chatSpace, user.toMember());
-    // Check if the chat space was found
-    if (existingChatSpaceMember.isPresent()) {
-      // Extract the chat space member
-      chatSpaceMember = existingChatSpaceMember.get();
+  public void handleJoinRequestForPublicChatSpace(final ChatSpaceMember chatSpaceMember, final String comment) {
+    if (nonNull(chatSpaceMember)) {
       // Verify the user is not removed from the chat space
       chatSpaceMember.checkNotRemoved();
-      // Handle the approval
-      handleApprovalOfExistingChatSpaceMember(chatSpace, chatSpaceMember, user);
-    } else {
-      chatSpaceMember = createAndApproveNewChatSpaceMember(chatSpace, joinChatSpaceDto, user);
+      // Check if the user request to join is not approved or pending
+      chatSpaceMember.checkIsNotApprovedOrPending();
+      // Approve the join status for the chat space member
+      chatSpaceMember.approveJoinStatus();
+      // Set the chat space member comment
+      chatSpaceMember.setMemberComment(comment);
+      // Save the updated chat space member information to the repository
+      chatSpaceMemberRepository.save(chatSpaceMember);
     }
-
-    return chatSpaceMember;
-  }
-
-  /**
-   * Finds a chat space member for the given chat space and member.
-   * This method retrieves the chat space member from the repository, if available.
-   *
-   * <p>If no chat space member is found, an {@code Optional.empty()} is returned.</p>
-   *
-   * @param chatSpace  the chat space in which to search for the member.
-   * @param member     the member for whom the chat space member is being retrieved.
-   * @return an {@code Optional} containing the chat space member if found,
-   *         or {@code Optional.empty()} if no match is found.
-   */
-  private Optional<ChatSpaceMember> findChatSpaceMemberByChatSpace(final ChatSpace chatSpace, final Member member) {
-    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member);
-  }
-
-  /**
-   * Handles the actions required for an existing chat space member based on their membership status.
-   *
-   * <p>This method checks if the specified chat space member's request to join the chat space has been
-   * approved or disapproved. If the request is already approved, an exception is thrown. If the request
-   * is disapproved, the method approves the request and sends an invitation to the user.</p>
-   *
-   * @param chatSpace The chat space that the member is trying to join.
-   * @param chatSpaceMember The existing member of the chat space.
-   * @param user The user attempting to join the chat space.
-   * @throws AlreadyJoinedChatSpaceException if the membership request has already been approved.
-   */
-  protected void handleApprovalOfExistingChatSpaceMember(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final FleenUser user) {
-    // Check the membership status of the existing chat space member
-    if (chatSpaceMember.isRequestToJoinApproved() && chatSpaceMember.isAMember()) {
-      throw new AlreadyJoinedChatSpaceException();
-    } else if (chatSpaceMember.isRequestToJoinDisapprovedOrPending()) {
-      approveChatSpaceMemberJoinRequestAndSendInvitation(user, chatSpaceMember, chatSpace);
-    }
-  }
-
-  /**
-   * Creates and approves a new chat space member and sends an invitation.
-   *
-   * <p>This method instantiates a new chat space member using the provided chat space and user details,
-   * then immediately approves the join request and sends an invitation to the user.</p>
-   *
-   * @param chatSpace The chat space to which the new member is being added.
-   * @param joinChatSpaceDto The DTO containing the user's comment for the join request.
-   * @param user The user attempting to join the chat space.
-   */
-  protected ChatSpaceMember createAndApproveNewChatSpaceMember(final ChatSpace chatSpace, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user) {
-    // Create a new chat space member with the provided details
-    final ChatSpaceMember newChatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember(), joinChatSpaceDto.getComment());
-    // Approve the join request and send an invitation to the user
-    approveChatSpaceMemberJoinRequestAndSendInvitation(user, newChatSpaceMember, chatSpace);
-
-    return newChatSpaceMember;
-  }
-
-  /**
-   * Approves a chat space member's join request and sends an invitation to the member.
-   *
-   * <p>This method updates the join status of the specified chat space member to approved,
-   * saves the updated member information to the repository, and then sends an invitation
-   * to the user associated with the chat space member.</p>
-   *
-   * @param user The user whose join request is being approved.
-   * @param chatSpaceMember The chat space member whose status is being updated.
-   * @param chatSpace The chat space to which the member is being added.
-   */
-  protected void approveChatSpaceMemberJoinRequestAndSendInvitation(final FleenUser user, final ChatSpaceMember chatSpaceMember, final ChatSpace chatSpace) {
-    // Approve the join status for the chat space member
-    chatSpaceMember.approveJoinStatus();
-    // Save the updated chat space member information to the repository
-    chatSpaceMemberRepository.save(chatSpaceMember);
-    // Send an invitation to the user to join the chat space
-    chatSpaceUpdateService.addMember(chatSpaceMember, AddChatSpaceMemberRequest.of(chatSpace.getExternalIdOrName(), user.getEmailAddress()));
   }
 
   /**
@@ -273,19 +181,14 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       FailedOperationException  {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
-    // Create a chat space member to update later
-    ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
-    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
-    chatSpace.checkIsNotOrganizer(user.getId());
-    // Verify that member has not been removed
-    chatSpaceMember.checkNotRemoved();
     // Verify if the chat space is inactive
     chatSpace.checkIsInactive();
-    // If the chat space is private, handle the join request
-    if (chatSpace.isPrivate()) {
-      chatSpaceMember = handleJoinRequest(chatSpace, requestToJoinChatSpaceDto, user);
-    }
-
+    // Verify if the user is the owner and fail the operation because the owner is automatically a member of the chat space
+    chatSpace.checkIsNotOrganizer(user.getId());
+    // Find an existing chat space member associated with the user or create a new one
+    final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.getExistingOrCreateNewChatSpaceMember(chatSpace, user);
+    // Handle the user request to join
+    handleJoinRequestForPrivateChatSpace(chatSpaceMember, requestToJoinChatSpaceDto.getComment());
     // Create a notification
     final Notification notification = notificationMessageService.ofReceivedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember(), user.toMember());
     // Save the notification
@@ -298,62 +201,16 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     return localizer.of(requestToJoinChatSpaceResponse);
   }
 
-  /**
-   * Handles a user's request to join a chat space.
-   *
-   * <p>This method checks if the user is already a member of the chat space. If the user has an existing
-   * join request, it updates the request status based on the provided comment. If the user is not a member,
-   * a new chat space member is created with a pending join status.</p>
-   *
-   * @param chatSpace The chat space for which the join request is being made.
-   * @param requestToJoinChatSpaceDto The DTO containing the request details for joining the chat space.
-   * @param user The user requesting to join the chat space.
-   */
-  protected ChatSpaceMember handleJoinRequest(final ChatSpace chatSpace, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user) {
-    // Check if the user is already a member of the chat space
-    final AtomicReference<ChatSpaceMember> chatSpaceMemberAtomicReference = new AtomicReference<>();
-    chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, user.toMember())
-      .ifPresentOrElse(chatSpaceMember -> {
-        // Verify the user is not removed from the chat space
-        chatSpaceMember.checkNotRemoved();
-        // Update the join status based on the existing request
-        updateJoinStatusBasedOnExistingRequest(chatSpaceMember, requestToJoinChatSpaceDto.getComment());
-        // Save the updated chat space member
-        chatSpaceMemberRepository.save(chatSpaceMember);
-        chatSpaceMemberAtomicReference.set(chatSpaceMember);
-      }, () -> {
-        // Create a new chat space member with a pending join status
-        final ChatSpaceMember newChatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember(), requestToJoinChatSpaceDto.getComment());
-        newChatSpaceMember.pendingJoinStatus();
-        // Save the new chat space member
-        chatSpaceMemberRepository.save(newChatSpaceMember);
-        chatSpaceMemberAtomicReference.set(newChatSpaceMember);
-    });
-    return chatSpaceMemberAtomicReference.get();
-  }
-
-  /**
-   * Updates the join status of an existing chat space member based on their previous join request status.
-   *
-   * <p>This method checks the current join request status of a chat space member. If the request is approved,
-   * an exception is thrown indicating the user is already a member. If the request is disapproved, the member's
-   * status is updated to pending with a comment. If the request is still pending, an exception is thrown.</p>
-   *
-   * @param chatSpaceMember The chat space member whose join request status is being updated.
-   * @param comment The comment associated with the join request.
-   */
-  protected void updateJoinStatusBasedOnExistingRequest(final ChatSpaceMember chatSpaceMember, final String comment) {
-    // Check if the join request has been approved
-    if (chatSpaceMember.isRequestToJoinApproved() && chatSpaceMember.isAMember()) {
-      throw new AlreadyJoinedChatSpaceException();
-    }
-    // Check if the join request has been disapproved
-    else if (chatSpaceMember.isRequestToJoinDisapproved()) {
+  protected void handleJoinRequestForPrivateChatSpace(final ChatSpaceMember chatSpaceMember, final String comment) {
+    if (nonNull(chatSpaceMember)) {
+      // Verify the user is not removed from the chat space
+      chatSpaceMember.checkNotRemoved();
+      // Check if the user request to join is not approved or pending
+      chatSpaceMember.checkIsNotApprovedOrPending();
+      // Mark request as pending
       chatSpaceMember.markJoinRequestAsPendingWithComment(comment);
-    }
-    // Check if the join request is still pending
-    else if (chatSpaceMember.isRequestToJoinPending()) {
-      throw new RequestToJoinChatSpacePendingException();
+      // Save the chat space member
+      chatSpaceMemberRepository.save(chatSpaceMember);
     }
   }
 
@@ -387,25 +244,20 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     final Long chatSpaceMemberId = processRequestToJoinChatSpaceDto.getChatSpaceMemberId();
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
-    // Verify if user is an admin
-    chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
-    // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
-    verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(chatSpace, user);
+    // Check that the user is an admin of the chat space
+    checkIsAnAdminOfChatSpace(chatSpace, user);
     // Find the chat space member related to the chat space and member
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberService.findByChatSpaceAndChatSpaceMemberId(chatSpace, chatSpaceMemberId);
     // Find the member using the provided member ID from the DTO
     final Member member = chatSpaceMember.getMember();
-    // Set the admin comment for the space member
-    chatSpaceMember.setSpaceAdminComment(processRequestToJoinChatSpaceDto.getComment());
-
-    // Store the old request status for comparison
-    final ChatSpaceRequestToJoinStatus oldRequestToJoinStatus = chatSpaceMember.getRequestToJoinStatus();
-    // Process the join request status based on the DTO
-    processJoinRequestStatus(chatSpaceMember, processRequestToJoinChatSpaceDto);
-    // Notify the update service if the request status changes to approved
-    if (ChatSpaceRequestToJoinStatus.isDisapprovedOrPending(oldRequestToJoinStatus) && processRequestToJoinChatSpaceDto.isApproved()) {
-      chatSpaceMemberService.notifyChatSpaceUpdateService(chatSpaceMember, chatSpace, member);
-    }
+    // Store the previous request status for comparison
+    final ChatSpaceRequestToJoinStatus previousRequestToJoinStatus = chatSpaceMember.getRequestToJoinStatus();
+    // Handle the user request to join the chat space
+    handleProcessingOfJoinRequest(chatSpaceMember, processRequestToJoinChatSpaceDto);
+    // Store the current request status for comparison
+    final ChatSpaceRequestToJoinStatus currentRequestToJoinStatus = chatSpaceMember.getRequestToJoinStatus();
+    // Add the member to the chat space externally
+    addMemberToChatSpaceExternally(chatSpace, chatSpaceMember, previousRequestToJoinStatus, currentRequestToJoinStatus, member);
 
     // Create a notification
     final Notification notification = notificationMessageService.ofApprovedOrDisapprovedChatSpaceJoinRequest(chatSpace, chatSpaceMember, chatSpace.getMember());
@@ -425,6 +277,33 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     );
     // Return the localized response indicating the result of the processing
     return localizer.of(processRequestToJoinChatSpaceResponse);
+  }
+
+  public void handleProcessingOfJoinRequest(final ChatSpaceMember chatSpaceMember, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto) {
+    final String adminComment = processRequestToJoinChatSpaceDto.getComment();
+    // Set the admin comment for the space member
+    chatSpaceMember.setSpaceAdminComment(adminComment);
+    // Get the updated request to join status decision by the admin
+    final ChatSpaceRequestToJoinStatus newRequestToJoinStatus = processRequestToJoinChatSpaceDto.getJoinStatus();
+    // Check if the join request is disapproved or pending
+    if (chatSpaceMember.isRequestToJoinDisapprovedOrPending()) {
+      // Update the join request status of the member
+      chatSpaceMember.approveOrDisapproveJoinRequest(newRequestToJoinStatus);
+      // Save the updated chat space member to the repository
+      chatSpaceMemberRepository.save(chatSpaceMember);
+    }
+  }
+
+  public void addMemberToChatSpaceExternally(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final ChatSpaceRequestToJoinStatus previousRequestToJoinStatus, final ChatSpaceRequestToJoinStatus currentRequestToJoinStatus, final Member member) {
+    // Notify the update service if the request status changes to approved
+    if (ChatSpaceRequestToJoinStatus.isApproved(currentRequestToJoinStatus) &&
+        ChatSpaceRequestToJoinStatus.isDisapprovedOrPending(previousRequestToJoinStatus)) {
+      addMemberToChatSpaceExternally(chatSpace, chatSpaceMember, member);
+    }
+  }
+
+  public void addMemberToChatSpaceExternally(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
+    chatSpaceMemberService.addMemberToChatSpaceExternally(chatSpaceMember, chatSpace, member);
   }
 
   /**
@@ -493,9 +372,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @throws ChatSpaceAlreadyDeletedException If the chat space has been deleted.
    * @throws NotAnAdminOfChatSpaceException If the user is not the creator or an admin of the chat space.
    */
-  protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user) {
-    // Verify if the chat space has already been deleted
-    chatSpace.checkNotDeleted();
+  protected void checkIsAnAdminOfChatSpace(final ChatSpace chatSpace, final FleenUser user) {
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfSpace(chatSpace, user);
   }

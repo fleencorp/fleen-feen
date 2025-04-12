@@ -9,6 +9,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -88,7 +89,7 @@ public class GoogleApiConfiguration {
    *         from the input stream.
    */
   public GoogleCredentials getGoogleClientCredentialFromServiceAccountBase(final Collection<String> scopes) throws IOException {
-    return GoogleCredentials
+    return ServiceAccountCredentials
       .fromStream(getServiceAccountInputStream())
       .createScoped(scopes);
   }

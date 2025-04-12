@@ -589,7 +589,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpacesResponses the list of chat space responses to process
    * @param user                the user whose membership and organizer status are to be determined
    */
-  private void processOtherChatSpaceDetails(List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+  private void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
     // Check if chat spaces and user are non-null and user has a member associated
     if (nonNull(chatSpacesResponses) && !chatSpacesResponses.isEmpty() && nonNull(user) && nonNull(user.toMember())) {
       // Get the user's membership status map for the chat spaces
@@ -617,7 +617,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param user                the user whose membership status is to be retrieved
    * @return a map where the keys are chat space IDs and the values are the corresponding membership status
    */
-  private Map<Long, ChatSpaceMemberSelect> getUserMembershipStatusMap(List<ChatSpaceResponse> chatSpacesResponses, FleenUser user) {
+  private Map<Long, ChatSpaceMemberSelect> getUserMembershipStatusMap(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
     // Extract chat space IDs from the responses
     final List<Long> chatSpaceIds = extractAndGetChatSpaceIds(chatSpacesResponses);
     // Convert the user to a domain
@@ -640,7 +640,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
    * @param user                 the user whose organizer status is to be determined
    */
-  private void processChatSpaceResponse(ChatSpaceResponse chatSpaceResponse, Map<Long, ChatSpaceMemberSelect> membershipStatusMap, FleenUser user) {
+  private void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap, final FleenUser user) {
     // Set user's membership status
     setMembershipStatus(chatSpaceResponse, membershipStatusMap);
     // Populate recent chat space members
@@ -659,7 +659,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceResponse    the chat space response object to update with membership details
    * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
    */
-  private void setMembershipStatus(ChatSpaceResponse chatSpaceResponse, Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
+  private void setMembershipStatus(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
     Optional.ofNullable(membershipStatusMap.get(chatSpaceResponse.getNumberId()))
       .ifPresent(membership -> {
         log.info("The chat space title is {} and the id is {} and the join status is {} and the request to join status is {}",
@@ -690,7 +690,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    *
    * @param chatSpaceResponse the chat space response object to which the recent members will be assigned
    */
-  private void setSomeRecentChatSpaceMembers(ChatSpaceResponse chatSpaceResponse) {
+  private void setSomeRecentChatSpaceMembers(final ChatSpaceResponse chatSpaceResponse) {
     // Convert chat space ID to string
     final String chatSpaceIdStr = chatSpaceResponse.getId().toString();
     // Parse string ID to Long
