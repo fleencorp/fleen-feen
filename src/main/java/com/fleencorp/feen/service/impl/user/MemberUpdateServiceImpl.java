@@ -9,6 +9,9 @@ import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.profile.*;
+import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.exception.verification.VerificationFailedException;
 import com.fleencorp.feen.mapper.user.UserMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -124,7 +127,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    */
   @Override
   @Transactional
-  public UpdatePasswordResponse updatePassword(final UpdatePasswordDto updatePasswordDto, final FleenUser user) {
+  public UpdatePasswordResponse updatePassword(final UpdatePasswordDto updatePasswordDto, final FleenUser user) throws UpdatePasswordFailedException {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(UpdatePasswordFailedException::new);
@@ -142,8 +145,10 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
       throw new UpdatePasswordFailedException();
     }
 
+    // Create the response
+    final UpdatePasswordResponse updatePasswordResponse = UpdatePasswordResponse.of();
     // Return the response indicating successful password update
-    return localizer.of(UpdatePasswordResponse.of());
+    return localizer.of(updatePasswordResponse);
   }
 
   /**
@@ -156,7 +161,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    */
   @Override
   @Transactional
-  public UpdateProfileInfoResponse updateInfo(final UpdateProfileInfoDto updateProfileInfoDto, final FleenUser user) {
+  public UpdateProfileInfoResponse updateInfo(final UpdateProfileInfoDto updateProfileInfoDto, final FleenUser user) throws UpdateProfileInfoFailedException {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(UpdateProfileInfoFailedException::new);
@@ -211,8 +216,10 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
 
     // Save the generated verification code for the member
     saveUpdateEmailOrPhoneVerificationCode(verificationType, member, code);
+    // Create the response
+    final SendUpdateEmailOrPhoneVerificationCodeResponse emailOrPhoneVerificationCodeResponse = SendUpdateEmailOrPhoneVerificationCodeResponse.of();
     // Return the response indicating successful sending of the verification code
-    return localizer.of(SendUpdateEmailOrPhoneVerificationCodeResponse.of());
+    return localizer.of(emailOrPhoneVerificationCodeResponse);
   }
 
   /**
@@ -275,7 +282,9 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    */
   @Override
   @Transactional
-  public UpdatePhoneNumberResponse updatePhoneNumber(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final FleenUser user) {
+  public UpdatePhoneNumberResponse updatePhoneNumber(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final FleenUser user)
+    throws VerificationFailedException, ExpiredVerificationCodeException, InvalidVerificationCodeException,
+      PhoneNumberAlreadyExistsException {
     // Get the current user's email address
     final String username = user.getEmailAddress();
     // Generate the cache key for the phone number update verification
@@ -320,6 +329,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * @return a response indicating the outcome of the profile status update operation.
    */
   @Override
+  @Transactional
   public UpdateProfileStatusResponse updateProfileActive(final FleenUser user) {
     // Delegate to updateProfileStatus method to set the profile status to ACTIVE
     return updateProfileStatus(ProfileStatus.ACTIVE, user);
@@ -332,6 +342,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * @return a response indicating the outcome of the profile status update operation.
    */
   @Override
+  @Transactional
   public UpdateProfileStatusResponse updateProfileInactive(final FleenUser user) {
     // Delegate to updateProfileStatus method to set the profile status to INACTIVE
     return updateProfileStatus(ProfileStatus.INACTIVE, user);
@@ -345,6 +356,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * @return a response indicating the outcome of the profile photo update operation.
    */
   @Override
+  @Transactional
   public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final FleenUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
@@ -371,7 +383,8 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * @return a localized {@link RemoveProfilePhotoResponse} indicating the result of the operation.
    */
   @Override
-  public RemoveProfilePhotoResponse removeProfilePhoto(final FleenUser user) {
+  @Transactional
+  public RemoveProfilePhotoResponse removeProfilePhoto(final FleenUser user) throws FailedOperationException {
     // Find the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
     final String profilePhotoUrl = member.getProfilePhotoUrl();
@@ -419,8 +432,10 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
 
     // Retrieve the profile status info
     final ProfileStatusInfo profileStatusInfo = userMapper.toProfileStatusInfo(newProfileStatus);
+    // Create the response
+    final UpdateProfileStatusResponse updateProfileStatusResponse = UpdateProfileStatusResponse.of(profileStatusInfo);
     // Return a localized response
-    return localizer.of(UpdateProfileStatusResponse.of(profileStatusInfo));
+    return localizer.of(updateProfileStatusResponse);
   }
 
   /**

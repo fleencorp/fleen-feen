@@ -39,8 +39,8 @@ public class AddReviewDto {
   @JsonProperty("review_type")
   private String reviewType;
 
+  @IsNumber(message = "review.parentId.IsNumber")
   @JsonProperty("parent_id")
-  @IsNumber
   protected String parentId;
 
   public ReviewRating getRating() {

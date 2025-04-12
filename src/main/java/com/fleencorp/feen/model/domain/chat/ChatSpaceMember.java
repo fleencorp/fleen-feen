@@ -184,6 +184,8 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void approveJoinStatus() {
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.APPROVED;
+    left = false;
+    removed = false;
   }
 
   /**

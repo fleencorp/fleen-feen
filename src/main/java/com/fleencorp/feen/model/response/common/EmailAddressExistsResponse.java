@@ -18,7 +18,7 @@ public class EmailAddressExistsResponse extends EntityExistsResponse {
 
   @Override
   public String getMessageCode() {
-    return "email.address.exists";
+    return exists ? "email.address.exists" : "email.address.not.exists";
   }
 
   public static EmailAddressExistsResponse of(final boolean exists) {

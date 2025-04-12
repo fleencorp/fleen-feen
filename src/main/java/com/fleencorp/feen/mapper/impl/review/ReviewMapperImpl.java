@@ -103,7 +103,7 @@ public final class ReviewMapperImpl implements ReviewMapper {
     final ReviewResponse response = toReviewResponsePublic(entry);
 
     if (nonNull(response)) {
-      response.setIsUpdatable(true);
+      response.markAsUpdatable();
     }
 
     return response;
