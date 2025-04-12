@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.response.chat.space;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,19 +17,23 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "chat_space_id"
+  "chat_space_id",
+  "is_deleted_info"
 })
 public class DeleteChatSpaceResponse extends ApiResponse {
 
   @JsonProperty("chat_space_id")
   private Long chatSpaceId;
 
+  @JsonProperty("is_deleted_info")
+  private IsDeletedInfo deletedInfo;
+
   @Override
   public String getMessageCode() {
     return "delete.chat.space";
   }
 
-  public static DeleteChatSpaceResponse of(final Long chatSpaceId) {
-    return new DeleteChatSpaceResponse(chatSpaceId);
+  public static DeleteChatSpaceResponse of(final Long chatSpaceId, final IsDeletedInfo deletedInfo) {
+    return new DeleteChatSpaceResponse(chatSpaceId, deletedInfo);
   }
 }

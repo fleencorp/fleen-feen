@@ -16,10 +16,11 @@ import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.search.chat.space.event.EmptyChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
@@ -49,12 +50,13 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
 
   private final String delegatedAuthorityEmail;
+  private final ChatSpaceMemberService chatSpaceMemberService;
   private final MiscService miscService;
   private final StreamAttendeeService streamAttendeeService;
   private final StreamService streamService;
   private final EventUpdateService eventUpdateService;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final Localizer localizer;
   private final StreamMapper streamMapper;
 
@@ -62,6 +64,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    * Constructs a new {@link ChatSpaceEventServiceImpl} with the specified dependencies.
    *
    * @param delegatedAuthorityEmail The email address associated with the delegated authority, injected from the configuration.
+   * @param chatSpaceMemberService The service for managing chat space members
    * @param miscService The service that provides miscellaneous operations.
    * @param streamAttendeeService The service for managing stream attendee-related actions.
    * @param streamService The service responsible for stream-related actions.
@@ -73,15 +76,17 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    */
   public ChatSpaceEventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      final ChatSpaceMemberService chatSpaceMemberService,
       final MiscService miscService,
       final StreamAttendeeService streamAttendeeService,
       final StreamService streamService,
       final EventUpdateService eventUpdateService,
       final ChatSpaceRepository chatSpaceRepository,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final Localizer localizer,
       final StreamMapper streamMapper) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
+    this.chatSpaceMemberService = chatSpaceMemberService;
     this.miscService = miscService;
     this.streamAttendeeService = streamAttendeeService;
     this.streamService = streamService;
@@ -141,18 +146,20 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   @Override
   @Transactional
   public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final FleenUser user)
-    throws ChatSpaceNotFoundException, CalendarNotFoundException, FailedOperationException {
+      throws ChatSpaceNotFoundException, CalendarNotFoundException, FailedOperationException {
     // Find the chat space by its ID
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
+    // Check if user is a member of
+    chatSpaceMemberService.findByChatSpaceAndMember(chatSpace, user.toMember());
     // Find a calendar based on the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Create a calendar event request with the event details from the DTO
     final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.bySuper(createChatSpaceEventDto);
     // Update the calendar event request with additional details (external calendar ID, authority email, user email)
-    createCalendarEventRequest.update(calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress());
+    createCalendarEventRequest.update(calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress(), chatSpace.getMetadata());
 
     // Convert the event DTO into a FleenStream entity
-    FleenStream stream = createChatSpaceEventDto.toFleenStream(user.toMember(), chatSpace);
+    FleenStream stream = createChatSpaceEventDto.toStream(user.toMember(), chatSpace);
     // Get the organizer's display name or alias
     final String organizerAliasOrDisplayName = createChatSpaceEventDto.getOrganizerAlias(user.getFullName());
 
@@ -160,16 +167,33 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     stream.update(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
     // Save the updated FleenStream entity to the repository
     stream = streamRepository.save(stream);
+    // Increase attendees count, save the event
+    streamService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create the event in Google Calendar and announce it in the chat space
-    eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
+    createEventExternally(stream, createCalendarEventRequest);
     // Get the stream response
     final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    // Create the response
+    final CreateStreamResponse createStreamResponse = CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
     // Return a localized response with the created event's details
-    return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(createStreamResponse);
+  }
+
+  /**
+   * Creates a calendar event for the given stream using an external service.
+   *
+   * <p>This method delegates the operation to the {@code eventUpdateService}, which handles
+   * the creation of the event in Google Calendar and announces it in the chat space.
+   *
+   * @param stream the stream for which the calendar event is being created
+   * @param createCalendarEventRequest the request payload containing event details
+   */
+  private void createEventExternally(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+    eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
   }
 
   /**

@@ -5,6 +5,7 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.model.contract.SetIsOrganizer;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
@@ -13,6 +14,7 @@ import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipIn
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
+import com.fleencorp.feen.model.response.link.LinkResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +43,10 @@ import static java.util.Objects.nonNull;
   "total_request_to_join",
   "visibility_info",
   "status_info",
+  "is_deleted_info",
   "organizer",
   "some_members",
+  "links",
   "request_to_join_status_info",
   "join_status_info",
   "membership_info",
@@ -80,11 +84,17 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("status_info")
   private ChatSpaceStatusInfo statusInfo;
 
+  @JsonProperty("is_deleted_info")
+  private IsDeletedInfo deletedInfo;
+
   @JsonProperty("organizer")
   private Organizer organizer;
 
   @JsonProperty("some_members")
   private Set<ChatSpaceMemberResponse> someMembers = new HashSet<>();
+
+  @JsonProperty("links")
+  private Set<LinkResponse> links = new HashSet<>();
 
   @JsonProperty("request_to_join_status_info")
   private ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo;

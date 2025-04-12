@@ -5,7 +5,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl;
@@ -34,7 +34,7 @@ import static java.util.Objects.requireNonNull;
 public class EventUpdateServiceImpl implements EventUpdateService {
 
   private final OtherEventUpdateService otherEventUpdateService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final GoogleCalendarAttendeeServiceImpl googleCalendarAttendeeService;
   private final GoogleCalendarEventService googleCalendarEventService;
   private final GoogleChatService googleChatService;
@@ -56,7 +56,7 @@ public class EventUpdateServiceImpl implements EventUpdateService {
    */
   public EventUpdateServiceImpl(
       final OtherEventUpdateService otherEventUpdateService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final GoogleCalendarAttendeeServiceImpl googleCalendarAttendeeService,
       final GoogleCalendarEventService googleCalendarEventService,
       final GoogleChatService googleChatService,

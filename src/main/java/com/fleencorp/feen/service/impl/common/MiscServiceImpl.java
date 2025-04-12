@@ -2,15 +2,21 @@ package com.fleencorp.feen.service.impl.common;
 
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.model.contract.SetIsOrganizer;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
+import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
@@ -24,6 +30,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Service
 @Qualifier("misc")
 public class MiscServiceImpl implements
@@ -124,5 +131,43 @@ public class MiscServiceImpl implements
   @Override
   public PasswordEncoder getPasswordEncoder() {
     return passwordEncoder;
+  }
+
+  /**
+   * Determines whether the given user is the organizer of each {@code SetIsOrganizer} entry in the provided list.
+   * If the user is the organizer, the {@code isOrganizer} field of the {@code SetIsOrganizer} entry is set accordingly.
+   *
+   * <p>This method ensures that the list of entries, the user, and the user's ID are not null before proceeding.
+   * It then iterates over the list, checking whether the {@code organizerId} of each entry matches the given user's ID
+   * and updates the {@code isOrganizer} field accordingly.</p>
+   *
+   * @param entries the list of {@code SetIsOrganizer} objects to process
+   * @param user    the user whose organizer status is to be determined
+   */
+  public static void determineIfUserIsTheOrganizerOfEntity(final List<? extends SetIsOrganizer> entries, final FleenUser user) {
+    if (nonNull(entries) && !entries.isEmpty() && nonNull(user) && nonNull(user.getId())) {
+      entries.stream()
+        .filter(Objects::nonNull)
+        .forEach(entry -> {
+          determineIfUserIsTheOrganizerOfEntity(entry, user);
+      });
+    }
+  }
+
+  /**
+   * Determines if the provided user is the organizer of the given entity.
+   *
+   * <p>This method checks if the {@code setIsOrganizer} and {@code user} are non-null and if the user has a valid ID.
+   * It then compares the user's ID with the organizer's ID from {@code setIsOrganizer} and sets the {@code isOrganizer}
+   * flag accordingly.
+   *
+   * @param setIsOrganizer the object representing the entity whose organizer is being checked
+   * @param user the user whose role is being verified as the organizer of the entity
+   */
+  public static void determineIfUserIsTheOrganizerOfEntity(final SetIsOrganizer setIsOrganizer, final FleenUser user) {
+    if (nonNull(setIsOrganizer) && nonNull(user) && nonNull(user.getId())) {
+      final boolean isOrganizer = setIsOrganizer.getOrganizerId().equals(user.getId());
+      setIsOrganizer.setIsOrganizer(isOrganizer);
+    }
   }
 }

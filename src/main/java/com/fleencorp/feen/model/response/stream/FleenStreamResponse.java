@@ -51,6 +51,7 @@ import static java.util.Objects.nonNull;
   "organizer",
   "is_for_kids_info",
   "stream_link",
+  "music_link",
   "stream_type_info",
   "stream_source_info",
   "stream_status_info",
@@ -88,6 +89,9 @@ public class FleenStreamResponse extends FleenFeenResponse
   @JsonFormat(shape = STRING)
   @JsonProperty("stream_link")
   private MaskedStreamLinkUri streamLink;
+
+  @JsonProperty("music_link")
+  private String musicLink;
 
   @JsonProperty("stream_type_info")
   private StreamTypeInfo streamTypeInfo;

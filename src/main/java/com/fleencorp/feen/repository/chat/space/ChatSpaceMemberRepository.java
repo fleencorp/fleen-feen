@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.chat;
+package com.fleencorp.feen.repository.chat.space;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
@@ -21,15 +21,35 @@ import java.util.Set;
 
 public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember, Long> {
 
-  @Query(value = "SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND (csm.member.firstName = :name OR csm.member.lastName = :name)")
+  @Query(value =
+    """
+        SELECT csm FROM ChatSpaceMember csm
+        WHERE csm.chatSpace = :chatSpace AND (csm.member.firstName = :name OR csm.member.lastName = :name)
+        ORDER BY
+        CASE WHEN csm.role = 'ADMIN' THEN 0 ELSE 1 END,
+        csm.updatedOn DESC
+    """)
   Page<ChatSpaceMember> findByChatSpaceAndMemberName(@Param("chatSpace") ChatSpace chatSpace, @Param("name") String memberName, Pageable pageable);
 
-  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpaceMemberId IS NOT NULL AND csm.chatSpace = :chatSpace ORDER BY csm.updatedOn DESC")
+  @Query(value =
+    """
+        SELECT csm FROM ChatSpaceMember csm
+        WHERE csm.chatSpaceMemberId IS NOT NULL AND csm.chatSpace = :chatSpace
+        ORDER BY
+        CASE WHEN csm.role = 'ADMIN' THEN 0 ELSE 1 END,
+        csm.updatedOn DESC
+    """)
   Page<ChatSpaceMember> findByChatSpace(@Param("chatSpace") ChatSpace chatSpace, Pageable pageable);
+
+  @Query(value = "SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.role = 'ADMIN' AND (csm.member.firstName = :name OR csm.member.lastName = :name)")
+  Page<ChatSpaceMember> findAdminByChatSpaceAndMemberName(@Param("chatSpace") ChatSpace chatSpace, @Param("name") String memberName, Pageable pageable);
+
+  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpaceMemberId IS NOT NULL AND csm.chatSpace = :chatSpace AND csm.role = 'ADMIN' ORDER BY csm.updatedOn DESC")
+  Page<ChatSpaceMember> findAdminByChatSpace(@Param("chatSpace") ChatSpace chatSpace, Pageable pageable);
 
   Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Member member);
 
-  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.chatSpaceMemberId =: chatSpaceMemberId")
+  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.chatSpaceMemberId = :chatSpaceMemberId")
   Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Long chatSpaceMemberId);
 
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.member = :member AND csm.requestToJoinStatus = :joinStatus")
@@ -41,17 +61,17 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.role = :role")
   Set<ChatSpaceMember> findByChatSpaceAndRole(@Param("chatSpace") ChatSpace chatSpace, @Param("role") ChatSpaceMemberRole role);
 
-  @Query(value = "SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.requestToJoinStatus = :joinStatus ORDER BY csm.updatedOn DESC")
-  Page<ChatSpaceMember> findByChatSpaceAndRequestToJoinStatus(ChatSpace chatSpace, @Param("joinStatus") ChatSpaceRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+  @Query(value = "SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.requestToJoinStatus IN (:requestToJoinStatuses) ORDER BY csm.updatedOn DESC")
+  Page<ChatSpaceMember> findByChatSpaceAndRequestToJoinStatus(ChatSpace chatSpace, @Param("requestToJoinStatuses") Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, Pageable pageable);
 
 
   @Query(value =
     """
         SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace
         AND (csm.member.firstName = :name OR csm.member.lastName = :name)
-        AND csm.requestToJoinStatus = :joinStatus ORDER BY csm.updatedOn DESC
+        AND csm.requestToJoinStatus IN (:requestToJoinStatuses) ORDER BY csm.updatedOn DESC
     """)
-  Page<ChatSpaceMember> findByChatSpaceAndMemberNameRequestToJoinStatus(ChatSpace chatSpace, @Param("name") String memberName, @Param("joinStatus") ChatSpaceRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+  Page<ChatSpaceMember> findByChatSpaceAndMemberNameRequestToJoinStatus(ChatSpace chatSpace, @Param("name") String memberName, @Param("requestToJoinStatuses") Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, Pageable pageable);
 
 
   @EntityGraph(attributePaths = {"chatSpace"})

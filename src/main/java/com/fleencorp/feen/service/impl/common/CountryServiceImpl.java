@@ -103,10 +103,10 @@ public class CountryServiceImpl implements CountryService {
   * @throws CountryNotFoundException if no Country is found with the specified ID
   */
   @Override
-  public RetrieveCountryResponse getCountry(final Long countryId) {
+  public RetrieveCountryResponse getCountry(final Long countryId) throws CountryNotFoundException {
     // Find country based on ID or throw an exception if it can't be found
     final Country country = repository.findById(countryId)
-            .orElseThrow(CountryNotFoundException.of(countryId));
+      .orElseThrow(CountryNotFoundException.of(countryId));
     // Return a localized response containing details of country
     return localizer.of(RetrieveCountryResponse.of(toCountryResponse(country)));
   }

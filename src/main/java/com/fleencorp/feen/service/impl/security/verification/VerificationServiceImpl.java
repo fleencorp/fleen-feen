@@ -10,9 +10,7 @@ import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
-import com.fleencorp.feen.exception.verification.ResetPasswordCodeExpiredException;
-import com.fleencorp.feen.exception.verification.ResetPasswordCodeInvalidException;
-import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.exception.verification.*;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.domain.user.ProfileToken;
 import com.fleencorp.feen.model.domain.user.Role;
@@ -130,7 +128,9 @@ public class VerificationServiceImpl implements PasswordService,
    */
   @Override
   @Transactional
-  public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final FleenUser user) {
+  public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final FleenUser user)
+      throws AlreadySignedUpException, VerificationFailedException, ExpiredVerificationCodeException,
+        InvalidVerificationCodeException, FailedOperationException {
     final String username = user.getUsername();
     // Validate sign-up verification code
     validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
@@ -176,7 +176,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @param code     the verification code to validate
    * @throws VerificationFailedException if the username or code is null
    */
-  protected void validateSignUpVerificationCode(final String username, final String code) {
+  protected void validateSignUpVerificationCode(final String username, final String code) throws VerificationFailedException {
     // Check if the username or code is null
     if (isNull(username) || isNull(code)) {
       throw new VerificationFailedException();
@@ -398,7 +398,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @return ResendSignUpVerificationCodeResponse indicating the successful initiation of code resend
    */
   @Override
-  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, final FleenUser user) {
+  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, final FleenUser user) throws AlreadySignedUpException, FailedOperationException {
     // Generate a new OTP
     final String otpCode = generateOtp();
     // Verify if the two provided email addresses is the same
@@ -412,8 +412,10 @@ public class VerificationServiceImpl implements PasswordService,
     authenticationService.sendSignUpVerificationMessage(otpCode, verificationType, user);
     // Save the newly generated verification code temporarily for the user
     authenticationService.saveSignUpVerificationCodeTemporarily(user.getUsername(), otpCode);
+    // Create the response
+    final ResendSignUpVerificationCodeResponse resendSignUpVerificationCodeResponse = ResendSignUpVerificationCodeResponse.of();
     // Return response indicating the successful initiation of code resend
-    return localizer.of(ResendSignUpVerificationCodeResponse.of());
+    return localizer.of(resendSignUpVerificationCodeResponse);
   }
 
   /**
@@ -458,8 +460,10 @@ public class VerificationServiceImpl implements PasswordService,
     sendResendMfaVerificationMessage(resendMfaVerificationCodeDto, user, otpCode);
     // Save the newly generated verification code temporarily for the user
     authenticationService.saveMfaVerificationCodeTemporarily(user.getUsername(), otpCode);
+    // Create the response
+    final ResendMfaVerificationCodeResponse resendMfaVerificationCodeResponse = ResendMfaVerificationCodeResponse.of();
     // Return response indicating the successful initiation of code resend
-    return localizer.of(ResendMfaVerificationCodeResponse.of());
+    return localizer.of(resendMfaVerificationCodeResponse);
   }
 
   /**
@@ -555,7 +559,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @throws ResetPasswordCodeExpiredException if the reset password code has expired
    */
   @Override
-  public InitiatePasswordChangeResponse verifyResetPasswordCode(final ResetPasswordDto resetPasswordDto) {
+  public InitiatePasswordChangeResponse verifyResetPasswordCode(final ResetPasswordDto resetPasswordDto) throws UserNotFoundException, ResetPasswordCodeInvalidException {
     // Retrieve the email address from the reset password DTO
     final String emailAddress = resetPasswordDto.getEmailAddress();
     // Fetch the member by email address or throw an exception if not found
@@ -661,7 +665,7 @@ public class VerificationServiceImpl implements PasswordService,
    */
   @Override
   @Transactional
-  public ForgotPasswordResponse forgotPassword(final ForgotPasswordDto forgotPasswordDto) {
+  public ForgotPasswordResponse forgotPassword(final ForgotPasswordDto forgotPasswordDto) throws UserNotFoundException {
     // Retrieve user's email address from DTO
     final String emailAddress = forgotPasswordDto.getEmailAddress();
     // Retrieve member details from repository or throw exception if not found
@@ -747,7 +751,9 @@ public class VerificationServiceImpl implements PasswordService,
    * @throws UserNotFoundException if the user with the provided email address is not found
    */
   @Override
-  public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final FleenUser user) {
+  @Transactional
+  public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final FleenUser user)
+    throws UserNotFoundException, InvalidAuthenticationException {
     final String emailAddress = user.getEmailAddress();
     // Check if user has associated reset password access token
     verifyUserHasResetPasswordToken(emailAddress);

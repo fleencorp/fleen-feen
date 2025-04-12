@@ -104,8 +104,10 @@ public class CalendarServiceImpl implements CalendarService {
    */
   @Override
   public DataForCreateCalendarResponse getDataForCreateCalendar() {
+    // Create the search request
+    final CountrySearchRequest countrySearchRequest = CountrySearchRequest.ofPageSize(1000);
     // Fetch a list of countries with a large number of entries (1000 in this case).
-    final CountrySearchResult searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    final CountrySearchResult searchResult = countryService.findCountries(countrySearchRequest);
     // Get the countries in the search result
     final List<?> countries = searchResult.getResult().getValues();
     // Get the set of available timezones.
@@ -201,7 +203,10 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
-    return localizer.of(CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    // Create the response
+    final CreateCalendarResponse createCalendarResponse = CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
+    // Return the response
+    return localizer.of(createCalendarResponse);
   }
 
   /**
@@ -247,7 +252,10 @@ public class CalendarServiceImpl implements CalendarService {
     final GooglePatchCalendarResponse googlePatchCalendarResponse = googleCalendarService.patchCalendar(patchCalendarRequest);
     logIfEnabled(log::isInfoEnabled, () -> log.info("Patch calendar response: {}", googlePatchCalendarResponse));
 
-    return localizer.of(UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    // Create the response
+    final UpdateCalendarResponse updateCalendarResponse = UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
+    // Return the response
+    return localizer.of(updateCalendarResponse);
   }
 
   /**
@@ -289,7 +297,10 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
-    return localizer.of(ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar)));
+    // Create the response
+    final ReactivateCalendarResponse reactivateCalendarResponse = ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
+    // Return the response
+    return localizer.of(reactivateCalendarResponse);
   }
 
   /**

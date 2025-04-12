@@ -109,9 +109,13 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "other_link", length = 1000)
   private String otherLink;
 
+  @Column(name = "music_link", length = 1000)
+  private String musicLink;
+
   @Column(name = "group_or_organization_name", length = 1000)
   private String groupOrOrganizationName;
 
+  /** Use for query purpose in repositories **/
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
   private Long organizerId;
 
