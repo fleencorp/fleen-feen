@@ -107,6 +107,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());
+      response.setOrganizerId(entry.getOrganizerId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
@@ -121,12 +122,26 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
       response.setOrganizer(organizer);
 
-      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of();
-      response.setRequestToJoinStatusInfo(requestToJoinStatusInfo);
-
       final JoinStatus joinStatus = JoinStatus.byChatSpaceStatus(entry.isPrivate());
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
-      response.setJoinStatusInfo(joinStatusInfo);
+
+      final IsAChatSpaceMemberInfo isAMemberInfo = chatSpaceMemberMapper.toIsAChatSpaceMemberInfo(false);
+      final IsAChatSpaceAdminInfo isAAdminInfo = chatSpaceMemberMapper.toIsAChatSpaceAdminInfo(false);
+      final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = chatSpaceMemberMapper.toIsChatSpaceMemberLeftInfo(false);
+      final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = chatSpaceMemberMapper.toIsChatSpaceMemberRemovedInfo(false);
+      final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo = chatSpaceMemberMapper.toMemberRoleInfo(ChatSpaceMemberRole.MEMBER);
+      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of();
+
+      final ChatSpaceMembershipInfo membershipInfo = ChatSpaceMembershipInfo.of(
+        requestToJoinStatusInfo,
+        joinStatusInfo,
+        chatSpaceMemberRoleInfo,
+        isAMemberInfo,
+        isAAdminInfo,
+        isChatSpaceMemberLeftInfo,
+        isChatSpaceMemberRemovedInfo
+      );
+      response.setMembershipInfo(membershipInfo);
 
       return response;
 
@@ -151,7 +166,7 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final ChatSpaceRequestToJoinStatus requestToJoinStatus = ChatSpaceRequestToJoinStatus.approved();
 
-      setMembershipInfo(chatSpaceResponse, requestToJoinStatus, joinStatus, ChatSpaceMemberRole.ADMIN, true, true);
+      setMembershipInfo(chatSpaceResponse, requestToJoinStatus, joinStatus, ChatSpaceMemberRole.ADMIN, true, true, false, false);
       return chatSpaceResponse;
     }
     return null;
@@ -207,14 +222,16 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final JoinStatus joinStatus,
       final ChatSpaceMemberRole chatSpaceMemberRole,
       final boolean isAMember,
-      final boolean isAdmin) {
+      final boolean isAdmin,
+      final boolean hasLeft,
+      final boolean isRemoved) {
     if (nonNull(chatSpace)) {
       final JoinStatusInfo joinStatusInfo = chatSpaceMemberMapper.toJoinStatusInfo(chatSpace, joinStatus);
       final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = chatSpaceMemberMapper.toRequestToJoinStatusInfo(chatSpace, requestToJoinStatus);
       final IsAChatSpaceMemberInfo isAChatSpaceMemberInfo = chatSpaceMemberMapper.toIsAChatSpaceMemberInfo(isAMember);
       final IsAChatSpaceAdminInfo isAChatSpaceAdminInfo = chatSpaceMemberMapper.toIsAChatSpaceAdminInfo(isAdmin);
-      final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = chatSpaceMemberMapper.toIsChatSpaceMemberLeftInfo(isAMember);
-      final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = chatSpaceMemberMapper.toIsChatSpaceMemberRemovedInfo(isAMember);
+      final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = chatSpaceMemberMapper.toIsChatSpaceMemberLeftInfo(hasLeft);
+      final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = chatSpaceMemberMapper.toIsChatSpaceMemberRemovedInfo(isRemoved);
       final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo = chatSpaceMemberMapper.toMemberRoleInfo(chatSpaceMemberRole);
 
       final ChatSpaceMembershipInfo chatSpaceMembershipInfo = ChatSpaceMembershipInfo.of(

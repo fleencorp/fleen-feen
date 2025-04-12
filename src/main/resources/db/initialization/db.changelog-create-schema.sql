@@ -160,7 +160,7 @@ CREATE TABLE chat_space (
     NOT NULL CHECK (space_visibility IN ('PUBLIC', 'PRIVATE')),
 
   space_status VARCHAR(255) DEFAULT 'ACTIVE'
-    NOT NULL CHECK (space_visibility IN ('ACTIVE', 'INACTIVE')),
+    NOT NULL CHECK (space_status IN ('ACTIVE', 'INACTIVE')),
 
   member_id BIGINT NOT NULL,
 
@@ -188,6 +188,9 @@ CREATE TABLE chat_space_member (
   external_id_or_name VARCHAR(1000),
   member_comment VARCHAR(1000) NULL,
   space_admin_comment VARCHAR(1000) NULL,
+
+  has_left BOOLEAN NOT NULL DEFAULT false,
+  is_removed BOOLEAN NOT NULL DEFAULT false,
 
   role VARCHAR(255) DEFAULT 'MEMBER'
     NOT NULL CHECK (role IN ('MEMBER', 'ADMIN')),

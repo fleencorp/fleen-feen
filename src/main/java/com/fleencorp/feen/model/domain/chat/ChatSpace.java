@@ -175,6 +175,9 @@ public class ChatSpace extends FleenFeenEntity {
     return ChatSpaceVisibility.isPrivate(spaceVisibility);
   }
 
+  private boolean isPublic() {
+    return ChatSpaceVisibility.isPublic(spaceVisibility);
+  }
 
   /**
    * Checks if the given member ID corresponds to the organizer of this chat space.
@@ -239,7 +242,7 @@ public class ChatSpace extends FleenFeenEntity {
    * @param memberOrUserId the ID of the user or member to check
    * @throws FailedOperationException if the user is the organizer of the chat space
    */
-  public void checkIsNotOrganizer(final Long memberOrUserId) {
+  public void checkIsNotOrganizer(final Long memberOrUserId) throws FailedOperationException {
     // Check if the chat space organizer's ID matches the user's ID
     final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
     if (isSame) {
@@ -264,23 +267,25 @@ public class ChatSpace extends FleenFeenEntity {
    *
    * @throws ChatSpaceNotActiveException if the chat space is active or enabled
    */
-  public void checkIsInactive() {
+  public void checkIsInactive() throws ChatSpaceNotActiveException {
     if (isInactive()) {
       // Throw an exception if the chat space is disabled or inactive
       throw new ChatSpaceNotActiveException();
     }
   }
 
-  /**
-   * Ensures the chat space is not private for joining without approval.
-   *
-   * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is private and requires approval to join
-   */
-  public void checkNotPrivateForJoining() {
+  public void checkIsNotPrivate() throws CannotJoinPrivateChatSpaceWithoutApprovalException {
     if (isPrivate()) {
       throw CannotJoinPrivateChatSpaceWithoutApprovalException.of(chatSpaceId);
     }
   }
+
+  public void checkIsNotPublic() throws FailedOperationException {
+    if (isPublic()) {
+      throw new FailedOperationException();
+    }
+  }
+
 
   public static ChatSpace of(final Long chatSpaceId) {
     final ChatSpace chatSpace = new ChatSpace();

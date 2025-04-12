@@ -27,6 +27,7 @@ import com.fleencorp.feen.repository.chat.UserChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus.PENDING;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 import static java.util.Objects.nonNull;
 
 /**
@@ -51,6 +53,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Service
 public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
 
@@ -124,15 +127,13 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     }
 
     // Convert the retrieved chat spaces to response objects
-    final List<ChatSpaceResponse> views = chatSpaceMapper.toChatSpaceResponses(page.getContent());
-    // Determine user join status of spaces
-    determineUserJoinStatusFoChatSpace(views, user);
-    // Get the first 10 attendees for each chat space
-    setFirst10MembersInAnyOrderOnChatSpaces(views);
+    final List<ChatSpaceResponse> chatSpaceResponses = chatSpaceMapper.toChatSpaceResponses(page.getContent());
+    // Process other details of the chat space responses
+    processOtherChatSpaceDetails(chatSpaceResponses, user);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
-      localizer.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
+      localizer.of(ChatSpaceSearchResult.of(toSearchResult(chatSpaceResponses, page))),
       localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
@@ -210,15 +211,13 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     }
 
     // Convert the retrieved chat spaces from membership to response objects
-    final List<ChatSpaceResponse> views = extractUserChatSpaceFromMembershipAndCreateChatResponse(page.getContent());
-    // Determine user join status of spaces
-    determineUserJoinStatusFoChatSpace(views, user);
-    // Get the first 10 attendees for each chat space
-    setFirst10MembersInAnyOrderOnChatSpaces(views);
+    final List<ChatSpaceResponse> chatSpaceResponses = extractUserChatSpaceFromMembershipAndCreateChatResponse(page.getContent());
+    // Process other details of the chat space responses
+    processOtherChatSpaceDetails(chatSpaceResponses, user);
     // Return a search result view with the chat space responses and pagination details
     return handleSearchResult(
       page,
-      localizer.of(ChatSpaceSearchResult.of(toSearchResult(views, page))),
+      localizer.of(ChatSpaceSearchResult.of(toSearchResult(chatSpaceResponses, page))),
       localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
     );
   }
@@ -240,14 +239,14 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Get the equivalent chat space response
     final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponse(chatSpace);
-    // Update join status of user in the chat space response
-    updateUserJoinStatus(chatSpaceResponse, user);
     // Create a list
     final List<ChatSpaceResponse> chatSpaceResponses = List.of(chatSpaceResponse);
-    // Get the first 10 attendees for each chat space
-    setFirst10MembersInAnyOrderOnChatSpaces(chatSpaceResponses);
+    // Process other details of the chat space responses
+    processOtherChatSpaceDetails(chatSpaceResponses, user);
+    // Create the response
+    final RetrieveChatSpaceResponse retrieveChatSpaceResponse = RetrieveChatSpaceResponse.of(chatSpaceResponse);
     // Return a localized response containing the chat space details
-    return localizer.of(RetrieveChatSpaceResponse.of(chatSpaceResponse));
+    return localizer.of(retrieveChatSpaceResponse);
   }
 
   /**
@@ -273,6 +272,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
             chatSpaceMember.getRequestToJoinStatus(),
             chatSpaceResponse.getVisibility(),
             chatSpaceMember.isAMember(),
+            chatSpaceMember.hasLeft(),
             chatSpaceMember.isRemoved()
           );
 
@@ -283,9 +283,11 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
             joinStatus,
             chatSpaceMember.getRole(),
             chatSpaceMember.isAMember(),
-            chatSpaceMember.isAdmin()
+            chatSpaceMember.isAdmin(),
+            chatSpaceMember.hasLeft(),
+            chatSpaceMember.isRemoved()
           );
-        });
+      });
     }
   }
 
@@ -475,7 +477,9 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
             membership.getJoinStatus(),
             membership.getRole(),
             membership.isAMember(),
-            membership.isAdmin()
+            membership.isAdmin(),
+            membership.hasLeft(),
+            membership.isRemoved()
           ));
       });
     }
@@ -570,8 +574,140 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
           final List<ChatSpaceMemberResponse> chatSpaceMembers = chatSpaceMemberMapper.toChatSpaceMemberResponsesPublic(page.getContent());
           // Set the attendees on the response
           chatSpace.setSomeMembers(new HashSet<>(chatSpaceMembers));
-        });
+      });
     }
+  }
+
+  /**
+   * Processes additional details for the given list of chat space responses, including membership status
+   * and organizer determination.
+   *
+   * <p>This method first checks that the provided list of chat space responses and user are not null.
+   * It then retrieves the user's membership status for the chat spaces and processes each response
+   * by setting membership details, retrieving recent members, and determining if the user is the organizer.</p>
+   *
+   * @param chatSpacesResponses the list of chat space responses to process
+   * @param user                the user whose membership and organizer status are to be determined
+   */
+  private void processOtherChatSpaceDetails(List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+    // Check if chat spaces and user are non-null and user has a member associated
+    if (nonNull(chatSpacesResponses) && !chatSpacesResponses.isEmpty() && nonNull(user) && nonNull(user.toMember())) {
+      // Get the user's membership status map for the chat spaces
+      final Map<Long, ChatSpaceMemberSelect> membershipStatusMap = getUserMembershipStatusMap(chatSpacesResponses, user);
+
+      log.info("The user full name is {}", user.toMember().getFullName());
+
+      // Process each non-null chat space response
+      chatSpacesResponses.stream()
+        .filter(Objects::nonNull)
+        .forEach(chatSpaceResponse ->
+          processChatSpaceResponse(chatSpaceResponse, membershipStatusMap, user)); // Process each chat space
+    }
+  }
+
+
+  /**
+   * Retrieves the user's membership status for the given list of chat spaces and returns it as a map.
+   *
+   * <p>This method extracts the chat space IDs from the provided {@code chatSpacesResponses},
+   * fetches the user's membership details for those chat spaces from the repository,
+   * and groups the membership status by chat space ID.</p>
+   *
+   * @param chatSpacesResponses the list of chat space responses to process
+   * @param user                the user whose membership status is to be retrieved
+   * @return a map where the keys are chat space IDs and the values are the corresponding membership status
+   */
+  private Map<Long, ChatSpaceMemberSelect> getUserMembershipStatusMap(List<ChatSpaceResponse> chatSpacesResponses, FleenUser user) {
+    // Extract chat space IDs from the responses
+    final List<Long> chatSpaceIds = extractAndGetChatSpaceIds(chatSpacesResponses);
+    // Convert the user to a domain
+    final Member member = user.toMember();
+    // Retrieve the user's membership details for the given chat spaces
+    final List<ChatSpaceMemberSelect> userMemberships = chatSpaceMemberRepository.findByMemberAndChatSpaceIds(member, chatSpaceIds);
+    // Group membership statuses by chat space ID
+    return groupMemberStatusByChatSpaceId(userMemberships);
+  }
+
+  /**
+   * Processes the given {@code ChatSpaceResponse} by setting membership status, recent members,
+   * and determining if the given user is the organizer.
+   *
+   * <p>This method sets the membership status of the chat space using the provided {@code membershipStatusMap}.
+   * It retrieves and assigns some of the most recent approved members to the chat space response.
+   * Additionally, it determines whether the given user is the organizer of the chat space.</p>
+   *
+   * @param chatSpaceResponse    the chat space response object to process
+   * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
+   * @param user                 the user whose organizer status is to be determined
+   */
+  private void processChatSpaceResponse(ChatSpaceResponse chatSpaceResponse, Map<Long, ChatSpaceMemberSelect> membershipStatusMap, FleenUser user) {
+    // Set user's membership status
+    setMembershipStatus(chatSpaceResponse, membershipStatusMap);
+    // Populate recent chat space members
+    setSomeRecentChatSpaceMembers(chatSpaceResponse);
+    // Check if the user is the organizer
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceResponse, user);
+  }
+
+  /**
+   * Sets the membership status for the given {@code ChatSpaceResponse} using the provided membership status map.
+   *
+   * <p>This method retrieves the membership details for the chat space from the given {@code membershipStatusMap}
+   * using the {@code numberId} of the {@code chatSpaceResponse}. If a matching entry is found, it updates
+   * the chat space response with membership-related information.</p>
+   *
+   * @param chatSpaceResponse    the chat space response object to update with membership details
+   * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
+   */
+  private void setMembershipStatus(ChatSpaceResponse chatSpaceResponse, Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
+    Optional.ofNullable(membershipStatusMap.get(chatSpaceResponse.getNumberId()))
+      .ifPresent(membership -> {
+        log.info("The chat space title is {} and the id is {} and the join status is {} and the request to join status is {}",
+          chatSpaceResponse.getTitle(),
+          chatSpaceResponse.getId(),
+          membership.getJoinStatus(),
+          membership.getRequestToJoinStatus());
+
+        chatSpaceMapper.setMembershipInfo(
+          chatSpaceResponse,
+          membership.getRequestToJoinStatus(),
+          membership.getJoinStatus(),
+          membership.getRole(),
+          membership.isAMember(),
+          membership.isAdmin(),
+          membership.hasLeft(),
+          membership.isRemoved()
+        );
+      });
+  }
+
+  /**
+   * Sets a subset of recently approved members for the given {@code ChatSpaceResponse}.
+   *
+   * <p>This method retrieves a limited number of active members from the chat space, converts them into
+   * {@code ChatSpaceMemberResponse} objects, and assigns them as a set to the {@code someMembers} field of
+   * the provided {@code ChatSpaceResponse}.</p>
+   *
+   * @param chatSpaceResponse the chat space response object to which the recent members will be assigned
+   */
+  private void setSomeRecentChatSpaceMembers(ChatSpaceResponse chatSpaceResponse) {
+    // Convert chat space ID to string
+    final String chatSpaceIdStr = chatSpaceResponse.getId().toString();
+    // Parse string ID to Long
+    final Long chatSpaceId = Long.parseLong(chatSpaceIdStr);
+    // Create a pageable request to fetch a limited number of members
+    final Pageable pageable = PageRequest.of(0, DEFAULT_NUMBER_OF_MEMBERS_TO_GET_FOR_CHAT_SPACE);
+    // Retrieve active chat space members with approved status
+    final Page<ChatSpaceMember> page = chatSpaceMemberRepository
+      .findActiveChatSpaceMembers(ChatSpace.of(chatSpaceId), ChatSpaceRequestToJoinStatus.APPROVED, pageable);
+
+    // Convert members to their response representation
+    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = chatSpaceMemberMapper
+      .toChatSpaceMemberResponsesPublic(page.getContent());
+    // Convert list to a set to ensure uniqueness
+    final Set<ChatSpaceMemberResponse> chatSpaceMemberResponsesSet = new HashSet<>(chatSpaceMemberResponses);
+    // Set members in response object
+    chatSpaceResponse.setSomeMembers(chatSpaceMemberResponsesSet);
   }
 
 }

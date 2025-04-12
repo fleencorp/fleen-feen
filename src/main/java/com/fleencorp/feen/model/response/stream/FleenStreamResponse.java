@@ -5,6 +5,7 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.contract.SetIsOrganizer;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
@@ -63,7 +64,8 @@ import static java.util.Objects.nonNull;
   "is_private",
   "attendance_info"
 })
-public class FleenStreamResponse extends FleenFeenResponse {
+public class FleenStreamResponse extends FleenFeenResponse
+    implements SetIsOrganizer {
 
   @JsonProperty("title")
   private String title;
@@ -177,6 +179,9 @@ public class FleenStreamResponse extends FleenFeenResponse {
     return schedule.getEndDate().isBefore(LocalDateTime.now());
   }
 
+  @JsonIgnore
+  private Long organizerId;
+
   /**
    * Disables and resets the unmasked stream link if the join status is not approved.
    *
@@ -196,6 +201,10 @@ public class FleenStreamResponse extends FleenFeenResponse {
     if (nonNull(review)) {
       reviews.add(review);
     }
+  }
+
+  public void setIsOrganizer(final boolean isOrganizer) {
+    this.organizer.setIsOrganizer(isOrganizer);
   }
 
 }

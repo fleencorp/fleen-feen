@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Enum representing different join statuses for stream attendees.
@@ -16,6 +17,7 @@ import lombok.Getter;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Getter
 public enum JoinStatus implements ApiParameter {
 
@@ -197,12 +199,32 @@ public enum JoinStatus implements ApiParameter {
     return StreamVisibility.isPublic(visibility) && StreamAttendeeRequestToJoinStatus.isDisapproved(status);
   }
 
-  public static JoinStatus getJoinStatus(final ChatSpaceRequestToJoinStatus requestToJoinStatus, final ChatSpaceVisibility visibility, final boolean aMember, final boolean removed) {
+  /**
+   * Determines and returns the appropriate {@link JoinStatus} for a user based on the given
+   * request status, chat space visibility, and membership conditions.
+   *
+   * <p>
+   * If the user is approved, the chat space is visible, and the user is a member, it returns {@code joinedChatSpace}.
+   * If the user is approved, the chat space is visible, and the user has been removed, it returns {@code removedFromChatSpace}.
+   * If the user is approved, the chat space is visible, and the user has left, it returns {@code leftChatSpace}.
+   * If the request is disapproved and the chat space is private, it returns {@code notJoinedPrivate}.
+   * If the request is disapproved and the chat space is public, it returns {@code notJoinedPublic}.
+   * If none of these conditions match, it defaults to returning {@code pending}.
+   * </p>
+   *
+   * @param requestToJoinStatus the status of the user's request to join the chat space
+   * @param visibility the visibility setting of the chat space (public or private)
+   * @param aMember {@code true} if the user is currently a member of the chat space
+   * @param hasLeft {@code true} if the user has previously left the chat space
+   * @param isRemoved {@code true} if the user was removed from the chat space
+   * @return the appropriate {@link JoinStatus} based on the evaluated conditions
+   */
+  public static JoinStatus getJoinStatus(final ChatSpaceRequestToJoinStatus requestToJoinStatus, final ChatSpaceVisibility visibility, final boolean aMember, final boolean hasLeft, final boolean isRemoved) {
     if (isApprovedAndVisibleAndAMember(visibility, requestToJoinStatus, aMember)) {
       return JoinStatus.joinedChatSpace();
-    } else if (isApprovedAndVisibleAndRemoved(visibility, requestToJoinStatus, removed)) {
+    } else if (isApprovedAndVisibleAndRemoved(visibility, requestToJoinStatus, isRemoved)) {
       return JoinStatus.removedFromChatSpace();
-    } else if (isApprovedAndVisibleAndLeft(visibility, requestToJoinStatus, aMember)) {
+    } else if (isApprovedAndVisibleAndLeft(visibility, requestToJoinStatus, hasLeft)) {
       return JoinStatus.leftChatSpace();
     } else if (isDisapprovedForPrivate(visibility, requestToJoinStatus)) {
       return JoinStatus.notJoinedPrivate();
@@ -235,7 +257,7 @@ public enum JoinStatus implements ApiParameter {
   }
 
   private static boolean isApprovedAndVisibleAndAMember(final ChatSpaceVisibility visibility, final ChatSpaceRequestToJoinStatus status, final Boolean aMember) {
-    return (isApprovedAndVisible(visibility, status)) && !aMember;
+    return (isApprovedAndVisible(visibility, status)) && aMember;
   }
 
   /**

@@ -97,6 +97,7 @@ public class StreamMapperImpl implements StreamMapper {
       response.setStreamLinkUnmasked(entry.getStreamLink());
       response.setStreamLinkNotMasked(entry.getStreamLink());
       response.setTotalAttending(entry.getTotalAttendees());
+      response.setOrganizerId(entry.getOrganizerId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
