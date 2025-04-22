@@ -23,6 +23,7 @@ import static java.util.Objects.nonNull;
   "stream_id",
   "attendance_info",
   "stream_type_info",
+  "stream_link",
   "total_attending"
 })
 public class JoinStreamResponse extends ApiResponse {
@@ -35,6 +36,9 @@ public class JoinStreamResponse extends ApiResponse {
 
   @JsonProperty("stream_type_info")
   private StreamTypeInfo streamTypeInfo;
+
+  @JsonProperty("stream_link")
+  private String streamLink;
 
   @JsonProperty("total_attending")
   private Long totalAttending;
@@ -49,7 +53,7 @@ public class JoinStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "join.event" : "join.live.broadcast";
   }
 
-  public static JoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Long totalAttending) {
-    return new JoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending);
+  public static JoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final String streamLink, final Long totalAttending) {
+    return new JoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, streamLink, totalAttending);
   }
 }

@@ -2,6 +2,9 @@ package com.fleencorp.feen.model.domain.chat;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpaceException;
+import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -64,9 +67,6 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @Column(name = "is_removed", nullable = false)
   private Boolean removed = false;
 
-  @Column(name = "is_admin", nullable = false)
-  private Boolean admin = false;
-
   @Column(name = "member_comment", length = 1000)
   private String memberComment;
 
@@ -124,7 +124,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * @return true if the member has left the chat space, false otherwise
    */
   public boolean hasLeft() {
-    return nonNull(left);
+    return nonNull(left) && left;
   }
 
   /**
@@ -139,7 +139,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * @return true if the user is still a member of the chat space, false otherwise
    */
   public boolean isAMember() {
-    return !isRemoved() && !hasLeft();
+    return isRequestToJoinApproved() && !isRemoved() && !hasLeft();
   }
 
   /**
@@ -151,7 +151,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * @return true if the member has been removed from the chat space, false otherwise
    */
   public boolean isRemoved() {
-    return nonNull(removed);
+    return nonNull(removed) && removed;
   }
 
   /**
@@ -164,9 +164,8 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * @return true if the member is an admin of the chat space, false otherwise
    */
   public boolean isAdmin() {
-    return nonNull(admin);
+    return ChatSpaceMemberRole.isAdmin(role);
   }
-
 
   /**
    * Approves the join status of the member with an associated comment.
@@ -185,6 +184,8 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void approveJoinStatus() {
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.APPROVED;
+    left = false;
+    removed = false;
   }
 
   /**
@@ -196,7 +197,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void markJoinRequestAsPendingWithComment(final String comment) {
     memberComment = comment;
-    pendingJoinStatus();
+    markJoinRequestAsPending();
   }
 
   /**
@@ -204,7 +205,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    *
    * <p>Changes the join status to indicate that the request to join is pending.</p>
    */
-  public void pendingJoinStatus() {
+  public void markJoinRequestAsPending() {
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.PENDING;
   }
 
@@ -215,6 +216,23 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void disapprovedJoinRequest() {
     requestToJoinStatus = ChatSpaceRequestToJoinStatus.DISAPPROVED;
+  }
+
+  /**
+   * Handles the approval or disapproval of a join request based on the provided status.
+   *
+   * <p>If the status indicates approval, it proceeds to approve the join request.
+   * If the status indicates disapproval, it proceeds to disapprove the join request.</p>
+   *
+   * @param chatSpaceRequestToJoinStatus the status of the join request (approved or disapproved)
+   * @throws IllegalArgumentException if the status is neither approved nor disapproved
+   */
+  public void approveOrDisapproveJoinRequest(final ChatSpaceRequestToJoinStatus chatSpaceRequestToJoinStatus) {
+    if (ChatSpaceRequestToJoinStatus.isApproved(chatSpaceRequestToJoinStatus)) {
+      approveJoinRequest();
+    } else if (ChatSpaceRequestToJoinStatus.isDisapproved(chatSpaceRequestToJoinStatus)) {
+      disapprovedJoinRequest();
+    }
   }
 
   /**
@@ -285,7 +303,6 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void upgradeRole() {
     role = ChatSpaceMemberRole.ADMIN;
-    admin = true;
   }
 
   /**
@@ -299,7 +316,6 @@ public class ChatSpaceMember extends FleenFeenEntity {
    */
   public void downgradeRole() {
     role = ChatSpaceMemberRole.MEMBER;
-    admin = false;
   }
 
   /**
@@ -334,10 +350,12 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * not part of the chat space or they are the organizer.</p>
    *
    * @param organizerId the ID of the chat space organizer to compare with the member's ID.
-   * @return true if the member is not the organizer, otherwise false.
+   * @throws FailedOperationException if the user trying to leave is the organizer of the chat space
    */
-  public boolean isNotTheOwner(final Long organizerId) {
-    return isAMember() && nonNull(memberId) && memberId.equals(organizerId);
+  public void checkIsEligibleToLeave(final Long organizerId) throws FailedOperationException {
+    if (isAMember() && nonNull(memberId) && memberId.equals(organizerId)) {
+      throw FailedOperationException.of();
+    }
   }
 
   /**
@@ -351,6 +369,17 @@ public class ChatSpaceMember extends FleenFeenEntity {
     }
   }
 
+  public void checkIsNotApprovedOrPending() {
+    // Check if the join request has been approved
+    if (isRequestToJoinApproved() && isAMember()) {
+      throw new AlreadyJoinedChatSpaceException();
+    }
+    // Check if the join request is still pending
+    else if (isRequestToJoinPending()) {
+      throw new RequestToJoinChatSpacePendingException();
+    }
+  }
+
   public static ChatSpaceMember of(final Long chatSpaceMemberId) {
     final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
     chatSpaceMember.setChatSpaceMemberId(chatSpaceMemberId);
@@ -359,18 +388,20 @@ public class ChatSpaceMember extends FleenFeenEntity {
   }
 
   public static ChatSpaceMember of(final ChatSpace chatSpace, final Member member) {
-    final ChatSpaceMember chatSpaceMember = of(chatSpace, member, null);
-    chatSpaceMember.setRole(ChatSpaceMemberRole.ADMIN);
-    chatSpaceMember.approveJoinStatus();
-    return chatSpaceMember;
-  }
-
-  public static ChatSpaceMember of(final ChatSpace chatSpace, final Member member, final String comment) {
     final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
     chatSpaceMember.setChatSpace(chatSpace);
     chatSpaceMember.setMember(member);
     chatSpaceMember.setRole(ChatSpaceMemberRole.MEMBER);
-    chatSpaceMember.setMemberComment(comment);
+
+    return chatSpaceMember;
+  }
+
+  public static ChatSpaceMember ofOrganizer(final ChatSpace chatSpace, final Member member) {
+    final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
+    chatSpaceMember.setChatSpace(chatSpace);
+    chatSpaceMember.setMember(member);
+    chatSpaceMember.setRole(ChatSpaceMemberRole.ADMIN);
+    chatSpaceMember.approveJoinStatus();
 
     return chatSpaceMember;
   }

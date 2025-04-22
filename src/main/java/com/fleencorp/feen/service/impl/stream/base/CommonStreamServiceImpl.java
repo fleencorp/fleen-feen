@@ -30,7 +30,7 @@ import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastVis
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
@@ -51,7 +51,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   private final EventUpdateService eventUpdateService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
   private final StreamService streamService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamMapper streamMapper;
   private final CommonMapper commonMapper;
   private final Localizer localizer;
@@ -76,7 +76,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
       final EventUpdateService eventUpdateService,
       final LiveBroadcastUpdateService liveBroadcastUpdateService,
       final StreamService streamService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamMapper streamMapper,
       final CommonMapper commonMapper,
       final Localizer localizer) {

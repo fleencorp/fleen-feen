@@ -22,8 +22,8 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.EmptyStreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
@@ -43,6 +43,7 @@ import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 import static java.util.Objects.nonNull;
 
 /**
@@ -69,7 +70,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   private final StreamAttendeeService streamAttendeeService;
   private final ReviewService reviewService;
   private final StreamService streamService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final UserFleenStreamRepository userStreamRepository;
   private final StreamMapper streamMapper;
@@ -93,7 +94,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final StreamAttendeeService streamAttendeeService,
       final ReviewService reviewService,
       final StreamService streamService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final UserFleenStreamRepository userStreamRepository,
       final Localizer localizer,
@@ -122,7 +123,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a `StreamSearchResult` containing the processed and localized results of the filtered streams
    */
   @Override
-  public StreamSearchResult findStreamsPublic(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);
     // Get the list of stream views from the search result
@@ -133,6 +134,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(views);
     // Get the first 10 attendees for each stream
     streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(views);
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(views, user);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Return a search result view with the streams responses and pagination details
@@ -212,7 +215,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized response containing the streams associated with the user, including any filtering applied and pagination details
    */
   @Override
-  public StreamSearchResult findStreamsPrivate(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 
@@ -241,6 +244,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     streamService.determineUserJoinStatusForStream(views, user);
     // Set other schedule details if user timezone is different
     streamService.setOtherScheduleBasedOnUserTimezone(views, user);
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(views, user);
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
@@ -281,6 +286,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
 
     // Convert the streams to response views
     final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(views, user);
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
@@ -315,6 +322,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
 
     // Convert the streams to response views
     final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(views, user);
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
   }
@@ -378,37 +387,24 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     streamResponse.setReviews(mostRecentReview);
     // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = streamAttendeeService.toStreamAttendeeResponsesSet(streamResponse, streamAttendeesGoingToStream);
-    // Update the schedule, timezone details and join status
-    updateStreamOtherScheduleAndUserJoinStatus(streamResponse, user);
+    // Add the single response to a List
+    final List<FleenStreamResponse> streamsResponses = List.of(streamResponse);
+    // Set other schedule details if user timezone is different
+    streamService.setOtherScheduleBasedOnUserTimezone(streamsResponses, user);
+    // Determine the join status of the user if available
+    streamService.determineUserJoinStatusForStream(streamsResponses, user);
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(streamsResponses, user);
+
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
     final long totalAttendees = streamAttendeeRepository.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-    // Return the localized response
-    return localizer.of(RetrieveStreamResponse.of(streamId, streamResponse, streamAttendees, totalAttendees, streamTypeInfo));
-  }
 
-  /**
-   * Updates the stream's schedule and the user's join status based on the provided stream response and user.
-   *
-   * <p>This method updates the schedule details of the stream according to the user's timezone if applicable,
-   * and determines whether the user is attending or has joined the stream.</p>
-   *
-   * <p>If the stream response is provided, the method adds it to a list and calls the necessary service methods
-   * to adjust the stream's schedule and the user's join status.</p>
-   *
-   * @param streamResponse the stream response containing the stream details to be updated
-   * @param user the user whose timezone and join status are used to update the stream's details
-   */
-  public void updateStreamOtherScheduleAndUserJoinStatus(final FleenStreamResponse streamResponse, final FleenUser user) {
-    if (nonNull(streamResponse)) {
-      // Add the single response to a List
-      final List<FleenStreamResponse> streams = List.of(streamResponse);
-      // Set other schedule details if user timezone is different
-      streamService.setOtherScheduleBasedOnUserTimezone(streams, user);
-      // Determine the join status of the user if available
-      streamService.determineUserJoinStatusForStream(streams, user);
-    }
+    // Create the response
+    final RetrieveStreamResponse retrieveStreamResponse = RetrieveStreamResponse.of(streamId, streamResponse, streamAttendees, totalAttendees, streamTypeInfo);
+    // Return the localized response
+    return localizer.of(retrieveStreamResponse);
   }
 
   /**
@@ -490,8 +486,10 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       page = streamRepository.findMany(StreamStatus.ACTIVE, searchRequest.getPage());
     }
 
+    // Create the responses
+    final List<FleenStreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Return the response with a list of FleenStreams and pagination info
-    return StreamResponsesAndPage.of(streamMapper.toStreamResponses(page.getContent()), page);
+    return StreamResponsesAndPage.of(streamResponses, page);
   }
 
   /**
@@ -544,6 +542,6 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
     return streamRepository.findLiveStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
   }
-
+  
 
 }

@@ -100,6 +100,8 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
       final ChatSpaceMembershipInfo membershipInfo = getMembershipInfo(entry, chatSpace);
       response.setMembershipInfo(membershipInfo);
 
+      response.setOrganizerId(chatSpace.getOrganizerId());
+
       return response;
     }
     return null;
@@ -147,7 +149,7 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
     final ChatSpaceRequestToJoinStatus requestToJoinStatus = entry.getRequestToJoinStatus();
     final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
 
-    final JoinStatus joinStatus = JoinStatus.getJoinStatus(entry.getRequestToJoinStatus(), chatSpace.getSpaceVisibility(), entry.isAMember(), entry.isRemoved());
+    final JoinStatus joinStatus = JoinStatus.getJoinStatus(entry.getRequestToJoinStatus(), chatSpace.getSpaceVisibility(), entry.isAMember(), entry.hasLeft(), entry.isRemoved());
     final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
 
     final IsAChatSpaceMember isAChatSpaceMember = IsAChatSpaceMember.by(entry.isAMember());

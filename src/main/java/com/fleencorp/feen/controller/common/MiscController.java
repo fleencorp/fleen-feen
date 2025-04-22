@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.common;
 
-import com.fleencorp.base.exception.FleenException;
-import com.fleencorp.feen.model.response.other.EntityExistsResponse;
+import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
+import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.user.MemberService;
@@ -10,12 +10,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import static com.fleencorp.feen.constant.http.StatusCodeMessage.RESPONSE_500;
 
 @RestController
 @RequestMapping(value = "/api/misc")
@@ -31,48 +30,45 @@ public class MiscController {
     this.memberService = memberService;
   }
 
-  @Operation(summary = "Check If Email Address Exists",
-    description = "Check if the specified email address exists.")
-  @ApiResponse(responseCode = "200", description = "Email address existence checked successfully",
-    content = { @Content(schema = @Schema(implementation = EntityExistsResponse.class))
-  })
-  @ApiResponse(responseCode = "500", description = RESPONSE_500,
-    content = { @Content(schema = @Schema(implementation = FleenException.class))
+  @Operation(summary = "Check if an email address exists",
+    description = "Checks if a member account with the given email address already exists in the system."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Check completed. Returns true if the email exists, false otherwise.",
+      content = @Content(schema = @Schema(implementation = EmailAddressExistsResponse.class)))
   })
   @GetMapping(value = "/email-address/exists/{emailAddress}")
-  public EntityExistsResponse emailExists(
-    @Parameter(description = "Email address to check for existence")
-      @PathVariable(name = "emailAddress") final String emailAddress) {
+  public EmailAddressExistsResponse emailExists(
+      @Parameter(description = "Email address to check for existence", required = true)
+        @PathVariable(name = "emailAddress") final String emailAddress) {
     return memberService.verifyMemberEmailAddressExists(emailAddress);
   }
 
-  @Operation(summary = "Check If Phone Number Exists",
-    description = "Check if the specified phone number exists.")
-  @ApiResponse(responseCode = "200", description = "Phone number existence checked successfully",
-    content = { @Content(schema = @Schema(implementation = EntityExistsResponse.class))
-  })
-  @ApiResponse(responseCode = "500", description = RESPONSE_500,
-    content = { @Content(schema = @Schema(implementation = FleenException.class))
+  @Operation(summary = "Check if a phone number exists",
+    description = "Checks if a member account with the given phone number already exists in the system."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Check completed. Returns true if the phone number exists, false otherwise.",
+      content = @Content(schema = @Schema(implementation = PhoneNumberExistsResponse.class)))
   })
   @GetMapping(value = "/phone-number/exists/{phoneNumber}")
-  public EntityExistsResponse phoneExists(
-    @Parameter(description = "Phone number to check for existence")
-      @PathVariable(name = "phoneNumber") final String phoneNumber) {
+  public PhoneNumberExistsResponse phoneExists(
+      @Parameter(description = "Phone number to check for existence", required = true)
+        @PathVariable(name = "phoneNumber") final String phoneNumber) {
     return memberService.verifyMemberPhoneNumberExists(phoneNumber);
   }
 
   @Operation(summary = "Encode a password eligible plain text",
-    description = "Encode and hash a raw plain text with Bcrypt password encoder")
-  @ApiResponse(responseCode = "200", description = "Raw plain text password encoded successfully",
-    content = { @Content(schema = @Schema(implementation = GetEncodedPasswordResponse.class))
-  })
-  @ApiResponse(responseCode = "500", description = RESPONSE_500,
-    content = { @Content(schema = @Schema(implementation = FleenException.class))
+    description = "Encodes and hashes a raw plain text password using the Bcrypt password encoder."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Raw plain text password encoded successfully",
+      content = @Content(schema = @Schema(implementation = GetEncodedPasswordResponse.class)))
   })
   @GetMapping(value = "/get-encoded-password/{password}")
   public GetEncodedPasswordResponse getEncodedPasswordResponse(
-    @Parameter(description = "Create encoded password of a plain text password")
-      @PathVariable(name = "password") final String password) {
+      @Parameter(description = "Plain text password to be encoded", required = true)
+        @PathVariable(name = "password") final String password) {
     return miscService.getEncodedPassword(password);
   }
 

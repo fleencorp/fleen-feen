@@ -85,7 +85,7 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService,
-  PasswordService {
+    PasswordService {
 
   private final AuthenticationManager authenticationManager;
   private final MemberService memberService;
@@ -167,12 +167,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   @Override
   public DataForSignUpResponse getDataForSignUp() {
+    // Create the search request
+    final CountrySearchRequest countrySearchRequest = CountrySearchRequest.ofPageSize(1000);
     // Fetch a list of countries with a large number of entries (1000 in this case).
-    final CountrySearchResult searchResult = countryService.findCountries(CountrySearchRequest.of(1000));
+    final CountrySearchResult searchResult = countryService.findCountries(countrySearchRequest);
     // Get the countries in the search result
     final List<?> countries = searchResult.getResult().getValues();
+    // Create the response
+    final DataForSignUpResponse dataForSignUpResponse = DataForSignUpResponse.of(countries);
     // Return the response object containing both the countries and timezones.
-    return localizer.of(DataForSignUpResponse.of(countries));
+    return localizer.of(dataForSignUpResponse);
   }
 
   /**
@@ -189,7 +193,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    */
   @Override
   @Transactional
-  public SignUpResponse signUp(final SignUpDto signUpDto) {
+  public SignUpResponse signUp(final SignUpDto signUpDto) throws FailedOperationException {
     // Convert the user details to a member
     final Member member = signUpDto.toMember();
     // Retrieve the verification type
@@ -1031,7 +1035,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @throws UserNotFoundException if no member is found with the provided email address or username
    */
   @Override
-  public Member getMemberDetails(final String emailAddressOrUsername) {
+  public Member getMemberDetails(final String emailAddressOrUsername) throws UserNotFoundException {
     return memberRepository.findByEmailAddress(emailAddressOrUsername)
       .orElseThrow(UserNotFoundException.of(emailAddressOrUsername));
   }

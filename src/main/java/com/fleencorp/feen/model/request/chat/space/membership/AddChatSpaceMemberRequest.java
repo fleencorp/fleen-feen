@@ -44,11 +44,14 @@ public class AddChatSpaceMemberRequest extends ChatSpaceMemberRequest {
   }
 
   public static AddChatSpaceMemberRequest of(final String spaceIdOrName, final String userEmailAddress) {
-    return AddChatSpaceMemberRequest.builder()
-      .userEmailAddress(userEmailAddress)
-      .spaceIdOrName(getChatSpaceIdOrNameRequiredPattern(spaceIdOrName))
-      .userType(MemberUserType.HUMAN)
-      .membershipRole(MembershipRole.ROLE_MEMBER)
-      .build();
+    final String formattedSpaceName = nonNull(spaceIdOrName) ? getChatSpaceIdOrNameRequiredPattern(spaceIdOrName) : null;
+
+    final AddChatSpaceMemberRequest addChatSpaceMemberRequest = new AddChatSpaceMemberRequest();
+    addChatSpaceMemberRequest.setUserEmailAddress(userEmailAddress);
+    addChatSpaceMemberRequest.setMemberSpaceIdOrName(formattedSpaceName);
+    addChatSpaceMemberRequest.setUserType(MemberUserType.HUMAN);
+    addChatSpaceMemberRequest.setMembershipRole(MembershipRole.ROLE_MEMBER);
+
+    return addChatSpaceMemberRequest;
   }
 }

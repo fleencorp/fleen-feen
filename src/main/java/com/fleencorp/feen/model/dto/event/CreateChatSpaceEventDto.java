@@ -16,12 +16,13 @@ import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 @NoArgsConstructor
 public class CreateChatSpaceEventDto extends CreateStreamDto {
 
-  public FleenStream toFleenStream(final Member member, final ChatSpace chatSpace) {
+  public FleenStream toStream(final Member member, final ChatSpace chatSpace) {
     final FleenStream stream = toFleenStream();
     stream.setMember(member);
     stream.setChatSpace(chatSpace);
     stream.setStreamType(EVENT);
     stream.setStreamSource(GOOGLE_MEET);
+
     return stream;
   }
 }

@@ -11,9 +11,9 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface StreamSearchService {
 
-  StreamSearchResult findStreamsPublic(StreamSearchRequest searchRequest, FleenUser user);
+  StreamSearchResult findStreams(StreamSearchRequest searchRequest, FleenUser user);
 
-  StreamSearchResult findStreamsPrivate(StreamSearchRequest searchRequest, FleenUser user);
+  StreamSearchResult findMyStreams(StreamSearchRequest searchRequest, FleenUser user);
 
   StreamSearchResult findStreamsPublic(StreamSearchRequest searchRequest, StreamTimeType streamTimeType);
 

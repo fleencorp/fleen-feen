@@ -93,10 +93,12 @@ public class StreamMapperImpl implements StreamMapper {
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
 
+      response.setMusicLink(entry.getMusicLink());
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
       response.setStreamLinkNotMasked(entry.getStreamLink());
       response.setTotalAttending(entry.getTotalAttendees());
+      response.setOrganizerId(entry.getOrganizerId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());

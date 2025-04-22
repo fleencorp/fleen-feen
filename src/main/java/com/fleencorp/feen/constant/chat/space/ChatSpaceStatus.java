@@ -3,6 +3,8 @@ package com.fleencorp.feen.constant.chat.space;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing different types of chat space status.
 *
@@ -48,6 +50,10 @@ public enum ChatSpaceStatus implements ApiParameter {
     this.messageCode3 = messageCode3;
     this.messageCode4 = messageCode4;
     this.messageCode5 = messageCode5;
+  }
+
+  public static ChatSpaceStatus of(final String value) {
+    return parseEnumOrNull(value, ChatSpaceStatus.class);
   }
 
   public static boolean isActive(final ChatSpaceStatus status) {

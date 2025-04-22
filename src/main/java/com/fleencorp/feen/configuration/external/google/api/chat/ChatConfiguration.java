@@ -38,10 +38,10 @@ public class ChatConfiguration extends GoogleApiConfiguration {
    * @param jsonUtil Utility for JSON operations.
    */
   public ChatConfiguration(
-    @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
-    @Value("${application.name}") final String applicationName,
-    final ServiceAccountProperties serviceAccountProperties,
-    final JsonUtil jsonUtil) {
+      @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      @Value("${application.name}") final String applicationName,
+      final ServiceAccountProperties serviceAccountProperties,
+      final JsonUtil jsonUtil) {
     super(delegatedAuthorityEmail, applicationName, serviceAccountProperties, jsonUtil);
   }
 

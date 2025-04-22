@@ -5,11 +5,14 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
+import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
 import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
@@ -20,9 +23,10 @@ import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
-import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +56,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   private final ChatSpaceRepository chatSpaceRepository;
   private final Localizer localizer;
   private final ChatSpaceMapper chatSpaceMapper;
+  private final CommonMapper commonMapper;
 
   /**
    * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
@@ -65,18 +70,21 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param chatSpaceRepository repository for chat space entities.
    * @param localizer provides localized responses for API operations.
    * @param chatSpaceMapper maps chat space entities to response models.
+   * @param commonMapper a service for creating info data and their localized text
    */
   public ChatSpaceServiceImpl(
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
       final Localizer localizer,
-      final ChatSpaceMapper chatSpaceMapper) {
+      final ChatSpaceMapper chatSpaceMapper,
+      final CommonMapper commonMapper) {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
     this.localizer = localizer;
     this.chatSpaceMapper = chatSpaceMapper;
+    this.commonMapper = commonMapper;
   }
 
   /**
@@ -119,7 +127,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     final CreateChatSpaceRequest createChatSpaceRequest = getCreateChatSpaceRequest(createChatSpaceDto, user);
 
     // Create and add admin or organizer of space as chat space member
-    final ChatSpaceMember chatSpaceMember = ChatSpaceMember.of(chatSpace, user.toMember());
+    final ChatSpaceMember chatSpaceMember = ChatSpaceMember.ofOrganizer(chatSpace, user.toMember());
     // Save chat space member to repository
     chatSpaceMemberRepository.save(chatSpaceMember);
     // Increase total members and save chat space
@@ -248,8 +256,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpace.delete();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Get the deleted info
+    final IsDeletedInfo isDeletedInfo = commonMapper.toIsDeletedInfo(chatSpace.isDeleted());
     // Create the response
-    final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId);
+    final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId, isDeletedInfo);
     // Return a localized response confirming the deletion
     return localizer.of(deleteChatSpaceResponse);
   }
@@ -276,60 +286,45 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpace.delete();
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
+    // Delete the chat space externally
+    deleteChatSpaceExternally(chatSpace);
+    // Get the deleted info
+    final IsDeletedInfo isDeletedInfo = commonMapper.toIsDeletedInfo(chatSpace.isDeleted());
+    // Create the response
+    final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId, isDeletedInfo);
+    // Return a localized response confirming the deletion
+    return localizer.of(deleteChatSpaceResponse);
+  }
+
+  private void deleteChatSpaceExternally(final ChatSpace chatSpace) {
     // Create external request
     final DeleteChatSpaceRequest deleteChatSpaceRequest = DeleteChatSpaceRequest.of(chatSpace.getExternalIdOrName());
     // Send a request to delete the chat space from external systems
     chatSpaceUpdateService.deleteChatSpace(deleteChatSpaceRequest);
-    // Return a localized response confirming the deletion
-    return localizer.of(DeleteChatSpaceResponse.of(chatSpaceId));
   }
 
   /**
-   * Enables the chat space with the specified ID.
+   * Updates the status of a chat space based on the provided information.
    *
-   * <p>This method enables the chat space by calling {@link #updateChatSpaceStatus(Long, FleenUser, boolean)}
-   * with {@code enable} set to {@code true}. The user must be either the creator or an admin of the chat space
-   * to perform this operation. If the chat space is not found, already deleted, or the user does not have the
-   * necessary permissions, appropriate exceptions are thrown.</p>
+   * <p>This method calls the internal {@code updateChatSpaceStatus} method to update the status of the chat space
+   * identified by {@code chatSpaceId}. It throws several exceptions if the chat space is not found, already deleted,
+   * or if the user is not an admin of the chat space.
    *
-   * @param chatSpaceId the ID of the chat space to be enabled
-   * @param user the user attempting to enable the chat space
-   * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
-   * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
+   * @param chatSpaceId the ID of the chat space whose status is being updated
+   * @param updateChatSpaceStatusDto the data transfer object containing the new status for the chat space
+   * @param user the user attempting to update the chat space status, must be an admin of the chat space
+   * @return an {@code UpdateChatSpaceStatusResponse} containing the result of the status update
+   * @throws ChatSpaceNotFoundException if the chat space with the given ID does not exist
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
-   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
+   * @throws NotAnAdminOfChatSpaceException if the user is not an admin of the chat space
    * @throws FailedOperationException if the operation fails for any other reason
    */
   @Override
   @Transactional
-  public UpdateChatSpaceStatusResponse enableChatSpace(final Long chatSpaceId, final FleenUser user)
+  public UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final UpdateChatSpaceStatusDto updateChatSpaceStatusDto, final FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
-    return updateChatSpaceStatus(chatSpaceId, user, true);
-  }
-
-  /**
-   * Disables the chat space with the specified ID.
-   *
-   * <p>This method disables the chat space by calling {@link #updateChatSpaceStatus(Long, FleenUser, boolean)}
-   * with {@code enable} set to {@code false}. The user must be either the creator or an admin of the chat space
-   * to perform this operation. If the chat space is not found, already deleted, or the user does not have the
-   * necessary permissions, appropriate exceptions are thrown.</p>
-   *
-   * @param chatSpaceId the ID of the chat space to be disabled
-   * @param user the user attempting to disable the chat space
-   * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
-   * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
-   * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
-   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
-   * @throws FailedOperationException if the operation fails for any other reason
-   */
-  @Override
-  @Transactional
-  public UpdateChatSpaceStatusResponse disableChatSpace(final Long chatSpaceId, final FleenUser user)
-    throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
-      FailedOperationException {
-    return updateChatSpaceStatus(chatSpaceId, user, false);
+    return updateChatSpaceStatus(chatSpaceId, updateChatSpaceStatusDto.getStatus(), user);
   }
 
   /**
@@ -340,17 +335,17 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * based on the provided {@code enable} flag.</p>
    *
    * @param chatSpaceId the ID of the chat space to be toggled
-   * @param user the user performing the operation, who must be the creator or an admin of the chat space
    * @param enable a boolean flag indicating whether to enable (true) or disable (false) the chat space
+   * @param user the user performing the operation, who must be the creator or an admin of the chat space
    * @return an {@link UpdateChatSpaceStatusResponse} containing the updated status of the chat space
    * @throws ChatSpaceNotFoundException if the chat space with the provided ID is not found
    * @throws ChatSpaceAlreadyDeletedException if the chat space has already been deleted
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
    * @throws FailedOperationException if the operation fails for any other reason
    */
-  protected UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final FleenUser user, final boolean enable)
+  protected UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final boolean enable, final FleenUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
-    FailedOperationException {
+      FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
     // Verify if the chat space has already been deleted and that the user is the creator or an admin of the chat space
@@ -386,14 +381,14 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
    */
   @Override
-  public void verifyCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user)
+  public boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final FleenUser user)
       throws FailedOperationException, NotAnAdminOfChatSpaceException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 
     // Check if the user is the creator or an admin of the space
     if (chatSpace.isOrganizer(user.getId()) || checkIfUserIsAnAdminInSpace(chatSpace, user)) {
-      return;
+      return true;
     }
 
     // If neither, throw exception
@@ -416,7 +411,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
     // Verify that the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfSpace(chatSpace, user);
+    verifyCreatorOrAdminOfChatSpace(chatSpace, user);
   }
 
   /**

@@ -1,7 +1,12 @@
 package com.fleencorp.feen.service.security;
 
+import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
+import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
 import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.exception.verification.ResetPasswordCodeInvalidException;
 import com.fleencorp.feen.exception.verification.VerificationFailedException;
 import com.fleencorp.feen.model.dto.auth.*;
 import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
@@ -56,17 +61,17 @@ public interface VerificationService {
 
   CacheService getCacheService();
 
-  SignUpResponse completeSignUp(CompleteSignUpDto completeSignUpDto, FleenUser user);
+  SignUpResponse completeSignUp(CompleteSignUpDto completeSignUpDto, FleenUser user) throws AlreadySignedUpException, VerificationFailedException, FailedOperationException;
 
-  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user);
+  ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, FleenUser user) throws AlreadySignedUpException, FailedOperationException;
 
   ResendMfaVerificationCodeResponse resendMfaVerificationCode(ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, FleenUser user);
 
   SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(ConfirmMfaVerificationCodeDto confirmMfaCodeDto, FleenUser user);
 
-  InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto);
+  InitiatePasswordChangeResponse verifyResetPasswordCode(ResetPasswordDto resetPasswordDto) throws UserNotFoundException, ResetPasswordCodeInvalidException;
 
-  ForgotPasswordResponse forgotPassword(ForgotPasswordDto forgotPasswordDto);
+  ForgotPasswordResponse forgotPassword(ForgotPasswordDto forgotPasswordDto) throws UserNotFoundException;
 
-  ChangePasswordResponse changePassword(ChangePasswordDto changePasswordDto, FleenUser user);
+  ChangePasswordResponse changePassword(ChangePasswordDto changePasswordDto, FleenUser user) throws UserNotFoundException, InvalidAuthenticationException;
 }
