@@ -8,12 +8,10 @@ import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundExc
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
+import com.fleencorp.feen.model.dto.chat.member.RestoreChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
-import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
+import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
@@ -161,6 +159,33 @@ public class UserChatSpaceController {
       @Parameter(hidden = true)
         @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.addMember(chatSpaceId, addChatSpaceMemberDto, user);
+  }
+
+  @Operation(summary = "Restore a removed member to a chat space",
+    description = "Restores a member who was previously removed back into the specified chat space. " +
+      "This operation typically requires administrative privileges within the chat space."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Member restored to the chat space successfully",
+      content = @Content(schema = @Schema(implementation = RestoreChatSpaceMemberResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid restore parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User not authorized to restore members in this chat space",
+      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+    @ApiResponse(responseCode = "404", description = "Chat space or member not found",
+      content = @Content(schema = @Schema(oneOf = {ChatSpaceNotFoundException.class, ChatSpaceMemberNotFoundException.class})))
+  })
+  @PutMapping(value = "/restore-member/{chatSpaceId}")
+  public RestoreChatSpaceMemberResponse restoreMember(
+      @Parameter(description = "ID of the chat space where the member will be restored", required = true)
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+      @Parameter(description = "Details of the chat space member to be restore", required = true)
+        @Valid @RequestBody final RestoreChatSpaceMemberDto restoreChatSpaceMemberDto,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
+    return chatSpaceMemberService.restoreRemovedMember(chatSpaceId, restoreChatSpaceMemberDto, user);
   }
 
   @Operation(summary = "Remove a member from a chat space",

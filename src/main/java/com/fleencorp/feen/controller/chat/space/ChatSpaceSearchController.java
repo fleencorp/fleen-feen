@@ -11,6 +11,7 @@ import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
+import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
@@ -117,6 +118,32 @@ public class ChatSpaceSearchController {
       @Parameter(hidden = true)
         @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceSearchService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
+  }
+
+  @Operation(summary = "Search for removed members in a chat space",
+    description = "Retrieves a paginated list of members who have been removed from a specific chat space. " +
+      "Results can be filtered based on various criteria such as removal date or the user who removed them. " +
+      "Access to this information is typically restricted to administrators of the chat space."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Search for removed members completed successfully",
+      content = @Content(schema = @Schema(implementation = RemovedMemberSearchResult.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User not authorized to view removed members in this chat space",
+      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+    @ApiResponse(responseCode = "404", description = "Chat space not found",
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
+  })
+  @GetMapping(value = "/removed-members/{chatSpaceId}")
+  public RemovedMemberSearchResult findSpaceRemovedMembers(
+      @Parameter(description = "ID of the chat space to view removed members for", required = true)
+        @PathVariable final Long chatSpaceId,
+      @Parameter(description = "Search criteria and pagination parameters", required = true)
+        @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
+    return chatSpaceSearchService.findRemovedMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
   @Operation(summary = "Search for events in a chat space",

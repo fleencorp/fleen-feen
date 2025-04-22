@@ -71,7 +71,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
         AND (csm.member.firstName = :name OR csm.member.lastName = :name)
         AND csm.requestToJoinStatus IN (:requestToJoinStatuses) ORDER BY csm.updatedOn DESC
     """)
-  Page<ChatSpaceMember> findByChatSpaceAndMemberNameRequestToJoinStatus(ChatSpace chatSpace, @Param("name") String memberName, @Param("requestToJoinStatuses") Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, Pageable pageable);
+  Page<ChatSpaceMember> findByChatSpaceAndMemberNameAndRequestToJoinStatus(ChatSpace chatSpace, @Param("name") String memberName, @Param("requestToJoinStatuses") Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, Pageable pageable);
 
 
   @EntityGraph(attributePaths = {"chatSpace"})
@@ -118,4 +118,15 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
 
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.requestToJoinStatus = :requestToJoinStatus AND csm.left = false AND csm.removed = false")
   Page<ChatSpaceMember> findActiveChatSpaceMembers(@Param("chatSpace") ChatSpace chatSpace, @Param("requestToJoinStatus") ChatSpaceRequestToJoinStatus requestToJoinStatus, Pageable pageable);
+
+  @Query(value =
+    """
+        SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace
+        AND (csm.member.firstName = :name OR csm.member.lastName = :name)
+        AND csm.removed = true ORDER BY csm.updatedOn DESC
+    """)
+  Page<ChatSpaceMember> findByChatSpaceAndMemberNameAndRemoved(ChatSpace chatSpace, @Param("name") String memberName, Pageable pageable);
+
+  @Query(value = "SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.removed = true ORDER BY csm.updatedOn DESC")
+  Page<ChatSpaceMember> findByChatSpaceAndRemoved(ChatSpace chatSpace, Pageable pageable);
 }

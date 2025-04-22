@@ -119,7 +119,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * Checks if the member has left the chat space.
    *
    * <p>This method checks if the member has left the chat space by verifying if the `left` field
-   * is non-null. If the member has left, the field will be non-null, and the method will return true.</p>
+   * is non-null and true. If the member has left, the field will be non-null, and the method will return true.</p>
    *
    * @return true if the member has left the chat space, false otherwise
    */
@@ -146,12 +146,24 @@ public class ChatSpaceMember extends FleenFeenEntity {
    * Checks if the member has been removed from the chat space.
    *
    * <p>This method checks if the member has been removed from the chat space by verifying if the `removed`
-   * field is non-null. If the member has been removed, the field will be non-null, and the method will return true.</p>
+   * field is non-null and true. If the member has been removed, the field will be non-null, and the method will return true.</p>
    *
    * @return true if the member has been removed from the chat space, false otherwise
    */
   public boolean isRemoved() {
     return nonNull(removed) && removed;
+  }
+
+  /**
+   * Checks if the member has not been removed from the chat space.
+   *
+   * <p>This method checks if the member has not been removed from the chat space by verifying if the `removed`
+   * field is false. If the member has not been removed, the field will be false, and the method will return true.</p>
+   *
+   * @return true if the member has not been removed from the chat space, false otherwise
+   */
+  public boolean isNotRemoved() {
+    return !isRemoved();
   }
 
   /**
