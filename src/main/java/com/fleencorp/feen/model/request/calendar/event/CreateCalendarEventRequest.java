@@ -121,6 +121,13 @@ public class CreateCalendarEventRequest {
     this.organizerEmail = organizerEmail;
   }
 
+  public void update(final String calendarIdOrName, final String creatorEmail, final String organizerEmail, final Map<String, String> metadata) {
+    this.calendarIdOrName = calendarIdOrName;
+    this.creatorEmail = creatorEmail;
+    this.organizerEmail = organizerEmail;
+    eventMetaData.putAll(metadata);
+  }
+
   /**
    * Updates the details of an event by setting the event ID and its associated link or URI.
    *

@@ -36,8 +36,8 @@ import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamRes
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
@@ -63,7 +63,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   private final NotificationService notificationService;
   private final NotificationMessageService notificationMessageService;
   private final OtherEventUpdateService otherEventUpdateService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final CommonMapper commonMapper;
   private final StreamMapper streamMapper;
@@ -104,7 +104,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       final NotificationMessageService notificationMessageService,
       final OtherEventUpdateService otherEventUpdateService,
       final StreamService streamService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final CommonMapper commonMapper,
       final StreamMapper streamMapper,
@@ -246,7 +246,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   private void handleAttendeeRequestApproval(final FleenStream stream, final StreamAttendee attendee, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto) {
     if (processRequestToJoinDto.isApproved()) {
       // Increase the total number of attendees to stream
-      streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+      streamService.increaseTotalAttendeesOrGuests(stream);
       // Approve attendee request to join the stream
       attendee.approveUserAttendance();
     } else if (processRequestToJoinDto.isDisapproved()) {
@@ -384,7 +384,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Add the new StreamAttendee to the stream's attendees list and save
     streamAttendeeRepository.save(streamAttendee);
     // Increase total attendees or guests in the stream
-    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+    streamService.increaseTotalAttendeesOrGuests(stream);
     // Return the stream attendee details
     return streamAttendee;
   }

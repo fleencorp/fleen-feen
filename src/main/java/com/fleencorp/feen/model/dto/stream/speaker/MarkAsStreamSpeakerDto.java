@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.dto.stream.speaker;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 public class MarkAsStreamSpeakerDto extends AddStreamSpeakerDto {
 
   @Valid
-  @NotNull(message = "{speaker.speakers.NotNull}")
+  @NotEmpty(message = "{speaker.speakers.NotEmpty}")
   @Size(max = 1, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
   protected List<StreamSpeakerDto> speakers = new ArrayList<>();

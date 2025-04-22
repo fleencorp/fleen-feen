@@ -5,9 +5,11 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
@@ -42,6 +44,7 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceMapperImpl implements ChatSpaceMapper {
 
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
+  private final CommonMapper commonMapper;
   private final MessageSource messageSource;
 
   /**
@@ -51,12 +54,15 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
    * for various components of the chat space mapping process.</p>
    *
    * @param chatSpaceMemberMapper the mapper for mapping chat space member related details
+   * @param commonMapper a service for creating info data and their localized text
    * @param messageSource the source for localized messages; must not be {@code null}.
    */
   public ChatSpaceMapperImpl(
       final ChatSpaceMemberMapper chatSpaceMemberMapper,
+      final CommonMapper commonMapper,
       final MessageSource messageSource) {
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
+    this.commonMapper = commonMapper;
     this.messageSource = messageSource;
   }
 
@@ -118,6 +124,9 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
 
       final ChatSpaceStatusInfo chatSpaceStatusInfo = toChatSpaceStatusInfo(entry.getStatus());
       response.setStatusInfo(chatSpaceStatusInfo);
+
+      final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(entry.getDeleted());
+      response.setDeletedInfo(deletedInfo);
 
       final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
       response.setOrganizer(organizer);

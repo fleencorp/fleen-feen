@@ -254,9 +254,8 @@ public final class GoogleApiUtil {
     if (nonNull(spaceIdOrName) && spaceIdOrName.startsWith(GoogleChatParameter.spaces())) {
       return spaceIdOrName;
     }
-    return GoogleChatParameter.spaces()
-      .concat(FORWARD_SLASH)
-      .concat(spaceIdOrName);
+
+    return GoogleChatParameter.spaces() + FORWARD_SLASH + spaceIdOrName;
   }
 
   /**
@@ -274,9 +273,7 @@ public final class GoogleApiUtil {
     if (nonNull(emailAddressOrUserId) && emailAddressOrUserId.startsWith(GoogleChatParameter.users())) {
       return emailAddressOrUserId;
     }
-    return GoogleChatParameter.users()
-      .concat(FORWARD_SLASH)
-      .concat(emailAddressOrUserId);
+    return GoogleChatParameter.users() + FORWARD_SLASH + emailAddressOrUserId;
   }
 
   /**
@@ -293,13 +290,7 @@ public final class GoogleApiUtil {
    * @return the constructed chat space and member ID or name pattern
    */
   public static String getChatSpaceIdOrNameAndMemberRequiredPattern(final String spaceIdOrName, final String memberIdOrName) {
-    return GoogleChatParameter.spaces()
-      .concat(FORWARD_SLASH)
-      .concat(spaceIdOrName)
-      .concat(FORWARD_SLASH)
-      .concat(GoogleChatParameter.members())
-      .concat(FORWARD_SLASH)
-      .concat(memberIdOrName);
+    return GoogleChatParameter.spaces() + FORWARD_SLASH + spaceIdOrName + FORWARD_SLASH + GoogleChatParameter.members() + FORWARD_SLASH + memberIdOrName;
   }
 
   /**

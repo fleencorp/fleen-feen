@@ -100,6 +100,8 @@ public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
       final ChatSpaceMembershipInfo membershipInfo = getMembershipInfo(entry, chatSpace);
       response.setMembershipInfo(membershipInfo);
 
+      response.setOrganizerId(chatSpace.getOrganizerId());
+
       return response;
     }
     return null;

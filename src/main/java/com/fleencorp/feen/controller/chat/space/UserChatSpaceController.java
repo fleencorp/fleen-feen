@@ -1,25 +1,21 @@
 package com.fleencorp.feen.controller.chat.space;
 
-import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.model.dto.chat.DowngradeChatSpaceAdminToMemberDto;
-import com.fleencorp.feen.model.dto.chat.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
-import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
+import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto;
+import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,43 +34,12 @@ public class UserChatSpaceController {
 
   private final ChatSpaceJoinService chatSpaceJoinService;
   private final ChatSpaceMemberService chatSpaceMemberService;
-  private final ChatSpaceSearchService chatSpaceSearchService;
 
   public UserChatSpaceController(
       final ChatSpaceJoinService chatSpaceJoinService,
-      final ChatSpaceMemberService chatSpaceMemberService,
-      final ChatSpaceSearchService chatSpaceSearchService) {
+      final ChatSpaceMemberService chatSpaceMemberService) {
     this.chatSpaceJoinService = chatSpaceJoinService;
     this.chatSpaceMemberService = chatSpaceMemberService;
-    this.chatSpaceSearchService = chatSpaceSearchService;
-  }
-
-  @Operation(summary = "View pending join requests for a chat space",
-    description = "Retrieves a paginated list of pending requests to join the specified chat space. " +
-                 "Only chat space administrators can view these requests. Results can be filtered and " +
-                 "sorted based on various criteria such as request date."
-  )
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved join requests",
-      content = @Content(schema = @Schema(implementation = RequestToJoinSearchResult.class))),
-    @ApiResponse(responseCode = "400", description = "Invalid search parameters",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
-    @ApiResponse(responseCode = "401", description = "User not authenticated",
-      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
-    @ApiResponse(responseCode = "403", description = "User not authorized to view join requests",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
-  })
-  @GetMapping(value = "/request-to-join/{chatSpaceId}")
-  public RequestToJoinSearchResult findSpaceRequestToJoin(
-      @Parameter(description = "ID of the chat space to view join requests for", required = true)
-        @PathVariable final Long chatSpaceId,
-      @Parameter(description = "Search criteria and pagination parameters", required = true)
-        @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceSearchService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
   @Operation(summary = "Promote a member to administrator role",
@@ -136,6 +101,7 @@ public class UserChatSpaceController {
         @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceMemberService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
   }
+
 
   @Operation(summary = "Process a pending join request",
     description = "Approves or rejects a request to join the chat space. Only chat space administrators " +
@@ -216,7 +182,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "404", description = "Member not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceMemberNotFoundException.class)))
   })
-  @DeleteMapping(value = "/remove-member/{chatSpaceId}")
+  @PutMapping(value = "/remove-member/{chatSpaceId}")
   public RemoveChatSpaceMemberResponse removeMember(
       @Parameter(description = "ID of the chat space where the member will be removed from", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,

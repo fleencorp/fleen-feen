@@ -243,6 +243,7 @@ CREATE TABLE fleen_stream (
 
   other_details VARCHAR(3000) NULL,
   other_link VARCHAR(1000) NULL,
+  spotify_link VARCHAR(1000) NULL,
   group_or_organization_name VARCHAR(500) NULL,
 
   stream_source VARCHAR(255) DEFAULT 'NONE'
@@ -672,3 +673,38 @@ CREATE TABLE nouns (
 );
 
 --rollback DROP TABLE IF EXISTS `nouns`;
+
+
+
+--changeset alamu:create_table_link
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'link';
+
+CREATE TABLE link (
+  id BIGSERIAL PRIMARY KEY,
+  url VARCHAR(1000),
+  chat_space_id BIGINT,
+
+  link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
+    'EMAIL',
+    'DISCORD',
+    'FACEBOOK',
+    'INSTAGRAM',
+    'LINKEDIN',
+    'PHONE_NUMBER',
+    'SLACK',
+    'SNAPCHAT',
+    'TWITTER_OR_X',
+    'TELEGRAM',
+    'WHATSAPP',
+    'OTHER'
+    )),
+
+  CONSTRAINT link_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `link`;

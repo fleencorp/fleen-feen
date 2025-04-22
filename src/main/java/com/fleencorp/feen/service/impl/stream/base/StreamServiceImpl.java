@@ -24,8 +24,8 @@ import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
@@ -68,7 +68,7 @@ public class StreamServiceImpl implements StreamService {
   private final GoogleOauth2Service googleOauth2Service;
   private final MiscService miscService;
   private final StreamAttendeeService attendeeService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamMapper streamMapper;
 
@@ -88,7 +88,7 @@ public class StreamServiceImpl implements StreamService {
       final GoogleOauth2Service googleOauth2Service,
       final MiscService miscService,
       @Lazy final StreamAttendeeService attendeeService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
@@ -318,7 +318,7 @@ public class StreamServiceImpl implements StreamService {
   public void processNotAttendingStream(final FleenStream stream, final StreamAttendee attendee) {
     if (nonNull(attendee) && attendee.isAttending()) {
       // Decrease the total number of attendees to stream
-      decreaseTotalAttendeesOrGuestsAndSave(stream);
+      decreaseTotalAttendeesOrGuests(stream);
       // If an attendee record exists, update their attendance status to false
       attendee.markAsNotAttending();
       // Save the updated attendee record
@@ -333,7 +333,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   @Transactional
-  public void increaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
+  public void increaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Increase total attendees or guests in the stream
     streamRepository.incrementTotalAttendees(stream.getStreamId());
   }
@@ -345,7 +345,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   @Transactional
-  public void decreaseTotalAttendeesOrGuestsAndSave(final FleenStream stream) {
+  public void decreaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Decrease total attendees or guests in the stream
     streamRepository.decrementTotalAttendees(stream.getStreamId());
   }

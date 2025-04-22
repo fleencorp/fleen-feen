@@ -14,11 +14,11 @@ import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ReviewService {
 
-  ReviewSearchResult findReviewsPublic(ReviewSearchRequest searchRequest, FleenUser user);
+  ReviewSearchResult findReviews(ReviewSearchRequest searchRequest, FleenUser user);
 
   ReviewResponse findMostRecentReview(ReviewType reviewType, Long entryId, FleenUser user);
 
-  ReviewSearchResult findReviewsPrivate(SearchRequest searchRequest, FleenUser user);
+  ReviewSearchResult findMyReviews(SearchRequest searchRequest, FleenUser user);
 
   AddReviewResponse addReview(AddReviewDto addReviewDto, FleenUser user);
 

@@ -10,6 +10,7 @@ import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import static java.util.Objects.nonNull;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
+@Slf4j
 @Service
 @Qualifier("misc")
 public class MiscServiceImpl implements
@@ -146,13 +148,20 @@ public class MiscServiceImpl implements
     if (nonNull(entries) && !entries.isEmpty() && nonNull(user) && nonNull(user.getId())) {
       entries.stream()
         .filter(Objects::nonNull)
-        .forEach(entry -> {
-          final boolean isOrganizer = entry.getOrganizerId().equals(user.getId());
-          entry.setIsOrganizer(isOrganizer);
-      });
+        .forEach(entry -> determineIfUserIsTheOrganizerOfEntity(entry, user));
     }
   }
 
+  /**
+   * Determines if the provided user is the organizer of the given entity.
+   *
+   * <p>This method checks if the {@code setIsOrganizer} and {@code user} are non-null and if the user has a valid ID.
+   * It then compares the user's ID with the organizer's ID from {@code setIsOrganizer} and sets the {@code isOrganizer}
+   * flag accordingly.
+   *
+   * @param setIsOrganizer the object representing the entity whose organizer is being checked
+   * @param user the user whose role is being verified as the organizer of the entity
+   */
   public static void determineIfUserIsTheOrganizerOfEntity(final SetIsOrganizer setIsOrganizer, final FleenUser user) {
     if (nonNull(setIsOrganizer) && nonNull(user) && nonNull(user.getId())) {
       final boolean isOrganizer = setIsOrganizer.getOrganizerId().equals(user.getId());
