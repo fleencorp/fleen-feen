@@ -14,6 +14,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
+import com.fleencorp.feen.model.dto.chat.member.RestoreChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.holder.ChatSpaceAndMemberDetailsHolder;
@@ -21,10 +22,7 @@ import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipIn
 import com.fleencorp.feen.model.request.chat.space.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.model.request.chat.space.membership.RemoveChatSpaceMemberRequest;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
-import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
+import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.search.chat.space.member.EmptyChatSpaceMemberSearchResult;
@@ -359,6 +357,73 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     final AddChatSpaceMemberResponse addChatSpaceMemberResponse = AddChatSpaceMemberResponse.of(chatSpaceId, memberId);
     // Return a localized response indicating success
     return localizer.of(addChatSpaceMemberResponse);
+  }
+
+  /**
+   * Restores a previously removed member from a chat space.
+   *
+   * <p>This method performs several validation steps:
+   * it ensures the chat space exists, verifies that the requesting user
+   * is either the creator or an admin of the chat space, confirms the target member
+   * exists and is not the organizer, and then proceeds to restore the member.</p>
+   *
+   * <p>If successful, it returns a localized response indicating that the member
+   * was restored. Otherwise, appropriate exceptions are thrown.</p>
+   *
+   * @param chatSpaceId the ID of the chat space
+   * @param restoreChatSpaceMemberDto the DTO containing the ID of the chat space member to restore
+   * @param user the user initiating the restoration
+   * @return a localized {@link RestoreChatSpaceMemberResponse} indicating success
+   *
+   * @throws ChatSpaceNotFoundException if the chat space with the given ID does not exist
+   * @throws ChatSpaceMemberNotFoundException if the chat space member is not found
+   * @throws NotAnAdminOfChatSpaceException if the user is not authorized to perform the action
+   * @throws FailedOperationException if the restoration operation fails
+   */
+  @Override
+  @Transactional
+  public RestoreChatSpaceMemberResponse restoreRemovedMember(final Long chatSpaceId, final RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, final FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
+      FailedOperationException  {
+    // Find the chat space by its ID
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Validate if the user is the creator or an admin of the chat space
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    // Get the member id
+    final Long chatSpaceMemberId = restoreChatSpaceMemberDto.getChatSpaceMemberId();
+    // Find the chat space member
+    final ChatSpaceMember chatSpaceMember = findByChatSpaceAndChatSpaceMemberId(chatSpace, chatSpaceMemberId);
+    // Organizer cannot restore self
+    chatSpace.checkIsNotOrganizer(chatSpaceMember.getMemberId());
+    // Handle the restore of the chat space member
+    handleRestoreMember(chatSpaceMember);
+    // Create the response
+    final RestoreChatSpaceMemberResponse restoreChatSpaceMemberResponse = RestoreChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMemberId);
+    // Return a localized response indicating success
+    return localizer.of(restoreChatSpaceMemberResponse);
+  }
+
+  /**
+   * Handles the restoration of a previously removed {@link ChatSpaceMember}.
+   *
+   * <p>If the member is not {@code null} and is not marked as removed,
+   * their join status is approved and the member is saved to the repository.</p>
+   *
+   * <p>If the member is {@code null} or marked as removed, the method throws
+   * a {@link FailedOperationException}.</p>
+   *
+   * @param chatSpaceMember the chat space member to restore
+   * @throws FailedOperationException if the operation cannot be completed
+   */
+  protected void handleRestoreMember(ChatSpaceMember chatSpaceMember) {
+    if (nonNull(chatSpaceMember) && chatSpaceMember.isNotRemoved()) {
+      // Approve the request
+      chatSpaceMember.approveJoinStatus();
+      // Save the member
+      chatSpaceMemberRepository.save(chatSpaceMember);
+    }
+
+    throw FailedOperationException.of();
   }
 
   /**

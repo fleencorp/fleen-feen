@@ -12,13 +12,11 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
+import com.fleencorp.feen.model.dto.chat.member.RestoreChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto;
 import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
-import com.fleencorp.feen.model.response.chat.space.member.AddChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.DowngradeChatSpaceAdminToMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.RemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.chat.space.member.UpgradeChatSpaceMemberToAdminResponse;
+import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
@@ -38,6 +36,10 @@ public interface ChatSpaceMemberService {
 
   AddChatSpaceMemberResponse addMember(Long chatSpaceId, AddChatSpaceMemberDto addChatSpaceMemberDto, FleenUser user)
     throws ChatSpaceNotFoundException, MemberNotFoundException, NotAnAdminOfChatSpaceException,
+      FailedOperationException;
+
+  RestoreChatSpaceMemberResponse restoreRemovedMember(Long chatSpaceId, RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, FleenUser user)
+    throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
   RemoveChatSpaceMemberResponse removeMember(Long chatSpaceId, RemoveChatSpaceMemberDto removeChatSpaceMemberDto, FleenUser user)

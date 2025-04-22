@@ -125,6 +125,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public CalendarSearchResult findCalendars(final CalendarSearchRequest searchRequest) {
     final Page<Calendar> page;
+
     if (searchRequest.areAllDatesSet()) {
       page = calendarRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), searchRequest.getPage());
     } else if (nonNull(searchRequest.getTitle()))  {

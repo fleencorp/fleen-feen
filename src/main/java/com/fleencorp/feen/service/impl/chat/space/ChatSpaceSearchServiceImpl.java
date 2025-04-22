@@ -19,6 +19,7 @@ import com.fleencorp.feen.model.response.link.LinkResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.EmptyChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
+import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
@@ -302,14 +303,16 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   public RequestToJoinSearchResult findRequestToJoinSpace(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
     // Retrieve the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
-    final Page<ChatSpaceMember> page;
+    // Verify that the user is the creator or an admin of the chat space
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
 
+    final Page<ChatSpaceMember> page;
     final Set<ChatSpaceRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
 
     // Check if a member name is provided in the search request
     if (nonNull(searchRequest.getMemberName())) {
       // Fetch members with the specified name and pending join request status
-      page = chatSpaceMemberRepository.findByChatSpaceAndMemberNameRequestToJoinStatus(chatSpace, searchRequest.getMemberName(), joinStatusesForSearch, searchRequest.getPage());
+      page = chatSpaceMemberRepository.findByChatSpaceAndMemberNameAndRequestToJoinStatus(chatSpace, searchRequest.getMemberName(), joinStatusesForSearch, searchRequest.getPage());
     } else {
       // Fetch all members with a pending join request status
       page = chatSpaceMemberRepository.findByChatSpaceAndRequestToJoinStatus(chatSpace, joinStatusesForSearch, searchRequest.getPage());
@@ -323,6 +326,46 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       localizer.of(RequestToJoinSearchResult.of(toSearchResult(views, page))),
       localizer.of(EmptyRequestToJoinSearchResult.of(toSearchResult(List.of(), page)))
     );
+  }
+
+  /**
+   * Finds members who have been removed from a specific chat space,
+   * optionally filtering by member name.
+   *
+   * <p>This method retrieves the chat space using the provided chat space ID.
+   * If a member name is specified in the search request, it fetches removed
+   * members with that name. If no name is provided, it retrieves all removed
+   * members for the given chat space.</p>
+   *
+   * @param chatSpaceId The ID of the chat space for which to find removed members.
+   * @param searchRequest The search request containing pagination details and optional member name.
+   * @param user The user performing the search, which must have appropriate permissions.
+   * @return A RemovedMemberSearchResult containing the search results of removed chat space members.
+   * @throws ChatSpaceNotFoundException if the chat space does not exist.
+   */
+  @Override
+  public RemovedMemberSearchResult findRemovedMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+    // Retrieve the chat space by its ID
+    final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
+    // Verify that the user is the creator or an admin of the chat space
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+
+    final Page<ChatSpaceMember> page;
+    // Check if a member name is provided in the search request
+    if (nonNull(searchRequest.getMemberName())) {
+      // Fetch members with the specified name
+      page = chatSpaceMemberRepository.findByChatSpaceAndMemberNameAndRemoved(chatSpace, searchRequest.getMemberName(), searchRequest.getPage());
+    } else {
+      // Fetch all members
+      page = chatSpaceMemberRepository.findByChatSpaceAndRemoved(chatSpace, searchRequest.getPage());
+    }
+
+    // Convert the chat space members to response objects
+    final List<ChatSpaceMemberResponse> chatSpaceMembers = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
+    // Create the search result
+    final RemovedMemberSearchResult removedMemberSearchResult = RemovedMemberSearchResult.of(toSearchResult(chatSpaceMembers, page));
+    // Return a search result view with the request to join responses and pagination details
+    return localizer.of(removedMemberSearchResult);
   }
 
   /**
