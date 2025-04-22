@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.chat;
+package com.fleencorp.feen.model.dto.chat.role;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;

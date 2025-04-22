@@ -9,9 +9,7 @@ import com.fleencorp.feen.model.projection.member.MemberInfoSelect;
 import com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect;
 import com.fleencorp.feen.model.projection.member.MemberUpdateSelect;
 import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
-import com.fleencorp.feen.model.response.common.EmailAddressNotExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
-import com.fleencorp.feen.model.response.common.PhoneNumberNotExistsResponse;
 import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.model.response.user.profile.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.model.response.user.profile.RetrieveMemberUpdateInfoResponse;
@@ -97,13 +95,13 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the email address exists or not
    */
   @Override
-  public EntityExistsResponse verifyMemberEmailAddressExists(final String emailAddress) {
+  public EmailAddressExistsResponse verifyMemberEmailAddressExists(final String emailAddress) {
     // Check if the email address exist
     final boolean exists = isEmailAddressExist(emailAddress);
+    // Create the response
+    final EmailAddressExistsResponse emailAddressExistsResponse = EmailAddressExistsResponse.of(exists);
     // Return a localized response of the status
-    return exists
-      ? localizer.of(EmailAddressExistsResponse.of(true))
-      : localizer.of(EmailAddressNotExistsResponse.of(false));
+    return localizer.of(emailAddressExistsResponse);
   }
 
   /**
@@ -130,11 +128,13 @@ public class MemberServiceImpl implements MemberService,
    *         indicating whether the phone number exists or not
    */
   @Override
-  public EntityExistsResponse verifyMemberPhoneNumberExists(final String phoneNumber) {
+  public PhoneNumberExistsResponse verifyMemberPhoneNumberExists(final String phoneNumber) {
+    // Check if the phone number exist
     final boolean exists = isPhoneNumberExist(phoneNumber);
-    return exists
-      ? localizer.of(PhoneNumberExistsResponse.of(true))
-      : localizer.of(PhoneNumberNotExistsResponse.of(false));
+    // Create the response
+    final PhoneNumberExistsResponse phoneNumberExistsResponse = PhoneNumberExistsResponse.of(exists);
+    // Return a localized response of the status
+    return localizer.of(phoneNumberExistsResponse);
   }
 
   /**
@@ -198,7 +198,7 @@ public class MemberServiceImpl implements MemberService,
    * @throws FailedOperationException if no member information is found for the given user.
    */
   @Override
-  public RetrieveMemberInfoResponse getMemberInfo(final FleenUser user) {
+  public RetrieveMemberInfoResponse getMemberInfo(final FleenUser user) throws FailedOperationException {
     // Retrieve member information from the user profile repository
     final MemberInfoSelect info = userProfileRepository.findInfoByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
@@ -215,13 +215,16 @@ public class MemberServiceImpl implements MemberService,
    * @throws FailedOperationException if no update information is found for the given member.
    */
   @Override
-  public RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(final FleenUser user) {
+  public RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(final FleenUser user) throws FailedOperationException {
     // Retrieve member update information from the user profile repository
     final MemberUpdateSelect info = userProfileRepository.findByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
 
+    // Create the response
+    final RetrieveMemberUpdateInfoResponse retrieveMemberUpdateInfoResponse = RetrieveMemberUpdateInfoResponse.of(info);
+
     // Return the localized response containing the retrieved member update information
-    return localizer.of(RetrieveMemberUpdateInfoResponse.of(info));
+    return localizer.of(retrieveMemberUpdateInfoResponse);
   }
 
   /**
@@ -232,13 +235,15 @@ public class MemberServiceImpl implements MemberService,
    * @throws FailedOperationException if the profile status for the given member is not found.
    */
   @Override
-  public RetrieveProfileStatusResponse getProfileStatus(final FleenUser user) {
+  public RetrieveProfileStatusResponse getProfileStatus(final FleenUser user) throws FailedOperationException {
     // Retrieve the profile status from the user profile repository
     final MemberProfileStatusSelect verificationStatus = userProfileRepository.findStatusByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
 
+    // Create the response
+    final RetrieveProfileStatusResponse retrieveProfileStatusResponse = RetrieveProfileStatusResponse.of(verificationStatus);
     // Return the localized response containing the retrieved profile status
-    return localizer.of(RetrieveProfileStatusResponse.of(verificationStatus));
+    return localizer.of(retrieveProfileStatusResponse);
   }
 
   /**

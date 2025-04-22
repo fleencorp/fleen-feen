@@ -18,7 +18,7 @@ public class PhoneNumberExistsResponse extends EntityExistsResponse {
 
   @Override
   public String getMessageCode() {
-    return "phone.number.exists";
+    return exists ? "phone.number.exists" : "phone.number.not.exists";
   }
 
   public static PhoneNumberExistsResponse of(final boolean exists) {

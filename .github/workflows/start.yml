@@ -155,17 +155,17 @@ jobs:
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
 
-  action-slack:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Slack Alarm
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          author_name: GitHub-Actions CI/CD
-          fields: repo,message,commit,author,ref,job,took
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: always() # Pick up events even if the job fails or is canceled.
+#  action-slack:
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request'
+#
+#    steps:
+#      - name: Slack Alarm
+#        uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          author_name: GitHub-Actions CI/CD
+#          fields: repo,message,commit,author,ref,job,took
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+#        if: always() # Pick up events even if the job fails or is canceled.

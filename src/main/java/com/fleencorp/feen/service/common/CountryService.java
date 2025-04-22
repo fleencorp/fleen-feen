@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.common;
 
 import com.fleencorp.base.service.BasicCountryService;
+import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
@@ -14,7 +15,7 @@ public interface CountryService extends BasicCountryService {
 
   CountrySearchResult findCountries(CountrySearchRequest searchRequest);
 
-  RetrieveCountryResponse getCountry(Long countryId);
+  RetrieveCountryResponse getCountry(Long countryId) throws CountryNotFoundException;
 
   Country getCountryByCode(String code);
 

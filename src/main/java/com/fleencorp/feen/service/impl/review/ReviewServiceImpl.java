@@ -96,7 +96,7 @@ public class ReviewServiceImpl implements ReviewService {
    * @return a {@link ReviewSearchResult} containing the reviews and pagination details, or an empty result if no reviews are found
    */
   @Override
-  public ReviewSearchResult findReviewsPublic(final ReviewSearchRequest searchRequest, final FleenUser user) {
+  public ReviewSearchResult findReviews(final ReviewSearchRequest searchRequest, final FleenUser user) {
     Page<Review> page = Page.empty();
 
     // Check if a stream review search request
@@ -234,7 +234,7 @@ public class ReviewServiceImpl implements ReviewService {
    * @return a {@link ReviewSearchResult} containing the paginated list of reviews in response format
    */
   @Override
-  public ReviewSearchResult findReviewsPrivate(final SearchRequest searchRequest, final FleenUser user) {
+  public ReviewSearchResult findMyReviews(final SearchRequest searchRequest, final FleenUser user) {
     // Find all user reviews
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
     // Convert the reviews to the response

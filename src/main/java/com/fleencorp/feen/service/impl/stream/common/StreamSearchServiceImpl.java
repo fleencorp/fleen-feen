@@ -22,8 +22,8 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.EmptyStreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.repository.stream.UserFleenStreamRepository;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
@@ -70,7 +70,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   private final StreamAttendeeService streamAttendeeService;
   private final ReviewService reviewService;
   private final StreamService streamService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final UserFleenStreamRepository userStreamRepository;
   private final StreamMapper streamMapper;
@@ -94,7 +94,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final StreamAttendeeService streamAttendeeService,
       final ReviewService reviewService,
       final StreamService streamService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final UserFleenStreamRepository userStreamRepository,
       final Localizer localizer,
@@ -123,7 +123,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a `StreamSearchResult` containing the processed and localized results of the filtered streams
    */
   @Override
-  public StreamSearchResult findStreamsPublic(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);
     // Get the list of stream views from the search result
@@ -215,7 +215,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized response containing the streams associated with the user, including any filtering applied and pagination details
    */
   @Override
-  public StreamSearchResult findStreamsPrivate(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page;
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
 

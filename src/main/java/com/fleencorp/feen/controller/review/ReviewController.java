@@ -28,17 +28,17 @@ public class ReviewController {
 
   @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
   @GetMapping(value = "/mine")
-  public ReviewSearchResult findReviewsPrivate(
+  public ReviewSearchResult findMyReviews(
       @SearchParam final SearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return reviewService.findReviewsPrivate(searchRequest, user);
+    return reviewService.findMyReviews(searchRequest, user);
   }
 
   @PostMapping(value = "/entries")
   public ReviewSearchResult findReviewsPublic(
       @SearchParam final ReviewSearchRequest searchRequest,
       @AuthenticationPrincipal final FleenUser user) {
-    return reviewService.findReviewsPublic(searchRequest, user);
+    return reviewService.findReviews(searchRequest, user);
   }
 
   @PreAuthorize("isFullyAuthenticated()")

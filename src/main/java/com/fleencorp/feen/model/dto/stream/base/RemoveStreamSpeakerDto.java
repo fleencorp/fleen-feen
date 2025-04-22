@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.dto.stream.base;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.util.FleenUtil;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RemoveStreamSpeakerDto {
 
   @Valid
-  @NotNull(message = "{speaker.speakers.NotNull}")
+  @NotEmpty(message = "{speaker.speakers.NotEmpty}")
   @Size(max = 10, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
   private List<DeleteSpeakerDto> speakers;

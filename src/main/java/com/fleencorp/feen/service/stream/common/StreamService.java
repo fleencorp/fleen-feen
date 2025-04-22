@@ -23,9 +23,9 @@ public interface StreamService {
 
   void processNotAttendingStream(FleenStream stream, StreamAttendee attendee);
 
-  void increaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
+  void increaseTotalAttendeesOrGuests(FleenStream stream);
 
-  void decreaseTotalAttendeesOrGuestsAndSave(FleenStream stream);
+  void decreaseTotalAttendeesOrGuests(FleenStream stream);
 
   void validateStreamAndUserForProtectedStream(FleenStream stream, FleenUser user);
 

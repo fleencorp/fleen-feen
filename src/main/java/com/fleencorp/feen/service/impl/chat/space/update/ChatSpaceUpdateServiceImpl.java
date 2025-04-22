@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.chat.space;
+package com.fleencorp.feen.service.impl.chat.space.update;
 
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
@@ -12,8 +12,9 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteC
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleAddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleRemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.repository.chat.ChatSpaceMemberRepository;
-import com.fleencorp.feen.repository.chat.ChatSpaceRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
+import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatMemberService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Slf4j
 @Component
-public class ChatSpaceUpdateService {
+public class ChatSpaceUpdateServiceImpl implements ChatSpaceUpdateService {
 
   private final GoogleChatService googleChatService;
   private final GoogleChatMemberService googleChatMemberService;
@@ -44,13 +45,13 @@ public class ChatSpaceUpdateService {
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
 
   /**
-   * Constructs a {@link ChatSpaceUpdateService} instance with the specified services.
+   * Constructs a {@link ChatSpaceUpdateServiceImpl} instance with the specified services.
    *
    * @param googleChatService the service used to interact with Google Chat.
    * @param chatSpaceRepository the repository for managing chat spaces in the database.
    * @param chatSpaceMemberRepository Repository for managing chat space members.
    */
-  public ChatSpaceUpdateService(
+  public ChatSpaceUpdateServiceImpl(
       final GoogleChatService googleChatService,
       final GoogleChatMemberService googleChatMemberService,
       final ChatSpaceRepository chatSpaceRepository,
@@ -71,6 +72,7 @@ public class ChatSpaceUpdateService {
    * @param chatSpace The chat space object to be updated with the new details.
    * @param request The request containing the details needed to create the chat space.
    */
+  @Override
   @Async
   @Transactional
   public void createChatSpace(final ChatSpace chatSpace, final CreateChatSpaceRequest request) {
@@ -97,6 +99,7 @@ public class ChatSpaceUpdateService {
    *
    * @param request The request containing the details needed to update the chat space.
    */
+  @Override
   @Async
   @Transactional
   public void updateChatSpace(final UpdateChatSpaceRequest request) {
@@ -113,6 +116,7 @@ public class ChatSpaceUpdateService {
    *
    * @param request The request containing the details needed to delete the chat space.
    */
+  @Override
   @Async
   @Transactional
   public void deleteChatSpace(final DeleteChatSpaceRequest request) {
@@ -131,6 +135,7 @@ public class ChatSpaceUpdateService {
    *                        parameter is updated with details from the response.
    * @param request The request containing the details needed to add the member to the chat space.
    */
+  @Override
   @Async
   @Transactional
   public void addMember(final ChatSpaceMember chatSpaceMember, final AddChatSpaceMemberRequest request) {
@@ -153,6 +158,7 @@ public class ChatSpaceUpdateService {
    * @param request The request containing the details needed to remove
    *                the member from the chat space.
    */
+  @Override
   @Async
   @Transactional
   public void removeMember(final RemoveChatSpaceMemberRequest request) {
