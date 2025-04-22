@@ -243,6 +243,13 @@ public class StreamAttendee extends FleenFeenEntity {
     return isOrganizer;
   }
 
+  public static StreamAttendee of(final String attendeeId) {
+    final StreamAttendee attendee = new StreamAttendee();
+    attendee.setAttendeeId(Long.valueOf(attendeeId));
+
+    return attendee;
+  }
+
   public static StreamAttendee of(final Member member, final FleenStream stream) {
     final StreamAttendee attendee = new StreamAttendee();
     attendee.setMember(member);
@@ -256,13 +263,6 @@ public class StreamAttendee extends FleenFeenEntity {
     streamAttendee.setAttendeeComment(comment);
 
     return streamAttendee;
-  }
-
-  public static StreamAttendee of(final String attendeeId) {
-    final StreamAttendee attendee = new StreamAttendee();
-    attendee.setAttendeeId(Long.valueOf(attendeeId));
-
-    return attendee;
   }
 
   public static StreamAttendee empty() {

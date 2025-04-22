@@ -60,6 +60,7 @@ public class CreateChatSpaceDto {
   public ChatSpace toChatSpace(final Member member) {
     final ChatSpace chatSpace = toChatSpace();
     chatSpace.setMember(member);
+    chatSpace.setMemberId(member.getMemberId());
 
     return chatSpace;
   }

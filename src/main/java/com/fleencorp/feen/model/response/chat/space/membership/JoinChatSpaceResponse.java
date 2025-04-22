@@ -19,6 +19,7 @@ import lombok.Setter;
   "message",
   "chat_space_id",
   "membership_info",
+  "space_link",
   "total_members"
 })
 public class JoinChatSpaceResponse extends ApiResponse {
@@ -29,6 +30,9 @@ public class JoinChatSpaceResponse extends ApiResponse {
   @JsonProperty("membership_info")
   private ChatSpaceMembershipInfo membershipInfo;
 
+  @JsonProperty("space_link")
+  private String spaceLink;
+
   @JsonProperty("total_members")
   private Long totalMembers;
 
@@ -37,7 +41,7 @@ public class JoinChatSpaceResponse extends ApiResponse {
     return "join.chat.space";
   }
 
-  public static JoinChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers) {
-    return new JoinChatSpaceResponse(chatSpaceId, membershipInfo, totalMembers);
+  public static JoinChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final String spaceLink, final Long totalMembers) {
+    return new JoinChatSpaceResponse(chatSpaceId, membershipInfo, spaceLink, totalMembers);
   }
 }

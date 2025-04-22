@@ -14,8 +14,8 @@ import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;
@@ -49,7 +49,7 @@ public class EventJoinServiceImpl implements EventJoinService {
   private final StreamAttendeeService attendeeService;
   private final StreamService streamService;
   private final OtherEventUpdateService otherEventUpdateService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamMapper streamMapper;
   private final MemberRepository memberRepository;
@@ -80,7 +80,7 @@ public class EventJoinServiceImpl implements EventJoinService {
       final StreamAttendeeService attendeeService,
       final StreamService streamService,
       final OtherEventUpdateService otherEventUpdateService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final MemberRepository memberRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,

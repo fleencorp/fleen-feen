@@ -34,7 +34,7 @@ public class ChatSpaceStatusInfo {
   @JsonProperty("status_text")
   private String statusText;
 
-  @JsonProperty("status_text_5")
+  @JsonProperty("status_text_2")
   private String statusText2;
 
   @JsonProperty("status_text_3")

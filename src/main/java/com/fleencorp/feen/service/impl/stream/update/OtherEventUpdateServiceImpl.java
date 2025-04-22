@@ -8,7 +8,7 @@ import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeReques
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeeResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleCreateCalendarEventResponse;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
 import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
@@ -36,7 +36,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
   private final BroadcastService broadcastService;
   private final GoogleCalendarAttendeeService googleCalendarAttendeeService;
   private final GoogleCalendarEventService googleCalendarEventService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
 
   /**
    * Constructs a new instance of {@code OtherEventUpdateServiceImpl} with the specified services.
@@ -55,7 +55,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
       final BroadcastService broadcastService,
       final GoogleCalendarAttendeeService googleCalendarAttendeeService,
       final GoogleCalendarEventService googleCalendarEventService,
-      final FleenStreamRepository streamRepository) {
+      final StreamRepository streamRepository) {
     this.broadcastService = broadcastService;
     this.googleCalendarAttendeeService = googleCalendarAttendeeService;
     this.googleCalendarEventService = googleCalendarEventService;
@@ -80,6 +80,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
     final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
+    // Save it
     streamRepository.save(stream);
     // Set the event ID from the created event to to be reused
     createCalendarEventRequest.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());

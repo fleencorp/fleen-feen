@@ -16,7 +16,8 @@ import lombok.*;
 @JsonPropertyOrder({
   "name",
   "email",
-  "phone"
+  "phone",
+  "is_organizer"
 })
 public class Organizer {
 
@@ -29,11 +30,18 @@ public class Organizer {
   @JsonProperty("phone")
   private MaskedPhoneNumber organizerPhone;
 
+  @JsonProperty("is_organizer")
+  private Boolean isOrganizer;
+
   public static Organizer of(final String organizerName, final String organizerEmail, final String organizerPhone) {
-    return Organizer.builder()
-      .organizerName(organizerName)
-      .organizerEmail(MaskedEmailAddress.of(organizerEmail))
-      .organizerPhone(MaskedPhoneNumber.of(organizerPhone))
-      .build();
+    final MaskedEmailAddress organizerEmailAddress = MaskedEmailAddress.of(organizerEmail);
+    final MaskedPhoneNumber organizerPhoneNumber = MaskedPhoneNumber.of(organizerPhone);
+
+    final Organizer organizer = new Organizer();
+    organizer.setOrganizerName(organizerName);
+    organizer.setOrganizerEmail(organizerEmailAddress);
+    organizer.setOrganizerPhone(organizerPhoneNumber);
+
+    return organizer;
   }
 }

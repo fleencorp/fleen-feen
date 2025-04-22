@@ -12,6 +12,7 @@ import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpa
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
+import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;
 import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
@@ -181,10 +182,11 @@ public class ChatSpaceController {
     return chatSpaceService.deleteChatSpaceByAdmin(chatSpaceId, user);
   }
 
-  @Operation(summary = "Enable a chat space",
-    description = "Activates a disabled chat space, making it accessible to members. This operation can only " +
-                 "be performed by chat space administrators. When enabled, members can access the chat space " +
-                 "and its content according to their permissions."
+  @Operation(summary = "Enable or disable a chat space",
+    description = "Activates or Deactivate a chat space, making it accessible or inaccessible to members. This operation can only " +
+      "be performed by chat space administrators. When enabled, members can access the chat space " +
+      "and its content according to their permissions. When disabled, members cannot access the chat space " +
+      "and its content according to their permissions"
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Chat space successfully enabled",
@@ -198,39 +200,15 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "400", description = "Chat space is already deleted",
       content = @Content(schema = @Schema(implementation = ChatSpaceAlreadyDeletedException.class)))
   })
-  @PutMapping(value = "/enable/{chatSpaceId}")
-  public UpdateChatSpaceStatusResponse enable(
-      @Parameter(description = "ID of the chat space to enable", required = true)
-        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.enableChatSpace(chatSpaceId, user);
-  }
-
-  @Operation(summary = "Disable a chat space",
-    description = "Temporarily disables a chat space, restricting access to its content. This operation can " +
-                 "only be performed by chat space administrators. When disabled, members cannot access the " +
-                 "chat space or its content until it is enabled again."
-  )
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Chat space successfully disabled",
-      content = @Content(schema = @Schema(implementation = UpdateChatSpaceStatusResponse.class))),
-    @ApiResponse(responseCode = "401", description = "User not authenticated",
-      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
-    @ApiResponse(responseCode = "403", description = "User not authorized to disable this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
-    @ApiResponse(responseCode = "400", description = "Chat space is not active",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotActiveException.class)))
-  })
-  @PutMapping(value = "/disable/{chatSpaceId}")
-  public UpdateChatSpaceStatusResponse disable(
-      @Parameter(description = "ID of the chat space to disable", required = true)
-        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
-    return chatSpaceService.disableChatSpace(chatSpaceId, user);
+  @PutMapping(value = "/update-status/{chatSpaceId}")
+  public UpdateChatSpaceStatusResponse updateStatus(
+    @Parameter(description = "ID of the chat space to enable", required = true)
+      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+    @Parameter(description = "Update status details", required = true)
+      @Valid @RequestBody final UpdateChatSpaceStatusDto updateChatSpaceStatusDto,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final FleenUser user) {
+    return chatSpaceService.updateChatSpaceStatus(chatSpaceId, updateChatSpaceStatusDto, user);
   }
 
   @Operation(summary = "Join a chat space",
@@ -287,11 +265,11 @@ public class ChatSpaceController {
   @PostMapping(value = "/request-to-join/{chatSpaceId}")
   public RequestToJoinChatSpaceResponse requestToJoin(
       @Parameter(description = "ID of the chat space to request joining", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(description = "Join request details including optional message", required = true)
-      @Valid @RequestBody final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto,
+        @Valid @RequestBody final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceJoinService.requestToJoinSpace(chatSpaceId, requestToJoinChatSpaceDto, user);
   }
 
@@ -315,9 +293,9 @@ public class ChatSpaceController {
   @PostMapping(value = "/leave/{chatSpaceId}")
   public LeaveChatSpaceResponse leave(
       @Parameter(description = "ID of the chat space to leave", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+        @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return chatSpaceJoinService.leaveChatSpace(chatSpaceId, user);
   }
 

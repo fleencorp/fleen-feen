@@ -27,4 +27,8 @@ public enum ChatSpaceMemberRole implements ApiParameter {
     this.value = value;
     this.messageCode = messageCode;
   }
+
+  public static boolean isAdmin(final ChatSpaceMemberRole role) {
+    return role == ChatSpaceMemberRole.ADMIN;
+  }
 }

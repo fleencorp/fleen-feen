@@ -9,6 +9,7 @@ import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedExcep
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.other.Link;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,9 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -83,6 +82,9 @@ public class ChatSpace extends FleenFeenEntity {
 
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
   private Set<ChatSpaceMember> members = new HashSet<>();
+
+  @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = Link.class, cascade = CascadeType.PERSIST)
+  private Set<Link> links = new HashSet<>();
 
   public Member getOrganizer() {
     return member;
@@ -151,7 +153,7 @@ public class ChatSpace extends FleenFeenEntity {
    * @return true if the member is deleted; otherwise, returns false.
    */
   public boolean isDeleted() {
-    return deleted;
+    return nonNull(deleted) && deleted;
   }
 
   /**
@@ -175,6 +177,15 @@ public class ChatSpace extends FleenFeenEntity {
     return ChatSpaceVisibility.isPrivate(spaceVisibility);
   }
 
+  /**
+   * Checks if the chat space is publicly visible.
+   *
+   * @return {@code true} if the chat space visibility is set to public;
+   *         {@code false} otherwise.
+   */
+  private boolean isPublic() {
+    return ChatSpaceVisibility.isPublic(spaceVisibility);
+  }
 
   /**
    * Checks if the given member ID corresponds to the organizer of this chat space.
@@ -239,7 +250,7 @@ public class ChatSpace extends FleenFeenEntity {
    * @param memberOrUserId the ID of the user or member to check
    * @throws FailedOperationException if the user is the organizer of the chat space
    */
-  public void checkIsNotOrganizer(final Long memberOrUserId) {
+  public void checkIsNotOrganizer(final Long memberOrUserId) throws FailedOperationException {
     // Check if the chat space organizer's ID matches the user's ID
     final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
     if (isSame) {
@@ -264,7 +275,7 @@ public class ChatSpace extends FleenFeenEntity {
    *
    * @throws ChatSpaceNotActiveException if the chat space is active or enabled
    */
-  public void checkIsInactive() {
+  public void checkIsInactive() throws ChatSpaceNotActiveException {
     if (isInactive()) {
       // Throw an exception if the chat space is disabled or inactive
       throw new ChatSpaceNotActiveException();
@@ -272,13 +283,30 @@ public class ChatSpace extends FleenFeenEntity {
   }
 
   /**
-   * Ensures the chat space is not private for joining without approval.
+   * Ensures that the chat space is not private before allowing access.
    *
-   * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is private and requires approval to join
+   * <p>If the chat space is private, this method throws a
+   * {@link CannotJoinPrivateChatSpaceWithoutApprovalException} containing the chat space ID.
+   *
+   * @throws CannotJoinPrivateChatSpaceWithoutApprovalException if the chat space is private
    */
-  public void checkNotPrivateForJoining() {
+  public void checkIsNotPrivate() throws CannotJoinPrivateChatSpaceWithoutApprovalException {
     if (isPrivate()) {
       throw CannotJoinPrivateChatSpaceWithoutApprovalException.of(chatSpaceId);
+    }
+  }
+
+  /**
+   * Ensures that the chat space is not public before performing an operation.
+   *
+   * <p>If the chat space is public, this method throws a
+   * {@link FailedOperationException} to indicate that the operation cannot be completed.
+   *
+   * @throws FailedOperationException if the chat space is public
+   */
+  public void checkIsNotPublic() throws FailedOperationException {
+    if (isPublic()) {
+      throw new FailedOperationException();
     }
   }
 
@@ -287,5 +315,25 @@ public class ChatSpace extends FleenFeenEntity {
     chatSpace.setChatSpaceId(chatSpaceId);
 
     return chatSpace;
+  }
+
+  /**
+   * Returns metadata information about the chat space.
+   *
+   * <p>The metadata includes the unique identifier of the chat space, its title, and an external
+   * identifier or name associated with it.
+   *
+   * <p>The identifier is mapped under the key {@code id}, the title under {@code title}, and the
+   * external identifier under {@code externalId}.
+   *
+   * @return a map containing metadata keys and their corresponding values
+   */
+  public Map<String, String> getMetadata() {
+    final Map<String, String> metadata = new HashMap<>();
+    metadata.put("id", chatSpaceId.toString());
+    metadata.put("title", title);
+    metadata.put("externalId", externalIdOrName);
+
+    return metadata;
   }
 }

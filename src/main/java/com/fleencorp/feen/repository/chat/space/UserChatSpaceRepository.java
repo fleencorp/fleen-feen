@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.chat;
+package com.fleencorp.feen.repository.chat.space;
 
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.user.Member;

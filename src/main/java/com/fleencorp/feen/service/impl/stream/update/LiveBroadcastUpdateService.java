@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeLiveBroadcastService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +36,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LiveBroadcastUpdateService {
 
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final BroadcastService broadcastService;
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
 
   public LiveBroadcastUpdateService(
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       @Lazy final BroadcastService broadcastService,
       @Lazy final YouTubeLiveBroadcastService youTubeLiveBroadcastService) {
     this.streamRepository = streamRepository;

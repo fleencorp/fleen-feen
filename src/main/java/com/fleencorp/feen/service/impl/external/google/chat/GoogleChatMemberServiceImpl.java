@@ -148,22 +148,24 @@ public class GoogleChatMemberServiceImpl implements GoogleChatMemberService {
   @Override
   public GoogleRemoveChatSpaceMemberResponse removeMember(final RemoveChatSpaceMemberRequest removeChatSpaceMemberRequest) {
     try {
-      // Create a request to retrieve and check if a member exists before deleting
-      final RetrieveChatSpaceMemberRequest retrieveChatSpaceMemberRequest = RetrieveChatSpaceMemberRequest.of(
-        removeChatSpaceMemberRequest.getMemberSpaceIdOrName(),
-        removeChatSpaceMemberRequest.getMemberSpaceIdOrName());
-      // Attempt to retrieve chat space member
-      final GoogleChatSpaceMemberResponse chatSpaceMemberResponse = retrieveMember(retrieveChatSpaceMemberRequest);
+      if (nonNull(removeChatSpaceMemberRequest.getSpaceIdOrName()) && nonNull(removeChatSpaceMemberRequest.getMemberSpaceIdOrName())) {
+        // Create a request to retrieve and check if a member exists before deleting
+        final RetrieveChatSpaceMemberRequest retrieveChatSpaceMemberRequest = RetrieveChatSpaceMemberRequest.of(
+          removeChatSpaceMemberRequest.getSpaceIdOrName(),
+          removeChatSpaceMemberRequest.getMemberSpaceIdOrName());
+        // Attempt to retrieve chat space member
+        final GoogleChatSpaceMemberResponse chatSpaceMemberResponse = retrieveMember(retrieveChatSpaceMemberRequest);
 
-      if (nonNull(chatSpaceMemberResponse)) {
-        // Verify the space exists
-        getService().getSpace(removeChatSpaceMemberRequest.getSpaceIdOrName());
-        // Create a request to delete the membership
-        final DeleteMembershipRequest deleteMembershipRequest = getDeleteMembershipRequest(removeChatSpaceMemberRequest);
-        // Delete the membership from the chat service
-        getService().deleteMembership(deleteMembershipRequest);
-        // Return the response confirming the deletion
-        return GoogleRemoveChatSpaceMemberResponse.of(removeChatSpaceMemberRequest.getMemberSpaceIdOrName(), removeChatSpaceMemberRequest.getSpaceIdOrName());
+        if (nonNull(chatSpaceMemberResponse)) {
+          // Verify the space exists
+          getService().getSpace(removeChatSpaceMemberRequest.getSpaceIdOrName());
+          // Create a request to delete the membership
+          final DeleteMembershipRequest deleteMembershipRequest = getDeleteMembershipRequest(removeChatSpaceMemberRequest);
+          // Delete the membership from the chat service
+          getService().deleteMembership(deleteMembershipRequest);
+          // Return the response confirming the deletion
+          return GoogleRemoveChatSpaceMemberResponse.of(removeChatSpaceMemberRequest.getMemberSpaceIdOrName(), removeChatSpaceMemberRequest.getSpaceIdOrName());
+        }
       }
     } catch (final RuntimeException ex) {
       final String errorMessage = String.format("Error occurred while deleting a membership. Reason: %s", ex.getMessage());

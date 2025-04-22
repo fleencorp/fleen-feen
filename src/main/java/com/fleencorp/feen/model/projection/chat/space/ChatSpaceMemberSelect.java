@@ -18,13 +18,12 @@ public class ChatSpaceMemberSelect {
   private Long chatSpaceId;
   private ChatSpaceRequestToJoinStatus requestToJoinStatus;
   private ChatSpaceVisibility visibility;
-  private Boolean admin;
   private Boolean left;
   private Boolean removed;
   private ChatSpaceMemberRole role;
 
   public JoinStatus getJoinStatus() {
-    return JoinStatus.getJoinStatus(requestToJoinStatus, visibility, isAMember(), removed);
+    return JoinStatus.getJoinStatus(requestToJoinStatus, visibility, isAMember(), hasLeft(), isRemoved());
   }
 
   public boolean isAMember() {
@@ -32,6 +31,14 @@ public class ChatSpaceMemberSelect {
   }
 
   public boolean isAdmin() {
-    return admin;
+    return ChatSpaceMemberRole.isAdmin(role);
+  }
+
+  public boolean hasLeft() {
+    return left;
+  }
+
+  public boolean isRemoved() {
+    return removed;
   }
 }

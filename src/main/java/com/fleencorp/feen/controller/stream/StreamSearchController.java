@@ -54,13 +54,13 @@ public class StreamSearchController {
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
   @GetMapping(value = "")
-  public StreamSearchResult findStreamsPublic(
+  public StreamSearchResult findStreams(
       @Parameter(description = "Search criteria for streams", required = true)
-      @SearchParam final StreamSearchRequest searchRequest,
+        @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     searchRequest.setStreamType(StreamType.event());
-    return streamSearchService.findStreamsPublic(searchRequest, user);
+    return streamSearchService.findStreams(searchRequest, user);
   }
 
   @Operation(summary = "Search streams by type and time",
@@ -75,9 +75,9 @@ public class StreamSearchController {
   @GetMapping(value = "/type")
   public StreamSearchResult findStreams(
       @Parameter(description = "Search criteria for events", required = true)
-      @SearchParam final EventSearchRequest searchRequest,
+        @SearchParam final EventSearchRequest searchRequest,
       @Parameter(description = "Type of stream time filter", required = true)
-      final StreamTimeType streamTimeType) {
+        final StreamTimeType streamTimeType) {
     searchRequest.setStreamType(StreamType.event());
     return streamSearchService.findStreamsPublic(searchRequest, streamTimeType);
   }
@@ -96,9 +96,9 @@ public class StreamSearchController {
   @GetMapping(value = "/detail/{streamId}")
   public RetrieveStreamResponse findStream(
       @Parameter(description = "ID of the stream to retrieve", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
+        @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.retrieveStream(streamId, user);
   }
 
@@ -115,13 +115,13 @@ public class StreamSearchController {
   })
   @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
   @GetMapping(value = "/mine")
-  public StreamSearchResult findStreamsPrivate(
+  public StreamSearchResult findMyStreams(
       @Parameter(description = "Search criteria for streams", required = true)
-      @SearchParam final StreamSearchRequest searchRequest,
+        @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     searchRequest.setDefaultStreamType();
-    return streamSearchService.findStreamsPrivate(searchRequest, user);
+    return streamSearchService.findMyStreams(searchRequest, user);
   }
 
   @Operation(summary = "Get details of user's stream",
@@ -143,9 +143,9 @@ public class StreamSearchController {
   @GetMapping(value = "/mine/detail/{streamId}")
   public RetrieveStreamResponse findMyStream(
       @Parameter(description = "ID of the stream to retrieve", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
+        @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.retrieveStream(streamId, user);
   }
 
@@ -163,9 +163,9 @@ public class StreamSearchController {
   @GetMapping(value = "/attendees/{streamId}")
   public StreamAttendeeSearchResult getStreamAttendees(
       @Parameter(description = "ID of the stream to get attendees for", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
+        @PathVariable(name = "streamId") final Long streamId,
       @Parameter(description = "Search criteria for stream attendees", required = true)
-      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
+        @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
     return streamAttendeeService.getStreamAttendees(streamId, streamAttendeeSearchRequest);
   }
 
@@ -183,9 +183,9 @@ public class StreamSearchController {
   @GetMapping(value = "/attendees-2/{streamId}")
   public StreamAttendeeSearchResult findStreamAttendees(
       @Parameter(description = "ID of the stream to find attendees for", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
+        @PathVariable(name = "streamId") final Long streamId,
       @Parameter(description = "Search criteria for stream attendees", required = true)
-      @SearchParam final StreamAttendeeSearchRequest searchRequest) {
+        @SearchParam final StreamAttendeeSearchRequest searchRequest) {
     return streamAttendeeService.findStreamAttendees(streamId, searchRequest);
   }
 
@@ -204,9 +204,9 @@ public class StreamSearchController {
   @GetMapping(value = "/attended-by-me")
   public StreamSearchResult findStreamsAttendedByUser(
       @Parameter(description = "Search criteria for attended streams", required = true)
-      @SearchParam final StreamSearchRequest searchRequest,
+        @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.findStreamsAttendedByUser(searchRequest, user);
   }
 
@@ -225,9 +225,9 @@ public class StreamSearchController {
   @GetMapping(value = "/attended-with-user")
   public StreamSearchResult findEventsAttendedWithAnotherUser(
       @Parameter(description = "Search criteria for co-attended streams", required = true)
-      @SearchParam final StreamSearchRequest searchRequest,
+        @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return streamSearchService.findStreamsAttendedWithAnotherUser(searchRequest, user);
   }
 
@@ -250,11 +250,11 @@ public class StreamSearchController {
   @GetMapping(value = "/attendees/request-to-join/{streamId}")
   public RequestToJoinSearchResult findAttendeesRequestToJoin(
       @Parameter(description = "ID of the stream to get join requests for", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
+        @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user,
+        @AuthenticationPrincipal final FleenUser user,
       @Parameter(description = "Search criteria for join requests", required = true)
-      @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
+        @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
     return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);
   }
 }

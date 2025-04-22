@@ -1,0 +1,40 @@
+package com.fleencorp.feen.model.response.link;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+  "url",
+  "link_type",
+  "is_updatable"
+})
+public class LinkResponse implements SetIsUpdatable {
+
+  @JsonProperty("url")
+  private String url;
+
+  @JsonProperty("link_type")
+  private LinkTypeResponse linkType;
+
+  @JsonProperty("is_updatable")
+  private boolean isUpdatable;
+
+  public void setIsUpdatable(final boolean isUpdatable) {
+    this.isUpdatable = isUpdatable;
+  }
+
+  public void markAsUpdatable() {
+    setIsUpdatable(true);
+  }
+}

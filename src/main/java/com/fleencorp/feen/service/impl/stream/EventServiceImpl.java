@@ -20,8 +20,8 @@ import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.FleenStreamRepository;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   private final StreamService streamService;
   private final EventUpdateService eventUpdateService;
   private final OtherEventUpdateService otherEventUpdateService;
-  private final FleenStreamRepository streamRepository;
+  private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamMapper streamMapper;
   private final StreamEventPublisher streamEventPublisher;
@@ -93,7 +93,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       final StreamService streamService,
       final EventUpdateService eventUpdateService,
       final OtherEventUpdateService otherEventUpdateService,
-      final FleenStreamRepository streamRepository,
+      final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamEventPublisher streamEventPublisher,
@@ -163,8 +163,8 @@ public class EventServiceImpl implements EventService, StreamRequestService {
 
     // Save stream and create event in Google Calendar Event Service externally
     stream = streamRepository.save(stream);
-    // Increase attendees count, save the event and and add the event in Google Calendar
-    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+    // Increase attendees count, save the event
+    streamService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create an event
@@ -260,7 +260,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       user.getPhoneNumber());
 
     // Increase attendees count, save the event and and add the event in Google Calendar
-    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+    streamService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Save stream and create event in Google Calendar Event Service externally

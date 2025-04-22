@@ -139,7 +139,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       user.getPhoneNumber());
 
     // Increase attendees count, save the live broadcast and and add the stream in YouTube Live Stream
-    streamService.increaseTotalAttendeesOrGuestsAndSave(stream);
+    streamService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the live broadcast as an attendee or guest
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create a live broadcast
