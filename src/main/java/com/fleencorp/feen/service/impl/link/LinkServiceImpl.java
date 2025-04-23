@@ -10,11 +10,9 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
+import com.fleencorp.feen.model.info.link.LinkTypeInfo;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
-import com.fleencorp.feen.model.response.link.LinkResponse;
-import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
-import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
+import com.fleencorp.feen.model.response.link.*;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.link.LinkRepository;
@@ -23,14 +21,14 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.link.LinkService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.model.dto.link.UpdateLinkDto.LinkDto;
@@ -46,6 +44,20 @@ public class LinkServiceImpl implements LinkService {
   private final LinkMapper linkMapper;
   private final Localizer localizer;
 
+  /**
+   * Constructs a {@link LinkServiceImpl} with the specified dependencies.
+   *
+   * <p>This constructor initializes the {@link LinkServiceImpl} with the required services and repositories.
+   * These dependencies are used throughout the service for managing chat spaces, streams, links, and performing
+   * localization.</p>
+   *
+   * @param chatSpaceService The {@link ChatSpaceService} used to interact with chat space-related functionality.
+   * @param streamService The {@link StreamService} used to manage stream-related operations.
+   * @param linkRepository The {@link LinkRepository} used to perform CRUD operations on links.
+   * @param streamRepository The {@link StreamRepository} used to perform CRUD operations on streams.
+   * @param linkMapper The {@link LinkMapper} used to map entities to response objects.
+   * @param localizer The {@link Localizer} used to handle localization for responses.
+   */
   public LinkServiceImpl(
       final ChatSpaceService chatSpaceService,
       final StreamService streamService,
@@ -59,6 +71,38 @@ public class LinkServiceImpl implements LinkService {
     this.streamRepository = streamRepository;
     this.linkMapper = linkMapper;
     this.localizer = localizer;
+  }
+
+  /**
+   * Retrieves the available link types as a map of {@link LinkType} to their corresponding {@link LinkTypeInfo}.
+   *
+   * <p>This method iterates through all values of the {@link LinkType} enum and creates a {@link LinkTypeInfo}
+   * for each, which contains the type, value, and format. The result is a map where the key is the {@link LinkType}
+   * and the value is the corresponding {@link LinkTypeInfo}.</p>
+   *
+   * @return A {@link GetAvailableLinkTypeResponse} containing a map of available {@link LinkType}s and their
+   *         associated {@link LinkTypeInfo}s.
+   */
+  @Override
+  @Cacheable("availableLinkTypes")
+  public GetAvailableLinkTypeResponse getAvailableLinkType() {
+    final Map<LinkType, LinkTypeInfo> availableLinkTypes =
+      Stream.of(LinkType.values())
+        .collect(Collectors.collectingAndThen(
+          Collectors.toMap(
+            lt -> lt,
+            lt -> LinkTypeInfo.of(lt, lt.getValue(), lt.getFormat()
+            ),
+            (_, b) -> b,
+            () -> new EnumMap<>(LinkType.class)
+          ),
+          Map::copyOf
+    ));
+
+    // Create the response
+    final GetAvailableLinkTypeResponse getAvailableLinkTypeResponse = GetAvailableLinkTypeResponse.of(availableLinkTypes);
+    // Return the response
+    return localizer.of(getAvailableLinkTypeResponse);
   }
 
   /**
@@ -78,20 +122,21 @@ public class LinkServiceImpl implements LinkService {
     searchRequest.updatePageSize(1000);
     // Initialize an empty page of links
     Page<Link> page = Page.empty();
+    // Initialize an empty link search result
+    LinkSearchResult searchResult = LinkSearchResult.empty();
 
     // Check if the search request is related to a chat space and fetch the corresponding links
     if (searchRequest.isChatSpaceSearchRequest()) {
       page = linkRepository.findByChatSpaceId(searchRequest.getChatSpaceId(), searchRequest.getPage());
+      // Retrieve the chat space details for the given chat space ID
+      final ChatSpace chatSpace = chatSpaceService.findChatSpace(searchRequest.getChatSpaceId());
+      // Map the links to their response objects
+      final List<LinkResponse> views = linkMapper.toLinkResponses(page.getContent());
+      // Set links that are updatable by the user
+      setLinksThatAreUpdatableByUser(chatSpace, views, user);
+      // Create the search result object with the views and pagination info
+      searchResult = LinkSearchResult.of(toSearchResult(views, page), searchRequest.getParentId());
     }
-
-    // Retrieve the chat space details for the given chat space ID
-    final ChatSpace chatSpace = chatSpaceService.findChatSpace(searchRequest.getChatSpaceId());
-    // Map the links to their response objects
-    final List<LinkResponse> views = linkMapper.toLinkResponses(page.getContent());
-    // Set links that are updatable by the user
-    setLinksThatAreUpdatableByUser(chatSpace, views, user);
-    // Create the search result object with the views and pagination info
-    final LinkSearchResult searchResult = LinkSearchResult.of(toSearchResult(views, page), searchRequest.getParentId());
 
     // Localize the search result before returning it
     return localizer.of(searchResult);
@@ -161,7 +206,7 @@ public class LinkServiceImpl implements LinkService {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(updateLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
 
     // Fetch the existing links associated with the chat space
     final List<Link> existingLinks = linkRepository.findByChatSpaceId(updateLinkDto.getChatSpaceId());
@@ -169,8 +214,50 @@ public class LinkServiceImpl implements LinkService {
     final Map<LinkType, Link> existingLinksMap = existingLinks.stream()
       .collect(Collectors.toMap(Link::getLinkType, link -> link));
 
+    // Create a set of incoming link types for comparison
+    final Set<LinkType> incomingLinkTypes = updateLinkDto.getValidLinkTypes();
     // Process each link from the update request
-    for (final LinkDto dto : updateLinkDto.getLinks()) {
+    upsertLinks(updateLinkDto.getLinks(), existingLinksMap, chatSpace);
+    // Remove stale or old links
+    removeStaleLinks(existingLinks, incomingLinkTypes);
+    // Return a localized response indicating the update was successful
+    return localizer.of(UpdateLinkResponse.of());
+  }
+
+  /**
+   * Removes links from the repository that are no longer present in the incoming link types.
+   *
+   * <p>This method iterates over the existing links and deletes those whose link type
+   * is not found in the incoming set of valid link types. This helps clean up any stale links.</p>
+   *
+   * @param existingLinks A list of the existing links to be checked.
+   * @param incomingLinkTypes A set of valid link types that should remain.
+   */
+  protected void removeStaleLinks(final List<Link> existingLinks, final Set<LinkType> incomingLinkTypes) {
+    if (nonNull(existingLinks) && nonNull(incomingLinkTypes)) {
+      // Remove links that are no longer present in the incoming update
+      for (final Link existingLink : existingLinks) {
+        if (!incomingLinkTypes.contains(existingLink.getLinkType())) {
+          linkRepository.delete(existingLink);
+        }
+      }
+    }
+  }
+
+  /**
+   * Upserts links by either updating existing ones or creating new ones based on the provided link DTOs.
+   *
+   * <p>This method processes each link DTO in the provided list. If a link type already exists in the
+   * provided map of existing links, it updates the URL. If the link type doesn't exist, a new link is created
+   * and saved to the repository.</p>
+   *
+   * @param linksDto A list of link DTOs to be processed, each containing link type and URL.
+   * @param existingLinksMap A map of existing links, keyed by link type, to check for existing links.
+   * @param chatSpace The chat space to associate new links with.
+   */
+  protected void upsertLinks(final List<LinkDto> linksDto, final Map<LinkType, Link> existingLinksMap, final ChatSpace chatSpace) {
+    // Process each link from the update request
+    for (final LinkDto dto : linksDto) {
       final LinkType linkType = dto.getLinkType();
       final String url = dto.getUrl();
 
@@ -189,11 +276,7 @@ public class LinkServiceImpl implements LinkService {
         linkRepository.save(newLink);
       }
     }
-
-    // Return a localized response indicating the update was successful
-    return localizer.of(UpdateLinkResponse.of());
   }
-
 
   /**
    * Deletes links associated with a specific chat space.
@@ -214,12 +297,11 @@ public class LinkServiceImpl implements LinkService {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(deleteLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
     // Find all the links associated with the chat space and the specified link types
     final List<Link> links = linkRepository.findByChatSpaceIdAndLinkType(deleteLinkDto.getChatSpaceId(), deleteLinkDto.getLinkTypes());
     // Delete the found links from the repository
     linkRepository.deleteAll(links);
-
     // Return a localized response indicating the deletion was successful
     return localizer.of(DeleteLinkResponse.of());
   }
@@ -239,7 +321,7 @@ public class LinkServiceImpl implements LinkService {
     // Check if links and user are not null, and if the list of links is not empty
     if (nonNull(links) && !links.isEmpty() && nonNull(user)) {
       // Verify if the user is an admin or the creator of the chat space
-      final boolean isAdmin = chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+      final boolean isAdmin = chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
       // Set whether the links are updatable by the user based on their admin status
       setLinksThatAreUpdatableByUser(links, isAdmin);
     }
@@ -263,6 +345,5 @@ public class LinkServiceImpl implements LinkService {
         .forEach(LinkResponse::markAsUpdatable);
     }
   }
-
 
 }

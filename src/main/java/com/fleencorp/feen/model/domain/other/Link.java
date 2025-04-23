@@ -1,7 +1,6 @@
 package com.fleencorp.feen.model.domain.other;
 
 import com.fleencorp.feen.constant.link.LinkType;
-import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,7 +17,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @Entity
 @Table(name = "link")
-public class Link extends FleenFeenEntity {
+public class Link {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)

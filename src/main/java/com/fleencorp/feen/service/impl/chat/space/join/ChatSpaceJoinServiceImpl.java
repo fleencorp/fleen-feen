@@ -400,7 +400,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   protected void checkIsAnAdminOfChatSpace(final ChatSpace chatSpace, final FleenUser user) {
     // Verify that the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
   }
 
 }

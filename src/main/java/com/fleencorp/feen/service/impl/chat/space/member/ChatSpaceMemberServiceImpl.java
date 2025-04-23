@@ -305,7 +305,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
 
     // Find the chat space admin to be downgraded or throw an exception if not found
     final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository.findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(chatSpaceMemberId), chatSpace)
@@ -342,7 +342,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Organizer cannot add self
     chatSpace.checkIsNotOrganizer(user.getId());
     // Validate if the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
     // Find the member to be added using the provided member ID
     final Member member = memberService.findMember(memberId);
     // Find or create the chat space member object
@@ -388,7 +388,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Find the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Validate if the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
     // Get the member id
     final Long chatSpaceMemberId = restoreChatSpaceMemberDto.getChatSpaceMemberId();
     // Find the chat space member
@@ -415,7 +415,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @param chatSpaceMember the chat space member to restore
    * @throws FailedOperationException if the operation cannot be completed
    */
-  protected void handleRestoreMember(ChatSpaceMember chatSpaceMember) {
+  protected void handleRestoreMember(final ChatSpaceMember chatSpaceMember) {
     if (nonNull(chatSpaceMember) && chatSpaceMember.isNotRemoved()) {
       // Approve the request
       chatSpaceMember.approveJoinStatus();
@@ -453,7 +453,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Get the chat space member id
     final Long chatSpaceMemberId = removeChatSpaceMemberDto.getChatSpaceMemberId();
     // Verify that the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
     // Locate the chat space member to be removed using the member ID from the DTO
     final ChatSpaceMember chatSpaceMember = findByChatSpaceAndChatSpaceMemberId(chatSpace, chatSpaceMemberId);
     // User cannot remove self from chat space

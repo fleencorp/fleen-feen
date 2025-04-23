@@ -304,7 +304,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Retrieve the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
 
     final Page<ChatSpaceMember> page;
     final Set<ChatSpaceRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
@@ -348,7 +348,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Retrieve the chat space by its ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
 
     final Page<ChatSpaceMember> page;
     // Check if a member name is provided in the search request

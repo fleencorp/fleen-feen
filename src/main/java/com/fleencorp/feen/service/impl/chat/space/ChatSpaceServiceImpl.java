@@ -9,6 +9,7 @@ import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;
@@ -376,19 +377,41 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * If the user is neither the creator nor an admin, a {@link NotAnAdminOfChatSpaceException} is thrown.</p>
    *
    * @param chatSpace The chat space to validate against.
-   * @param user The user whose permissions are being validated.
+   * @param member The member whose permissions are being validated.
    * @throws FailedOperationException if any of the provided values is null.
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
    */
   @Override
-  public boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final FleenUser user)
-      throws FailedOperationException, NotAnAdminOfChatSpaceException {
+  public boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Member member)
+    throws FailedOperationException, NotAnAdminOfChatSpaceException {
+
+    if (nonNull(chatSpace) && nonNull(member)) {
+      verifyCreatorOrAdminOfChatSpace(chatSpace, member.getMemberId());
+    }
+
+    throw new NotAnAdminOfChatSpaceException();
+  }
+
+  /**
+   * Validates that the provided user is either the creator or an admin of the specified chat space.
+   *
+   * <p>This method checks if the user is the creator of the chat space by comparing their IDs.
+   * If the user is not the creator, it further checks if the user is an admin of the chat space.
+   * If the user is neither the creator nor an admin, a {@link NotAnAdminOfChatSpaceException} is thrown.</p>
+   *
+   * @param chatSpace The chat space to validate against.
+   * @param memberId  The member id whose permissions are being validated.
+   * @throws FailedOperationException       if any of the provided values is null.
+   * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
+   */
+  protected void verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Long memberId)
+    throws FailedOperationException, NotAnAdminOfChatSpaceException {
     // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
+    checkIsNullAny(Set.of(chatSpace, memberId), FailedOperationException::new);
 
     // Check if the user is the creator or an admin of the space
-    if (chatSpace.isOrganizer(user.getId()) || checkIfUserIsAnAdminInSpace(chatSpace, user)) {
-      return true;
+    if (chatSpace.isOrganizer(memberId) || checkIfUserIsAnAdminInSpace(chatSpace, memberId)) {
+      return;
     }
 
     // If neither, throw exception
@@ -411,7 +434,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();
     // Verify that the user is the creator or an admin of the chat space
-    verifyCreatorOrAdminOfChatSpace(chatSpace, user);
+    verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
   }
 
   /**
@@ -422,16 +445,16 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * member IDs, the method returns true; otherwise, it returns false.</p>
    *
    * @param chatSpace The chat space to check the user's admin status against.
-   * @param user The user whose admin status is being checked.
+   * @param memberId The member id whose admin status is being checked.
    * @return {@code true} if the user is an admin in the chat space; {@code false} otherwise.
    */
-  protected boolean checkIfUserIsAnAdminInSpace(final ChatSpace chatSpace, final FleenUser user) {
+  protected boolean checkIfUserIsAnAdminInSpace(final ChatSpace chatSpace, final Long memberId) {
     // Retrieve all members of the chat space with the admin role
     final Set<ChatSpaceMember> chatSpaceMembers = chatSpaceMemberRepository.findByChatSpaceAndRole(chatSpace, ChatSpaceMemberRole.ADMIN);
     // Extract the IDs of the admin members
     final Set<Long> spaceMemberIds = extractMemberIds(chatSpaceMembers);
     // Check if the user is among the admin members
-    return isSpaceMemberAnAdmin(spaceMemberIds, user);
+    return isSpaceMemberAnAdmin(spaceMemberIds, memberId);
   }
 
   /**
@@ -464,14 +487,14 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * that the user is an admin. If the set is null, empty, or the user is null, it returns false.</p>
    *
    * @param spaceMemberIds The set of space member IDs to check against.
-   * @param user The user whose admin status is being checked.
+   * @param memberId The member id whose admin status is being checked.
    * @return True if the user is an admin (their ID is in the set of member IDs); false otherwise.
    */
-  protected boolean isSpaceMemberAnAdmin(final Set<Long> spaceMemberIds, final FleenUser user) {
+  protected boolean isSpaceMemberAnAdmin(final Set<Long> spaceMemberIds, final Long memberId) {
     // Check if the space member IDs set and user are not null or empty
-    if (nonNull(spaceMemberIds) && !spaceMemberIds.isEmpty() && nonNull(user)) {
+    if (nonNull(spaceMemberIds) && !spaceMemberIds.isEmpty() && nonNull(memberId)) {
       // Check if the user's ID is present in the set of space member IDs
-      return spaceMemberIds.contains(user.getId());
+      return spaceMemberIds.contains(memberId);
     }
     // Return false if the input set is null, empty, or the user is null
     return false;
