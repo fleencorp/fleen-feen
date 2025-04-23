@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -57,6 +58,21 @@ public class UpdateLinkDto extends BaseLinkDto {
     }
 
     return new ArrayList<>(uniqueByType.values());
+  }
+
+  /**
+   * Retrieves the valid link types from the list of links.
+   *
+   * <p>This method filters out invalid links and returns a set of the link types
+   * that are associated with valid links.</p>
+   *
+   * @return A {@link Set} of {@link LinkType} representing the valid link types.
+   */
+  public Set<LinkType> getValidLinkTypes() {
+    return links.stream()
+      .filter(LinkDto::isValid)
+      .map(LinkDto::getLinkType)
+      .collect(Collectors.toSet());
   }
 
   @Getter

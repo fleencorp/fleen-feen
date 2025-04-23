@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -144,7 +144,7 @@ public class MiscServiceImpl implements
    * @param entries the list of {@code SetIsOrganizer} objects to process
    * @param user    the user whose organizer status is to be determined
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final List<? extends SetIsOrganizer> entries, final FleenUser user) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends SetIsOrganizer> entries, final FleenUser user) {
     if (nonNull(entries) && !entries.isEmpty() && nonNull(user) && nonNull(user.getId())) {
       entries.stream()
         .filter(Objects::nonNull)
@@ -168,4 +168,5 @@ public class MiscServiceImpl implements
       setIsOrganizer.setIsOrganizer(isOrganizer);
     }
   }
+
 }

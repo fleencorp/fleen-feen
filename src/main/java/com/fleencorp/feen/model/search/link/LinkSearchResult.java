@@ -38,4 +38,8 @@ public class LinkSearchResult extends ApiResponse {
   public static LinkSearchResult of(final SearchResultView result, final Object parentId) {
     return new LinkSearchResult(result, parentId);
   }
+
+  public static LinkSearchResult empty() {
+    return new LinkSearchResult(SearchResultView.empty(), null);
+  }
 }

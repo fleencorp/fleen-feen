@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import static java.util.Objects.nonNull;
+
 @SuperBuilder
 @Getter
 @Setter
@@ -33,7 +35,7 @@ public class LinkSearchRequest extends SearchRequest {
   }
 
   public boolean isChatSpaceSearchRequest() {
-    return ParentLinkType.isChatSpace(parentType);
+    return nonNull(parentId) && ParentLinkType.isChatSpace(parentType);
   }
 
   public static LinkSearchRequest of(final Long chatSpaceId) {

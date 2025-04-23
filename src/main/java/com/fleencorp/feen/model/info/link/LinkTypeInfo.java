@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.link;
+package com.fleencorp.feen.model.info.link;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,7 +19,7 @@ import lombok.Setter;
   "label",
   "format"
 })
-public class LinkTypeResponse {
+public class LinkTypeInfo {
 
   @JsonProperty("type")
   private LinkType type;
@@ -30,7 +30,7 @@ public class LinkTypeResponse {
   @JsonProperty("format")
   private String format;
 
-  public static LinkTypeResponse of(final LinkType type, final String label, final String format) {
-    return new LinkTypeResponse(type, label, format);
+  public static LinkTypeInfo of(final LinkType type, final String label, final String format) {
+    return new LinkTypeInfo(type, label, format);
   }
 }

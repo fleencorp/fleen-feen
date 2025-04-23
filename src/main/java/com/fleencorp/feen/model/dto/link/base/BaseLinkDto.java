@@ -25,7 +25,7 @@ public abstract class BaseLinkDto {
   @NotNull(message = "{link.parentLinkType.NotNull}")
   @OneOf(enumClass = ParentLinkType.class, message = "{link.parentLinkType.Type}", ignoreCase = true)
   @ToUpperCase
-  @JsonProperty("link_type")
+  @JsonProperty("parent_link_type")
   protected String parentLinkType;
 
   public Long getChatSpaceId() {

@@ -10,6 +10,7 @@ import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
 import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
+import com.fleencorp.feen.model.response.link.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
 import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
@@ -35,6 +36,18 @@ public class LinkController {
     this.linkService = linkService;
   }
 
+  @Operation(summary = "Retrieve available link types",
+    description = "Returns a list of supported link types along with their display values and expected formats."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Available link types retrieved successfully",
+      content = @Content(schema = @Schema(implementation = GetAvailableLinkTypeResponse.class)))
+  })
+  @GetMapping(value = "/link-types")
+  public GetAvailableLinkTypeResponse getAvailableLinkTypes() {
+    return linkService.getAvailableLinkType();
+  }
+
   @Operation(summary = "Search for links",
     description = "Searches for links based on the specified criteria and returns a paginated list of results."
   )
@@ -46,11 +59,10 @@ public class LinkController {
   })
   @GetMapping(value = "")
   public LinkSearchResult findLinks(
-    @Parameter(description = "Search criteria and pagination parameters", required = true)
-    @SearchParam final LinkSearchRequest linkSearchRequest,
-    @Parameter(hidden = true)
-    @AuthenticationPrincipal final FleenUser user
-  ) {
+      @Parameter(description = "Search criteria and pagination parameters", required = true)
+        @SearchParam final LinkSearchRequest linkSearchRequest,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
     return linkService.findLinks(linkSearchRequest, user);
   }
 
@@ -68,10 +80,11 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
   @PutMapping(value = "/update")
-  public UpdateLinkResponse updateLink(@Parameter(description = "Link details to update", required = true)
-                                       @Valid @RequestBody final UpdateLinkDto updateLinkDto,
-                                       @Parameter(hidden = true)
-                                       @AuthenticationPrincipal final FleenUser user) {
+  public UpdateLinkResponse updateLink(
+      @Parameter(description = "Link details to update", required = true)
+        @Valid @RequestBody final UpdateLinkDto updateLinkDto,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
     return linkService.updateLink(updateLinkDto, user);
   }
 
@@ -89,10 +102,11 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
   @PutMapping(value = "/delete")
-  public DeleteLinkResponse deleteLink(@Parameter(description = "Details of the link to delete", required = true)
-                                       @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
-                                       @Parameter(hidden = true)
-                                       @AuthenticationPrincipal final FleenUser user) {
+  public DeleteLinkResponse deleteLink(
+      @Parameter(description = "Details of the link to delete", required = true)
+        @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
     return linkService.deleteLink(deleteLinkDto, user);
   }
 
@@ -110,10 +124,11 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)))
   })
   @PutMapping(value = "/update-music-link")
-  public UpdateStreamMusicLinkResponse updateStreamMusicLink(@Parameter(description = "Details for updating the music stream link", required = true)
-                                                             @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
-                                                             @Parameter(hidden = true)
-                                                             @AuthenticationPrincipal final FleenUser user) {
+  public UpdateStreamMusicLinkResponse updateStreamMusicLink(
+      @Parameter(description = "Details for updating the music stream link", required = true)
+        @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
     return linkService.updateStreamMusicLink(updateStreamMusicLinkDto, user);
   }
 }

@@ -7,16 +7,15 @@ import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
-import com.fleencorp.feen.model.response.link.LinkResponse;
-import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
-import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
+import com.fleencorp.feen.model.response.link.*;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 
 import java.util.List;
 
 public interface LinkService {
+
+  GetAvailableLinkTypeResponse getAvailableLinkType();
 
   LinkSearchResult findLinks(LinkSearchRequest searchRequest, FleenUser user);
 

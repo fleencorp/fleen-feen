@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import com.fleencorp.feen.model.info.link.LinkTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,10 +26,10 @@ public class LinkResponse implements SetIsUpdatable {
   private String url;
 
   @JsonProperty("link_type")
-  private LinkTypeResponse linkType;
+  private LinkTypeInfo linkType;
 
   @JsonProperty("is_updatable")
-  private boolean isUpdatable;
+  private Boolean isUpdatable;
 
   public void setIsUpdatable(final boolean isUpdatable) {
     this.isUpdatable = isUpdatable;

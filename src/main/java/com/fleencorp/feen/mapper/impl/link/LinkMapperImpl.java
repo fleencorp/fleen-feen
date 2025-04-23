@@ -2,8 +2,8 @@ package com.fleencorp.feen.mapper.impl.link;
 
 import com.fleencorp.feen.mapper.link.LinkMapper;
 import com.fleencorp.feen.model.domain.other.Link;
+import com.fleencorp.feen.model.info.link.LinkTypeInfo;
 import com.fleencorp.feen.model.response.link.LinkResponse;
-import com.fleencorp.feen.model.response.link.LinkTypeResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,15 +26,17 @@ public class LinkMapperImpl implements LinkMapper {
    */
   private LinkResponse toLinkResponse(final Link entry) {
     if (nonNull(entry)) {
-      final LinkTypeResponse linkTypeResponse = LinkTypeResponse.of(
+      final LinkTypeInfo linkTypeInfo = LinkTypeInfo.of(
         entry.getLinkType(),
         entry.getLinkType().getValue(),
         entry.getLinkType().getFormat()
       );
 
       final LinkResponse linkResponse = new LinkResponse();
-      linkResponse.setLinkType(linkTypeResponse);
+      linkResponse.setLinkType(linkTypeInfo);
       linkResponse.setUrl(entry.getUrl());
+
+      return linkResponse;
     }
 
     return null;

@@ -682,7 +682,7 @@ CREATE TABLE nouns (
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'link';
 
 CREATE TABLE link (
-  id BIGSERIAL PRIMARY KEY,
+  link_id BIGSERIAL PRIMARY KEY,
   url VARCHAR(1000),
   chat_space_id BIGINT,
 

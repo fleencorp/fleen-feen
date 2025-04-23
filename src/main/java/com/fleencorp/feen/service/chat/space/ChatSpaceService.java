@@ -5,6 +5,7 @@ import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;
@@ -35,7 +36,7 @@ public interface ChatSpaceService {
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
     FailedOperationException;
 
-  boolean verifyCreatorOrAdminOfChatSpace(ChatSpace chatSpace, FleenUser user)
+  boolean verifyCreatorOrAdminOfChatSpace(ChatSpace chatSpace, Member member)
     throws FailedOperationException, NotAnAdminOfChatSpaceException;
 
   void increaseTotalMembersAndSave(ChatSpace chatSpace);
