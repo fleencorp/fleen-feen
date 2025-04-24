@@ -25,6 +25,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
     """
         SELECT csm FROM ChatSpaceMember csm
         WHERE csm.chatSpace = :chatSpace AND (csm.member.firstName = :name OR csm.member.lastName = :name)
+        AND csm.removed = false
         ORDER BY
         CASE WHEN csm.role = 'ADMIN' THEN 0 ELSE 1 END,
         csm.updatedOn DESC
@@ -35,6 +36,7 @@ public interface ChatSpaceMemberRepository extends JpaRepository<ChatSpaceMember
     """
         SELECT csm FROM ChatSpaceMember csm
         WHERE csm.chatSpaceMemberId IS NOT NULL AND csm.chatSpace = :chatSpace
+        AND csm.removed = false
         ORDER BY
         CASE WHEN csm.role = 'ADMIN' THEN 0 ELSE 1 END,
         csm.updatedOn DESC

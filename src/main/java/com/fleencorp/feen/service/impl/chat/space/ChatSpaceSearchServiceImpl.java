@@ -544,6 +544,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     setMembershipStatus(chatSpaceResponse, membershipStatusMap);
     // Populate recent chat space members
     setSomeRecentChatSpaceMembers(chatSpaceResponse);
+    // Set links that are updatable by the user
+    setChatSpaceThatAreUpdatableByUser(chatSpaceResponse, membershipStatusMap);
     // Set the links associated with the chat space
     setLinks(chatSpaceResponse, user);
     // Check if the user is the organizer
@@ -620,6 +622,26 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final List<LinkResponse> links = linkService.findChatSpaceLinks(chatSpaceResponse.getNumberId());
 
       chatSpaceResponse.setLinks(new HashSet<>(links));
+    }
+  }
+
+  /**
+   * Determines if a given chat space response should be marked as updatable based on
+   * the user's membership status and role.
+   *
+   * <p>This method checks whether the user associated with the provided membership status
+   * map is an admin of the chat space. If so, it marks the {@code ChatSpaceResponse}
+   * as updatable.</p>
+   *
+   * @param chatSpaceResponse The response object representing the chat space to potentially mark as updatable.
+   * @param membershipStatusMap A map of chat space IDs to corresponding membership status objects.
+   */
+  protected static void setChatSpaceThatAreUpdatableByUser(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
+    // Retrieve the member details
+    final ChatSpaceMemberSelect membershipStatus = membershipStatusMap.get(chatSpaceResponse.getNumberId());
+    // Check if is not null
+    if (nonNull(membershipStatus) && membershipStatus.isAdmin()) {
+      chatSpaceResponse.markAsUpdatable();
     }
   }
 

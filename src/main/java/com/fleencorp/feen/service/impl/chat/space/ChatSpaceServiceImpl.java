@@ -386,7 +386,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     throws FailedOperationException, NotAnAdminOfChatSpaceException {
 
     if (nonNull(chatSpace) && nonNull(member)) {
-      verifyCreatorOrAdminOfChatSpace(chatSpace, member.getMemberId());
+      return verifyCreatorOrAdminOfChatSpace(chatSpace, member.getMemberId());
     }
 
     throw new NotAnAdminOfChatSpaceException();
@@ -404,14 +404,14 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws FailedOperationException       if any of the provided values is null.
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space.
    */
-  protected void verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Long memberId)
+  protected boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Long memberId)
     throws FailedOperationException, NotAnAdminOfChatSpaceException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(chatSpace, memberId), FailedOperationException::new);
 
     // Check if the user is the creator or an admin of the space
     if (chatSpace.isOrganizer(memberId) || checkIfUserIsAnAdminInSpace(chatSpace, memberId)) {
-      return;
+      return true;
     }
 
     // If neither, throw exception

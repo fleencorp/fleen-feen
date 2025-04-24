@@ -5,6 +5,7 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.model.contract.SetIsOrganizer;
+import com.fleencorp.feen.model.contract.SetIsUpdatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
@@ -50,11 +51,12 @@ import static java.util.Objects.nonNull;
   "request_to_join_status_info",
   "join_status_info",
   "membership_info",
+  "is_updatable",
   "created_on",
   "updated_on"
 })
 public class ChatSpaceResponse extends FleenFeenResponse
-    implements SetIsOrganizer {
+    implements SetIsOrganizer, SetIsUpdatable {
 
   @JsonProperty("title")
   private String title;
@@ -102,6 +104,9 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("membership_info")
   private ChatSpaceMembershipInfo membershipInfo;
 
+  @JsonProperty("is_updatable")
+  private Boolean isUpdatable;
+
   @JsonProperty("is_private")
   public boolean isPrivate() {
     return ChatSpaceVisibility.isPrivate(visibilityInfo.getVisibility());
@@ -129,8 +134,19 @@ public class ChatSpaceResponse extends FleenFeenResponse
     return spaceLinkUnMasked;
   }
 
+  @Override
   public void setIsOrganizer(final boolean isOrganizer) {
     this.organizer.setIsOrganizer(isOrganizer);
+  }
+
+  @Override
+  public void setIsUpdatable(final boolean isUpdatable) {
+    this.isUpdatable = isUpdatable;
+  }
+
+  @Override
+  public void markAsUpdatable() {
+    setIsUpdatable(true);
   }
 
   /**

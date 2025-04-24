@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class ChatSpaceMemberSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "chat.space.member.search";
+    return nonNull(result) && result.hasValue() ? "chat.space.member.search" : "chat.space.member.empty.search";
   }
 
-  public static Supplier<ChatSpaceMemberSearchResult> of(final SearchResultView result) {
-    return () -> new ChatSpaceMemberSearchResult(result);
+  public static ChatSpaceMemberSearchResult of(final SearchResultView result) {
+    return new ChatSpaceMemberSearchResult(result);
   }
 }
