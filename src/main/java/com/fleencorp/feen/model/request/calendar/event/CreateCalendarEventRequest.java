@@ -75,17 +75,21 @@ public class CreateCalendarEventRequest {
 
   public static CreateCalendarEventRequest bySuper(final CreateStreamDto dto) {
     final String tags = dto.getTags();
-    return CreateCalendarEventRequest.builder()
-      .title(dto.getTitle())
-      .description(dto.getDescription())
-      .location(dto.getLocation())
-      .timezone(dto.getTimezone())
-      .startDateTime(dto.getStartDateTime())
-      .endDateTime(dto.getEndDateTime())
-      .organizerDisplayName(dto.getOrganizerAliasOrDisplayName())
-      .visibility(EventVisibility.of(getVisibility(dto.getVisibility())))
-      .eventMetaData(Map.of(TAGS.getValue(), tags))
-      .build();
+
+    final CreateCalendarEventRequest createCalendarEventRequest = new CreateCalendarEventRequest();
+    createCalendarEventRequest.setTitle(dto.getTitle());
+    createCalendarEventRequest.setDescription(dto.getDescription());
+    createCalendarEventRequest.setLocation(dto.getLocation());
+    createCalendarEventRequest.setTimezone(dto.getTimezone());
+    createCalendarEventRequest.setStartDateTime(dto.getStartDateTime());
+    createCalendarEventRequest.setEndDateTime(dto.getEndDateTime());
+    createCalendarEventRequest.setOrganizerDisplayName(dto.getOrganizerAliasOrDisplayName());
+    createCalendarEventRequest.setVisibility(EventVisibility.of(getVisibility(dto.getVisibility())));
+    if (nonNull(tags)) {
+      createCalendarEventRequest.addMeta(TAGS.getValue(), tags);
+    }
+
+    return createCalendarEventRequest;
   }
 
   /**
@@ -121,11 +125,34 @@ public class CreateCalendarEventRequest {
     this.organizerEmail = organizerEmail;
   }
 
+  /**
+   * Updates the calendar event with the provided identifiers and metadata.
+   *
+   * <p>This method sets the calendar ID or name, creator email, and organizer email,
+   * and merges the given metadata into the existing {@code eventMetaData} map.</p>
+   *
+   * @param calendarIdOrName The calendar ID or display name associated with the event.
+   * @param creatorEmail The email address of the event's creator.
+   * @param organizerEmail The email address of the event's organizer.
+   * @param metadata A map containing additional metadata to associate with the event.
+   */
   public void update(final String calendarIdOrName, final String creatorEmail, final String organizerEmail, final Map<String, String> metadata) {
     this.calendarIdOrName = calendarIdOrName;
     this.creatorEmail = creatorEmail;
     this.organizerEmail = organizerEmail;
     eventMetaData.putAll(metadata);
+  }
+
+  /**
+   * Adds a single metadata entry to the event.
+   *
+   * <p>If the key already exists, its value will be replaced with the new one.</p>
+   *
+   * @param key The metadata key.
+   * @param value The metadata value associated with the key.
+   */
+  public void addMeta(final String key, final String value) {
+    eventMetaData.put(key, value);
   }
 
   /**

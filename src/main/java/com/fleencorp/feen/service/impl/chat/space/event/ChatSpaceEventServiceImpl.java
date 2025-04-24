@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.chat.space.event;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
@@ -14,7 +15,6 @@ import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventReques
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
-import com.fleencorp.feen.model.search.chat.space.event.EmptyChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
@@ -33,8 +33,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 
 /**
  * Implementation of the {@link ChatSpaceService} interface, providing methods
@@ -112,21 +112,23 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   @Override
   public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final FleenUser user) {
     // Find events or streams based on the search request
-    final Page<FleenStream> page = streamRepository.findByChatSpace(ChatSpace.of(chatSpaceId), searchRequest.getPage());
+    final Page<FleenStream> page = streamRepository.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
     // Get the list of event or stream views from the search result
-    final List<FleenStreamResponse> views = streamMapper.toStreamResponses(page.getContent());
+    final List<FleenStreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Determine statuses like schedule, join status, schedules and timezones
-    streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(views, user);
+    streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(streamResponses, user);
     // Set the attendees and total attendee count for each event or stream
-    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(views);
+    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(streamResponses);
     // Get the first 10 attendees for each event or stream
-    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(views);
+    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponses);
+    // Determine if the possible authenticated user is the organizer of the entity
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Retrieve the stream type info
+    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(StreamType.EVENT);
+    // Create the search result
+    final ChatSpaceEventSearchResult searchResult = ChatSpaceEventSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
     // Return a search result view with the chat space event responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceEventSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyChatSpaceEventSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**

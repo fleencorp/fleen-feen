@@ -19,6 +19,7 @@ public class CreateChatSpaceEventDto extends CreateStreamDto {
   public FleenStream toStream(final Member member, final ChatSpace chatSpace) {
     final FleenStream stream = toFleenStream();
     stream.setMember(member);
+    stream.setChatSpaceId(chatSpace.getChatSpaceId());
     stream.setChatSpace(chatSpace);
     stream.setStreamType(EVENT);
     stream.setStreamSource(GOOGLE_MEET);

@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -19,19 +20,23 @@ import java.util.function.Supplier;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "result"
+  "result",
+  "stream_type_info"
 })
 public class ChatSpaceEventSearchResult extends ApiResponse {
 
   @JsonProperty("result")
   private SearchResultView result;
 
+  @JsonProperty("stream_type_info")
+  protected StreamTypeInfo streamTypeInfo;
+
   @Override
   public String getMessageCode() {
-    return "chat.space.event.search";
+    return nonNull(result) && result.hasValue() ? "chat.space.event.search" : "chat.space.event.empty.search";
   }
 
-  public static Supplier<ChatSpaceEventSearchResult> of(final SearchResultView result) {
-    return () -> new ChatSpaceEventSearchResult(result);
+  public static ChatSpaceEventSearchResult of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {
+    return new ChatSpaceEventSearchResult(result, streamTypeInfo);
   }
 }

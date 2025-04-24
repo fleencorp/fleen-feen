@@ -50,10 +50,10 @@ import static java.util.Objects.nonNull;
  *
  * <p>This class provides services related to stream management, such as handling stream creation, updating stream
  * information, managing stream attendees, and sending notifications regarding streams. It interacts with repositories
- * for stream and attendee data, as well as notification services to keep users informed about stream-related events.</p>
+ * for stream and attendee data, as well as notification services to keep users informed about streams.</p>
  *
  * <p>Common responsibilities of this service include creating, updating, and deleting streams, managing attendees'
- * participation in streams, and sending notifications to users based on stream events.</p>
+ * participation in streams, and sending notifications to users based on streams.</p>
  *
  * <p>Note that this class is expected to be a Spring service and utilizes various injected dependencies for
  * repository access and service orchestration.</p>
