@@ -25,7 +25,6 @@ import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchR
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
-import com.fleencorp.feen.model.search.chat.space.member.EmptyChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
@@ -34,18 +33,15 @@ import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 import static java.util.Objects.isNull;
@@ -131,15 +127,15 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     }
 
     // Convert the chat space members to response views
-    final List<ChatSpaceMemberResponse> views = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
+    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
+    // Set chat space members that are updatable by the user
+    setChatSpaceMembersThatAreUpdatableByUser(chatSpace, chatSpaceMemberResponses, user.toMember());
+    // Create the search result
+    final ChatSpaceMemberSearchResult searchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
     // Return a search result view with the chat space member responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceMemberSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyChatSpaceMemberSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   @Override
@@ -158,15 +154,13 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     }
 
     // Convert the chat space members to response views
-    final List<ChatSpaceMemberResponse> views = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
+    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
+    // Create the search result
+    final ChatSpaceMemberSearchResult searchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
     // Return a search result view with the chat space member responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceMemberSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyChatSpaceMemberSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -416,11 +410,12 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   protected void handleRestoreMember(final ChatSpaceMember chatSpaceMember) {
-    if (nonNull(chatSpaceMember) && chatSpaceMember.isNotRemoved()) {
+    if (nonNull(chatSpaceMember) && chatSpaceMember.isRemoved()) {
       // Approve the request
       chatSpaceMember.approveJoinStatus();
       // Save the member
       chatSpaceMemberRepository.save(chatSpaceMember);
+      return;
     }
 
     throw FailedOperationException.of();
@@ -771,11 +766,62 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     }
   }
 
+  /**
+   * Validates that the organizer of the chat space cannot be upgraded or downgraded.
+   *
+   * <p>If the provided {@code memberIdOfChatSpaceMember} matches the organizer ID of the chat space,
+   * a {@link FailedOperationException} is thrown to prevent any role change on the organizer.</p>
+   *
+   * @param chatSpace The chat space containing the organizer information.
+   * @param memberIdOfChatSpaceMember The ID of the chat space member being checked.
+   * @throws FailedOperationException if any of the parameters are {@code null}, or if the member is the organizer.
+   */
   protected void checkOrganizerCannotBeUpgradedOrDowngraded(final ChatSpace chatSpace, final Long memberIdOfChatSpaceMember) {
     checkIsNullAny(List.of(chatSpace, memberIdOfChatSpaceMember), FailedOperationException::new);
 
     if (Objects.equals(chatSpace.getOrganizerId(), memberIdOfChatSpaceMember)) {
       throw FailedOperationException.of();
+    }
+  }
+
+  /**
+   * Determines whether each chat space member response in the collection can be updated by the current user,
+   * based on their administrative privileges in the chat space.
+   *
+   * <p>If the user is identified as an admin or the creator of the chat space, all member responses
+   * in the collection are marked as updatable.</p>
+   *
+   * @param chatSpace The chat space for which the membership update permission is being evaluated.
+   * @param chatSpaceMemberResponses A collection of chat space member responses to be potentially marked as updatable.
+   * @param member The current user whose permissions are used to determine updatability.
+   */
+  protected void setChatSpaceMembersThatAreUpdatableByUser(final ChatSpace chatSpace, final Collection<ChatSpaceMemberResponse> chatSpaceMemberResponses, final Member member) {
+    // Check if chat space members and user are not null, and if the list of chat space members is not empty
+    if (nonNull(chatSpaceMemberResponses) && !chatSpaceMemberResponses.isEmpty() && nonNull(member)) {
+      // Verify if the user is an admin or the creator of the chat space
+      final boolean isAdmin = chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, member);
+      // Set whether the chat spaces members are updatable by the user based on their admin status
+      setChatSpaceMembersThatAreUpdatableByUser(chatSpaceMemberResponses, isAdmin);
+    }
+  }
+
+  /**
+   * Marks a collection of chat space member responses as updatable if the current user is an admin.
+   *
+   * <p>This method checks if the provided collection is non-null and non-empty,
+   * and if the user has administrative privileges. If so, each member response
+   * in the collection is marked as updatable.</p>
+   *
+   * @param chatSpaceMemberResponses A collection of chat space member responses to be potentially marked as updatable.
+   * @param isAdmin {@code true} if the user is an admin and can update chat space members; {@code false} otherwise.
+   */
+  protected static void setChatSpaceMembersThatAreUpdatableByUser(final Collection<ChatSpaceMemberResponse> chatSpaceMemberResponses, final boolean isAdmin) {
+    // Check if the chat space members are not null or empty and if the user is an admin
+    if (nonNull(chatSpaceMemberResponses) && !chatSpaceMemberResponses.isEmpty() && isAdmin) {
+      // Iterate through the chat space members and mark each as updatable
+      chatSpaceMemberResponses.stream()
+        .filter(Objects::nonNull)
+        .forEach(ChatSpaceMemberResponse::markAsUpdatable);
     }
   }
 
