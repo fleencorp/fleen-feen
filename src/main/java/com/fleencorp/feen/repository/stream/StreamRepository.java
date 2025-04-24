@@ -2,7 +2,6 @@ package com.fleencorp.feen.repository.stream;
 
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,8 +45,8 @@ public interface StreamRepository extends JpaRepository<FleenStream, Long> {
           "LIKE LOWER(CONCAT('%', :title, '%')) ORDER BY fs.scheduledStartDate ASC")
   Page<FleenStream> findLiveStreamsByTitle(@Param("title") String title, @Param("currentDate") LocalDateTime dateTime, @Param("streamType") StreamType streamType, Pageable pageable);
 
-  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL ORDER BY fs.updatedOn DESC")
-  Page<FleenStream> findByChatSpace(ChatSpace chatSpace, Pageable pageable);
+  @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.chatSpaceId = :chatSpaceId ORDER BY fs.updatedOn DESC")
+  Page<FleenStream> findByChatSpaceId(Long chatSpaceId, Pageable pageable);
 
   @Modifying
   @Query("UPDATE FleenStream fs SET fs.totalAttendees = fs.totalAttendees + 1 WHERE fs.streamId = :id")
@@ -56,6 +55,5 @@ public interface StreamRepository extends JpaRepository<FleenStream, Long> {
   @Modifying
   @Query("UPDATE FleenStream fs SET fs.totalAttendees = fs.totalAttendees - 1 WHERE fs.streamId = :id")
   void decrementTotalAttendees(@Param("id") Long streamId);
-
 
 }

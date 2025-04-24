@@ -51,8 +51,8 @@ public class LiveBroadcastUpdateService {
 
   /**
    * Asynchronously creates a live stream in YouTube for the given FleenStream using the provided
-   * CreateLiveBroadcastRequest. Updates the stream details with the created event ID and HTML link,
-   * then saves the stream and broadcasts the event creation result.
+   * CreateLiveBroadcastRequest. Updates the stream details with the created stream ID and HTML link,
+   * then saves the stream and broadcasts the stream creation result.
    *
    * @param stream                   The FleenStream to be updated with YouTube live stream details.
    * @param createLiveBroadcastRequest The request object containing details for creating the live broadcast.
