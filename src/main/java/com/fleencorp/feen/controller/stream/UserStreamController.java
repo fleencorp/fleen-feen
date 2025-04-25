@@ -80,6 +80,36 @@ public class UserStreamController {
     return commonStreamService.updateStream(streamId, updateStreamDto, user);
   }
 
+  @Operation(summary = "Update other details of a stream",
+    description = "Updates various non-core details of a specific stream, such as its title, description, or tags. " +
+      "This operation can only be performed by the user who created the stream, and only if the stream " +
+      "has not already happened or been canceled."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Stream details updated successfully",
+      content = @Content(schema = @Schema(implementation = UpdateStreamResponse.class))),
+    @ApiResponse(responseCode = "400", description = "Invalid update parameters",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
+    @ApiResponse(responseCode = "401", description = "User not authenticated",
+      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
+    @ApiResponse(responseCode = "403", description = "User not authorized to update this stream",
+      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+    @ApiResponse(responseCode = "409", description = "Stream has already happened or been canceled",
+      content = @Content(schema = @Schema(oneOf = {StreamAlreadyHappenedException.class, StreamAlreadyCanceledException.class})))
+  })
+  @PutMapping(value = "/update-other-detail/{streamId}")
+  public UpdateStreamResponse updateStreamOtherDetails(
+      @Parameter(description = "ID of the stream to update", required = true)
+        @PathVariable(name = "streamId") final Long streamId,
+      @Parameter(description = "Updated stream details", required = true)
+        @Valid @RequestBody final UpdateStreamOtherDetailDto updateStreamOtherDetailDto,
+      @Parameter(hidden = true)
+        @AuthenticationPrincipal final FleenUser user) {
+    return commonStreamService.updateStreamOtherDetails(streamId, updateStreamOtherDetailDto, user);
+  }
+
   @Operation(summary = "Cancel stream",
     description = "Cancels a stream. Cannot cancel ongoing streams or already canceled streams. Only the stream owner can perform this operation. Requires authentication."
   )

@@ -476,8 +476,56 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    // Create the response
+    final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
     // Return a localized response the updated stream
-    return localizer.of(UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
+    return localizer.of(updateStreamResponse);
+  }
+
+  /**
+   * Updates the additional details of a stream, including other links and the organization name.
+   *
+   * <p>This method finds the stream by its ID, checks that the stream type matches the type in the update request, and verifies that the user attempting the update is the creator of the stream.</p>
+   *
+   * <p>It then updates the stream's other details and saves the changes to the repository. The updated stream is mapped to a response object, and a localized response is returned.</p>
+   *
+   * @param streamId The ID of the stream to be updated.
+   * @param updateStreamOtherDetailDto The DTO containing the new details to apply to the stream.
+   * @param user The user requesting the update.
+   * @return A localized response containing the updated stream information.
+   * @throws FleenStreamNotFoundException If no stream exists for the given ID.
+   * @throws CalendarNotFoundException If the corresponding calendar could not be found.
+   * @throws Oauth2InvalidAuthorizationException If the user's OAuth2 authorization is invalid.
+   * @throws StreamNotCreatedByUserException If the user is not the creator of the stream.
+   * @throws StreamAlreadyHappenedException If the stream has already occurred.
+   * @throws StreamAlreadyCanceledException If the stream has already been canceled.
+   * @throws FailedOperationException If any step in the update process fails.
+   */
+  @Override
+  public UpdateStreamResponse updateStreamOtherDetails(Long streamId, UpdateStreamOtherDetailDto updateStreamOtherDetailDto, FleenUser user) throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
+    // Find the stream by its ID
+    FleenStream stream = streamService.findStream(streamId);
+    // Verify if the stream's type is the same as the stream type of the request
+    stream.checkStreamTypeNotEqual(updateStreamOtherDetailDto.getStreamType());
+    // Validate if the user is the creator of the event
+    verifyStreamDetails(stream, user);
+    // Update the FleenStream object with the response from Google Calendar
+    stream.updateOtherDetail(
+      updateStreamOtherDetailDto.getOtherDetails(),
+      updateStreamOtherDetailDto.getOtherLink(),
+      updateStreamOtherDetailDto.getGroupOrOrganizationName()
+    );
+
+    // Save the updated stream to the repository
+    stream = streamRepository.save(stream);
+    // Get the stream response
+    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
+    // Retrieve the stream type info
+    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    // Create the response
+    final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
+    // Return a localized response the updated stream
+    return localizer.of(updateStreamResponse);
   }
 
   /**

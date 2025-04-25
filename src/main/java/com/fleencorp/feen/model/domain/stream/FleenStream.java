@@ -185,6 +185,23 @@ public class FleenStream extends FleenFeenEntity {
   }
 
   /**
+   * Updates the stream's additional information fields.
+   *
+   * <p>This method assigns new values to the stream's otherDetails, otherLink, and groupOrOrganizationName fields.</p>
+   *
+   * <p>It is typically used when a user wants to modify auxiliary information associated with a stream, such as descriptive text, an external link, or the name of the hosting group or organization.</p>
+   *
+   * @param otherDetails Text providing additional information about the stream.
+   * @param otherLink A supplementary link associated with the stream.
+   * @param groupOrOrganizationName The name of the group or organization linked to the stream.
+   */
+  public void updateOtherDetail(final String otherDetails, final String otherLink, final String groupOrOrganizationName) {
+    this.otherDetails = otherDetails;
+    this.otherLink = otherLink;
+    this.groupOrOrganizationName = groupOrOrganizationName;
+  }
+
+  /**
    * Updates the external ID and stream link of the current stream with the provided values.
    *
    * <p>This method sets the externalId and streamLink fields of the current instance to the given values.
