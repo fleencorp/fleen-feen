@@ -53,7 +53,4 @@ public class UpdateStreamDto {
     return StreamType.of(streamType);
   }
 
-  public boolean isEvent() {
-    return StreamType.isEvent(getStreamType());
-  }
 }
