@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream.base;
+package com.fleencorp.feen.service.impl.stream.common;
 
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -41,8 +41,8 @@ import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.validateCreatorOfStream;
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
+import static com.fleencorp.feen.service.impl.stream.common.StreamServiceImpl.validateCreatorOfStream;
+import static com.fleencorp.feen.service.impl.stream.common.StreamServiceImpl.verifyStreamDetails;
 
 @Service
 public class CommonStreamServiceImpl implements CommonStreamService, StreamRequestService {

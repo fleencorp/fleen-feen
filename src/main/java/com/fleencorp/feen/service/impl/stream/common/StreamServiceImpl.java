@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream.base;
+package com.fleencorp.feen.service.impl.stream.common;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.stream.StreamType;

@@ -280,7 +280,7 @@ public class CommonMapperImpl implements CommonMapper {
   @Override
   public NotAttendingStreamResponse notAttendingStream() {
     // Set the join status to 'not attending'
-    final JoinStatus joinStatus = JoinStatus.notAttending();
+    final JoinStatus joinStatus = JoinStatus.notAttendingStream();
     // Create the join status info
     final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
     // Not attending info

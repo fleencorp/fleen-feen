@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.util.DateTimeUtil;
 import com.fleencorp.feen.util.external.google.GoogleApiUtil;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +18,6 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
 import static com.fleencorp.feen.util.DateTimeUtil.getTimezoneAbbreviation;
 import static java.util.Objects.nonNull;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -110,12 +112,13 @@ public class Schedule {
    * @return A Schedule object with the provided details and a flag indicating the schedule is set.
    */
   public static Schedule of(final LocalDateTime scheduledStartDate, final LocalDateTime scheduledEndDate, final String timezone) {
-    return Schedule.builder()
-      .startDate(scheduledStartDate)
-      .endDate(scheduledEndDate)
-      .timezone(timezone)
-      .isScheduleSet(true)
-      .build();
+    final Schedule schedule = new Schedule();
+    schedule.setStartDate(scheduledStartDate);
+    schedule.setEndDate(scheduledEndDate);
+    schedule.setTimezone(timezone);
+    schedule.setScheduleSet(false);
+
+    return schedule;
   }
 
   /**
@@ -124,8 +127,9 @@ public class Schedule {
    * @return A Schedule object with the schedule set flag as false, indicating no schedule details are provided.
    */
   public static Schedule of() {
-    return Schedule.builder()
-      .isScheduleSet(false)
-      .build();
+    final Schedule schedule = new Schedule();
+    schedule.setScheduleSet(false);
+
+    return schedule;
   }
 }

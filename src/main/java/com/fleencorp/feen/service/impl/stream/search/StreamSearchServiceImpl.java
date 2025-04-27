@@ -1,5 +1,6 @@
-package com.fleencorp.feen.service.impl.stream.common;
+package com.fleencorp.feen.service.impl.stream.search;
 
+import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
@@ -123,6 +124,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a `StreamSearchResult` containing the processed and localized results of the filtered streams
    */
   @Override
+  @MeasureExecutionTime
   public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);

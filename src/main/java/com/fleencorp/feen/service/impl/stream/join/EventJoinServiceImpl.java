@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.verifyStreamDetails;
+import static com.fleencorp.feen.service.impl.stream.common.StreamServiceImpl.verifyStreamDetails;
 
 /**
  * Implementation of the {@link EventJoinService} interface that handles the logic for managing attendee participation in events.

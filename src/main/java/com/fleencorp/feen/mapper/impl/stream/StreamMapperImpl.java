@@ -11,10 +11,7 @@ import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamSourceInfo;
-import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
+import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -114,6 +111,13 @@ public class StreamMapperImpl implements StreamMapper {
 
       final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(entry.getDeleted());
       response.setDeletedInfo(deletedInfo);
+
+      final OtherStreamDetailInfo otherStreamDetailInfo = OtherStreamDetailInfo.of(
+        entry.getOtherDetails(),
+        entry.getOtherLink(),
+        entry.getGroupOrOrganizationName()
+      );
+      response.setOtherDetailInfo(otherStreamDetailInfo);
 
       final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
       response.setStreamTypeInfo(streamTypeInfo);

@@ -31,10 +31,12 @@ public class LinkResponse implements SetIsUpdatable {
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
 
+  @Override
   public void setIsUpdatable(final boolean isUpdatable) {
     this.isUpdatable = isUpdatable;
   }
 
+  @Override
   public void markAsUpdatable() {
     setIsUpdatable(true);
   }
