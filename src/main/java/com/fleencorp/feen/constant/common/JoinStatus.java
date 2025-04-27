@@ -130,7 +130,7 @@ public enum JoinStatus implements ApiParameter {
     if (isApprovedAndAttended(requestToJoinStatus, hasHappened, isAttending)) {
       return JoinStatus.attended();
     } else if (isApprovedButNotAttending(requestToJoinStatus, isAttending)) {
-      return JoinStatus.notAttending();
+      return JoinStatus.notAttendingStream();
     } else if (isApprovedAndVisible(visibility, requestToJoinStatus)) {
       return JoinStatus.joinedStream();
     } else if (isDisapprovedForPrivate(visibility, requestToJoinStatus)) {
@@ -341,7 +341,7 @@ public enum JoinStatus implements ApiParameter {
     return ATTENDED;
   }
 
-  public static JoinStatus notAttending() {
+  public static JoinStatus notAttendingStream() {
     return NOT_ATTENDING_STREAM;
   }
 

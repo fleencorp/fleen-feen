@@ -56,10 +56,12 @@ public class ReviewResponse extends FleenFeenResponse
   @JsonIgnore
   private Long memberId;
 
+  @Override
   public void setIsUpdatable(final boolean isUpdatable) {
     this.isUpdatable = isUpdatable;
   }
 
+  @Override
   public void markAsUpdatable() {
     setIsUpdatable(true);
   }

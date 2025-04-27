@@ -24,13 +24,13 @@ public class RemoveStreamSpeakerDto {
   @NotEmpty(message = "{speaker.speakers.NotEmpty}")
   @Size(max = 10, message = "{speaker.speakers.Size}")
   @JsonProperty("speakers")
-  private List<DeleteSpeakerDto> speakers;
+  private List<SpeakerDto> speakers;
 
   @Getter
   @Setter
   @NoArgsConstructor
   @AllArgsConstructor
-  public static class DeleteSpeakerDto {
+  public static class SpeakerDto {
 
     @JsonProperty("speaker_id")
     private String speakerId;
@@ -47,7 +47,7 @@ public class RemoveStreamSpeakerDto {
    */
   public Set<Long> toSpeakerIds() {
     return speakers.stream()
-      .map(DeleteSpeakerDto::getSpeakerId)
+      .map(SpeakerDto::getSpeakerId)
       .filter(FleenUtil::isValidNumber)
       .map(Long::parseLong)
       .collect(Collectors.toSet());

@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream.base;
+package com.fleencorp.feen.service.impl.stream.common;
 
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
@@ -50,7 +50,7 @@ import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.service.impl.stream.base.StreamServiceImpl.*;
+import static com.fleencorp.feen.service.impl.stream.common.StreamServiceImpl.*;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -558,12 +558,12 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final FleenStream stream = streamService.findStream(streamId);
     // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
+    // Verify if the stream's type is the same as the stream type of the request
+    stream.checkStreamTypeNotEqual(notAttendingStreamDto.getStreamType());
     // Verify if the stream has not been canceled
     verifyStreamIsNotCancelled(stream);
     // Verify if the stream has not happened
     verifyStreamHasNotHappenedAlready(stream);
-    // Verify if the stream's type is the same as the stream type of the request
-    stream.checkStreamTypeNotEqual(notAttendingStreamDto.getStreamType());
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of the event
     stream.checkIsNotOrganizer(user.getId());
 

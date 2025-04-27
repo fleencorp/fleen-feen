@@ -9,10 +9,7 @@ import com.fleencorp.feen.model.contract.SetIsOrganizer;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamSourceInfo;
-import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
-import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
+import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
@@ -57,7 +54,7 @@ import static java.util.Objects.nonNull;
   "stream_status_info",
   "visibility_info",
   "is_deleted_info",
-  "status",
+  "other_detail_info",
   "schedule_time_type_info",
   "total_attending",
   "some_attendees",
@@ -129,6 +126,9 @@ public class FleenStreamResponse extends FleenFeenResponse
   @JsonProperty("is_deleted_info")
   private IsDeletedInfo deletedInfo;
 
+  @JsonProperty("other_detail_info")
+  private OtherStreamDetailInfo otherDetailInfo;
+
   @JsonProperty("is_private")
   public boolean isPrivate() {
     return StreamVisibility.isPrivateOrProtected(getVisibility());
@@ -186,6 +186,17 @@ public class FleenStreamResponse extends FleenFeenResponse
   @JsonIgnore
   private Long organizerId;
 
+  public void setReviews(final ReviewResponse review) {
+    if (nonNull(review)) {
+      reviews.add(review);
+    }
+  }
+
+  @Override
+  public void setIsOrganizer(final boolean isOrganizer) {
+    this.organizer.setIsOrganizer(isOrganizer);
+  }
+
   /**
    * Disables and resets the unmasked stream link if the join status is not approved.
    *
@@ -199,16 +210,6 @@ public class FleenStreamResponse extends FleenFeenResponse
     if (nonNull(getJoinStatus()) && JoinStatus.isNotApproved(getJoinStatus())) {
       streamLinkUnmasked = null;
     }
-  }
-
-  public void setReviews(final ReviewResponse review) {
-    if (nonNull(review)) {
-      reviews.add(review);
-    }
-  }
-
-  public void setIsOrganizer(final boolean isOrganizer) {
-    this.organizer.setIsOrganizer(isOrganizer);
   }
 
 }
