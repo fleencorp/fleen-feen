@@ -20,7 +20,6 @@ import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
-import com.fleencorp.feen.model.search.stream.common.EmptyStreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
@@ -40,11 +39,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntitiesUpdatableByUser;
 import static java.util.Objects.nonNull;
 
 /**
@@ -129,23 +128,23 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);
     // Get the list of stream views from the search result
-    final List<FleenStreamResponse> views = streamResponsesAndPage.getResponses();
+    final List<FleenStreamResponse> streamResponses = streamResponsesAndPage.getResponses();
     // Determine statuses like schedule, join status, schedules and timezones
-    streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(views, user);
+    streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(streamResponses, user);
     // Set the attendees and total attendee count for each stream
-    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(views);
+    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(streamResponses);
     // Get the first 10 attendees for each stream
-    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(views);
-    // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponses);
+    // Determine if authenticated user is an organizer of one of the entities
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Determine if authenticated user can update of one of the entities
+    setEntitiesUpdatableByUser(streamResponses, user.getId());
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
+    // Create the search result
+    final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, streamResponsesAndPage.getPage()), streamTypeInfo);
     // Return a search result view with the streams responses and pagination details
-    return handleSearchResult(
-      streamResponsesAndPage.getPage(),
-      localizer.of(StreamSearchResult.of(toSearchResult(views, streamResponsesAndPage.getPage()), streamTypeInfo)),
-      localizer.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), streamResponsesAndPage.getPage()), streamTypeInfo))
-    );
+    return localizer.of(streamSearchResult);
   }
 
   /**
@@ -241,15 +240,17 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Convert the streams to response views
-    final List<FleenStreamResponse> views = streamMapper.toStreamResponses(page.getContent());
+    final List<FleenStreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Determine the various status of the streams user
-    streamService.determineUserJoinStatusForStream(views, user);
+    streamService.determineUserJoinStatusForStream(streamResponses, user);
     // Set other schedule details if user timezone is different
-    streamService.setOtherScheduleBasedOnUserTimezone(views, user);
+    streamService.setOtherScheduleBasedOnUserTimezone(streamResponses, user);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Determine if authenticated user can update of one of the entities
+    setEntitiesUpdatableByUser(streamResponses, user.getId());
     // Return the processed and localized response
-    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
 
   /**
@@ -323,11 +324,13 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Convert the streams to response views
-    final List<FleenStreamResponse> views = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
+    final List<FleenStreamResponse> streamResponses = streamMapper.toFleenStreamResponsesNoJoinStatus(page.getContent());
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Determine if authenticated user can update of one of the entities
+    setEntitiesUpdatableByUser(streamResponses, user.getId());
     // Return the processed and localized response
-    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
 
   /**
@@ -340,24 +343,23 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    *
    * <p>If no streams are found, an empty search result is returned, including the stream type information.</p>
    *
-   * @param views the list of stream responses to process
+   * @param streamResponses the list of stream responses to process
    * @param page the page of streams to be included in the search result
    * @param searchRequest the request object containing search parameters, such as the stream type
    * @return a localized response containing the search result with stream responses and pagination details
    */
-  protected StreamSearchResult processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(final List<FleenStreamResponse> views, final Page<FleenStream> page, final StreamSearchRequest searchRequest) {
+  protected StreamSearchResult processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(final List<FleenStreamResponse> streamResponses, final Page<FleenStream> page, final StreamSearchRequest searchRequest) {
     // Set the attendees and total number of attendees for each stream
-    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(views);
+    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(streamResponses);
     // Retrieve the first 10 attendees in any order
-    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(views);
+    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponses);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Return a search result view with the streams responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(StreamSearchResult.of(toSearchResult(views, page), streamTypeInfo)),
-      localizer.of(EmptyStreamSearchResult.of(toSearchResult(List.of(), page), streamTypeInfo))
-    );
+    // Create the search result
+    final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
+    // Return a search result view with the streams responses and pagination details
+    return localizer.of(streamSearchResult);
   }
 
   /**
@@ -390,13 +392,15 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Convert the attendees to response objects
     final Set<StreamAttendeeResponse> streamAttendees = streamAttendeeService.toStreamAttendeeResponsesSet(streamResponse, streamAttendeesGoingToStream);
     // Add the single response to a List
-    final List<FleenStreamResponse> streamsResponses = List.of(streamResponse);
+    final List<FleenStreamResponse> streamResponses = List.of(streamResponse);
     // Set other schedule details if user timezone is different
-    streamService.setOtherScheduleBasedOnUserTimezone(streamsResponses, user);
+    streamService.setOtherScheduleBasedOnUserTimezone(streamResponses, user);
     // Determine the join status of the user if available
-    streamService.determineUserJoinStatusForStream(streamsResponses, user);
+    streamService.determineUserJoinStatusForStream(streamResponses, user);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(streamsResponses, user);
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Determine if authenticated user can update of one of the entities
+    setEntitiesUpdatableByUser(streamResponses, user.getId());
 
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
     final long totalAttendees = streamAttendeeRepository.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);

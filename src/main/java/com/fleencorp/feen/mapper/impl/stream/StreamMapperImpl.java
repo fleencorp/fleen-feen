@@ -1,6 +1,7 @@
 package com.fleencorp.feen.mapper.impl.stream;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
@@ -10,6 +11,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.link.MusicLinkTypeInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -18,6 +20,7 @@ import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
+import com.fleencorp.feen.model.response.link.base.MusicLinkResponse;
 import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -90,7 +93,6 @@ public class StreamMapperImpl implements StreamMapper {
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
 
-      response.setMusicLink(entry.getMusicLink());
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
       response.setStreamLinkNotMasked(entry.getStreamLink());
@@ -118,6 +120,12 @@ public class StreamMapperImpl implements StreamMapper {
         entry.getGroupOrOrganizationName()
       );
       response.setOtherDetailInfo(otherStreamDetailInfo);
+
+      final String musicLink = entry.getMusicLink();
+      final MusicLinkType musicLinkType = MusicLinkType.ofType(musicLink);
+      final MusicLinkTypeInfo musicLinkTypeInfo = MusicLinkTypeInfo.of(musicLinkType);
+      final MusicLinkResponse musicLinkResponse = MusicLinkResponse.of(musicLink, musicLinkTypeInfo);
+      response.setMusicLink(musicLinkResponse);
 
       final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
       response.setStreamTypeInfo(streamTypeInfo);

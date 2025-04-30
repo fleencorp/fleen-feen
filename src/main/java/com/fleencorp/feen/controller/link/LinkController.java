@@ -9,10 +9,9 @@ import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
-import com.fleencorp.feen.model.response.link.GetAvailableLinkTypeResponse;
-import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
-import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
+import com.fleencorp.feen.model.response.link.*;
+import com.fleencorp.feen.model.response.link.availability.GetAvailableLinkTypeResponse;
+import com.fleencorp.feen.model.response.link.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.link.LinkService;
@@ -46,6 +45,18 @@ public class LinkController {
   @GetMapping(value = "/link-types")
   public GetAvailableLinkTypeResponse getAvailableLinkTypes() {
     return linkService.getAvailableLinkType();
+  }
+
+  @Operation(summary = "Retrieve available music link types",
+    description = "Returns a list of supported music link types along with their display values and expected formats."
+  )
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Available music link types retrieved successfully",
+      content = @Content(schema = @Schema(implementation = GetAvailableLinkTypeResponse.class)))
+  })
+  @GetMapping(value = "/music-link-types")
+  public GetAvailableMusicLinkTypeResponse getAvailableMusicLinkTypes() {
+    return linkService.getAvailableMusicLinkType();
   }
 
   @Operation(summary = "Search for links",

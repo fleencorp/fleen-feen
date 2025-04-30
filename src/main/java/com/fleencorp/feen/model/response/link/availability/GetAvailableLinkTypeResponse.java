@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.link;
+package com.fleencorp.feen.model.response.link.availability;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -17,7 +17,8 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonPropertyOrder({
-  "message"
+  "message",
+  "link_types"
 })
 public class GetAvailableLinkTypeResponse extends ApiResponse {
 

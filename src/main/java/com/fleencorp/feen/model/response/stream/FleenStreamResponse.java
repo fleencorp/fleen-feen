@@ -6,6 +6,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.contract.SetIsOrganizer;
+import com.fleencorp.feen.model.contract.SetIsUpdatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
@@ -14,6 +15,7 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.model.response.link.base.MusicLinkResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import lombok.AllArgsConstructor;
@@ -55,15 +57,17 @@ import static java.util.Objects.nonNull;
   "visibility_info",
   "is_deleted_info",
   "other_detail_info",
+  "music_link",
   "schedule_time_type_info",
   "total_attending",
   "some_attendees",
   "reviews",
+  "is_updatable",
   "is_private",
   "attendance_info"
 })
 public class FleenStreamResponse extends FleenFeenResponse
-    implements SetIsOrganizer {
+    implements SetIsOrganizer, SetIsUpdatable {
 
   @JsonProperty("title")
   private String title;
@@ -86,9 +90,6 @@ public class FleenStreamResponse extends FleenFeenResponse
   @JsonFormat(shape = STRING)
   @JsonProperty("stream_link")
   private MaskedStreamLinkUri streamLink;
-
-  @JsonProperty("music_link")
-  private String musicLink;
 
   @JsonProperty("stream_type_info")
   private StreamTypeInfo streamTypeInfo;
@@ -128,6 +129,12 @@ public class FleenStreamResponse extends FleenFeenResponse
 
   @JsonProperty("other_detail_info")
   private OtherStreamDetailInfo otherDetailInfo;
+
+  @JsonProperty("music_link")
+  private MusicLinkResponse musicLink;
+
+  @JsonProperty("is_updatable")
+  private Boolean isUpdatable;
 
   @JsonProperty("is_private")
   public boolean isPrivate() {
@@ -195,6 +202,16 @@ public class FleenStreamResponse extends FleenFeenResponse
   @Override
   public void setIsOrganizer(final boolean isOrganizer) {
     this.organizer.setIsOrganizer(isOrganizer);
+  }
+
+  @Override
+  public void setIsUpdatable(final boolean isUpdatable) {
+    this.isUpdatable = isUpdatable;
+  }
+
+  @Override
+  public void markAsUpdatable() {
+    setIsUpdatable(true);
   }
 
   /**

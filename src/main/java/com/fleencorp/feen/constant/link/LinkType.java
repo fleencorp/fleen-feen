@@ -24,7 +24,9 @@ public enum LinkType implements ApiParameter {
   private final String value;
   private final String format;
 
-  LinkType(final String value, final String format) {
+  LinkType(
+      final String value,
+      final String format) {
     this.value = value;
     this.format = format;
   }

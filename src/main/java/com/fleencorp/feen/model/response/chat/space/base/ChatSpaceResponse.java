@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipIn
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.link.LinkResponse;
+import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
