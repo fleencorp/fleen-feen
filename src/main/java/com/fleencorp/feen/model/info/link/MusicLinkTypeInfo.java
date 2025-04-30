@@ -38,7 +38,7 @@ public class MusicLinkTypeInfo {
 
   public static MusicLinkTypeInfo of(final MusicLinkType type) {
     if (nonNull(type)) {
-      return of(type, type.getFormat(), type.getFormat());
+      return of(type, type.getValue(), type.getFormat());
     }
 
     return null;

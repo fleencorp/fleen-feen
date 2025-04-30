@@ -158,7 +158,7 @@ public class LinkServiceImpl implements LinkService {
     // Update the page size to 1000 for the search request
     searchRequest.updatePageSize(1000);
     // Initialize an empty page of links
-    Page<Link> page = Page.empty();
+    Page<Link> page;
     // Initialize an empty link search result
     LinkSearchResult searchResult = LinkSearchResult.empty();
 

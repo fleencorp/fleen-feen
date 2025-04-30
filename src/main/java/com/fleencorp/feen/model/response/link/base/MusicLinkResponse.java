@@ -27,11 +27,7 @@ public class MusicLinkResponse {
   @JsonProperty("link_type")
   private MusicLinkTypeInfo linkType;
 
-  @JsonProperty("is_updatable")
-  private Boolean isUpdatable;
-
-
-  public static MusicLinkResponse of(String url, MusicLinkTypeInfo linkType) {
-    return new MusicLinkResponse(url, linkType, false);
+  public static MusicLinkResponse of(String url, MusicLinkTypeInfo linkTypeInfo) {
+    return new MusicLinkResponse(url, linkTypeInfo);
   }
 }
