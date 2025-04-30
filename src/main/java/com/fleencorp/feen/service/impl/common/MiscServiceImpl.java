@@ -3,6 +3,7 @@ package com.fleencorp.feen.service.impl.common;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.model.contract.SetIsOrganizer;
+import com.fleencorp.feen.model.contract.SetIsUpdatable;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -159,13 +160,49 @@ public class MiscServiceImpl implements
    * It then compares the user's ID with the organizer's ID from {@code setIsOrganizer} and sets the {@code isOrganizer}
    * flag accordingly.
    *
-   * @param setIsOrganizer the object representing the entity whose organizer is being checked
+   * @param entry the object representing the entity whose organizer is being checked
    * @param user the user whose role is being verified as the organizer of the entity
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final SetIsOrganizer setIsOrganizer, final FleenUser user) {
-    if (nonNull(setIsOrganizer) && nonNull(user) && nonNull(user.getId())) {
-      final boolean isOrganizer = setIsOrganizer.getOrganizerId().equals(user.getId());
-      setIsOrganizer.setIsOrganizer(isOrganizer);
+  public static void determineIfUserIsTheOrganizerOfEntity(final SetIsOrganizer entry, final FleenUser user) {
+    if (nonNull(entry) && nonNull(user) && nonNull(user.getId())) {
+      final boolean isOrganizer = entry.getOrganizerId().equals(user.getId());
+      entry.setIsOrganizer(isOrganizer);
+    }
+  }
+
+  /**
+   * <p>Marks entities in the provided collection as updatable by the user if applicable.</p>
+   *
+   * <p>This method checks each entry in the collection and applies
+   * {@code setEntityUpdatableByUser} logic for entries that are not {@code null}
+   * and only if {@code userId} is also non-null.</p>
+   *
+   * @param entries the collection of updatable entities
+   * @param userId  the ID of the user to check against
+   */
+  public static void setEntitiesUpdatableByUser(final Collection<? extends SetIsUpdatable> entries, final Long userId) {
+    if (nonNull(entries) && !entries.isEmpty() && nonNull(userId)) {
+      entries.stream()
+        .filter(Objects::nonNull)
+        .forEach(entry -> setEntityUpdatableByUser(entry, userId));
+    }
+  }
+
+  /**
+   * <p>Marks a single entity as updatable if the provided user is the organizer of the entity.</p>
+   *
+   * <p>This method checks whether the given entry and user ID are non-null.
+   * If the user's ID matches the entity's organizer ID, the entity is marked as updatable.</p>
+   *
+   * @param entry  the entity to check and potentially mark as updatable
+   * @param userId the ID of the user to verify as the organizer
+   */
+  public static void setEntityUpdatableByUser(final SetIsUpdatable entry, final Long userId) {
+    if (nonNull(entry) && nonNull(userId)) {
+      final boolean isOrganizer = entry.getOrganizerId().equals(userId);
+      if (isOrganizer) {
+        entry.markAsUpdatable();
+      }
     }
   }
 

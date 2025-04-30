@@ -12,8 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.function.Supplier;
-
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -40,10 +38,12 @@ public class StreamSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return StreamType.isEvent(getStreamType()) ? "event.search" : "live.broadcast.search";
+    return StreamType.isEvent(getStreamType())
+          ? nonNull(result) && result.hasValue() ? "event.search" : "event.empty.search"
+          : nonNull(result) && result.hasValue() ? "live.broadcast.search" : "live.broadcast.empty.search";
   }
 
-  public static Supplier<StreamSearchResult> of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {
-    return () -> new StreamSearchResult(result, streamTypeInfo);
+  public static StreamSearchResult of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {
+    return new StreamSearchResult(result, streamTypeInfo);
   }
 }

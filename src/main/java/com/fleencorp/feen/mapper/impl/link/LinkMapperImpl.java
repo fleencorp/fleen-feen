@@ -3,7 +3,7 @@ package com.fleencorp.feen.mapper.impl.link;
 import com.fleencorp.feen.mapper.link.LinkMapper;
 import com.fleencorp.feen.model.domain.other.Link;
 import com.fleencorp.feen.model.info.link.LinkTypeInfo;
-import com.fleencorp.feen.model.response.link.LinkResponse;
+import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

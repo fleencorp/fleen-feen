@@ -4,6 +4,7 @@ import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Getter
 public enum MusicLinkType implements ApiParameter {
@@ -12,13 +13,13 @@ public enum MusicLinkType implements ApiParameter {
   YOUTUBE_MUSIC("YouTube Music", "https://music.youtube.com/");
 
   private final String value;
-  private final String linkFormat;
+  private final String format;
 
   MusicLinkType(
-    final String value,
-    final String linkFormat) {
+      final String value,
+      final String linkFormat) {
     this.value = value;
-    this.linkFormat = linkFormat;
+    this.format = linkFormat;
   }
 
   public static boolean isValid(final String link) {
@@ -27,11 +28,19 @@ public enum MusicLinkType implements ApiParameter {
     }
 
     for (final MusicLinkType musicLinkType : MusicLinkType.values()) {
-      if (link.startsWith(musicLinkType.getLinkFormat())) {
+      if (link.startsWith(musicLinkType.getFormat())) {
         return true;
       }
     }
 
     return false;
+  }
+
+  public static MusicLinkType ofType(final String url) {
+    if (nonNull(url)) {
+      return MusicLinkType.SPOTIFY.getFormat().startsWith(url) ? SPOTIFY : YOUTUBE_MUSIC;
+    }
+
+    return null;
   }
 }

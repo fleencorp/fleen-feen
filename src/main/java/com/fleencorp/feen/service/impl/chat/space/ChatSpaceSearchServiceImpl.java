@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest
 import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.link.LinkResponse;
+import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.EmptyChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;

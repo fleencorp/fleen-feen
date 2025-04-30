@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.link;
 
+import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.constant.link.LinkType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
@@ -11,8 +12,12 @@ import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.info.link.LinkTypeInfo;
+import com.fleencorp.feen.model.info.link.MusicLinkTypeInfo;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
 import com.fleencorp.feen.model.response.link.*;
+import com.fleencorp.feen.model.response.link.availability.GetAvailableLinkTypeResponse;
+import com.fleencorp.feen.model.response.link.availability.GetAvailableMusicLinkTypeResponse;
+import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.link.LinkRepository;
@@ -103,6 +108,38 @@ public class LinkServiceImpl implements LinkService {
     final GetAvailableLinkTypeResponse getAvailableLinkTypeResponse = GetAvailableLinkTypeResponse.of(availableLinkTypes);
     // Return the response
     return localizer.of(getAvailableLinkTypeResponse);
+  }
+
+  /**
+   * Retrieves the available music link types as a map of {@link MusicLinkType} to their corresponding {@link MusicLinkTypeInfo}.
+   *
+   * <p>This method iterates through all values of the {@link MusicLinkType} enum and creates a {@link MusicLinkTypeInfo}
+   * for each, which contains the type, value, and format. The result is a map where the key is the {@link MusicLinkType}
+   * and the value is the corresponding {@link MusicLinkTypeInfo}.</p>
+   *
+   * @return A {@link GetAvailableMusicLinkTypeResponse} containing a map of available {@link MusicLinkType}s and their
+   *         associated {@link MusicLinkTypeInfo}s.
+   */
+  @Override
+  @Cacheable("availableMusicLinkTypes")
+  public GetAvailableMusicLinkTypeResponse getAvailableMusicLinkType() {
+    final Map<MusicLinkType, MusicLinkTypeInfo> availableLinkTypes =
+      Stream.of(MusicLinkType.values())
+        .collect(Collectors.collectingAndThen(
+          Collectors.toMap(
+            lt -> lt,
+            lt -> MusicLinkTypeInfo.of(lt, lt.getValue(), lt.getFormat()
+            ),
+            (_, b) -> b,
+            () -> new EnumMap<>(MusicLinkType.class)
+          ),
+          Map::copyOf
+        ));
+
+    // Create the response
+    final GetAvailableMusicLinkTypeResponse getAvailableMusicLinkTypeResponse = GetAvailableMusicLinkTypeResponse.of(availableLinkTypes);
+    // Return the response
+    return localizer.of(getAvailableMusicLinkTypeResponse);
   }
 
   /**

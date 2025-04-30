@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.response.link;
+package com.fleencorp.feen.model.response.link.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
