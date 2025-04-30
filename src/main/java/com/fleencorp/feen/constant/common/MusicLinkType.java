@@ -22,23 +22,51 @@ public enum MusicLinkType implements ApiParameter {
     this.format = linkFormat;
   }
 
-  public static boolean isValid(final String link) {
-    if (isNull(link)) {
-      return false;
+  /**
+   * <p>Attempts to determine the {@code MusicLinkType} based on the given URL.</p>
+   *
+   * <p>This method iterates through all known music link types and checks whether
+   * the provided URL starts with the expected format for any of them.</p>
+   *
+   * <p>If a matching format is found, the corresponding {@code MusicLinkType} is returned.
+   * If no match is found or the URL is {@code null}, {@code null} is returned.</p>
+   *
+   * @param url the music link URL to inspect
+   * @return the corresponding {@code MusicLinkType} if detected, otherwise {@code null}
+   */
+  public static MusicLinkType fromUrl(final String url) {
+    if (isNull(url)) {
+      return null;
     }
 
-    for (final MusicLinkType musicLinkType : MusicLinkType.values()) {
-      if (link.startsWith(musicLinkType.getFormat())) {
-        return true;
+    for (final MusicLinkType type : MusicLinkType.values()) {
+      if (url.startsWith(type.getFormat())) {
+        return type;
       }
     }
 
-    return false;
+    return null;
   }
 
+  /**
+   * <p>Returns the {@code MusicLinkType} corresponding to the provided URL.</p>
+   *
+   * <p>This method checks if the URL starts with any of the known formats associated
+   * with the available {@code MusicLinkType} values.</p>
+   *
+   * <p>If a matching type is found, it is returned. If no matching type is found
+   * or the URL is {@code null}, {@code null} is returned.</p>
+   *
+   * @param url the URL to check against known music link formats
+   * @return the {@code MusicLinkType} corresponding to the URL format, or {@code null} if no match is found
+   */
   public static MusicLinkType ofType(final String url) {
     if (nonNull(url)) {
-      return MusicLinkType.SPOTIFY.getFormat().startsWith(url) ? SPOTIFY : YOUTUBE_MUSIC;
+      for (final MusicLinkType type : MusicLinkType.values()) {
+        if (url.startsWith(type.getFormat())) {
+          return type;
+        }
+      }
     }
 
     return null;
