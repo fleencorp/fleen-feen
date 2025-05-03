@@ -315,7 +315,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       })
       .orElseGet(() -> {
         addNewSpeaker(newSpeaker, stream, updatedSpeakers);
-        return newSpeaker;
+        return null;
     });
   }
 
