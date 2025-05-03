@@ -1,7 +1,6 @@
 package com.fleencorp.feen.mapper.impl.stream.attendee;
 
-import com.fleencorp.feen.mapper.impl.stream.StreamMapperImpl;
-import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -13,6 +12,7 @@ import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import static java.util.Objects.nonNull;
@@ -26,20 +26,14 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
+public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttendeeMapper {
 
-  private final StreamMapper streamMapper;
   private final ToInfoMapper toInfoMapper;
 
-  /**
-   * Constructs a new {@code StreamAttendeeMapper} with the specified dependencies.
-   *
-   * @param streamMapper the {@link StreamMapperImpl} used for mapping stream-related entities
-   */
   public StreamAttendeeMapperImpl(
-      final StreamMapper streamMapper,
-      final ToInfoMapper toInfoMapper) {
-    this.streamMapper = streamMapper;
+      final ToInfoMapper toInfoMapper,
+      final MessageSource messageSource) {
+    super(messageSource);
     this.toInfoMapper = toInfoMapper;
   }
 

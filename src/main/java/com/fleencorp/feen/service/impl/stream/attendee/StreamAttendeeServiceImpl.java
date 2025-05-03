@@ -6,7 +6,6 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -76,7 +75,6 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param localizer                 the service for localization tasks
    * @param attendeeMapper            the mapper for mapping attendee data
    * @param streamMapper              the mapper for mapping stream data
-   * @param toInfoMapper              the mapper for mapping information of chat space, streams and attendee data
    */
   public StreamAttendeeServiceImpl(
       final MiscService miscService,
@@ -85,8 +83,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
-      final StreamMapper streamMapper,
-      final ToInfoMapper toInfoMapper) {
+      final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
     this.streamAttendeeUpdateService = streamAttendeeUpdateService;
