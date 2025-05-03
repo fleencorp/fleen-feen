@@ -5,6 +5,12 @@ import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.user.IsBlocked;
+import com.fleencorp.feen.constant.user.follower.IsFollowed;
+import com.fleencorp.feen.constant.user.follower.IsFollowing;
+import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
+import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -12,13 +18,10 @@ import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
-import lombok.extern.slf4j.Slf4j;
+import com.fleencorp.feen.model.info.user.profile.*;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 import static java.util.Objects.nonNull;
 
@@ -33,27 +36,10 @@ import static java.util.Objects.nonNull;
 * @version 1.0
 */
 @Component
-@Slf4j
-public class ToInfoMapperImpl implements ToInfoMapper {
+public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
 
-  private final MessageSource messageSource;
-
-  public ToInfoMapperImpl(
-      final MessageSource messageSource) {
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Translates a message code into the corresponding message based on the current locale.
-   * The method uses the {@link MessageSource} to fetch the translated message.
-   * It retrieves the locale from the {@link LocaleContextHolder} and looks up the message code in the resource bundle.
-   *
-   * @param messageCode the code of the message to translate
-   * @return the translated message for the given message code, based on the current locale
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
+  public ToInfoMapperImpl(final MessageSource messageSource) {
+    super(messageSource);
   }
 
   /**
@@ -99,7 +85,7 @@ public class ToInfoMapperImpl implements ToInfoMapper {
    * @return the join status information for the given stream and request-to-join status
    */
   @Override
-  public JoinStatusInfo toJoinStatus(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending) {
+  public JoinStatusInfo toJoinStatus(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending) {
     final JoinStatus joinStatus = JoinStatus.getJoinStatus(requestToJoinStatus, stream.getVisibility(), stream.hasHappened(), isAttending);
     return JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
   }
@@ -119,7 +105,7 @@ public class ToInfoMapperImpl implements ToInfoMapper {
    * @return an {@code AttendanceInfo} object containing the attendee's request-to-join, join, and attendance info
    */
   @Override
-  public AttendanceInfo toAttendanceInfo(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending, final boolean isASpeaker) {
+  public AttendanceInfo toAttendanceInfo(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending, final boolean isASpeaker) {
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
     final JoinStatusInfo joinStatusInfo = toJoinStatus(stream, requestToJoinStatus, isAttending);
     final IsAttendingInfo isAttendingInfo = toIsAttendingInfo(isAttending);
@@ -194,6 +180,112 @@ public class ToInfoMapperImpl implements ToInfoMapper {
     final IsOrganizer isOrganizer = IsOrganizer.by(organizer);
 
     return IsOrganizerInfo.of(organizer, translate(isOrganizer.getMessageCode()), translate(isOrganizer.getMessageCode2()));
+  }
+
+  /**
+   * Constructs an {@link IsBlockedInfo} object based on the blocking status and the name of the user who blocked.
+   *
+   * <p>It uses the {@link IsBlocked} enum to determine message codes and translates them with the target user's name
+   * to produce user-friendly, localized messages about the block status.</p>
+   *
+   * @param blocked {@code true} if the current user is blocked by the target user; {@code false} otherwise
+   * @param blockingUserName the full name of the user who initiated the block
+   * @return an {@link IsBlockedInfo} object containing the block status and localized messages
+   */
+  @Override
+  public IsBlockedInfo toIsBlockedInfo(final boolean blocked, final String blockingUserName) {
+    final IsBlocked isBlocked = IsBlocked.by(blocked);
+
+    return IsBlockedInfo.of(
+      blocked,
+      translate(isBlocked.getMessageCode(), blockingUserName),
+      translate(isBlocked.getMessageCode2(), blockingUserName),
+      translate(isBlocked.getMessageCode3(), blockingUserName)
+    );
+  }
+
+  /**
+   * Constructs an {@link IsFollowingInfo} object based on whether the current user is following the target user.
+   *
+   * <p>Uses the {@link IsFollowing} enum to determine the appropriate message codes, which are then translated into
+   * user-friendly, localized messages including the name of the user being followed.</p>
+   *
+   * @param following {@code true} if the current user is following the target user; {@code false} otherwise
+   * @param userBeingFollowedName the full name of the target user being followed
+   * @return an {@link IsFollowingInfo} containing the following status and localized descriptive messages
+   */
+  @Override
+  public IsFollowingInfo toIsFollowingInfo(final boolean following, final String userBeingFollowedName) {
+    final IsFollowing isFollowing = IsFollowing.by(following);
+
+    return IsFollowingInfo.of(
+      following,
+      translate(isFollowing.getMessageCode(), userBeingFollowedName),
+      translate(isFollowing.getMessageCode2(), userBeingFollowedName),
+      translate(isFollowing.getMessageCode3(), userBeingFollowedName),
+      translate(isFollowing.getMessageCode4(), userBeingFollowedName)
+    );
+  }
+
+  /**
+   * Constructs an {@link IsFollowedInfo} object based on whether the target user is followed by the current user.
+   *
+   * <p>Uses the {@link IsFollowed} enum to determine the appropriate message codes, which are then translated into
+   * user-friendly, localized messages including the name of the user following.</p>
+   *
+   * @param followed {@code true} if the target user is followed by the current user; {@code false} otherwise
+   * @param userFollowingName the full name of the user who is following
+   * @return an {@link IsFollowedInfo} containing the follow-back status and localized descriptive messages
+   */
+  @Override
+  public IsFollowedInfo toIsFollowedInfo(final boolean followed, final String userFollowingName) {
+    final IsFollowed isFollowed = IsFollowed.by(followed);
+
+    return IsFollowedInfo.of(
+      followed,
+      translate(isFollowed.getMessageCode(), userFollowingName),
+      translate(isFollowed.getMessageCode2(), userFollowingName),
+      translate(isFollowed.getMessageCode3(), userFollowingName),
+      translate(isFollowed.getMessageCode4(), userFollowingName)
+    );
+  }
+
+  /**
+   * Constructs a {@link TotalFollowedInfo} object representing the total number of users the target member is followed by.
+   *
+   * <p>Retrieves the appropriate message code from the {@link TotalFollowed} enum and translates it into localized messages
+   * that describe the total followers count, with and without the target member's name.</p>
+   *
+   * @param followed the number of users following the target member
+   * @param targetMemberName the full name of the target member being followed
+   * @return a {@link TotalFollowedInfo} containing the follower count and localized descriptive messages
+   */
+  @Override
+  public TotalFollowedInfo toTotalFollowedInfo(final Long followed, final String targetMemberName) {
+    final TotalFollowed totalFollowed = TotalFollowed.TOTAL_FOLLOWED;
+
+    return TotalFollowedInfo.of(followed,
+      translate(totalFollowed.getMessageCode(), followed),
+      translate(totalFollowed.getMessageCode(), targetMemberName, followed));
+  }
+
+  /**
+   * Constructs a {@link TotalFollowingInfo} object representing the total number of users the target member is following.
+   *
+   * <p>Retrieves the appropriate message code from the {@link TotalFollowing} enum and translates it into localized messages
+   * that describe the total following count, with and without the target member's name.</p>
+   *
+   * @param following the number of users the target member is following
+   * @param targetMemberName the full name of the target member who is following others
+   * @return a {@link TotalFollowingInfo} containing the following count and localized descriptive messages
+   */
+  @Override
+  public TotalFollowingInfo toTotalFollowingInfo(final Long following, final String targetMemberName) {
+    final TotalFollowing totalFollowing = TotalFollowing.TOTAL_FOLLOWING;
+
+    return TotalFollowingInfo.of(following,
+      translate(totalFollowing.getMessageCode(), following),
+      translate(totalFollowing.getMessageCode(), targetMemberName, following));
   }
 
 }

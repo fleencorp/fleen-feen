@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class RescheduleStreamResponse extends ApiResponse {
   private Long streamId;
 
   @JsonProperty("stream")
-  private FleenStreamResponse stream;
+  private StreamResponse stream;
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
@@ -47,7 +47,7 @@ public class RescheduleStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "reschedule.event" : "reschedule.live.broadcast";
   }
 
-  public static RescheduleStreamResponse of(final long streamId, final FleenStreamResponse stream, final StreamTypeInfo streamTypeInfo) {
+  public static RescheduleStreamResponse of(final long streamId, final StreamResponse stream, final StreamTypeInfo streamTypeInfo) {
     return new RescheduleStreamResponse(streamId, stream, streamTypeInfo);
   }
 

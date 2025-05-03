@@ -25,6 +25,7 @@ import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceRespon
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
+import com.fleencorp.feen.repository.chat.space.ChatSpaceParticipationRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
@@ -55,9 +56,10 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final Localizer localizer;
+  private final ChatSpaceParticipationRepository chatSpaceParticipationRepository;
   private final ChatSpaceMapper chatSpaceMapper;
   private final CommonMapper commonMapper;
+  private final Localizer localizer;
 
   /**
    * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
@@ -69,20 +71,23 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param chatSpaceUpdateService handles updates to chat spaces.
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
-   * @param localizer provides localized responses for API operations.
+   * @param chatSpaceParticipationRepository repository for finding participation of users in chat space
    * @param chatSpaceMapper maps chat space entities to response models.
    * @param commonMapper a service for creating info data and their localized text
+   * @param localizer provides localized responses for API operations.
    */
   public ChatSpaceServiceImpl(
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
-      final Localizer localizer,
+      final ChatSpaceParticipationRepository chatSpaceParticipationRepository,
       final ChatSpaceMapper chatSpaceMapper,
-      final CommonMapper commonMapper) {
+      final CommonMapper commonMapper,
+      final Localizer localizer) {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
+    this.chatSpaceParticipationRepository = chatSpaceParticipationRepository;
     this.localizer = localizer;
     this.chatSpaceMapper = chatSpaceMapper;
     this.commonMapper = commonMapper;
@@ -511,4 +516,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpaceRepository.incrementTotalMembers(chatSpace.getChatSpaceId());
   }
 
+  @Override
+  public boolean existsByMembers(final Member viewer, final Member target) {
+    return chatSpaceParticipationRepository.existsByMembers(viewer.getMemberId(), target.getMemberId());
+  }
 }

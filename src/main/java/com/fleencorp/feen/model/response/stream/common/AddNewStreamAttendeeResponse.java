@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.stream.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,14 +28,14 @@ public class AddNewStreamAttendeeResponse extends ApiResponse {
   private String emailAddress;
 
   @JsonProperty("stream")
-  private FleenStreamResponse stream;
+  private StreamResponse stream;
 
   @Override
   public String getMessageCode() {
     return "add.new.stream.attendee";
   }
 
-  public static AddNewStreamAttendeeResponse of(final Long streamId, final String emailAddress, final FleenStreamResponse stream) {
+  public static AddNewStreamAttendeeResponse of(final Long streamId, final String emailAddress, final StreamResponse stream) {
     return new AddNewStreamAttendeeResponse(streamId, emailAddress, stream);
   }
 }

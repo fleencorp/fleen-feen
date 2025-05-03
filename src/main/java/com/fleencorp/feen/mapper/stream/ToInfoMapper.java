@@ -8,7 +8,8 @@ import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.info.user.profile.*;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 
 public interface ToInfoMapper {
 
@@ -16,9 +17,9 @@ public interface ToInfoMapper {
 
   JoinStatusInfo toJoinStatusInfo(JoinStatus joinStatus);
 
-  JoinStatusInfo toJoinStatus(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending);
+  JoinStatusInfo toJoinStatus(StreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending);
 
-  AttendanceInfo toAttendanceInfo(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending, boolean isASpeaker);
+  AttendanceInfo toAttendanceInfo(StreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending, boolean isASpeaker);
 
   StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatus requestToJoinStatus);
 
@@ -27,4 +28,14 @@ public interface ToInfoMapper {
   IsASpeakerInfo toIsASpeakerInfo(boolean isASpeaker);
 
   IsOrganizerInfo toIsOrganizerInfo(boolean isOrganizer);
+
+  IsBlockedInfo toIsBlockedInfo(boolean blocked, String blockingUser);
+
+  IsFollowingInfo toIsFollowingInfo(boolean following, String userBeingFollowed);
+
+  IsFollowedInfo toIsFollowedInfo(boolean followed, String userFollowing);
+
+  TotalFollowedInfo toTotalFollowedInfo(Long followed, String targetMemberName);
+
+  TotalFollowingInfo toTotalFollowingInfo(Long following, String targetMemberName);
 }

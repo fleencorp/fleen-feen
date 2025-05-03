@@ -24,4 +24,14 @@ public interface FollowerRepository extends JpaRepository<Follower, Long> {
   @EntityGraph(attributePaths = {"following"})
   @Query("SELECT f FROM Follower f WHERE f.following = :member")
   Page<Follower> findByFollowing(@Param("member") Member member, Pageable pageable);
+
+  @Query("SELECT f FROM Follower f WHERE f.followingId = :followingId AND f.followedId = :followedId")
+  Optional<Follower> findByFollowingIdAndFollowedId(@Param("followingId") Long followingId, @Param("followedId") Long followedId);
+
+  @Query("SELECT COUNT(f) FROM Follower f WHERE f.following = :memberId")
+  long countByFollowing(@Param("memberId") Long memberId);
+
+  @Query("SELECT COUNT(f) FROM Follower f WHERE f.followed = :memberId")
+  long countByFollowed(@Param("memberId") Long memberId);
+
 }

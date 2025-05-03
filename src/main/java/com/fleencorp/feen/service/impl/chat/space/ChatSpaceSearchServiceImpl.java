@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.chat.space;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
-import com.fleencorp.feen.model.search.chat.space.EmptyChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
@@ -138,12 +138,12 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
 
     // Process other details of the chat space responses
     processOtherChatSpaceDetails(chatSpaceResponses, user);
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(chatSpaceResponses, page);
+    // Create the search result
+    final ChatSpaceSearchResult searchResult = ChatSpaceSearchResult.of(searchResultView);
     // Return a search result view with the chat space responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceSearchResult.of(toSearchResult(chatSpaceResponses, page))),
-      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -181,12 +181,12 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     processOtherChatSpaceDetails(chatSpaceResponses, user);
     // Update the total request to join for each chat space
     updateTotalRequestToJoinForChatSpaces(chatSpaceResponses);
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(chatSpaceResponses, page);
+    // Create the search result
+    final ChatSpaceSearchResult searchResult = ChatSpaceSearchResult.of(searchResultView);
     // Return a search result view with the chat space responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceSearchResult.of(toSearchResult(chatSpaceResponses, page))),
-      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -222,12 +222,12 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     final List<ChatSpaceResponse> chatSpaceResponses = extractUserChatSpaceFromMembershipAndCreateChatResponse(page.getContent());
     // Process other details of the chat space responses
     processOtherChatSpaceDetails(chatSpaceResponses, user);
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(chatSpaceResponses, page);
+    // Create the search result
+    final ChatSpaceSearchResult searchResult = ChatSpaceSearchResult.of(searchResultView);
     // Return a search result view with the chat space responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ChatSpaceSearchResult.of(toSearchResult(chatSpaceResponses, page))),
-      localizer.of(EmptyChatSpaceSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**

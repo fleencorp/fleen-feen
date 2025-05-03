@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.stream.common;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
@@ -23,20 +23,20 @@ import com.fleencorp.feen.model.security.FleenUser;
 public interface CommonStreamJoinService {
 
   ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(Long streamId, ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
+    throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
         StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 
   JoinStreamResponse joinStream(Long streamId, JoinStreamDto joinStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException,
       AlreadyApprovedRequestToJoinException, FailedOperationException;
 
   RequestToJoinStreamResponse requestToJoinStream(Long streamId, RequestToJoinStreamDto requestToJoinStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException,
       FailedOperationException;
 
   NotAttendingStreamResponse notAttendingStream(Long streamId, NotAttendingStreamDto notAttendingStreamDto, FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, FailedOperationException;
 }

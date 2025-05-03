@@ -5,6 +5,7 @@ import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -21,14 +22,12 @@ import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.link.base.MusicLinkResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -45,47 +44,33 @@ import static java.util.Objects.nonNull;
 */
 @Component
 @Slf4j
-public class StreamMapperImpl implements StreamMapper {
+public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
   private final CommonMapper commonMapper;
   private final ToInfoMapper toInfoMapper;
-  private final MessageSource messageSource;
 
   public StreamMapperImpl(
       final CommonMapper commonMapper,
       final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
+    super(messageSource);
     this.commonMapper = commonMapper;
     this.toInfoMapper = toInfoMapper;
-    this.messageSource = messageSource;
   }
 
   /**
-   * Translates a message code into the corresponding message based on the current locale.
-   * The method uses the {@link MessageSource} to fetch the translated message.
-   * It retrieves the locale from the {@link LocaleContextHolder} and looks up the message code in the resource bundle.
-   *
-   * @param messageCode the code of the message to translate
-   * @return the translated message for the given message code, based on the current locale
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
-  }
-
-  /**
-   * Converts a {@link FleenStream} entry to a {@link FleenStreamResponse} object with detailed stream information.
+   * Converts a {@link FleenStream} entry to a {@link StreamResponse} object with detailed stream information.
    * The method populates the response with various stream details including visibility, type, status, schedule, and organizer information.
    * The join status is set to "not joined" based on whether the stream is private or public.
    *
    * @param entry the {@link FleenStream} entry to convert
-   * @return a {@link FleenStreamResponse} object populated with stream information, or {@code null} if the input entry is {@code null}
+   * @return a {@link StreamResponse} object populated with stream information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public FleenStreamResponse toStreamResponse(final FleenStream entry) {
+  public StreamResponse toStreamResponse(final FleenStream entry) {
     if (nonNull(entry)) {
 
-      final FleenStreamResponse response = new FleenStreamResponse();
+      final StreamResponse response = new StreamResponse();
       response.setId(entry.getStreamId());
       response.setTitle(entry.getTitle());
       response.setDescription(entry.getDescription());
@@ -162,16 +147,16 @@ public class StreamMapperImpl implements StreamMapper {
   }
 
   /**
-   * Converts a {@link FleenStream} entry to a {@link FleenStreamResponse} object with approved join status and request-to-join status.
+   * Converts a {@link FleenStream} entry to a {@link StreamResponse} object with approved join status and request-to-join status.
    * The join status is set to "joined chat space," and the request-to-join status is set to "approved."
    *
    * @param entry the {@link FleenStream} entry to convert
-   * @return a {@link FleenStreamResponse} object with approved status information, or {@code null} if the input entry is {@code null}
+   * @return a {@link StreamResponse} object with approved status information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public FleenStreamResponse toStreamResponseByAdminUpdate(final FleenStream entry) {
+  public StreamResponse toStreamResponseByAdminUpdate(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse stream = toStreamResponse(entry);
+      final StreamResponse stream = toStreamResponse(entry);
 
       final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(true);
       final IsASpeakerInfo isASpeakerInfo = toInfoMapper.toIsASpeakerInfo(true);
@@ -191,15 +176,15 @@ public class StreamMapperImpl implements StreamMapper {
   }
 
   /**
-   * Converts a {@link FleenStream} entry to a {@link FleenStreamResponse} object, excluding request-to-join and join status information.
+   * Converts a {@link FleenStream} entry to a {@link StreamResponse} object, excluding request-to-join and join status information.
    *
    * @param entry the {@link FleenStream} entry to convert
-   * @return a {@link FleenStreamResponse} object with no join status or request-to-join status information, or {@code null} if the input entry is {@code null}
+   * @return a {@link StreamResponse} object with no join status or request-to-join status information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public FleenStreamResponse toFleenStreamResponseNoJoinStatus(final FleenStream entry) {
+  public StreamResponse toStreamResponseNoJoinStatus(final FleenStream entry) {
     if (nonNull(entry)) {
-      final FleenStreamResponse stream = toStreamResponse(entry);
+      final StreamResponse stream = toStreamResponse(entry);
       stream.setAttendanceInfo(AttendanceInfo.of());
 
       return stream;
@@ -217,7 +202,7 @@ public class StreamMapperImpl implements StreamMapper {
   * @return a list of FleenStreamResponse DTOs, or an empty list if the input is null or empty
   */
   @Override
-  public List<FleenStreamResponse> toStreamResponses(final List<FleenStream> entries) {
+  public List<StreamResponse> toStreamResponses(final List<FleenStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .filter(Objects::nonNull)
@@ -228,17 +213,17 @@ public class StreamMapperImpl implements StreamMapper {
   }
 
   /**
-   * Converts a list of {@link FleenStream} entries to a list of {@link FleenStreamResponse} objects, excluding join status.
+   * Converts a list of {@link FleenStream} entries to a list of {@link StreamResponse} objects, excluding join status.
    *
    * @param entries the list of {@link FleenStream} entries to convert
-   * @return a list of {@link FleenStreamResponse} objects corresponding to the given entries, or an empty list if the input is {@code null} or empty
+   * @return a list of {@link StreamResponse} objects corresponding to the given entries, or an empty list if the input is {@code null} or empty
    */
   @Override
-  public List<FleenStreamResponse> toFleenStreamResponsesNoJoinStatus(final List<FleenStream> entries) {
+  public List<StreamResponse> toStreamResponsesNoJoinStatus(final List<FleenStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(this::toFleenStreamResponseNoJoinStatus)
+        .map(this::toStreamResponseNoJoinStatus)
         .toList();
     }
     return List.of();
@@ -316,7 +301,7 @@ public class StreamMapperImpl implements StreamMapper {
    * @param isASpeaker {@code true} if the user is a speaker in the stream, {@code false} otherwise
    */
   @Override
-  public void update(final FleenStreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending, final boolean isASpeaker) {
+  public void update(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending, final boolean isASpeaker) {
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
     final JoinStatusInfo joinStatusInfo = toInfoMapper.toJoinStatusInfo(joinStatus);
     final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(isAttending);

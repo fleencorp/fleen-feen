@@ -4,7 +4,7 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
@@ -30,7 +30,7 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.request.calendar.event.NotAttendingEventRequest;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
@@ -144,7 +144,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param processRequestToJoinDto    the DTO containing details of the attendee's request to join the stream
    * @param user                      the user processing the attendee's request; must be the creator or an admin
    * @return                          a localized response with the details of the processed attendee join request
-   * @throws FleenStreamNotFoundException          if the stream with the provided ID is not found
+   * @throws StreamNotFoundException          if the stream with the provided ID is not found
    * @throws CalendarNotFoundException             if the calendar associated with the stream is not found
    * @throws Oauth2InvalidAuthorizationException   if the OAuth2 authorization required for external services is invalid
    * @throws StreamNotCreatedByUserException       if the stream was not created by the current user
@@ -155,7 +155,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   @Override
   @Transactional
   public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final Long streamId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
+      throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
         StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Retrieve the stream using the stream ID
     final FleenStream stream = streamService.findStream(streamId);
@@ -180,7 +180,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Check if the attendee request is approved and send invitation
     addAttendeeToStreamExternally(attendeeProcessedJoinRequest);
     // Convert the stream to response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get a processed attendee request to join stream response
     final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = commonMapper.processAttendeeRequestToJoinStream(streamResponse, attendee);
     // Return a localized response with the processed stream details
@@ -309,7 +309,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param joinStreamDto contains the details of the user's request to join the stream
    * @param user         the user attempting to join the stream
    * @return a localized response including stream attendance details and status
-   * @throws FleenStreamNotFoundException        if the stream cannot be found by the given ID
+   * @throws StreamNotFoundException        if the stream cannot be found by the given ID
    * @throws CalendarNotFoundException           if the external calendar associated with the stream cannot be found
    * @throws StreamAlreadyCanceledException      if the stream has been canceled
    * @throws StreamAlreadyHappenedException      if the stream has already occurred
@@ -320,7 +320,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   @Override
   @Transactional
   public JoinStreamResponse joinStream(final Long streamId, final JoinStreamDto joinStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
       CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Retrieve the stream using the stream ID
     final FleenStream stream = streamService.findStream(streamId);
@@ -343,7 +343,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Get stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Convert the stream to the equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
     final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
 
@@ -375,7 +375,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @return the {@link StreamAttendee} instance representing the user's participation
    */
   private StreamAttendee attemptToJoinPublicStream(final FleenStream stream, final String comment, final FleenUser user)
-    throws FleenStreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
+    throws StreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
       CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Create a new StreamAttendee entry for the user
     final StreamAttendee streamAttendee = attendeeService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
@@ -439,7 +439,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    *
    * @return a localized {@code RequestToJoinStreamResponse} object containing the stream details and the user's attendance status
    *
-   * @throws FleenStreamNotFoundException if the stream is not found by its ID
+   * @throws StreamNotFoundException if the stream is not found by its ID
    * @throws CalendarNotFoundException if the calendar is not found
    * @throws StreamNotCreatedByUserException if the user is not authorized to join the stream
    * @throws StreamAlreadyHappenedException if the stream has already occurred and is no longer available for joining
@@ -449,7 +449,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   @Override
   @Transactional
   public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
@@ -465,7 +465,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     saveStreamAndAttendee(stream, attendee);
 
     // Convert the stream to equivalent stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponse(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponse(stream);
     // Get the attendance information for the stream attendee
     final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
     // Get stream type info
@@ -545,14 +545,14 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param notAttendingStreamDto  the data transfer object containing stream and user information
    * @param user                  the user who is marking themselves as not attending
    * @return a localized {@link NotAttendingStreamResponse} with the relevant stream details
-   * @throws FleenStreamNotFoundException if the stream is not found
+   * @throws StreamNotFoundException if the stream is not found
    * @throws CalendarNotFoundException    if the calendar associated with the event is not found
    * @throws FailedOperationException     if the operation fails, such as not finding the attendee record
    */
   @Override
   @Transactional
   public NotAttendingStreamResponse notAttendingStream(final Long streamId, final NotAttendingStreamDto notAttendingStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);

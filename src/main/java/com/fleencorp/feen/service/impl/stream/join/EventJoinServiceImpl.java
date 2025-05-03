@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.stream.join;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
@@ -137,7 +137,7 @@ public class EventJoinServiceImpl implements EventJoinService {
    * @param addNewAttendeeDto the DTO containing the attendee's email address and other relevant details
    * @param user the user initiating the addition of the attendee
    * @return a localized response containing the details of the added attendee
-   * @throws FleenStreamNotFoundException if the stream with the given ID is not found
+   * @throws StreamNotFoundException if the stream with the given ID is not found
    * @throws CalendarNotFoundException if the calendar associated with the user's country is not found
    * @throws StreamNotCreatedByUserException if the stream was not created by the current user
    * @throws StreamAlreadyHappenedException if the event has already occurred
@@ -147,7 +147,7 @@ public class EventJoinServiceImpl implements EventJoinService {
   @Override
   @Transactional
   public AddNewStreamAttendeeResponse addEventAttendee(final Long eventId, final AddNewStreamAttendeeDto addNewAttendeeDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+      throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(eventId);
@@ -164,7 +164,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     // Save stream to the repository
     streamRepository.save(stream);
     // Return a localized response with the details of the added attendee
-    return localizer.of(AddNewStreamAttendeeResponse.of(eventId, addNewAttendeeDto.getEmailAddress(), streamMapper.toFleenStreamResponseNoJoinStatus(stream)));
+    return localizer.of(AddNewStreamAttendeeResponse.of(eventId, addNewAttendeeDto.getEmailAddress(), streamMapper.toStreamResponseNoJoinStatus(stream)));
   }
 
   /**

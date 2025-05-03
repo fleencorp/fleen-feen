@@ -15,6 +15,7 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "user_id",
+  "username",
   "full_name"
 })
 public class UserResponse {
@@ -22,6 +23,13 @@ public class UserResponse {
   @JsonProperty("user_id")
   private Long userId;
 
+  @JsonProperty("username")
+  private String username;
+
   @JsonProperty("full_name")
   private String fullName;
+
+  public static UserResponse of(final String username, final String fullName) {
+    return new UserResponse(null, username, fullName);
+  }
 }

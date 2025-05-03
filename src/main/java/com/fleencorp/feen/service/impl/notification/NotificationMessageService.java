@@ -248,39 +248,39 @@ public class NotificationMessageService {
   /**
    * Creates a notification based on whether the request to join a FleenStream has been approved or disapproved.
    *
-   * @param fleenStream the FleenStream for which the request was made
+   * @param stream the FleenStream for which the request was made
    * @param streamAttendee the attendee whose request to join is being processed
    * @param member the member receiving the notification
    * @return a notification indicating whether the request to join was approved or disapproved
    */
-  public Notification ofApprovedOrDisapprovedStreamJoinRequest(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
-    final Notification notification = ofApprovedStreamJoinRequest(fleenStream, streamAttendee, member);
-    updateNotificationTypeAndMessageKey(fleenStream, notification, streamAttendee.isRequestToJoinApproved());
+  public Notification ofApprovedOrDisapprovedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member) {
+    final Notification notification = ofApprovedStreamJoinRequest(stream, streamAttendee, member);
+    updateNotificationTypeAndMessageKey(stream, notification, streamAttendee.isRequestToJoinApproved());
     return notification;
   }
 
   /**
    * Builds a notification for an approved request to join an event.
    *
-   * @param fleenStream      the event associated with the approved request
+   * @param stream      the stream associated with the approved request
    * @param streamAttendee   the attendee of the event receiving the notification
    * @param member           the member who approved the request
    * @return a Notification object representing the approved request to join the event
    */
-  public Notification ofApprovedStreamJoinRequest(final FleenStream fleenStream, final StreamAttendee streamAttendee, final Member member) {
+  public Notification ofApprovedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
     notification.setReceiver(member);
-    notification.setStream(fleenStream);
+    notification.setStream(stream);
     notification.setStreamAttendee(streamAttendee);
     notification.setReceiverId(member.getMemberId());
-    notification.setStreamTitle(fleenStream.getTitle());
+    notification.setStreamTitle(stream.getTitle());
     notification.setNotificationType(requestToJoinEventApproved());
     notification.setNotificationStatus(NotificationStatus.unread());
     notification.setStreamAttendeeName(streamAttendee.getFullName());
     notification.setMessageKey(requestToJoinEventApproved().getCode());
     notification.setOtherComment(streamAttendee.getOrganizerComment());
-    notification.setIdOrLinkOrUrl(String.valueOf(fleenStream.getStreamId()));
+    notification.setIdOrLinkOrUrl(String.valueOf(stream.getStreamId()));
 
     return notification;
   }
@@ -320,16 +320,16 @@ public class NotificationMessageService {
    * <p>This method sets the notification type and corresponding message key for the given notification
    * depending on whether the stream is a live broadcast or a standard event, and whether the request was approved.</p>
    *
-   * @param fleenStream the stream entity representing the event or broadcast to which the notification is linked.
+   * @param stream the stream entity representing the event or broadcast to which the notification is linked.
    * @param notification the notification that will be updated with the appropriate type and message key.
    * @param approved a boolean indicating whether the request to join the event or broadcast was approved.
    */
-  public void updateNotificationTypeAndMessageKey(final FleenStream fleenStream, final Notification notification, final boolean approved) {
-    if (nonNull(fleenStream) && nonNull(notification)) {
-      if (fleenStream.isALiveStream() && approved) {
+  public void updateNotificationTypeAndMessageKey(final FleenStream stream, final Notification notification, final boolean approved) {
+    if (nonNull(stream) && nonNull(notification)) {
+      if (stream.isALiveStream() && approved) {
         notification.setNotificationType(requestToJoinLiveBroadcastApproved());
         notification.setMessageKey(requestToJoinLiveBroadcastApproved().getCode());
-      } else if (fleenStream.isALiveStream() && !approved) {
+      } else if (stream.isALiveStream() && !approved) {
         notification.setNotificationType(requestToJoinLiveBroadcastDisapproved());
         notification.setMessageKey(requestToJoinLiveBroadcastDisapproved().getCode());
       } else {

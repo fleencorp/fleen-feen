@@ -40,4 +40,6 @@ public interface ChatSpaceService {
     throws FailedOperationException, NotAnAdminOfChatSpaceException;
 
   void increaseTotalMembersAndSave(ChatSpace chatSpace);
+
+  boolean existsByMembers(Member viewer, Member target);
 }

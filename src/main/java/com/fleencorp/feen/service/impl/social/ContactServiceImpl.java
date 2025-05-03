@@ -1,9 +1,12 @@
 package com.fleencorp.feen.service.impl.social;
 
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
+import com.fleencorp.feen.mapper.contact.ContactMapper;
 import com.fleencorp.feen.model.domain.social.Contact;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.contact.AddContactDto;
 import com.fleencorp.feen.model.dto.social.contact.UpdateContactDto;
+import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.model.request.search.social.ContactSearchRequest;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.response.social.contact.AddContactResponse;
@@ -11,20 +14,19 @@ import com.fleencorp.feen.model.response.social.contact.ContactResponse;
 import com.fleencorp.feen.model.response.social.contact.DeleteContactResponse;
 import com.fleencorp.feen.model.response.social.contact.UpdateContactResponse;
 import com.fleencorp.feen.model.search.contact.ContactSearchResult;
-import com.fleencorp.feen.model.search.contact.EmptyContactSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.ContactRepository;
+import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.social.BlockUserService;
 import com.fleencorp.feen.service.social.ContactService;
+import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactResponse;
-import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactResponses;
 
 /**
  * Implementation of the {@link ContactService} interface for managing contacts.
@@ -39,7 +41,11 @@ import static com.fleencorp.feen.mapper.impl.other.ContactMapper.toContactRespon
 @Service
 public class ContactServiceImpl implements ContactService {
 
+  private final ChatSpaceService chatSpaceService;
+  private final BlockUserService blockUserService;
+  private final StreamService streamService;
   private final ContactRepository contactRepository;
+  private final ContactMapper contactMapper;
   private final Localizer localizer;
 
   /**
@@ -48,9 +54,17 @@ public class ContactServiceImpl implements ContactService {
    * @param contactRepository the repository for performing CRUD operations on Contact entities.
    */
   public ContactServiceImpl(
+      final ChatSpaceService chatSpaceService,
+      final BlockUserService blockUserService,
+      final StreamService streamService,
       final ContactRepository contactRepository,
+      final ContactMapper contactMapper,
       final Localizer localizer) {
+    this.chatSpaceService = chatSpaceService;
+    this.blockUserService = blockUserService;
+    this.streamService = streamService;
     this.contactRepository = contactRepository;
+    this.contactMapper = contactMapper;
     this.localizer = localizer;
   }
 
@@ -70,13 +84,11 @@ public class ContactServiceImpl implements ContactService {
     // Retrieve a page of contacts owned by the user according to the search request
     final Page<Contact> page = contactRepository.findByOwner(user.toMember(), searchRequest.getPage());
     // Convert the retrieved contacts into a list of contact responses
-    final List<ContactResponse> views = toContactResponses(page.getContent());
+    final List<ContactResponse> contactResponses = contactMapper.toContactResponses(page.getContent());
+    // Create the search result
+    final ContactSearchResult contactSearchResult = ContactSearchResult.of(toSearchResult(contactResponses, page));
     // Return a search result view with the contact responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ContactSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyContactSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(contactSearchResult);
   }
 
   /**
@@ -105,8 +117,12 @@ public class ContactServiceImpl implements ContactService {
 
     // Save the contact to the repository
     contactRepository.save(contact);
+    // Convert the contact to a  response
+    final ContactResponse contactResponse = contactMapper.toContactResponse(contact);
+    // Create the response
+    final AddContactResponse addContactResponse = AddContactResponse.of(contactResponse);
     // Convert the contact to a response object and return it
-    return localizer.of(AddContactResponse.of(toContactResponse(contact)));
+    return localizer.of(addContactResponse);
   }
 
   /**
@@ -135,8 +151,12 @@ public class ContactServiceImpl implements ContactService {
 
     // Save the updated contact to the repository
     contactRepository.save(contact);
+    // Convert the contact to a  response
+    final ContactResponse contactResponse = contactMapper.toContactResponse(contact);
+    // Create the response
+    final UpdateContactResponse updateContactResponse = UpdateContactResponse.of(contactResponse);
     // Convert the contact to a response object and return it
-    return localizer.of(UpdateContactResponse.of(toContactResponse(contact)));
+    return localizer.of(updateContactResponse);
   }
 
   /**
@@ -179,4 +199,16 @@ public class ContactServiceImpl implements ContactService {
     // Return a response object indicating successful deletion
     return localizer.of(DeleteResponse.of());
   }
+
+  @Override
+  public ContactRequestEligibilityInfo checkContactRequestEligibility(final Member viewer, final Member target) {
+    final boolean attendedStreamTogether = streamService.existsByAttendees(viewer, target);
+    final boolean inSameChatSpace = chatSpaceService.existsByMembers(viewer, target);
+    final boolean isBlocked = blockUserService.existsByInitiatorAndRecipient(viewer, target);
+    final boolean hasContacts = contactRepository.countByOwner(target) > 0;
+
+    final boolean eligible = (attendedStreamTogether || inSameChatSpace) && !isBlocked && hasContacts;
+    return contactMapper.toEligibilityInfo(eligible);
+  }
+
 }

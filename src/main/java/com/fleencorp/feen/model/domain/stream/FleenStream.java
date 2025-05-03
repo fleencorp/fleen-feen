@@ -151,7 +151,7 @@ public class FleenStream extends FleenFeenEntity {
   private Long totalSpeakers = 0L;
 
   public boolean isForKids() {
-    return nonNull(forKids);
+    return nonNull(forKids) && forKids;
   }
 
   public String getExternalSpaceIdOrName() {

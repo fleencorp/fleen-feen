@@ -222,7 +222,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return true if the attendee is attending, false otherwise.
    */
   public boolean isAttending() {
-    return attending;
+    return nonNull(attending) && attending;
   }
 
   /**
@@ -231,7 +231,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return true if the attendee is a speaker, false otherwise.
    */
   public boolean isASpeaker() {
-    return aSpeaker;
+    return nonNull(aSpeaker) && aSpeaker;
   }
 
   /**
@@ -240,7 +240,7 @@ public class StreamAttendee extends FleenFeenEntity {
    * @return true if the attendee is the organize of the stream, false otherwise.
    */
   public boolean isOrganizer() {
-    return isOrganizer;
+    return nonNull(isOrganizer) && isOrganizer;
   }
 
   public static StreamAttendee of(final String attendeeId) {
