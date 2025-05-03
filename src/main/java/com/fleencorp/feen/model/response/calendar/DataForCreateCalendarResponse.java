@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 
 @Getter
@@ -28,14 +28,14 @@ public class DataForCreateCalendarResponse extends ApiResponse {
   private Set<String> timezones;
 
   @JsonProperty("countries")
-  private List<?> countries;
+  private Collection<?> countries;
 
   @Override
   public String getMessageCode() {
     return "data.for.create.calendar";
   }
 
-  public static DataForCreateCalendarResponse of(final Set<String> timezones, final List<?> countries) {
+  public static DataForCreateCalendarResponse of(final Set<String> timezones, final Collection<?> countries) {
     return new DataForCreateCalendarResponse(timezones, countries);
   }
 }

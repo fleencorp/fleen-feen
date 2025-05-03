@@ -10,7 +10,9 @@ import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeExceptio
 import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
 import com.fleencorp.feen.exception.verification.VerificationFailedException;
 import com.fleencorp.feen.model.dto.user.profile.*;
-import com.fleencorp.feen.model.response.user.profile.*;
+import com.fleencorp.feen.model.response.user.profile.RemoveProfilePhotoResponse;
+import com.fleencorp.feen.model.response.user.profile.SendUpdateEmailOrPhoneVerificationCodeResponse;
+import com.fleencorp.feen.model.response.user.profile.update.*;
 import com.fleencorp.feen.model.security.FleenUser;
 
 

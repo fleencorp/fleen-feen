@@ -23,15 +23,12 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 import static java.util.Objects.nonNull;
 
@@ -47,11 +44,10 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public class CommonMapperImpl implements CommonMapper {
+public class CommonMapperImpl extends BaseMapper implements CommonMapper {
 
   private final StreamMapper streamMapper;
   private final ToInfoMapper toInfoMapper;
-  private final MessageSource messageSource;
 
   /**
    * Constructs a new instance of {@link CommonMapperImpl} with the specified dependencies.
@@ -66,25 +62,9 @@ public class CommonMapperImpl implements CommonMapper {
       @Lazy final StreamMapper streamMapper,
       final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
+    super(messageSource);
     this.streamMapper = streamMapper;
     this.toInfoMapper = toInfoMapper;
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Translates the provided message code into a localized message based on the current locale.
-   *
-   * <p>This method retrieves the current locale from the {@link LocaleContextHolder}, and then uses the
-   * {@link MessageSource} to resolve the message corresponding to the provided {@code messageCode}.
-   * The method returns the translated message string for the current locale. If the message code cannot be found,
-   * the method may return the default message or throw an exception based on the configuration of the {@link MessageSource}.</p>
-   *
-   * @param messageCode The code representing the message to be translated.
-   * @return The localized message corresponding to the {@code messageCode} for the current locale.
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
   }
 
   /**
@@ -220,14 +200,14 @@ public class CommonMapperImpl implements CommonMapper {
    *
    * If the attendee does not exist, the method returns null.
    *
-   * @param stream The {@link FleenStreamResponse} containing the stream details.
+   * @param stream The {@link StreamResponse} containing the stream details.
    * @param attendee the {@link StreamAttendee} of the stream
    *
    * @return A {@link ProcessAttendeeRequestToJoinStreamResponse} populated with stream details
    *         and the request to join status if the attendee exists, or null if no attendee is found.
    */
   @Override
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final FleenStreamResponse stream, final StreamAttendee attendee) {
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final StreamResponse stream, final StreamAttendee attendee) {
     if (nonNull(stream) && nonNull(attendee)) {
       // Get the request-to-join status of the attendee
       final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();

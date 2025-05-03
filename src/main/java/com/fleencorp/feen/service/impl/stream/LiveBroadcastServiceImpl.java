@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.CreateLiveBroadcastRequest;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -147,7 +147,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response of the created stream

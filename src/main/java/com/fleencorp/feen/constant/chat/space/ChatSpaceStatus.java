@@ -20,7 +20,7 @@ public enum ChatSpaceStatus implements ApiParameter {
     "chat.space.status.active.2", 
     "chat.space.status.active.3",
     "chat.space.status.active.4",
-    "chat.space.status.active.5"),
+    "chat.space.status.active.otherText"),
   
   INACTIVE(
     "Inactive", 
@@ -28,7 +28,7 @@ public enum ChatSpaceStatus implements ApiParameter {
     "chat.space.status.inactive.2", 
     "chat.space.status.inactive.3",
     "chat.space.status.inactive.4",
-    "chat.space.status.inactive.5");
+    "chat.space.status.inactive.otherText");
 
   private final String value;
   private final String messageCode;

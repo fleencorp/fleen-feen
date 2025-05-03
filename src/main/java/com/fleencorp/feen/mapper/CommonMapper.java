@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.info.security.MfaTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 
@@ -28,7 +28,7 @@ public interface CommonMapper {
 
   void setVerificationType(SignUpResponse signUpResponse, VerificationType verificationType);
 
-  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(FleenStreamResponse stream, StreamAttendee existingAttendee);
+  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, StreamAttendee existingAttendee);
 
   IsDeletedInfo toIsDeletedInfo(boolean deleted);
 

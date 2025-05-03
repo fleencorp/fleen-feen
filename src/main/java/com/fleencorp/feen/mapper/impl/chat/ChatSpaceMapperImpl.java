@@ -8,6 +8,7 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
@@ -19,11 +20,9 @@ import com.fleencorp.feen.model.info.chat.space.membership.*;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -41,11 +40,10 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public class ChatSpaceMapperImpl implements ChatSpaceMapper {
+public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
   private final CommonMapper commonMapper;
-  private final MessageSource messageSource;
 
   /**
    * Constructs a {@code ChatSpaceMapper} with the specified {@link MessageSource}.
@@ -61,23 +59,9 @@ public class ChatSpaceMapperImpl implements ChatSpaceMapper {
       final ChatSpaceMemberMapper chatSpaceMemberMapper,
       final CommonMapper commonMapper,
       final MessageSource messageSource) {
+    super(messageSource);
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
     this.commonMapper = commonMapper;
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Translates a message code into a localized message based on the current locale.
-   *
-   * <p>This method retrieves a message from the {@link MessageSource} using the provided
-   * message code and the locale obtained from {@link LocaleContextHolder}.</p>
-   *
-   * @param messageCode the code of the message to be translated; must not be {@code null}.
-   * @return the localized message corresponding to the given message code.
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
   }
 
   /**

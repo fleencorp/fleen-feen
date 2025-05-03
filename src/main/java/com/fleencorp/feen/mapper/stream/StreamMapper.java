@@ -10,21 +10,21 @@ import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 
 import java.util.List;
 
 public interface StreamMapper {
 
-  FleenStreamResponse toStreamResponse(FleenStream entry);
+  StreamResponse toStreamResponse(FleenStream entry);
 
-  FleenStreamResponse toStreamResponseByAdminUpdate(FleenStream entry);
+  StreamResponse toStreamResponseByAdminUpdate(FleenStream entry);
 
-  FleenStreamResponse toFleenStreamResponseNoJoinStatus(FleenStream entry);
+  StreamResponse toStreamResponseNoJoinStatus(FleenStream entry);
 
-  List<FleenStreamResponse> toStreamResponses(List<FleenStream> entries);
+  List<StreamResponse> toStreamResponses(List<FleenStream> entries);
 
-  List<FleenStreamResponse> toFleenStreamResponsesNoJoinStatus(List<FleenStream> entries);
+  List<StreamResponse> toStreamResponsesNoJoinStatus(List<FleenStream> entries);
 
   StreamStatusInfo toStreamStatusInfo(StreamStatus streamStatus);
 
@@ -34,5 +34,5 @@ public interface StreamMapper {
 
   StreamTypeInfo toStreamTypeInfo(StreamType streamType);
 
-  void update(FleenStreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, boolean isAttending, boolean isASpeaker);
+  void update(StreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, JoinStatus joinStatus, boolean isAttending, boolean isASpeaker);
 }

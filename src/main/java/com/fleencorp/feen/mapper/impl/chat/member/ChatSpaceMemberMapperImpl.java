@@ -8,6 +8,7 @@ import com.fleencorp.feen.constant.chat.space.membership.IsChatSpaceMemberLeft;
 import com.fleencorp.feen.constant.chat.space.membership.IsChatSpaceMemberRemoved;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
@@ -17,11 +18,9 @@ import com.fleencorp.feen.model.info.chat.space.membership.*;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -41,29 +40,15 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public class ChatSpaceMemberMapperImpl implements ChatSpaceMemberMapper {
-
-  private final MessageSource messageSource;
+public class ChatSpaceMemberMapperImpl extends BaseMapper implements ChatSpaceMemberMapper {
 
   /**
    * Constructor for the ChatSpaceMemberMapper class.
    *
    * @param messageSource the MessageSource used for message translation
    */
-  public ChatSpaceMemberMapperImpl(
-      final MessageSource messageSource) {
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Translates a message code into a localized message based on the current locale.
-   *
-   * @param messageCode the message code to be translated
-   * @return the localized message corresponding to the given message code
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
+  public ChatSpaceMemberMapperImpl(final MessageSource messageSource) {
+    super(messageSource);
   }
 
   /**

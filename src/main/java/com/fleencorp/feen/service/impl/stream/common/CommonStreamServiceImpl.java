@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
@@ -27,7 +27,7 @@ import com.fleencorp.feen.model.request.youtube.broadcast.DeleteLiveBroadcastReq
 import com.fleencorp.feen.model.request.youtube.broadcast.RescheduleLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastRequest;
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastVisibilityRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamRepository;
@@ -110,7 +110,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @return DeleteStreamResponse  a response object indicating the result of the deletion, including the stream type
    *                              and whether the stream was successfully deleted
    *
-   * @throws FleenStreamNotFoundException              if the stream with the given ID is not found
+   * @throws StreamNotFoundException              if the stream with the given ID is not found
    * @throws CalendarNotFoundException                 if the calendar associated with the event is not found
    * @throws StreamNotCreatedByUserException           if the user is not the creator of the stream
    * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be deleted
@@ -119,7 +119,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Override
   @Transactional
   public DeleteStreamResponse deleteStream(final Long streamId, final DeleteStreamDto deleteStreamDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+      throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
@@ -219,7 +219,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @param cancelStreamDto    the DTO containing details about the stream cancellation request
    * @param user              the user requesting the cancellation; must be the creator of the stream
    * @return                  a localized response object containing details about the canceled stream
-   * @throws FleenStreamNotFoundException          if the stream with the provided ID is not found
+   * @throws StreamNotFoundException          if the stream with the provided ID is not found
    * @throws CalendarNotFoundException             if the associated calendar for an event stream is not found
    * @throws StreamNotCreatedByUserException       if the user is not the creator of the stream
    * @throws StreamAlreadyHappenedException        if the stream has already taken place
@@ -230,7 +230,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Transactional
   @Override
   public CancelStreamResponse cancelStream(final Long streamId, final CancelStreamDto cancelStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
       FailedOperationException {
     // Find the stream by its ID
@@ -320,7 +320,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @param rescheduleStreamDto    the DTO containing the new schedule details for the stream
    * @param user                  the user requesting the rescheduling; must be the creator of the stream
    * @return                      a localized response object containing details about the rescheduled stream
-   * @throws FleenStreamNotFoundException          if the stream with the provided ID is not found
+   * @throws StreamNotFoundException          if the stream with the provided ID is not found
    * @throws CalendarNotFoundException             if the associated calendar for an event stream is not found
    * @throws StreamNotCreatedByUserException       if the user is not the creator of the stream
    * @throws StreamAlreadyHappenedException        if the stream has already taken place and cannot be rescheduled
@@ -330,7 +330,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Override
   @Transactional
   public RescheduleStreamResponse rescheduleStream(final Long streamId, final RescheduleStreamDto rescheduleStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
+    throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
@@ -360,7 +360,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Reschedule the stream externally
     rescheduleStreamExternally(rescheduleStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response
@@ -432,7 +432,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @return                   a localized response containing the updated stream details
    * @throws CalendarNotFoundException if the calendar associated with the stream is not found
    * @throws Oauth2InvalidAuthorizationException if OAuth2 authorization for the live stream is invalid
-   * @throws FleenStreamNotFoundException if the stream to be updated is not found
+   * @throws StreamNotFoundException if the stream to be updated is not found
    * @throws StreamNotCreatedByUserException if the user attempting to update the stream is not its creator
    * @throws StreamAlreadyHappenedException if the stream has already occurred and cannot be updated
    * @throws StreamAlreadyCanceledException if the stream has been canceled and cannot be updated
@@ -441,7 +441,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Override
   @Transactional
   public UpdateStreamResponse updateStream(final Long streamId, final UpdateStreamDto updateStreamDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
+    throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       FailedOperationException {
     // Find the stream by its ID
@@ -473,7 +473,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Patch or update the stream externally
     patchStreamExternally(patchStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response
@@ -493,7 +493,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @param updateStreamOtherDetailDto The DTO containing the new details to apply to the stream.
    * @param user The user requesting the update.
    * @return A localized response containing the updated stream information.
-   * @throws FleenStreamNotFoundException If no stream exists for the given ID.
+   * @throws StreamNotFoundException If no stream exists for the given ID.
    * @throws CalendarNotFoundException If the corresponding calendar could not be found.
    * @throws Oauth2InvalidAuthorizationException If the user's OAuth2 authorization is invalid.
    * @throws StreamNotCreatedByUserException If the user is not the creator of the stream.
@@ -502,7 +502,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @throws FailedOperationException If any step in the update process fails.
    */
   @Override
-  public UpdateStreamResponse updateStreamOtherDetails(Long streamId, UpdateStreamOtherDetailDto updateStreamOtherDetailDto, FleenUser user) throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
+  public UpdateStreamResponse updateStreamOtherDetails(final Long streamId, final UpdateStreamOtherDetailDto updateStreamOtherDetailDto, final FleenUser user) throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
     FleenStream stream = streamService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
@@ -519,7 +519,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     // Save the updated stream to the repository
     stream = streamRepository.save(stream);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toFleenStreamResponseNoJoinStatus(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response
@@ -593,7 +593,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @param updateStreamVisibilityDto  the DTO containing the new visibility status for the stream
    * @param user                      the user making the update request; must be the creator of the stream
    * @return                          a localized response object containing details about the updated stream visibility
-   * @throws FleenStreamNotFoundException              if the stream with the specified ID cannot be found
+   * @throws StreamNotFoundException              if the stream with the specified ID cannot be found
    * @throws CalendarNotFoundException                 if a calendar associated with the user's country is not found
    * @throws Oauth2InvalidAuthorizationException       if OAuth2 authorization is invalid or has expired
    * @throws StreamNotCreatedByUserException           if the user is not the creator of the stream
@@ -605,7 +605,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Override
   @Transactional
   public UpdateStreamVisibilityResponse updateStreamVisibility(final Long streamId, final UpdateStreamVisibilityDto updateStreamVisibilityDto, final FleenUser user)
-    throws FleenStreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
+    throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID

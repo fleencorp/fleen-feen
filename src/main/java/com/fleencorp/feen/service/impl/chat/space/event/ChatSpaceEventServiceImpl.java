@@ -12,7 +12,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -101,7 +101,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    * Retrieves a paginated list of events (streams) within a specific chat space.
    *
    * <p>This method searches for streams associated with the provided {@code chatSpaceId}
-   * and converts them into {@link FleenStreamResponse} views.</p>
+   * and converts them into {@link StreamResponse} views.</p>
    *
    * @param chatSpaceId the ID of the chat space to find events for.
    * @param searchRequest the search request containing pagination details.
@@ -114,7 +114,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Find events or streams based on the search request
     final Page<FleenStream> page = streamRepository.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
     // Get the list of event or stream views from the search result
-    final List<FleenStreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Determine statuses like schedule, join status, schedules and timezones
     streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(streamResponses, user);
     // Set the attendees and total attendee count for each event or stream
@@ -176,7 +176,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Create the event in Google Calendar and announce it in the chat space
     createEventExternally(stream, createCalendarEventRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response

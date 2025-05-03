@@ -18,13 +18,40 @@ public interface UserProfileRepository extends JpaRepository<Member, Long> {
   @Query("UPDATE Member m SET m.profileStatus = :profileStatus  WHERE m = :member")
   void updateProfileStatus(@Param("member") Member member, @Param("profileStatus") ProfileStatus profileStatus);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.member.MemberInfoSelect(m.memberId, m.firstName, m.lastName, m.profilePhotoUrl, m.country) FROM Member m WHERE m = :member")
+  @Query(value = """
+    SELECT new com.fleencorp.feen.model.projection.member.MemberInfoSelect(
+      m.memberId,
+      m.firstName,
+      m.lastName,
+      m.profilePhotoUrl,
+      m.country
+    )
+    FROM Member m
+    WHERE m = :member
+  """)
   Optional<MemberInfoSelect> findInfoByMember(@Param("member") Member member);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.member.MemberUpdateSelect(m.memberId, m.firstName, m.lastName, m.emailAddress, m.phoneNumber, m.country) FROM Member m WHERE m = :member")
+  @Query(value = """
+    SELECT new com.fleencorp.feen.model.projection.member.MemberUpdateSelect(
+      m.memberId,
+      m.firstName,
+      m.lastName,
+      m.emailAddress,
+      m.phoneNumber,
+      m.country
+    )
+    FROM Member m
+    WHERE m = :member
+  """)
   Optional<MemberUpdateSelect> findByMember(@Param("member") Member member);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect(m.profileStatus) FROM Member m WHERE m = :member")
+  @Query(value = """
+    SELECT new com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect(
+      m.profileStatus
+    )
+    FROM Member m
+    WHERE m = :member
+  """)
   Optional<MemberProfileStatusSelect> findStatusByMember(@Param("member") Member member);
 
   @Modifying

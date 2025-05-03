@@ -11,7 +11,7 @@ import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import org.springframework.stereotype.Component;
 
@@ -105,7 +105,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    * @return the populated {@code StreamAttendeeResponse} with attendance information, or {@code null} if the input {@code StreamAttendee} is {@code null}
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -139,7 +139,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    *         attendance and organizer info, or {@code null} if the entry is null
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -169,7 +169,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    * @param streamResponse the response details for the stream
    * @return the complete attendance information for the stream attendee
    */
-  private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final StreamResponse streamResponse) {
     // Convert the attendee's request to join status to a response-friendly format
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toInfoMapper.toRequestToJoinStatus(entry.getRequestToJoinStatus());
     // Determine the join status info based on the stream and attendee details

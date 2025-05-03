@@ -24,9 +24,15 @@ public class Follower extends FleenFeenEntity {
   @Column(name = "follower_id", nullable = false, updatable = false, unique = true)
   private Long followerId;
 
+  @Column(name = "following_id", nullable = false, updatable = false, insertable = false)
+  private Long followingId;
+
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "following_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member following;
+
+  @Column(name = "followed_id", nullable = false, updatable = false, insertable = false)
+  private Long followedId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "followed_id", referencedColumnName = "member_id", nullable = false, updatable = false)

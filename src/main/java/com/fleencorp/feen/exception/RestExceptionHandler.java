@@ -33,7 +33,7 @@ import com.fleencorp.feen.exception.security.mfa.MfaVerificationFailed;
 import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException;
 import com.fleencorp.feen.exception.social.*;
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
 import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
@@ -264,7 +264,7 @@ public class RestExceptionHandler {
     ChatSpaceMemberNotFoundException.class,
     ContactNotFoundException.class,
     CountryNotFoundException.class,
-    FleenStreamNotFoundException.class,
+    StreamNotFoundException.class,
     MemberNotFoundException.class,
     NotificationNotFoundException.class,
     ObjectNotFoundException.class,
