@@ -591,7 +591,7 @@ class FleenStreamTest {
     final FleenStream stream = new FleenStream();
 
     // then
-    assertFalse(stream.getForKids());
+    assertFalse(stream.isForKids());
   }
 
   @Test
@@ -611,7 +611,7 @@ class FleenStreamTest {
     final FleenStream stream = new FleenStream();
 
     // then
-    assertTrue(stream.isForKids());
+    assertTrue(stream.getForKids());
   }
 
   @Test
