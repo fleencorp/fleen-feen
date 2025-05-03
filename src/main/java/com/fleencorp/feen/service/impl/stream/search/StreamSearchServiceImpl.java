@@ -22,7 +22,7 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedBy
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.repository.stream.UserStreamRepository;
 import com.fleencorp.feen.service.review.ReviewService;

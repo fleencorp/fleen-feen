@@ -80,7 +80,7 @@ public interface StreamParticipationRepository extends JpaRepository<FleenStream
   @Query(value =
     """
     SELECT fs FROM FleenStream fs
-    WHERE fs.member.memberId = :memberId
+    WHERE fs.memberId = :memberId
       AND fs.deleted = false
       AND fs.streamStatus IN (:includedStatuses)
     ORDER BY fs.scheduledStartDate DESC
@@ -89,7 +89,4 @@ public interface StreamParticipationRepository extends JpaRepository<FleenStream
     @Param("memberId") Long memberId,
     @Param("includedStatuses") Collection<StreamStatus> includedStatuses,
     Pageable pageable);
-
-  @Query("SELECT 1 FROM FleenStream fs JOIN fs.attendees a WHERE fs.streamId = :streamId AND a.memberId IN (:viewerId, :targetId)")
-  boolean existsByAttendees(@Param("viewerId") Long viewerId, @Param("targetId") Long targetId);
 }

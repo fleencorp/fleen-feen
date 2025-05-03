@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.stream;
+package com.fleencorp.feen.repository.stream.attendee;
 
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;

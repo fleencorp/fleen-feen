@@ -24,9 +24,10 @@ import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceParticipationRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
+import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberParticipationRepository;
+import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.localizer.service.Localizer;
@@ -55,6 +56,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
+  private final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository;
   private final ChatSpaceRepository chatSpaceRepository;
   private final ChatSpaceParticipationRepository chatSpaceParticipationRepository;
   private final ChatSpaceMapper chatSpaceMapper;
@@ -68,17 +70,19 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * chat spaces, including repositories, mappers, and various utility services. It also injects
    * configuration values like the delegated authority email.</p>
    *
-   * @param chatSpaceUpdateService handles updates to chat spaces.
-   * @param chatSpaceMemberRepository repository for managing chat space members.
-   * @param chatSpaceRepository repository for chat space entities.
+   * @param chatSpaceUpdateService handles updates to chat spaces
+   * @param chatSpaceMemberRepository repository for managing chat space members
+   * @param chatSpaceMemberParticipationRepository repository for managing chat space members participation
+   * @param chatSpaceRepository repository for chat space entities
    * @param chatSpaceParticipationRepository repository for finding participation of users in chat space
-   * @param chatSpaceMapper maps chat space entities to response models.
+   * @param chatSpaceMapper maps chat space entities to response models
    * @param commonMapper a service for creating info data and their localized text
    * @param localizer provides localized responses for API operations.
    */
   public ChatSpaceServiceImpl(
       final ChatSpaceUpdateService chatSpaceUpdateService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
+      final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository,
       final ChatSpaceRepository chatSpaceRepository,
       final ChatSpaceParticipationRepository chatSpaceParticipationRepository,
       final ChatSpaceMapper chatSpaceMapper,
@@ -87,6 +91,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
+    this.chatSpaceMemberParticipationRepository = chatSpaceMemberParticipationRepository;
     this.chatSpaceParticipationRepository = chatSpaceParticipationRepository;
     this.localizer = localizer;
     this.chatSpaceMapper = chatSpaceMapper;
@@ -516,8 +521,18 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     chatSpaceRepository.incrementTotalMembers(chatSpace.getChatSpaceId());
   }
 
+  /**
+   * Checks whether both the viewer and the target member are participants in the same chat space.
+   *
+   * <p>This method delegates to the {@code chatSpaceMemberParticipationRepository} to verify if both members
+   * are part of the same chat space.</p>
+   *
+   * @param viewer the member initiating the profile view or request
+   * @param target the target member being viewed or evaluated
+   * @return {@code true} if both members are participants in the same chat space, {@code false} otherwise
+   */
   @Override
   public boolean existsByMembers(final Member viewer, final Member target) {
-    return chatSpaceParticipationRepository.existsByMembers(viewer.getMemberId(), target.getMemberId());
+    return chatSpaceMemberParticipationRepository.existsByMembers(viewer.getMemberId(), target.getMemberId());
   }
 }

@@ -39,7 +39,7 @@ public interface ChatSpaceParticipationRepository extends JpaRepository<ChatSpac
       AND EXISTS (
         SELECT 1 FROM ChatSpaceMember csm1
         WHERE csm1.chatSpace = cs
-          AND csm1.member.memberId = :memberAId
+          AND csm1.memberId = :memberAId
           AND csm1.requestToJoinStatus IN (:approvedStatuses)
           AND csm1.left = false
           AND csm1.removed = false
@@ -47,7 +47,7 @@ public interface ChatSpaceParticipationRepository extends JpaRepository<ChatSpac
       AND EXISTS (
         SELECT 1 FROM ChatSpaceMember csm2
         WHERE csm2.chatSpace = cs
-          AND csm2.member.memberId = :memberBId
+          AND csm2.memberId = :memberBId
           AND csm2.requestToJoinStatus IN (:approvedStatuses)
           AND csm2.left = false
           AND csm2.removed = false
@@ -60,8 +60,4 @@ public interface ChatSpaceParticipationRepository extends JpaRepository<ChatSpac
     @Param("approvedStatuses") Collection<ChatSpaceRequestToJoinStatus> approvedStatuses,
     @Param("activeStatuses") Collection<ChatSpaceStatus> activeStatuses,
     Pageable pageable);
-
-
-  @Query("SELECT 1 FROM ChatSpace cs JOIN cs.members m WHERE cs.chatSpaceId = :chatSpaceId AND m.memberId IN (:viewerId, :targetId)")
-  boolean existsByMembers(@Param("viewerId") Long viewerId, @Param("targetId") Long targetId);
 }

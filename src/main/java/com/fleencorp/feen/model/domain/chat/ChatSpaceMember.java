@@ -40,6 +40,9 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @Column(name = "external_id_or_name", length = 1000)
   private String externalIdOrName;
 
+  @Column(name = "chat_space_id", insertable = false, updatable = false)
+  private Long chatSpaceId;
+
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
@@ -389,7 +392,9 @@ public class ChatSpaceMember extends FleenFeenEntity {
 
   public static ChatSpaceMember of(final ChatSpace chatSpace, final Member member) {
     final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
+    chatSpaceMember.setChatSpaceId(chatSpace.getChatSpaceId());
     chatSpaceMember.setChatSpace(chatSpace);
+    chatSpaceMember.setMemberId(member.getMemberId());
     chatSpaceMember.setMember(member);
     chatSpaceMember.setRole(ChatSpaceMemberRole.MEMBER);
 
@@ -398,7 +403,9 @@ public class ChatSpaceMember extends FleenFeenEntity {
 
   public static ChatSpaceMember ofOrganizer(final ChatSpace chatSpace, final Member member) {
     final ChatSpaceMember chatSpaceMember = new ChatSpaceMember();
+    chatSpaceMember.setChatSpaceId(chatSpace.getChatSpaceId());
     chatSpaceMember.setChatSpace(chatSpace);
+    chatSpaceMember.setMemberId(member.getMemberId());
     chatSpaceMember.setMember(member);
     chatSpaceMember.setRole(ChatSpaceMemberRole.ADMIN);
     chatSpaceMember.approveJoinStatus();

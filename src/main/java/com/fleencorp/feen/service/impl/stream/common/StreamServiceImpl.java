@@ -24,7 +24,8 @@ import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeParticipationRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamParticipationRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.common.MiscService;
@@ -71,6 +72,7 @@ public class StreamServiceImpl implements StreamService {
   private final StreamAttendeeService attendeeService;
   private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
+  private final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository;
   private final StreamParticipationRepository streamParticipationRepository;
   private final StreamMapper streamMapper;
 
@@ -84,6 +86,7 @@ public class StreamServiceImpl implements StreamService {
    * @param attendeeService the service responsible for handling stream attendees
    * @param streamRepository the repository for managing stream data
    * @param streamAttendeeRepository the repository for managing stream attendee data
+   * @param streamAttendeeParticipationRepository the repository for finding attendees participation
    * @param streamParticipationRepository repository for finding participation of users in stream
    * @param streamMapper the mapper for converting stream-related objects to different representations
    */
@@ -93,6 +96,7 @@ public class StreamServiceImpl implements StreamService {
       @Lazy final StreamAttendeeService attendeeService,
       final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
+      final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository,
       final StreamParticipationRepository streamParticipationRepository,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
@@ -100,6 +104,7 @@ public class StreamServiceImpl implements StreamService {
     this.attendeeService = attendeeService;
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
+    this.streamAttendeeParticipationRepository = streamAttendeeParticipationRepository;
     this.streamParticipationRepository = streamParticipationRepository;
     this.streamMapper = streamMapper;
   }
@@ -665,6 +670,6 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   public boolean existsByAttendees(final Member viewer, final Member target) {
-    return streamParticipationRepository.existsByAttendees(viewer.getMemberId(), target.getMemberId());
+    return streamAttendeeParticipationRepository.existsByAttendees(viewer.getMemberId(), target.getMemberId());
   }
 }
