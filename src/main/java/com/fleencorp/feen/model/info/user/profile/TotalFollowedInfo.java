@@ -16,20 +16,20 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "total_followed",
   "total_followed_text",
-  "total_following_text_2"
+  "total_followed_text_2"
 })
 public class TotalFollowedInfo {
 
-  @JsonProperty("total_following")
-  private Long totalFollowing;
+  @JsonProperty("total_followed")
+  private Long totalFollowed;
 
-  @JsonProperty("total_following_text")
-  private String totalFollowingText;
+  @JsonProperty("total_followed_text")
+  private String totalFollowedText;
 
-  @JsonProperty("total_following_text_2")
-  private String totalFollowingText2;
+  @JsonProperty("total_followed_text_2")
+  private String totalFollowedText2;
 
-  public static TotalFollowedInfo of(final Long totalFollowing, final String totalFollowingText, final String totalFollowingText2) {
-    return new TotalFollowedInfo(totalFollowing, totalFollowingText, totalFollowingText2);
+  public static TotalFollowedInfo of(final Long totalFollowed, final String totalFollowedText, final String totalFollowedText2) {
+    return new TotalFollowedInfo(totalFollowed, totalFollowedText, totalFollowedText2);
   }
 }
