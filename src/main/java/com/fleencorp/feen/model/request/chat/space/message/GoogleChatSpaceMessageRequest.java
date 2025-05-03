@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.request.chat.space.message;
 
 import com.fleencorp.feen.constant.chat.space.event.message.CalendarEventChatMessageField;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import lombok.*;
 
 import java.util.List;
@@ -63,12 +63,12 @@ public class GoogleChatSpaceMessageRequest {
    *
    * @param spaceName the name or ID of the Google Chat space where the message will be sent.
    *                  Must conform to the required pattern for space identifiers.
-   * @param stream    the {@link FleenStreamResponse} object containing details about the stream,
+   * @param stream    the {@link StreamResponse} object containing details about the stream,
    *                  including title, description, schedule, and stream link.
    * @return a {@link GoogleChatSpaceMessageRequest} object populated with the provided stream details
    *         and additional metadata for sending a message to the specified chat space.
    */
-  public static GoogleChatSpaceMessageRequest ofEventOrStream(final String spaceName, final FleenStreamResponse stream) {
+  public static GoogleChatSpaceMessageRequest ofEventOrStream(final String spaceName, final StreamResponse stream) {
     return GoogleChatSpaceMessageRequest.builder()
       .spaceIdOrName(getChatSpaceIdOrNameRequiredPattern(spaceName))
       .title(stream.getTitle())

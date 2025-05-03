@@ -21,4 +21,6 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
   Optional<Contact> findByContactIdAndOwner(Long contactId, Member member);
 
   void deleteAllByOwner(Member owner);
+
+  long countByOwner(Member owner);
 }

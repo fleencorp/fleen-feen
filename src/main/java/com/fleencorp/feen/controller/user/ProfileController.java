@@ -1,7 +1,12 @@
 package com.fleencorp.feen.controller.user;
 
 import com.fleencorp.feen.model.dto.user.profile.*;
-import com.fleencorp.feen.model.response.user.profile.*;
+import com.fleencorp.feen.model.response.user.profile.RemoveProfilePhotoResponse;
+import com.fleencorp.feen.model.response.user.profile.SendUpdateEmailOrPhoneVerificationCodeResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberUpdateInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveProfileStatusResponse;
+import com.fleencorp.feen.model.response.user.profile.update.*;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.MemberUpdateService;

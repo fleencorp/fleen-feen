@@ -1,7 +1,6 @@
 package com.fleencorp.feen.mapper.impl.stream.attendee;
 
-import com.fleencorp.feen.mapper.impl.stream.StreamMapperImpl;
-import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -11,8 +10,9 @@ import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import static java.util.Objects.nonNull;
@@ -26,20 +26,14 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
+public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttendeeMapper {
 
-  private final StreamMapper streamMapper;
   private final ToInfoMapper toInfoMapper;
 
-  /**
-   * Constructs a new {@code StreamAttendeeMapper} with the specified dependencies.
-   *
-   * @param streamMapper the {@link StreamMapperImpl} used for mapping stream-related entities
-   */
   public StreamAttendeeMapperImpl(
-      final StreamMapper streamMapper,
-      final ToInfoMapper toInfoMapper) {
-    this.streamMapper = streamMapper;
+      final ToInfoMapper toInfoMapper,
+      final MessageSource messageSource) {
+    super(messageSource);
     this.toInfoMapper = toInfoMapper;
   }
 
@@ -105,7 +99,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    * @return the populated {@code StreamAttendeeResponse} with attendance information, or {@code null} if the input {@code StreamAttendee} is {@code null}
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -139,7 +133,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    *         attendance and organizer info, or {@code null} if the entry is null
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -169,7 +163,7 @@ public class StreamAttendeeMapperImpl implements StreamAttendeeMapper {
    * @param streamResponse the response details for the stream
    * @return the complete attendance information for the stream attendee
    */
-  private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final FleenStreamResponse streamResponse) {
+  private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final StreamResponse streamResponse) {
     // Convert the attendee's request to join status to a response-friendly format
     final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toInfoMapper.toRequestToJoinStatus(entry.getRequestToJoinStatus());
     // Determine the join status info based on the stream and attendee details

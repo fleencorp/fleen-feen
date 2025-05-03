@@ -14,7 +14,9 @@ import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.info.link.LinkTypeInfo;
 import com.fleencorp.feen.model.info.link.MusicLinkTypeInfo;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.*;
+import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.base.LinkResponse;
@@ -158,7 +160,7 @@ public class LinkServiceImpl implements LinkService {
     // Update the page size to 1000 for the search request
     searchRequest.updatePageSize(1000);
     // Initialize an empty page of links
-    Page<Link> page;
+    final Page<Link> page;
     // Initialize an empty link search result
     LinkSearchResult searchResult = LinkSearchResult.empty();
 

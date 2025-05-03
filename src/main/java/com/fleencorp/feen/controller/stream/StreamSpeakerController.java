@@ -3,7 +3,7 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
@@ -46,7 +46,7 @@ public class StreamSpeakerController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID or search parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -71,7 +71,7 @@ public class StreamSpeakerController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID or search parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -98,7 +98,7 @@ public class StreamSpeakerController {
     @ApiResponse(responseCode = "403", description = "User not authorized to manage speakers",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -125,7 +125,7 @@ public class StreamSpeakerController {
     @ApiResponse(responseCode = "403", description = "User not authorized to manage speakers",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -155,7 +155,7 @@ public class StreamSpeakerController {
         OrganizerOfStreamCannotBeRemovedAsSpeakerException.class
       }))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

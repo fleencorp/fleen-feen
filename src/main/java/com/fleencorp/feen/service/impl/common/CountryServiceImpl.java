@@ -1,14 +1,14 @@
 package com.fleencorp.feen.service.impl.common;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
-import com.fleencorp.feen.mapper.impl.other.CountryMapper;
+import com.fleencorp.feen.mapper.other.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;
 import com.fleencorp.feen.model.response.other.CountAllResponse;
 import com.fleencorp.feen.model.search.country.CountrySearchResult;
-import com.fleencorp.feen.model.search.country.EmptyCountrySearchResult;
 import com.fleencorp.feen.repository.common.CountryRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
@@ -24,10 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.impl.other.CountryMapper.toCountryResponse;
-import static com.fleencorp.feen.mapper.impl.other.CountryMapper.toCountryResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -47,6 +44,7 @@ public class CountryServiceImpl implements CountryService {
 
   private final CountryRepository repository;
   private final CacheService cacheService;
+  private final CountryMapper countryMapper;
   private final Localizer localizer;
 
   /**
@@ -61,14 +59,17 @@ public class CountryServiceImpl implements CountryService {
    *
    * @param repository the {@link CountryRepository} used for country data retrieval and management
    * @param cacheService the service for caching country data
+   * @param countryMapper mapper for mapping country related info
    * @param localizer the service for creating localized responses
    */
   public CountryServiceImpl(
       final CountryRepository repository,
       final CacheService cacheService,
+      final CountryMapper countryMapper,
       final Localizer localizer) {
     this.repository = repository;
     this.cacheService = cacheService;
+    this.countryMapper = countryMapper;
     this.localizer = localizer;
   }
 
@@ -83,13 +84,13 @@ public class CountryServiceImpl implements CountryService {
     // Retrieve a page of Country entities based on the search request.
     final Page<Country> page = repository.findMany(searchRequest.getPage());
     // Convert the list of Country entities to a list of CountryResponse views.
-    final List<CountryResponse> views = toCountryResponses(page.getContent());
+    final List<CountryResponse> countryResponses = countryMapper.toCountryResponses(page.getContent());
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(countryResponses, page);
+    // Create the search result
+    final CountrySearchResult countrySearchResult = CountrySearchResult.of(searchResultView);
     // Return a search result view with the country responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(CountrySearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyCountrySearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(countrySearchResult);
   }
 
   /**
@@ -107,8 +108,10 @@ public class CountryServiceImpl implements CountryService {
     // Find country based on ID or throw an exception if it can't be found
     final Country country = repository.findById(countryId)
       .orElseThrow(CountryNotFoundException.of(countryId));
+    // Create the response
+    final CountryResponse countryResponse = countryMapper.toCountryResponse(country);
     // Return a localized response containing details of country
-    return localizer.of(RetrieveCountryResponse.of(toCountryResponse(country)));
+    return localizer.of(RetrieveCountryResponse.of(countryResponse));
   }
 
   /**
@@ -165,7 +168,7 @@ public class CountryServiceImpl implements CountryService {
    * @return A {@link List} of {@link CountryResponse} objects representing all countries.
    */
   private List<CountryResponse> getCountries() {
-    return CountryMapper.toCountryResponses(repository.findAll());
+    return countryMapper.toCountryResponses(repository.findAll());
   }
 
   /**

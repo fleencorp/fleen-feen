@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
 import com.fleencorp.feen.model.request.calendar.event.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -172,7 +172,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createEventExternally(createStreamRequest);
     // Increment attendee count because of creator or organizer of event
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
@@ -270,7 +270,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createInstantEventExternally(createInstantStreamRequest);
     // Get the stream response
-    final FleenStreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response

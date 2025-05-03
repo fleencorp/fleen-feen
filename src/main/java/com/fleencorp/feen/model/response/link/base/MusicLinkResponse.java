@@ -27,7 +27,7 @@ public class MusicLinkResponse {
   @JsonProperty("link_type")
   private MusicLinkTypeInfo linkType;
 
-  public static MusicLinkResponse of(String url, MusicLinkTypeInfo linkTypeInfo) {
+  public static MusicLinkResponse of(final String url, final MusicLinkTypeInfo linkTypeInfo) {
     return new MusicLinkResponse(url, linkTypeInfo);
   }
 }

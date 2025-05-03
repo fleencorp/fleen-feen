@@ -1,8 +1,9 @@
 package com.fleencorp.feen.service.impl.stream.speaker;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
@@ -25,7 +26,6 @@ import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
-import com.fleencorp.feen.model.search.stream.speaker.EmptyStreamSpeakerSearchResult;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsTrue;
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus.*;
 import static java.util.Objects.nonNull;
@@ -120,13 +119,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Retrieve a paginated list of Member entities matching the search criteria
     final Page<StreamAttendeeInfoSelect> page = streamAttendeeRepository.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
+    final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(speakerResponses, page);
+    // Create the search result
+    final StreamSpeakerSearchResult searchResult = StreamSpeakerSearchResult.of(searchResultView);
     // Return a search result view with the speaker responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -155,13 +154,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Filter out the organizer using a separate method
     final List<StreamSpeaker> filteredSpeakers = filterOutOrganizer(page.getContent(), stream.getOrganizerId());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
-    // Return a localized response containing the list of speaker responses
-    return handleSearchResult(
-      page,
-      localizer.of(StreamSpeakerSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyStreamSpeakerSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(speakerResponses, page);
+    // Create the search result
+    final StreamSpeakerSearchResult searchResult = StreamSpeakerSearchResult.of(searchResultView);
+    // Return a search result view with the speaker responses and pagination details
+    return localizer.of(searchResult);
   }
 
   /**
@@ -179,14 +178,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param dto the {@code MarkAsStreamSpeakerDto} containing the speakers' information
    * @param user the {@code FleenUser} who must be the organizer of the stream
    * @return a localized {@code MarkAsStreamSpeakerResponse} indicating the success of the operation
-   * @throws FleenStreamNotFoundException if the stream with the specified ID cannot be found
+   * @throws StreamNotFoundException if the stream with the specified ID cannot be found
    * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
    * @throws FailedOperationException if the attendee IDs associated with the speakers are invalid
    */
   @Override
   @Transactional
   public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final FleenUser user)
-      throws FleenStreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
+      throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream
@@ -230,14 +229,14 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param dto the {@link UpdateStreamSpeakerDto} containing the speaker information to update
    * @param user the {@link FleenUser} performing the update operation
    * @return an {@link UpdateStreamSpeakerResponse} indicating the outcome of the update
-   * @throws FleenStreamNotFoundException if the stream with the given ID does not exist
+   * @throws StreamNotFoundException if the stream with the given ID does not exist
    * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
    * @throws FailedOperationException if the attendee ID validation fails
    */
   @Override
   @Transactional
   public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final FleenUser user)
-      throws FleenStreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
+      throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the organizer of the stream
@@ -357,13 +356,13 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param dto A {@link RemoveStreamSpeakerDto} containing the details of the speakers to be deleted.
    * @param user The user performing the delete operation.
    * @return A {@link RemoveStreamSpeakerResponse} indicating the result of the delete operation.
-   * @throws FleenStreamNotFoundException if the stream with the given ID does not exist
+   * @throws StreamNotFoundException if the stream with the given ID does not exist
    * @throws OrganizerOfStreamCannotBeRemovedAsSpeakerException if the organizer is found in the list of speakers
    */
   @Override
   @Transactional
   public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final FleenUser user)
-      throws FleenStreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException {
+      throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate if the user is the creator of the stream

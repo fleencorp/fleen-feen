@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.impl.stream.attendee;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -13,11 +13,10 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
-import com.fleencorp.feen.model.search.stream.attendee.EmptyStreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
@@ -76,7 +75,6 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param localizer                 the service for localization tasks
    * @param attendeeMapper            the mapper for mapping attendee data
    * @param streamMapper              the mapper for mapping stream data
-   * @param toInfoMapper              the mapper for mapping information of chat space, streams and attendee data
    */
   public StreamAttendeeServiceImpl(
       final MiscService miscService,
@@ -85,8 +83,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       final StreamAttendeeRepository streamAttendeeRepository,
       final Localizer localizer,
       final StreamAttendeeMapper attendeeMapper,
-      final StreamMapper streamMapper,
-      final ToInfoMapper toInfoMapper) {
+      final StreamMapper streamMapper) {
     this.miscService = miscService;
     this.streamService = streamService;
     this.streamAttendeeUpdateService = streamAttendeeUpdateService;
@@ -118,13 +115,13 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     // Retrieve the fleen stream
     final FleenStream stream = streamService.findStream(streamId);
     // Convert the list of attendees to response objects
-    final List<StreamAttendeeResponse> views = toStreamAttendeeResponses(streamMapper.toStreamResponse(stream), page.getContent());
-    // Return a search result view with the attendees responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(StreamAttendeeSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<StreamAttendeeResponse> attendeeResponses = toStreamAttendeeResponses(streamMapper.toStreamResponse(stream), page.getContent());
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(attendeeResponses, page);
+    // Create the search result
+    final StreamAttendeeSearchResult searchResult = StreamAttendeeSearchResult.of(searchResultView);
+    // Return a search result view with the attendee responses and pagination details
+    return localizer.of(searchResult);
   }
 
   /**
@@ -137,7 +134,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param streamAttendees the list of {@code StreamAttendee} entities to convert.
    * @return a list of {@code StreamAttendeeResponse} objects, with duplicates removed.
    */
-  protected List<StreamAttendeeResponse> toStreamAttendeeResponses(final FleenStreamResponse streamResponse, final List<StreamAttendee> streamAttendees) {
+  protected List<StreamAttendeeResponse> toStreamAttendeeResponses(final StreamResponse streamResponse, final List<StreamAttendee> streamAttendees) {
     // Fetch a paginated list of stream attendees for the given stream ID
     final Set<StreamAttendee> streamAttendeesSet = new HashSet<>(streamAttendees);
     // Convert the list of StreamAttendee entities to StreamAttendeeResponse views
@@ -160,7 +157,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @return A {@link Set} of {@link StreamAttendeeResponse} objects, each containing attendee details and attendance status.
    */
   @Override
-  public Set<StreamAttendeeResponse> toStreamAttendeeResponsesSet(final FleenStreamResponse streamResponse, final Collection<StreamAttendee> streamAttendees) {
+  public Set<StreamAttendeeResponse> toStreamAttendeeResponsesSet(final StreamResponse streamResponse, final Collection<StreamAttendee> streamAttendees) {
     // Check if the streamAttendees set is not null
     if (nonNull(streamAttendees)) {
       // Convert each StreamAttendee into a StreamAttendeeResponse and collect into a set
@@ -177,16 +174,16 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   }
 
   /**
-   * Sets the first 10 attendees who are approved and attending a stream for each stream in the provided list of {@link FleenStreamResponse}.
+   * Sets the first 10 attendees who are approved and attending a stream for each stream in the provided list of {@link StreamResponse}.
    *
    * <p>This method iterates over the given list of streams, fetching the first 10 approved attendees who are attending the stream.
    * It then converts the list of {@link StreamAttendee} objects into a set of {@link StreamAttendeeResponse} objects, which are
    * set as the attendees for each stream. If the list of streams is null, no action is taken.</p>
    *
-   * @param streams The list of {@link FleenStreamResponse} objects representing the streams, each stream's attendees will be updated with the first 10 attending members.
+   * @param streams The list of {@link StreamResponse} objects representing the streams, each stream's attendees will be updated with the first 10 attending members.
    */
   @Override
-  public void setFirst10AttendeesAttendingInAnyOrderOnStreams(final List<FleenStreamResponse> streams) {
+  public void setFirst10AttendeesAttendingInAnyOrderOnStreams(final List<StreamResponse> streams) {
     if (nonNull(streams)) {
       streams.stream()
         .filter(Objects::nonNull)
@@ -206,16 +203,16 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   }
 
   /**
-   * Sets the number of attendees for each stream in the provided list of {@link FleenStreamResponse} objects.
+   * Sets the number of attendees for each stream in the provided list of {@link StreamResponse} objects.
    *
-   * <p>This method iterates over a list of {@link FleenStreamResponse} instances, calculates the total number of attendees
+   * <p>This method iterates over a list of {@link StreamResponse} instances, calculates the total number of attendees
    * who have been approved to join and are attending each stream, and updates the total attending count for each stream.
    * The count is based on the data retrieved from the `streamAttendeeRepository.</p>
    *
-   * @param streams the list of {@link FleenStreamResponse} objects whose attendee counts are to be updated.
+   * @param streams the list of {@link StreamResponse} objects whose attendee counts are to be updated.
    */
   @Override
-  public void setStreamAttendeesAndTotalAttendeesAttending(final List<FleenStreamResponse> streams) {
+  public void setStreamAttendeesAndTotalAttendeesAttending(final List<StreamResponse> streams) {
     if (nonNull(streams)) {
       streams.stream()
         .filter(Objects::nonNull)
@@ -280,10 +277,10 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    *
    * @param streamId the unique identifier of the stream
    * @return an StreamAttendeeSearchResult containing the search result list of attendees for the stream
-   * @throws FleenStreamNotFoundException if the stream with the specified streamId is not found
+   * @throws StreamNotFoundException if the stream with the specified streamId is not found
    */
   @Override
-  public StreamAttendeeSearchResult getStreamAttendees(final Long streamId, final StreamAttendeeSearchRequest searchRequest) throws FleenStreamNotFoundException {
+  public StreamAttendeeSearchResult getStreamAttendees(final Long streamId, final StreamAttendeeSearchRequest searchRequest) throws StreamNotFoundException {
     // Set default number of attendees to retrieve during the search
     searchRequest.setDefaultPageSize();
     // Find and retrieve the stream
@@ -292,12 +289,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     final Page<StreamAttendee> page = streamAttendeeRepository.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
     // Get stream attendees
     final Collection<StreamAttendeeResponse> attendeeResponses = getAttendees(stream, page.getContent());
-    // Return a search result view with the attendees responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(StreamAttendeeSearchResult.of(toSearchResult(List.of(attendeeResponses), page))),
-      localizer.of(EmptyStreamAttendeeSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(attendeeResponses, page);
+    // Create the search result
+    final StreamAttendeeSearchResult searchResult = StreamAttendeeSearchResult.of(searchResultView);
+    // Return a search result view with the attendee responses and pagination details
+    return localizer.of(searchResult);
   }
 
   /**
@@ -376,12 +373,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param user The user making the request, who must be the creator of the stream.
    * @return A {@link RequestToJoinSearchResult} containing a list of {@link StreamAttendeeResponse} objects
    *         representing attendees with pending join requests and pagination details.
-   * @throws FleenStreamNotFoundException If the stream with the given ID cannot be found.
+   * @throws StreamNotFoundException If the stream with the given ID cannot be found.
    * @throws StreamNotCreatedByUserException If the user is not the creator of the stream.
    */
   @Override
   public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user)
-      throws FleenStreamNotFoundException, StreamNotCreatedByUserException {
+      throws StreamNotFoundException, StreamNotCreatedByUserException {
     // Find the stream by its ID
     final FleenStream stream = streamService.findStream(streamId);
     // Validate owner of the stream

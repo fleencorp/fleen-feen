@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class StreamSpeakerSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "stream.speaker.search";
+    return nonNull(result) && result.hasValue() ? "stream.speaker.search" : "stream.speaker.empty.search";
   }
 
-  public static Supplier<StreamSpeakerSearchResult> of(final SearchResultView result) {
-    return () -> new StreamSpeakerSearchResult(result);
+  public static StreamSpeakerSearchResult of(final SearchResultView result) {
+    return new StreamSpeakerSearchResult(result);
   }
 }

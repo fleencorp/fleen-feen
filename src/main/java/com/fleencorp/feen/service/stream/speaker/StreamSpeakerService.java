@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.stream.speaker;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
@@ -21,11 +21,11 @@ public interface StreamSpeakerService {
   StreamSpeakerSearchResult findStreamSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest, FleenUser user);
 
   MarkAsStreamSpeakerResponse markAsSpeaker(Long streamId, MarkAsStreamSpeakerDto dto, FleenUser user)
-    throws FleenStreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException;
+    throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException;
 
   UpdateStreamSpeakerResponse updateSpeakers(Long streamId, UpdateStreamSpeakerDto dto, FleenUser user)
-    throws FleenStreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
+    throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
 
   RemoveStreamSpeakerResponse removeSpeakers(Long streamId, RemoveStreamSpeakerDto dto, FleenUser user)
-    throws FleenStreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
+    throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
 }

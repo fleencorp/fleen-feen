@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "status_text_2",
   "status_text_3",
   "status_text_4",
-  "status_text_5",
+  "status_other_text"
 })
 public class ChatSpaceStatusInfo {
 
@@ -43,8 +43,8 @@ public class ChatSpaceStatusInfo {
   @JsonProperty("status_text_4")
   private String statusText4;
 
-  @JsonProperty("status_text_5")
-  private String statusText5;
+  @JsonProperty("status_other_text")
+  private String statusOtherText;
 
   public static ChatSpaceStatusInfo of(final ChatSpaceStatus status, final String statusText, final String statusText2, final String statusText3, final String statusText4, final String statusText5) {
     return new ChatSpaceStatusInfo(status, statusText, statusText2, statusText3, statusText4, statusText5);

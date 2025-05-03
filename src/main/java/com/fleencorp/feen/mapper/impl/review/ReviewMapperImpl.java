@@ -1,15 +1,14 @@
 package com.fleencorp.feen.mapper.impl.review;
 
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -27,26 +26,10 @@ import static java.util.Objects.nonNull;
  * @version 1.0
  */
 @Component
-public final class ReviewMapperImpl implements ReviewMapper {
-
-  private final MessageSource messageSource;
+public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
 
   public ReviewMapperImpl(final MessageSource messageSource) {
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Translates a message code into a localized message based on the current locale.
-   *
-   * <p>This method retrieves a message from the {@link MessageSource} using the provided
-   * message code and the locale obtained from {@link LocaleContextHolder}.</p>
-   *
-   * @param messageCode the code of the message to be translated; must not be {@code null}.
-   * @return the localized message corresponding to the given message code.
-   */
-  private String translate(final String messageCode) {
-    final Locale locale = LocaleContextHolder.getLocale();
-    return messageSource.getMessage(messageCode, null, locale);
+    super(messageSource);
   }
 
   /**

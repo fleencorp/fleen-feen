@@ -57,7 +57,7 @@ public class UpdateStreamMusicLinkDto extends BaseLinkDto {
       throw FailedOperationException.of();
     }
 
-    MusicLinkType expectedType = MusicLinkType.fromUrl(url);
+    final MusicLinkType expectedType = MusicLinkType.fromUrl(url);
     if (expectedType == null) {
       throw UnsupportedMusicLinkFormatException.of();
     }

@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class ContactSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "contact.search";
+    return nonNull(result) && result.hasValue() ? "contact.search" : "contact.empty.search";
   }
 
-  public static Supplier<ContactSearchResult> of(final SearchResultView result) {
-    return () -> new ContactSearchResult(result);
+  public static ContactSearchResult of(final SearchResultView result) {
+    return new ContactSearchResult(result);
   }
 }

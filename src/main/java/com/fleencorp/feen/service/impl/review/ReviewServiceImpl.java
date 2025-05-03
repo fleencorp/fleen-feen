@@ -1,11 +1,12 @@
 package com.fleencorp.feen.service.impl.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.review.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.exception.review.ReviewNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -18,7 +19,6 @@ import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
-import com.fleencorp.feen.model.search.review.EmptyReviewSearchResult;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.review.ReviewRepository;
@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.nonNull;
 
@@ -105,16 +104,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // Convert the reviews to the response
-    final List<ReviewResponse> views = reviewMapper.toReviewResponsesPublic(page.getContent());
+    final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
     // Check and set the reviews that are updatable by the user
-    setReviewsThatAreUpdatableByUser(views, user.getId());
+    setReviewsThatAreUpdatableByUser(reviewResponses, user.getId());
 
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
+    // Create the search result
+    final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
     // Return a search result view with the review responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ReviewSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyReviewSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -238,33 +237,32 @@ public class ReviewServiceImpl implements ReviewService {
     // Find all user reviews
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
     // Convert the reviews to the response
-    final List<ReviewResponse> views = reviewMapper.toReviewResponsesPrivate(page.getContent());
-
+    final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPrivate(page.getContent());
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
+    // Create the search result
+    final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
     // Return a search result view with the review responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(ReviewSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyReviewSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
    * Adds a review for the specified event or stream.
    *
-   * <p>This method retrieves the event or stream by its ID, throwing a {@link FleenStreamNotFoundException}
+   * <p>This method retrieves the event or stream by its ID, throwing a {@link StreamNotFoundException}
    * if the stream does not exist. It then ensures the stream has started or completed before allowing
    * the review to be added. Finally, the review is created and saved using the provided data.</p>
    *
    * @param addReviewDto the data transfer object containing the details of the review to be added
    * @param user the current user adding the review, used to associate the review with a member
    * @return an {@link AddReviewResponse} indicating the result of the review addition
-   * @throws FleenStreamNotFoundException if no event or stream is found with the specified ID
+   * @throws StreamNotFoundException if no event or stream is found with the specified ID
    * @throws CannotAddReviewIfStreamHasNotStartedException if the stream has not yet started and cannot be reviewed
    */
   @Override
   @Transactional
   public AddReviewResponse addReview(final AddReviewDto addReviewDto, final FleenUser user)
-      throws FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
+      throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     // Get the review type
     final ReviewType reviewType = addReviewDto.getReviewType();
     // Get the necessary details
@@ -301,12 +299,12 @@ public class ReviewServiceImpl implements ReviewService {
    * @param user the current user updating the review, used to verify the ownership of the review
    * @return an {@link UpdateReviewResponse} indicating the result of the review update
    * @throws ReviewNotFoundException if no review is found with the specified ID for the stream and member
-   * @throws FleenStreamNotFoundException if no stream is found with the specified stream ID
+   * @throws StreamNotFoundException if no stream is found with the specified stream ID
    */
   @Override
   @Transactional
   public UpdateReviewResponse updateReview(final Long reviewId, final UpdateReviewDto updateReviewDto, final FleenUser user)
-    throws ReviewNotFoundException, FleenStreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
+    throws ReviewNotFoundException, StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
       FailedOperationException {
     // Find the associated review
     if (updateReviewDto.isStreamReviewType()) {

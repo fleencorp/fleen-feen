@@ -2,12 +2,14 @@ package com.fleencorp.feen.service.link;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.*;
+import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.base.LinkResponse;
@@ -27,7 +29,7 @@ public interface LinkService {
   List<LinkResponse> findChatSpaceLinks(Long chatSpaceId);
 
   UpdateStreamMusicLinkResponse updateStreamMusicLink(UpdateStreamMusicLinkDto updateStreamMusicLinkDto, FleenUser user)
-    throws FleenStreamNotFoundException, FailedOperationException;
+    throws StreamNotFoundException, FailedOperationException;
 
   UpdateLinkResponse updateLink(UpdateLinkDto updateLinkDto, FleenUser user)
     throws ChatSpaceNotFoundException, FailedOperationException;
