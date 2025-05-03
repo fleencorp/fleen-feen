@@ -2,7 +2,7 @@ package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
@@ -52,7 +52,7 @@ public class StreamController {
       }),
     @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
       content = {
-        @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
+        @Content(schema = @Schema(implementation = StreamNotFoundException.class)),
         @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
       }),
     @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled/happened or user has existing join status",
@@ -86,7 +86,7 @@ public class StreamController {
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
       content = {
-        @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
+        @Content(schema = @Schema(implementation = StreamNotFoundException.class)),
         @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
       }),
     @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled/happened or request already exists",
@@ -120,7 +120,7 @@ public class StreamController {
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "404", description = "Stream or associated calendar not found",
       content = {
-        @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)),
+        @Content(schema = @Schema(implementation = StreamNotFoundException.class)),
         @Content(schema = @Schema(implementation = CalendarNotFoundException.class))
       }),
     @ApiResponse(responseCode = "409", description = "Conflict - Stream is canceled or has already happened",

@@ -6,9 +6,9 @@ import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveMemberInfoResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveMemberUpdateInfoResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveProfileStatusResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberUpdateInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveProfileStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 

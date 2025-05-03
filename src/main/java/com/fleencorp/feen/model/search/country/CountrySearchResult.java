@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class CountrySearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "country.search";
+    return nonNull(result) && result.hasValue() ? "country.search" : "country.empty.search";
   }
 
-  public static Supplier<CountrySearchResult> of(final SearchResultView result) {
-    return () -> new CountrySearchResult(result);
+  public static CountrySearchResult of(final SearchResultView result) {
+    return new CountrySearchResult(result);
   }
 }

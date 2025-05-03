@@ -17,4 +17,9 @@ public interface BlockUserRepository extends JpaRepository<BlockUser, Long> {
 
   @Query("SELECT bu FROM BlockUser bu WHERE bu.initiator = :recipient AND bu.blockStatus = :blockStatus")
   Page<BlockUser> findByInitiatorAndBlockStatus(@Param("recipient") Member recipient, @Param("blockStatus") BlockStatus blockStatus, Pageable pageable);
+
+  @Query("SELECT b FROM BlockUser b WHERE b.initiatorId = :initiatorId AND b.recipientId = :recipientId")
+  Optional<BlockUser> findByInitiatorIdAndRecipientId(@Param("initiatorId") Long initiatorId, @Param("recipientId") Long recipientId);
+
+  boolean existsByInitiatorAndRecipient(Member initiator, Member recipient);
 }

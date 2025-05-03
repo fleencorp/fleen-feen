@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -172,7 +173,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Fetch a list of countries with a large number of entries (1000 in this case).
     final CountrySearchResult searchResult = countryService.findCountries(countrySearchRequest);
     // Get the countries in the search result
-    final List<?> countries = searchResult.getResult().getValues();
+    final Collection<?> countries = searchResult.getResult().getValues();
     // Create the response
     final DataForSignUpResponse dataForSignUpResponse = DataForSignUpResponse.of(countries);
     // Return the response object containing both the countries and timezones.

@@ -1,7 +1,9 @@
 package com.fleencorp.feen.service.social;
 
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.contact.AddContactDto;
 import com.fleencorp.feen.model.dto.social.contact.UpdateContactDto;
+import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.model.request.search.social.ContactSearchRequest;
 import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.response.social.contact.AddContactResponse;
@@ -21,4 +23,6 @@ public interface ContactService {
   DeleteContactResponse deleteContact(Long contactId, FleenUser user);
 
   DeleteResponse deleteAllContact(FleenUser user);
+
+  ContactRequestEligibilityInfo checkContactRequestEligibility(Member viewer, Member target);
 }

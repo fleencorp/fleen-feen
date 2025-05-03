@@ -12,10 +12,10 @@ import java.util.List;
 @AllArgsConstructor
 public class StreamResponsesAndPage {
 
-  private List<FleenStreamResponse> responses;
+  private List<StreamResponse> responses;
   private Page<?> page;
 
-  public static StreamResponsesAndPage of(final List<FleenStreamResponse> responses, final Page<?> page) {
+  public static StreamResponsesAndPage of(final List<StreamResponse> responses, final Page<?> page) {
     return new StreamResponsesAndPage(responses, page);
   }
 }

@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
@@ -89,7 +89,7 @@ public class StreamSearchController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved stream details",
       content = @Content(schema = @Schema(implementation = RetrieveStreamResponse.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -135,7 +135,7 @@ public class StreamSearchController {
     @ApiResponse(responseCode = "403", description = "User is not the owner of the stream",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -156,7 +156,7 @@ public class StreamSearchController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved stream attendees",
       content = @Content(schema = @Schema(implementation = StreamAttendeeSearchResult.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID or search parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -176,7 +176,7 @@ public class StreamSearchController {
     @ApiResponse(responseCode = "200", description = "Successfully retrieved stream attendees",
       content = @Content(schema = @Schema(implementation = StreamAttendeeSearchResult.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID or search parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -242,7 +242,7 @@ public class StreamSearchController {
     @ApiResponse(responseCode = "403", description = "User is not authorized to view join requests",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid stream ID or search parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

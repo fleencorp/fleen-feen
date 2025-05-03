@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.localizer.model.response.ApiResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +33,7 @@ public class CreateStreamResponse extends ApiResponse {
   protected StreamTypeInfo streamTypeInfo;
 
   @JsonProperty("stream")
-  protected FleenStreamResponse stream;
+  protected StreamResponse stream;
 
   @JsonIgnore
   protected StreamType getStreamType() {
@@ -45,7 +45,7 @@ public class CreateStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "create.event" : "create.live.broadcast";
   }
 
-  public static CreateStreamResponse of(final Long streamId, final StreamTypeInfo streamTypeInfo, final FleenStreamResponse stream) {
+  public static CreateStreamResponse of(final Long streamId, final StreamTypeInfo streamTypeInfo, final StreamResponse stream) {
     return new CreateStreamResponse(streamId, streamTypeInfo, stream);
   }
 

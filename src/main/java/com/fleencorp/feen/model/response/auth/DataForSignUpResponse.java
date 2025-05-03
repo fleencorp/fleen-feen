@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Collection;
 
 @Getter
 @Setter
@@ -23,14 +23,14 @@ import java.util.List;
 public class DataForSignUpResponse extends ApiResponse {
 
   @JsonProperty("countries")
-  private List<?> countries;
+  private Collection<?> countries;
 
   @Override
   public String getMessageCode() {
     return "data.for.sign.up";
   }
 
-  public static DataForSignUpResponse of(final List<?> countries) {
+  public static DataForSignUpResponse of(final Collection<?> countries) {
     return new DataForSignUpResponse(countries);
   }
 }

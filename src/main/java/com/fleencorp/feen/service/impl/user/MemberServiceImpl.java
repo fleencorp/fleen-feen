@@ -10,10 +10,13 @@ import com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect;
 import com.fleencorp.feen.model.projection.member.MemberUpdateSelect;
 import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
+import com.fleencorp.feen.model.response.member.MemberInfoResponse;
+import com.fleencorp.feen.model.response.member.MemberProfileStatusResponse;
+import com.fleencorp.feen.model.response.member.MemberUpdateInfoResponse;
 import com.fleencorp.feen.model.response.other.EntityExistsResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveMemberInfoResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveMemberUpdateInfoResponse;
-import com.fleencorp.feen.model.response.user.profile.RetrieveProfileStatusResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveMemberUpdateInfoResponse;
+import com.fleencorp.feen.model.response.user.profile.read.RetrieveProfileStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.repository.user.UserProfileRepository;
@@ -202,9 +205,18 @@ public class MemberServiceImpl implements MemberService,
     // Retrieve member information from the user profile repository
     final MemberInfoSelect info = userProfileRepository.findInfoByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
-
+    // Convert to a response
+    final MemberInfoResponse memberInfoResponse = MemberInfoResponse.of(
+      info.getMemberId(),
+      info.getFirstName(),
+      info.getLastName(),
+      info.getProfilePhoto(),
+      info.getCountry()
+    );
+    // Create the response
+    final RetrieveMemberInfoResponse retrieveMemberInfoResponse = RetrieveMemberInfoResponse.of(memberInfoResponse);
     // Return the localized response containing the retrieved member information
-    return localizer.of(RetrieveMemberInfoResponse.of(info));
+    return localizer.of(retrieveMemberInfoResponse);
   }
 
   /**
@@ -219,10 +231,18 @@ public class MemberServiceImpl implements MemberService,
     // Retrieve member update information from the user profile repository
     final MemberUpdateSelect info = userProfileRepository.findByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
+    // Convert to response
+    final MemberUpdateInfoResponse memberUpdateInfoResponse = MemberUpdateInfoResponse.of(
+      info.getMemberId(),
+      info.getFirstName(),
+      info.getLastName(),
+      info.getEmailAddress(),
+      info.getPhoneNumber(),
+      info.getCountry()
+    );
 
     // Create the response
-    final RetrieveMemberUpdateInfoResponse retrieveMemberUpdateInfoResponse = RetrieveMemberUpdateInfoResponse.of(info);
-
+    final RetrieveMemberUpdateInfoResponse retrieveMemberUpdateInfoResponse = RetrieveMemberUpdateInfoResponse.of(memberUpdateInfoResponse);
     // Return the localized response containing the retrieved member update information
     return localizer.of(retrieveMemberUpdateInfoResponse);
   }
@@ -239,9 +259,10 @@ public class MemberServiceImpl implements MemberService,
     // Retrieve the profile status from the user profile repository
     final MemberProfileStatusSelect verificationStatus = userProfileRepository.findStatusByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
-
+    // Convert to response
+    final MemberProfileStatusResponse memberProfileStatusResponse = MemberProfileStatusResponse.of(verificationStatus.getProfileStatus());
     // Create the response
-    final RetrieveProfileStatusResponse retrieveProfileStatusResponse = RetrieveProfileStatusResponse.of(verificationStatus);
+    final RetrieveProfileStatusResponse retrieveProfileStatusResponse = RetrieveProfileStatusResponse.of(memberProfileStatusResponse);
     // Return the localized response containing the retrieved profile status
     return localizer.of(retrieveProfileStatusResponse);
   }

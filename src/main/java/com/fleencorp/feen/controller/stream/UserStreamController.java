@@ -3,7 +3,7 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
@@ -65,7 +65,7 @@ public class UserStreamController {
     @ApiResponse(responseCode = "403", description = "User is not the stream owner",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -95,7 +95,7 @@ public class UserStreamController {
     @ApiResponse(responseCode = "403", description = "User not authorized to update this stream",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "409", description = "Stream has already happened or been canceled",
       content = @Content(schema = @Schema(oneOf = {StreamAlreadyHappenedException.class, StreamAlreadyCanceledException.class})))
   })
@@ -125,7 +125,7 @@ public class UserStreamController {
         StreamAlreadyCanceledException.class
       }))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -154,7 +154,7 @@ public class UserStreamController {
         CannotCancelOrDeleteOngoingStreamException.class
       }))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -180,7 +180,7 @@ public class UserStreamController {
     @ApiResponse(responseCode = "403", description = "User is not the stream owner",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -210,7 +210,7 @@ public class UserStreamController {
         CannotCancelOrDeleteOngoingStreamException.class
       }))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -236,7 +236,7 @@ public class UserStreamController {
     @ApiResponse(responseCode = "403", description = "User is not the stream owner",
       content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -260,7 +260,7 @@ public class UserStreamController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class))),
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Invalid request parameters or non-event stream",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

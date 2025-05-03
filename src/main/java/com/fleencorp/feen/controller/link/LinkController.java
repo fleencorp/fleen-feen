@@ -4,12 +4,14 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.dto.link.DeleteLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateLinkDto;
 import com.fleencorp.feen.model.dto.link.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.response.link.*;
+import com.fleencorp.feen.model.response.link.DeleteLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateLinkResponse;
+import com.fleencorp.feen.model.response.link.UpdateStreamMusicLinkResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.model.response.link.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
@@ -132,7 +134,7 @@ public class LinkController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "404", description = "Fleen stream not found",
-      content = @Content(schema = @Schema(implementation = FleenStreamNotFoundException.class)))
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class)))
   })
   @PutMapping(value = "/update-music-link")
   public UpdateStreamMusicLinkResponse updateStreamMusicLink(

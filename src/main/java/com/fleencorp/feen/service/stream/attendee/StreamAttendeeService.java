@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.stream.attendee;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.FleenStreamNotFoundException;
+import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
-import com.fleencorp.feen.model.response.stream.FleenStreamResponse;
+import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
@@ -20,17 +20,17 @@ public interface StreamAttendeeService {
 
   StreamAttendeeSearchResult findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
 
-  Set<StreamAttendeeResponse> toStreamAttendeeResponsesSet(FleenStreamResponse streamResponse, Collection<StreamAttendee> streamAttendees);
+  Set<StreamAttendeeResponse> toStreamAttendeeResponsesSet(StreamResponse streamResponse, Collection<StreamAttendee> streamAttendees);
 
-  void setFirst10AttendeesAttendingInAnyOrderOnStreams(List<FleenStreamResponse> streams);
+  void setFirst10AttendeesAttendingInAnyOrderOnStreams(List<StreamResponse> streams);
 
-  void setStreamAttendeesAndTotalAttendeesAttending(List<FleenStreamResponse> streams);
+  void setStreamAttendeesAndTotalAttendeesAttending(List<StreamResponse> streams);
 
   void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, FleenUser user);
 
   Set<StreamAttendee> getAttendeesGoingToStream(FleenStream stream);
 
-  StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws FleenStreamNotFoundException;
+  StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws StreamNotFoundException;
 
   Optional<StreamAttendee> findAttendeeByMemberId(FleenStream stream, Long userId);
 

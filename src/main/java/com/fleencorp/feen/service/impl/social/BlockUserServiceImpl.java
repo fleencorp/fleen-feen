@@ -134,4 +134,18 @@ public class BlockUserServiceImpl implements BlockUserService {
     // Returned the localized response of the blocked user
     return localizer.of(BlockUserStatusResponse.of(blockStatus));
   }
+
+  /**
+   * Determines whether a block relationship exists between the viewer and the target member.
+   *
+   * <p>This method checks if the given {@code viewer} has blocked the {@code target}.</p>
+   *
+   * @param viewer the member who may have initiated the block
+   * @param target the member who may have been blocked
+   * @return {@code true} if the viewer has blocked the target, {@code false} otherwise
+   */
+  @Override
+  public boolean existsByInitiatorAndRecipient(final Member viewer, final Member target) {
+    return blockUserRepository.existsByInitiatorAndRecipient(viewer, target);
+  }
 }

@@ -37,6 +37,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -109,11 +110,13 @@ public class CalendarServiceImpl implements CalendarService {
     // Fetch a list of countries with a large number of entries (1000 in this case).
     final CountrySearchResult searchResult = countryService.findCountries(countrySearchRequest);
     // Get the countries in the search result
-    final List<?> countries = searchResult.getResult().getValues();
+    final Collection<?> countries = searchResult.getResult().getValues();
     // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
+    // Create the response
+    final DataForCreateCalendarResponse dataForCreateCalendarResponse = DataForCreateCalendarResponse.of(timezones, countries);
     // Return the response object containing both the countries and timezones.
-    return localizer.of(DataForCreateCalendarResponse.of(timezones, countries));
+    return localizer.of(dataForCreateCalendarResponse);
   }
 
   /**
