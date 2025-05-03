@@ -306,17 +306,15 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param updatedSpeakers the set of updated speakers, which will include the updated speaker if found
    */
   private void updateExistingSpeaker(final StreamSpeaker newSpeaker, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
-    streamSpeakerRepository.findBySpeakerIdAndStream(newSpeaker, stream)
-      .map(existingSpeaker -> {
-        existingSpeaker.update(newSpeaker.getFullName(), newSpeaker.getTitle(), newSpeaker.getDescription());
-        addToUpdatedSpeakers(existingSpeaker, updatedSpeakers);
+    Optional<StreamSpeaker> existingStreamSpeaker = streamSpeakerRepository.findBySpeakerIdAndStream(newSpeaker, stream);
 
-        return existingSpeaker;
-      })
-      .orElseGet(() -> {
-        addNewSpeaker(newSpeaker, stream, updatedSpeakers);
-        return null;
-    });
+    if (existingStreamSpeaker.isPresent()) {
+      StreamSpeaker speaker = existingStreamSpeaker.get();
+      speaker.update(newSpeaker.getFullName(), newSpeaker.getTitle(), newSpeaker.getDescription());
+      addToUpdatedSpeakers(speaker, updatedSpeakers);
+    } else {
+      addNewSpeaker(newSpeaker, stream, updatedSpeakers);
+    }
   }
 
   /**
