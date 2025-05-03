@@ -2,6 +2,8 @@ package com.fleencorp.feen.util;
 
 public class CommonUtil {
 
+  private CommonUtil() {}
+
   /**
    * Checks whether all provided values are non-null.
    *
