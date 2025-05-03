@@ -2,9 +2,11 @@ package com.fleencorp.feen.mapper.impl;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Component;
 
 import java.util.Locale;
 
+@Component
 public class BaseMapper {
 
   private final MessageSource messageSource;
