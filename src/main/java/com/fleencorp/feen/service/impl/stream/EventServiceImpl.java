@@ -20,7 +20,7 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.StreamAttendeeRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.EventService;

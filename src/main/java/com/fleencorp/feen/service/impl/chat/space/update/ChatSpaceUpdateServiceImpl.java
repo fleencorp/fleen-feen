@@ -12,7 +12,7 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteC
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleAddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleRemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.repository.chat.space.ChatSpaceMemberRepository;
+import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatMemberService;

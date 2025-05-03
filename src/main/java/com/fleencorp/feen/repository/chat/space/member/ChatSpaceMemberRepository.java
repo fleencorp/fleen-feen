@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.chat.space;
+package com.fleencorp.feen.repository.chat.space.member;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;

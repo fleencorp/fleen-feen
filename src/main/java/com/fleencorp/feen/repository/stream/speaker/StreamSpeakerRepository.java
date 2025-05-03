@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.stream;
+package com.fleencorp.feen.repository.stream.speaker;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
