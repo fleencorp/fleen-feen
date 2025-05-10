@@ -22,11 +22,12 @@ import com.fleencorp.feen.model.search.join.EmptyRequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.repository.chat.space.UserChatSpaceRepository;
+import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.link.LinkService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
@@ -60,6 +61,7 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
 
   private final ChatSpaceService chatSpaceService;
+  private final LikeService likeService;
   private final LinkService linkService;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
@@ -78,6 +80,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * configuration values like the delegated authority email.</p>
    *
    * @param chatSpaceService for managing chat spaces
+   * @param likeService for managing likes for like streams and chat space
    * @param linkService for managing links associated with chat space
    * @param chatSpaceMemberRepository repository for managing chat space members.
    * @param chatSpaceRepository repository for chat space entities.
@@ -88,6 +91,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    */
   public ChatSpaceSearchServiceImpl(
       final ChatSpaceService chatSpaceService,
+      final LikeService likeService,
       final LinkService linkService,
       final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
@@ -96,6 +100,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final ChatSpaceMapper chatSpaceMapper,
       final ChatSpaceMemberMapper chatSpaceMemberMapper) {
     this.chatSpaceService = chatSpaceService;
+    this.likeService = likeService;
     this.linkService = linkService;
     this.chatSpaceRepository = chatSpaceRepository;
     this.chatSpaceMemberRepository = chatSpaceMemberRepository;
@@ -135,7 +140,6 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
 
     // Convert the retrieved chat spaces to response objects
     final List<ChatSpaceResponse> chatSpaceResponses = chatSpaceMapper.toChatSpaceResponses(page.getContent());
-
     // Process other details of the chat space responses
     processOtherChatSpaceDetails(chatSpaceResponses, user);
     // Create the search result view
@@ -426,7 +430,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    *
    * @param views a collection of {@link ChatSpaceResponse} objects representing the chat spaces
    */
-  private void updateTotalRequestToJoinForChatSpaces(final Collection<ChatSpaceResponse> views) {
+  protected void updateTotalRequestToJoinForChatSpaces(final Collection<ChatSpaceResponse> views) {
     if (nonNull(views) && (!views.isEmpty())) {
       // Get a list of chatSpaceIds to retrieve join request counts
       final List<Long> chatSpaceIds = views.stream()
@@ -492,7 +496,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpacesResponses the list of chat space responses to process
    * @param user                the user whose membership and organizer status are to be determined
    */
-  private void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+  protected void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
     // Check if chat spaces and user are non-null and user has a member associated
     if (nonNull(chatSpacesResponses) && !chatSpacesResponses.isEmpty() && nonNull(user) && nonNull(user.toMember())) {
       // Get the user's membership status map for the chat spaces
@@ -516,7 +520,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param user                the user whose membership status is to be retrieved
    * @return a map where the keys are chat space IDs and the values are the corresponding membership status
    */
-  private Map<Long, ChatSpaceMemberSelect> getUserMembershipStatusMap(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+  protected Map<Long, ChatSpaceMemberSelect> getUserMembershipStatusMap(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
     // Extract chat space IDs from the responses
     final List<Long> chatSpaceIds = extractAndGetChatSpaceIds(chatSpacesResponses);
     // Convert the user to a domain
@@ -539,7 +543,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
    * @param user                 the user whose organizer status is to be determined
    */
-  private void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap, final FleenUser user) {
+  protected void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap, final FleenUser user) {
     // Set user's membership status
     setMembershipStatus(chatSpaceResponse, membershipStatusMap);
     // Populate recent chat space members
@@ -548,6 +552,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     setChatSpaceThatAreUpdatableByUser(chatSpaceResponse, membershipStatusMap);
     // Set the links associated with the chat space
     setLinks(chatSpaceResponse, user);
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(chatSpaceResponse, user);
     // Check if the user is the organizer
     determineIfUserIsTheOrganizerOfEntity(chatSpaceResponse, user);
   }
@@ -562,7 +568,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceResponse    the chat space response object to update with membership details
    * @param membershipStatusMap  a map containing membership status information, keyed by chat space ID
    */
-  private void setMembershipStatus(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
+  protected void setMembershipStatus(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipStatusMap) {
     // Retrieve the member details
     final ChatSpaceMemberSelect membershipStatus = membershipStatusMap.get(chatSpaceResponse.getNumberId());
     // Check if is not null
@@ -588,7 +594,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    *
    * @param chatSpaceResponse the chat space response object to which the recent members will be assigned
    */
-  private void setSomeRecentChatSpaceMembers(final ChatSpaceResponse chatSpaceResponse) {
+  protected void setSomeRecentChatSpaceMembers(final ChatSpaceResponse chatSpaceResponse) {
     // Convert chat space ID to string
     final String chatSpaceIdStr = chatSpaceResponse.getId().toString();
     // Parse string ID to Long
@@ -617,7 +623,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceResponse the chat space response object to which the links are being added
    * @param user the user whose context is used to fetch the chat space links
    */
-  private void setLinks(final ChatSpaceResponse chatSpaceResponse, final FleenUser user) {
+  protected void setLinks(final ChatSpaceResponse chatSpaceResponse, final FleenUser user) {
     if (nonNull(chatSpaceResponse) && nonNull(user)) {
       final List<LinkResponse> links = linkService.findChatSpaceLinks(chatSpaceResponse.getNumberId());
 

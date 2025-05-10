@@ -1,7 +1,7 @@
 package com.fleencorp.feen.mapper.impl.stream.attendee;
 
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.JoinStatusInfo;

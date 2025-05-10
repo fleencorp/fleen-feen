@@ -2,8 +2,8 @@ package com.fleencorp.feen.controller.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.model.dto.stream.review.AddReviewDto;
-import com.fleencorp.feen.model.dto.stream.review.UpdateReviewDto;
+import com.fleencorp.feen.model.dto.review.AddReviewDto;
+import com.fleencorp.feen.model.dto.review.UpdateReviewDto;
 import com.fleencorp.feen.model.request.search.review.ReviewSearchRequest;
 import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;

@@ -6,19 +6,19 @@ import lombok.Getter;
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 @Getter
-public enum ParentLinkType implements ApiParameter {
+public enum LinkParentType implements ApiParameter {
 
   STREAM("Stream"),
   CHAT_SPACE("Chat Space");
 
   private final String value;
 
-  ParentLinkType(final String value) {
+  LinkParentType(final String value) {
     this.value = value;
   }
 
-  public static ParentLinkType of(final String value) {
-    return parseEnumOrNull(value, ParentLinkType.class);
+  public static LinkParentType of(final String value) {
+    return parseEnumOrNull(value, LinkParentType.class);
   }
 
   public static boolean isChatSpace(final String value) {

@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.stream.review;
+package com.fleencorp.feen.model.dto.review;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -7,8 +7,10 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.model.contract.SetIsOrganizer;
 import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import com.fleencorp.feen.model.contract.SetLikeInfo;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
+import com.fleencorp.feen.model.info.like.LikeInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -57,6 +59,8 @@ import static java.util.Objects.nonNull;
   "visibility_info",
   "is_deleted_info",
   "other_detail_info",
+  "user_like_info",
+  "total_like_count",
   "music_link",
   "schedule_time_type_info",
   "total_attending",
@@ -67,7 +71,7 @@ import static java.util.Objects.nonNull;
   "attendance_info"
 })
 public class StreamResponse extends FleenFeenResponse
-    implements SetIsOrganizer, SetIsUpdatable {
+    implements SetIsOrganizer, SetIsUpdatable, SetLikeInfo {
 
   @JsonProperty("title")
   private String title;
@@ -129,6 +133,12 @@ public class StreamResponse extends FleenFeenResponse
 
   @JsonProperty("other_detail_info")
   private OtherStreamDetailInfo otherDetailInfo;
+
+  @JsonProperty("user_like_info")
+  private LikeInfo userLikeInfo;
+
+  @JsonProperty("total_like_count")
+  private Long totalLikeCount;
 
   @JsonProperty("music_link")
   private MusicLinkResponse musicLink;

@@ -55,11 +55,12 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       final ReviewResponse response = new ReviewResponse();
       response.setId(entry.getReviewId());
       response.setReview(entry.getReview());
-      response.setReviewType(entry.getReviewType());
+      response.setReviewParentType(entry.getReviewParentType());
       response.setRatingInfo(ratingInfo);
       response.setReviewerName(entry.getReviewerName());
       response.setReviewerPhoto(entry.getReviewerPhoto());
       response.setMemberId(entry.getMemberId());
+      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setParentId(entry.getParentId());
       response.setParentTitle(entry.getParentTitle());

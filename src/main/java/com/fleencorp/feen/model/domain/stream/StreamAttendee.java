@@ -28,11 +28,11 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "stream_attendee_id", nullable = false, updatable = false, unique = true)
   private Long attendeeId;
 
-  @Column(name = "fleen_stream_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "stream_id", nullable = false, updatable = false, insertable = false)
   private Long streamId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
-  @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
+  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)

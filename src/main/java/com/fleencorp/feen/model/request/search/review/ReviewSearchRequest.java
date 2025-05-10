@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.constant.review.ReviewType;
+import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,15 +20,15 @@ import static com.fleencorp.base.util.FleenUtil.isValidNumber;
 public class ReviewSearchRequest extends SearchRequest {
 
   @ToUpperCase
-  @JsonProperty("review_type")
-  protected String reviewType;
+  @JsonProperty("review_parent_type")
+  protected String reviewParentType;
 
   @IsNumber
   @JsonProperty("parent_id")
   protected String parentId;
 
-  public ReviewType getReviewType() {
-    return ReviewType.of(reviewType);
+  public ReviewParentType getReviewParentType() {
+    return ReviewParentType.of(reviewParentType);
   }
 
   public Long getParentId() {
@@ -40,6 +40,6 @@ public class ReviewSearchRequest extends SearchRequest {
   }
 
   public boolean isStreamReviewSearchRequest() {
-    return ReviewType.isStream(getReviewType());
+    return ReviewParentType.isStream(getReviewParentType());
   }
 }

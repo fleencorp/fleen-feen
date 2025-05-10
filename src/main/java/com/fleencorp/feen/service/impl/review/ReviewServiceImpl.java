@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResultView;
-import com.fleencorp.feen.constant.review.ReviewType;
+import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.review.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.exception.review.ReviewNotFoundException;
@@ -11,8 +11,8 @@ import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.stream.review.AddReviewDto;
-import com.fleencorp.feen.model.dto.stream.review.UpdateReviewDto;
+import com.fleencorp.feen.model.dto.review.AddReviewDto;
+import com.fleencorp.feen.model.dto.review.UpdateReviewDto;
 import com.fleencorp.feen.model.holder.ReviewOtherDetailsHolder;
 import com.fleencorp.feen.model.request.search.review.ReviewSearchRequest;
 import com.fleencorp.feen.model.response.review.AddReviewResponse;
@@ -22,6 +22,7 @@ import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.review.ReviewRepository;
+import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
@@ -55,6 +56,7 @@ import static java.util.Objects.nonNull;
 @Service
 public class ReviewServiceImpl implements ReviewService {
 
+  private final LikeService likeService;
   private final StreamService streamService;
   private final ReviewRepository reviewRepository;
   private final ReviewMapper reviewMapper;
@@ -66,15 +68,18 @@ public class ReviewServiceImpl implements ReviewService {
    * <p>This constructor initializes the service with repositories for managing streams and reviews,
    * as well as a localized response handler for returning user-friendly messages.</p>
    *
+   * @param likeService the service for managing likes for chat space, streams and reviews
    * @param streamService the service for accessing and managing streams
    * @param reviewRepository the repository for accessing stream review data
    * @param localizer the service for generating localized responses
    */
   public ReviewServiceImpl(
-    final StreamService streamService,
-    final ReviewRepository reviewRepository,
-    final ReviewMapper reviewMapper,
-    final Localizer localizer) {
+      final LikeService likeService,
+      final StreamService streamService,
+      final ReviewRepository reviewRepository,
+      final ReviewMapper reviewMapper,
+      final Localizer localizer) {
+    this.likeService = likeService;
     this.streamService = streamService;
     this.reviewRepository = reviewRepository;
     this.reviewMapper = reviewMapper;
@@ -107,6 +112,8 @@ public class ReviewServiceImpl implements ReviewService {
     final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
     // Check and set the reviews that are updatable by the user
     setReviewsThatAreUpdatableByUser(reviewResponses, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(reviewResponses, user);
 
     // Create the search result view
     final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
@@ -123,19 +130,19 @@ public class ReviewServiceImpl implements ReviewService {
    * it is mapped to a {@link ReviewResponse} and returned. If no review is found, {@code null} is returned.
    * Additionally, if the review was created by the current user, it will be marked as updatable.</p>
    *
-   * @param reviewType the type of reviews to find
+   * @param reviewParentType the type of reviews to find
    * @param parentId the ID of the parent which review is a child of
    * @param user the {@link FleenUser} whose ownership of the review is being verified for updatability
    * @return the {@link ReviewResponse} for the most recent review, or {@code null} if no review is found
    */
   @Override
-  public ReviewResponse findMostRecentReview(final ReviewType reviewType, final Long parentId, final FleenUser user) {
+  public ReviewResponse findMostRecentReview(final ReviewParentType reviewParentType, final Long parentId, final FleenUser user) {
     // Prepare search request details
     final PageRequest pageRequest = PageRequest.of(0, 1);
     // List of review
     List<Review> reviews = new ArrayList<>();
 
-    if (ReviewType.isStream(reviewType)) {
+    if (ReviewParentType.isStream(reviewParentType)) {
       reviews = findMostRecentReviewByStream(parentId, pageRequest);
     }
 
@@ -238,6 +245,8 @@ public class ReviewServiceImpl implements ReviewService {
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
     // Convert the reviews to the response
     final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPrivate(page.getContent());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(reviewResponses, user);
     // Create the search result view
     final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
     // Create the search result
@@ -264,13 +273,13 @@ public class ReviewServiceImpl implements ReviewService {
   public AddReviewResponse addReview(final AddReviewDto addReviewDto, final FleenUser user)
       throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     // Get the review type
-    final ReviewType reviewType = addReviewDto.getReviewType();
+    final ReviewParentType reviewParentType = addReviewDto.getReviewParentType();
     // Get the necessary details
-    final ReviewOtherDetailsHolder reviewOtherDetailsHolder = retrieveReviewOtherDetailsHolder(reviewType, addReviewDto.getParentId());
+    final ReviewOtherDetailsHolder reviewOtherDetailsHolder = retrieveReviewOtherDetailsHolder(reviewParentType, addReviewDto.getParentId());
     // Retrieve the stream
     final FleenStream stream = reviewOtherDetailsHolder.stream();
     // Check other details
-    checkAddReviewEligibility(reviewType, stream);
+    checkAddReviewEligibility(reviewParentType, stream);
     // Convert the dto to the entity
     final Review review = addReviewDto.toStreamReview(stream, user.toMember());
 
@@ -281,6 +290,8 @@ public class ReviewServiceImpl implements ReviewService {
     final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
     // Set the review is-updatable check
     setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(List.of(reviewResponse), user);
     // Get the response
     final AddReviewResponse addReviewResponse = AddReviewResponse.of(reviewResponse);
     // Return a localized response for the added review
@@ -321,6 +332,8 @@ public class ReviewServiceImpl implements ReviewService {
       final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
       // Set the review is-updatable check
       setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
+      // Set the like info by the user if any
+      likeService.setUserLikeInfo(List.of(reviewResponse), user);
       // Get the response
       final UpdateReviewResponse updateReviewResponse = UpdateReviewResponse.of(reviewResponse);
       // Return a localized response for the updated review
@@ -352,21 +365,21 @@ public class ReviewServiceImpl implements ReviewService {
   /**
    * Retrieves the {@link ReviewOtherDetailsHolder} for the specified review type and stream ID.
    *
-   * <p>This method checks the validity of the {@code reviewType} parameter and retrieves the corresponding
+   * <p>This method checks the validity of the {@code reviewParentType} parameter and retrieves the corresponding
    * {@link FleenStream} if the review type is a stream. The {@link ReviewOtherDetailsHolder} is then created
    * based on the stream details.</p>
    *
-   * @param reviewType the type of review, used to determine whether to retrieve stream details
+   * @param reviewParentType the type of review, used to determine whether to retrieve stream details
    * @param streamId the ID of the stream, applicable only if the review type is {@code STREAM}
    * @return a {@link ReviewOtherDetailsHolder} containing other details related to the review
-   * @throws FailedOperationException if the {@code reviewType} is null or invalid
+   * @throws FailedOperationException if the {@code reviewParentType} is null or invalid
    */
-  protected ReviewOtherDetailsHolder retrieveReviewOtherDetailsHolder(final ReviewType reviewType, final Long streamId) throws FailedOperationException {
-    // Ensure reviewType is not null
-    checkIsNull(reviewType, FailedOperationException::new);
+  protected ReviewOtherDetailsHolder retrieveReviewOtherDetailsHolder(final ReviewParentType reviewParentType, final Long streamId) throws FailedOperationException {
+    // Ensure reviewParentType is not null
+    checkIsNull(reviewParentType, FailedOperationException::new);
 
-    // If the reviewType is a stream, retrieve the associated FleenStream
-    final FleenStream stream = ReviewType.isStream(reviewType)
+    // If the reviewParentType is a stream, retrieve the associated FleenStream
+    final FleenStream stream = ReviewParentType.isStream(reviewParentType)
       ? streamService.findStream(streamId)
       : null;
 
@@ -380,14 +393,47 @@ public class ReviewServiceImpl implements ReviewService {
    * <p>This method ensures that a review can only be added for streams that are ongoing or completed.
    * If the stream has not started yet, it throws a {@link CannotAddReviewIfStreamHasNotStartedException}.</p>
    *
-   * @param reviewType the type of the review, used to verify the type of review being added
+   * @param reviewParentType the type of the review, used to verify the type of review being added
    * @param stream the {@link FleenStream} being reviewed, used to determine the stream's current status
    * @throws CannotAddReviewIfStreamHasNotStartedException if the stream has not started yet
    */
-  protected void checkAddReviewEligibility(final ReviewType reviewType, final FleenStream stream) {
+  protected void checkAddReviewEligibility(final ReviewParentType reviewParentType, final FleenStream stream) {
     // Only streams that are ongoing or completed can be reviewed
-    if (nonNull(reviewType) && nonNull(stream) && stream.hasNotStarted()) {
+    if (nonNull(reviewParentType) && nonNull(stream) && stream.hasNotStarted()) {
       throw CannotAddReviewIfStreamHasNotStartedException.of();
     }
+  }
+
+  /**
+   * Increments the like count of the review identified by the given ID.
+   *
+   * <p>This method delegates to the repository to atomically
+   * increment the stored count, and returns the updated value.</p>
+   *
+   * @param reviewId the ID of the review to increment the like count for
+   * @return the updated like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long incrementLikeCount(final Long reviewId) {
+    final int total = reviewRepository.incrementAndGetLikeCount(reviewId);
+    return (long) total;
+  }
+
+  /**
+   * Decrements the like count of the review identified by the given ID.
+   *
+   * <p>This method delegates the operation to the underlying
+   * repository, which atomically decrements the stored count
+   * and returns the updated total.</p>
+   *
+   * @param reviewId the ID of the review to decrement the like count for
+   * @return the updated like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long decrementLikeCount(final Long reviewId) {
+    final int total = reviewRepository.decrementAndGetLikeCount(reviewId);
+    return (long) total;
   }
 }

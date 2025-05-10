@@ -535,4 +535,40 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
   public boolean existsByMembers(final Member viewer, final Member target) {
     return chatSpaceMemberParticipationRepository.existsByMembers(viewer.getMemberId(), target.getMemberId());
   }
+
+  /**
+   * Increments the like count for a given chat space and returns the updated total.
+   *
+   * <p>This method invokes {@code incrementAndGetLikeCount} on the
+   * {@code chatSpaceRepository} to increase the like count of the chat space
+   * specified by the given {@code chatSpaceId}. The returned value is the
+   * updated total number of likes after the increment operation.</p>
+   *
+   * @param chatSpaceId the ID of the chat space whose like count should be incremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long incrementLikeCount(final Long chatSpaceId) {
+    final int total = chatSpaceRepository.incrementAndGetLikeCount(chatSpaceId);
+    return (long) total;
+  }
+
+  /**
+   * Decrements the like count for a given chat space and returns the updated total.
+   *
+   * <p>This method calls the {@code decrementAndGetLikeCount} method from the
+   * {@code chatSpaceRepository} to decrease the like count for the chat space
+   * identified by the given {@code chatSpaceId}. The returned value represents
+   * the new total number of likes after the decrement operation.</p>
+   *
+   * @param chatSpaceId the ID of the chat space whose like count should be decremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long decrementLikeCount(final Long chatSpaceId) {
+    final int total = chatSpaceRepository.decrementAndGetLikeCount(chatSpaceId);
+    return (long) total;
+  }
 }

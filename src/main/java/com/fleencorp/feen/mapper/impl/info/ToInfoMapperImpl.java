@@ -1,6 +1,7 @@
 package com.fleencorp.feen.mapper.impl.info;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.constant.like.IsLiked;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
@@ -11,8 +12,9 @@ import com.fleencorp.feen.constant.user.follower.IsFollowing;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.like.LikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -288,4 +290,10 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
       translate(totalFollowing.getMessageCode(), targetMemberName, following));
   }
 
+  @Override
+  public LikeInfo toLikeInfo(final boolean liked) {
+    final IsLiked isLiked = IsLiked.by(liked);
+
+    return LikeInfo.of(liked, translate(isLiked.getMessageCode()));
+  }
 }

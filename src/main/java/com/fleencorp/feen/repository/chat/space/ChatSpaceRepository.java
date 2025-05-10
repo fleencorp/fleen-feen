@@ -30,4 +30,12 @@ public interface ChatSpaceRepository extends JpaRepository<ChatSpace, Long> {
   @Modifying
   @Query("UPDATE ChatSpace cs SET cs.totalMembers = cs.totalMembers - 1 WHERE cs.chatSpaceId = :id")
   void decrementTotalMembers(@Param("id") Long chatSpaceId);
+
+  @Modifying
+  @Query(value = "UPDATE chat_space SET like_count = like_count + 1 WHERE chat_space_id = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  int incrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
+
+  @Modifying
+  @Query(value = "UPDATE chat_space SET like_count = like_count - 1 WHERE chat_space_id = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  int decrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
 }
