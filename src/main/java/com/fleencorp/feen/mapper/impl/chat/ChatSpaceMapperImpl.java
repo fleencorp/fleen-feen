@@ -94,6 +94,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       response.setTags(entry.getTags());
       response.setGuidelinesOrRules(entry.getGuidelinesOrRules());
       response.setTotalMembers(entry.getTotalMembers());
+      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());

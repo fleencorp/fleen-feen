@@ -27,7 +27,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   private Long speakerId;
 
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
-  @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id", nullable = false, updatable = false)
+  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
   @Column(name = "attendee_id", updatable = false, insertable = false)

@@ -24,10 +24,10 @@ import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeParticipationRepository;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamParticipationRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeParticipationRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
@@ -671,5 +671,41 @@ public class StreamServiceImpl implements StreamService {
   @Override
   public boolean existsByAttendees(final Member viewer, final Member target) {
     return streamAttendeeParticipationRepository.existsByAttendees(viewer.getMemberId(), target.getMemberId());
+  }
+
+  /**
+   * Increments the like count for a given stream and returns the updated total.
+   *
+   * <p>This method invokes {@code incrementAndGetLikeCount} on the
+   * {@code streamRepository} to increase the like count associated with the
+   * specified {@code streamId}. The returned value represents the total number
+   * of likes after the increment operation.</p>
+   *
+   * @param streamId the ID of the stream whose like count is to be incremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long incrementLikeCount(final Long streamId) {
+    final int total = streamRepository.incrementAndGetLikeCount(streamId);
+    return (long) total;
+  }
+
+  /**
+   * Decrements the like count for a given stream and returns the updated total.
+   *
+   * <p>This method calls {@code decrementAndGetLikeCount} on the
+   * {@code streamRepository} to reduce the like count associated with the
+   * provided {@code streamId}. The result is the updated number of likes
+   * after the decrement operation.</p>
+   *
+   * @param streamId the ID of the stream whose like count is to be decremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Transactional
+  @Override
+  public Long decrementLikeCount(final Long streamId) {
+    final int total = streamRepository.decrementAndGetLikeCount(streamId);
+    return (long) total;
   }
 }

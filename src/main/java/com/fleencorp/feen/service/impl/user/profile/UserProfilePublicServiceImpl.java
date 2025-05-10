@@ -8,8 +8,8 @@ import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinSt
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.contact.ContactMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -59,18 +59,40 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
   private final ToInfoMapper toInfoMapper;
   private final Localizer localizer;
 
+  /**
+   * Constructs a {@code UserProfilePublicServiceImpl} with required dependencies.
+   *
+   * <p>This constructor wires in services, repositories, and mappers needed
+   * to fetch and transform user profile-related data for public exposure.</p>
+   *
+   * <p>These include services for contacts and members, repositories for
+   * followers, block lists, chat space and stream participation, and mappers
+   * for converting entities to DTOs or response models.</p>
+   *
+   * @param contactService service for managing contact-related operations
+   * @param memberService service for handling member operations
+   * @param followerRepository repository for accessing follower data
+   * @param blockUserRepository repository for block relationships
+   * @param chatSpaceParticipationRepository repository for chat participation
+   * @param streamParticipationRepository repository for stream participation
+   * @param chatSpaceMapper mapper for chat space objects
+   * @param contactMapper mapper for contact entities
+   * @param streamMapper mapper for stream entities
+   * @param toInfoMapper mapper to convert domain objects to info DTOs
+   * @param localizer component to resolve localized messages
+   */
   public UserProfilePublicServiceImpl(
-    final ContactService contactService,
-    final MemberService memberService,
-    final FollowerRepository followerRepository,
-    final BlockUserRepository blockUserRepository,
-    final ChatSpaceParticipationRepository chatSpaceParticipationRepository,
-    final StreamParticipationRepository streamParticipationRepository,
-    final ChatSpaceMapper chatSpaceMapper,
-    final ContactMapper contactMapper,
-    final StreamMapper streamMapper,
-    final ToInfoMapper toInfoMapper,
-    final Localizer localizer) {
+      final ContactService contactService,
+      final MemberService memberService,
+      final FollowerRepository followerRepository,
+      final BlockUserRepository blockUserRepository,
+      final ChatSpaceParticipationRepository chatSpaceParticipationRepository,
+      final StreamParticipationRepository streamParticipationRepository,
+      final ChatSpaceMapper chatSpaceMapper,
+      final ContactMapper contactMapper,
+      final StreamMapper streamMapper,
+      final ToInfoMapper toInfoMapper,
+      final Localizer localizer) {
     this.contactService = contactService;
     this.memberService = memberService;
     this.followerRepository = followerRepository;

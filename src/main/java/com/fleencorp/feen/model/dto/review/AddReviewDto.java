@@ -1,11 +1,11 @@
-package com.fleencorp.feen.model.dto.stream.review;
+package com.fleencorp.feen.model.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.EnumOrdinalValid;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
+import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.constant.review.ReviewRating;
-import com.fleencorp.feen.constant.review.ReviewType;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -34,10 +34,10 @@ public class AddReviewDto {
   @JsonProperty("rating")
   private String rating;
 
-  @NotNull(message = "{review.type.NotNull}")
-  @OneOf(enumClass = ReviewType.class, message = "{review.type.Type}")
-  @JsonProperty("review_type")
-  private String reviewType;
+  @NotNull(message = "{review.parentType.NotNull}")
+  @OneOf(enumClass = ReviewParentType.class, message = "{review.parentType.Type}")
+  @JsonProperty("review_parent_type")
+  private String reviewParentType;
 
   @IsNumber(message = "review.parentId.IsNumber")
   @JsonProperty("parent_id")
@@ -47,8 +47,8 @@ public class AddReviewDto {
     return ReviewRating.of(rating);
   }
 
-  public ReviewType getReviewType() {
-    return ReviewType.of(reviewType);
+  public ReviewParentType getReviewParentType() {
+    return ReviewParentType.of(reviewParentType);
   }
 
   public Long getParentId() {
@@ -56,15 +56,16 @@ public class AddReviewDto {
   }
 
   public boolean isStreamReviewType() {
-    return ReviewType.isStream(getReviewType());
+    return ReviewParentType.isStream(getReviewParentType());
   }
 
   public Review toStreamReview(final FleenStream stream, final Member member) {
     final Review review = toReview();
-    review.setStream(stream);
+    review.setParentId(getParentId());
     review.setParentTitle(stream.getTitle());
-    review.setReviewType(getReviewType());
-
+    review.setReviewParentType(getReviewParentType());
+    review.setStreamId(stream.getStreamId());
+    review.setStream(stream);
     review.setMemberId(member.getMemberId());
     review.setMember(member);
 

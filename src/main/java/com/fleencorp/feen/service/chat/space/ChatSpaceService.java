@@ -42,4 +42,8 @@ public interface ChatSpaceService {
   void increaseTotalMembersAndSave(ChatSpace chatSpace);
 
   boolean existsByMembers(Member viewer, Member target);
+
+  Long incrementLikeCount(Long chatSpaceId);
+
+  Long decrementLikeCount(Long chatSpaceId);
 }

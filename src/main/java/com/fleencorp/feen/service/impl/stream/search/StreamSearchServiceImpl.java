@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.stream.search;
 
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.constant.review.ReviewType;
+import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
@@ -22,9 +22,10 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedBy
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.repository.stream.UserStreamRepository;
+import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
+import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
 import com.fleencorp.feen.service.stream.common.StreamService;
@@ -67,6 +68,7 @@ import static java.util.Objects.nonNull;
 @Service
 public class StreamSearchServiceImpl implements StreamSearchService {
 
+  private final LikeService likeService;
   private final StreamAttendeeService streamAttendeeService;
   private final ReviewService reviewService;
   private final StreamService streamService;
@@ -81,6 +83,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * This constructor initializes the service class with the necessary dependencies required for managing
    * and searching streams, stream attendees, and user-specific stream details.
    *
+   * @param likeService for managing likes for streams and chat space
    * @param streamAttendeeService the service responsible for handling operations related to stream attendees
    * @param reviewService the service responsible for handling operations related to stream reviews
    * @param streamService the service responsible for handling operations related to streams
@@ -91,6 +94,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @param streamMapper the mapper responsible for converting stream entities to response objects
    */
   public StreamSearchServiceImpl(
+      final LikeService likeService,
       final StreamAttendeeService streamAttendeeService,
       final ReviewService reviewService,
       final StreamService streamService,
@@ -99,6 +103,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final UserStreamRepository userStreamRepository,
       final Localizer localizer,
       final StreamMapper streamMapper) {
+    this.likeService = likeService;
     this.streamAttendeeService = streamAttendeeService;
     this.reviewService = reviewService;
     this.streamService = streamService;
@@ -139,6 +144,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
     // Determine if authenticated user can update of one of the entities
     setEntitiesUpdatableByUser(streamResponses, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(streamResponses, user);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create the search result
@@ -249,6 +256,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
     // Determine if authenticated user can update of one of the entities
     setEntitiesUpdatableByUser(streamResponses, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(streamResponses, user);
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
@@ -288,11 +297,13 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Convert the streams to response views
-    final List<StreamResponse> views = streamMapper.toStreamResponsesNoJoinStatus(page.getContent());
+    final List<StreamResponse> streamResponses = streamMapper.toStreamResponsesNoJoinStatus(page.getContent());
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(views, user);
+    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(streamResponses, user);
     // Return the processed and localized response
-    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(views, page, searchRequest);
+    return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
 
   /**
@@ -329,6 +340,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
     // Determine if authenticated user can update of one of the entities
     setEntitiesUpdatableByUser(streamResponses, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(streamResponses, user);
     // Return the processed and localized response
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
@@ -384,7 +397,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Get all stream or stream attendees
     final Set<StreamAttendee> streamAttendeesGoingToStream = streamAttendeeService.getAttendeesGoingToStream(stream);
     // Get most recent review of the stream
-    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(ReviewType.STREAM, streamId, user);
+    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(ReviewParentType.STREAM, streamId, user);
     // The Stream converted to a response
     final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
     // Set the reviews
@@ -401,6 +414,8 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
     // Determine if authenticated user can update of one of the entities
     setEntitiesUpdatableByUser(streamResponses, user.getId());
+    // Set the like info by the user if any
+    likeService.setUserLikeInfo(streamResponses, user);
 
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
     final long totalAttendees = streamAttendeeRepository.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);

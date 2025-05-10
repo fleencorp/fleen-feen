@@ -90,10 +90,10 @@ public class Notification extends FleenFeenEntity {
   private ContactType contactType;
 
   @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
-  @JoinColumn(name = "fleen_stream_id", referencedColumnName = "fleen_stream_id")
+  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
   private FleenStream stream;
 
-  @Column(name = "fleen_stream_title")
+  @Column(name = "stream_title")
   private String streamTitle;
 
   @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)

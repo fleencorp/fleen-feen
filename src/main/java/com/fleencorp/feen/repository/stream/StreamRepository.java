@@ -56,4 +56,12 @@ public interface StreamRepository extends JpaRepository<FleenStream, Long> {
   @Query("UPDATE FleenStream fs SET fs.totalAttendees = fs.totalAttendees - 1 WHERE fs.streamId = :id")
   void decrementTotalAttendees(@Param("id") Long streamId);
 
+  @Modifying
+  @Query(value = "UPDATE stream SET like_count = like_count + 1 WHERE stream_id = :postId RETURNING like_count", nativeQuery = true)
+  int incrementAndGetLikeCount(@Param("streamId") Long streamId);
+
+  @Modifying
+  @Query(value = "UPDATE stream SET like_count = like_count - 1 WHERE stream_id = :postId RETURNING like_count", nativeQuery = true)
+  int decrementAndGetLikeCount(@Param("streamId") Long streamId);
+
 }

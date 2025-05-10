@@ -7,7 +7,7 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -306,10 +306,10 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param updatedSpeakers the set of updated speakers, which will include the updated speaker if found
    */
   private void updateExistingSpeaker(final StreamSpeaker newSpeaker, final FleenStream stream, final Set<StreamSpeaker> updatedSpeakers) {
-    Optional<StreamSpeaker> existingStreamSpeaker = streamSpeakerRepository.findBySpeakerIdAndStream(newSpeaker, stream);
+    final Optional<StreamSpeaker> existingStreamSpeaker = streamSpeakerRepository.findBySpeakerIdAndStream(newSpeaker, stream);
 
     if (existingStreamSpeaker.isPresent()) {
-      StreamSpeaker speaker = existingStreamSpeaker.get();
+      final StreamSpeaker speaker = existingStreamSpeaker.get();
       speaker.update(newSpeaker.getFullName(), newSpeaker.getTitle(), newSpeaker.getDescription());
       addToUpdatedSpeakers(speaker, updatedSpeakers);
     } else {

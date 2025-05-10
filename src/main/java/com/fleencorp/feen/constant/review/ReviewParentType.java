@@ -8,7 +8,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 /**
  * Enumeration representing different types of reviews.
  *
- * <p>The {@code ReviewType} enum defines the various types of reviews that can be associated with different entities, such as streams.</p>
+ * <p>The {@code ReviewParentType} enum defines the various types of reviews that can be associated with different entities, such as streams.</p>
  *
  * <p>Each enum constant holds a string value that can be used for external communication, such as API parameters.</p>
  *
@@ -18,21 +18,21 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
  * @version 1.0
  */
 @Getter
-public enum ReviewType implements ApiParameter {
+public enum ReviewParentType implements ApiParameter {
 
   STREAM("Stream");
 
   private final String value;
 
-  ReviewType(final String value) {
+  ReviewParentType(final String value) {
     this.value = value;
   }
 
-  public static ReviewType of(final String value) {
-    return parseEnumOrNull(value, ReviewType.class);
+  public static ReviewParentType of(final String value) {
+    return parseEnumOrNull(value, ReviewParentType.class);
   }
 
-  public static boolean isStream(final ReviewType reviewType) {
-    return reviewType == STREAM;
+  public static boolean isStream(final ReviewParentType reviewParentType) {
+    return reviewParentType == STREAM;
   }
 }

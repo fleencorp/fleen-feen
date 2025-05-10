@@ -155,6 +155,7 @@ CREATE TABLE chat_space (
   is_active BOOLEAN DEFAULT TRUE NOT NULL,
   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
   total_members BIGINT DEFAULT 0 NOT NULL,
+  like_count INT DEFAULT 0 NOT NULL,
 
   space_visibility VARCHAR(255) DEFAULT 'PUBLIC'
     NOT NULL CHECK (space_visibility IN ('PUBLIC', 'PRIVATE')),
@@ -218,13 +219,13 @@ CREATE TABLE chat_space_member (
 
 
 
--- changeset alamu:create_table_fleen_stream
+-- changeset alamu:create_table_stream
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'fleen_stream';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'stream';
 
-CREATE TABLE fleen_stream (
-  fleen_stream_id BIGSERIAL PRIMARY KEY,
+CREATE TABLE stream (
+  stream_id BIGSERIAL PRIMARY KEY,
   external_id VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
@@ -240,6 +241,7 @@ CREATE TABLE fleen_stream (
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
   is_deleted BOOLEAN NOT NULL DEFAULT false,
   total_attendees BIGINT DEFAULT 0 NOT NULL,
+  like_count INT DEFAULT 0 NOT NULL,
 
   other_details VARCHAR(3000) NULL,
   other_link VARCHAR(1000) NULL,
@@ -263,17 +265,17 @@ CREATE TABLE fleen_stream (
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT fleen_stream_fk_member
+  CONSTRAINT stream_fk_member
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
         ON DELETE SET NULL,
-  CONSTRAINT fleen_stream_fk_chat_space
+  CONSTRAINT stream_fk_chat_space
     FOREIGN KEY (chat_space_id)
       REFERENCES chat_space (chat_space_id)
       ON DELETE SET NULL
 );
 
---rollback DROP TABLE IF EXISTS `fleen_stream`;
+--rollback DROP TABLE IF EXISTS `stream`;
 
 
 
@@ -314,7 +316,7 @@ CREATE TABLE stream_attendee (
   request_to_join_status VARCHAR(255) DEFAULT 'PENDING'
     NOT NULL CHECK (request_to_join_status IN ('APPROVED', 'DISAPPROVED', 'PENDING')),
 
-  fleen_stream_id BIGINT NOT NULL,
+  stream_id BIGINT NOT NULL,
   member_id BIGINT NOT NULL,
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -324,9 +326,9 @@ CREATE TABLE stream_attendee (
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
         ON DELETE SET NULL,
-  CONSTRAINT stream_attendee_fk_fleen_stream_id
-    FOREIGN KEY (fleen_stream_id)
-      REFERENCES fleen_stream (fleen_stream_id)
+  CONSTRAINT stream_attendee_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
         ON DELETE SET NULL
 );
 
@@ -341,15 +343,17 @@ CREATE TABLE stream_attendee (
 
 CREATE TABLE review (
   review_id BIGSERIAL PRIMARY KEY,
+  parent_id BIGINT NOT NULL,
   rating INT NOT NULL,
   review VARCHAR(1000) NULL,
   parent_title varchar(1000) NULL,
 
-  fleen_stream_id BIGINT NULL,
+  stream_id BIGINT NULL,
   member_id BIGINT NOT NULL,
+  like_count INT DEFAULT 0 NOT NULL,
 
-  review_type VARCHAR(255)
-    NOT NULL CHECK (review_type IN ('STREAM')),
+  review_parent_type VARCHAR(255)
+    NOT NULL CHECK (review_parent_type IN ('STREAM')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -358,9 +362,9 @@ CREATE TABLE review (
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
         ON DELETE SET NULL,
-  CONSTRAINT review_fk_fleen_stream_id
-    FOREIGN KEY (fleen_stream_id)
-      REFERENCES fleen_stream (fleen_stream_id)
+  CONSTRAINT review_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
         ON DELETE SET NULL
 );
 
@@ -421,7 +425,7 @@ CREATE TABLE follower (
 
 CREATE TABLE stream_speaker (
   stream_speaker_id BIGSERIAL PRIMARY KEY,
-  fleen_stream_id BIGINT NOT NULL,
+  stream_id BIGINT NOT NULL,
   attendee_id BIGINT NULL,
   member_id BIGINT NULL,
   full_name VARCHAR(100) NOT NULL,
@@ -431,9 +435,9 @@ CREATE TABLE stream_speaker (
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT stream_speaker_fk_fleen_stream_id
-    FOREIGN KEY (fleen_stream_id)
-      REFERENCES fleen_stream (fleen_stream_id)
+  CONSTRAINT stream_speaker_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
         ON DELETE CASCADE,
   CONSTRAINT stream_speaker_fk_attendee_id
     FOREIGN KEY (attendee_id)
@@ -558,7 +562,7 @@ CREATE TABLE notification (
   id_or_link_or_url VARCHAR(1000) NOT NULL,
   notification_read_on TIMESTAMP NULL,
   share_contact_request_id BIGINT,
-  fleen_stream_title VARCHAR(1000),
+  stream_title VARCHAR(1000),
   stream_attendee_name VARCHAR(1000),
   chat_space_member_name VARCHAR(1000),
   chat_space_title VARCHAR(1000),
@@ -589,7 +593,7 @@ CREATE TABLE notification (
   chat_space_id BIGINT,
   chat_space_member_id BIGINT,
   initiator_or_requester_id BIGINT,
-  fleen_stream_id BIGINT,
+  stream_id BIGINT,
   follower_id BIGINT,
   receiver_id BIGINT NOT NULL,
   recipient_id BIGINT,
@@ -618,9 +622,9 @@ CREATE TABLE notification (
       REFERENCES share_contact_request (share_contact_request_id)
         ON DELETE SET NULL,
 
-  CONSTRAINT notification_fk_fleen_stream_id
-    FOREIGN KEY (fleen_stream_id)
-      REFERENCES fleen_stream (fleen_stream_id)
+  CONSTRAINT notification_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
         ON DELETE SET NULL,
 
   CONSTRAINT notification_fk_stream_attendee_id
@@ -683,8 +687,12 @@ CREATE TABLE nouns (
 
 CREATE TABLE link (
   link_id BIGSERIAL PRIMARY KEY,
+  parent_id BIGINT NOT NULL,
   url VARCHAR(1000),
   chat_space_id BIGINT,
+
+  like_parent_type VARCHAR(255)
+    NOT NULL CHECK (like_parent_type IN ('STREAM', 'CHAT_SPACE')),
 
   link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
     'EMAIL',
@@ -708,3 +716,49 @@ CREATE TABLE link (
 );
 
 --rollback DROP TABLE IF EXISTS `link`;
+
+
+
+-- changeset alamu:create_table_likes
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'likes';
+
+CREATE TABLE likes (
+  like_id BIGSERIAL PRIMARY KEY,
+  parent_id BIGINT NOT NULL,
+  parent_title varchar(1000) NULL,
+
+  chat_space_id BIGINT NULL,
+  stream_id BIGINT NULL,
+  review_id BIGINT NOT NULL,
+  member_id BIGINT NOT NULL,
+
+  like_parent_type VARCHAR(255)
+    NOT NULL CHECK (like_parent_type IN ('STREAM', 'CHAT_SPACE', 'REVIEW')),
+
+  like_type VARCHAR(255)
+    NOT NULL CHECK (like_type IN ('LIKE', 'UNLIKE')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT like_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+      ON DELETE SET NULL,
+  CONSTRAINT like_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES stream (stream_id)
+      ON DELETE SET NULL,
+  CONSTRAINT like_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+      ON DELETE SET NULL,
+  CONSTRAINT like_fk_review_id
+    FOREIGN KEY (review_id)
+      REFERENCES review (review_id)
+      ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `likes`;

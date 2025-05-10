@@ -41,4 +41,8 @@ public interface StreamService {
   StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, FleenUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
   boolean existsByAttendees(Member viewer, Member target);
+
+  Long incrementLikeCount(Long streamId);
+
+  Long decrementLikeCount(Long streamId);
 }

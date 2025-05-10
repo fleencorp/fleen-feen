@@ -86,6 +86,9 @@ public class ChatSpace extends FleenFeenEntity {
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = Link.class, cascade = CascadeType.PERSIST)
   private Set<Link> links = new HashSet<>();
 
+  @Column(name = "like_count", nullable = false)
+  private Long likeCount = 0L;
+
   public Member getOrganizer() {
     return member;
   }
