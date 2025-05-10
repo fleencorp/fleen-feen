@@ -73,7 +73,6 @@ public class StreamServiceImpl implements StreamService {
   private final StreamRepository streamRepository;
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository;
-  private final StreamParticipationRepository streamParticipationRepository;
   private final StreamMapper streamMapper;
 
   /**
@@ -97,7 +96,6 @@ public class StreamServiceImpl implements StreamService {
       final StreamRepository streamRepository,
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository,
-      final StreamParticipationRepository streamParticipationRepository,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
     this.miscService = miscService;
@@ -105,7 +103,6 @@ public class StreamServiceImpl implements StreamService {
     this.streamRepository = streamRepository;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamAttendeeParticipationRepository = streamAttendeeParticipationRepository;
-    this.streamParticipationRepository = streamParticipationRepository;
     this.streamMapper = streamMapper;
   }
 

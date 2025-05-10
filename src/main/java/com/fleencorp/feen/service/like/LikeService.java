@@ -18,8 +18,6 @@ public interface LikeService {
 
   LikeInfo findChatSpaceLikeByMember(Long parentId, Member member);
 
-  LikeInfo findStreamLikeByMember(Long parentId, Member member);
-
   void setUserLikeInfo(SetLikeInfo setLikeInfo, FleenUser user);
 
   void setUserLikeInfo(final List<? extends SetLikeInfo> setLikeInfos, FleenUser user);
