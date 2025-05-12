@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.stream;
+package com.fleencorp.feen.service.stream.event;
 
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;

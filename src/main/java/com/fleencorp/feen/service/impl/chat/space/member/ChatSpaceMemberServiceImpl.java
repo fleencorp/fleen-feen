@@ -6,7 +6,7 @@ import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -27,13 +27,14 @@ import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberR
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,44 +60,40 @@ import static java.util.Objects.nonNull;
 @Service
 public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
 
+  private final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService;
   private final ChatSpaceService chatSpaceService;
   private final ChatSpaceUpdateService chatSpaceUpdateService;
   private final MemberService memberService;
-  private final ChatSpaceMemberRepository chatSpaceMemberRepository;
   private final ChatSpaceRepository chatSpaceRepository;
+  private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
-  private final ChatSpaceMemberMapper chatSpaceMemberMapper;
 
   /**
-   * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
+   * Constructs a new {@code ChatSpaceMemberServiceImpl}, which handles operations related to members within a chat space.
    *
-   * <p>This constructor initializes the service with all required components for managing
-   * chat spaces, including repositories, mappers, and various utility services. It also injects
-   * configuration values like the delegated authority email.</p>
-   *
-   * @param chatSpaceService handles chat spaces
-   * @param chatSpaceUpdateService handles updates to chat spaces
-   * @param memberService the service for managing members and profile information
-   * @param chatSpaceMemberRepository repository for managing chat space members
-   * @param chatSpaceRepository repository for chat space entities
-   * @param localizer provides localized responses for API operations
-   * @param chatSpaceMemberMapper maps chat space member entities to response models
+   * @param chatSpaceService the service for managing chat space lifecycles and operations
+   * @param chatSpaceUpdateService the service responsible for updating chat space details
+   * @param chatSpaceMemberOperationsService the service for member-specific operations within a chat space
+   * @param memberService the service for general member-related functionality
+   * @param chatSpaceRepository the repository for accessing and persisting chat space data
+   * @param unifiedMapper the utility for mapping between entities and DTOs
+   * @param localizer the component for retrieving localized messages
    */
   public ChatSpaceMemberServiceImpl(
       final ChatSpaceService chatSpaceService,
       final ChatSpaceUpdateService chatSpaceUpdateService,
+      final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService,
       final MemberService memberService,
-      final ChatSpaceMemberRepository chatSpaceMemberRepository,
       final ChatSpaceRepository chatSpaceRepository,
-      final Localizer localizer,
-      final ChatSpaceMemberMapper chatSpaceMemberMapper) {
+      final UnifiedMapper unifiedMapper,
+      final Localizer localizer) {
+    this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceUpdateService = chatSpaceUpdateService;
     this.memberService = memberService;
     this.chatSpaceRepository = chatSpaceRepository;
-    this.chatSpaceMemberRepository = chatSpaceMemberRepository;
+    this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
-    this.chatSpaceMemberMapper = chatSpaceMemberMapper;
   }
 
   /**
@@ -115,18 +112,20 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Retrieve the chat space
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
+    final String memberName = searchRequest.getMemberName();
+    final Pageable pageable = searchRequest.getPage();
 
     // Check if the search request includes a member's name
-    if (nonNull(searchRequest.getMemberName())) {
+    if (nonNull(memberName)) {
       // Find members by chat space and member name with pagination
-      page = chatSpaceMemberRepository.findByChatSpaceAndMemberName(ChatSpace.of(chatSpaceId), searchRequest.getMemberName(), searchRequest.getPage());
+      page = chatSpaceMemberOperationsService.findByChatSpaceAndMemberName(chatSpace, memberName, pageable);
     } else {
       // Find all members by chat space with pagination
-      page = chatSpaceMemberRepository.findByChatSpace(ChatSpace.of(chatSpaceId), searchRequest.getPage());
+      page = chatSpaceMemberOperationsService.findByChatSpace(chatSpace, pageable);
     }
 
     // Convert the chat space members to response views
-    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
+    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = unifiedMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
     determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
     // Set chat space members that are updatable by the user
@@ -137,23 +136,36 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     return localizer.of(searchResult);
   }
 
+  /**
+   * Finds administrator members of a chat space, optionally filtered by member name.
+   *
+   * <p>If a member name is provided in the search request, this method filters the results by name.
+   * Otherwise, it returns all admins of the chat space with pagination.</p>
+   *
+   * @param chatSpaceId the ID of the chat space to search in
+   * @param searchRequest the search request containing filters and pagination
+   * @param user the currently authenticated user
+   * @return a localized search result containing the chat space member responses
+   */
   @Override
   public ChatSpaceMemberSearchResult findChatSpaceAdmins(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
     // Retrieve the chat space
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
+    final Pageable pageable = searchRequest.getPage();
+    final String memberName = searchRequest.getMemberName();
 
     // Check if the search request includes a member's name
-    if (nonNull(searchRequest.getMemberName())) {
+    if (nonNull(memberName)) {
       // Find members by chat space and member name with pagination
-      page = chatSpaceMemberRepository.findAdminByChatSpaceAndMemberName(ChatSpace.of(chatSpaceId), searchRequest.getMemberName(), searchRequest.getPage());
+      page = chatSpaceMemberOperationsService.findAdminByChatSpaceAndMemberName(chatSpace, memberName, pageable);
     } else {
       // Find all members by chat space with pagination
-      page = chatSpaceMemberRepository.findAdminByChatSpace(ChatSpace.of(chatSpaceId), searchRequest.getPage());
+      page = chatSpaceMemberOperationsService.findAdminByChatSpace(chatSpace, pageable);
     }
 
     // Convert the chat space members to response views
-    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = chatSpaceMemberMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
+    final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = unifiedMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
     determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
     // Create the search result
@@ -196,9 +208,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Upgrade the member's role to admin
     chatSpaceMember.upgradeRole();
     // Save the updated chat space member information to the repository
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdminResponse = UpgradeChatSpaceMemberToAdminResponse.of(chatSpaceId, chatSpaceMemberId, chatSpaceMembershipInfo);
     // Return a localized response confirming the upgrade
@@ -239,9 +251,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Downgrade the admin role to a member
     chatSpaceMember.downgradeRole();
     // Save the updated chat space member information to the repository
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMemberResponse = DowngradeChatSpaceAdminToMemberResponse.of(chatSpaceId, chatSpaceMemberId, chatSpaceMembershipInfo);
     // Return a localized response confirming the downgrade
@@ -301,7 +313,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
 
     // Find the chat space admin to be downgraded or throw an exception if not found
-    final ChatSpaceMember chatSpaceMember = chatSpaceMemberRepository.findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(chatSpaceMemberId), chatSpace)
+    final ChatSpaceMember chatSpaceMember = chatSpaceMemberOperationsService.findByChatSpaceMemberAndChatSpace(ChatSpaceMember.of(chatSpaceMemberId), chatSpace)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(chatSpaceMemberId));
 
     return ChatSpaceAndMemberDetailsHolder.of(chatSpace, chatSpaceMember);
@@ -413,7 +425,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
       // Approve the request
       chatSpaceMember.approveJoinStatus();
       // Save the member
-      chatSpaceMemberRepository.save(chatSpaceMember);
+      chatSpaceMemberOperationsService.save(chatSpaceMember);
       return;
     }
 
@@ -458,7 +470,8 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     removeChatSpaceMember(chatSpace, chatSpaceMember);
     // Remove member from chat space externally
     removeChatSpaceMemberExternally(chatSpace, chatSpaceMember);
-    final ChatSpaceMembershipInfo membershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+
+    final ChatSpaceMembershipInfo membershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final RemoveChatSpaceMemberResponse removeChatSpaceMemberResponse = RemoveChatSpaceMemberResponse.of(chatSpaceId, chatSpaceMemberId, membershipInfo);
     // Return a localized response indicating the member removal was successful
@@ -487,7 +500,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Allow the member to leave chat space
     chatSpaceMember.leave();
     // Save the member
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
     // Decrease total members and save chat space
     decreaseTotalMembersAndSave(chatSpace);
     // Create external request
@@ -562,7 +575,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Mark the member as removed from the chat space
     chatSpaceMember.markAsRemoved();
     // Save the chat space member
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
     // Decrease total members and save chat space
     decreaseTotalMembersAndSave(chatSpace);
   }
@@ -605,7 +618,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Override
   public ChatSpaceMember findByChatSpaceAndChatSpaceMemberId(final ChatSpace chatSpace, final Long chatSpaceMemberId) throws ChatSpaceMemberNotFoundException {
     // Retrieve the chat space member and throw an exception if not found
-    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, chatSpaceMemberId)
+    return chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, chatSpaceMemberId)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(chatSpaceMemberId));
   }
 
@@ -629,7 +642,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 
     // Search for the user as a member of the chat space and if it doesn't exist, create a new one
-    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, user.toMember())
+    return chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, user.toMember())
       .orElseGet(() -> ChatSpaceMember.of(chatSpace, user.toMember()));
   }
 
@@ -648,7 +661,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   @Override
   public ChatSpaceMember findByChatSpaceAndMember(final ChatSpace chatSpace, final Member member) throws ChatSpaceMemberNotFoundException {
     // Retrieve the chat space member and throw an exception if not found
-    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member)
+    return chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, member)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(member.getMemberId()));
   }
 
@@ -685,7 +698,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   protected ChatSpaceMember findOrCreateChatMember(final ChatSpace chatSpace, final Member member) {
     // Attempt to find the chat space member by chat space and member or create one if none can be found
-    return chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, member)
+    return chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, member)
       .orElse(ChatSpaceMember.of(chatSpace, member));
   }
 
@@ -705,7 +718,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
       chatSpaceMember.approveJoinStatus();
       // If the chat space member is newly created, save it to the repository
       if (isNull(chatSpaceMember.getChatSpaceMemberId())) {
-        chatSpaceMemberRepository.save(chatSpaceMember);
+        chatSpaceMemberOperationsService.save(chatSpaceMember);
       }
     }
   }
@@ -736,7 +749,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Check if the stream has an associated chat space with a valid ID
     if (stream.hasChatSpaceId()) {
       // Find if the attendee is a member of the chat space
-      final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberRepository.findByChatSpaceAndMemberAndStatus(stream.getChatSpace(), streamAttendee.getMember(), ChatSpaceRequestToJoinStatus.approved());
+      final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberOperationsService.findByChatSpaceAndMemberAndStatus(stream.getChatSpace(), streamAttendee.getMember(), ChatSpaceRequestToJoinStatus.approved());
       // Return true if a member exists, otherwise false
       return existingChatSpaceMember.isPresent();
     }

@@ -20,7 +20,7 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
-import com.fleencorp.feen.service.stream.join.EventJoinService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,17 +40,17 @@ public class UserStreamController {
 
   private final CommonStreamService commonStreamService;
   private final CommonStreamJoinService commonStreamJoinService;
-  private final EventJoinService eventJoinService;
+  private final EventOperationsService eventOperationsService;
   private final StreamSearchService streamSearchService;
 
   public UserStreamController(
       final CommonStreamService commonStreamService,
       final CommonStreamJoinService commonStreamJoinService,
-      final EventJoinService eventJoinService,
+      final EventOperationsService eventOperationsService,
       final StreamSearchService streamSearchService) {
     this.commonStreamService = commonStreamService;
     this.commonStreamJoinService = commonStreamJoinService;
-    this.eventJoinService = eventJoinService;
+    this.eventOperationsService = eventOperationsService;
     this.streamSearchService = streamSearchService;
   }
 
@@ -273,7 +273,7 @@ public class UserStreamController {
       @Parameter(hidden = true)
       @AuthenticationPrincipal final FleenUser user) {
     if (addNewStreamAttendeeDto.isEvent()) {
-      return eventJoinService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
+      return eventOperationsService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
     }
     throw new FailedOperationException();
   }

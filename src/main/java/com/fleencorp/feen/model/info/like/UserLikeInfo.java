@@ -17,7 +17,7 @@ import lombok.Setter;
   "liked",
   "like_other_text"
 })
-public class LikeInfo {
+public class UserLikeInfo {
 
   @JsonProperty("liked")
   private Boolean liked;
@@ -25,7 +25,11 @@ public class LikeInfo {
   @JsonProperty("like_other_text")
   private String likeOtherText;
 
-  public static LikeInfo of(final boolean liked, final String likeOtherText) {
-    return new LikeInfo(liked, likeOtherText);
+  public static UserLikeInfo of(final boolean liked, final String likeOtherText) {
+    return new UserLikeInfo(liked, likeOtherText);
+  }
+
+  public static UserLikeInfo of() {
+    return new UserLikeInfo();
   }
 }

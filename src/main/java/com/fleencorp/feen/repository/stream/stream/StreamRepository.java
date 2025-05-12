@@ -1,4 +1,4 @@
-package com.fleencorp.feen.repository.stream;
+package com.fleencorp.feen.repository.stream.stream;
 
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
@@ -11,7 +11,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 
-public interface StreamParticipationRepository extends JpaRepository<FleenStream, Long> {
+public interface StreamRepository extends JpaRepository<FleenStream, Long> {
+
 
   /**
    * Finds past streams that were attended by both specified users.

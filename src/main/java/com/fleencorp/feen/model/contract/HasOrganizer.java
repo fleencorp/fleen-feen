@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.contract;
 
-public interface SetIsOrganizer {
+public interface HasOrganizer {
 
   Long getOrganizerId();
 

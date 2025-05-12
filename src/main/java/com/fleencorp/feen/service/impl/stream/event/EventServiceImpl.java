@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream;
+package com.fleencorp.feen.service.impl.stream.event;
 
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
@@ -20,17 +20,16 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.StreamRepository;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.stream.EventService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
-import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.feen.service.stream.update.EventUpdateService;
-import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
+import com.fleencorp.feen.service.stream.event.EventService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,53 +57,28 @@ import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvaila
 public class EventServiceImpl implements EventService, StreamRequestService {
 
   private final String delegatedAuthorityEmail;
+  private final EventOperationsService eventOperationsService;
   private final MiscService miscService;
-  private final StreamService streamService;
-  private final EventUpdateService eventUpdateService;
-  private final OtherEventUpdateService otherEventUpdateService;
-  private final StreamRepository streamRepository;
-  private final StreamAttendeeRepository streamAttendeeRepository;
+  private final StreamAttendeeOperationsService streamAttendeeOperationsService;
+  private final StreamOperationsService streamOperationsService;
   private final StreamMapper streamMapper;
   private final StreamEventPublisher streamEventPublisher;
   private final Localizer localizer;
 
-  /**
-   * Constructor for initializing the EventServiceImpl class with required dependencies.
-   *
-   * <p>This constructor injects the necessary services and components, including the Google
-   * delegated authority email, various service and repository classes, and utilities like
-   * Localizer and StreamMapper. It sets up the internal state of the EventServiceImpl
-   * to manage stream and event operations effectively.</p>
-   *
-   * @param delegatedAuthorityEmail the email address for the Google delegated authority, injected from the configuration.
-   * @param miscService             the service for handling miscellaneous tasks.
-   * @param streamService           the service for stream-related operations.
-   * @param otherEventUpdateService the service for handling other types of event updates.
-   * @param eventUpdateService      the service for updating event details.
-   * @param streamRepository        the repository for accessing stream data.
-   * @param streamAttendeeRepository the repository for accessing stream attendee data.
-   * @param localizer       the service for providing localized responses.
-   * @param streamEventPublisher    the publisher for publishing stream events.
-   * @param streamMapper            the mapper for converting stream data to different representations.
-   */
   public EventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
+      @Lazy final EventOperationsService eventOperationsService,
       final MiscService miscService,
-      final StreamService streamService,
-      final EventUpdateService eventUpdateService,
-      final OtherEventUpdateService otherEventUpdateService,
-      final StreamRepository streamRepository,
-      final StreamAttendeeRepository streamAttendeeRepository,
+      @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
+      @Lazy final StreamOperationsService streamOperationsService,
       final Localizer localizer,
       final StreamEventPublisher streamEventPublisher,
       final StreamMapper streamMapper) {
+    this.eventOperationsService = eventOperationsService;
     this.miscService = miscService;
-    this.streamService = streamService;
+    this.streamAttendeeOperationsService = streamAttendeeOperationsService;
+    this.streamOperationsService = streamOperationsService;
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
-    this.eventUpdateService = eventUpdateService;
-    this.otherEventUpdateService = otherEventUpdateService;
-    this.streamRepository = streamRepository;
-    this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamMapper = streamMapper;
     this.streamEventPublisher = streamEventPublisher;
     this.localizer = localizer;
@@ -162,11 +136,11 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     );
 
     // Save stream and create event in Google Calendar Event Service externally
-    stream = streamRepository.save(stream);
+    stream = streamOperationsService.save(stream);
     // Increase attendees count, save the event
-    streamService.increaseTotalAttendeesOrGuests(stream);
+    streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
-    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create an event
     final ExternalStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, user.getEmailAddress(), createEventDto);
     // Create and add event in Calendar through external service
@@ -212,7 +186,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * If so, it creates a calendar event request using the details from the request, adds the event
    * organizer as an attendee, and updates the request with additional necessary details, such as the
    * calendar's external ID, the delegated authority email, and the user's email address. Finally,
-   * the event is created and added to the external calendar service via the {@link EventUpdateService}.</p>
+   * the event is created and added to the external calendar service via the {@link EventOperationsService}.</p>
    *
    * @param createStreamRequest the request object containing details of the event to be created
    */
@@ -226,7 +200,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       // Update the event request with necessary details
       createCalendarEventRequest.update(createStreamRequest.calendarExternalId(), delegatedAuthorityEmail, createStreamRequest.userEmailAddress());
       // Create and add event in Calendar through external service
-      otherEventUpdateService.createEventInGoogleCalendar(createStreamRequest.getStream(), createCalendarEventRequest);
+      eventOperationsService.createEventInGoogleCalendar(createStreamRequest.getStream(), createCalendarEventRequest);
     }
   }
 
@@ -260,11 +234,11 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       user.getPhoneNumber());
 
     // Increase attendees count, save the event and and add the event in Google Calendar
-    streamService.increaseTotalAttendeesOrGuests(stream);
+    streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
-    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Save stream and create event in Google Calendar Event Service externally
-    stream = streamRepository.save(stream);
+    stream = streamOperationsService.save(stream);
     // Create and build the create stream request to be use for external purpose
     final ExternalStreamRequest createInstantStreamRequest = ExternalStreamRequest.ofCreateInstantEvent(calendar, stream, stream.getStreamType(), createInstantEventDto);
     // Create and add event in Calendar through external service
@@ -296,7 +270,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       // Update the instant event request with necessary details
       createInstantCalendarEventRequest.update(createInstantStreamRequest.calendarExternalId());
       // Create and add event in Calendar through external service
-      eventUpdateService.createInstantEventInGoogleCalendar(createInstantStreamRequest.getStream(), createInstantCalendarEventRequest);
+      eventOperationsService.createInstantEventInGoogleCalendar(createInstantStreamRequest.getStream(), createInstantCalendarEventRequest);
     }
   }
 
@@ -341,14 +315,14 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   protected void processPendingAttendees(final String calendarExternalId, final FleenStream stream) {
     // Retrieve all pending attendees for the specified stream
-    final List<StreamAttendee> pendingAttendees = streamAttendeeRepository.findAllByStreamAndRequestToJoinStatus(stream, PENDING);
+    final List<StreamAttendee> pendingAttendees = streamAttendeeOperationsService.findAllByStreamAndRequestToJoinStatus(stream, PENDING);
     // Extract email addresses and IDs of the pending attendees or guests
     final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(pendingAttendees);
     // Extract the attendee IDS from pending attendees
     final Set<Long> attendeeIds = getAttendeeIds(pendingAttendees);
 
     // Approve all pending requests
-    streamAttendeeRepository.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
+    streamAttendeeOperationsService.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
     // Add attendees to the calendar event
     addNewAttendeesToCalendar(calendarExternalId, stream, attendeesOrGuestsEmailAddresses);
   }

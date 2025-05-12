@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class RequestToJoinSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return "request.to.join.search";
+    return nonNull(result) && result.hasValue() ? "request.to.join.search" : "request.to.join.empty.search";
   }
 
-  public static Supplier<RequestToJoinSearchResult> of(final SearchResultView result) {
-    return () -> new RequestToJoinSearchResult(result);
+  public static RequestToJoinSearchResult of(final SearchResultView result) {
+    return new RequestToJoinSearchResult(result);
   }
 }

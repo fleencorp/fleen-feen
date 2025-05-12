@@ -27,17 +27,21 @@ import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.util.CommonUtil.allNonNull;
 import static java.util.Objects.nonNull;
 
 /**
@@ -63,18 +67,17 @@ public class ReviewServiceImpl implements ReviewService {
   private final Localizer localizer;
 
   /**
-   * Constructs a {@link ReviewServiceImpl} instance with the specified dependencies.
+   * Constructs a new {@code ReviewServiceImpl}, responsible for managing reviews and related interactions
+   * such as likes on reviews within streams.
    *
-   * <p>This constructor initializes the service with repositories for managing streams and reviews,
-   * as well as a localized response handler for returning user-friendly messages.</p>
-   *
-   * @param likeService the service for managing likes for chat space, streams and reviews
-   * @param streamService the service for accessing and managing streams
-   * @param reviewRepository the repository for accessing stream review data
-   * @param localizer the service for generating localized responses
+   * @param likeService the service used to handle like operations on reviews (injected lazily to avoid circular dependencies)
+   * @param streamService the service for retrieving and validating stream-related data associated with reviews
+   * @param reviewRepository the repository for performing CRUD operations on review entities
+   * @param reviewMapper the mapper for converting between review entities and their corresponding DTOs
+   * @param localizer the utility for resolving localized text for responses and messages
    */
   public ReviewServiceImpl(
-      final LikeService likeService,
+      @Lazy final LikeService likeService,
       final StreamService streamService,
       final ReviewRepository reviewRepository,
       final ReviewMapper reviewMapper,
@@ -108,19 +111,8 @@ public class ReviewServiceImpl implements ReviewService {
       page = reviewRepository.findByStreamId(searchRequest.getParentId(), searchRequest.getPage());
     }
 
-    // Convert the reviews to the response
-    final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
-    // Check and set the reviews that are updatable by the user
-    setReviewsThatAreUpdatableByUser(reviewResponses, user.getId());
-    // Set the like info by the user if any
-    likeService.setUserLikeInfo(reviewResponses, user);
-
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
-    // Create the search result
-    final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
-    // Return a search result view with the review responses and pagination details
-    return localizer.of(searchResult);
+    // Convert and process the reviews to responses
+    return processAndReturnReviews(page, user.toMember());
   }
 
   /**
@@ -143,90 +135,15 @@ public class ReviewServiceImpl implements ReviewService {
     List<Review> reviews = new ArrayList<>();
 
     if (ReviewParentType.isStream(reviewParentType)) {
-      reviews = findMostRecentReviewByStream(parentId, pageRequest);
+      reviews = reviewRepository.findMostRecentReviewByStream(parentId, pageRequest);
     }
 
     // Return the most recent review
-    return extractMostRecentReview(reviews, user.getId());
-  }
-
-  /**
-   * Retrieves the most recent review(s) for a specified stream using pagination.
-   *
-   * <p>This method queries the review repository to find the most recent review(s) associated
-   * with the given stream ID, based on the provided {@link PageRequest}. Pagination is used to
-   * limit the number of reviews returned.</p>
-   *
-   * @param streamId the ID of the stream whose most recent review(s) are being retrieved
-   * @param pageRequest the {@link PageRequest} object specifying pagination details (page number, size, etc.)
-   * @return a list of {@link Review} objects for the most recent review(s) of the stream
-   */
-  private List<Review> findMostRecentReviewByStream(final Long streamId, final PageRequest pageRequest) {
-    return reviewRepository.findMostRecentReviewByStream(streamId, pageRequest);
-  }
-
-  /**
-   * Extracts the most recent review from the provided list of reviews and marks it as updatable if applicable.
-   *
-   * <p>This method processes a list of {@link Review} objects, retrieves the most recent one (if any), and
-   * converts it to a {@link ReviewResponse}. If the review is authored by the specified user, it is marked
-   * as updatable.</p>
-   *
-   * @param reviews the list of reviews from which the most recent review is extracted
-   * @param userId the ID of the user to check if they authored the review and mark it as updatable
-   * @return the {@link ReviewResponse} of the most recent review, or {@code null} if no review is found
-   */
-  private ReviewResponse extractMostRecentReview(final List<Review> reviews, final Long userId) {
-    if (nonNull(reviews)) {
-      return reviews.stream()
-        .findFirst()
-        .map(reviewMapper::toReviewResponsePublic)
-        .map(reviewResponse -> {
-          // Mark the review as updatable if necessary
-          setReviewAsUpdatableIfApplicable(reviewResponse, userId);
-          return reviewResponse;
-        })
-        .orElse(null);
-    }
-
-    return null;
-  }
-
-  /**
-   * Marks reviews that are updatable by the given member.
-   *
-   * <p>This method iterates through a list of {@link ReviewResponse} objects and marks reviews as
-   * updatable if they were created by the specified {@link Member}. A review is considered updatable
-   * if the member who created it matches the member passed to this method.</p>
-   *
-   * @param reviews the list of {@link ReviewResponse} objects to check for update eligibility
-   * @param userId the user whose reviews should be marked as updatable
-   */
-  protected static void setReviewsThatAreUpdatableByUser(final List<ReviewResponse> reviews, final Long userId) {
-    if (nonNull(reviews) && nonNull(userId)) {
-      reviews.forEach(review -> {
-        if (nonNull(review.getMemberId()) && review.getMemberId().equals(userId)) {
-          review.markAsUpdatable();
-        }
-      });
-    }
-  }
-
-  /**
-   * Marks the given review as updatable if it belongs to the specified member.
-   *
-   * <p>This method checks if the provided {@link ReviewResponse} was created by the given {@link Member}.
-   * If so, it marks the review as updatable. This is a helper method that wraps the logic of marking a
-   * single review, utilizing {@link #setReviewsThatAreUpdatableByUser(List, Long)}.</p>
-   *
-   * @param reviewResponse the {@link ReviewResponse} to be checked and potentially marked as updatable
-   * @param userId the user whose ownership of the review is being verified
-   */
-  protected static void setReviewAsUpdatableIfApplicable(final ReviewResponse reviewResponse, final Long userId) {
-    if (nonNull(reviewResponse)) {
-      final List<ReviewResponse> reviewResponses = Collections.singletonList(reviewResponse);
-      setReviewsThatAreUpdatableByUser(reviewResponses, userId);
-    }
+    final ReviewResponse reviewResponse = getMostRecentReview(reviews, user.getId());
+    // Process other details of the reviews
+    processReviewsOtherDetails(List.of(reviewResponse), user.toMember());
+    // Return the review
+    return reviewResponse;
   }
 
   /**
@@ -243,16 +160,36 @@ public class ReviewServiceImpl implements ReviewService {
   public ReviewSearchResult findMyReviews(final SearchRequest searchRequest, final FleenUser user) {
     // Find all user reviews
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
-    // Convert the reviews to the response
-    final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPrivate(page.getContent());
-    // Set the like info by the user if any
-    likeService.setUserLikeInfo(reviewResponses, user);
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
-    // Create the search result
-    final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
-    // Return a search result view with the review responses and pagination details
-    return localizer.of(searchResult);
+    // Convert and process the reviews to responses
+    return processAndReturnReviews(page, user.toMember());
+  }
+
+  /**
+   * Processes a page of reviews and returns a localized search result.
+   *
+   * <p>This method converts each {@link Review} in the page to a {@link ReviewResponse}, processes
+   * additional review details, wraps the responses in a {@link SearchResultView}, and then returns
+   * a localized {@link ReviewSearchResult}.</p>
+   *
+   * @param page the paginated list of reviews
+   * @param member the current member viewing the reviews
+   * @return a localized {@link ReviewSearchResult}, or an empty result if input is null
+   */
+  protected ReviewSearchResult processAndReturnReviews(final Page<Review> page, final Member member) {
+    if (allNonNull(page, member)) {
+      // Convert Review entities to responses
+      final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
+      // Process other details of the reviews
+      processReviewsOtherDetails(reviewResponses, member);
+      // Create the search result view
+      final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
+      // Create the search result
+      final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
+      // Return a search result view with the review responses and pagination details
+      return localizer.of(searchResult);
+    }
+
+    return ReviewSearchResult.empty();
   }
 
   /**
@@ -282,16 +219,12 @@ public class ReviewServiceImpl implements ReviewService {
     checkAddReviewEligibility(reviewParentType, stream);
     // Convert the dto to the entity
     final Review review = addReviewDto.toStreamReview(stream, user.toMember());
-
     // Save the new StreamReview to the repository
     reviewRepository.save(review);
-
     // Create the review response
     final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
     // Set the review is-updatable check
-    setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
-    // Set the like info by the user if any
-    likeService.setUserLikeInfo(List.of(reviewResponse), user);
+    setEntityUpdatableByUser(reviewResponse, user.getId());
     // Get the response
     final AddReviewResponse addReviewResponse = AddReviewResponse.of(reviewResponse);
     // Return a localized response for the added review
@@ -324,16 +257,12 @@ public class ReviewServiceImpl implements ReviewService {
 
       // Update the existing review with the new details
       review.update(updateReviewDto.getReview(), updateReviewDto.getRating());
-
       // Save the StreamReview to the repository
       reviewRepository.save(review);
-
       // Create the review response
       final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
-      // Set the review is-updatable check
-      setReviewAsUpdatableIfApplicable(reviewResponse, user.getId());
-      // Set the like info by the user if any
-      likeService.setUserLikeInfo(List.of(reviewResponse), user);
+      // Process other details of the reviews
+      processReviewsOtherDetails(List.of(reviewResponse), user.toMember());
       // Get the response
       final UpdateReviewResponse updateReviewResponse = UpdateReviewResponse.of(reviewResponse);
       // Return a localized response for the updated review
@@ -341,6 +270,29 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     throw new ReviewNotFoundException(reviewId);
+  }
+
+  /**
+   * Populates additional metadata for each review response such as update eligibility and like status.
+   *
+   * <p>Each {@link ReviewResponse} is checked to determine if it can be updated by the current member,
+   * and also enriched with the member’s like information if applicable.</p>
+   *
+   * @param reviewResponses the list of review responses to process
+   * @param member the current member interacting with the reviews
+   */
+  protected void processReviewsOtherDetails(final Collection<ReviewResponse> reviewResponses, final Member member) {
+    if (allNonNull(reviewResponses, member)) {
+      reviewResponses.stream()
+        .filter(Objects::nonNull)
+        .forEach(reviewResponse -> {
+          // Set the review is-updatable check
+          setEntityUpdatableByUser(reviewResponse, member.getMemberId());
+      });
+
+      // Set the like info by the user if any
+      likeService.populateLikesForReviews(reviewResponses, member);
+    }
   }
 
   /**
@@ -435,5 +387,27 @@ public class ReviewServiceImpl implements ReviewService {
   public Long decrementLikeCount(final Long reviewId) {
     final int total = reviewRepository.decrementAndGetLikeCount(reviewId);
     return (long) total;
+  }
+
+  /**
+   * Extracts the most recent review from the provided list of reviews and marks it as updatable if applicable.
+   *
+   * <p>This method processes a list of {@link Review} objects, retrieves the most recent one (if any), and
+   * converts it to a {@link ReviewResponse}. If the review is authored by the specified user, it is marked
+   * as updatable.</p>
+   *
+   * @param reviews the list of reviews from which the most recent review is extracted
+   * @param userId the ID of the user to check if they authored the review and mark it as updatable
+   * @return the {@link ReviewResponse} of the most recent review, or {@code null} if no review is found
+   */
+  protected ReviewResponse getMostRecentReview(final List<Review> reviews, final Long userId) {
+    if (nonNull(reviews)) {
+      return reviews.stream()
+        .findFirst()
+        .map(reviewMapper::toReviewResponsePublic)
+        .orElse(null);
+    }
+
+    return null;
   }
 }

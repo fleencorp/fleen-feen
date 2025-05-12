@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.stream.update;
+package com.fleencorp.feen.service.impl.stream.event;
 
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;
@@ -8,10 +8,10 @@ import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeReques
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeeResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleCreateCalendarEventResponse;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
-import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.stream.event.OtherEventUpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -36,30 +36,17 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
   private final BroadcastService broadcastService;
   private final GoogleCalendarAttendeeService googleCalendarAttendeeService;
   private final GoogleCalendarEventService googleCalendarEventService;
-  private final StreamRepository streamRepository;
+  private final StreamOperationsService streamOperationsService;
 
-  /**
-   * Constructs a new instance of {@code OtherEventUpdateServiceImpl} with the specified services.
-   *
-   * <p>This constructor initializes the service with the {@code BroadcastService} for broadcasting event updates and notifications,
-   * the {@code GoogleCalendarAttendeeService} for managing Google Calendar attendee-related operations,
-   * the {@code GoogleCalendarEventService} for managing and updating Google Calendar events, and
-   * the {@code FleenStreamRepository} for accessing and managing stream data associated with events.</p>
-   *
-   * @param broadcastService             the service for broadcasting event updates and notifications
-   * @param googleCalendarAttendeeService the service for managing Google Calendar attendee data
-   * @param googleCalendarEventService    the service for managing and updating Google Calendar events
-   * @param streamRepository              the repository for accessing and managing stream data
-   */
   public OtherEventUpdateServiceImpl(
       final BroadcastService broadcastService,
       final GoogleCalendarAttendeeService googleCalendarAttendeeService,
       final GoogleCalendarEventService googleCalendarEventService,
-      final StreamRepository streamRepository) {
+      final StreamOperationsService streamOperationsService) {
     this.broadcastService = broadcastService;
     this.googleCalendarAttendeeService = googleCalendarAttendeeService;
     this.googleCalendarEventService = googleCalendarEventService;
-    this.streamRepository = streamRepository;
+    this.streamOperationsService = streamOperationsService;
   }
 
   /**
@@ -81,7 +68,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
     // Update the stream with the event ID and HTML link
     stream.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
     // Save it
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
     // Set the event ID from the created event to to be reused
     createCalendarEventRequest.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
 

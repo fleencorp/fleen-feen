@@ -2,9 +2,10 @@ package com.fleencorp.feen.model.response.review;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.review.ReviewParentType;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
-import com.fleencorp.feen.model.contract.SetLikeInfo;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.model.contract.Updatable;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import lombok.Getter;
@@ -30,7 +31,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "is_updatable"
 })
 public class ReviewResponse extends FleenFeenResponse
-    implements SetIsUpdatable, SetLikeInfo {
+    implements HasId, Updatable, Likeable {
 
   @JsonProperty("review")
   private String review;
@@ -58,13 +59,18 @@ public class ReviewResponse extends FleenFeenResponse
   private String parentTitle;
 
   @JsonProperty("user_like_info")
-  private LikeInfo userLikeInfo;
+  private UserLikeInfo userLikeInfo;
 
   @JsonProperty("total_like_count")
   private Long totalLikeCount;
 
   @JsonIgnore
   private Long memberId;
+
+  @Override
+  public Long getAuthorId() {
+    return getMemberId();
+  }
 
   @Override
   public void setIsUpdatable(final boolean isUpdatable) {

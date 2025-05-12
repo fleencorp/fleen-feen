@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
+import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,14 +34,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/stream/search")
 public class StreamSearchController {
 
+  private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamSearchService streamSearchService;
-  private final StreamAttendeeService streamAttendeeService;
 
   public StreamSearchController(
-      final StreamSearchService streamSearchService,
-      final StreamAttendeeService streamAttendeeService) {
+      final StreamAttendeeOperationsService streamAttendeeOperationsService,
+      final StreamSearchService streamSearchService) {
+    this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamSearchService = streamSearchService;
-    this.streamAttendeeService = streamAttendeeService;
   }
 
   @Operation(summary = "Search public streams",
@@ -166,7 +166,7 @@ public class StreamSearchController {
         @PathVariable(name = "streamId") final Long streamId,
       @Parameter(description = "Search criteria for stream attendees", required = true)
         @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
-    return streamAttendeeService.getStreamAttendees(streamId, streamAttendeeSearchRequest);
+    return streamAttendeeOperationsService.getStreamAttendees(streamId, streamAttendeeSearchRequest);
   }
 
   @Operation(summary = "Find stream attendees (alternative)",
@@ -186,7 +186,7 @@ public class StreamSearchController {
         @PathVariable(name = "streamId") final Long streamId,
       @Parameter(description = "Search criteria for stream attendees", required = true)
         @SearchParam final StreamAttendeeSearchRequest searchRequest) {
-    return streamAttendeeService.findStreamAttendees(streamId, searchRequest);
+    return streamAttendeeOperationsService.findStreamAttendees(streamId, searchRequest);
   }
 
   @Operation(summary = "Get streams attended by current user",
@@ -255,6 +255,6 @@ public class StreamSearchController {
         @AuthenticationPrincipal final FleenUser user,
       @Parameter(description = "Search criteria for join requests", required = true)
         @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
-    return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);
+    return streamAttendeeOperationsService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);
   }
 }

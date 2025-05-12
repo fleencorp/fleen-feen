@@ -1,17 +1,18 @@
-package com.fleencorp.feen.service.impl.stream.update;
+package com.fleencorp.feen.service.impl.stream.event;
 
-import com.fleencorp.feen.mapper.stream.StreamMapper;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl;
-import com.fleencorp.feen.service.stream.update.EventUpdateService;
-import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
+import com.fleencorp.feen.service.stream.event.EventUpdateService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,40 +34,37 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 public class EventUpdateServiceImpl implements EventUpdateService {
 
-  private final OtherEventUpdateService otherEventUpdateService;
-  private final StreamRepository streamRepository;
+  private final EventOperationsService eventOperationsService;
   private final GoogleCalendarAttendeeServiceImpl googleCalendarAttendeeService;
   private final GoogleCalendarEventService googleCalendarEventService;
   private final GoogleChatService googleChatService;
-  private final StreamMapper streamMapper;
+  private final StreamOperationsService streamOperationsService;
+  private final UnifiedMapper unifiedMapper;
 
   /**
-   * Constructs a new instance of {@code EventUpdateServiceImpl} with the specified dependencies.
+   * Constructs a new {@code EventUpdateServiceImpl}, which manages the synchronization and updating of event data,
+   * including Google Calendar integration and stream-related updates.
    *
-   * <p>This constructor initializes the service with the necessary components for managing event updates,
-   * including services for handling other event updates, stream data, broadcasting, Google Calendar operations,
-   * and Google Chat communication. It also integrates with stream mapping for transforming stream-related data.</p>
-   *
-   * @param otherEventUpdateService        the service for handling other types of event updates
-   * @param streamRepository               the repository for accessing stream data
-   * @param googleCalendarAttendeeService  the service for managing Google Calendar attendees
-   * @param googleCalendarEventService     the service for managing Google Calendar events
-   * @param googleChatService              the service for sending messages to Google Chat
-   * @param streamMapper                   the mapper for transforming stream-related data models
+   * @param eventOperationsService the core service for handling event-related operations (injected lazily to prevent circular dependencies)
+   * @param googleCalendarAttendeeService the service responsible for managing Google Calendar event attendees
+   * @param googleCalendarEventService the service for creating, updating, and deleting events in Google Calendar
+   * @param googleChatService the service for integrating and communicating with Google Chat
+   * @param streamOperationsService the service for handling low-level stream operations (injected lazily)
+   * @param unifiedMapper the utility for mapping between domain entities and data transfer objects (DTOs)
    */
   public EventUpdateServiceImpl(
-      final OtherEventUpdateService otherEventUpdateService,
-      final StreamRepository streamRepository,
+      @Lazy final EventOperationsService eventOperationsService,
       final GoogleCalendarAttendeeServiceImpl googleCalendarAttendeeService,
       final GoogleCalendarEventService googleCalendarEventService,
       final GoogleChatService googleChatService,
-      final StreamMapper streamMapper) {
-    this.otherEventUpdateService = otherEventUpdateService;
-    this.streamRepository = streamRepository;
+      @Lazy final StreamOperationsService streamOperationsService,
+      final UnifiedMapper unifiedMapper) {
+    this.eventOperationsService = requireNonNull(eventOperationsService);
     this.googleCalendarEventService = googleCalendarEventService;
     this.googleCalendarAttendeeService = googleCalendarAttendeeService;
     this.googleChatService = googleChatService;
-    this.streamMapper = streamMapper;
+    this.streamOperationsService = streamOperationsService;
+    this.unifiedMapper = unifiedMapper;
   }
 
   /**
@@ -83,19 +81,19 @@ public class EventUpdateServiceImpl implements EventUpdateService {
   @Transactional
   public void createEventInGoogleCalendarAndAnnounceInSpace(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     // Create event in Google Calendar
-    otherEventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
+    eventOperationsService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
     // Prepare the request to send a calendar event message to the chat space
     final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
       stream.getExternalSpaceIdOrName(),
-      requireNonNull(streamMapper.toStreamResponseNoJoinStatus(stream))
+      requireNonNull(unifiedMapper.toStreamResponseNoJoinStatus(stream))
     );
 
     // Send the event message to the chat space
     googleChatService.createCalendarEventMessageAndSendToChatSpace(googleChatSpaceMessageRequest);
 
     // Create add new attendee request to add the organizer as an attendee of the event
-    otherEventUpdateService.addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(
+    eventOperationsService.addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(
       createCalendarEventRequest.getCalendarIdOrName(),
       createCalendarEventRequest.getEventId(),
       createCalendarEventRequest.getCreatorEmail(),
@@ -117,7 +115,7 @@ public class EventUpdateServiceImpl implements EventUpdateService {
     final GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
     // Update the stream with the event ID and HTML link
     stream.update(googleCreateInstantCalendarEventResponse.eventId(), googleCreateInstantCalendarEventResponse.getHangoutLink());
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
   }
 
   /**
@@ -136,7 +134,7 @@ public class EventUpdateServiceImpl implements EventUpdateService {
     stream.setExternalId(googlePatchCalendarEventResponse.eventId());
     stream.setStreamLink(googlePatchCalendarEventResponse.getHangoutLink());
 
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
   }
 
   /**

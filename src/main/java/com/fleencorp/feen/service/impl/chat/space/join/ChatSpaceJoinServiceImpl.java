@@ -11,7 +11,7 @@ import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateCha
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
 import com.fleencorp.feen.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.notification.Notification;
@@ -25,10 +25,10 @@ import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResp
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
@@ -52,45 +52,42 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
 
   private final ChatSpaceService chatSpaceService;
+  private final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService;
   private final ChatSpaceMemberService chatSpaceMemberService;
   private final ChatSpaceSearchService chatSpaceSearchService;
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
-  private final ChatSpaceMemberRepository chatSpaceMemberRepository;
-  private final ChatSpaceMemberMapper chatSpaceMemberMapper;
+  private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
 
   /**
-   * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
+   * Constructs a new {@code ChatSpaceJoinServiceImpl} with all required services and utilities.
    *
-   * <p>This constructor initializes the service with all required components for managing
-   * chat spaces, including repositories, mappers, and various utility services. It also injects
-   * configuration values like the delegated authority email.</p>
-   *
-   * @param chatSpaceService for managing chat spaces
-   * @param chatSpaceMemberService for managing chat space members
-   * @param notificationMessageService manages notifications sent as messages.
-   * @param notificationService processes and sends general notifications.
-   * @param chatSpaceMemberRepository repository for managing chat space members.
-   * @param chatSpaceMemberMapper the mapper for mapping chat space member related details
-   * @param localizer provides localized responses for API operations.
+   * @param chatSpaceService the service responsible for core chat space operations
+   * @param chatSpaceMemberOperationsService the service handling chat space member actions such as joining or leaving
+   * @param chatSpaceMemberService the service for managing chat space member information
+   * @param chatSpaceSearchService the service for searching and discovering chat spaces
+   * @param notificationMessageService the service for creating message content for notifications
+   * @param notificationService the service responsible for sending notifications
+   * @param unifiedMapper the mapper utility for transforming objects across layers
+   * @param localizer the utility for retrieving localized text based on locale
    */
   public ChatSpaceJoinServiceImpl(
       final ChatSpaceService chatSpaceService,
+      final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService,
       final ChatSpaceMemberService chatSpaceMemberService,
       final ChatSpaceSearchService chatSpaceSearchService,
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
-      final ChatSpaceMemberRepository chatSpaceMemberRepository,
-      final ChatSpaceMemberMapper chatSpaceMemberMapper,
+      final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.chatSpaceMemberService = chatSpaceMemberService;
+    this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
     this.chatSpaceSearchService = chatSpaceSearchService;
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
-    this.chatSpaceMemberRepository = chatSpaceMemberRepository;
-    this.chatSpaceMemberMapper = chatSpaceMemberMapper;
+    this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
   }
 
@@ -132,7 +129,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Increase total members and save chat space
     chatSpaceService.increaseTotalMembersAndSave(chatSpace);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final JoinChatSpaceResponse joinChatSpaceResponse = JoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getSpaceLink(), chatSpace.getTotalMembers());
     // Return a localized response indicating successful joining
@@ -160,7 +157,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       // Set the chat space member comment
       chatSpaceMember.setMemberComment(comment);
       // Save the updated chat space member information to the repository
-      chatSpaceMemberRepository.save(chatSpaceMember);
+      chatSpaceMemberOperationsService.save(chatSpaceMember);
     }
   }
 
@@ -201,13 +198,12 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Save the notification
     notificationService.save(notification);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final RequestToJoinChatSpaceResponse requestToJoinChatSpaceResponse = RequestToJoinChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getTotalMembers());
     // Return a localized response confirming the request to join the chat space
     return localizer.of(requestToJoinChatSpaceResponse);
   }
-
 
   /**
    * Handles a join request for a private chat space.
@@ -228,7 +224,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       // Mark request as pending
       chatSpaceMember.markJoinRequestAsPendingWithComment(comment);
       // Save the chat space member
-      chatSpaceMemberRepository.save(chatSpaceMember);
+      chatSpaceMemberOperationsService.save(chatSpaceMember);
     }
   }
 
@@ -282,7 +278,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Save the notification
     notificationService.save(notification);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Get the total request to join
     final Long totalRequestToJoin = chatSpaceSearchService.getTotalRequestToJoinForChatSpace(chatSpaceId);
     // Create the response
@@ -318,7 +314,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
       // Update the join request status of the member
       chatSpaceMember.approveOrDisapproveJoinRequest(newRequestToJoinStatus);
       // Save the updated chat space member to the repository
-      chatSpaceMemberRepository.save(chatSpaceMember);
+      chatSpaceMemberOperationsService.save(chatSpaceMember);
     }
   }
 
@@ -380,7 +376,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
     // Remove the user from the chat space
     chatSpaceMemberService.leaveChatSpace(chatSpace, chatSpaceMember);
     // Get the membership info
-    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = chatSpaceMemberMapper.getMembershipInfo(chatSpaceMember, chatSpace);
+    final ChatSpaceMembershipInfo chatSpaceMembershipInfo = unifiedMapper.getMembershipInfo(chatSpaceMember, chatSpace);
     // Create the response
     final LeaveChatSpaceResponse leaveChatSpaceResponse = LeaveChatSpaceResponse.of(chatSpaceId, chatSpaceMembershipInfo, chatSpace.getTotalMembers());
     // Return a localized response indicating the member left successfully

@@ -5,47 +5,64 @@ import com.fleencorp.feen.constant.like.LikeType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
-import com.fleencorp.feen.mapper.info.ToInfoMapper;
-import com.fleencorp.feen.model.contract.SetLikeInfo;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.like.Like;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.like.LikeDto;
 import com.fleencorp.feen.model.holder.LikeOtherDetailsHolder;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.model.projection.like.UserLikeInfoSelect;
 import com.fleencorp.feen.model.response.like.LikeResponse;
+import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.like.LikeRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.like.LikeService;
-import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.feen.service.review.ReviewService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static java.util.Objects.nonNull;
 
 @Service
 public class LikeServiceImpl implements LikeService {
 
   private final ChatSpaceService chatSpaceService;
-  private final StreamService streamService;
+  private final ReviewService reviewService;
+  private final StreamOperationsService streamOperationsService;
   private final LikeRepository likeRepository;
-  private final ToInfoMapper toInfoMapper;
+  private final UnifiedMapper unifiedMapper;
 
+  /**
+   * Constructs a new {@code LikeServiceImpl}, responsible for handling like-related actions
+   * on chat spaces, reviews, and streams.
+   *
+   * @param chatSpaceService service for managing chat spaces where likes can be applied
+   * @param reviewService service for handling reviews which can be liked
+   * @param streamOperationsService (lazy) service for managing streams and their interactions
+   * @param likeRepository repository for persisting and querying like data
+   * @param unifiedMapper general-purpose mapper for converting between entities and DTOs
+   */
   public LikeServiceImpl(
       final ChatSpaceService chatSpaceService,
-      final StreamService streamService,
+      final ReviewService reviewService,
+      @Lazy final StreamOperationsService streamOperationsService,
       final LikeRepository likeRepository,
-      final ToInfoMapper toInfoMapper) {
+      final UnifiedMapper unifiedMapper) {
     this.chatSpaceService = chatSpaceService;
-    this.streamService = streamService;
+    this.reviewService = reviewService;
+    this.streamOperationsService = streamOperationsService;
     this.likeRepository = likeRepository;
-    this.toInfoMapper = toInfoMapper;
+    this.unifiedMapper = unifiedMapper;
   }
 
   /**
@@ -83,9 +100,9 @@ public class LikeServiceImpl implements LikeService {
 
     final boolean liked = LikeType.liked(likeDto.getLikeType());
     final Long total = updateLikeCount(parentId, parentType, likeDto.getLikeType());
-    final LikeInfo likeInfo = toInfoMapper.toLikeInfo(liked);
+    final UserLikeInfo userLikeInfo = unifiedMapper.toLikeInfo(liked);
 
-    return LikeResponse.of(total, like.getParentId(), like.getParentTitle(), likeInfo);
+    return LikeResponse.of(total, like.getParentId(), like.getParentTitle(), userLikeInfo);
   }
 
   /**
@@ -127,7 +144,7 @@ public class LikeServiceImpl implements LikeService {
   protected LikeOtherDetailsHolder retrieveLikeOtherDetailsHolder(final LikeParentType likeParentType, final Long parentId) throws FailedOperationException {
     checkIsNull(likeParentType, FailedOperationException::new);
 
-    final FleenStream stream = LikeParentType.isStream(likeParentType) ? streamService.findStream(parentId) : null;
+    final FleenStream stream = LikeParentType.isStream(likeParentType) ? streamOperationsService.findStream(parentId) : null;
     final ChatSpace chatSpace = LikeParentType.isChatSpace(likeParentType) ? chatSpaceService.findChatSpace(parentId) : null;
 
     return LikeOtherDetailsHolder.of(stream, chatSpace);
@@ -150,14 +167,20 @@ public class LikeServiceImpl implements LikeService {
 
     if (LikeParentType.isStream(likeParentType)) {
       return LikeType.isLike(likeType)
-        ? streamService.incrementLikeCount(parentId)
-        : streamService.decrementLikeCount(parentId);
+        ? streamOperationsService.incrementLikeCount(parentId)
+        : streamOperationsService.decrementLikeCount(parentId);
     }
 
     if (LikeParentType.isChatSpace(likeParentType)) {
       return LikeType.isLike(likeType)
         ? chatSpaceService.incrementLikeCount(parentId)
         : chatSpaceService.decrementLikeCount(parentId);
+    }
+
+    if (LikeParentType.isReview(likeParentType)) {
+      return LikeType.isLike(likeType)
+        ? reviewService.incrementLikeCount(parentId)
+        : reviewService.decrementLikeCount(parentId);
     }
 
     throw FailedOperationException.of();
@@ -186,84 +209,150 @@ public class LikeServiceImpl implements LikeService {
   }
 
   /**
-   * Finds the like information for a chat space by a specific member.
+   * Populates like information on chat space responses for chat spaces where the given member is not part of the membership.
    *
-   * <p>This method uses the {@link LikeParentType#CHAT_SPACE} type to check if a member has liked
-   * the specified chat space, identified by the given {@code parentId}. It calls the
-   * {@link #findLikeInfo(Long, LikeParentType, LikeType, Member)} method, passing in the like
-   * type as {@link LikeType#LIKE} to determine if the member has liked the chat space.</p>
+   * <p>This delegates to {@code populateLikesForNonMembership}, specifying {@code LikeParentType.CHAT_SPACE}
+   * to indicate that the like context applies to chat space entities.</p>
    *
-   * @param parentId the ID of the chat space
-   * @param member the member performing the like action
-   * @return a {@link LikeInfo} object indicating whether the member has liked the chat space
-   */
-  public LikeInfo findChatSpaceLikeByMember(final Long parentId, final Member member) {
-    return findLikeInfo(parentId, LikeParentType.CHAT_SPACE, LikeType.LIKE, member);
-  }
-
-  /**
-   * Finds the like information for a stream by a specific member.
-   *
-   * <p>This method uses the {@link LikeParentType#STREAM} type to check if a member has liked
-   * the specified stream, identified by the given {@code parentId}. It calls the
-   * {@link #findLikeInfo(Long, LikeParentType, LikeType, Member)} method, passing in the like
-   * type as {@link LikeType#LIKE} to determine if the member has liked the stream.</p>
-   *
-   * @param parentId the ID of the stream
-   * @param member the member performing the like action
-   * @return a {@link LikeInfo} object indicating whether the member has liked the stream
-   */
-  public LikeInfo findStreamLikeByMember(final Long parentId, final Member member) {
-    return findLikeInfo(parentId, LikeParentType.STREAM, LikeType.LIKE, member);
-  }
-
-  /**
-   * Finds the like information for the given parent entity, like type, and member.
-   *
-   * <p>This method checks whether a like exists for a specified parent entity (such as a stream or chat space)
-   * by the provided member. It uses the provided {@link LikeParentType} to determine the type of the parent entity
-   * and {@link LikeType} to specify the type of like (like or dislike). The result is mapped to a {@link LikeInfo}
-   * object which indicates whether the entity has been liked by the member.</p>
-   *
-   * @param parentId the ID of the parent entity (stream or chat space)
-   * @param likeParentType the type of the parent entity (stream or chat space)
-   * @param likeType the type of like (e.g., like or dislike)
-   * @param member the member performing the like action
-   * @return a {@link LikeInfo} object indicating whether the member has liked the parent entity
-   * @throws FailedOperationException if the parentId is null
-   */
-  protected LikeInfo findLikeInfo(final Long parentId, final LikeParentType likeParentType, final LikeType likeType, final Member member) {
-    checkIsNull(parentId, FailedOperationException::new);
-
-    final boolean liked = likeRepository.existsLike(parentId, likeParentType, likeType, member.getMemberId());
-    return toInfoMapper.toLikeInfo(liked);
-  }
-
-  /**
-   * Sets the like information for a set like info object.
-   *
-   * <p>This method checks if the provided {@code setLikeInfo} and {@code user} are non-null.
-   * If both are present, it retrieves the like information for the associated chat space
-   * by calling {@link LikeService#findChatSpaceLikeByMember(Long, Member)} with the chat space's ID
-   * and the member derived from the {@code user}. The retrieved like information is then set
-   * on the {@code setLikeInfo} object.</p>
-   *
-   * @param setLikeInfo the object containing the like information to be set
-   * @param user the user for whom the like information will be retrieved
+   * @param responses the collection of likeable chat space responses to populate likes for
+   * @param membershipMap a map containing chat space IDs that the member is already part of
+   * @param member the member for whom to populate like information
+   * @param <T> a type that extends {@link Likeable}, representing responses that can be liked
    */
   @Override
-  public void setUserLikeInfo(final SetLikeInfo setLikeInfo, final FleenUser user) {
-    if (nonNull(setLikeInfo) && nonNull(user)) {
-      final LikeInfo likeInfo = findChatSpaceLikeByMember(setLikeInfo.getNumberId(), user.toMember());
-      setLikeInfo.setUserLikeInfo(likeInfo);
+  public <T extends Likeable> void populateChatSpaceLikesForNonMembership(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member) {
+    populateLikesForNonMembership(responses, membershipMap, member, LikeParentType.CHAT_SPACE);
+  }
+
+  /**
+   * Populates like information on stream responses for streams where the given member is not an attendee.
+   *
+   * <p>This method delegates the operation to {@code populateLikesForNonMembership} using
+   * {@code LikeParentType.STREAM} as the type, indicating the operation is specific to stream entities.</p>
+   *
+   * @param responses the collection of stream-like responses to populate likes for
+   * @param membershipMap a map of stream IDs representing existing attendance or membership
+   * @param member the member for whom to populate like information
+   * @param <T> a type that extends {@link Likeable}, representing responses that can be liked
+   */
+  @Override
+  public <T extends Likeable> void populateStreamLikesForNonAttendance(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member) {
+    populateLikesForNonMembership(responses, membershipMap, member, LikeParentType.STREAM);
+  }
+
+  /**
+   * Populates like information for a list of reviews based on the user's like actions.
+   *
+   * <p>This method retrieves the user's like status for each review (LIKE or UNLIKE)
+   * and sets the corresponding like information on each review response.</p>
+   *
+   * @param reviewResponses the list of review responses to populate
+   * @param member the member whose like actions are being checked
+   */
+  @Override
+  public void populateLikesForReviews(final Collection<ReviewResponse> reviewResponses, final Member member) {
+    // Extract review IDs
+    final List<Long> reviewIds = reviewResponses.stream()
+      .map(Likeable::getNumberId)
+      .toList();
+
+    // Only proceed if there are review IDs
+    if (!reviewIds.isEmpty()) {
+      // Fetch like information for the specified review IDs and member
+      final Map<Long, UserLikeInfoSelect> likeInfoMap = findLikesByParentIdsAndMember(reviewIds, member, LikeParentType.REVIEW);
+      // Populate each review response with the corresponding like information
+      setUserInfo(reviewResponses, likeInfoMap);
     }
   }
 
-  @Override
-  public void setUserLikeInfo(final List<? extends SetLikeInfo> setLikeInfos, final FleenUser user) {
-    if (nonNull(setLikeInfos) && nonNull(user)) {
-      setLikeInfos.forEach(setLikeInfo -> setUserLikeInfo(setLikeInfo, user));
+  /**
+   * Populates the like information for responses where the user is not a member.
+   *
+   * <p>This method filters out the given responses that are not associated with a membership,
+   * retrieves their like status (LIKE or UNLIKE), and sets the corresponding like information
+   * in each response based on the user's actions.</p>
+   *
+   * @param responses the collection of responses to populate
+   * @param membershipMap a map indicating membership status keyed by entity ID
+   * @param member the member whose like information is being retrieved
+   * @param parentType the parent type (e.g., STREAM, CHAT_SPACE) associated with the like
+   * @param <T> a type that extends Likeable
+   */
+  protected <T extends Likeable> void populateLikesForNonMembership(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member, final LikeParentType parentType) {
+    // Get IDs of responses that are not present in the membership map
+    final List<Long> nonMembershipForEntitiesIds = responses.stream()
+      .map(Likeable::getNumberId)
+      .filter(id -> !membershipMap.containsKey(id))
+      .toList();
+
+    // Only proceed if there are non-member responses
+    if (!nonMembershipForEntitiesIds.isEmpty()) {
+      final Map<Long, UserLikeInfoSelect> likeInfoMap = findLikesByParentIdsAndMember(nonMembershipForEntitiesIds, member, parentType);
+      // Populate each response with the corresponding like information
+      setUserInfo(responses, likeInfoMap);
     }
+  }
+
+  /**
+   * Sets the user like information on each response using the provided like info map.
+   *
+   * <p>This method checks if a response has a corresponding like record and maps it to
+   * a {@link UserLikeInfo} object, which is then set on the response.</p>
+   *
+   * @param responses the list of responses implementing {@link Likeable}
+   * @param likeInfoMap a map of parent IDs to {@link UserLikeInfoSelect} objects
+   */
+  protected void setUserInfo(final Collection<? extends Likeable> responses, final Map<Long, UserLikeInfoSelect> likeInfoMap) {
+    responses.stream()
+      .filter(Objects::nonNull)
+      .filter(response -> likeInfoMap.containsKey(response.getNumberId()))
+      .forEach(response -> {
+        // Retrieve the like info for the current response
+        final UserLikeInfoSelect info = likeInfoMap.get(response.getNumberId());
+        // Map the like info to a UserLikeInfo object (true if liked)
+        final UserLikeInfo userLikeInfo = unifiedMapper.toLikeInfo(info != null && info.isLiked());
+        // Set the like info on the response
+        response.setUserLikeInfo(userLikeInfo);
+    });
+  }
+
+  /**
+   * Retrieves a map of like information for the given member across multiple parent entities
+   * (e.g., streams, chat spaces, reviews), based on the provided parent IDs and parent type.
+   *
+   * <p>The method queries the database for {@link UserLikeInfoSelect} entries where the parent type
+   * and member match, and the like type is either LIKE or UNLIKE. The results are mapped to a map
+   * using the appropriate parent ID based on the type.</p>
+   *
+   * @param parentIds the list of parent IDs (e.g., streamIds, chatSpaceIds, reviewIds)
+   * @param member the member whose likes are to be retrieved
+   * @param likeParentType the type of the parent entity ({@link LikeParentType})
+   * @return a map of parent ID to {@link UserLikeInfoSelect} containing like information
+   */
+  protected Map<Long, UserLikeInfoSelect> findLikesByParentIdsAndMember(final List<Long> parentIds, final Member member, final LikeParentType likeParentType) {
+    // Return empty map if no parent IDs are provided
+    if (parentIds == null || parentIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    // Query the database for LIKE and UNLIKE entries for the given member and parent type
+    final List<UserLikeInfoSelect> likes = likeRepository.findLikesByParentIdsAndMember(
+      parentIds,
+      member.getMemberId(),
+      likeParentType,
+      List.of(LikeType.LIKE, LikeType.UNLIKE)
+    );
+
+    // Map the results by the appropriate parent ID depending on the LikeParentType
+    return likes.stream()
+      .collect(Collectors.toMap(
+      info -> switch (likeParentType) {
+        case STREAM -> info.getStreamId();
+        case CHAT_SPACE -> info.getChatSpaceId();
+        case REVIEW -> info.getReviewId();
+      },
+      Function.identity()
+    ));
   }
 
 }

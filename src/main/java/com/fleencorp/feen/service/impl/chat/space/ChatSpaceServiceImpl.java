@@ -5,8 +5,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
-import com.fleencorp.feen.mapper.CommonMapper;
-import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.user.Member;
@@ -25,9 +24,8 @@ import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceRespon
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberParticipationRepository;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
@@ -54,43 +52,31 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceServiceImpl implements ChatSpaceService {
 
   private final ChatSpaceUpdateService chatSpaceUpdateService;
-  private final ChatSpaceMemberRepository chatSpaceMemberRepository;
-  private final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository;
+  private final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final ChatSpaceMapper chatSpaceMapper;
-  private final CommonMapper commonMapper;
+  private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
 
   /**
-   * Constructs a {@code ChatSpaceServiceImpl} with the specified dependencies.
+   * Constructs a new {@code ChatSpaceServiceImpl}, the core service for managing chat space entities and their lifecycle.
    *
-   * <p>This constructor initializes the service with all required components for managing
-   * chat spaces, including repositories, mappers, and various utility services. It also injects
-   * configuration values like the delegated authority email.</p>
-   *
-   * @param chatSpaceUpdateService handles updates to chat spaces
-   * @param chatSpaceMemberRepository repository for managing chat space members
-   * @param chatSpaceMemberParticipationRepository repository for managing chat space members participation
-   * @param chatSpaceRepository repository for chat space entities
-   * @param chatSpaceMapper maps chat space entities to response models
-   * @param commonMapper a service for creating info data and their localized text
-   * @param localizer provides localized responses for API operations.
+   * @param chatSpaceUpdateService the service responsible for updating chat space information
+   * @param chatSpaceMemberOperationsService the service for handling operations related to chat space members
+   * @param chatSpaceRepository the repository for accessing chat space data from the database
+   * @param unifiedMapper the utility for converting between entities and data transfer objects
+   * @param localizer the component used for providing localized messages
    */
   public ChatSpaceServiceImpl(
       final ChatSpaceUpdateService chatSpaceUpdateService,
-      final ChatSpaceMemberRepository chatSpaceMemberRepository,
-      final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository,
+      final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService,
       final ChatSpaceRepository chatSpaceRepository,
-      final ChatSpaceMapper chatSpaceMapper,
-      final CommonMapper commonMapper,
+      final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.chatSpaceUpdateService = chatSpaceUpdateService;
+    this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
     this.chatSpaceRepository = chatSpaceRepository;
-    this.chatSpaceMemberRepository = chatSpaceMemberRepository;
-    this.chatSpaceMemberParticipationRepository = chatSpaceMemberParticipationRepository;
     this.localizer = localizer;
-    this.chatSpaceMapper = chatSpaceMapper;
-    this.commonMapper = commonMapper;
+    this.unifiedMapper = unifiedMapper;
   }
 
   /**
@@ -135,13 +121,13 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Create and add admin or organizer of space as chat space member
     final ChatSpaceMember chatSpaceMember = ChatSpaceMember.ofOrganizer(chatSpace, user.toMember());
     // Save chat space member to repository
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
     // Increase total members and save chat space
     increaseTotalMembersAndSave(chatSpace);
     // Delegate the creation of the chat space to the update service
     chatSpaceUpdateService.createChatSpace(chatSpace, createChatSpaceRequest);
     // Convert the chat space to its response
-    final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
+    final ChatSpaceResponse chatSpaceResponse = unifiedMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
     // Create the response
     final CreateChatSpaceResponse createChatSpaceResponse = CreateChatSpaceResponse.of(chatSpaceResponse);
     // Return a localized response with the chat space details
@@ -208,7 +194,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Create update chat space request and send to external service
     createAndUpdateChatSpaceInExternalService(updateChatSpaceDto, chatSpace);
     // Convert the chat space to the response
-    final ChatSpaceResponse chatSpaceResponse = chatSpaceMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
+    final ChatSpaceResponse chatSpaceResponse = unifiedMapper.toChatSpaceResponseByAdminUpdate(chatSpace);
     // Create the response
     final UpdateChatSpaceResponse updateChatSpaceResponse = UpdateChatSpaceResponse.of(chatSpaceResponse);
     // Return a localized response with the updated chat space details
@@ -263,7 +249,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Get the deleted info
-    final IsDeletedInfo isDeletedInfo = commonMapper.toIsDeletedInfo(chatSpace.isDeleted());
+    final IsDeletedInfo isDeletedInfo = unifiedMapper.toIsDeletedInfo(chatSpace.isDeleted());
     // Create the response
     final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId, isDeletedInfo);
     // Return a localized response confirming the deletion
@@ -295,7 +281,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Delete the chat space externally
     deleteChatSpaceExternally(chatSpace);
     // Get the deleted info
-    final IsDeletedInfo isDeletedInfo = commonMapper.toIsDeletedInfo(chatSpace.isDeleted());
+    final IsDeletedInfo isDeletedInfo = unifiedMapper.toIsDeletedInfo(chatSpace.isDeleted());
     // Create the response
     final DeleteChatSpaceResponse deleteChatSpaceResponse = DeleteChatSpaceResponse.of(chatSpaceId, isDeletedInfo);
     // Return a localized response confirming the deletion
@@ -367,7 +353,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
     // Save the updated chat space status to the repository
     chatSpaceRepository.save(chatSpace);
     // Get the status info
-    final ChatSpaceStatusInfo chatSpaceStatusInfo = chatSpaceMapper.toChatSpaceStatusInfo(chatSpace.getStatus());
+    final ChatSpaceStatusInfo chatSpaceStatusInfo = unifiedMapper.toChatSpaceStatusInfo(chatSpace.getStatus());
     // Create the response for the updated chat space status
     final UpdateChatSpaceStatusResponse updateChatSpaceStatusResponse = UpdateChatSpaceStatusResponse.of(chatSpaceId, chatSpaceStatusInfo);
     // Return a localized response confirming the updated chat space status
@@ -455,7 +441,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   protected boolean checkIfUserIsAnAdminInSpace(final ChatSpace chatSpace, final Long memberId) {
     // Retrieve all members of the chat space with the admin role
-    final Set<ChatSpaceMember> chatSpaceMembers = chatSpaceMemberRepository.findByChatSpaceAndRole(chatSpace, ChatSpaceMemberRole.ADMIN);
+    final Set<ChatSpaceMember> chatSpaceMembers = chatSpaceMemberOperationsService.findByChatSpaceAndRole(chatSpace, ChatSpaceMemberRole.ADMIN);
     // Extract the IDs of the admin members
     final Set<Long> spaceMemberIds = extractMemberIds(chatSpaceMembers);
     // Check if the user is among the admin members
@@ -528,7 +514,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   public boolean existsByMembers(final Member viewer, final Member target) {
-    return chatSpaceMemberParticipationRepository.existsByMembers(viewer.getMemberId(), target.getMemberId());
+    return chatSpaceMemberOperationsService.existsByMembers(viewer.getMemberId(), target.getMemberId());
   }
 
   /**

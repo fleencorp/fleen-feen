@@ -18,8 +18,8 @@ import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamRequestService;
-import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -49,36 +49,21 @@ import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvaila
 public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamRequestService {
 
   private final GoogleOauth2Service googleOauth2Service;
-  private final StreamService streamService;
+  private final StreamOperationsService streamOperationsService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
   private final YouTubeChannelService youTubeChannelService;
   private final StreamMapper streamMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new {@link LiveBroadcastServiceImpl} with the specified dependencies.
-   *
-   * <p>This constructor is used to initialize the service, which handles live broadcast operations,
-   * including integration with Google OAuth2 for authentication, managing streams, updating broadcasts,
-   * and interacting with YouTube channels. The service also interacts with repositories to handle stream
-   * data and OAuth2 authorizations, and maps stream data to appropriate response formats.</p>
-   *
-   * @param googleOauth2Service the service for managing Google OAuth2 authentication
-   * @param streamService the service responsible for managing streams
-   * @param liveBroadcastUpdateService the service used to update live broadcasts
-   * @param youTubeChannelService the service for interacting with YouTube channels
-   * @param localizer the service for generating localized responses
-   * @param streamMapper the mapper used to convert stream data to response formats
-   */
   public LiveBroadcastServiceImpl(
       final GoogleOauth2Service googleOauth2Service,
-      final StreamService streamService,
+      final StreamOperationsService streamOperationsService,
       @Lazy final LiveBroadcastUpdateService liveBroadcastUpdateService,
       final YouTubeChannelService youTubeChannelService,
       final Localizer localizer,
       final StreamMapper streamMapper) {
     this.googleOauth2Service = googleOauth2Service;
-    this.streamService = streamService;
+    this.streamOperationsService = streamOperationsService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
     this.streamMapper = streamMapper;
@@ -139,9 +124,9 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       user.getPhoneNumber());
 
     // Increase attendees count, save the live broadcast and and add the stream in YouTube Live Stream
-    streamService.increaseTotalAttendeesOrGuests(stream);
+    streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the live broadcast as an attendee or guest
-    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     // Create and build the request to create a live broadcast
     final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(oauth2Authorization, stream, stream.getStreamType(), createLiveBroadcastDto);
     // Create and add live broadcast or stream in external service

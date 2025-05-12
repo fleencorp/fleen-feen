@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.like;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.Setter;
   "total_likes",
   "parent_id",
   "parent_title",
-  "like_info"
+  "user_like_info"
 })
 public class LikeResponse {
 
@@ -31,10 +31,10 @@ public class LikeResponse {
   @JsonProperty("parent_title")
   private String parentTitle;
 
-  @JsonProperty("like_info")
-  private LikeInfo likeInfo;
+  @JsonProperty("user_like_info")
+  private UserLikeInfo userLikeInfo;
 
-  public static LikeResponse of(final Long totalLikes, final Long parentId, final String parentTitle, final LikeInfo likeInfo) {
-    return new LikeResponse(totalLikes, parentId, parentTitle, likeInfo);
+  public static LikeResponse of(final Long totalLikes, final Long parentId, final String parentTitle, final UserLikeInfo userLikeInfo) {
+    return new LikeResponse(totalLikes, parentId, parentTitle, userLikeInfo);
   }
 }

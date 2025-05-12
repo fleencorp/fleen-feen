@@ -2,8 +2,9 @@ package com.fleencorp.feen.mapper.info;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -40,5 +41,7 @@ public interface ToInfoMapper {
 
   TotalFollowingInfo toTotalFollowingInfo(Long following, String targetMemberName);
 
-  LikeInfo toLikeInfo(boolean liked);
+  UserLikeInfo toLikeInfo(boolean liked);
+
+  IsDeletedInfo toIsDeletedInfo(boolean deleted);
 }

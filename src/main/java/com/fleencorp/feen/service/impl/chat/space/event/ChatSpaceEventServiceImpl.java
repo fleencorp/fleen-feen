@@ -17,14 +17,13 @@ import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
-import com.fleencorp.feen.service.stream.update.EventUpdateService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 
 /**
  * Implementation of the {@link ChatSpaceService} interface, providing methods
@@ -51,48 +49,44 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
 
   private final String delegatedAuthorityEmail;
   private final ChatSpaceMemberService chatSpaceMemberService;
+  private final EventOperationsService eventOperationsService;
   private final MiscService miscService;
-  private final StreamAttendeeService streamAttendeeService;
+  private final StreamOperationsService streamOperationsService;
   private final StreamService streamService;
-  private final EventUpdateService eventUpdateService;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final StreamRepository streamRepository;
   private final Localizer localizer;
   private final StreamMapper streamMapper;
 
   /**
-   * Constructs a new {@link ChatSpaceEventServiceImpl} with the specified dependencies.
+   * Constructs a new {@code ChatSpaceEventServiceImpl} with all required dependencies.
    *
-   * @param delegatedAuthorityEmail The email address associated with the delegated authority, injected from the configuration.
-   * @param chatSpaceMemberService The service for managing chat space members
-   * @param miscService The service that provides miscellaneous operations.
-   * @param streamAttendeeService The service for managing stream attendee-related actions.
-   * @param streamService The service responsible for stream-related actions.
-   * @param eventUpdateService The service for handling event updates.
-   * @param chatSpaceRepository The repository for managing chat space entities.
-   * @param streamRepository The repository for managing stream entities.
-   * @param localizer The response object used for returning localized messages.
-   * @param streamMapper The mapper for converting stream-related data between different formats.
+   * @param delegatedAuthorityEmail the email address used for delegated Google API access
+   * @param chatSpaceMemberService the service for handling chat space member-related operations
+   * @param eventOperationsService the service for managing event-related operations
+   * @param miscService the service for miscellaneous utilities or operations
+   * @param streamOperationsService the service for handling stream-specific operations
+   * @param streamService the core service for stream management
+   * @param chatSpaceRepository the repository interface for accessing chat space data
+   * @param localizer the utility for resolving localized messages
+   * @param streamMapper the mapper used to convert between stream entities and DTOs
    */
   public ChatSpaceEventServiceImpl(
       @Value("${google.delegated.authority.email}") final String delegatedAuthorityEmail,
       final ChatSpaceMemberService chatSpaceMemberService,
+      final EventOperationsService eventOperationsService,
       final MiscService miscService,
-      final StreamAttendeeService streamAttendeeService,
+      final StreamOperationsService streamOperationsService,
       final StreamService streamService,
-      final EventUpdateService eventUpdateService,
       final ChatSpaceRepository chatSpaceRepository,
-      final StreamRepository streamRepository,
       final Localizer localizer,
       final StreamMapper streamMapper) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.chatSpaceMemberService = chatSpaceMemberService;
     this.miscService = miscService;
-    this.streamAttendeeService = streamAttendeeService;
+    this.streamOperationsService = streamOperationsService;
     this.streamService = streamService;
-    this.eventUpdateService = eventUpdateService;
+    this.eventOperationsService = eventOperationsService;
     this.chatSpaceRepository = chatSpaceRepository;
-    this.streamRepository = streamRepository;
     this.localizer = localizer;
     this.streamMapper = streamMapper;
   }
@@ -112,17 +106,11 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   @Override
   public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final FleenUser user) {
     // Find events or streams based on the search request
-    final Page<FleenStream> page = streamRepository.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
+    final Page<FleenStream> page = streamOperationsService.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
     // Get the list of event or stream views from the search result
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Determine statuses like schedule, join status, schedules and timezones
-    streamService.determineDifferentStatusesAndDetailsOfStreamBasedOnUser(streamResponses, user);
-    // Set the attendees and total attendee count for each event or stream
-    streamAttendeeService.setStreamAttendeesAndTotalAttendeesAttending(streamResponses);
-    // Get the first 10 attendees for each event or stream
-    streamAttendeeService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponses);
-    // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(streamResponses, user);
+    // Process other details of the streams
+    streamOperationsService.processOtherStreamDetails(streamResponses, user);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(StreamType.EVENT);
     // Create the search result
@@ -168,7 +156,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Update the FleenStream entity with organizer and contact details
     stream.update(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
     // Save the updated FleenStream entity to the repository
-    stream = streamRepository.save(stream);
+    stream = streamOperationsService.save(stream);
     // Increase attendees count, save the event
     streamService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
@@ -188,14 +176,14 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   /**
    * Creates a calendar event for the given stream using an external service.
    *
-   * <p>This method delegates the operation to the {@code eventUpdateService}, which handles
+   * <p>This method delegates the operation to the {@code eventOperationsService}, which handles
    * the creation of the event in Google Calendar and announces it in the chat space.
    *
    * @param stream the stream for which the calendar event is being created
    * @param createCalendarEventRequest the request payload containing event details
    */
   private void createEventExternally(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
-    eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
+    eventOperationsService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
   }
 
   /**
