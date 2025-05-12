@@ -11,9 +11,9 @@ import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamRe
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.service.stream.EventService;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
-import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,17 +31,17 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class CreateStreamController {
 
-  private final EventService eventService;
+  private final EventOperationsService eventOperationsService;
   private final LiveBroadcastService liveBroadcastService;
-  private final StreamService streamService;
+  private final StreamOperationsService streamOperationsService;
 
   public CreateStreamController(
-      final EventService eventService,
+      final EventOperationsService eventOperationsService,
       final LiveBroadcastService liveBroadcastService,
-      final StreamService streamService) {
-    this.eventService = eventService;
+      final StreamOperationsService streamOperationsService) {
+    this.eventOperationsService = eventOperationsService;
     this.liveBroadcastService = liveBroadcastService;
-    this.streamService = streamService;
+    this.streamOperationsService = streamOperationsService;
   }
 
   @Operation(summary = "Get required data for event creation",
@@ -54,7 +54,7 @@ public class CreateStreamController {
   @GetMapping(value = "/event/required-data-create")
   @Cacheable(value = "data-required-to-create-event")
   public DataForCreateEventResponse getDataCreateEvent() {
-    return eventService.getDataForCreateEvent();
+    return eventOperationsService.getDataForCreateEvent();
   }
 
   @Operation(summary = "Create a new event",
@@ -71,10 +71,10 @@ public class CreateStreamController {
   @PostMapping(value = "/event/create")
   public CreateStreamResponse createEvent(
       @Parameter(description = "Event details for creation", required = true)
-      @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
+        @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
-    return eventService.createEvent(createCalendarEventDto, user);
+        @AuthenticationPrincipal final FleenUser user) {
+    return eventOperationsService.createEvent(createCalendarEventDto, user);
   }
 
   @Operation(summary = "Create an instant event",
@@ -91,10 +91,10 @@ public class CreateStreamController {
   @PostMapping(value = "/event/create/instant")
   public CreateStreamResponse createInstantEvent(
       @Parameter(description = "Instant event details for creation", required = true)
-      @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
+        @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
-    return eventService.createInstantEvent(createInstantCalendarEventDto, user);
+        @AuthenticationPrincipal final FleenUser user) {
+    return eventOperationsService.createInstantEvent(createInstantCalendarEventDto, user);
   }
 
   @Operation(summary = "Get required data for live broadcast creation",
@@ -120,7 +120,7 @@ public class CreateStreamController {
   @GetMapping(value = "/required-data-reschedule-stream")
   @Cacheable(value = "data-required-to-reschedule-stream")
   public DataForRescheduleStreamResponse getDataRescheduleStream() {
-    return streamService.getDataForRescheduleStream();
+    return streamOperationsService.getDataForRescheduleStream();
   }
 
   @Operation(summary = "Create a new live broadcast",
@@ -137,9 +137,9 @@ public class CreateStreamController {
   @PostMapping(value = "/create")
   public CreateStreamResponse createLiveBroadcast(
       @Parameter(description = "Live broadcast details for creation", required = true)
-      @Valid @RequestBody final CreateLiveBroadcastDto createLiveBroadcastDto,
+        @Valid @RequestBody final CreateLiveBroadcastDto createLiveBroadcastDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final FleenUser user) {
     return liveBroadcastService.createLiveBroadcast(createLiveBroadcastDto, user);
   }
 }

@@ -19,7 +19,7 @@ import com.fleencorp.feen.repository.social.ContactRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.social.BlockUserService;
 import com.fleencorp.feen.service.social.ContactService;
-import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -43,26 +43,31 @@ public class ContactServiceImpl implements ContactService {
 
   private final ChatSpaceService chatSpaceService;
   private final BlockUserService blockUserService;
-  private final StreamService streamService;
+  private final StreamOperationsService streamOperationsService;
   private final ContactRepository contactRepository;
   private final ContactMapper contactMapper;
   private final Localizer localizer;
 
   /**
-   * Constructs a new {@code ContactServiceImpl} instance with the specified contact repository.
+   * Constructs a new {@code ContactServiceImpl}, which handles contact-related features such as retrieving, mapping, and filtering contacts.
    *
-   * @param contactRepository the repository for performing CRUD operations on Contact entities.
+   * @param chatSpaceService the service for managing chat space data, used to resolve context for contact relationships
+   * @param blockUserService the service for managing blocked user relationships
+   * @param streamOperationsService the service for handling operations related to streams associated with contacts
+   * @param contactRepository the repository interface for persisting and retrieving contact entities
+   * @param contactMapper the mapper used for converting contact entities to DTOs and vice versa
+   * @param localizer the component for resolving localized messages for user-facing responses
    */
   public ContactServiceImpl(
       final ChatSpaceService chatSpaceService,
       final BlockUserService blockUserService,
-      final StreamService streamService,
+      final StreamOperationsService streamOperationsService,
       final ContactRepository contactRepository,
       final ContactMapper contactMapper,
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.blockUserService = blockUserService;
-    this.streamService = streamService;
+    this.streamOperationsService = streamOperationsService;
     this.contactRepository = contactRepository;
     this.contactMapper = contactMapper;
     this.localizer = localizer;
@@ -202,7 +207,7 @@ public class ContactServiceImpl implements ContactService {
 
   @Override
   public ContactRequestEligibilityInfo checkContactRequestEligibility(final Member viewer, final Member target) {
-    final boolean attendedStreamTogether = streamService.existsByAttendees(viewer, target);
+    final boolean attendedStreamTogether = streamOperationsService.existsByAttendees(viewer, target);
     final boolean inSameChatSpace = chatSpaceService.existsByMembers(viewer, target);
     final boolean isBlocked = blockUserService.existsByInitiatorAndRecipient(viewer, target);
     final boolean hasContacts = contactRepository.countByOwner(target) > 0;

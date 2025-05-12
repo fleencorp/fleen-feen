@@ -23,9 +23,9 @@ import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import com.fleencorp.feen.model.search.link.LinkSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.link.LinkRepository;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.link.LinkService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.cache.annotation.Cacheable;
@@ -45,37 +45,34 @@ import static java.util.Objects.nonNull;
 public class LinkServiceImpl implements LinkService {
 
   private final ChatSpaceService chatSpaceService;
+  private final StreamOperationsService streamOperationsService;
   private final StreamService streamService;
   private final LinkRepository linkRepository;
-  private final StreamRepository streamRepository;
   private final LinkMapper linkMapper;
   private final Localizer localizer;
 
   /**
-   * Constructs a {@link LinkServiceImpl} with the specified dependencies.
+   * Constructs a new {@code LinkServiceImpl}, which manages the lifecycle and retrieval of link entities
+   * related to chat spaces and streams.
    *
-   * <p>This constructor initializes the {@link LinkServiceImpl} with the required services and repositories.
-   * These dependencies are used throughout the service for managing chat spaces, streams, links, and performing
-   * localization.</p>
-   *
-   * @param chatSpaceService The {@link ChatSpaceService} used to interact with chat space-related functionality.
-   * @param streamService The {@link StreamService} used to manage stream-related operations.
-   * @param linkRepository The {@link LinkRepository} used to perform CRUD operations on links.
-   * @param streamRepository The {@link StreamRepository} used to perform CRUD operations on streams.
-   * @param linkMapper The {@link LinkMapper} used to map entities to response objects.
-   * @param localizer The {@link Localizer} used to handle localization for responses.
+   * @param chatSpaceService the service used to manage and validate chat space data
+   * @param streamOperationsService the service for handling stream-level operations associated with links
+   * @param streamService the higher-level service for managing streams
+   * @param linkRepository the repository interface for performing persistence operations on link entities
+   * @param linkMapper the mapper used to convert between link entities and their corresponding DTOs
+   * @param localizer the utility component for resolving localized messages in responses
    */
   public LinkServiceImpl(
       final ChatSpaceService chatSpaceService,
+      final StreamOperationsService streamOperationsService,
       final StreamService streamService,
       final LinkRepository linkRepository,
-      final StreamRepository streamRepository,
       final LinkMapper linkMapper,
       final Localizer localizer) {
     this.chatSpaceService = chatSpaceService;
     this.streamService = streamService;
+    this.streamOperationsService = streamOperationsService;
     this.linkRepository = linkRepository;
-    this.streamRepository = streamRepository;
     this.linkMapper = linkMapper;
     this.localizer = localizer;
   }
@@ -221,7 +218,7 @@ public class LinkServiceImpl implements LinkService {
     // Update the stream's music link
     stream.setMusicLink(updateStreamMusicLinkDto.getMusicLink());
     // Save the updated stream to the repository
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
     // Return a localized response indicating the update was successful
     return localizer.of(UpdateStreamMusicLinkResponse.of());
   }

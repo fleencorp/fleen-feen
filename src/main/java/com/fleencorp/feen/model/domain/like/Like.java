@@ -75,6 +75,10 @@ public class Like extends FleenFeenEntity {
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
+  public boolean isLiked() {
+    return LikeType.liked(likeType);
+  }
+
   public Long getParentId() {
     if (LikeParentType.isStream(likeParentType)) {
       return streamId;

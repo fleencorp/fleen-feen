@@ -9,9 +9,9 @@ import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeLiveBroadcastService;
 import com.fleencorp.feen.service.impl.external.google.youtube.YouTubeLiveBroadcastServiceImpl;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -36,17 +36,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class LiveBroadcastUpdateService {
 
-  private final StreamRepository streamRepository;
   private final BroadcastService broadcastService;
   private final YouTubeLiveBroadcastService youTubeLiveBroadcastService;
+  private final StreamOperationsService streamOperationsService;
 
   public LiveBroadcastUpdateService(
-      final StreamRepository streamRepository,
       @Lazy final BroadcastService broadcastService,
-      @Lazy final YouTubeLiveBroadcastService youTubeLiveBroadcastService) {
-    this.streamRepository = streamRepository;
+      @Lazy final YouTubeLiveBroadcastService youTubeLiveBroadcastService,
+      final StreamOperationsService streamOperationsService) {
     this.broadcastService = broadcastService;
     this.youTubeLiveBroadcastService = youTubeLiveBroadcastService;
+    this.streamOperationsService = streamOperationsService;
   }
 
   /**
@@ -64,7 +64,8 @@ public class LiveBroadcastUpdateService {
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
     // Update the stream with the event ID and HTML link from the created YouTube live broadcast
     stream.update(createYouTubeLiveBroadcastResponse.liveBroadcastId(), createYouTubeLiveBroadcastResponse.liveStreamLink());
-    streamRepository.save(stream);
+    // Save the stream
+    streamOperationsService.save(stream);
 
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
@@ -94,7 +95,7 @@ public class LiveBroadcastUpdateService {
     // Update the FleenStream entity with the external ID from the updated YouTube broadcast
     stream.setExternalId(updateYouTubeLiveBroadcastResponse.liveBroadcastId());
     // Save the updated FleenStream entity to the repository
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
   }
 
   /**
@@ -115,7 +116,7 @@ public class LiveBroadcastUpdateService {
     // Update the FleenStream entity with the external ID from the updated YouTube broadcast
     stream.setExternalId(rescheduleYouTubeLiveBroadcastResponse.liveBroadcastId());
     // Save the updated FleenStream entity to the repository
-    streamRepository.save(stream);
+    streamOperationsService.save(stream);
   }
 
   /**

@@ -120,8 +120,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param memberRepository the repository for accessing and managing {@link Member} entities.
    * @param passwordEncoder the encoder for processing passwords.
    * @param profileRequestPublisher the publisher for sending profile-related requests.
-   * @param localizer the service for handling localized responses.
    * @param commonMapper a service for creating info data and their localized text
+   * @param localizer the service for handling localized responses.
    * @param originDomain the origin domain used in the app to perform actions
    */
   public AuthenticationServiceImpl(
@@ -134,8 +134,8 @@ public class AuthenticationServiceImpl implements AuthenticationService,
       final MemberRepository memberRepository,
       final PasswordEncoder passwordEncoder,
       final ProfileRequestPublisher profileRequestPublisher,
-      final Localizer localizer,
       final CommonMapper commonMapper,
+      final Localizer localizer,
       @Value("${origin-domain}") final String originDomain) {
     this.authenticationManager = authenticationManager;
     this.cacheService = cacheService;

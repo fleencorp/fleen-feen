@@ -14,7 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.HashSet;
 
 import static java.util.Objects.nonNull;
 
@@ -40,7 +41,7 @@ public class RetrieveStreamResponse extends ApiResponse {
   private StreamResponse stream;
 
   @JsonProperty("attendees")
-  private Set<StreamAttendeeResponse> attendees;
+  private Collection<StreamAttendeeResponse> attendees = new HashSet<>();
 
   @JsonProperty("total_attending")
   private Long totalAttending;
@@ -58,7 +59,7 @@ public class RetrieveStreamResponse extends ApiResponse {
     return StreamType.isEvent(getStreamType()) ? "retrieve.event" : "retrieve.live.broadcast";
   }
 
-  public static RetrieveStreamResponse of(final Long streamId, final StreamResponse stream, final Set<StreamAttendeeResponse> attendees, final Long totalAttending, final StreamTypeInfo streamTypeInfo) {
+  public static RetrieveStreamResponse of(final Long streamId, final StreamResponse stream, final Collection<StreamAttendeeResponse> attendees, final Long totalAttending, final StreamTypeInfo streamTypeInfo) {
     return new RetrieveStreamResponse(streamId, stream, attendees, totalAttending, streamTypeInfo);
   }
 }

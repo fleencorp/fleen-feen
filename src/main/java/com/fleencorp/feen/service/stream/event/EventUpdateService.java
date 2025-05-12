@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.stream.update;
+package com.fleencorp.feen.service.stream.event;
 
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.calendar.event.*;

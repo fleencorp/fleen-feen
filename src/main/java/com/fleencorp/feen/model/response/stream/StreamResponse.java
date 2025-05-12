@@ -5,12 +5,13 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.model.contract.SetIsOrganizer;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
-import com.fleencorp.feen.model.contract.SetLikeInfo;
+import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.model.contract.HasOrganizer;
+import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -27,8 +28,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
@@ -71,7 +72,7 @@ import static java.util.Objects.nonNull;
   "attendance_info"
 })
 public class StreamResponse extends FleenFeenResponse
-    implements SetIsOrganizer, SetIsUpdatable, SetLikeInfo {
+    implements HasId, HasOrganizer, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -120,10 +121,10 @@ public class StreamResponse extends FleenFeenResponse
   private long totalAttending;
 
   @JsonProperty("some_attendees")
-  private Set<StreamAttendeeResponse> someAttendees = new HashSet<>();
+  private Collection<StreamAttendeeResponse> someAttendees = new HashSet<>();
 
   @JsonProperty("reviews")
-  private Set<ReviewResponse> reviews = new HashSet<>();
+  private Collection<ReviewResponse> reviews = new HashSet<>();
 
   @JsonProperty("attendance_info")
   private AttendanceInfo attendanceInfo;
@@ -135,7 +136,7 @@ public class StreamResponse extends FleenFeenResponse
   private OtherStreamDetailInfo otherDetailInfo;
 
   @JsonProperty("user_like_info")
-  private LikeInfo userLikeInfo;
+  private UserLikeInfo userLikeInfo;
 
   @JsonProperty("total_like_count")
   private Long totalLikeCount;
@@ -145,6 +146,21 @@ public class StreamResponse extends FleenFeenResponse
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
+
+  @JsonIgnore
+  private String streamLinkUnmasked;
+
+  @JsonIgnore
+  private Long organizerId;
+
+  @JsonIgnore
+  private String externalId;
+
+  /**
+   * For the purpose of use in Chat Space where an event is created and is available for member of the space to join.
+   */
+  @JsonIgnore
+  public String streamLinkNotMasked;
 
   @JsonProperty("is_private")
   public boolean isPrivate() {
@@ -156,24 +172,18 @@ public class StreamResponse extends FleenFeenResponse
     return LocalDateTime.now(ZoneId.of(schedule.getTimezone())).isAfter(schedule.getEndDate());
   }
 
+  @Override
+  @JsonIgnore
+  public Long getAuthorId() {
+    return getOrganizerId();
+  }
+
   @JsonProperty("stream_link_unmasked")
   public String getStreamLinkUnmasked() {
     // Disable and reset the unmasked link if the user's join status is not approved
     disableAndResetUnmaskedLinkIfNotApproved();
     return streamLinkUnmasked;
   }
-
-  @JsonIgnore
-  private String streamLinkUnmasked;
-
-  /**
-   * For the purpose of use in Chat Space where an event is created and is available for member of the space to join.
-   */
-  @JsonIgnore
-  public String streamLinkNotMasked;
-
-  @JsonIgnore
-  private String externalId;
 
   @JsonIgnore
   public StreamVisibility getVisibility() {
@@ -199,9 +209,6 @@ public class StreamResponse extends FleenFeenResponse
   public boolean hasHappened() {
     return schedule.getEndDate().isBefore(LocalDateTime.now());
   }
-
-  @JsonIgnore
-  private Long organizerId;
 
   public void setReviews(final ReviewResponse review) {
     if (nonNull(review)) {

@@ -4,16 +4,17 @@ import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedChatSpaceUri;
-import com.fleencorp.feen.model.contract.SetIsOrganizer;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
-import com.fleencorp.feen.model.contract.SetLikeInfo;
+import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.model.contract.HasOrganizer;
+import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
-import com.fleencorp.feen.model.info.like.LikeInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
@@ -60,7 +61,7 @@ import static java.util.Objects.nonNull;
   "updated_on"
 })
 public class ChatSpaceResponse extends FleenFeenResponse
-    implements SetIsOrganizer, SetIsUpdatable, SetLikeInfo {
+    implements HasId, HasOrganizer, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -109,7 +110,7 @@ public class ChatSpaceResponse extends FleenFeenResponse
   private ChatSpaceMembershipInfo membershipInfo;
 
   @JsonProperty("user_like_info")
-  private LikeInfo userLikeInfo;
+  private UserLikeInfo userLikeInfo;
 
   @JsonProperty("total_like_count")
   private Long totalLikeCount;
@@ -127,6 +128,12 @@ public class ChatSpaceResponse extends FleenFeenResponse
 
   @JsonIgnore
   private String spaceLinkUnMasked;
+
+  @Override
+  @JsonIgnore
+  public Long getAuthorId() {
+    return getOrganizerId();
+  }
 
   @JsonIgnore
   public ChatSpaceVisibility getVisibility() {

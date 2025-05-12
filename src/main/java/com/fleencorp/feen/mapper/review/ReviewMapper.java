@@ -10,6 +10,4 @@ public interface ReviewMapper {
   ReviewResponse toReviewResponsePublic(Review entry);
 
   List<ReviewResponse> toReviewResponsesPublic(List<Review> entries);
-
-  List<ReviewResponse> toReviewResponsesPrivate(List<Review> entries);
 }

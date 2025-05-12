@@ -65,8 +65,8 @@ public final class GoogleCalendarEventMapper {
     if (nonNull(events)) {
       return events
           .stream()
-          .map(GoogleCalendarEventMapper::mapToEvent)
           .filter(Objects::nonNull)
+          .map(GoogleCalendarEventMapper::mapToEvent)
           .toList();
     }
     return List.of();
@@ -268,8 +268,8 @@ public final class GoogleCalendarEventMapper {
   private static List<GoogleCalendarEventResponse.Reminders.Override> mapToOverrides(final List<EventReminder> eventReminders) {
     if (nonNull(eventReminders)) {
       return eventReminders.stream()
-          .map(GoogleCalendarEventMapper::mapToOverride)
           .filter(Objects::nonNull)
+          .map(GoogleCalendarEventMapper::mapToOverride)
           .toList();
     }
     return List.of();
@@ -307,8 +307,8 @@ public final class GoogleCalendarEventMapper {
   private static List<GoogleCalendarEventResponse.Attendee> mapToAttendees(final List<EventAttendee> eventAttendees) {
     if (nonNull(eventAttendees)) {
       return eventAttendees.stream()
-          .map(GoogleCalendarEventMapper::mapToAttendee)
           .filter(Objects::nonNull)
+          .map(GoogleCalendarEventMapper::mapToAttendee)
           .toList();
     }
     return List.of();

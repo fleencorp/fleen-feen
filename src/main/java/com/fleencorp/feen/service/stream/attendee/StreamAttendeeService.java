@@ -12,23 +12,15 @@ import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResul
 import com.fleencorp.feen.model.security.FleenUser;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface StreamAttendeeService {
 
   StreamAttendeeSearchResult findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
 
-  Set<StreamAttendeeResponse> toStreamAttendeeResponsesSet(StreamResponse streamResponse, Collection<StreamAttendee> streamAttendees);
-
-  void setFirst10AttendeesAttendingInAnyOrderOnStreams(List<StreamResponse> streams);
-
-  void setStreamAttendeesAndTotalAttendeesAttending(List<StreamResponse> streams);
-
   void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, FleenUser user);
 
-  Set<StreamAttendee> getAttendeesGoingToStream(FleenStream stream);
+  Collection<StreamAttendeeResponse> getAttendeesGoingToStream(StreamResponse streamResponse);
 
   StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws StreamNotFoundException;
 

@@ -5,10 +5,10 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
-import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
@@ -17,6 +17,7 @@ import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.*;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import org.springframework.context.MessageSource;
@@ -43,25 +44,22 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
   private final ChatSpaceMemberMapper chatSpaceMemberMapper;
-  private final CommonMapper commonMapper;
+  private final ToInfoMapper toInfoMapper;
 
   /**
-   * Constructs a {@code ChatSpaceMapper} with the specified {@link MessageSource}.
+   * Constructs a new {@code ChatSpaceMapperImpl}, responsible for mapping chat space entities to DTOs.
    *
-   * <p>The {@link MessageSource} is used to retrieve localized messages
-   * for various components of the chat space mapping process.</p>
-   *
-   * @param chatSpaceMemberMapper the mapper for mapping chat space member related details
-   * @param commonMapper a service for creating info data and their localized text
-   * @param messageSource the source for localized messages; must not be {@code null}.
+   * @param toInfoMapper the mapper for converting domain models to info DTOs
+   * @param chatSpaceMemberMapper the mapper for transforming chat space member entities
+   * @param messageSource the source for resolving localized messages, passed to the superclass
    */
   public ChatSpaceMapperImpl(
+      final ToInfoMapper toInfoMapper,
       final ChatSpaceMemberMapper chatSpaceMemberMapper,
-      final CommonMapper commonMapper,
       final MessageSource messageSource) {
     super(messageSource);
     this.chatSpaceMemberMapper = chatSpaceMemberMapper;
-    this.commonMapper = commonMapper;
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -110,7 +108,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       final ChatSpaceStatusInfo chatSpaceStatusInfo = toChatSpaceStatusInfo(entry.getStatus());
       response.setStatusInfo(chatSpaceStatusInfo);
 
-      final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(entry.getDeleted());
+      final IsDeletedInfo deletedInfo = toInfoMapper.toIsDeletedInfo(entry.getDeleted());
       response.setDeletedInfo(deletedInfo);
 
       final Organizer organizer = Organizer.of(entry.getOrganizerName(), entry.getOrganizerEmail(), entry.getOrganizerPhone());
@@ -137,8 +135,10 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       );
       response.setMembershipInfo(membershipInfo);
 
-      return response;
+      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      response.setUserLikeInfo(userLikeInfo);
 
+      return response;
     }
     return null;
   }
