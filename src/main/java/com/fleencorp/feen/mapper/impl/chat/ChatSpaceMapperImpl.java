@@ -122,7 +122,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       final IsChatSpaceMemberLeftInfo isChatSpaceMemberLeftInfo = chatSpaceMemberMapper.toIsChatSpaceMemberLeftInfo(false);
       final IsChatSpaceMemberRemovedInfo isChatSpaceMemberRemovedInfo = chatSpaceMemberMapper.toIsChatSpaceMemberRemovedInfo(false);
       final ChatSpaceMemberRoleInfo chatSpaceMemberRoleInfo = chatSpaceMemberMapper.toMemberRoleInfo(ChatSpaceMemberRole.MEMBER);
-      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = ChatSpaceRequestToJoinStatusInfo.of();
+      final ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo = toInfoMapper.toRequestToJoinStatusInfo();
 
       final ChatSpaceMembershipInfo membershipInfo = ChatSpaceMembershipInfo.of(
         requestToJoinStatusInfo,
@@ -135,7 +135,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       );
       response.setMembershipInfo(membershipInfo);
 
-      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
       response.setUserLikeInfo(userLikeInfo);
 
       return response;
