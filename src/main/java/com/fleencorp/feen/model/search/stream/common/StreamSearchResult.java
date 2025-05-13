@@ -38,9 +38,14 @@ public class StreamSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    return StreamType.isEvent(getStreamType())
-          ? nonNull(result) && result.hasValue() ? "event.search" : "event.empty.search"
-          : nonNull(result) && result.hasValue() ? "live.broadcast.search" : "live.broadcast.empty.search";
+    boolean isEvent = StreamType.isEvent(getStreamType());
+    boolean hasResult = nonNull(result) && result.hasValue();
+
+    if (isEvent) {
+      return hasResult ? "event.search" : "event.empty.search";
+    } else {
+      return hasResult ? "live.broadcast.search" : "live.broadcast.empty.search";
+    }
   }
 
   public static StreamSearchResult of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {

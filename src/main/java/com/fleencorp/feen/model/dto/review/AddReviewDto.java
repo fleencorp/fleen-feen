@@ -60,23 +60,23 @@ public class AddReviewDto {
   }
 
   public Review toStreamReview(final FleenStream stream, final Member member) {
-    final Review review = toReview();
-    review.setParentId(getParentId());
-    review.setParentTitle(stream.getTitle());
-    review.setReviewParentType(getReviewParentType());
-    review.setStreamId(stream.getStreamId());
-    review.setStream(stream);
-    review.setMemberId(member.getMemberId());
-    review.setMember(member);
+    final Review newReview = toReview();
+    newReview.setParentId(getParentId());
+    newReview.setParentTitle(stream.getTitle());
+    newReview.setReviewParentType(getReviewParentType());
+    newReview.setStreamId(stream.getStreamId());
+    newReview.setStream(stream);
+    newReview.setMemberId(member.getMemberId());
+    newReview.setMember(member);
 
-    return review;
+    return newReview;
   }
 
   public Review toReview() {
-    final Review review = new Review();
-    review.setReview(this.review);
-    review.setRating(getRating());
+    final Review newReview = new Review();
+    newReview.setReview(review);
+    newReview.setRating(getRating());
 
-    return review;
+    return newReview;
   }
 }

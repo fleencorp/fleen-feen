@@ -35,7 +35,7 @@ public class DeleteLinkDto extends BaseLinkDto {
       .filter(Objects::nonNull)
       .map(LinkDto::getLinkType)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
 
