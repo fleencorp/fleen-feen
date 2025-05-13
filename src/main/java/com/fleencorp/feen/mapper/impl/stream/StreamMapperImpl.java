@@ -138,7 +138,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
       response.setAttendanceInfo(attendanceInfo);
 
-      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
       response.setUserLikeInfo(userLikeInfo);
 
       return response;

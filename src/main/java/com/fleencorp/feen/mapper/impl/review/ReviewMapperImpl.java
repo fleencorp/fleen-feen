@@ -1,6 +1,7 @@
 package com.fleencorp.feen.mapper.impl.review;
 
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.info.like.UserLikeInfo;
@@ -29,8 +30,13 @@ import static java.util.Objects.nonNull;
 @Component
 public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
 
-  public ReviewMapperImpl(final MessageSource messageSource) {
+  private final ToInfoMapper toInfoMapper;
+
+  public ReviewMapperImpl(
+      final MessageSource messageSource,
+      final ToInfoMapper toInfoMapper) {
     super(messageSource);
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -69,7 +75,7 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
-      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
       response.setUserLikeInfo(userLikeInfo);
 
       return response;
