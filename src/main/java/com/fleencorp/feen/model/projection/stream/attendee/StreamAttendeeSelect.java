@@ -3,6 +3,7 @@ package com.fleencorp.feen.model.projection.stream.attendee;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.model.contract.HasId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,7 +39,7 @@ import static java.util.Objects.nonNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StreamAttendeeSelect {
+public class StreamAttendeeSelect implements HasId {
 
   private Long streamId;
   private StreamAttendeeRequestToJoinStatus requestToJoinStatus;
@@ -46,6 +47,12 @@ public class StreamAttendeeSelect {
   private Boolean aSpeaker;
   private StreamVisibility streamVisibility;
   private LocalDateTime endDate;
+  private Boolean liked;
+
+  @Override
+  public Long getNumberId() {
+    return streamId;
+  }
 
   public boolean isAttending() {
     return nonNull(attending) && attending;

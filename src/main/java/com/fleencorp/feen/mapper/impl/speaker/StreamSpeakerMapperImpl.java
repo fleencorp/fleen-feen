@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -96,7 +95,7 @@ public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(StreamSpeakerMapperImpl::toStreamSpeakerResponse)
-        .collect(Collectors.toList());
+        .toList();
     }
     return List.of();
   }

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.mapper.impl.stream.attendee;
 
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
@@ -14,6 +14,10 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
@@ -150,6 +154,28 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
       return response;
     }
     return null;
+  }
+
+  /**
+   * Converts a list of {@link StreamAttendee} entities to their corresponding
+   * public {@link StreamAttendeeResponse} representations for a given stream.
+   *
+   * <p>Null and empty input lists are safely handled by returning an empty collection.
+   * Any null elements within the list are also filtered out during the conversion.</p>
+   *
+   * @param entries the list of {@link StreamAttendee} entities to convert
+   * @param streamResponse the {@link StreamResponse} associated with the attendees
+   * @return a collection of {@link StreamAttendeeResponse} representing the public view of each attendee
+   */
+  @Override
+  public Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(final List<StreamAttendee> entries, final StreamResponse streamResponse) {
+    if (nonNull(entries) && !entries.isEmpty()) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(streamAttendee -> toStreamAttendeeResponsePublic(streamAttendee, streamResponse))
+        .toList();
+    }
+    return List.of();
   }
 
   /**

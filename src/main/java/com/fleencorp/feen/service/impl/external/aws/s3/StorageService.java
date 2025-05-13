@@ -344,7 +344,7 @@ public class StorageService {
   public void deleteObjectSilent(@NotNull final String bucketName, @NotNull final String objectKey) {
     try {
       deleteObject(bucketName, objectKey);
-    } catch (final ObjectNotFoundException ignored) {}
+    } catch (final ObjectNotFoundException _) {}
   }
 
   /**
@@ -402,7 +402,7 @@ public class StorageService {
           .key(objectKey)
           .build();
         return amazonS3.headObject(headObjectRequest) != null && amazonS3.headObject(headObjectRequest).lastModified() != null;
-      } catch (final S3Exception ignored) {
+      } catch (final S3Exception _) {
         return false;
       }
     }

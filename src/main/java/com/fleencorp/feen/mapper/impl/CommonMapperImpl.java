@@ -1,6 +1,5 @@
 package com.fleencorp.feen.mapper.impl;
 
-import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mfa.IsMfaEnabled;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
@@ -9,10 +8,9 @@ import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.impl.stream.StreamMapperImpl;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
@@ -27,7 +25,6 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import static java.util.Objects.nonNull;
@@ -49,22 +46,13 @@ public class CommonMapperImpl extends BaseMapper implements CommonMapper {
   private final StreamMapper streamMapper;
   private final ToInfoMapper toInfoMapper;
 
-  /**
-   * Constructs a new instance of {@link CommonMapperImpl} with the specified dependencies.
-   *
-   * <p>This constructor initializes the {@link CommonMapperImpl} class with the provided {@link StreamMapperImpl} and
-   * {@link MessageSource} instances, which are used for mapping stream-related data and translating messages, respectively.</p>
-   *
-   * @param streamMapper The {@link StreamMapperImpl} instance to be used for mapping stream-related data.
-   * @param messageSource The {@link MessageSource} instance for message translation based on locale.
-   */
   public CommonMapperImpl(
-      @Lazy final StreamMapper streamMapper,
       final ToInfoMapper toInfoMapper,
+      final StreamMapper streamMapper,
       final MessageSource messageSource) {
     super(messageSource);
-    this.streamMapper = streamMapper;
     this.toInfoMapper = toInfoMapper;
+    this.streamMapper = streamMapper;
   }
 
   /**
@@ -226,25 +214,6 @@ public class CommonMapperImpl extends BaseMapper implements CommonMapper {
 
     // Return null if no existing attendee is found
     return null;
-  }
-
-  /**
-   * Converts the given deletion status into an {@link IsDeletedInfo} object.
-   *
-   * <p>This method takes a boolean value representing whether an entity has been deleted or not and
-   * maps it to an {@link IsDeleted} enum. It then constructs an {@link IsDeletedInfo} object using
-   * this enum, along with translations of the associated message codes for localization.</p>
-   *
-   * <p>The resulting {@link IsDeletedInfo} provides information on the deletion status, including
-   * localized message codes that can be used to display relevant messages to users.</p>
-   *
-   * @param deleted The boolean flag indicating whether the entity has been deleted.
-   * @return The {@link IsDeletedInfo} object containing the deletion status and message codes.
-   */
-  @Override
-  public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
-    final IsDeleted isDeleted = IsDeleted.by(deleted);
-    return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
   }
 
   /**

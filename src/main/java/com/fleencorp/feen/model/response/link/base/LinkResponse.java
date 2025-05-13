@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.link.base;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.link.LinkTypeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +20,7 @@ import lombok.Setter;
   "link_type",
   "is_updatable"
 })
-public class LinkResponse implements SetIsUpdatable {
+public class LinkResponse implements Updatable {
 
   @JsonProperty("url")
   private String url;

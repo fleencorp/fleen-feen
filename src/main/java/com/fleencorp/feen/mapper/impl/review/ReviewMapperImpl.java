@@ -3,6 +3,7 @@ package com.fleencorp.feen.mapper.impl.review;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import org.springframework.context.MessageSource;
@@ -55,11 +56,12 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       final ReviewResponse response = new ReviewResponse();
       response.setId(entry.getReviewId());
       response.setReview(entry.getReview());
-      response.setReviewType(entry.getReviewType());
+      response.setReviewParentType(entry.getReviewParentType());
       response.setRatingInfo(ratingInfo);
       response.setReviewerName(entry.getReviewerName());
       response.setReviewerPhoto(entry.getReviewerPhoto());
       response.setMemberId(entry.getMemberId());
+      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setParentId(entry.getParentId());
       response.setParentTitle(entry.getParentTitle());
@@ -67,29 +69,12 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
+      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      response.setUserLikeInfo(userLikeInfo);
+
       return response;
     }
     return null;
-  }
-
-  /**
-   * Converts a {@link Review} entity to a private {@link ReviewResponse} object.
-   *
-   * <p>This method extends the functionality of {@link #toReviewResponsePublic(Review)} by adding
-   * additional private stream-related details to the response, such as the stream ID and stream title.</p>
-   *
-   * @param entry the {@link Review} entity to be converted to a private {@link ReviewResponse}
-   * @return the private {@link ReviewResponse} containing both public and private review details,
-   *         or {@code null} if the input {@link Review} is {@code null}
-   */
-  public ReviewResponse toReviewResponsePrivate(final Review entry) {
-    final ReviewResponse response = toReviewResponsePublic(entry);
-
-    if (nonNull(response)) {
-      response.markAsUpdatable();
-    }
-
-    return response;
   }
 
   /**
@@ -108,28 +93,6 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(this::toReviewResponsePublic)
-        .toList();
-    }
-    return List.of();
-  }
-
-  /**
-   * Converts a list of {@link Review} entities to a list of private {@link ReviewResponse} objects.
-   *
-   * <p>This method processes each {@link Review} in the provided list and converts it to a private
-   * {@link ReviewResponse} using {@link #toReviewResponsePrivate(Review)}. It filters out any
-   * {@code null} values from the input list.</p>
-   *
-   * @param entries the list of {@link Review} entities to be converted to private {@link ReviewResponse} objects
-   * @return a list of {@link ReviewResponse} containing both public and private review details,
-   *         or an empty list if the input list is {@code null} or contains no valid entries
-   */
-  @Override
-  public List<ReviewResponse> toReviewResponsesPrivate(final List<Review> entries) {
-    if (nonNull(entries)) {
-      return entries.stream()
-        .filter(Objects::nonNull)
-        .map(this::toReviewResponsePrivate)
         .toList();
     }
     return List.of();

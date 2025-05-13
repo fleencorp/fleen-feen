@@ -104,6 +104,7 @@ public class UpdateLinkDto extends BaseLinkDto {
 
     public Link toLink(final ChatSpace chatSpace) {
       final Link link = new Link();
+      link.setParentId(chatSpace.getChatSpaceId());
       link.setUrl(url);
       link.setLinkType(getLinkType());
       link.setChatSpace(chatSpace);

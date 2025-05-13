@@ -68,9 +68,9 @@ public class MfaServiceImpl implements MfaService {
    * @param mfaRepository        The repository responsible for handling MFA data.
    * @param memberRepository     The repository responsible for managing member data.
    * @param profileRequestPublisher Publishes profile requests when necessary.
-   * @param localizer    The service used to fetch localized responses based on the user's locale.
    * @param mfaProperties        Configuration properties for MFA settings.
    * @param commonMapper            The mapper service responsible for mapping MFA-related entities and responses.
+   * @param localizer    The service used to fetch localized responses based on the user's locale.
    */
   public MfaServiceImpl(
       final CacheService cacheService,
@@ -78,17 +78,17 @@ public class MfaServiceImpl implements MfaService {
       final MfaRepository mfaRepository,
       final MemberRepository memberRepository,
       final ProfileRequestPublisher profileRequestPublisher,
-      final Localizer localizer,
       final MfaProperties mfaProperties,
-      final CommonMapper commonMapper) {
+      final CommonMapper commonMapper,
+      final Localizer localizer) {
     this.cacheService = cacheService;
     this.otpService = otpService;
     this.mfaRepository = mfaRepository;
     this.memberRepository = memberRepository;
     this.profileRequestPublisher = profileRequestPublisher;
-    this.localizer = localizer;
     this.mfaProperties = mfaProperties;
     this.commonMapper = commonMapper;
+    this.localizer = localizer;
   }
 
   /**

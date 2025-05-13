@@ -34,4 +34,8 @@ public class ReviewSearchResult extends ApiResponse {
   public static ReviewSearchResult of(final SearchResultView result) {
     return new ReviewSearchResult(result);
   }
+
+  public static ReviewSearchResult empty() {
+    return new ReviewSearchResult(SearchResultView.empty());
+  }
 }

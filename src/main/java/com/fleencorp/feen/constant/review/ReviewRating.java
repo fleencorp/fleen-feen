@@ -52,7 +52,7 @@ public enum ReviewRating implements ApiParameter {
             return r;
           }
         }
-      } catch (final NumberFormatException ignored) {
+      } catch (final NumberFormatException _) {
         // Not a number, try to match by value
         for (final ReviewRating r : values()) {
           if (r.getValue().equalsIgnoreCase(rating)) {

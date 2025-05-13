@@ -44,7 +44,7 @@ public class StreamDurationValidator implements ConstraintValidator<StreamDurati
 
         // Validate that the duration does not exceed 24 hours
         return duration.toHours() <= 24;
-      } catch (final DateTimeParseException | NullPointerException ignored) {
+      } catch (final DateTimeParseException | NullPointerException _) {
         return false;
       }
     }

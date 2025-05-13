@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.stream.update;
 
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.service.stream.update.OtherEventUpdateService;
+import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.update.StreamAttendeeUpdateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StreamStreamAttendeeUpdateServiceImpl implements StreamAttendeeUpdateService {
 
-  private final OtherEventUpdateService otherEventUpdateService;
+  private final EventOperationsService eventOperationsService;
 
-  public StreamStreamAttendeeUpdateServiceImpl(final OtherEventUpdateService otherEventUpdateService) {
-    this.otherEventUpdateService = otherEventUpdateService;
-  }
+  public StreamStreamAttendeeUpdateServiceImpl(final EventOperationsService eventOperationsService) {
+    this.eventOperationsService = eventOperationsService;
+   }
 
   /**
    * Creates a new stream attendee request and sends an invitation to the specified attendee.
@@ -48,6 +48,6 @@ public class StreamStreamAttendeeUpdateServiceImpl implements StreamAttendeeUpda
     );
 
     // Send an invitation to the user in the Calendar & Event API
-    otherEventUpdateService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+    eventOperationsService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
   }
 }

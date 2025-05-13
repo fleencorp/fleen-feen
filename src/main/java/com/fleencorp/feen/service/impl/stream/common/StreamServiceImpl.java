@@ -11,39 +11,30 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
-import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeParticipationRepository;
-import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeRepository;
-import com.fleencorp.feen.repository.stream.StreamParticipationRepository;
-import com.fleencorp.feen.repository.stream.StreamRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
-import com.fleencorp.feen.service.stream.attendee.StreamAttendeeService;
+import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
-import static com.fleencorp.feen.service.impl.stream.attendee.StreamAttendeeServiceImpl.groupAttendeeAttendance;
-import static com.fleencorp.feen.util.DateTimeUtil.convertToTimezone;
 import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
@@ -69,44 +60,18 @@ public class StreamServiceImpl implements StreamService {
 
   private final GoogleOauth2Service googleOauth2Service;
   private final MiscService miscService;
-  private final StreamAttendeeService attendeeService;
-  private final StreamRepository streamRepository;
-  private final StreamAttendeeRepository streamAttendeeRepository;
-  private final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository;
-  private final StreamParticipationRepository streamParticipationRepository;
-  private final StreamMapper streamMapper;
+  private final StreamAttendeeOperationsService streamAttendeeOperationsService;
+  private final StreamOperationsService streamOperationsService;
 
-  /**
-   * Constructor for {@link StreamServiceImpl} class.
-   *
-   * <p>This constructor initializes the required dependencies for the {@link StreamServiceImpl} class, which are injected
-   * through the constructor. The dependencies include services for notifications, attendee management, stream data repository,
-   * and mapping for stream-related objects.</p>
-   *
-   * @param attendeeService the service responsible for handling stream attendees
-   * @param streamRepository the repository for managing stream data
-   * @param streamAttendeeRepository the repository for managing stream attendee data
-   * @param streamAttendeeParticipationRepository the repository for finding attendees participation
-   * @param streamParticipationRepository repository for finding participation of users in stream
-   * @param streamMapper the mapper for converting stream-related objects to different representations
-   */
   public StreamServiceImpl(
       final GoogleOauth2Service googleOauth2Service,
       final MiscService miscService,
-      @Lazy final StreamAttendeeService attendeeService,
-      final StreamRepository streamRepository,
-      final StreamAttendeeRepository streamAttendeeRepository,
-      final StreamAttendeeParticipationRepository streamAttendeeParticipationRepository,
-      final StreamParticipationRepository streamParticipationRepository,
-      final StreamMapper streamMapper) {
+      @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
+      @Lazy final StreamOperationsService streamOperationsService) {
     this.googleOauth2Service = googleOauth2Service;
     this.miscService = miscService;
-    this.attendeeService = attendeeService;
-    this.streamRepository = streamRepository;
-    this.streamAttendeeRepository = streamAttendeeRepository;
-    this.streamAttendeeParticipationRepository = streamAttendeeParticipationRepository;
-    this.streamParticipationRepository = streamParticipationRepository;
-    this.streamMapper = streamMapper;
+    this.streamAttendeeOperationsService = streamAttendeeOperationsService;
+    this.streamOperationsService = streamOperationsService;
   }
 
   /**
@@ -121,7 +86,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   public FleenStream findStream(final Long streamId) throws StreamNotFoundException {
-    return streamRepository.findById(streamId)
+    return streamOperationsService.findById(streamId)
       .orElseThrow(StreamNotFoundException.of(streamId));
   }
 
@@ -205,114 +170,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Determines the join status of a user for a list of streams and updates the join status
-   * in the corresponding FleenStreamResponse objects.
-   *
-   * <p>This method first validates the user and the responses. If the input is valid, it extracts
-   * the stream IDs from the responses, finds the user's attendance history in the streams, and
-   * updates the join status for each response based on the user's attendance information.</p>
-   *
-   * @param streamResponses a list of FleenStreamResponse objects representing streams.
-   * @param user the FleenUser for whom the join status is to be determined.
-   */
-  @Override
-  public void determineUserJoinStatusForStream(final List<StreamResponse> streamResponses, final FleenUser user) {
-    // Check the details and confirm they are valid
-    final boolean isInputValid = isUserAndResponsesValid(streamResponses, user);
-
-    if (isInputValid) {
-      // Extract the stream IDs from the search result views
-      final List<Long> streamIds = extractAndGetStreamIds(streamResponses);
-      // Find the user attendance history in the streams
-      final Map<Long, StreamAttendeeSelect> userAttendance = findUserAttendanceInStreams(user.toMember(), streamIds);
-      // Update each stream's join status in the response views
-      updateJoinStatusInResponses(streamResponses, userAttendance);
-    }
-  }
-
-  /**
-   * Finds and returns a map of user attendance information for a given member in the specified streams.
-   *
-   * <p>The method first retrieves a list of StreamAttendeeSelect objects representing the user's attendance
-   * in the streams, and then groups them by stream ID into a map.</p>
-   *
-   * @param member the Member for whom attendance is being checked.
-   * @param streamIds a list of stream IDs where attendance information is requested.
-   * @return a map where the key is the stream ID (Long) and the value is the StreamAttendeeSelect object
-   *         containing attendance details for the specified member.
-   */
-  protected Map<Long, StreamAttendeeSelect> findUserAttendanceInStreams(final Member member, final List<Long> streamIds) {
-    // Retrieve the list of attendance details for the given member in the specified streams
-    final List<StreamAttendeeSelect> attendeeAttendance = findAttendeeAttendance(member, streamIds);
-    // Group the attendance details by stream ID and return as a map
-    return groupAttendeeAttendance(attendeeAttendance);
-  }
-
-  /**
-   * Updates the join status of each stream response based on the provided attendance status map.
-   *
-   * <p>This method iterates over a list of FleenStreamResponse objects and updates their join status
-   * according to the corresponding status found in the provided attendanceStatusMap.
-   * If a stream response is non-null and has a corresponding status in the map,
-   * the join status is updated with a label derived from the status.</p>
-   *
-   * @param responses A list of FleenStreamResponse objects representing the streams to be updated.
-   * @param attendanceStatusMap A map containing attendance status keyed by stream number IDs.
-   */
-  protected void updateJoinStatusInResponses(final List<StreamResponse> responses, final Map<Long, StreamAttendeeSelect> attendanceStatusMap) {
-    if (nonNull(responses) && nonNull(attendanceStatusMap)) {
-      // Update each stream's join status in the response views
-      responses.stream()
-        .filter(Objects::nonNull)
-        .forEach(stream -> {
-          // Retrieve the attendee status for a specific ID which can be null because the member has not join or requested to join the stream
-          final Optional<StreamAttendeeSelect> existingAttendance = Optional.ofNullable(attendanceStatusMap.get(stream.getNumberId()));
-          // If member is an attendee, retrieve the status and set view label
-          existingAttendance.ifPresent(attendee -> {
-            // Update the request to join status, join status and is attending info
-            streamMapper.update(stream, attendee.getRequestToJoinStatus(), attendee.getJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
-          });
-      });
-    }
-  }
-
-  /**
-   * Adjusts the schedule of streams based on the user's timezone.
-   *
-   * <p>This method checks whether the input user and responses are valid. For each valid stream,
-   * it compares the stream's timezone with the user's timezone. If they are different, it converts
-   * the stream's schedule to match the user's timezone and updates the stream with the adjusted
-   * schedule. If the timezones are the same, an empty schedule is set.</p>
-   *
-   * @param streamResponses a collection of FleenStreamResponse objects representing the streams.
-   * @param user the FleenUser whose timezone is used for schedule adjustment.
-   */
-  @Override
-  public void setOtherScheduleBasedOnUserTimezone(final Collection<StreamResponse> streamResponses, final FleenUser user) {
-    if (isUserAndResponsesValid(streamResponses, user)) {
-      streamResponses.stream()
-        .filter(Objects::nonNull)
-        .forEach(stream -> {
-          // Get the stream's original timezone
-          final String streamTimezone = stream.getSchedule().getTimezone();
-          // Get the user's timezone
-          final String userTimezone = user.getTimezone();
-
-          // Check if the stream's timezone and user's timezone are different
-          if (!streamTimezone.equalsIgnoreCase(userTimezone)) {
-            // Convert the stream's schedule to the user's timezone
-            final Schedule otherSchedule = createSchedule(stream, userTimezone);
-            // Set the converted dates and user's timezone in the stream's other schedule
-            stream.setOtherSchedule(otherSchedule);
-          } else {
-            // If the timezones are the same, set an empty schedule
-            stream.setOtherSchedule(Schedule.of());
-          }
-      });
-    }
-  }
-
-  /**
    * Processes the attendee's decision to not attend the stream.
    *
    * <p>This method handles the case where an attendee who was previously marked as attending
@@ -332,7 +189,7 @@ public class StreamServiceImpl implements StreamService {
       // If an attendee record exists, update their attendance status to false
       attendee.markAsNotAttending();
       // Save the updated attendee record
-      streamAttendeeRepository.save(attendee);
+      streamAttendeeOperationsService.save(attendee);
     }
   }
 
@@ -345,7 +202,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public void increaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Increase total attendees or guests in the stream
-    streamRepository.incrementTotalAttendees(stream.getStreamId());
+    streamOperationsService.incrementTotalAttendees(stream.getStreamId());
   }
 
   /**
@@ -357,25 +214,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public void decreaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Decrease total attendees or guests in the stream
-    streamRepository.decrementTotalAttendees(stream.getStreamId());
-  }
-
-  /**
-   * Determines and sets various statuses and details for streams based on the user's context.
-   *
-   * <p>This method evaluates and updates the provided list of {@link StreamResponse} objects
-   * by determining the user's join status, the schedule status (live, past, or upcoming), and
-   * adjusts schedule details based on the user's timezone.</p>
-   *
-   * @param streamResponses the list of stream responses to update with status and details.
-   * @param user the user whose context will be used to adjust the statuses and schedule details.
-   */
-  @Override
-  public void determineDifferentStatusesAndDetailsOfStreamBasedOnUser(final List<StreamResponse> streamResponses, final FleenUser user) {
-    // Determine the user's join status for each stream
-    determineUserJoinStatusForStream(streamResponses, user);
-    // Set other schedule details if user timezone is different
-    setOtherScheduleBasedOnUserTimezone(streamResponses, user);
+    streamOperationsService.decrementTotalAttendees(stream.getStreamId());
   }
 
   /**
@@ -398,38 +237,7 @@ public class StreamServiceImpl implements StreamService {
     // Mark the organizer as a speaker
     streamAttendee.markAsOrganizer();
     // Save attendee to the repository
-    streamAttendeeRepository.save(streamAttendee);
-  }
-
-  /**
-   * Retrieves the attendance records for the specified user across multiple streams.
-   *
-   * <p>This method fetches the attendance records for the given {@link Member} across the provided
-   * list of stream IDs by querying the {@link StreamAttendeeRepository}. The result is a
-   * list of {@link StreamAttendeeSelect} objects representing the user's attendance status for each stream.</p>
-   *
-   * @param member the {@link Member} whose attendance records are being retrieved
-   * @param streamIds the list of stream IDs to check for the user's attendance
-   * @return a list of {@link StreamAttendeeSelect} objects representing the user's attendance for each stream
-   */
-  protected List<StreamAttendeeSelect> findAttendeeAttendance(final Member member, final List<Long> streamIds) {
-    // Retrieve the user's attendance records for the provided stream IDs
-    return streamAttendeeRepository.findByMemberAndStreamIds(member, streamIds);
-  }
-
-  /**
-   * Validates that the user and the list of responses are not null.
-   *
-   * <p>This method checks if the user, the member object derived from the user, and the list of
-   * responses are all non-null to ensure the data is valid for further processing.</p>
-   *
-   * @param responses The list of FleenStreamResponse objects to be validated.
-   * @param user The FleenUser object to be validated.
-   * @return true if the user, user's member, and the responses are non-null; otherwise false.
-   */
-  protected boolean isUserAndResponsesValid(final Collection<StreamResponse> responses, final FleenUser user) {
-    // Check if user is non-null, user's member is non-null, and responses list is non-null
-    return nonNull(user) && nonNull(user.toMember()) && nonNull(responses);
+    streamAttendeeOperationsService.save(streamAttendee);
   }
 
   /**
@@ -475,39 +283,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Creates a schedule for a stream adjusted to the user's timezone.
-   *
-   * <p>This method checks if the stream and user timezone are valid. If so, it retrieves the
-   * stream's original start and end dates, converts them to the user's timezone, and returns
-   * the converted schedule with the adjusted dates. If either the stream or user timezone is
-   * invalid (null), an empty schedule is returned.</p>
-   *
-   * @param stream the FleenStreamResponse object representing the stream.
-   * @param userTimezone the timezone of the user to which the schedule will be adjusted.
-   * @return a Schedule object with the adjusted start and end dates in the user's timezone.
-   */
-  protected static Schedule createSchedule(final StreamResponse stream, final String userTimezone) {
-    if (nonNull(stream) && nonNull(userTimezone)) {
-      // Get the stream's original timezone
-      final String streamTimezone = stream.getSchedule().getTimezone();
-
-      // Retrieve the start dates from the stream's schedule
-      final LocalDateTime startDate = stream.getSchedule().getStartDate();
-      // Retrieve the end dates from the stream's schedule
-      final LocalDateTime endDate = stream.getSchedule().getEndDate();
-
-      // Convert the stream's start date to the user's timezone
-      final LocalDateTime userStartDate = convertToTimezone(startDate, streamTimezone, userTimezone);
-      // Convert the stream's end date to the user's timezone
-      final LocalDateTime userEndDate = convertToTimezone(endDate, streamTimezone, userTimezone);
-      // Return the schedule with the dates in the user's timezone
-      return Schedule.of(userStartDate, userEndDate, userTimezone);
-    }
-    // If the stream or userTimezone is null, return an empty schedule
-    return Schedule.of();
-  }
-
-  /**
    * Verifies that the provided stream has not already ended.
    *
    * <p>This method checks if the stream has already ended by evaluating its end date. If the stream has ended,
@@ -547,27 +322,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Extracts and retrieves the stream IDs from a list of stream responses.
-   *
-   * <p>This method filters out any null stream responses and maps the remaining responses to their corresponding
-   * stream IDs. If the input list is null, it returns an empty list.</p>
-   *
-   * @param streams the list of {@link StreamResponse} objects containing stream details
-   * @return a list of stream IDs extracted from the provided stream responses, or an empty list if the input list is null
-   */
-  protected static List<Long> extractAndGetStreamIds(final List<StreamResponse> streams) {
-    // Filter null responses and map to the corresponding stream ID
-    if (nonNull(streams)) {
-      return streams.stream()
-        .filter(Objects::nonNull)
-        .map(FleenFeenResponse::getNumberId)
-        .toList();
-    }
-    // Return an empty list if the input list is null
-    return List.of();
-  }
-
-  /**
    * Sets the request-to-join status of the attendee to pending if the stream is private.
    *
    * <p>If the provided {@link StreamAttendee} and {@link FleenStream} is not null and the stream is private,
@@ -601,7 +355,7 @@ public class StreamServiceImpl implements StreamService {
     checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
 
     // Try to check if the user is an existing attendee
-    final Optional<StreamAttendee> existingAttendee = attendeeService.findAttendeeByMemberId(stream, userId);
+    final Optional<StreamAttendee> existingAttendee = streamAttendeeOperationsService.findAttendeeByMemberId(stream, userId);
     // If the user is found as an attendee, throw an exception with the attendee's request to join status
     existingAttendee
       .ifPresent(streamAttendee -> {
@@ -670,6 +424,42 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   public boolean existsByAttendees(final Member viewer, final Member target) {
-    return streamAttendeeParticipationRepository.existsByAttendees(viewer.getMemberId(), target.getMemberId());
+    return streamOperationsService.existsByAttendees(viewer.getMemberId(), target.getMemberId());
+  }
+
+  /**
+   * Increments the like count for a given stream and returns the updated total.
+   *
+   * <p>This method invokes {@code incrementAndGetLikeCount} on the
+   * {@code streamOperationsService} to increase the like count associated with the
+   * specified {@code streamId}. The returned value represents the total number
+   * of likes after the increment operation.</p>
+   *
+   * @param streamId the ID of the stream whose like count is to be incremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Override
+  @Transactional
+  public Long incrementLikeCount(final Long streamId) {
+    final int total = streamOperationsService.incrementAndGetLikeCount(streamId);
+    return (long) total;
+  }
+
+  /**
+   * Decrements the like count for a given stream and returns the updated total.
+   *
+   * <p>This method calls {@code decrementAndGetLikeCount} on the
+   * {@code streamOperationsService} to reduce the like count associated with the
+   * provided {@code streamId}. The result is the updated number of likes
+   * after the decrement operation.</p>
+   *
+   * @param streamId the ID of the stream whose like count is to be decremented
+   * @return the updated total like count as a {@code Long}
+   */
+  @Transactional
+  @Override
+  public Long decrementLikeCount(final Long streamId) {
+    final int total = streamOperationsService.decrementAndGetLikeCount(streamId);
+    return (long) total;
   }
 }
