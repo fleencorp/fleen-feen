@@ -12,8 +12,8 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteC
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleAddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleRemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.repository.chat.space.member.ChatSpaceMemberRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
+import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.chat.space.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatMemberService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
@@ -39,27 +39,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class ChatSpaceUpdateServiceImpl implements ChatSpaceUpdateService {
 
+  private final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService;
   private final GoogleChatService googleChatService;
   private final GoogleChatMemberService googleChatMemberService;
   private final ChatSpaceRepository chatSpaceRepository;
-  private final ChatSpaceMemberRepository chatSpaceMemberRepository;
 
   /**
-   * Constructs a {@link ChatSpaceUpdateServiceImpl} instance with the specified services.
+   * Constructs a new {@code ChatSpaceUpdateServiceImpl}, responsible for updating chat space data and synchronizing with external services.
    *
-   * @param googleChatService the service used to interact with Google Chat.
-   * @param chatSpaceRepository the repository for managing chat spaces in the database.
-   * @param chatSpaceMemberRepository Repository for managing chat space members.
+   * @param googleChatService the service for interacting with Google Chat spaces
+   * @param googleChatMemberService the service for managing members within Google Chat
+   * @param chatSpaceMemberOperationsService the service handling operations on chat space members
+   * @param chatSpaceRepository the repository used for persisting chat space information
    */
   public ChatSpaceUpdateServiceImpl(
+      final ChatSpaceMemberOperationsService chatSpaceMemberOperationsService,
       final GoogleChatService googleChatService,
       final GoogleChatMemberService googleChatMemberService,
-      final ChatSpaceRepository chatSpaceRepository,
-      final ChatSpaceMemberRepository chatSpaceMemberRepository) {
+      final ChatSpaceRepository chatSpaceRepository) {
+    this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
     this.googleChatService = googleChatService;
     this.googleChatMemberService = googleChatMemberService;
     this.chatSpaceRepository = chatSpaceRepository;
-    this.chatSpaceMemberRepository = chatSpaceMemberRepository;
   }
 
   /**
@@ -87,7 +88,7 @@ public class ChatSpaceUpdateServiceImpl implements ChatSpaceUpdateService {
     final AddChatSpaceMemberRequest addChatSpaceMemberRequest = AddChatSpaceMemberRequest.of(response.name(), request.getUserEmailAddress());
 
     // Find the chat space member associated with the chat space and current member
-    chatSpaceMemberRepository.findByChatSpaceAndMember(chatSpace, chatSpace.getMember())
+    chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, chatSpace.getMember())
       .ifPresent(chatSpaceMember -> addMember(chatSpaceMember, addChatSpaceMemberRequest));
   }
 
@@ -146,7 +147,7 @@ public class ChatSpaceUpdateServiceImpl implements ChatSpaceUpdateService {
     // Update the chat space member details with response information
     chatSpaceMember.updateDetails(response.spaceIdOrName(), response.memberIdOrName());
     // Save chat space member to repository
-    chatSpaceMemberRepository.save(chatSpaceMember);
+    chatSpaceMemberOperationsService.save(chatSpaceMember);
   }
 
   /**

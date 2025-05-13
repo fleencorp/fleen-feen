@@ -4,6 +4,7 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.model.contract.HasId;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatSpaceMemberSelect {
+public class ChatSpaceMemberSelect implements HasId {
 
   private Long chatSpaceId;
   private ChatSpaceRequestToJoinStatus requestToJoinStatus;
@@ -21,6 +22,12 @@ public class ChatSpaceMemberSelect {
   private Boolean left;
   private Boolean removed;
   private ChatSpaceMemberRole role;
+  private Boolean liked;
+
+  @Override
+  public Long getNumberId() {
+    return chatSpaceId;
+  }
 
   public JoinStatus getJoinStatus() {
     return JoinStatus.getJoinStatus(requestToJoinStatus, visibility, isAMember(), hasLeft(), isRemoved());

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.contract.SetIsOrganizer;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import com.fleencorp.feen.model.contract.HasOrganizer;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
 import lombok.*;
 
@@ -26,7 +26,7 @@ import lombok.*;
   "is_updatable"
 })
 public class ChatSpaceMemberResponse
-    implements SetIsOrganizer, SetIsUpdatable {
+    implements HasOrganizer, Updatable {
 
   @JsonProperty("chat_space_member_id")
   private Long chatSpaceMemberId;

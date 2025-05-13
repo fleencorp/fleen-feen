@@ -30,4 +30,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
   @Modifying
   @Query("DELETE FROM Review r WHERE r.reviewId = :reviewId AND r.member = :member")
   void deleteByStreamReviewIdAndMember(Long reviewId, Member member);
+
+  @Modifying
+  @Query(value = "UPDATE review SET like_count = like_count + 1 WHERE review = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  int incrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
+
+  @Modifying
+  @Query(value = "UPDATE review SET like_count = like_count - 1 WHERE review = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  int decrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
 }

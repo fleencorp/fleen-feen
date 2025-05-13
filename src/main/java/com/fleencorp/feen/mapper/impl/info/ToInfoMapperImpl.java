@@ -1,6 +1,8 @@
 package com.fleencorp.feen.mapper.impl.info;
 
+import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.constant.like.IsLiked;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
@@ -11,8 +13,10 @@ import com.fleencorp.feen.constant.user.follower.IsFollowing;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -288,4 +292,29 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
       translate(totalFollowing.getMessageCode(), targetMemberName, following));
   }
 
+  @Override
+  public UserLikeInfo toLikeInfo(final boolean liked) {
+    final IsLiked isLiked = IsLiked.by(liked);
+
+    return UserLikeInfo.of(liked, translate(isLiked.getMessageCode()));
+  }
+
+  /**
+   * Converts the given deletion status into an {@link IsDeletedInfo} object.
+   *
+   * <p>This method takes a boolean value representing whether an entity has been deleted or not and
+   * maps it to an {@link IsDeleted} enum. It then constructs an {@link IsDeletedInfo} object using
+   * this enum, along with translations of the associated message codes for localization.</p>
+   *
+   * <p>The resulting {@link IsDeletedInfo} provides information on the deletion status, including
+   * localized message codes that can be used to display relevant messages to users.</p>
+   *
+   * @param deleted The boolean flag indicating whether the entity has been deleted.
+   * @return The {@link IsDeletedInfo} object containing the deletion status and message codes.
+   */
+  @Override
+  public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
+    final IsDeleted isDeleted = IsDeleted.by(deleted);
+    return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
+  }
 }

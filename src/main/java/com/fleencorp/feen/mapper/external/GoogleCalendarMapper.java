@@ -24,32 +24,33 @@ public final class GoogleCalendarMapper {
   /**
   * Maps a {@link CalendarListEntry} object to a {@link GoogleCalendarResponse} object.
   *
-  * @param calendar The {@link CalendarListEntry} object to map.
+  * @param entry The {@link CalendarListEntry} object to map.
   * @return The mapped {@link GoogleCalendarResponse} object.
   */
-  public static GoogleCalendarResponse mapToCalendarResponse(final CalendarListEntry calendar) {
-    if (nonNull(calendar)) {
+  public static GoogleCalendarResponse mapToCalendarResponse(final CalendarListEntry entry) {
+    if (nonNull(entry)) {
       return GoogleCalendarResponse.builder()
-          .kind(calendar.getKind())
-          .etag(calendar.getEtag())
-          .id(calendar.getId())
-          .summary(calendar.getSummary())
-          .description(calendar.getDescription())
-          .timeZone(calendar.getTimeZone())
-          .location(calendar.getLocation())
-          .summaryOverride(calendar.getSummaryOverride())
-          .colorId(calendar.getColorId())
-          .hidden(calendar.getHidden())
-          .selected(calendar.getSelected())
-          .primary(calendar.getPrimary())
-          .foregroundColor(calendar.getForegroundColor())
-          .backgroundColor(calendar.getBackgroundColor())
-          .accessRole(calendar.getAccessRole())
-          .defaultReminders(calendar.getDefaultReminders().stream()
+          .kind(entry.getKind())
+          .etag(entry.getEtag())
+          .id(entry.getId())
+          .summary(entry.getSummary())
+          .description(entry.getDescription())
+          .timeZone(entry.getTimeZone())
+          .location(entry.getLocation())
+          .summaryOverride(entry.getSummaryOverride())
+          .colorId(entry.getColorId())
+          .hidden(entry.getHidden())
+          .selected(entry.getSelected())
+          .primary(entry.getPrimary())
+          .foregroundColor(entry.getForegroundColor())
+          .backgroundColor(entry.getBackgroundColor())
+          .accessRole(entry.getAccessRole())
+          .defaultReminders(entry.getDefaultReminders().stream()
+              .filter(Objects::nonNull)
               .map(GoogleCalendarMapper::mapToReminders)
               .toList())
-          .deleted(calendar.getDeleted())
-          .conferenceProperties(mapToConferenceProperties(calendar.getConferenceProperties()))
+          .deleted(entry.getDeleted())
+          .conferenceProperties(mapToConferenceProperties(entry.getConferenceProperties()))
           .build();
     }
     return null;
@@ -112,14 +113,14 @@ public final class GoogleCalendarMapper {
   /**
   * Maps a list of {@link CalendarListEntry} objects to a list of {@link GoogleCalendarResponse} objects.
   *
-  * @param calendarListEntries The list of {@link CalendarListEntry} objects to map.
+  * @param entries The list of {@link CalendarListEntry} objects to map.
   * @return A list of mapped {@link GoogleCalendarResponse} objects, or an empty list if {@code calendarListEntries} is {@code null}.
   */
-  public static List<GoogleCalendarResponse> mapToCalendarsResponse(final List<CalendarListEntry> calendarListEntries) {
-    if (nonNull(calendarListEntries)) {
-      return calendarListEntries.stream()
-          .map(GoogleCalendarMapper::mapToCalendarResponse)
+  public static List<GoogleCalendarResponse> mapToCalendarsResponse(final List<CalendarListEntry> entries) {
+    if (nonNull(entries)) {
+      return entries.stream()
           .filter(Objects::nonNull)
+          .map(GoogleCalendarMapper::mapToCalendarResponse)
           .toList();
     }
     return List.of();

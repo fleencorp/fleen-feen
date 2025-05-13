@@ -2,8 +2,9 @@ package com.fleencorp.feen.service.impl.common;
 
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.model.contract.SetIsOrganizer;
-import com.fleencorp.feen.model.contract.SetIsUpdatable;
+import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.model.contract.HasOrganizer;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -17,7 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -34,8 +39,7 @@ import static java.util.Objects.nonNull;
 @Slf4j
 @Service
 @Qualifier("misc")
-public class MiscServiceImpl implements
-    MiscService, PasswordService {
+public class MiscServiceImpl implements MiscService, PasswordService {
 
   private final CountryService countryService;
   private final CalendarRepository calendarRepository;
@@ -145,7 +149,7 @@ public class MiscServiceImpl implements
    * @param entries the list of {@code SetIsOrganizer} objects to process
    * @param user    the user whose organizer status is to be determined
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends SetIsOrganizer> entries, final FleenUser user) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends HasOrganizer> entries, final FleenUser user) {
     if (nonNull(entries) && !entries.isEmpty() && nonNull(user) && nonNull(user.getId())) {
       entries.stream()
         .filter(Objects::nonNull)
@@ -163,28 +167,10 @@ public class MiscServiceImpl implements
    * @param entry the object representing the entity whose organizer is being checked
    * @param user the user whose role is being verified as the organizer of the entity
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final SetIsOrganizer entry, final FleenUser user) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final HasOrganizer entry, final FleenUser user) {
     if (nonNull(entry) && nonNull(user) && nonNull(user.getId())) {
       final boolean isOrganizer = entry.getOrganizerId().equals(user.getId());
       entry.setIsOrganizer(isOrganizer);
-    }
-  }
-
-  /**
-   * <p>Marks entities in the provided collection as updatable by the user if applicable.</p>
-   *
-   * <p>This method checks each entry in the collection and applies
-   * {@code setEntityUpdatableByUser} logic for entries that are not {@code null}
-   * and only if {@code userId} is also non-null.</p>
-   *
-   * @param entries the collection of updatable entities
-   * @param userId  the ID of the user to check against
-   */
-  public static void setEntitiesUpdatableByUser(final Collection<? extends SetIsUpdatable> entries, final Long userId) {
-    if (nonNull(entries) && !entries.isEmpty() && nonNull(userId)) {
-      entries.stream()
-        .filter(Objects::nonNull)
-        .forEach(entry -> setEntityUpdatableByUser(entry, userId));
     }
   }
 
@@ -197,13 +183,56 @@ public class MiscServiceImpl implements
    * @param entry  the entity to check and potentially mark as updatable
    * @param userId the ID of the user to verify as the organizer
    */
-  public static void setEntityUpdatableByUser(final SetIsUpdatable entry, final Long userId) {
+  public static void setEntityUpdatableByUser(final Updatable entry, final Long userId) {
     if (nonNull(entry) && nonNull(userId)) {
-      final boolean isOrganizer = entry.getOrganizerId().equals(userId);
-      if (isOrganizer) {
+      final boolean isAuthor = entry.getAuthorId().equals(userId);
+      if (isAuthor) {
         entry.markAsUpdatable();
       }
     }
+  }
+
+  /**
+   * Extracts and returns the numeric IDs from a collection of objects that implement {@link HasId}.
+   *
+   * <p>Returns an empty list if the input collection is null or empty. Null elements within
+   * the collection are safely ignored during processing.</p>
+   *
+   * @param entries the collection of ID-holding objects
+   * @return a list of numeric IDs, or an empty list if input is null or empty
+   */
+  public static <T extends HasId> List<Long> extractAndGetEntriesIds(final Collection<T> entries) {
+    // Filter null responses and map to the corresponding stream ID
+    if (nonNull(entries) && !entries.isEmpty()) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(HasId::getNumberId)
+        .toList();
+    }
+    // Return an empty list if the input list is null
+    return List.of();
+  }
+
+  /**
+   * Groups a collection of items implementing {@link HasId} by their numeric ID.
+   *
+   * <p>This is typically used to map stream IDs to their corresponding attendance
+   * or membership objects. Null entries are filtered out. Returns an empty map
+   * if the input collection is null or empty.</p>
+   *
+   * @param entries the collection of items to group
+   * @param <T> a type that implements {@link HasId}
+   * @return a map of numeric IDs to their corresponding items
+   */
+  public static <T extends HasId> Map<Long, T> groupMembershipByEntriesId(final Collection<T> entries) {
+    // Filter null values and map stream ID to request-to-join status
+    if (nonNull(entries) && !entries.isEmpty()) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(HasId::getNumberId, Function.identity()));
+    }
+    // Return an empty map if the input list is null or empty
+    return Map.of();
   }
 
 }

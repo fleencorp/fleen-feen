@@ -16,7 +16,6 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -35,7 +34,7 @@ public class DeleteLinkDto extends BaseLinkDto {
       .filter(Objects::nonNull)
       .map(LinkDto::getLinkType)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
 

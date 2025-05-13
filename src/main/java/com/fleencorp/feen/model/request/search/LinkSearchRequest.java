@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.constant.link.ParentLinkType;
+import com.fleencorp.feen.constant.link.LinkParentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,12 +30,12 @@ public class LinkSearchRequest extends SearchRequest {
     return Long.valueOf(parentId);
   }
 
-  public ParentLinkType getParentType() {
-    return ParentLinkType.of(parentType);
+  public LinkParentType getParentType() {
+    return LinkParentType.of(parentType);
   }
 
   public boolean isChatSpaceSearchRequest() {
-    return nonNull(parentId) && ParentLinkType.isChatSpace(parentType);
+    return nonNull(parentId) && LinkParentType.isChatSpace(parentType);
   }
 
   public static LinkSearchRequest of(final Long chatSpaceId) {
@@ -43,7 +43,7 @@ public class LinkSearchRequest extends SearchRequest {
 
     final LinkSearchRequest linkSearchRequest = new LinkSearchRequest();
     linkSearchRequest.setParentId(parentId);
-    linkSearchRequest.setParentType(ParentLinkType.CHAT_SPACE.toString());
+    linkSearchRequest.setParentType(LinkParentType.CHAT_SPACE.toString());
 
     return linkSearchRequest;
   }

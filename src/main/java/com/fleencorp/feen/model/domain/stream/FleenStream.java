@@ -35,12 +35,12 @@ import static java.util.Objects.nonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "fleen_stream")
+@Table(name = "stream")
 public class FleenStream extends FleenFeenEntity {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
-  @Column(name = "fleen_stream_id", nullable = false, updatable = false, unique = true)
+  @Column(name = "stream_id", nullable = false, updatable = false, unique = true)
   private Long streamId;
 
   @Column(name = "external_id")
@@ -149,6 +149,9 @@ public class FleenStream extends FleenFeenEntity {
 
   @Column(name = "total_speakers", nullable = false)
   private Long totalSpeakers = 0L;
+
+  @Column(name = "like_count", nullable = false)
+  private Long likeCount = 0L;
 
   public boolean isForKids() {
     return nonNull(forKids) && forKids;

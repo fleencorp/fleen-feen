@@ -4,14 +4,14 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.mapper.stream.ToInfoMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.link.MusicLinkTypeInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
@@ -46,15 +46,12 @@ import static java.util.Objects.nonNull;
 @Slf4j
 public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
-  private final CommonMapper commonMapper;
   private final ToInfoMapper toInfoMapper;
 
   public StreamMapperImpl(
-      final CommonMapper commonMapper,
       final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
     super(messageSource);
-    this.commonMapper = commonMapper;
     this.toInfoMapper = toInfoMapper;
   }
 
@@ -77,6 +74,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setTags(entry.getTags());
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
+      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
@@ -96,7 +94,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final StreamVisibilityInfo visibilityInfo = toStreamVisibilityInfo(entry.getStreamVisibility());
       response.setStreamVisibilityInfo(visibilityInfo);
 
-      final IsDeletedInfo deletedInfo = commonMapper.toIsDeletedInfo(entry.getDeleted());
+      final IsDeletedInfo deletedInfo = toInfoMapper.toIsDeletedInfo(entry.getDeleted());
       response.setDeletedInfo(deletedInfo);
 
       final OtherStreamDetailInfo otherStreamDetailInfo = OtherStreamDetailInfo.of(
@@ -139,6 +137,9 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
       response.setAttendanceInfo(attendanceInfo);
+
+      final UserLikeInfo userLikeInfo = UserLikeInfo.of();
+      response.setUserLikeInfo(userLikeInfo);
 
       return response;
 
