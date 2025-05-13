@@ -735,7 +735,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Filter out the organizer by comparing the FleenUser ID and StreamSpeaker memberId
     return speakers.stream()
       .filter(speaker -> speaker.isNotOrganizer(organizerId))
-      .collect(Collectors.toList());
+      .toList();
   }
 
   /**

@@ -96,7 +96,7 @@ public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(StreamSpeakerMapperImpl::toStreamSpeakerResponse)
-        .collect(Collectors.toList());
+        .toList();
     }
     return List.of();
   }

@@ -284,7 +284,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
         // Convert each chat space to a ChatSpaceResponse
         .map(unifiedMapper::toChatSpaceResponse)
         // Collect the responses into a list
-        .collect(Collectors.toList());
+        .toList();
     }
     // Return an empty list if the input is null or empty
     return List.of();
