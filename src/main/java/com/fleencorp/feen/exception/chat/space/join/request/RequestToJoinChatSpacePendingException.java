@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.chat.space.join.request;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class RequestToJoinChatSpacePendingException extends ApiException {
+public class RequestToJoinChatSpacePendingException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
   "stream_type_info",
   "result"
 })
-public class StreamSearchResult extends ApiResponse {
+public class StreamSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
   protected SearchResultView result;
@@ -38,8 +38,8 @@ public class StreamSearchResult extends ApiResponse {
 
   @Override
   public String getMessageCode() {
-    boolean isEvent = StreamType.isEvent(getStreamType());
-    boolean hasResult = nonNull(result) && result.hasValue();
+    final boolean isEvent = StreamType.isEvent(getStreamType());
+    final boolean hasResult = nonNull(result) && result.hasValue();
 
     if (isEvent) {
       return hasResult ? "event.search" : "event.empty.search";

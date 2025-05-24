@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
   "total_attending",
   "stream"
 })
-public class ProcessAttendeeRequestToJoinStreamResponse extends ApiResponse {
+public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedResponse {
 
   @JsonProperty("stream_id")
   private Long streamId;

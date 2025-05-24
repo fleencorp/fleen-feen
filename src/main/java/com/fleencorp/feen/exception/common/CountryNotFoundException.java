@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.common;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class CountryNotFoundException extends ApiException {
+public class CountryNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.response.link;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "message"
 })
-public class DeleteLinkResponse extends ApiResponse {
+public class DeleteLinkResponse extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {

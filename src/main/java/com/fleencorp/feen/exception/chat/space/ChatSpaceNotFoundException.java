@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.chat.space;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class ChatSpaceNotFoundException extends ApiException {
+public class ChatSpaceNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

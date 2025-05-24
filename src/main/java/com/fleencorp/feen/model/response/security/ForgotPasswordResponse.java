@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +22,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "email_address",
   "phone_number"
 })
-public class ForgotPasswordResponse extends ApiResponse {
+public class ForgotPasswordResponse extends LocalizedResponse {
 
   @JsonFormat(shape = STRING)
   @JsonProperty("email_address")

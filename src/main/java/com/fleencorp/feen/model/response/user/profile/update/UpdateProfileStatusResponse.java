@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.user.profile.update;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.user.ProfileStatusInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ import lombok.Setter;
   "message",
   "profile_status_info"
 })
-public class UpdateProfileStatusResponse extends ApiResponse {
+public class UpdateProfileStatusResponse extends LocalizedResponse {
 
   @JsonProperty("profile_status_info")
   private ProfileStatusInfo profileStatusInfo;

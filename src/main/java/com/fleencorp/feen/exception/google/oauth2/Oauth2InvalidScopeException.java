@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.google.oauth2;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class Oauth2InvalidScopeException extends ApiException {
+public class Oauth2InvalidScopeException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

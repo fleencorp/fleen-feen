@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.model.info.link.MusicLinkTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.Map;
   "message",
   "link_types"
 })
-public class GetAvailableMusicLinkTypeResponse extends ApiResponse {
+public class GetAvailableMusicLinkTypeResponse extends LocalizedResponse {
 
   @JsonProperty("link_types")
   private Map<MusicLinkType, MusicLinkTypeInfo> linkTypes;

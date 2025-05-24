@@ -8,7 +8,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +32,7 @@ import static java.util.Objects.nonNull;
   "mfa_type_info",
   "is_mfa_enabled_info"
 })
-public class SignInResponse extends ApiResponse {
+public class SignInResponse extends LocalizedResponse {
 
   @JsonProperty("access_token")
   private String accessToken;

@@ -47,7 +47,7 @@ import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.*;
 import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.exception.verification.*;
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
 import com.fleencorp.localizer.service.ErrorLocalizer;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -115,7 +115,7 @@ public class RestExceptionHandler {
   }
 
   /**
-   * Handles various {@link ApiException} types and returns an {@link ErrorResponse} with a {@code BAD_REQUEST} status.
+   * Handles various {@link LocalizedException} types and returns an {@link ErrorResponse} with a {@code BAD_REQUEST} status.
    *
    * <p>This method is triggered whenever any of the specified exceptions are thrown during the processing of a request.
    * It catches a wide range of application-specific exceptions such as {@link AlreadySignedUpException},
@@ -157,7 +157,7 @@ public class RestExceptionHandler {
     VerificationFailedException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
-  public ErrorResponse handleBadRequest(final ApiException e) {
+  public ErrorResponse handleBadRequest(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
@@ -182,7 +182,7 @@ public class RestExceptionHandler {
     Oauth2InvalidScopeException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
-  public ErrorResponse handleExternalBadRequest(final ApiException e) {
+  public ErrorResponse handleExternalBadRequest(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
@@ -216,7 +216,7 @@ public class RestExceptionHandler {
     StreamAlreadyHappenedException.class,
   })
   @ResponseStatus(value = CONFLICT)
-  public ErrorResponse handleConflict(final ApiException e) {
+  public ErrorResponse handleConflict(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.conflict());
   }
 
@@ -274,7 +274,7 @@ public class RestExceptionHandler {
     UserNotFoundException.class,
   })
   @ResponseStatus(value = NOT_FOUND)
-  public Object handleNotFound(final ApiException e) {
+  public Object handleNotFound(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.notFound());
   }
 
@@ -285,7 +285,7 @@ public class RestExceptionHandler {
    * {@link InvalidAuthenticationTokenException} and responds with a 404 Not Found status.
    * It returns a localized response containing details about the exception and the unauthorized status.</p>
    *
-   * @param e the {@link ApiException} being handled.
+   * @param e the {@link LocalizedException} being handled.
    * @return a localized response with the unauthorized status.
    */
   @ExceptionHandler(value = {
@@ -294,7 +294,7 @@ public class RestExceptionHandler {
     UsernameNotFoundException.class
   })
   @ResponseStatus(value = UNAUTHORIZED)
-  public ErrorResponse handleUnauthorized(final ApiException e) {
+  public ErrorResponse handleUnauthorized(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.unauthorized());
   }
 

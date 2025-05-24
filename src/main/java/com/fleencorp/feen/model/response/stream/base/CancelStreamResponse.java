@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
   "stream_type_info",
   "stream_status_info"
 })
-public class CancelStreamResponse extends ApiResponse {
+public class CancelStreamResponse extends LocalizedResponse {
 
   @JsonProperty("stream_id")
   private Long streamId;

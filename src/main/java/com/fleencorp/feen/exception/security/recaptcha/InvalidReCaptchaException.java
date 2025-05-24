@@ -1,6 +1,6 @@
 package com.fleencorp.feen.exception.security.recaptcha;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.Objects;
 
@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
-public class InvalidReCaptchaException extends ApiException {
+public class InvalidReCaptchaException extends LocalizedException {
 
   public static final String DEFAULT_MESSAGE = "Invalid ReCaptcha!!!";
 

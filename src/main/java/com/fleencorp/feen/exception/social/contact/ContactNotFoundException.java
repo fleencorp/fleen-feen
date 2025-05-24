@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.social.contact;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class ContactNotFoundException extends ApiException {
+public class ContactNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

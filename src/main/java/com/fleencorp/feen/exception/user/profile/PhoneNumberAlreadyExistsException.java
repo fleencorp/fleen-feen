@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.user.profile;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class PhoneNumberAlreadyExistsException extends ApiException {
+public class PhoneNumberAlreadyExistsException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

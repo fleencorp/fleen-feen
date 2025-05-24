@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.stream.join.request;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class AlreadyRequestedToJoinStreamException extends ApiException {
+public class AlreadyRequestedToJoinStreamException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

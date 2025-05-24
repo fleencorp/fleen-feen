@@ -11,7 +11,7 @@ import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -33,7 +33,7 @@ import static java.util.Objects.nonNull;
   "mfa_setup_status",
   "mfa_setup_stage"
 })
-public class SetupMfaResponse extends ApiResponse {
+public class SetupMfaResponse extends LocalizedResponse {
 
   @JsonProperty("email_address")
   private MaskedEmailAddress emailAddress;

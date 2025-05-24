@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.chat.space.member;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class ChatSpaceMemberRemovedException extends ApiException {
+public class ChatSpaceMemberRemovedException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

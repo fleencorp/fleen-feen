@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.security.mfa;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class MfaVerificationFailed extends ApiException {
+public class MfaVerificationFailed extends LocalizedException {
 
   @Override
   public String getMessageCode() {

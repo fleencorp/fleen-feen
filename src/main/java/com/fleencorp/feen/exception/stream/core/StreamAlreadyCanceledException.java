@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.stream.core;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class StreamAlreadyCanceledException extends ApiException {
+public class StreamAlreadyCanceledException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

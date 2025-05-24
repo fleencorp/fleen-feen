@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +24,7 @@ import static java.util.Objects.nonNull;
   "chat_space_id",
   "status_info"
 })
-public class UpdateChatSpaceStatusResponse extends ApiResponse {
+public class UpdateChatSpaceStatusResponse extends LocalizedResponse {
 
   @JsonProperty("chat_space_id")
   private Long chatSpaceId;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
 import com.fleencorp.feen.model.info.security.MfaTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import lombok.Setter;
   "is_mfa_enabled_info",
   "mfa_type_info"
 })
-public class MfaStatusResponse extends ApiResponse {
+public class MfaStatusResponse extends LocalizedResponse {
 
   @JsonProperty("is_mfa_enabled_info")
   private IsMfaEnabledInfo mfaEnabledInfo;

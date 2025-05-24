@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.stream.speaker;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "message"
 })
-public class RemoveStreamSpeakerResponse extends ApiResponse {
+public class RemoveStreamSpeakerResponse extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {

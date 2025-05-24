@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.stream.speaker;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class OrganizerOfStreamCannotBeRemovedAsSpeakerException extends ApiException {
+public class OrganizerOfStreamCannotBeRemovedAsSpeakerException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

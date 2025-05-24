@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.calendar.base.CalendarResponse;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import lombok.Setter;
   "calendar_id",
   "calendar"
 })
-public class ReactivateCalendarResponse extends ApiResponse {
+public class ReactivateCalendarResponse extends LocalizedResponse {
 
   @JsonProperty("calendar_id")
   private Long calendarId;

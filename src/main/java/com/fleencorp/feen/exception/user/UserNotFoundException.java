@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.user;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class UserNotFoundException extends ApiException {
+public class UserNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

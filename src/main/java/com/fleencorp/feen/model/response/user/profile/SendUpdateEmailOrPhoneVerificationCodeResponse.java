@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.user.profile;
 
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SendUpdateEmailOrPhoneVerificationCodeResponse extends ApiResponse {
+public class SendUpdateEmailOrPhoneVerificationCodeResponse extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {

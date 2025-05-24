@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.calendar;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class CalendarNotFoundException extends ApiException {
+public class CalendarNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

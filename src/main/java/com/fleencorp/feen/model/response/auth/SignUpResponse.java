@@ -7,7 +7,7 @@ import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
 import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.*;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
@@ -28,7 +28,7 @@ import static java.util.Objects.nonNull;
   "authentication_stage",
   "verification_type_info"
 })
-public class SignUpResponse extends ApiResponse {
+public class SignUpResponse extends LocalizedResponse {
 
   @JsonProperty("access_token")
   private String accessToken;

@@ -8,7 +8,7 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ import static java.util.Objects.nonNull;
   "join_status_info",
   "stream_type_info"
 })
-public class NotAttendingStreamResponse extends ApiResponse {
+public class NotAttendingStreamResponse extends LocalizedResponse {
 
   @JsonProperty("is_attending_info")
   private IsAttendingInfo attendingInfo;

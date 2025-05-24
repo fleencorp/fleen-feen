@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.auth;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class InvalidAuthenticationTokenException extends ApiException {
+public class InvalidAuthenticationTokenException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

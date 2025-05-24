@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.auth;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class AlreadySignedUpException extends ApiException {
+public class AlreadySignedUpException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

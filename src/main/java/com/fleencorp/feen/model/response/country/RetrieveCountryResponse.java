@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.country;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ import lombok.Setter;
   "message",
   "country"
 })
-public class RetrieveCountryResponse extends ApiResponse {
+public class RetrieveCountryResponse extends LocalizedResponse {
 
   @JsonProperty("country")
   private CountryResponse country;

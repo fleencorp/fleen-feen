@@ -16,11 +16,11 @@ public class FollowOrUnfollowUserDto {
 
   @NotNull(message = "{chat.space.member.NotNull}")
   @IsNumber
-  @JsonProperty("member_id")
-  private String memberId;
+  @JsonProperty("user_id")
+  private String userId;
 
   public Long getMemberId() {
-    return Long.parseLong(memberId);
+    return Long.parseLong(userId);
   }
 
 }

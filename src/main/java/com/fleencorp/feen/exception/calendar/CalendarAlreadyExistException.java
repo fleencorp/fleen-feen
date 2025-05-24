@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.calendar;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class CalendarAlreadyExistException extends ApiException {
+public class CalendarAlreadyExistException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

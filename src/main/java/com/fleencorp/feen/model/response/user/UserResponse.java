@@ -16,7 +16,8 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "user_id",
   "username",
-  "full_name"
+  "full_name",
+  "profile_photo_url"
 })
 public class UserResponse {
 
@@ -29,7 +30,10 @@ public class UserResponse {
   @JsonProperty("full_name")
   private String fullName;
 
-  public static UserResponse of(final String username, final String fullName) {
-    return new UserResponse(null, username, fullName);
+  @JsonProperty("profile_photo_url")
+  private String profilePhotoUrl;
+
+  public static UserResponse of(final String username, final String fullName, final String profilePhotoUrl) {
+    return new UserResponse(null, username, fullName, profilePhotoUrl);
   }
 }
