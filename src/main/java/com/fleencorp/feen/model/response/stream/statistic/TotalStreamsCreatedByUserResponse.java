@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
   "total_count",
   "stream_type_info"
 })
-public class TotalStreamsCreatedByUserResponse extends ApiResponse {
+public class TotalStreamsCreatedByUserResponse extends LocalizedResponse {
 
   @JsonProperty("total_count")
   private Long totalCount;

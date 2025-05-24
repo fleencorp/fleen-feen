@@ -1,6 +1,5 @@
 package com.fleencorp.feen.service.user;
 
-
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.profile.EmailAddressAlreadyExistsException;
 import com.fleencorp.feen.exception.user.profile.PhoneNumberAlreadyExistsException;
@@ -14,7 +13,6 @@ import com.fleencorp.feen.model.response.user.profile.RemoveProfilePhotoResponse
 import com.fleencorp.feen.model.response.user.profile.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.model.response.user.profile.update.*;
 import com.fleencorp.feen.model.security.FleenUser;
-
 
 public interface MemberUpdateService {
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +19,7 @@ import lombok.Setter;
   "email_address",
   "stream"
 })
-public class AddNewStreamAttendeeResponse extends ApiResponse {
+public class AddNewStreamAttendeeResponse extends LocalizedResponse {
 
   @JsonProperty("stream_id")
   private Long streamId;

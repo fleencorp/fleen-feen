@@ -33,9 +33,9 @@ public interface ToInfoMapper {
 
   IsBlockedInfo toIsBlockedInfo(boolean blocked, String blockingUser);
 
-  IsFollowingInfo toIsFollowingInfo(boolean following, String userBeingFollowed);
+  IsFollowingInfo toIsFollowingInfo(boolean following, String userBeingFollowedName);
 
-  IsFollowedInfo toIsFollowedInfo(boolean followed, String userFollowing);
+  IsFollowedInfo toIsFollowedInfo(boolean followed, String userFollowingName);
 
   TotalFollowedInfo toTotalFollowedInfo(Long followed, String targetMemberName);
 

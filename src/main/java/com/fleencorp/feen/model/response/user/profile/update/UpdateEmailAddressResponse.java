@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.user.profile.update;
 
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateEmailAddressResponse extends ApiResponse {
+public class UpdateEmailAddressResponse extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {

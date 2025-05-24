@@ -27,6 +27,7 @@ import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.service.social.ContactService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.service.user.FollowerService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.UserProfilePublicService;
 import com.fleencorp.localizer.service.Localizer;
@@ -47,6 +48,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
 
   private final ChatSpaceOperationsService chatSpaceOperationsService;
   private final ContactService contactService;
+  private final FollowerService followerService;
   private final MemberService memberService;
   private final FollowerRepository followerRepository;
   private final StreamOperationsService streamOperationsService;
@@ -62,6 +64,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    *
    * @param chatSpaceOperationsService service for managing chat space-related operations
    * @param contactService service for retrieving and managing user contacts
+   * @param followerService service for managing user follows
    * @param memberService service for accessing member-related data and actions
    * @param streamOperationsService service for managing user streams and related activities
    * @param followerRepository repository for accessing and managing follower relationships
@@ -73,6 +76,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
   public UserProfilePublicServiceImpl(
       final ChatSpaceOperationsService chatSpaceOperationsService,
       final ContactService contactService,
+      final FollowerService followerService,
       final MemberService memberService,
       final StreamOperationsService streamOperationsService,
       final FollowerRepository followerRepository,
@@ -82,6 +86,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
       final Localizer localizer) {
     this.chatSpaceOperationsService = chatSpaceOperationsService;
     this.contactService = contactService;
+    this.followerService = followerService;
     this.memberService = memberService;
     this.streamOperationsService = streamOperationsService;
     this.followerRepository = followerRepository;
@@ -110,7 +115,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
 
     final UserProfileResponse userProfileResponse = UserProfileResponse.of();
     setProfileDetails(targetMember, userProfileResponse);
-    setFollowerDetails(targetMember, userProfileResponse);
+    setFollowerInfoDetails(targetMember, userProfileResponse);
     setInfoDetails(member, targetMember, userProfileResponse);
     findAndSetSearchResultDetails(member, targetMember, userProfileResponse);
 
@@ -126,7 +131,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @param userProfileResponse the response object to populate with profile information
    */
   protected void setProfileDetails(final Member targetMember, final UserProfileResponse userProfileResponse) {
-    final UserResponse userResponse = UserResponse.of(targetMember.getUsername(), targetMember.getFullName());
+    final UserResponse userResponse = UserResponse.of(targetMember.getUsername(), targetMember.getFullName(), targetMember.getProfilePhotoUrl());
     userProfileResponse.setUser(userResponse);
   }
 
@@ -139,15 +144,8 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @param targetMember the member whose follower details are being retrieved
    * @param userProfileResponse the response object to populate with follower data
    */
-  protected void setFollowerDetails(final Member targetMember, final UserProfileResponse userProfileResponse) {
-    final long totalFollowed = followerRepository.countByFollowed(targetMember.getMemberId());
-    final long totalFollowing = followerRepository.countByFollowing(targetMember.getMemberId());
-
-    final TotalFollowedInfo totalFollowedInfo = unifiedMapper.toTotalFollowedInfo(totalFollowed, targetMember.getFullName());
-    final TotalFollowingInfo totalFollowingInfo = unifiedMapper.toTotalFollowingInfo(totalFollowing, targetMember.getFullName());
-
-    userProfileResponse.setTotalFollowedInfo(totalFollowedInfo);
-    userProfileResponse.setTotalFollowingInfo(totalFollowingInfo);
+  protected void setFollowerInfoDetails(final Member targetMember, final UserProfileResponse userProfileResponse) {
+    followerService.setFollowerDetails(targetMember, userProfileResponse);
   }
 
   /**
@@ -176,8 +174,8 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
 
     userProfileResponse.setContactRequestEligibilityInfo(contactRequestEligibilityInfo);
     userProfileResponse.setIsBlockedInfo(isBlockedInfo);
-    userProfileResponse.setIsFollowingInfo(isFollowingInfo);
     userProfileResponse.setIsFollowedInfo(isFollowedInfo);
+    userProfileResponse.setIsFollowingInfo(isFollowingInfo);
   }
 
   /**
@@ -244,9 +242,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     localizer.of(mutualStreamAttendanceSearchResult);
     localizer.of(mutualChatSpaceMembershipSearchResult);
 
-    userProfileResponse.setUserCreatedStreamsSearchResult(userCreatedStreamsSearchResult);
-    userProfileResponse.setMutualStreamAttendanceSearchResult(mutualStreamAttendanceSearchResult);
     userProfileResponse.setMutualChatSpaceMembershipSearchResult(mutualChatSpaceMembershipSearchResult);
+    userProfileResponse.setMutualStreamAttendanceSearchResult(mutualStreamAttendanceSearchResult);
+    userProfileResponse.setUserCreatedStreamsSearchResult(userCreatedStreamsSearchResult);
   }
 
   /**

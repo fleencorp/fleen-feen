@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.review;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +18,7 @@ import lombok.Setter;
   "message",
   "review"
 })
-public class AddReviewResponse extends ApiResponse {
+public class AddReviewResponse extends LocalizedResponse {
 
   @JsonProperty("review")
   private ReviewResponse review;

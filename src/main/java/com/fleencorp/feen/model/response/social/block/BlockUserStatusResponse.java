@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.social.BlockStatus;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "message",
   "block_status"
 })
-public class BlockUserStatusResponse extends ApiResponse {
+public class BlockUserStatusResponse extends LocalizedResponse {
 
   @JsonFormat(shape = STRING)
   @JsonProperty("block_status")

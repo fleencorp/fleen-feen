@@ -1,14 +1,14 @@
 package com.fleencorp.feen.exception.google.oauth2;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.SERVICE_TYPE;
 
-public class Oauth2InvalidAuthorizationException extends ApiException {
+public class Oauth2InvalidAuthorizationException extends LocalizedException {
 
   private Oauth2ServiceType oauth2ServiceType;
 

@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.verification;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class ExpiredVerificationCodeException extends ApiException {
+public class ExpiredVerificationCodeException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

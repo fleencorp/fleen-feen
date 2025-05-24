@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.stream.attendee;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class StreamAttendeeNotFoundException extends ApiException {
+public class StreamAttendeeNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

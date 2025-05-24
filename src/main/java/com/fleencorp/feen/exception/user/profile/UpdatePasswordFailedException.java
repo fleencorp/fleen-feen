@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.user.profile;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class UpdatePasswordFailedException extends ApiException {
+public class UpdatePasswordFailedException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

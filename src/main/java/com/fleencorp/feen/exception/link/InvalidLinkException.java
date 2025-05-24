@@ -1,8 +1,8 @@
 package com.fleencorp.feen.exception.link;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class InvalidLinkException extends ApiException {
+public class InvalidLinkException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

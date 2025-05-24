@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.stream.common.live.broadcast;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.Set;
   "timezones",
   "countries"
 })
-public class DataForCreateLiveBroadcastResponse extends ApiResponse {
+public class DataForCreateLiveBroadcastResponse extends LocalizedResponse {
 
   @JsonProperty("timezones")
   private Set<String> timezones;

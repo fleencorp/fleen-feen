@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.response.external.google.oauth2;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.*;
 
 @Builder
@@ -15,7 +15,7 @@ import lombok.*;
 @JsonPropertyOrder({
   "authorization_uri"
 })
-public class StartOauth2AuthorizationResponse extends ApiResponse {
+public class StartOauth2AuthorizationResponse extends LocalizedResponse {
 
   @JsonProperty("authorization_uri")
   private String authorizationUri;

@@ -1,10 +1,10 @@
 package com.fleencorp.feen.exception.verification;
 
-import com.fleencorp.localizer.model.exception.ApiException;
+import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
-public class InvalidVerificationCodeException extends ApiException {
+public class InvalidVerificationCodeException extends LocalizedException {
 
   @Override
   public String getMessageCode() {

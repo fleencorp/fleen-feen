@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ import lombok.Setter;
   "message",
   "is_a_speaker_info"
 })
-public class MarkAsStreamSpeakerResponse extends ApiResponse {
+public class MarkAsStreamSpeakerResponse extends LocalizedResponse {
 
   @JsonProperty("is_a_speaker_info")
   private IsASpeakerInfo isASpeakerInfo;

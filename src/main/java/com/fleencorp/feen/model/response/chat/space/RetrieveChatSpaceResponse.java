@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +19,7 @@ import lombok.Setter;
   "message",
   "chat_space"
 })
-public class RetrieveChatSpaceResponse extends ApiResponse {
+public class RetrieveChatSpaceResponse extends LocalizedResponse {
 
   @JsonProperty("chat_space")
   private ChatSpaceResponse chatSpace;

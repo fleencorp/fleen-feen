@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,7 @@ import static org.springframework.http.HttpStatus.OK;
   "exists",
   "timestamp"
 })
-public class EntityExistsResponse extends ApiResponse {
+public class EntityExistsResponse extends LocalizedResponse {
 
   @JsonProperty("exists")
   protected boolean exists;

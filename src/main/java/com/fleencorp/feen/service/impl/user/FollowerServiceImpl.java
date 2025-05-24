@@ -1,17 +1,23 @@
 package com.fleencorp.feen.service.impl.user;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.model.contract.UserFollowStat;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.follow.FollowOrUnfollowUserDto;
+import com.fleencorp.feen.model.info.user.profile.IsFollowingInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;
 import com.fleencorp.feen.model.response.user.UserResponse;
+import com.fleencorp.feen.model.response.user.profile.UserProfileResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.EmptyFollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
-import com.fleencorp.feen.model.search.social.follower.following.EmptyFollowingSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
@@ -47,22 +53,19 @@ public class FollowerServiceImpl implements FollowerService {
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final FollowerRepository followerRepository;
+  private final ToInfoMapper toInfoMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new instance of {@link FollowerServiceImpl}.
-   *
-   * @param followerRepository the {@link FollowerRepository} used to access follower data
-   * @param localizer the service for adding localized message for responses
-   */
   public FollowerServiceImpl(
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final FollowerRepository followerRepository,
+      final ToInfoMapper toInfoMapper,
       final Localizer localizer) {
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.followerRepository = followerRepository;
+    this.toInfoMapper = toInfoMapper;
     this.localizer = localizer;
   }
 
@@ -106,13 +109,13 @@ public class FollowerServiceImpl implements FollowerService {
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findByFollowing(user.toMember(), searchRequest.getPage());
     // Convert the list of followers to UserResponse views
-    final List<UserResponse> views = toFollowingResponses(page.getContent());
+    final List<UserResponse> userResponses = toFollowingResponses(page.getContent());
+    // Create the search result view
+    final SearchResultView searchResultView = toSearchResult(userResponses, page);
+    // Create the search result
+    final FollowingSearchResult searchResult = FollowingSearchResult.of(searchResultView);
     // Return a search result view with the followings responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(FollowingSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyFollowingSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    return localizer.of(searchResult);
   }
 
   /**
@@ -147,8 +150,12 @@ public class FollowerServiceImpl implements FollowerService {
           notificationService.save(notification);
       });
 
+    // Create the info
+    final IsFollowingInfo isFollowingInfo = toInfoMapper.toIsFollowingInfo(true, followed.getFullName());
+    // Create the response
+    final FollowUserResponse followUserResponse = FollowUserResponse.of(isFollowingInfo);
     // Return a response indicating the follow operation was successful
-    return localizer.of(FollowUserResponse.of());
+    return localizer.of(followUserResponse);
   }
 
   /**
@@ -173,8 +180,35 @@ public class FollowerServiceImpl implements FollowerService {
       // If a follower relationship exists, delete it
       .ifPresent(followerRepository::delete);
 
+    // Create the info
+    final IsFollowingInfo isFollowingInfo = toInfoMapper.toIsFollowingInfo(false, followed.getFullName());
+    // Create the response
+    final UnfollowUserResponse unfollowUserResponse = UnfollowUserResponse.of(isFollowingInfo);
+    // Set the follow stat
+    setFollowerDetails(followed, unfollowUserResponse);
     // Return a response indicating the unfollow operation was successful
-    return localizer.of(UnfollowUserResponse.of());
+    return localizer.of(unfollowUserResponse);
+  }
+
+  /**
+   * Populates follower-related details into the given {@link UserProfileResponse}.
+   *
+   * <p>Computes the total number of users following the target member and the total number the target member is following.
+   * These counts are then mapped into localized {@link TotalFollowedInfo} and {@link TotalFollowingInfo} objects.</p>
+   *
+   * @param targetMember the member whose follower details are being retrieved
+   * @param userFollowStat the response object to populate with follower data
+   */
+  @Override
+  public void setFollowerDetails(final Member targetMember, final UserFollowStat userFollowStat) {
+    final long totalFollowed = followerRepository.countByFollowed(targetMember.getMemberId());
+    final long totalFollowing = followerRepository.countByFollowing(targetMember.getMemberId());
+
+    final TotalFollowedInfo totalFollowedInfo = toInfoMapper.toTotalFollowedInfo(totalFollowed, targetMember.getFullName());
+    final TotalFollowingInfo totalFollowingInfo = toInfoMapper.toTotalFollowingInfo(totalFollowing, targetMember.getFullName());
+
+    userFollowStat.setTotalFollowedInfo(totalFollowedInfo);
+    userFollowStat.setTotalFollowingInfo(totalFollowingInfo);
   }
 
   /**

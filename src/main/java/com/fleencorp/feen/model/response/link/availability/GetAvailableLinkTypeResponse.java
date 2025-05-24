@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.link.LinkType;
 import com.fleencorp.feen.model.info.link.LinkTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.Map;
   "message",
   "link_types"
 })
-public class GetAvailableLinkTypeResponse extends ApiResponse {
+public class GetAvailableLinkTypeResponse extends LocalizedResponse {
 
   @JsonProperty("link_types")
   private Map<LinkType, LinkTypeInfo> linkTypes;

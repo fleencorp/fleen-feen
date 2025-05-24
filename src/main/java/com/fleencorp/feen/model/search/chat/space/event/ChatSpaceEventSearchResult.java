@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
   "result",
   "stream_type_info"
 })
-public class ChatSpaceEventSearchResult extends ApiResponse {
+public class ChatSpaceEventSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
   private SearchResultView result;

@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResultView;
-import com.fleencorp.localizer.model.response.ApiResponse;
+import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -21,17 +21,17 @@ import java.util.function.Supplier;
   "message",
   "result"
 })
-public class FollowingSearchResult extends ApiResponse {
+public class FollowingSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
   private SearchResultView result;
 
   @Override
   public String getMessageCode() {
-    return "following.search";
+    return nonNull(result) && result.hasValue() ? "following.search" : "following.empty.search";
   }
 
-  public static Supplier<FollowingSearchResult> of(final SearchResultView result) {
-    return () -> new FollowingSearchResult(result);
+  public static FollowingSearchResult of(final SearchResultView result) {
+    return new FollowingSearchResult(result);
   }
 }
