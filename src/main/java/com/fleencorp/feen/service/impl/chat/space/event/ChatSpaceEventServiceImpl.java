@@ -1,6 +1,7 @@
 package com.fleencorp.feen.service.impl.chat.space.event;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
@@ -114,9 +115,11 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(StreamType.EVENT);
     // Create the search result
-    final ChatSpaceEventSearchResult searchResult = ChatSpaceEventSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
-    // Return a search result view with the chat space event responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(streamResponses, page);
+    // Create the event search result
+    final ChatSpaceEventSearchResult chatSpaceEventSearchResult = ChatSpaceEventSearchResult.of(searchResult, streamTypeInfo);
+    // Return a search result with the responses and pagination details
+    return localizer.of(chatSpaceEventSearchResult);
   }
 
   /**

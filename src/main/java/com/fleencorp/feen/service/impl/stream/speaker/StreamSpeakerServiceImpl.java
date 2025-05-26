@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.speaker;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
@@ -122,12 +122,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     final Page<StreamAttendeeInfoSelect> page = streamAttendeeOperationsService.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
     // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(speakerResponses, page);
     // Create the search result
-    final StreamSpeakerSearchResult searchResult = StreamSpeakerSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(speakerResponses, page);
+    // Create the search result
+    final StreamSpeakerSearchResult streamSpeakerSearchResult = StreamSpeakerSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(streamSpeakerSearchResult);
   }
 
   /**
@@ -157,12 +157,12 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     final List<StreamSpeaker> filteredSpeakers = filterOutOrganizer(page.getContent(), stream.getOrganizerId());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
     final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(speakerResponses, page);
     // Create the search result
-    final StreamSpeakerSearchResult searchResult = StreamSpeakerSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(speakerResponses, page);
+    // Create the search result
+    final StreamSpeakerSearchResult streamSpeakerSearchResult = StreamSpeakerSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(streamSpeakerSearchResult);
   }
 
   /**

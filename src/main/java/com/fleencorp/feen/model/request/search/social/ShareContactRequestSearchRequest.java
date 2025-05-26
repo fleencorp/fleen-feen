@@ -42,12 +42,9 @@ public class ShareContactRequestSearchRequest extends SearchRequest {
     this.isReceivedExpectedRequest = true;
   }
 
-  public ShareContactRequestStatus getActualShareContactRequestStatus(final ShareContactRequestStatus defaultShareContactRequestStatus) {
-    final ShareContactRequestStatus actualShareContactRequestStatus1 = ShareContactRequestStatus.of(shareContactRequestStatus);
-    if (nonNull(actualShareContactRequestStatus1)) {
-      return actualShareContactRequestStatus1;
-    }
-    return defaultShareContactRequestStatus;
+  public ShareContactRequestStatus getShareContactRequestStatus(final ShareContactRequestStatus defaultShareContactRequestStatus) {
+    final ShareContactRequestStatus actualShareContactRequestStatus = ShareContactRequestStatus.of(shareContactRequestStatus);
+    return nonNull(actualShareContactRequestStatus) ? actualShareContactRequestStatus : defaultShareContactRequestStatus;
   }
 
 

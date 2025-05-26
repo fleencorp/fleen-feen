@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.search.link;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,7 +25,7 @@ import static java.util.Objects.nonNull;
 public class LinkSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  private SearchResultView result;
+  private SearchResult result;
 
   @JsonProperty("parent_id")
   private Object parentId;
@@ -35,11 +35,11 @@ public class LinkSearchResult extends LocalizedResponse {
     return nonNull(result) && result.hasValue() ? "link.search" : "link.empty.search";
   }
 
-  public static LinkSearchResult of(final SearchResultView result, final Object parentId) {
+  public static LinkSearchResult of(final SearchResult result, final Object parentId) {
     return new LinkSearchResult(result, parentId);
   }
 
   public static LinkSearchResult empty() {
-    return new LinkSearchResult(SearchResultView.empty(), null);
+    return new LinkSearchResult(SearchResult.empty(), null);
   }
 }

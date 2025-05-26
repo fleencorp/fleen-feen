@@ -78,11 +78,11 @@ public class ContactServiceImpl implements ContactService {
    *
    * <p>This method retrieves a paginated list of contacts owned by the user according to the
    * search request parameters. It converts the retrieved contacts into a list of contact responses
-   * and returns a search result view containing the results and pagination information.</p>
+   * and returns a search result containing the results and pagination information.</p>
    *
    * @param searchRequest the request containing search criteria and pagination information.
    * @param user the user whose contacts are to be retrieved.
-   * @return a ContactSearchResult containing search result view and containing the list of contact responses and pagination details.
+   * @return a ContactSearchResult containing search result and containing the list of contact responses and pagination details.
    */
   @Override
   public ContactSearchResult findContacts(final ContactSearchRequest searchRequest, final FleenUser user) {
@@ -92,7 +92,7 @@ public class ContactServiceImpl implements ContactService {
     final List<ContactResponse> contactResponses = contactMapper.toContactResponses(page.getContent());
     // Create the search result
     final ContactSearchResult contactSearchResult = ContactSearchResult.of(toSearchResult(contactResponses, page));
-    // Return a search result view with the contact responses and pagination details
+    // Return a search result with the responses and pagination details
     return localizer.of(contactSearchResult);
   }
 

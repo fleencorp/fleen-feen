@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.search.chat.space.event;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
 public class ChatSpaceEventSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  private SearchResultView result;
+  private SearchResult result;
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
@@ -36,7 +36,7 @@ public class ChatSpaceEventSearchResult extends LocalizedResponse {
     return nonNull(result) && result.hasValue() ? "chat.space.event.search" : "chat.space.event.empty.search";
   }
 
-  public static ChatSpaceEventSearchResult of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {
+  public static ChatSpaceEventSearchResult of(final SearchResult result, final StreamTypeInfo streamTypeInfo) {
     return new ChatSpaceEventSearchResult(result, streamTypeInfo);
   }
 }

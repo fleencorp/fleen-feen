@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.notification;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.constant.notification.NotificationType;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
@@ -78,8 +78,8 @@ public class NotificationServiceImpl implements NotificationService {
     // Convert the notifications to a list of notification responses
     final List<NotificationResponse> notificationResponses = toNotificationResponses(page.getContent());
     // Create a search result
-    final SearchResultView searchResult = toSearchResult(notificationResponses, page);
-    // Create a search result view with the streams responses and pagination details
+    final SearchResult searchResult = toSearchResult(notificationResponses, page);
+    // Create a search result with the responses and pagination details
     final NotificationSearchResult notificationSearchResult = NotificationSearchResult.of(searchResult);
     // Return the search result
     return localizer.of(notificationSearchResult);

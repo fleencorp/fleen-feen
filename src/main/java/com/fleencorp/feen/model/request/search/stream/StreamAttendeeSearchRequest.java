@@ -44,10 +44,7 @@ public class StreamAttendeeSearchRequest extends SearchRequest {
   }
 
   public Set<StreamAttendeeRequestToJoinStatus> forPendingOrDisapprovedRequestToJoinStatus() {
-    if (isDisapproved()) {
-      return Set.of(DISAPPROVED);
-    }
-    return Set.of(PENDING);
+    return isDisapproved() ? Set.of(DISAPPROVED) : Set.of(PENDING);
   }
 
   @JsonIgnore

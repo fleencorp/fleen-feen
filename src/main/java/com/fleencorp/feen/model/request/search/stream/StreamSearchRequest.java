@@ -50,10 +50,7 @@ public class StreamSearchRequest extends SearchRequest {
 
   public StreamVisibility getVisibility(final StreamVisibility defaultVisibility) {
     final StreamVisibility actualStreamVisibility = StreamVisibility.of(streamVisibility);
-    if (nonNull(actualStreamVisibility)) {
-      return actualStreamVisibility;
-    }
-    return defaultVisibility;
+    return nonNull(actualStreamVisibility) ? actualStreamVisibility : defaultVisibility;
   }
 
   public StreamType getStreamType() {
@@ -71,10 +68,6 @@ public class StreamSearchRequest extends SearchRequest {
   }
 
   public Member getAnotherUser() {
-    if (hasAnotherUser()) {
-      return Member.of(anotherUserId);
-    }
-
-    return null;
+    return hasAnotherUser() ? Member.of(anotherUserId) : null;
   }
 }
