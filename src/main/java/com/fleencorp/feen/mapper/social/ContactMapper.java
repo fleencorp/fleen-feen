@@ -1,4 +1,4 @@
-package com.fleencorp.feen.mapper.contact;
+package com.fleencorp.feen.mapper.social;
 
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
