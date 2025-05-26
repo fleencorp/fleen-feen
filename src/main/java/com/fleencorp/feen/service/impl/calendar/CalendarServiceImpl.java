@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.calendar;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
@@ -22,7 +23,6 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.model.search.calendar.CalendarSearchResult;
-import com.fleencorp.feen.model.search.calendar.EmptyCalendarSearchResult;
 import com.fleencorp.feen.model.search.country.CountrySearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
@@ -34,14 +34,15 @@ import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.calendar.CalendarMapper.toCalendarResponse;
 import static com.fleencorp.feen.mapper.calendar.CalendarMapper.toCalendarResponses;
@@ -128,24 +129,30 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   public CalendarSearchResult findCalendars(final CalendarSearchRequest searchRequest) {
     final Page<Calendar> page;
+    final Pageable pageable = searchRequest.getPage();
+    final Boolean active = searchRequest.getActive();
+    final String title = searchRequest.getTitle();
+    final LocalDateTime startDate = searchRequest.getStartDateTime();
+    final LocalDateTime endDate = searchRequest.getEndDateTime();
+
 
     if (searchRequest.areAllDatesSet()) {
-      page = calendarRepository.findByDateBetween(searchRequest.getStartDateTime(), searchRequest.getEndDateTime(), searchRequest.getPage());
-    } else if (nonNull(searchRequest.getTitle()))  {
-      page = calendarRepository.findByTitle(searchRequest.getTitle(), searchRequest.getPage());
-    } else if (nonNull(searchRequest.getActive())) {
-      page = calendarRepository.findByIsActive(searchRequest.getActive(), searchRequest.getPage());
+      page = calendarRepository.findByDateBetween(startDate, endDate, pageable);
+    } else if (nonNull(title))  {
+      page = calendarRepository.findByTitle(title, pageable);
+    } else if (nonNull(active)) {
+      page = calendarRepository.findByIsActive(active, pageable);
     } else {
-      page = calendarRepository.findMany(searchRequest.getPage());
+      page = calendarRepository.findMany(pageable);
     }
 
-    final List<CalendarResponse> views = toCalendarResponses(page.getContent());
-    // Return a search result view with the calendar responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(CalendarSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyCalendarSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<CalendarResponse> calendarResponses = toCalendarResponses(page.getContent());
+    // Create a search result
+    final SearchResultView searchResult = toSearchResult(calendarResponses, page);
+    // Create a search result view with the streams responses and pagination details
+    final CalendarSearchResult calendarSearchResult = CalendarSearchResult.of(searchResult);
+    // Return the search result
+    return localizer.of(calendarSearchResult);
   }
 
   /**

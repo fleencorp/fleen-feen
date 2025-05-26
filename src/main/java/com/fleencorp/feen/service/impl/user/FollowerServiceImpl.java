@@ -16,7 +16,6 @@ import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;
 import com.fleencorp.feen.model.response.user.UserResponse;
 import com.fleencorp.feen.model.response.user.profile.UserProfileResponse;
-import com.fleencorp.feen.model.search.social.follower.follower.EmptyFollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowerResponses;
 import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowingResponses;
@@ -81,13 +79,13 @@ public class FollowerServiceImpl implements FollowerService {
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findFollowersByUser(user.toMember(), searchRequest.getPage());
     // Convert the list of followers to UserResponse views
-    final List<UserResponse> views = toFollowerResponses(page.getContent());
-    // Return a search result view with the followers responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(FollowerSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyFollowerSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<UserResponse> followerResponses = toFollowerResponses(page.getContent());
+    // Create a search result
+    final SearchResultView searchResult = toSearchResult(followerResponses, page);
+    // Create a search result view with the streams responses and pagination details
+    final FollowerSearchResult followerSearchResult = FollowerSearchResult.of(searchResult);
+    // Return the search result
+    return localizer.of(followerSearchResult);
   }
 
   /**

@@ -1,9 +1,11 @@
 package com.fleencorp.feen.service.impl.stream.search;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
+import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
@@ -184,19 +186,24 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page = findMyStreams(searchRequest, user.toMember());
-    // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Process other details of the streams
-    streamOperationsService.processOtherStreamDetails(streamResponses, user);
-    // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Return a search result view with the streams responses and pagination details
-    // Create the search result
-    final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
-    // Return a search result view with the streams responses and pagination details
-    return localizer.of(streamSearchResult);
+    // Create and return the search result
+    return processStreamsAndReturn(searchRequest, user, page);
   }
 
+  /**
+   * Retrieves a paginated list of {@link FleenStream} entities owned by the given member,
+   * based on the filtering criteria provided in the {@link StreamSearchRequest}.
+   *
+   * <p>The method applies conditional logic to determine which filters are present in the request.
+   * If both start and end dates are provided along with stream visibility, it filters by date range and visibility.
+   * If only the date range is provided, it filters by that range alone. If the title and visibility are both set,
+   * it filters streams based on title and visibility. If only the title is present, it filters by title.
+   * If no filters are specified, it retrieves all streams created by the member.</p>
+   *
+   * @param searchRequest the request containing optional filters such as title, date range, and visibility
+   * @param member the member whose owned streams are to be retrieved
+   * @return a paginated list of {@link FleenStream} entities owned by the member
+   */
   protected Page<FleenStream> findMyStreams(final StreamSearchRequest searchRequest, final Member member) {
     final Page<FleenStream> page;
     final Pageable pageable = searchRequest.getPage();
@@ -204,11 +211,12 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final LocalDateTime startDateTime = searchRequest.getStartDateTime();
     final LocalDateTime endDateTime = searchRequest.getEndDateTime();
     final StreamVisibility streamVisibility = searchRequest.getVisibility(PUBLIC);
+    final boolean isDateSet = searchRequest.areAllDatesSet();
 
-    if (searchRequest.areAllDatesSet() && nonNull(streamVisibility)) {
+    if (isDateSet && nonNull(streamVisibility)) {
       // Filter by date range and visibility, if both are set
       page = streamOperationsService.findByDateBetweenAndUser(startDateTime, endDateTime, streamVisibility, member, pageable);
-    } else if (searchRequest.areAllDatesSet()) {
+    } else if (isDateSet) {
       // Filter by date range, if only dates are set
       page = streamOperationsService.findByDateBetweenAndUser(startDateTime, endDateTime, member, pageable);
     } else if (allNonNull(title, streamVisibility)) {
@@ -221,6 +229,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       // Retrieve all streams for the user, if no other filters apply
       page = streamOperationsService.findManyByMe(member, pageable);
     }
+
     return page;
   }
 
@@ -246,16 +255,30 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   public StreamSearchResult findStreamsAttendedByUser(final StreamSearchRequest searchRequest, final FleenUser user) {
     final Member member = user.toMember();
     final Page<FleenStream> page = findStreamsAttendedByUser(searchRequest, member);
+
     // Create and return the search result
-    return handleStreamsAttendedByUserOrAttendedWithAnotherUser(searchRequest, user, page);
+    return processStreamsAndReturn(searchRequest, user, page);
   }
 
+  /**
+   * Retrieves a paginated list of {@link FleenStream} entities that the given member has attended,
+   * based on the criteria provided in the {@link StreamSearchRequest}.
+   *
+   * <p>If both the start and end dates are present in the request, the search is filtered by the
+   * specified date range. If only the title is provided, it filters streams by title. If no filters
+   * are set, it returns all streams the member has attended. Pagination is applied using the
+   * {@link Pageable} object from the request.</p>
+   *
+   * @param searchRequest the request containing optional filters such as title and date range
+   * @param member the member whose attended streams are to be retrieved
+   * @return a paginated list of {@link FleenStream} instances attended by the member
+   */
   private Page<FleenStream> findStreamsAttendedByUser(final StreamSearchRequest searchRequest, final Member member) {
     final Page<FleenStream> page;
+    final Pageable pageable = searchRequest.getPage();
+    final String title = searchRequest.getTitle();
     final LocalDateTime startDateTime = searchRequest.getStartDateTime();
     final LocalDateTime endDateTime = searchRequest.getEndDateTime();
-    final String title = searchRequest.getTitle();
-    final Pageable pageable = searchRequest.getPage();
 
     if (searchRequest.areAllDatesSet()) {
       // Filter by date range if both start and end dates are set
@@ -267,6 +290,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       // Retrieve all attended streams if no other filters are applied
       page = streamOperationsService.findAttendedByUser(member, pageable);
     }
+
     return page;
   }
 
@@ -288,30 +312,48 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   @Override
   public StreamSearchResult findStreamsAttendedWithAnotherUser(final StreamSearchRequest searchRequest, final FleenUser user) {
-    final Page<FleenStream> page;
+    Page<FleenStream> page = new PageImpl<>(List.of());
+    final Pageable pageable = searchRequest.getPage();
+    final Member member = user.toMember();
+    final Member anotherMember = searchRequest.getAnotherUser();
 
-    if (nonNull(searchRequest.getAnotherUserId())) {
+    if (searchRequest.hasAnotherUser()) {
       // Retrieve streams attended together by the current user and another user
-      page = streamOperationsService.findStreamsAttendedTogether(user.toMember(), Member.of(searchRequest.getAnotherUserId()), searchRequest.getPage());
-    } else {
-      // Return an empty result if anotherUserId is not provided
-      page = new PageImpl<>(List.of());
+      page = streamOperationsService.findStreamsAttendedTogether(member, anotherMember, pageable);
     }
+
     // Create and return the search result
-    return handleStreamsAttendedByUserOrAttendedWithAnotherUser(searchRequest, user, page);
+    return processStreamsAndReturn(searchRequest, user, page);
   }
 
-  private StreamSearchResult handleStreamsAttendedByUserOrAttendedWithAnotherUser(final StreamSearchRequest searchRequest, final FleenUser user, final Page<FleenStream> page) {
+  /**
+   * Processes a paginated list of {@link FleenStream} entities based on the provided search request
+   * and user context, and returns a localized {@link StreamSearchResult} containing stream details,
+   * pagination information, and stream type metadata.
+   *
+   * <p>The method maps the list of streams from the page to {@link StreamResponse} DTOs and enhances
+   * them with additional details based on the user. It then maps the stream type from the search request
+   * to a {@link StreamTypeInfo}, and wraps the result in a {@link SearchResultView} that includes
+   * pagination metadata. Finally, it combines the result and stream type info into a {@link StreamSearchResult}
+   * and localizes the final output using the current locale.</p>
+   *
+   * @param searchRequest the request containing search criteria, including stream type
+   * @param user the currently authenticated user used for contextual stream processing
+   * @param page the paginated result of {@link FleenStream} entities to be processed
+   * @return a localized {@link StreamSearchResult} containing the processed stream results
+   */
+  private StreamSearchResult processStreamsAndReturn(final StreamSearchRequest searchRequest, final FleenUser user, final Page<FleenStream> page) {
     // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponsesNoJoinStatus(page.getContent());
+    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Process other details of the streams
     streamOperationsService.processOtherStreamDetails(streamResponses, user);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Return a search result view with the streams responses and pagination details
-    // Create the search result
-    final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
-    // Return a search result view with the streams responses and pagination details
+    // Create a search result
+    final SearchResultView searchResult = toSearchResult(streamResponses, page);
+    // Create a search result view with the streams responses and pagination details
+    final StreamSearchResult streamSearchResult = StreamSearchResult.of(searchResult, streamTypeInfo);
+    // Return a search result
     return localizer.of(streamSearchResult);
   }
 
@@ -343,7 +385,6 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Return a search result view with the streams responses and pagination details
     // Create the search result
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
     // Return a search result view with the streams responses and pagination details
@@ -405,15 +446,16 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a response containing the total number of streams created by the user, along with stream type information
    */
   public TotalStreamsCreatedByUserResponse countTotalStreamsByUser(final StreamTypeSearchRequest searchRequest, final FleenUser user) {
-    final Long totalCount;
+    final Member member = user.toMember();
+    final StreamType streamType = searchRequest.getStreamType();
 
-    if (nonNull(searchRequest.getStreamType())) {
-      totalCount = streamOperationsService.countTotalStreamsByUser(searchRequest.getStreamType(), user.toMember());
-    } else {
-      totalCount = streamOperationsService.countTotalStreamsByUser(user.toMember());
-    }
+    // Count the attendance by the user
+    final Long totalCount = searchRequest.hasStreamType()
+      ? streamOperationsService.countTotalStreamsByUser(streamType, member)
+      : streamOperationsService.countTotalStreamsByUser(member);
+
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(streamType);
     // Return the localized response
     return TotalStreamsCreatedByUserResponse.of(totalCount, streamTypeInfo);
   }
@@ -432,15 +474,16 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a response containing the total number of streams attended by the user, along with stream type information
    */
   public TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(final StreamTypeSearchRequest searchRequest, final FleenUser user) {
-    final Long totalCount;
+    final Member member = user.toMember();
+    final StreamType streamType = searchRequest.getStreamType();
 
-    if (nonNull(searchRequest.getStreamType())) {
-      totalCount = streamOperationsService.countTotalStreamsAttended(searchRequest.getStreamType(), user.toMember());
-    } else {
-      totalCount = streamOperationsService.countTotalStreamsAttended(user.toMember());
-    }
+    // Count the attendance by the user
+    final Long totalCount = searchRequest.hasStreamType()
+      ? streamOperationsService.countTotalStreamsAttended(streamType, member)
+      : streamOperationsService.countTotalStreamsAttended(member);
+
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(streamType);
     // Return the localized response
     return TotalStreamsAttendedByUserResponse.of(totalCount, streamTypeInfo);
   }

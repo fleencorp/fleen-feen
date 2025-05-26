@@ -24,8 +24,6 @@ public interface StreamMapper {
 
   List<StreamResponse> toStreamResponses(List<FleenStream> entries);
 
-  List<StreamResponse> toStreamResponsesNoJoinStatus(List<FleenStream> entries);
-
   StreamStatusInfo toStreamStatusInfo(StreamStatus streamStatus);
 
   StreamVisibilityInfo toStreamVisibilityInfo(StreamVisibility streamVisibility);
