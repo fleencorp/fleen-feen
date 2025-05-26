@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.social;
 
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
@@ -10,7 +11,6 @@ import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
 import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;
 import com.fleencorp.feen.model.response.social.block.BlockedUserResponse;
 import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
-import com.fleencorp.feen.model.search.social.blocking.EmptyBlockingUserSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.MemberRepository;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 
 /**
@@ -72,13 +71,13 @@ public class BlockUserServiceImpl implements BlockUserService {
   public BlockingUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final FleenUser user) {
     final Page<BlockUser> page = blockUserRepository.findByInitiatorAndBlockStatus(user.toMember(), BlockStatus.BLOCKED, searchRequest.getPage());
 
-    final List<BlockedUserResponse> views = getBlockedUsers(page.getContent());
-    // Return a search result view with the blocked users responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(BlockingUserSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyBlockingUserSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<BlockedUserResponse> blockedUserResponses = getBlockedUsers(page.getContent());
+    // Create a search result
+    final SearchResultView searchResult = toSearchResult(blockedUserResponses, page);
+    // Create a search result view with the streams responses and pagination details
+    final BlockingUserSearchResult blockingUserSearchResult = BlockingUserSearchResult.of(searchResult);
+    // Return the search result
+    return localizer.of(blockingUserSearchResult);
   }
 
   /**

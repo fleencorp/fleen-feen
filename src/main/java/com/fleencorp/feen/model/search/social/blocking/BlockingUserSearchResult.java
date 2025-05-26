@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class BlockingUserSearchResult extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {
-    return "blocking.user.search";
+    return nonNull(result) && result.hasValue() ? "blocking.user.search" : "blocking.user.empty.search";
   }
 
-  public static Supplier<BlockingUserSearchResult> of(final SearchResultView result) {
-    return () -> new BlockingUserSearchResult(result);
+  public static BlockingUserSearchResult of(final SearchResultView result) {
+    return new BlockingUserSearchResult(result);
   }
 }

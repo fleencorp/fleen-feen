@@ -214,23 +214,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
   }
 
   /**
-   * Converts a list of {@link FleenStream} entries to a list of {@link StreamResponse} objects, excluding join status.
-   *
-   * @param entries the list of {@link FleenStream} entries to convert
-   * @return a list of {@link StreamResponse} objects corresponding to the given entries, or an empty list if the input is {@code null} or empty
-   */
-  @Override
-  public List<StreamResponse> toStreamResponsesNoJoinStatus(final List<FleenStream> entries) {
-    if (nonNull(entries) && !entries.isEmpty()) {
-      return entries.stream()
-        .filter(Objects::nonNull)
-        .map(this::toStreamResponseNoJoinStatus)
-        .toList();
-    }
-    return List.of();
-  }
-
-  /**
    * Converts the given stream to its corresponding stream status information.
    *
    * @param streamStatus the status of the stream

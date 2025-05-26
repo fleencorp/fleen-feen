@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.function.Supplier;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -28,10 +28,10 @@ public class FollowerSearchResult extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {
-    return "follower.search";
+    return nonNull(result) && result.hasValue() ? "follower.search" : "follower.empty.search";
   }
 
-  public static Supplier<FollowerSearchResult> of(final SearchResultView result) {
-    return () -> new FollowerSearchResult(result);
+  public static FollowerSearchResult of(final SearchResultView result) {
+    return new FollowerSearchResult(result);
   }
 }

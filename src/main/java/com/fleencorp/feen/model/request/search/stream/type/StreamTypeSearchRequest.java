@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static java.util.Objects.nonNull;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,5 +23,9 @@ public class StreamTypeSearchRequest extends SearchRequest {
 
   public StreamType getStreamType() {
     return StreamType.of(streamType);
+  }
+
+  public boolean hasStreamType() {
+    return nonNull(getStreamType());
   }
 }

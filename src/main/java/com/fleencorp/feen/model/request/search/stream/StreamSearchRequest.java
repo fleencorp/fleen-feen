@@ -5,6 +5,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
+import com.fleencorp.feen.model.domain.user.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -63,5 +64,17 @@ public class StreamSearchRequest extends SearchRequest {
     if (isNull(streamType)) {
       streamType = StreamType.event();
     }
+  }
+
+  public boolean hasAnotherUser() {
+    return nonNull(anotherUserId);
+  }
+
+  public Member getAnotherUser() {
+    if (hasAnotherUser()) {
+      return Member.of(anotherUserId);
+    }
+
+    return null;
   }
 }

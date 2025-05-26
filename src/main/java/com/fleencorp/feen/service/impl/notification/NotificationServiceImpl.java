@@ -1,13 +1,13 @@
 package com.fleencorp.feen.service.impl.notification;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
+import com.fleencorp.base.model.view.search.SearchResultView;
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.constant.notification.NotificationType;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.response.notification.NotificationResponse;
 import com.fleencorp.feen.model.response.notification.ReadNotificationResponse;
-import com.fleencorp.feen.model.search.notification.EmptyNotificationSearchResult;
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.notification.NotificationRepository;
@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.fleencorp.base.util.FleenUtil.handleSearchResult;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.constant.notification.NotificationType.*;
 import static com.fleencorp.feen.model.response.notification.NotificationResponse.toNotificationResponse;
@@ -77,14 +76,13 @@ public class NotificationServiceImpl implements NotificationService {
     // Find a list of notifications based on the page details in the search request
     final Page<Notification> page = notificationRepository.findMany(user.toMember(), searchRequest.getPage());
     // Convert the notifications to a list of notification responses
-    final List<NotificationResponse> views = toNotificationResponses(page.getContent());
-
-    // Return a search result with the notification responses and pagination details
-    return handleSearchResult(
-      page,
-      localizer.of(NotificationSearchResult.of(toSearchResult(views, page))),
-      localizer.of(EmptyNotificationSearchResult.of(toSearchResult(List.of(), page)))
-    );
+    final List<NotificationResponse> notificationResponses = toNotificationResponses(page.getContent());
+    // Create a search result
+    final SearchResultView searchResult = toSearchResult(notificationResponses, page);
+    // Create a search result view with the streams responses and pagination details
+    final NotificationSearchResult notificationSearchResult = NotificationSearchResult.of(searchResult);
+    // Return the search result
+    return localizer.of(notificationSearchResult);
   }
 
   /**
