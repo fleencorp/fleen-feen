@@ -139,7 +139,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // Return the most recent review
-    final ReviewResponse reviewResponse = getMostRecentReview(reviews, user.getId());
+    final ReviewResponse reviewResponse = getMostRecentReview(reviews);
     // Process other details of the reviews
     processReviewsOtherDetails(List.of(reviewResponse), user.toMember());
     // Return the review
@@ -397,10 +397,9 @@ public class ReviewServiceImpl implements ReviewService {
    * as updatable.</p>
    *
    * @param reviews the list of reviews from which the most recent review is extracted
-   * @param userId the ID of the user to check if they authored the review and mark it as updatable
    * @return the {@link ReviewResponse} of the most recent review, or {@code null} if no review is found
    */
-  protected ReviewResponse getMostRecentReview(final List<Review> reviews, final Long userId) {
+  protected ReviewResponse getMostRecentReview(final List<Review> reviews) {
     if (nonNull(reviews)) {
       return reviews.stream()
         .findFirst()

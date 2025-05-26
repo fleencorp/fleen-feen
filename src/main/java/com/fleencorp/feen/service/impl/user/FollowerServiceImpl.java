@@ -5,6 +5,7 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.social.follower.FollowingNotFoundException;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.mapper.social.FollowerMapper;
 import com.fleencorp.feen.model.contract.UserFollowStat;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.user.Follower;
@@ -38,8 +39,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowerResponses;
-import static com.fleencorp.feen.mapper.impl.other.FollowerMapper.toFollowingResponses;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -58,6 +57,7 @@ public class FollowerServiceImpl implements FollowerService {
   private final NotificationMessageService notificationMessageService;
   private final NotificationService notificationService;
   private final FollowerRepository followerRepository;
+  private final FollowerMapper followerMapper;
   private final ToInfoMapper toInfoMapper;
   private final Localizer localizer;
 
@@ -65,11 +65,13 @@ public class FollowerServiceImpl implements FollowerService {
       final NotificationMessageService notificationMessageService,
       final NotificationService notificationService,
       final FollowerRepository followerRepository,
+      final FollowerMapper followerMapper,
       final ToInfoMapper toInfoMapper,
       final Localizer localizer) {
     this.notificationMessageService = notificationMessageService;
     this.notificationService = notificationService;
     this.followerRepository = followerRepository;
+    this.followerMapper = followerMapper;
     this.toInfoMapper = toInfoMapper;
     this.localizer = localizer;
   }
@@ -79,7 +81,7 @@ public class FollowerServiceImpl implements FollowerService {
    *
    * @param searchRequest the search request containing pagination details
    * @param user the user whose followers are to be retrieved
-   * @return a paginated result containing a list of UserResponse views representing the followers
+   * @return a paginated result containing a list of UserResponse representing the followers
    */
   @Override
   public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final FleenUser user) {
@@ -89,8 +91,8 @@ public class FollowerServiceImpl implements FollowerService {
 
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findFollowersByUser(member, pageable);
-    // Convert the list of followers to UserResponse views
-    final List<UserResponse> followerResponses = toFollowerResponses(page.getContent());
+    // Convert the list of followers to UserResponse
+    final List<UserResponse> followerResponses = followerMapper.toFollowerResponses(page.getContent());
     // Process followers to set isFollowedInfo
     processFollowersDetail(followerResponses, member);
     // Create a search result
@@ -114,7 +116,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param userResponses the collection of user responses to update with follow information
    * @param member the current member used to evaluate follower relationships
    */
-  protected void processFollowersDetail(Collection<UserResponse> userResponses, Member member) {
+  protected void processFollowersDetail(final Collection<UserResponse> userResponses, final Member member) {
     if (nonNull(userResponses) && !userResponses.isEmpty() && nonNull(member)) {
       // Extract user IDs
       final List<Long> userIds = extractUserIds(userResponses);
@@ -143,7 +145,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param relationships the list of follower relationships to process
    * @return a set of user IDs representing the followed users
    */
-  private Set<Long> extractFollowedIds(List<Follower> relationships) {
+  private Set<Long> extractFollowedIds(final List<Follower> relationships) {
     return relationships.stream()
       .map(Follower::getFollowedId)
       .collect(Collectors.toSet());
@@ -162,7 +164,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param userResponse the user response to be enriched with follow status
    * @param followingIds the set of user IDs that the current user is following
    */
-  private void updateFollowedInfo(UserResponse userResponse, Set<Long> followingIds) {
+  private void updateFollowedInfo(final UserResponse userResponse, final Set<Long> followingIds) {
     final String fullName = userResponse.getFullName();
 
     // Determine if the user follows User
@@ -200,7 +202,7 @@ public class FollowerServiceImpl implements FollowerService {
     // Retrieve a paginated list of followers based on the given follower and search request
     final Page<Follower> page = followerRepository.findByFollowing(member, pageable);
     // Convert the list of followers to UserResponse views
-    final List<UserResponse> userResponses = toFollowingResponses(page.getContent());
+    final List<UserResponse> userResponses = followerMapper.toFollowingResponses(page.getContent());
     // Process followings to set isFollowingInfo
     processFollowingsDetail(userResponses, member);
     // Create the search result
@@ -223,7 +225,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param userResponses the collection of user responses to be updated with follow details
    * @param member the current member for whom follow relationships are evaluated
    */
-  protected void processFollowingsDetail(Collection<UserResponse> userResponses, Member member) {
+  protected void processFollowingsDetail(final Collection<UserResponse> userResponses, final Member member) {
     if (nonNull(userResponses) && !userResponses.isEmpty() && nonNull(member)) {
       // Extract user IDs
       final List<Long> userIds = extractUserIds(userResponses);
@@ -249,7 +251,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param relationships the list of {@link Follower} entities representing follow relationships
    * @return a set of user IDs representing the members being followed
    */
-  private Set<Long> extractFollowingIds(List<Follower> relationships) {
+  private Set<Long> extractFollowingIds(final List<Follower> relationships) {
     return relationships.stream()
       .map(Follower::getFollowingId)
       .collect(Collectors.toSet());
@@ -268,7 +270,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param userResponse the user response object to be enriched with following info
    * @param followedByIds the set of user IDs that the current user is following
    */
-  private void updateFollowingInfo(UserResponse userResponse, Set<Long> followedByIds) {
+  private void updateFollowingInfo(final UserResponse userResponse, final Set<Long> followedByIds) {
     final String fullName = userResponse.getFullName();
 
     // Determine if the user follows User
@@ -293,7 +295,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @param responses the collection of {@link UserResponse} objects to process
    * @return a list of non-null user IDs extracted from the responses
    */
-  private List<Long> extractUserIds(Collection<UserResponse> responses) {
+  private List<Long> extractUserIds(final Collection<UserResponse> responses) {
     return responses.stream()
       .filter(Objects::nonNull)
       .map(UserResponse::getUserId)

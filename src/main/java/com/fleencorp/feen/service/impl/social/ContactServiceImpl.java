@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.social;
 
 import com.fleencorp.feen.exception.social.contact.ContactNotFoundException;
-import com.fleencorp.feen.mapper.contact.ContactMapper;
+import com.fleencorp.feen.mapper.social.ContactMapper;
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.dto.social.contact.AddContactDto;

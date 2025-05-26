@@ -1,8 +1,8 @@
-package com.fleencorp.feen.mapper.impl.other;
+package com.fleencorp.feen.mapper.impl.social;
 
 import com.fleencorp.feen.constant.user.IsEligibleForContactRequest;
-import com.fleencorp.feen.mapper.contact.ContactMapper;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.social.ContactMapper;
 import com.fleencorp.feen.model.domain.social.Contact;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.model.response.social.contact.ContactResponse;
