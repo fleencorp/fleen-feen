@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.review;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.review.CannotAddReviewIfStreamHasNotStartedException;
@@ -168,7 +168,7 @@ public class ReviewServiceImpl implements ReviewService {
    * Processes a page of reviews and returns a localized search result.
    *
    * <p>This method converts each {@link Review} in the page to a {@link ReviewResponse}, processes
-   * additional review details, wraps the responses in a {@link SearchResultView}, and then returns
+   * additional review details, wraps the responses in a {@link SearchResult}, and then returns
    * a localized {@link ReviewSearchResult}.</p>
    *
    * @param page the paginated list of reviews
@@ -181,12 +181,12 @@ public class ReviewServiceImpl implements ReviewService {
       final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
       // Process other details of the reviews
       processReviewsOtherDetails(reviewResponses, member);
-      // Create the search result view
-      final SearchResultView searchResultView = toSearchResult(reviewResponses, page);
       // Create the search result
-      final ReviewSearchResult searchResult = ReviewSearchResult.of(searchResultView);
-      // Return a search result view with the review responses and pagination details
-      return localizer.of(searchResult);
+      final SearchResult searchResult = toSearchResult(reviewResponses, page);
+      // Create the search result
+      final ReviewSearchResult reviewSearchResult = ReviewSearchResult.of(searchResult);
+      // Return a search result with the responses and pagination details
+      return localizer.of(reviewSearchResult);
     }
 
     return ReviewSearchResult.empty();

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.calendar;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
@@ -148,8 +148,8 @@ public class CalendarServiceImpl implements CalendarService {
 
     final List<CalendarResponse> calendarResponses = toCalendarResponses(page.getContent());
     // Create a search result
-    final SearchResultView searchResult = toSearchResult(calendarResponses, page);
-    // Create a search result view with the streams responses and pagination details
+    final SearchResult searchResult = toSearchResult(calendarResponses, page);
+    // Create a search result with the responses and pagination details
     final CalendarSearchResult calendarSearchResult = CalendarSearchResult.of(searchResult);
     // Return the search result
     return localizer.of(calendarSearchResult);

@@ -131,9 +131,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Set chat space members that are updatable by the user
     setChatSpaceMembersThatAreUpdatableByUser(chatSpace, chatSpaceMemberResponses, user.toMember());
     // Create the search result
-    final ChatSpaceMemberSearchResult searchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
-    // Return a search result view with the chat space member responses and pagination details
-    return localizer.of(searchResult);
+    final ChatSpaceMemberSearchResult chatSpaceMemberSearchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
+    // Return a search result with the responses and pagination details
+    return localizer.of(chatSpaceMemberSearchResult);
   }
 
   /**
@@ -169,9 +169,9 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Determine if the possible authenticated user is the organizer of the entity
     determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
     // Create the search result
-    final ChatSpaceMemberSearchResult searchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
-    // Return a search result view with the chat space member responses and pagination details
-    return localizer.of(searchResult);
+    final ChatSpaceMemberSearchResult chatSpaceMemberSearchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
+    // Return a search result with the responses and pagination details
+    return localizer.of(chatSpaceMemberSearchResult);
   }
 
   /**

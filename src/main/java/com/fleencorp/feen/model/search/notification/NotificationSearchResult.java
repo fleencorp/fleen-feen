@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.search.notification;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,14 +24,14 @@ import static java.util.Objects.nonNull;
 public class NotificationSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  private SearchResultView result;
+  private SearchResult result;
 
   @Override
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "notification.search" : "notification.empty.search";
   }
 
-  public static NotificationSearchResult of(final SearchResultView result) {
+  public static NotificationSearchResult of(final SearchResult result) {
     return new NotificationSearchResult(result);
   }
 }

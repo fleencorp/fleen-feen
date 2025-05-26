@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
 public class MutualChatSpaceMembershipSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  protected SearchResultView result;
+  protected SearchResult result;
 
   @JsonIgnore
   private String targetMemberFullName;
@@ -40,7 +40,7 @@ public class MutualChatSpaceMembershipSearchResult extends LocalizedResponse {
       : super.getParams();
   }
 
-  public static MutualChatSpaceMembershipSearchResult of(final SearchResultView result, final String targetMemberFullName) {
+  public static MutualChatSpaceMembershipSearchResult of(final SearchResult result, final String targetMemberFullName) {
     return new MutualChatSpaceMembershipSearchResult(result, targetMemberFullName);
   }
 }

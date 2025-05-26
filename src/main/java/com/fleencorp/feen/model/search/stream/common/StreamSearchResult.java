@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
@@ -26,7 +26,7 @@ import static java.util.Objects.nonNull;
 public class StreamSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  protected SearchResultView result;
+  protected SearchResult result;
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
@@ -48,7 +48,7 @@ public class StreamSearchResult extends LocalizedResponse {
     }
   }
 
-  public static StreamSearchResult of(final SearchResultView result, final StreamTypeInfo streamTypeInfo) {
+  public static StreamSearchResult of(final SearchResult result, final StreamTypeInfo streamTypeInfo) {
     return new StreamSearchResult(result, streamTypeInfo);
   }
 }

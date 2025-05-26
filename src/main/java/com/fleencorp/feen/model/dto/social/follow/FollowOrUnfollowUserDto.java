@@ -2,6 +2,7 @@ package com.fleencorp.feen.model.dto.social.follow;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,7 @@ public class FollowOrUnfollowUserDto {
     return Long.parseLong(userId);
   }
 
+  public Member getMember() {
+    return Member.of(getMemberId());
+  }
 }

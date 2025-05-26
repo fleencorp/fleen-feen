@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.search;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
@@ -111,7 +111,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create the search result
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, streamResponsesAndPage.getPage()), streamTypeInfo);
-    // Return a search result view with the streams responses and pagination details
+    // Return a search result with the responses and pagination details
     return localizer.of(streamSearchResult);
   }
 
@@ -333,7 +333,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    *
    * <p>The method maps the list of streams from the page to {@link StreamResponse} DTOs and enhances
    * them with additional details based on the user. It then maps the stream type from the search request
-   * to a {@link StreamTypeInfo}, and wraps the result in a {@link SearchResultView} that includes
+   * to a {@link StreamTypeInfo}, and wraps the result in a {@link SearchResult} that includes
    * pagination metadata. Finally, it combines the result and stream type info into a {@link StreamSearchResult}
    * and localizes the final output using the current locale.</p>
    *
@@ -350,19 +350,19 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create a search result
-    final SearchResultView searchResult = toSearchResult(streamResponses, page);
-    // Create a search result view with the streams responses and pagination details
+    final SearchResult searchResult = toSearchResult(streamResponses, page);
+    // Create a search result with the streams responses and pagination details
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(searchResult, streamTypeInfo);
     // Return a search result
     return localizer.of(streamSearchResult);
   }
 
   /**
-   * Processes and retrieves a search result view for streams attended by a user or attended with another user.
+   * Processes and retrieves a search result for streams attended by a user or attended with another user.
    * It sets the attendees and total number of attendees for each stream, as well as the first 10 attendees in any order.
    *
    * <p>This method processes a list of stream responses, sets relevant details for the attendees of each stream (including
-   * the first 10 attendees), and retrieves the stream type information. It then returns a search result view that includes
+   * the first 10 attendees), and retrieves the stream type information. It then returns a search result that includes
    * the stream responses and pagination details.</p>
    *
    * <p>If no streams are found, an empty search result is returned, including the stream type information.</p>
@@ -387,7 +387,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create the search result
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
-    // Return a search result view with the streams responses and pagination details
+    // Return a search result with the responses and pagination details
     return localizer.of(streamSearchResult);
   }
 
@@ -573,6 +573,5 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
     return streamOperationsService.findLiveStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
   }
-  
 
 }

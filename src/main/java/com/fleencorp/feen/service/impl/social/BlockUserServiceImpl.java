@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.social;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
@@ -73,8 +73,8 @@ public class BlockUserServiceImpl implements BlockUserService {
 
     final List<BlockedUserResponse> blockedUserResponses = getBlockedUsers(page.getContent());
     // Create a search result
-    final SearchResultView searchResult = toSearchResult(blockedUserResponses, page);
-    // Create a search result view with the streams responses and pagination details
+    final SearchResult searchResult = toSearchResult(blockedUserResponses, page);
+    // Create a search result with the responses and pagination details
     final BlockingUserSearchResult blockingUserSearchResult = BlockingUserSearchResult.of(searchResult);
     // Return the search result
     return localizer.of(blockingUserSearchResult);

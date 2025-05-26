@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.user.profile;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.stream.StreamStatus;
@@ -230,9 +230,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     final Collection<StreamResponse> mutualAttendedStreamResponses = unifiedMapper.toStreamResponses(mutualAttendedStreams.getContent());
     final Collection<ChatSpaceResponse> mutualChatSpaceMembershipResponses = unifiedMapper.toChatSpaceResponses(mutualChatSpaceMemberships.getContent());
 
-    final SearchResultView userCreatedStreamsSearchResultView = toSearchResult(userCreatedStreamResponses, userCreatedStreams);
-    final SearchResultView mutualStreamAttendanceSearchResultView = toSearchResult(mutualAttendedStreamResponses, mutualAttendedStreams);
-    final SearchResultView mutualChatSpaceMembershipSearchResultView = toSearchResult(mutualChatSpaceMembershipResponses, mutualChatSpaceMemberships);
+    final SearchResult userCreatedStreamsSearchResultView = toSearchResult(userCreatedStreamResponses, userCreatedStreams);
+    final SearchResult mutualStreamAttendanceSearchResultView = toSearchResult(mutualAttendedStreamResponses, mutualAttendedStreams);
+    final SearchResult mutualChatSpaceMembershipSearchResultView = toSearchResult(mutualChatSpaceMembershipResponses, mutualChatSpaceMemberships);
 
     final UserCreatedStreamsSearchResult userCreatedStreamsSearchResult = UserCreatedStreamsSearchResult.of(userCreatedStreamsSearchResultView, targetUserFullName);
     final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(mutualStreamAttendanceSearchResultView, targetUserFullName);

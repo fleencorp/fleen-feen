@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.attendee;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
@@ -92,12 +92,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     final FleenStream stream = streamOperationsService.findStream(streamId);
     // Convert the list of attendees to response objects
     final Collection<StreamAttendeeResponse> attendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), unifiedMapper.toStreamResponse(stream));
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(attendeeResponses, page);
     // Create the search result
-    final StreamAttendeeSearchResult searchResult = StreamAttendeeSearchResult.of(searchResultView);
-    // Return a search result view with the attendee responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(attendeeResponses, page);
+    // Create the attendee search result
+    final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(streamAttendeeSearchResult);
   }
 
   /**
@@ -164,12 +164,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
     // Get stream attendees
     final Collection<StreamAttendeeResponse> attendeeResponses = getAttendees(stream, page.getContent());
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(attendeeResponses, page);
     // Create the search result
-    final StreamAttendeeSearchResult searchResult = StreamAttendeeSearchResult.of(searchResultView);
-    // Return a search result view with the attendee responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(attendeeResponses, page);
+    // Create the attendee search result
+    final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
+    // Return a search result with the attendee responses and pagination details
+    return localizer.of(streamAttendeeSearchResult);
   }
 
   /**
@@ -266,12 +266,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
     // Convert the stream attendee to their equivalent responses
     final Collection<StreamAttendeeResponse> streamAttendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(streamAttendeeResponses, page);
     // Create the search result
-    final RequestToJoinSearchResult searchResult = RequestToJoinSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(streamAttendeeResponses, page);
+    // Create the attendee search result
+    final RequestToJoinSearchResult requestToJoinSearchResult = RequestToJoinSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(requestToJoinSearchResult);
   }
 
   /**

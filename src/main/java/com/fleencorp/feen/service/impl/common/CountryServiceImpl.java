@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.common;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.mapper.other.CountryMapper;
 import com.fleencorp.feen.model.domain.other.Country;
@@ -85,11 +85,11 @@ public class CountryServiceImpl implements CountryService {
     final Page<Country> page = repository.findMany(searchRequest.getPage());
     // Convert the list of Country entities to a list of CountryResponse views.
     final List<CountryResponse> countryResponses = countryMapper.toCountryResponses(page.getContent());
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(countryResponses, page);
     // Create the search result
-    final CountrySearchResult countrySearchResult = CountrySearchResult.of(searchResultView);
-    // Return a search result view with the country responses and pagination details
+    final SearchResult searchResult = toSearchResult(countryResponses, page);
+    // Create the search result
+    final CountrySearchResult countrySearchResult = CountrySearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
     return localizer.of(countrySearchResult);
   }
 

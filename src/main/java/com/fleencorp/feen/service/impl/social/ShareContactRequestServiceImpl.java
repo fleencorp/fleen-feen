@@ -1,9 +1,9 @@
 package com.fleencorp.feen.service.impl.social;
 
-import com.fleencorp.base.model.view.search.SearchResultView;
+import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.social.*;
+import com.fleencorp.feen.exception.social.share.contact.*;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.notification.Notification;
@@ -25,6 +25,7 @@ import com.fleencorp.feen.service.social.ShareContactRequestService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,22 +84,23 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   public ShareContactRequestSearchResult findSentShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final FleenUser user) {
-    // Convert authenticated user to member
+    // Prepare parameters
+    final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
 
     // Determine the query based on the presence of a share contact request status
-    final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getActualShareContactRequestStatus(ShareContactRequestStatus.SENT);
+    final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getShareContactRequestStatus(ShareContactRequestStatus.SENT);
     // Retrieve the share contact request sent by the user
-    final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsSentByMember(member, shareContactRequestStatus, searchRequest.getPage());
+    final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsSentByMember(member, shareContactRequestStatus, pageable);
 
     // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
     final List<ShareContactRequestResponse> shareContactRequestResponses = getSentShareContactRequests(page.getContent());
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(shareContactRequestResponses, page);
     // Create the search result
-    final ShareContactRequestSearchResult searchResult = ShareContactRequestSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
+    // Create the share contact search result
+    final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(shareContactRequestSearchResult);
   }
 
   /**
@@ -119,21 +121,22 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   public ShareContactRequestSearchResult findReceivedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final FleenUser user) {
-    // Convert authenticated user to member
+    // Prepare parameters
+    final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
 
-    final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getActualShareContactRequestStatus(ShareContactRequestStatus.SENT);
+    final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getShareContactRequestStatus(ShareContactRequestStatus.SENT);
     // Retrieve the share contact request made to the user
-    final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsMadeToMember(member, shareContactRequestStatus, searchRequest.getPage());
+    final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsMadeToMember(member, shareContactRequestStatus, pageable);
 
     // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
     final List<ShareContactRequestResponse> shareContactRequestResponses = getReceivedShareContactRequests(page.getContent());
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(shareContactRequestResponses, page);
     // Create the search result
-    final ShareContactRequestSearchResult searchResult = ShareContactRequestSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
+    // Create the search result
+    final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(shareContactRequestSearchResult);
   }
 
   /**
@@ -170,12 +173,12 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
       shareContactRequestResponses = getReceivedShareContactRequests(page.getContent());
     }
 
-    // Create the search result view
-    final SearchResultView searchResultView = toSearchResult(shareContactRequestResponses, page);
     // Create the search result
-    final ShareContactRequestSearchResult searchResult = ShareContactRequestSearchResult.of(searchResultView);
-    // Return a search result view with the speaker responses and pagination details
-    return localizer.of(searchResult);
+    final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
+    // Create the search result
+    final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(shareContactRequestSearchResult);
   }
 
   /**
