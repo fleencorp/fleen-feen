@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.impl.user;
+package com.fleencorp.feen.service.impl.social;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
@@ -25,7 +25,7 @@ import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
-import com.fleencorp.feen.service.user.FollowerService;
+import com.fleencorp.feen.service.social.FollowerService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
