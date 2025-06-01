@@ -1,4 +1,4 @@
-package com.fleencorp.feen.service.user;
+package com.fleencorp.feen.service.social;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.model.contract.UserFollowStat;

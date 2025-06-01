@@ -139,11 +139,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     // Return the most recent review
-    final ReviewResponse reviewResponse = getMostRecentReview(reviews);
+    final List<ReviewResponse> reviewResponses = getMostRecentReviews(reviews);
     // Process other details of the reviews
-    processReviewsOtherDetails(List.of(reviewResponse), user.toMember());
+    processReviewsOtherDetails(reviewResponses, user.toMember());
     // Return the review
-    return reviewResponse;
+    return reviewResponses.isEmpty() ? null : reviewResponses.getFirst();
   }
 
   /**
@@ -250,9 +250,10 @@ public class ReviewServiceImpl implements ReviewService {
   public UpdateReviewResponse updateReview(final Long reviewId, final UpdateReviewDto updateReviewDto, final FleenUser user)
     throws ReviewNotFoundException, StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
       FailedOperationException {
+    final Member member = user.toMember();
     // Find the associated review
     if (updateReviewDto.isStreamReviewType()) {
-      final Review review = reviewRepository.findByReviewIdAndStreamAndMember(reviewId, updateReviewDto.getParentId(), user.toMember())
+      final Review review = reviewRepository.findByReviewIdAndStreamAndMember(reviewId, updateReviewDto.getParentId(), member)
         .orElseThrow(ReviewNotFoundException.of(reviewId));
 
       // Update the existing review with the new details
@@ -262,7 +263,7 @@ public class ReviewServiceImpl implements ReviewService {
       // Create the review response
       final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
       // Process other details of the reviews
-      processReviewsOtherDetails(List.of(reviewResponse), user.toMember());
+      processReviewsOtherDetails(List.of(reviewResponse), member);
       // Get the response
       final UpdateReviewResponse updateReviewResponse = UpdateReviewResponse.of(reviewResponse);
       // Return a localized response for the updated review
@@ -390,23 +391,24 @@ public class ReviewServiceImpl implements ReviewService {
   }
 
   /**
-   * Extracts the most recent review from the provided list of reviews and marks it as updatable if applicable.
+   * Returns the most recent review from the provided list of reviews, if available,
+   * by mapping it to a {@link ReviewResponse} using the {@code reviewMapper}.
    *
-   * <p>This method processes a list of {@link Review} objects, retrieves the most recent one (if any), and
-   * converts it to a {@link ReviewResponse}. If the review is authored by the specified user, it is marked
-   * as updatable.</p>
+   * <p>If the input list is {@code null} or empty, an empty list is returned.</p>
    *
-   * @param reviews the list of reviews from which the most recent review is extracted
-   * @return the {@link ReviewResponse} of the most recent review, or {@code null} if no review is found
+   * @param reviews the list of {@link Review} objects to process
+   * @return a list containing a single {@link ReviewResponse} representing the most recent review,
+   *         or an empty list if the input is {@code null} or contains no elements
    */
-  protected ReviewResponse getMostRecentReview(final List<Review> reviews) {
+  protected List<ReviewResponse> getMostRecentReviews(final List<Review> reviews) {
     if (nonNull(reviews)) {
       return reviews.stream()
         .findFirst()
         .map(reviewMapper::toReviewResponsePublic)
-        .orElse(null);
+        .stream()
+        .toList();
     }
 
-    return null;
+    return List.of();
   }
 }

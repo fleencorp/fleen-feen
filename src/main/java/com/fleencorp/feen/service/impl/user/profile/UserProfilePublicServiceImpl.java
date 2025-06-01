@@ -26,8 +26,8 @@ import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.service.social.ContactService;
+import com.fleencorp.feen.service.social.FollowerService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
-import com.fleencorp.feen.service.user.FollowerService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.UserProfilePublicService;
 import com.fleencorp.localizer.service.Localizer;
@@ -304,7 +304,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @return a {@link ContactRequestEligibilityInfo} indicating whether the contact request is permitted
    */
   protected ContactRequestEligibilityInfo checkContactRequestEligibility(final Member member, final Member targetMember) {
-    return allNonNull(member, targetMember, member.getMemberId(), targetMember.getMemberId())
+    return allNonNull(member, targetMember)
       ? contactService.checkContactRequestEligibility(member, targetMember)
       : contactMapper.toEligibilityInfo(false);
   }
