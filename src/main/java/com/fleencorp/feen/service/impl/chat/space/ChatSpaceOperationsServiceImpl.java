@@ -11,10 +11,10 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class ChatSpaceOperationsServiceImpl implements ChatSpaceOperationsService {
@@ -42,6 +42,20 @@ public class ChatSpaceOperationsServiceImpl implements ChatSpaceOperationsServic
     return chatSpaceParticipationRepository.findCommonChatSpaces(memberAId, memberBId, approvedStatuses, activeStatuses, pageable);
   }
 
+
+  @Override
+  public Page<ChatSpace> findCommonChatSpaces(
+      final Member memberA,
+      final Member memberB,
+      final Pageable pageable) {
+    return chatSpaceParticipationRepository.findCommonChatSpaces(
+      memberA.getMemberId(),
+      memberB.getMemberId(),
+      List.of(ChatSpaceRequestToJoinStatus.APPROVED),
+      List.of(ChatSpaceStatus.ACTIVE),
+      pageable);
+  }
+
   @Override
   public Page<ChatSpace> findByDateBetween(final LocalDateTime startDate, final LocalDateTime endDate, final ChatSpaceStatus status, final Pageable pageable) {
     return chatSpaceRepository.findByDateBetween(startDate, endDate, status, pageable);
@@ -58,30 +72,6 @@ public class ChatSpaceOperationsServiceImpl implements ChatSpaceOperationsServic
   @Override
   public Page<ChatSpace> findMany(final ChatSpaceStatus status, final Pageable pageable) {
     return chatSpaceRepository.findMany(status, pageable);
-  }
-
-  @Override
-  @Transactional
-  public void incrementTotalMembers(final Long chatSpaceId) {
-    chatSpaceRepository.incrementTotalMembers(chatSpaceId);
-  }
-
-  @Override
-  @Transactional
-  public void decrementTotalMembers(final Long chatSpaceId) {
-    chatSpaceRepository.decrementTotalMembers(chatSpaceId);
-  }
-
-  @Override
-  @Transactional
-  public int incrementAndGetLikeCount(final Long chatSpaceId) {
-    return chatSpaceRepository.incrementAndGetLikeCount(chatSpaceId);
-  }
-
-  @Override
-  @Transactional
-  public int decrementAndGetLikeCount(final Long chatSpaceId) {
-    return chatSpaceRepository.decrementAndGetLikeCount(chatSpaceId);
   }
 
   @Override

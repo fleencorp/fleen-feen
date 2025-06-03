@@ -8,7 +8,6 @@ import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.common.CommonStreamOtherService;
@@ -51,22 +50,22 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * attendee lists, organizer checks, timezone-based schedule adjustments, and updatable flags.</p>
    *
    * @param streamResponses the list of stream responses to process
-   * @param user the currently authenticated user
+   * @param member a member or user in the system
    */
   @Override
-  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final FleenUser user) {
+  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final Member member) {
     // Ensure inputs are valid and the response list is not empty
-    if (allNonNull(streamResponses, user, user.toMember()) && !streamResponses.isEmpty()) {
+    if (allNonNull(streamResponses, member) && !streamResponses.isEmpty()) {
       // Get attendance details for the streams, grouped by stream ID
-      final Map<Long, StreamAttendeeSelect> attendanceDetailsMap = getUserAttendanceDetailsMap(streamResponses, user);
+      final Map<Long, StreamAttendeeSelect> attendanceDetailsMap = getUserAttendanceDetailsMap(streamResponses, member);
 
       // Populate like status for streams where the user has not joined or requested to join
-      likeService.populateStreamLikesForNonAttendance(streamResponses, attendanceDetailsMap, user.toMember());
+      likeService.populateStreamLikesForNonAttendance(streamResponses, attendanceDetailsMap, member);
 
       // Process each stream response with detailed enrichment
       streamResponses.stream()
         .filter(Objects::nonNull)
-        .forEach(streamResponse -> processStreamResponse(streamResponse, attendanceDetailsMap, user));
+        .forEach(streamResponse -> processStreamResponse(streamResponse, attendanceDetailsMap, member));
     }
   }
 
@@ -80,21 +79,21 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    *
    * @param streamResponse the stream response to enrich
    * @param attendanceDetailMap a map of stream IDs to attendance details for the user
-   * @param user the current authenticated user
+   * @param member a user or member in the system
    */
-  protected void processStreamResponse(final StreamResponse streamResponse, final Map<Long, StreamAttendeeSelect> attendanceDetailMap, final FleenUser user) {
+  protected void processStreamResponse(final StreamResponse streamResponse, final Map<Long, StreamAttendeeSelect> attendanceDetailMap, final Member member) {
     // Update join status, attendance, and speaker info
     updateJoinStatusInResponses(streamResponse, attendanceDetailMap);
     // Adjust schedule to user's timezone
-    setOtherScheduleBasedOnUserTimezone(streamResponse, user);
+    setOtherScheduleBasedOnUserTimezone(streamResponse, member);
     // Set the total number of attendees attending this stream
     setStreamAttendeesAndTotalAttendeesAttending(streamResponse);
     // Set the first 10 attendees attending the stream (unordered)
     setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponse);
     // Determine if the user is the organizer of the stream
-    determineIfUserIsTheOrganizerOfEntity(streamResponse, user);
+    determineIfUserIsTheOrganizerOfEntity(streamResponse, member);
     // Determine if the user can update this stream
-    setEntityUpdatableByUser(streamResponse, user.getId());
+    setEntityUpdatableByUser(streamResponse, member.getMemberId());
   }
 
   /**
@@ -104,14 +103,12 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * records for the user, and returns them grouped by stream ID.</p>
    *
    * @param streamResponses the collection of stream responses
-   * @param user the user whose attendance details are to be fetched
+   * @param member the user whose attendance details are to be fetched
    * @return a map of stream IDs to the user's corresponding attendance records
    */
-  protected Map<Long, StreamAttendeeSelect> getUserAttendanceDetailsMap(final Collection<StreamResponse> streamResponses, final FleenUser user) {
+  protected Map<Long, StreamAttendeeSelect> getUserAttendanceDetailsMap(final Collection<StreamResponse> streamResponses, final Member member) {
     // Extract the stream IDs from the search result views
     final List<Long> streamIds = extractAndGetEntriesIds(streamResponses);
-    // Convert the user to a domain
-    final Member member = user.toMember();
     // Retrieve the user's attendance records for the provided stream IDs
     final List<StreamAttendeeSelect> attendeeAttendance = streamAttendeeOperationsService.findByMemberAndStreamIds(member, streamIds);
     // Group the attendance details by stream ID and return as a map
@@ -196,14 +193,14 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * an empty schedule is set.</p>
    *
    * @param streamResponse the stream response containing the original schedule
-   * @param user the user whose timezone is used for conversion
+   * @param member the user whose timezone is used for conversion
    */
-  public void setOtherScheduleBasedOnUserTimezone(final StreamResponse streamResponse, final FleenUser user) {
-    if (allNonNull(streamResponse, user)) {
+  public void setOtherScheduleBasedOnUserTimezone(final StreamResponse streamResponse, final Member member) {
+    if (allNonNull(streamResponse, member)) {
       // Get the stream's original timezone
       final String streamTimezone = streamResponse.getSchedule().getTimezone();
       // Get the user's timezone
-      final String userTimezone = user.getTimezone();
+      final String userTimezone = member.getTimezone();
       // Check if the stream's timezone and user's timezone are different
       if (!streamTimezone.equalsIgnoreCase(userTimezone)) {
         // Convert the stream's schedule to the user's timezone

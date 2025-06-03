@@ -30,6 +30,7 @@ import com.fleencorp.feen.service.link.LinkService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -234,6 +235,30 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Return a search result with the responses and pagination details
     return localizer.of(chatSpaceSearchResult);
   }
+
+  @Override
+  public ChatSpaceSearchResult findChatSpacesMembershipWithAnotherUser(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+    Page<ChatSpace> page = new PageImpl<>(List.of());
+    final Pageable pageable = searchRequest.getPage();
+    final Member member = user.toMember();
+    final Member anotherMember = searchRequest.getAnotherUser();
+
+    if (searchRequest.hasAnotherUser()) {
+      // Retrieve streams attended together by the current user and another user
+      page = chatSpaceOperationsService.findCommonChatSpaces(member, anotherMember, pageable);
+    }
+
+    final List<ChatSpaceResponse> chatSpaceResponses = unifiedMapper.toChatSpaceResponses(page.getContent());
+    // Process other details of the chat space responses
+    processOtherChatSpaceDetails(chatSpaceResponses, user);
+    // Create the search result
+    final SearchResult searchResult = toSearchResult(chatSpaceResponses, page);
+    // Create the search result
+    final ChatSpaceSearchResult chatSpaceSearchResult = ChatSpaceSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(chatSpaceSearchResult);
+  }
+
 
   /**
    * Retrieves the details of a chat space by its ID.
@@ -512,7 +537,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Set the links associated with the chat space
     setLinks(chatSpaceResponse, user);
     // Check if the user is the organizer
-    determineIfUserIsTheOrganizerOfEntity(chatSpaceResponse, user);
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceResponse, user.toMember());
   }
 
   /**

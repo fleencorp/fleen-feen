@@ -127,7 +127,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Convert the chat space members to response views
     final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = unifiedMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user.toMember());
     // Set chat space members that are updatable by the user
     setChatSpaceMembersThatAreUpdatableByUser(chatSpace, chatSpaceMemberResponses, user.toMember());
     // Create the search result
@@ -167,7 +167,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
     // Convert the chat space members to response views
     final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = unifiedMapper.toChatSpaceMemberResponses(page.getContent(), chatSpace);
     // Determine if the possible authenticated user is the organizer of the entity
-    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user);
+    determineIfUserIsTheOrganizerOfEntity(chatSpaceMemberResponses, user.toMember());
     // Create the search result
     final ChatSpaceMemberSearchResult chatSpaceMemberSearchResult = ChatSpaceMemberSearchResult.of(toSearchResult(chatSpaceMemberResponses, page));
     // Return a search result with the responses and pagination details

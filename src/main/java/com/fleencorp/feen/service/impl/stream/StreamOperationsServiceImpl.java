@@ -259,8 +259,8 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final FleenUser user) {
-    commonStreamOtherService.processOtherStreamDetails(streamResponses, user);
+  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final Member member) {
+    commonStreamOtherService.processOtherStreamDetails(streamResponses, member);
   }
 
   @Override

@@ -210,27 +210,6 @@ public class StreamSearchController {
     return streamSearchService.findStreamsAttendedByUser(searchRequest, user);
   }
 
-  @Operation(summary = "Get streams attended with another user",
-    description = "Retrieves all streams that the authenticated user has attended together with another user. Requires authentication."
-  )
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved co-attended streams",
-      content = @Content(schema = @Schema(implementation = StreamSearchResult.class))),
-    @ApiResponse(responseCode = "401", description = "User not authenticated",
-      content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
-    @ApiResponse(responseCode = "400", description = "Invalid search parameters",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
-  })
-  @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
-  @GetMapping(value = "/attended-with-user")
-  public StreamSearchResult findEventsAttendedWithAnotherUser(
-      @Parameter(description = "Search criteria for co-attended streams", required = true)
-        @SearchParam final StreamSearchRequest searchRequest,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
-    return streamSearchService.findStreamsAttendedWithAnotherUser(searchRequest, user);
-  }
-
   @Operation(summary = "Get stream join requests",
     description = "Retrieves all pending requests to join a specific stream. Requires authentication and appropriate permissions."
   )

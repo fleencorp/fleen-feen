@@ -64,6 +64,9 @@ public class Member extends FleenFeenEntity {
   @Column(name = "country", length = 50)
   private String country;
 
+  @Transient
+  private String timezone;
+
   @Column(name ="email_address_verified", nullable = false)
   private boolean emailAddressVerified;
 

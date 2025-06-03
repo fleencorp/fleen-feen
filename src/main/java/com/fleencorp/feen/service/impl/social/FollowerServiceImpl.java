@@ -356,7 +356,7 @@ public class FollowerServiceImpl implements FollowerService {
           // Create and save notification
           final Notification notification = notificationMessageService.ofFollowing(newFollower, followed);
           notificationService.save(notification);
-      });
+    });
   }
 
   /**

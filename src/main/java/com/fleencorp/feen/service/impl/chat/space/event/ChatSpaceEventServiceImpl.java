@@ -111,7 +111,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     // Get the list of event or stream views from the search result
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Process other details of the streams
-    streamOperationsService.processOtherStreamDetails(streamResponses, user);
+    streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(StreamType.EVENT);
     // Create the search result

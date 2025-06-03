@@ -17,6 +17,8 @@ public interface StreamSearchService {
 
   StreamSearchResult findStreamsPublic(StreamSearchRequest searchRequest, StreamTimeType streamTimeType);
 
+  StreamSearchResult findStreamsCreatedByUser(StreamSearchRequest searchRequest);
+
   StreamSearchResult findStreamsAttendedByUser(StreamSearchRequest searchRequest, FleenUser user);
 
   StreamSearchResult findStreamsAttendedWithAnotherUser(StreamSearchRequest searchRequest, FleenUser user);

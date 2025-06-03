@@ -3,11 +3,14 @@ package com.fleencorp.feen.model.request.search.chat.space;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
+import com.fleencorp.feen.model.domain.user.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -22,7 +25,18 @@ public class ChatSpaceSearchRequest extends SearchRequest {
   @JsonProperty("is_active")
   private Boolean isActive;
 
+  @JsonProperty("another_user_id")
+  protected Long anotherUserId;
+
   public ChatSpaceStatus getDefaultActive() {
     return ChatSpaceStatus.ACTIVE;
+  }
+
+  public boolean hasAnotherUser() {
+    return nonNull(anotherUserId);
+  }
+
+  public Member getAnotherUser() {
+    return hasAnotherUser() ? Member.of(anotherUserId) : null;
   }
 }

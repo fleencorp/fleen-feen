@@ -171,6 +171,7 @@ public class FleenUser implements UserDetails {
     member.setPassword(getPassword());
     member.setCountry(getCountry());
     member.setMfaType(getMfaType());
+    member.setTimezone(getTimezone());
     member.setLastName(getLastName());
     member.setFirstName(getFirstName());
     member.setMfaEnabled(isMfaEnabled());
