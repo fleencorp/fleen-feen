@@ -106,7 +106,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Get the list of stream views from the search result
     final List<StreamResponse> streamResponses = streamResponsesAndPage.getResponses();
     // Process other details of the streams
-    streamOperationsService.processOtherStreamDetails(streamResponses, user);
+    streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create the search result
@@ -187,7 +187,26 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
     final Page<FleenStream> page = findMyStreams(searchRequest, user.toMember());
     // Create and return the search result
-    return processStreamsAndReturn(searchRequest, user, page);
+    return processStreamsAndReturn(searchRequest, user.toMember(), page);
+  }
+
+  /**
+   * Finds streams created by a specific user based on the given search criteria.
+   *
+   * <p>This method retrieves the {@link Member} specified in the {@code searchRequest},
+   * fetches the streams created by this member using {@link #findMyStreams(StreamSearchRequest, Member)},
+   * and processes them to return a {@link StreamSearchResult}.</p>
+   *
+   * @param searchRequest the search request containing filters and the target user whose streams are to be found
+   * @return a {@link StreamSearchResult} containing the processed streams created by the specified user
+   */
+  @Override
+  public StreamSearchResult findStreamsCreatedByUser(final StreamSearchRequest searchRequest) {
+    final Member member = searchRequest.getAnotherUser();
+
+    final Page<FleenStream> page = findMyStreams(searchRequest, member);
+    // Create and return the search result
+    return processStreamsAndReturn(searchRequest, member, page);
   }
 
   /**
@@ -257,7 +276,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final Page<FleenStream> page = findStreamsAttendedByUser(searchRequest, member);
 
     // Create and return the search result
-    return processStreamsAndReturn(searchRequest, user, page);
+    return processStreamsAndReturn(searchRequest, user.toMember(), page);
   }
 
   /**
@@ -323,7 +342,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     }
 
     // Create and return the search result
-    return processStreamsAndReturn(searchRequest, user, page);
+    return processStreamsAndReturn(searchRequest, user.toMember(), page);
   }
 
   /**
@@ -338,15 +357,15 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * and localizes the final output using the current locale.</p>
    *
    * @param searchRequest the request containing search criteria, including stream type
-   * @param user the currently authenticated user used for contextual stream processing
+   * @param member a user or member in the system
    * @param page the paginated result of {@link FleenStream} entities to be processed
    * @return a localized {@link StreamSearchResult} containing the processed stream results
    */
-  private StreamSearchResult processStreamsAndReturn(final StreamSearchRequest searchRequest, final FleenUser user, final Page<FleenStream> page) {
+  private StreamSearchResult processStreamsAndReturn(final StreamSearchRequest searchRequest, final Member member, final Page<FleenStream> page) {
     // Convert the streams to response views
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
     // Process other details of the streams
-    streamOperationsService.processOtherStreamDetails(streamResponses, user);
+    streamOperationsService.processOtherStreamDetails(streamResponses, member);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
     // Create a search result
@@ -421,7 +440,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Get all stream or stream attendees
     final Collection<StreamAttendeeResponse> attendeesGoingToStream = streamAttendeeOperationsService.getAttendeesGoingToStream(streamResponse);
     // Process other details of the streams
-    streamOperationsService.processOtherStreamDetails(streamResponses, user);
+    streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
     final long totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     // Retrieve the stream type info

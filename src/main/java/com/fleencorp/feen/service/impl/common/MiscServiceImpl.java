@@ -6,8 +6,8 @@ import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.HasOrganizer;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
-import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.common.CountryService;
@@ -147,13 +147,13 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    * and updates the {@code isOrganizer} field accordingly.</p>
    *
    * @param entries the list of {@code SetIsOrganizer} objects to process
-   * @param user    the user whose organizer status is to be determined
+   * @param member    the user whose organizer status is to be determined
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends HasOrganizer> entries, final FleenUser user) {
-    if (nonNull(entries) && !entries.isEmpty() && nonNull(user) && nonNull(user.getId())) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends HasOrganizer> entries, final Member member) {
+    if (nonNull(entries) && !entries.isEmpty() && nonNull(member) && nonNull(member.getMemberId())) {
       entries.stream()
         .filter(Objects::nonNull)
-        .forEach(entry -> determineIfUserIsTheOrganizerOfEntity(entry, user));
+        .forEach(entry -> determineIfUserIsTheOrganizerOfEntity(entry, member));
     }
   }
 
@@ -165,11 +165,11 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    * flag accordingly.
    *
    * @param entry the object representing the entity whose organizer is being checked
-   * @param user the user whose role is being verified as the organizer of the entity
+   * @param member the user whose role is being verified as the organizer of the entity
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final HasOrganizer entry, final FleenUser user) {
-    if (nonNull(entry) && nonNull(user) && nonNull(user.getId())) {
-      final boolean isOrganizer = entry.getOrganizerId().equals(user.getId());
+  public static void determineIfUserIsTheOrganizerOfEntity(final HasOrganizer entry, final Member member) {
+    if (nonNull(entry) && nonNull(member) && nonNull(member.getMemberId())) {
+      final boolean isOrganizer = entry.getOrganizerId().equals(member.getMemberId());
       entry.setIsOrganizer(isOrganizer);
     }
   }

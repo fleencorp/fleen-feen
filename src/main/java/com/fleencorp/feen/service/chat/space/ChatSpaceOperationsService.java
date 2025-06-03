@@ -19,19 +19,16 @@ public interface ChatSpaceOperationsService {
     Collection<ChatSpaceStatus> activeStatuses,
     Pageable pageable);
 
+  Page<ChatSpace> findCommonChatSpaces(
+    Member memberA,
+    Member memberB,
+    Pageable pageable);
+
   Page<ChatSpace> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate, ChatSpaceStatus status, Pageable pageable);
 
   Page<ChatSpace> findByTitle(String title, ChatSpaceStatus status, Pageable pageable);
 
   Page<ChatSpace> findMany(ChatSpaceStatus status, Pageable pageable);
-
-  void incrementTotalMembers(Long chatSpaceId);
-
-  void decrementTotalMembers(Long chatSpaceId);
-
-  int incrementAndGetLikeCount(Long chatSpaceId);
-
-  int decrementAndGetLikeCount(Long chatSpaceId);
 
   Page<ChatSpace> findByDateBetweenForUser(LocalDateTime startDate, LocalDateTime endDate, Member member, Pageable pageable);
 

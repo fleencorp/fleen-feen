@@ -100,7 +100,7 @@ public interface StreamOperationsService {
 
   boolean existsByAttendees(Long memberId, Long targetMemberId);
 
-  void processOtherStreamDetails(Collection<StreamResponse> streamResponses, FleenUser user);
+  void processOtherStreamDetails(Collection<StreamResponse> streamResponses, Member member);
 
   void setStreamAttendeesAndTotalAttendeesAttending(StreamResponse streamResponse);
 
