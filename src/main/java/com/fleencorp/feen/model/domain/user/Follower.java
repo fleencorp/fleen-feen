@@ -42,6 +42,10 @@ public class Follower extends FleenFeenEntity {
     return nonNull(following) ? following.getFullName() : null;
   }
 
+  public String getFollowedName() {
+    return nonNull(followed) ? followed.getFullName() : null;
+  }
+
   public static Follower of(final Member following, final Member followed) {
     final Follower follower = new Follower();
     follower.setFollowing(following);

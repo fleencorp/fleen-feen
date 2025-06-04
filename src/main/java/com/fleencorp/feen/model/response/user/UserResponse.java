@@ -43,8 +43,9 @@ public class UserResponse {
   @JsonProperty("is_followed_info")
   private IsFollowedInfo isFollowedInfo;
 
-  public static UserResponse of(final String username, final String fullName, final String profilePhotoUrl) {
+  public static UserResponse of(final Long userId, final String username, final String fullName, final String profilePhotoUrl) {
     final UserResponse userResponse = new UserResponse();
+    userResponse.setUserId(userId);
     userResponse.setUsername(username);
     userResponse.setFullName(fullName);
     userResponse.setProfilePhotoUrl(profilePhotoUrl);

@@ -131,7 +131,11 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @param userProfileResponse the response object to populate with profile information
    */
   protected void setProfileDetails(final Member targetMember, final UserProfileResponse userProfileResponse) {
-    final UserResponse userResponse = UserResponse.of(targetMember.getUsername(), targetMember.getFullName(), targetMember.getProfilePhotoUrl());
+    final UserResponse userResponse = UserResponse.of(
+      targetMember.getMemberId(),
+      targetMember.getUsername(),
+      targetMember.getFullName(),
+      targetMember.getProfilePhotoUrl());
     userProfileResponse.setUser(userResponse);
   }
 
@@ -235,8 +239,8 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     final SearchResult mutualChatSpaceMembershipSearchResultView = toSearchResult(mutualChatSpaceMembershipResponses, mutualChatSpaceMemberships);
 
     final UserCreatedStreamsSearchResult userCreatedStreamsSearchResult = UserCreatedStreamsSearchResult.of(userCreatedStreamsSearchResultView, targetUserFullName);
-    final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(mutualStreamAttendanceSearchResultView, targetUserFullName);
     final MutualChatSpaceMembershipSearchResult mutualChatSpaceMembershipSearchResult = MutualChatSpaceMembershipSearchResult.of(mutualChatSpaceMembershipSearchResultView, targetUserFullName);
+    final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(mutualStreamAttendanceSearchResultView, targetUserFullName);
 
     localizer.of(userCreatedStreamsSearchResult);
     localizer.of(mutualStreamAttendanceSearchResult);
