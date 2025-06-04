@@ -18,6 +18,7 @@ import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.link.base.LinkResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
+import com.fleencorp.feen.model.search.chat.space.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -27,6 +28,7 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.link.LinkService;
+import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -64,6 +66,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   private final ChatSpaceService chatSpaceService;
   private final LikeService likeService;
   private final LinkService linkService;
+  private final MemberService memberService;
   private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
 
@@ -77,6 +80,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceService the core service for managing chat space entities
    * @param likeService the service for handling like interactions on chat spaces
    * @param linkService the service for managing links associated with chat spaces
+   * @param memberService the service for managing members
    * @param unifiedMapper the utility for mapping between domain models and DTOs
    * @param localizer the component used for resolving localized messages
    */
@@ -86,6 +90,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final ChatSpaceService chatSpaceService,
       final LikeService likeService,
       final LinkService linkService,
+      MemberService memberService,
       final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
@@ -93,6 +98,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     this.chatSpaceService = chatSpaceService;
     this.likeService = likeService;
     this.linkService = linkService;
+    this.memberService = memberService;
     this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
   }
@@ -237,15 +243,17 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   }
 
   @Override
-  public ChatSpaceSearchResult findChatSpacesMembershipWithAnotherUser(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public MutualChatSpaceMembershipSearchResult findChatSpacesMembershipWithAnotherUser(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
     Page<ChatSpace> page = new PageImpl<>(List.of());
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
-    final Member anotherMember = searchRequest.getAnotherUser();
+    Member targetMember = searchRequest.getAnotherUser();
+    // Find the target member
+    targetMember = memberService.findMember(targetMember.getMemberId());
 
     if (searchRequest.hasAnotherUser()) {
       // Retrieve streams attended together by the current user and another user
-      page = chatSpaceOperationsService.findCommonChatSpaces(member, anotherMember, pageable);
+      page = chatSpaceOperationsService.findCommonChatSpaces(member, targetMember, pageable);
     }
 
     final List<ChatSpaceResponse> chatSpaceResponses = unifiedMapper.toChatSpaceResponses(page.getContent());
@@ -254,9 +262,9 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Create the search result
     final SearchResult searchResult = toSearchResult(chatSpaceResponses, page);
     // Create the search result
-    final ChatSpaceSearchResult chatSpaceSearchResult = ChatSpaceSearchResult.of(searchResult);
+    MutualChatSpaceMembershipSearchResult mutualChatSpaceMembershipSearchResult = MutualChatSpaceMembershipSearchResult.of(searchResult, targetMember.getFullName());
     // Return a search result with the responses and pagination details
-    return localizer.of(chatSpaceSearchResult);
+    return localizer.of(mutualChatSpaceMembershipSearchResult);
   }
 
 

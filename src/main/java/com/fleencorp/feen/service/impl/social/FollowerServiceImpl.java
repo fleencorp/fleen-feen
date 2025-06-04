@@ -315,19 +315,22 @@ public class FollowerServiceImpl implements FollowerService {
   public FollowUserResponse followUser(final FollowOrUnfollowUserDto followUserDto, final FleenUser user) {
     // Prepare parameters
     final Member member = user.toMember();
-    final Long targetMemberId = followUserDto.getMemberId();
-
     // Create a Member object for the user to be followed
-    final Member followed = followUserDto.getMember();
+    final Member targetMember = followUserDto.getMember();
+
     // Verify user cannot follow itself
-    verifyUserCannotFollowOrUnfollowSelf(targetMemberId, user.getId());
+    verifyUserCannotFollowOrUnfollowSelf(targetMember.getMemberId(), user.getId());
     // Verify following and other details
-    verifyFollowing(followed, member);
+    final Follower followedMember = verifyFollowing(targetMember, member);
+    // target member name
+    final String targetMemberFullName = followedMember.getFollowedName();
 
     // Create the info
-    final IsFollowingInfo isFollowingInfo = toInfoMapper.toIsFollowingInfo(true, followed.getFullName());
+    final IsFollowingInfo isFollowingInfo = toInfoMapper.toIsFollowingInfo(true, targetMemberFullName);
     // Create the response
     final FollowUserResponse followUserResponse = FollowUserResponse.of(isFollowingInfo);
+    // Set the follow stat
+    setFollowerDetails(targetMember, followUserResponse);
     // Return a response indicating the follow operation was successful
     return localizer.of(followUserResponse);
   }
@@ -342,22 +345,22 @@ public class FollowerServiceImpl implements FollowerService {
    * @param followed the member who is being followed
    * @param following the member who is initiating the follow
    */
-  private void verifyFollowing(final Member followed, final Member following) {
+  private Follower verifyFollowing(final Member followed, final Member following) {
     // Check if the follower is already following the followed user
-    followerRepository.findByFollowingAndFollowed(following, followed)
-      .ifPresentOrElse(
-        // If already following, do nothing
-        _ -> {},
+    return followerRepository.findByFollowingAndFollowed(following, followed)
+      .orElseGet(() -> {
         // If not already following, create and save a new Follower entity
-        () -> {
-          final Follower newFollower = Follower.of(following, followed);
-          followerRepository.save(newFollower);
+        final Follower newFollower = Follower.of(following, followed);
+        followerRepository.save(newFollower);
 
-          // Create and save notification
-          final Notification notification = notificationMessageService.ofFollowing(newFollower, followed);
-          notificationService.save(notification);
-    });
+        // Create and save notification
+        final Notification notification = notificationMessageService.ofFollowing(newFollower, followed);
+        notificationService.save(notification);
+
+        return newFollower;
+      });
   }
+
 
   /**
    * Handles the process of a user unfollowing another user.
