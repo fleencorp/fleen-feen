@@ -24,7 +24,7 @@ import static com.fleencorp.feen.constant.stream.StreamVisibility.PUBLIC;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateInstantCalendarEventDto {
+public class CreateInstantEventDto {
 
   @NotBlank(message = "{stream.title.NotBlank}")
   @Size(min = 10, max = 500, message = "{stream.title.Size}")

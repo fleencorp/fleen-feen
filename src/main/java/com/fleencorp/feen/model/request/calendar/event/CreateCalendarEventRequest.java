@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.request.calendar.event;
 
 import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
 import lombok.*;
 
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fleencorp.feen.constant.external.google.calendar.event.EventMetaDataKeys.TAGS;
-import static com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import static com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -67,7 +67,7 @@ public class CreateCalendarEventRequest {
     return nonNull(attendeeOrGuestEmailAddresses) ? attendeeOrGuestEmailAddresses : new ArrayList<>();
   }
 
-  public static CreateCalendarEventRequest by(final CreateCalendarEventDto dto) {
+  public static CreateCalendarEventRequest by(final CreateEventDto dto) {
     final CreateCalendarEventRequest createCalendarEventRequest = bySuper(dto);
     createCalendarEventRequest.setAttendeeOrGuestEmailAddresses(dto.getEventAttendeesOrGuests());
     return createCalendarEventRequest;

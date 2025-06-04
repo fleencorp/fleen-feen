@@ -90,7 +90,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final ChatSpaceService chatSpaceService,
       final LikeService likeService,
       final LinkService linkService,
-      MemberService memberService,
+      final MemberService memberService,
       final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.chatSpaceMemberOperationsService = chatSpaceMemberOperationsService;
@@ -262,7 +262,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
     // Create the search result
     final SearchResult searchResult = toSearchResult(chatSpaceResponses, page);
     // Create the search result
-    MutualChatSpaceMembershipSearchResult mutualChatSpaceMembershipSearchResult = MutualChatSpaceMembershipSearchResult.of(searchResult, targetMember.getFullName());
+    final MutualChatSpaceMembershipSearchResult mutualChatSpaceMembershipSearchResult = MutualChatSpaceMembershipSearchResult.of(searchResult, targetMember.getFullName());
     // Return a search result with the responses and pagination details
     return localizer.of(mutualChatSpaceMembershipSearchResult);
   }

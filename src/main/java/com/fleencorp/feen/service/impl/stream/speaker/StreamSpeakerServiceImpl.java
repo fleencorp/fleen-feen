@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
 import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;

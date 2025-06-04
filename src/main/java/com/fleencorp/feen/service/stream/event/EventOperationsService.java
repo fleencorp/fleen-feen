@@ -10,8 +10,8 @@ import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
@@ -22,9 +22,9 @@ public interface EventOperationsService {
 
   DataForCreateEventResponse getDataForCreateEvent();
 
-  CreateStreamResponse createEvent(CreateCalendarEventDto createEventDto, FleenUser user) throws CalendarNotFoundException;
+  CreateStreamResponse createEvent(CreateEventDto createEventDto, FleenUser user) throws CalendarNotFoundException;
 
-  CreateStreamResponse createInstantEvent(CreateInstantCalendarEventDto createInstantEventDto, FleenUser user) throws CalendarNotFoundException;
+  CreateStreamResponse createInstantEvent(CreateInstantEventDto createInstantEventDto, FleenUser user) throws CalendarNotFoundException;
 
   void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(String calendarExternalId, FleenStream stream, StreamVisibility previousStreamVisibility)
     throws FailedOperationException;
