@@ -24,7 +24,7 @@ import static com.fleencorp.feen.constant.stream.StreamType.EVENT;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCalendarEventDto extends CreateStreamDto {
+public class CreateEventDto extends CreateStreamDto {
 
   @Valid
   @NotNull(message = "{event.eventAttendeesOrGuests.NotNull}")

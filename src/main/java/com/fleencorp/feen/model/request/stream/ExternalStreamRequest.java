@@ -6,8 +6,8 @@ import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
@@ -18,7 +18,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
+import static com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 
 /**
  * Represents a request for managing external streams such as live broadcasts,
@@ -75,9 +75,9 @@ public class ExternalStreamRequest {
   private String timezone;
   private LocalDateTime startDateTime;
   private LocalDateTime endDateTime;
-  private CreateCalendarEventDto createEventDto;
+  private CreateEventDto createEventDto;
   private CreateLiveBroadcastDto createLiveBroadcastDto;
-  private CreateInstantCalendarEventDto createInstantEventDto;
+  private CreateInstantEventDto createInstantEventDto;
   private JoinStreamDto joinStreamDto;
   private ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto;
   private String attendeeEmailAddress;
@@ -157,7 +157,7 @@ public class ExternalStreamRequest {
     return request;
   }
 
-  public static ExternalStreamRequest ofCreateEvent(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final StreamType streamType, final CreateCalendarEventDto createEventDto) {
+  public static ExternalStreamRequest ofCreateEvent(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final StreamType streamType, final CreateEventDto createEventDto) {
     final ExternalStreamRequest request = of(calendar, stream, streamType);
     request.setAttendeeOrGuest(attendeeOrGuest);
     request.setAttendeeEmailAddress(userEmailAddress);
@@ -166,7 +166,7 @@ public class ExternalStreamRequest {
     return request;
   }
 
-  public static ExternalStreamRequest ofCreateInstantEvent(final Calendar calendar, final FleenStream stream, final StreamType streamType, final CreateInstantCalendarEventDto createInstantEventDto) {
+  public static ExternalStreamRequest ofCreateInstantEvent(final Calendar calendar, final FleenStream stream, final StreamType streamType, final CreateInstantEventDto createInstantEventDto) {
     final ExternalStreamRequest request = of(calendar, stream, streamType);
     request.setCreateInstantEventDto(createInstantEventDto);
     request.setRequestType(ExternalStreamRequestType.createInstantEvent());

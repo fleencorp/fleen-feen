@@ -3,8 +3,8 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
@@ -71,10 +71,10 @@ public class CreateStreamController {
   @PostMapping(value = "/event/create")
   public CreateStreamResponse createEvent(
       @Parameter(description = "Event details for creation", required = true)
-        @Valid @RequestBody final CreateCalendarEventDto createCalendarEventDto,
+        @Valid @RequestBody final CreateEventDto createEventDto,
       @Parameter(hidden = true)
         @AuthenticationPrincipal final FleenUser user) {
-    return eventOperationsService.createEvent(createCalendarEventDto, user);
+    return eventOperationsService.createEvent(createEventDto, user);
   }
 
   @Operation(summary = "Create an instant event",
@@ -91,10 +91,10 @@ public class CreateStreamController {
   @PostMapping(value = "/event/create/instant")
   public CreateStreamResponse createInstantEvent(
       @Parameter(description = "Instant event details for creation", required = true)
-        @Valid @RequestBody final CreateInstantCalendarEventDto createInstantCalendarEventDto,
+        @Valid @RequestBody final CreateInstantEventDto createInstantEventDto,
       @Parameter(hidden = true)
         @AuthenticationPrincipal final FleenUser user) {
-    return eventOperationsService.createInstantEvent(createInstantCalendarEventDto, user);
+    return eventOperationsService.createInstantEvent(createInstantEventDto, user);
   }
 
   @Operation(summary = "Get required data for live broadcast creation",

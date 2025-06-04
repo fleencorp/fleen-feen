@@ -4,7 +4,7 @@ import com.fleencorp.feen.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventAttendeeDecisionToJoin;
 import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeesRequest;
 import com.fleencorp.feen.model.request.calendar.event.NotAttendingEventRequest;
@@ -271,7 +271,7 @@ public class GoogleCalendarAttendeeServiceImpl implements GoogleCalendarAttendee
    * @param attendeeOrGuests a list of details of attendees or guests including email address and alias
    * @return a list of {@link EventAttendee} objects representing the attendees or guests
    */
-  public static List<EventAttendee> addOrInviteAttendeesOrGuests(final List<CreateCalendarEventDto.EventAttendeeOrGuest> attendeeOrGuests) {
+  public static List<EventAttendee> addOrInviteAttendeesOrGuests(final List<CreateEventDto.EventAttendeeOrGuest> attendeeOrGuests) {
     final List<EventAttendee> attendees = new ArrayList<>();
     if (nonNull(attendeeOrGuests)) {
       attendeeOrGuests.stream()
@@ -308,7 +308,7 @@ public class GoogleCalendarAttendeeServiceImpl implements GoogleCalendarAttendee
    * @param attendeeOrGuest the source data containing attendee or guest information.
    * @param attendee the {@link EventAttendee} object to be updated.
    */
-  private static void updateAttendeeBasicInfo(final CreateCalendarEventDto.EventAttendeeOrGuest attendeeOrGuest, final EventAttendee attendee) {
+  private static void updateAttendeeBasicInfo(final CreateEventDto.EventAttendeeOrGuest attendeeOrGuest, final EventAttendee attendee) {
     if (nonNull(attendeeOrGuest) && nonNull(attendee)) {
       // Set the display name from the attendee or guest data
       attendee.setDisplayName(attendeeOrGuest.getAliasOrDisplayName());

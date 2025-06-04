@@ -8,9 +8,9 @@ import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto.EventAttendeeOrGuest;
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
@@ -119,7 +119,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public CreateStreamResponse createEvent(final CreateCalendarEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Set event organizer as attendee in Google calendar
@@ -168,7 +168,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param createEventDto the DTO containing event details such as title and description
    * @return a {@link ExternalStreamRequest} instance with the provided stream details
    */
-  protected ExternalStreamRequest createAndBuildStreamRequest(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final CreateCalendarEventDto createEventDto) {
+  protected ExternalStreamRequest createAndBuildStreamRequest(final Calendar calendar, final FleenStream stream, final EventAttendeeOrGuest attendeeOrGuest, final String userEmailAddress, final CreateEventDto createEventDto) {
     return ExternalStreamRequest.ofCreateEvent(
       calendar,
       stream,
@@ -222,7 +222,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public CreateStreamResponse createInstantEvent(final CreateInstantCalendarEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Create a Stream object from the DTO and update its details with the Google Calendar response

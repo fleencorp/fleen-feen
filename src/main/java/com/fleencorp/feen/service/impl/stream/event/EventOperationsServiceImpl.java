@@ -10,8 +10,8 @@ import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
-import com.fleencorp.feen.model.dto.event.CreateCalendarEventDto;
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
@@ -49,12 +49,12 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public CreateStreamResponse createEvent(final CreateCalendarEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
     return eventService.createEvent(createEventDto, user);
   }
 
   @Override
-  public CreateStreamResponse createInstantEvent(final CreateInstantCalendarEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
     return eventService.createInstantEvent(createInstantEventDto, user);
   }
 

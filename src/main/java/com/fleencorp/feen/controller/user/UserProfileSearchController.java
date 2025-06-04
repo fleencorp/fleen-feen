@@ -33,8 +33,8 @@ public class UserProfileSearchController {
   private final ChatSpaceSearchService chatSpaceSearchService;
 
   public UserProfileSearchController(
-      StreamSearchService streamSearchService,
-      ChatSpaceSearchService chatSpaceSearchService) {
+      final StreamSearchService streamSearchService,
+      final ChatSpaceSearchService chatSpaceSearchService) {
     this.streamSearchService = streamSearchService;
     this.chatSpaceSearchService = chatSpaceSearchService;
   }

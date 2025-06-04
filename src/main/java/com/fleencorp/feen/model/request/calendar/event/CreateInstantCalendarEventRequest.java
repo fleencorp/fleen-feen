@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.request.calendar.event;
 
-import com.fleencorp.feen.model.dto.event.CreateInstantCalendarEventDto;
+import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import lombok.*;
 
 @Builder
@@ -14,7 +14,7 @@ public class CreateInstantCalendarEventRequest {
   private String title;
   private Boolean sendNotifications;
 
-  public static CreateInstantCalendarEventRequest by(final CreateInstantCalendarEventDto createInstantEventDto) {
+  public static CreateInstantCalendarEventRequest by(final CreateInstantEventDto createInstantEventDto) {
     return new CreateInstantCalendarEventRequest(null, createInstantEventDto.getTitle(), true);
   }
 
