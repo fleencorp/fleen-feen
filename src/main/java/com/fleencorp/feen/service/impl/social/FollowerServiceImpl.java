@@ -84,6 +84,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @return a paginated result containing a list of UserResponse representing the followers
    */
   @Override
+  @Transactional(readOnly = true)
   public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final FleenUser user) {
     // Prepare parameters
     final Member member = user.toMember();
@@ -194,6 +195,7 @@ public class FollowerServiceImpl implements FollowerService {
    * @return a paginated result containing the list of users followed by the given follower
    */
   @Override
+  @Transactional(readOnly = true)
   public FollowingSearchResult getFollowings(final SearchRequest searchRequest, final FleenUser user) {
     // Prepare parameters
     final Member member = user.toMember();
