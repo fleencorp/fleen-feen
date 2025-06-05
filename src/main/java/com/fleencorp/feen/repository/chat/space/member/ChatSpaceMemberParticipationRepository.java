@@ -22,6 +22,6 @@ public interface ChatSpaceMemberParticipationRepository extends JpaRepository<Ch
         GROUP BY csm.chatSpace.chatSpaceId
         HAVING COUNT(csm.memberId) = 2
     """)
-  boolean existsByMembers(@Param("memberId") Long memberId, @Param("targetMemberId") Long targetMemberId);
+  Boolean existsByMembers(@Param("memberId") Long memberId, @Param("targetMemberId") Long targetMemberId);
 
 }

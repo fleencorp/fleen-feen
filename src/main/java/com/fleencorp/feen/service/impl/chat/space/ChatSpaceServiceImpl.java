@@ -513,7 +513,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @return {@code true} if both members are participants in the same chat space, {@code false} otherwise
    */
   @Override
-  public boolean existsByMembers(final Member viewer, final Member target) {
+  public Boolean existsByMembers(final Member viewer, final Member target) {
     return chatSpaceMemberOperationsService.existsByMembers(viewer.getMemberId(), target.getMemberId());
   }
 

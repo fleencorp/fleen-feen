@@ -123,13 +123,15 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   @Override
   @Transactional
   public int incrementAndGetLikeCount(final Long streamId) {
-    return streamManagementRepository.incrementAndGetLikeCount(streamId);
+    streamManagementRepository.incrementAndGetLikeCount(streamId);
+    return streamManagementRepository.getLikeCount(streamId);
   }
 
   @Override
   @Transactional
   public int decrementAndGetLikeCount(final Long streamId) {
-    return streamManagementRepository.decrementAndGetLikeCount(streamId);
+    streamManagementRepository.decrementAndGetLikeCount(streamId);
+    return streamManagementRepository.getLikeCount(streamId);
   }
 
   @Override

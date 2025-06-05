@@ -494,6 +494,8 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
       final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap = getUserMembershipDetailsMap(chatSpacesResponses, user);
       // Set likes for chat space where user has no membership
       likeService.populateChatSpaceLikesForNonMembership(chatSpacesResponses, membershipDetailsMap, user.toMember());
+      // Set likes for chat space where user has membership
+      likeService.populateChatSpaceLikesForMembership(chatSpacesResponses, membershipDetailsMap, user.toMember());
       // Process each non-null chat space response
       chatSpacesResponses.stream()
         .filter(Objects::nonNull)

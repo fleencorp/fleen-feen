@@ -142,7 +142,7 @@ public class ChatSpaceMemberOperationsServiceImpl implements ChatSpaceMemberOper
   }
 
   @Override
-  public boolean existsByMembers(final Long memberId, final Long targetMemberId) {
-    return chatSpaceMemberParticipationRepository.existsByMembers(memberId, targetMemberId);
+  public Boolean existsByMembers(final Long memberId, final Long targetMemberId) {
+    return Boolean.TRUE.equals(chatSpaceMemberParticipationRepository.existsByMembers(memberId, targetMemberId));
   }
 }

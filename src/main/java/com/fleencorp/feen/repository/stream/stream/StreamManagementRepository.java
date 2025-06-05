@@ -17,10 +17,13 @@ public interface StreamManagementRepository extends JpaRepository<FleenStream, L
   void decrementTotalAttendees(@Param("id") Long streamId);
 
   @Modifying
-  @Query(value = "UPDATE stream SET like_count = like_count + 1 WHERE stream_id = :streamId RETURNING like_count", nativeQuery = true)
-  Integer incrementAndGetLikeCount(@Param("streamId") Long streamId);
+  @Query(value = "UPDATE stream SET like_count = like_count + 1 WHERE stream_id = :streamId", nativeQuery = true)
+  void incrementAndGetLikeCount(@Param("streamId") Long streamId);
 
   @Modifying
-  @Query(value = "UPDATE stream SET like_count = like_count - 1 WHERE stream_id = :streamId RETURNING like_count", nativeQuery = true)
-  Integer decrementAndGetLikeCount(@Param("streamId") Long streamId);
+  @Query(value = "UPDATE stream SET like_count = like_count - 1 WHERE stream_id = :streamId", nativeQuery = true)
+  void decrementAndGetLikeCount(@Param("streamId") Long streamId);
+
+  @Query(value = "SELECT like_count FROM stream WHERE stream_id = :streamId", nativeQuery = true)
+  Integer getLikeCount(@Param("streamId") Long streamId);
 }
