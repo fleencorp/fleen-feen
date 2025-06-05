@@ -19,7 +19,11 @@ public interface LikeService {
 
   <T extends Likeable> void populateChatSpaceLikesForNonMembership(Collection<T> responses, Map<Long, ?> membershipMap, Member member);
 
+  <T extends Likeable> void populateChatSpaceLikesForMembership(Collection<T> responses, Map<Long, ?> membershipMap, Member member);
+
   <T extends Likeable> void populateStreamLikesForNonAttendance(Collection<T> responses, Map<Long, ?> membershipMap, Member member);
+
+  <T extends Likeable> void populateStreamLikesForAttendance(Collection<T> responses, Map<Long, ?> membershipMap, Member member);
 
   void populateLikesForReviews(Collection<ReviewResponse> reviewResponses, Member member);
 }

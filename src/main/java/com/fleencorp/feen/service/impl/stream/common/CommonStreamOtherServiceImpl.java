@@ -61,6 +61,8 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
 
       // Populate like status for streams where the user has not joined or requested to join
       likeService.populateStreamLikesForNonAttendance(streamResponses, attendanceDetailsMap, member);
+      // Populate like status for streams where the user has joined or requested to join
+      likeService.populateStreamLikesForAttendance(streamResponses, attendanceDetailsMap, member);
 
       // Process each stream response with detailed enrichment
       streamResponses.stream()

@@ -58,5 +58,5 @@ public interface ChatSpaceMemberOperationsService {
 
   ChatSpaceMember save(ChatSpaceMember chatSpaceMember);
 
-  boolean existsByMembers(Long memberId, Long targetMemberId);
+  Boolean existsByMembers(Long memberId, Long targetMemberId);
 }

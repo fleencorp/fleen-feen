@@ -217,6 +217,24 @@ public class LikeServiceImpl implements LikeService {
     populateLikesForNonMembership(responses, membershipMap, member, LikeParentType.CHAT_SPACE);
   }
 
+
+  /**
+   * Populates like information for chat space-related responses that the member is associated with through membership.
+   *
+   * <p>This delegates to {@code populateLikesForMembership}, targeting entities of type {@code CHAT_SPACE}.
+   * It filters the provided {@code responses} to those present in the {@code membershipMap}, retrieves the like status
+   * for the given {@code member}, and updates the responses accordingly.</p>
+   *
+   * @param responses      a collection of chat space-related responses implementing {@link Likeable}
+   * @param membershipMap  a map of chat space IDs the member is a participant of
+   * @param member         the member whose like data should be applied
+   * @param <T>            a type that extends {@link Likeable}
+   */
+  @Override
+  public <T extends Likeable> void populateChatSpaceLikesForMembership(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member) {
+    populateLikesForMembership(responses, membershipMap, member, LikeParentType.CHAT_SPACE);
+  }
+
   /**
    * Populates like information on stream responses for streams where the given member is not an attendee.
    *
@@ -231,6 +249,23 @@ public class LikeServiceImpl implements LikeService {
   @Override
   public <T extends Likeable> void populateStreamLikesForNonAttendance(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member) {
     populateLikesForNonMembership(responses, membershipMap, member, LikeParentType.STREAM);
+  }
+
+  /**
+   * Populates like information for stream-related responses that the member is attending.
+   *
+   * <p>This delegates to {@code populateLikesForMembership}, targeting only entities of type {@code STREAM}.
+   * It filters the provided {@code responses} to those present in the {@code membershipMap}, retrieves the like status
+   * for the given {@code member}, and updates the responses accordingly.</p>
+   *
+   * @param responses      a collection of stream-related responses implementing {@link Likeable}
+   * @param membershipMap  a map of stream IDs the member is attending
+   * @param member         the member whose like data should be applied
+   * @param <T>            a type that extends {@link Likeable}
+   */
+  @Override
+  public <T extends Likeable> void populateStreamLikesForAttendance(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member) {
+    populateLikesForMembership(responses, membershipMap, member, LikeParentType.STREAM);
   }
 
   /**
@@ -276,6 +311,34 @@ public class LikeServiceImpl implements LikeService {
     final List<Long> nonMembershipForEntitiesIds = responses.stream()
       .map(Likeable::getNumberId)
       .filter(id -> !membershipMap.containsKey(id))
+      .toList();
+
+    // Only proceed if there are non-member responses
+    if (!nonMembershipForEntitiesIds.isEmpty()) {
+      final Map<Long, UserLikeInfoSelect> likeInfoMap = findLikesByParentIdsAndMember(nonMembershipForEntitiesIds, member, parentType);
+      // Populate each response with the corresponding like information
+      setUserInfo(responses, likeInfoMap);
+    }
+  }
+
+  /**
+   * Populates like information for responses that are associated with the given member's memberships.
+   *
+   * <p>This method filters the provided {@code responses} to only those whose IDs exist in the {@code membershipMap}.
+   * It then retrieves the like status of these entities by the given {@code member}, using the specified {@code parentType},
+   * and updates the responses with the corresponding like information.</p>
+   *
+   * @param responses      a collection of responses implementing {@link Likeable}, each representing an entity that may be liked
+   * @param membershipMap  a map whose keys are the IDs of entities the member is associated with (i.e., has membership in)
+   * @param member         the member whose like data should be retrieved
+   * @param parentType     the type of the parent entity (used to filter like records)
+   * @param <T>            a type that extends {@link Likeable}
+   */
+  protected <T extends Likeable> void populateLikesForMembership(final Collection<T> responses, final Map<Long, ?> membershipMap, final Member member, final LikeParentType parentType) {
+    // Get IDs of responses that are present in the membership map
+    final List<Long> nonMembershipForEntitiesIds = responses.stream()
+      .map(Likeable::getNumberId)
+      .filter(membershipMap::containsKey)
       .toList();
 
     // Only proceed if there are non-member responses
