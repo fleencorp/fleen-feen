@@ -50,8 +50,9 @@ public class FollowerMapperImpl extends BaseMapper implements FollowerMapper {
   public UserResponse toFollowerResponse(final Follower entry) {
     if (nonNull(entry)) {
       final UserResponse userResponse = new UserResponse();
-      userResponse.setUserId(entry.getFollowed().getMemberId());
-      userResponse.setFullName(entry.getFollowed().getFullName());
+      userResponse.setUserId(entry.getFollowing().getMemberId());
+      userResponse.setFullName(entry.getFollowing().getFullName());
+      userResponse.setUsername(entry.getFollowing().getUsername());
 
       setDefaultFollowerAndFollowingInfo(userResponse);
 
@@ -74,8 +75,9 @@ public class FollowerMapperImpl extends BaseMapper implements FollowerMapper {
   public UserResponse toFollowingResponse(final Follower entry) {
     if (nonNull(entry)) {
       final UserResponse userResponse = new UserResponse();
-      userResponse.setUserId(entry.getFollowing().getMemberId());
-      userResponse.setFullName(entry.getFollowing().getFullName());
+      userResponse.setUserId(entry.getFollowed().getMemberId());
+      userResponse.setFullName(entry.getFollowed().getFullName());
+      userResponse.setUsername(entry.getFollowed().getUsername());
 
       setDefaultFollowerAndFollowingInfo(userResponse);
 

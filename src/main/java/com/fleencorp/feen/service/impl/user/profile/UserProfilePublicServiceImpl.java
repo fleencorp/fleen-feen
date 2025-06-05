@@ -121,7 +121,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     setFollowerInfoDetails(targetMember, userProfileResponse);
     setInfoDetails(member, targetMember, userProfileResponse);
     findAndSetSearchResultDetails(member, targetMember, userProfileResponse);
-    findAndSetFollowSearchResultDetails(member, userProfileResponse);
+    findAndSetFollowSearchResultDetails(targetMember, userProfileResponse);
 
     return localizer.of(userProfileResponse);
   }
