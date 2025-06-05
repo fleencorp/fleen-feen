@@ -91,10 +91,7 @@ public class LikeServiceImpl implements LikeService {
     final Member member = user.toMember();
 
     final LikeOtherDetailsHolder detailsHolder = retrieveLikeOtherDetailsHolder(parentType, parentId);
-    final FleenStream stream = detailsHolder.stream();
-    final ChatSpace chatSpace = detailsHolder.chatSpace();
-
-    final Like like = createOrUpdateLike(likeDto, parentId, parentType, member, stream, chatSpace);
+    final Like like = createOrUpdateLike(likeDto, parentId, parentType, member, detailsHolder);
 
     likeRepository.save(like);
 
@@ -102,7 +99,7 @@ public class LikeServiceImpl implements LikeService {
     final Long total = updateLikeCount(parentId, parentType, likeDto.getLikeType());
     final UserLikeInfo userLikeInfo = unifiedMapper.toLikeInfo(liked);
 
-    return LikeResponse.of(total, like.getParentId(), like.getParentTitle(), userLikeInfo);
+    return LikeResponse.of(like.getParentId(), like.getParentTitle(), total, userLikeInfo);
   }
 
   /**
@@ -115,11 +112,13 @@ public class LikeServiceImpl implements LikeService {
    * @param parentId   the ID of the parent entity being liked
    * @param parentType the type of the parent entity (e.g., STREAM or CHAT_SPACE)
    * @param member     the member performing the like action
-   * @param stream     the stream entity if the parent type is STREAM; otherwise {@code null}
-   * @param chatSpace  the chat space entity if the parent type is CHAT_SPACE; otherwise {@code null}
+   * @param detailsHolder     the detail holder that can contain a stream and chat space
    * @return the created or updated {@link Like} entity
    */
-  protected Like createOrUpdateLike(final LikeDto likeDto, final Long parentId, final LikeParentType parentType, final Member member, final FleenStream stream, final ChatSpace chatSpace) {
+  protected Like createOrUpdateLike(final LikeDto likeDto, final Long parentId, final LikeParentType parentType, final Member member, final LikeOtherDetailsHolder detailsHolder) {
+    final FleenStream stream = detailsHolder.stream();
+    final ChatSpace chatSpace = detailsHolder.chatSpace();
+
     return findLikeByParent(parentId, parentType, member)
       .map(existingLike -> {
         existingLike.setLikeType(likeDto.getLikeType());
@@ -166,21 +165,15 @@ public class LikeServiceImpl implements LikeService {
     checkIsNull(parentId, FailedOperationException::new);
 
     if (LikeParentType.isStream(likeParentType)) {
-      return LikeType.isLike(likeType)
-        ? streamOperationsService.incrementLikeCount(parentId)
-        : streamOperationsService.decrementLikeCount(parentId);
+      return LikeType.isLike(likeType) ? streamOperationsService.incrementLikeCount(parentId) : streamOperationsService.decrementLikeCount(parentId);
     }
 
     if (LikeParentType.isChatSpace(likeParentType)) {
-      return LikeType.isLike(likeType)
-        ? chatSpaceService.incrementLikeCount(parentId)
-        : chatSpaceService.decrementLikeCount(parentId);
+      return LikeType.isLike(likeType) ? chatSpaceService.incrementLikeCount(parentId) : chatSpaceService.decrementLikeCount(parentId);
     }
 
     if (LikeParentType.isReview(likeParentType)) {
-      return LikeType.isLike(likeType)
-        ? reviewService.incrementLikeCount(parentId)
-        : reviewService.decrementLikeCount(parentId);
+      return LikeType.isLike(likeType) ? reviewService.incrementLikeCount(parentId) : reviewService.decrementLikeCount(parentId);
     }
 
     throw FailedOperationException.of();

@@ -32,7 +32,7 @@ public class LikeDto {
   private String likeParentType;
 
   @NotNull(message = "{like.type.NotNull}")
-  @OneOf(enumClass = LikeParentType.class, message = "{like.type.Type}")
+  @OneOf(enumClass = LikeType.class, message = "{like.type.Type}")
   @JsonProperty("like_type")
   private String likeType;
 
