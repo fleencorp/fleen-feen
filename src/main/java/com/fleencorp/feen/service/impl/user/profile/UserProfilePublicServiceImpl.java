@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.user.profile;
 
+import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
@@ -19,6 +20,8 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.user.UserResponse;
 import com.fleencorp.feen.model.response.user.profile.UserProfileResponse;
 import com.fleencorp.feen.model.search.chat.space.mutual.MutualChatSpaceMembershipSearchResult;
+import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
+import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
 import com.fleencorp.feen.model.security.FleenUser;
@@ -118,6 +121,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     setFollowerInfoDetails(targetMember, userProfileResponse);
     setInfoDetails(member, targetMember, userProfileResponse);
     findAndSetSearchResultDetails(member, targetMember, userProfileResponse);
+    findAndSetFollowSearchResultDetails(member, userProfileResponse);
 
     return localizer.of(userProfileResponse);
   }
@@ -249,6 +253,29 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     userProfileResponse.setMutualChatSpaceMembershipSearchResult(mutualChatSpaceMembershipSearchResult);
     userProfileResponse.setMutualStreamAttendanceSearchResult(mutualStreamAttendanceSearchResult);
     userProfileResponse.setUserCreatedStreamsSearchResult(userCreatedStreamsSearchResult);
+  }
+
+  /**
+   * Finds and sets follower and following search result details for the given member, and attaches them to the user profile response.
+   *
+   * <p>This method initializes a new {@link SearchRequest} and retrieves both followers and followings of the given {@code member}.
+   * The results are localized and then set on the provided {@code userProfileResponse}.</p>
+   *
+   * @param member               the member whose follower and following data is being retrieved
+   * @param userProfileResponse  the response object to populate with follower and following search results
+   */
+  protected void findAndSetFollowSearchResultDetails(final Member member, final UserProfileResponse userProfileResponse) {
+    final SearchRequest searchRequest = new SearchRequest();
+    final FleenUser user = FleenUser.of(member.getMemberId());
+
+    final FollowerSearchResult followerSearchResult = followerService.getFollowers(searchRequest, user);
+    final FollowingSearchResult followingSearchResult = followerService.getFollowings(searchRequest, user);
+
+    localizer.of(followerSearchResult);
+    localizer.of(followingSearchResult);
+
+    userProfileResponse.setFollowerSearchResult(followerSearchResult);
+    userProfileResponse.setFollowingSearchResult(followingSearchResult);
   }
 
   /**
