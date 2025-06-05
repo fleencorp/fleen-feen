@@ -79,15 +79,4 @@ public class Like extends FleenFeenEntity {
     return LikeType.liked(likeType);
   }
 
-  public Long getParentId() {
-    if (LikeParentType.isStream(likeParentType)) {
-      return streamId;
-    } else if (LikeParentType.isChatSpace(likeParentType)) {
-      return chatSpaceId;
-    } else if (LikeParentType.isReview(likeParentType)) {
-      return reviewId;
-    }
-
-    return null;
-  }
 }

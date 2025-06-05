@@ -691,8 +691,8 @@ CREATE TABLE link (
   url VARCHAR(1000),
   chat_space_id BIGINT,
 
-  like_parent_type VARCHAR(255)
-    NOT NULL CHECK (like_parent_type IN ('STREAM', 'CHAT_SPACE')),
+  link_parent_type VARCHAR(255)
+    NOT NULL CHECK (link_parent_type IN ('CHAT_SPACE', 'STREAM')),
 
   link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
     'EMAIL',
@@ -731,11 +731,11 @@ CREATE TABLE likes (
 
   chat_space_id BIGINT NULL,
   stream_id BIGINT NULL,
-  review_id BIGINT NOT NULL,
+  review_id BIGINT NULL,
   member_id BIGINT NOT NULL,
 
   like_parent_type VARCHAR(255)
-    NOT NULL CHECK (like_parent_type IN ('STREAM', 'CHAT_SPACE', 'REVIEW')),
+    NOT NULL CHECK (like_parent_type IN ('CHAT_SPACE', 'REVIEW', 'STREAM')),
 
   like_type VARCHAR(255)
     NOT NULL CHECK (like_type IN ('LIKE', 'UNLIKE')),

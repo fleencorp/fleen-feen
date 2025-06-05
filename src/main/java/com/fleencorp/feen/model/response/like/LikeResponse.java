@@ -15,15 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "total_likes",
   "parent_id",
   "parent_title",
+  "parent_total_likes",
   "user_like_info"
 })
 public class LikeResponse {
-
-  @JsonProperty("total_likes")
-  private Long totalLikes;
 
   @JsonProperty("parent_id")
   private Long parentId;
@@ -31,10 +28,13 @@ public class LikeResponse {
   @JsonProperty("parent_title")
   private String parentTitle;
 
+  @JsonProperty("parent_total_likes")
+  private Long parentTotalLikes;
+
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
-  public static LikeResponse of(final Long totalLikes, final Long parentId, final String parentTitle, final UserLikeInfo userLikeInfo) {
-    return new LikeResponse(totalLikes, parentId, parentTitle, userLikeInfo);
+  public static LikeResponse of(final Long parentId, final String parentTitle, final Long parentTotalLikes, final UserLikeInfo userLikeInfo) {
+    return new LikeResponse(parentId, parentTitle, parentTotalLikes, userLikeInfo);
   }
 }

@@ -18,9 +18,9 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum LikeParentType implements ApiParameter {
 
-  STREAM("Stream"),
   CHAT_SPACE("Chat Space"),
-  REVIEW("Review");
+  REVIEW("Review"),
+  STREAM("Stream");
 
   private final String value;
 
