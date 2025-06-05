@@ -22,7 +22,7 @@ public class UserProfilePublicController {
 
   @GetMapping(value = "/profile/{userId}")
   public UserProfileResponse getUserProfile(@PathVariable(name ="userId") final String targetUserId, @AuthenticationPrincipal final FleenUser user) {
-    final UserProfileSearchRequest userProfileSearchRequest = UserProfileSearchRequest.of(targetUserId);
+      final UserProfileSearchRequest userProfileSearchRequest = UserProfileSearchRequest.of(targetUserId);
     return userProfilePublicService.getUserProfile(userProfileSearchRequest, user);
   }
 }
