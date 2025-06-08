@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.domain.notification;
 
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.constant.notification.NotificationType;
-import com.fleencorp.feen.constant.social.ContactType;
+import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;

@@ -18,7 +18,7 @@ import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.model.response.link.base.MusicLinkResponse;
+import com.fleencorp.feen.link.model.response.base.MusicLinkResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import lombok.AllArgsConstructor;

@@ -3,8 +3,8 @@ package com.fleencorp.feen.adapter.google.recaptcha;
 import com.fleencorp.base.adapter.base.BaseAdapter;
 import com.fleencorp.base.constant.base.ApiParameter;
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
-import com.fleencorp.feen.adapter.google.recaptcha.model.enums.GoogleRecaptchaEndpointBlock;
-import com.fleencorp.feen.adapter.google.recaptcha.model.enums.GoogleRecaptchaParameter;
+import com.fleencorp.feen.adapter.google.recaptcha.model.constant.GoogleRecaptchaEndpointBlock;
+import com.fleencorp.feen.adapter.google.recaptcha.model.constant.GoogleRecaptchaParameter;
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
 import com.fleencorp.feen.constant.external.ExternalSystemType;
 import jakarta.validation.constraints.NotBlank;
@@ -67,6 +67,7 @@ public class ReCaptchaAdapter extends BaseAdapter {
    */
   public ReCaptchaResponse verifyRecaptcha(final String reCaptchaToken) {
     final Map<ApiParameter, String> parameters = new ConcurrentHashMap<>();
+
     parameters.put(GoogleRecaptchaParameter.SECRET, recaptchaSecret);
     parameters.put(GoogleRecaptchaParameter.RESPONSE, reCaptchaToken);
 

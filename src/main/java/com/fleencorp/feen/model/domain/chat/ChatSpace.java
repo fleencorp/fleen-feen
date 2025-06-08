@@ -9,7 +9,7 @@ import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedExcep
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceNotActiveException;
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.other.Link;
+import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.model.domain.user.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

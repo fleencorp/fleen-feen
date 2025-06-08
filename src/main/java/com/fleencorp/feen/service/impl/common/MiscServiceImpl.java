@@ -185,7 +185,7 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    */
   public static void setEntityUpdatableByUser(final Updatable entry, final Long userId) {
     if (nonNull(entry) && nonNull(userId)) {
-      final boolean isAuthor = entry.getAuthorId().equals(userId);
+      final boolean isAuthor = entry.getAuthorId().equals(userId) || entry.getOrganizerId().equals(userId);
       if (isAuthor) {
         entry.markAsUpdatable();
       }

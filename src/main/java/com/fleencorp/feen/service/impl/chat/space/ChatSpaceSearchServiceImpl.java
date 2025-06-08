@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceSearchRequest
 import com.fleencorp.feen.model.response.chat.space.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
-import com.fleencorp.feen.model.response.link.base.LinkResponse;
+import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
@@ -27,7 +27,7 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
 import com.fleencorp.feen.service.like.LikeService;
-import com.fleencorp.feen.service.link.LinkService;
+import com.fleencorp.feen.link.service.LinkService;
 import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;

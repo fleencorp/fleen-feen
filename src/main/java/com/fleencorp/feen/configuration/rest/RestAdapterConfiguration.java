@@ -41,8 +41,8 @@ public class RestAdapterConfiguration {
    * @return RestClient instance for making RESTful API calls
    */
   @Bean
-  public RestClient restClient() {
-    return RestClient.create(restTemplate());
+  public RestClient restClient(final RestTemplate restTemplate) {
+    return RestClient.create(restTemplate);
   }
 }
 
