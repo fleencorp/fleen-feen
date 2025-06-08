@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.domain.social;
 
-import com.fleencorp.feen.constant.social.ContactType;
+import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.user.Member;

@@ -176,7 +176,7 @@ public class ReviewServiceImpl implements ReviewService {
    * @return a localized {@link ReviewSearchResult}, or an empty result if input is null
    */
   protected ReviewSearchResult processAndReturnReviews(final Page<Review> page, final Member member) {
-    if (allNonNull(page, member)) {
+    if (allNonNull(page)) {
       // Convert Review entities to responses
       final List<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
       // Process other details of the reviews

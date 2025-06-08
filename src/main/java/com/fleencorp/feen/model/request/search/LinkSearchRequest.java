@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.constant.link.LinkParentType;
+import com.fleencorp.feen.link.constant.LinkParentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
