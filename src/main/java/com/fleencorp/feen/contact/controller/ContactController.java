@@ -12,7 +12,6 @@ import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,17 +63,10 @@ public class ContactController {
     return contactService.updateContacts(updateContactDto, user);
   }
 
-  @DeleteMapping(value = "/delete/{contactId}")
+  @PutMapping(value = "/delete")
   public ContactDeleteResponse deleteContact(
-      @PathVariable(name = "contactId") final Long contactId,
+      @Valid @RequestBody final DeleteContactDto deleteContactDto,
       @AuthenticationPrincipal final FleenUser user) {
-    final DeleteContactDto deleteContactDto = DeleteContactDto.of(contactId);
     return contactService.deleteContact(deleteContactDto, user);
-  }
-
-  @DeleteMapping(value = "/delete-all")
-  public DeleteResponse deleteAllContacts(
-      @AuthenticationPrincipal final FleenUser user) {
-    return contactService.deleteAllContact(user);
   }
 }

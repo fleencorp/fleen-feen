@@ -35,6 +35,9 @@ public class Contact extends FleenFeenEntity {
   @Column(name = "contact", length = 1000)
   private String contactValue;
 
+  @Column(name = "owner_id", insertable = false, updatable = false)
+  private Long memberId;
+
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)

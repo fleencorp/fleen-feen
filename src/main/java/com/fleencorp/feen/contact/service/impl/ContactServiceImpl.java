@@ -2,7 +2,6 @@ package com.fleencorp.feen.contact.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.contact.constant.ContactType;
-import com.fleencorp.feen.contact.exception.ContactNotFoundException;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;
 import com.fleencorp.feen.contact.model.dto.AddContactDto;
@@ -21,7 +20,6 @@ import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
-import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.social.BlockUserService;
@@ -136,7 +134,17 @@ public class ContactServiceImpl implements ContactService {
     return localizer.of(contactSearchResult);
   }
 
-  protected void processContactDetails(Collection<ContactResponse> contactResponses) {
+  /**
+   * Processes the given contact response collection by marking each contact
+   * as updatable based on its author ID.
+   *
+   * <p>If the collection is not null or empty, each non-null contact response is passed
+   * to the {@code setEntityUpdatableByUser} method using its author ID to determine
+   * if the contact can be updated by the user.</p>
+   *
+   * @param contactResponses the collection of contact responses to process
+   */
+  protected void processContactDetails(final Collection<ContactResponse> contactResponses) {
     if (nonNull(contactResponses) && !contactResponses.isEmpty()) {
       contactResponses.stream()
         .filter(Objects::nonNull)
@@ -315,36 +323,25 @@ public class ContactServiceImpl implements ContactService {
   @Override
   @Transactional
   public ContactDeleteResponse deleteContact(final DeleteContactDto deleteContactDto, final FleenUser user) {
-    // Extract the contact id
-    final Long contactId = deleteContactDto.getContactId();
-    // Retrieve the contact by ID and owner, or throw an exception if not found
-    final Contact contact = contactRepository.findByContactIdAndOwner(contactId, user.toMember())
-      .orElseThrow(ContactNotFoundException.of(contactId));
-    // Delete the contact from the repository
-    contactRepository.delete(contact);
+    // Find the contacts of the user
+    final Collection<Contact> contacts = contactRepository.findByOwnerAndContactType(user.getId(), deleteContactDto.getContactTypes());
+    // Delete the contacts from the repository
+    contactRepository.deleteAll(contacts);
     // Return a response object indicating successful deletion
     return localizer.of(ContactDeleteResponse.of());
   }
 
   /**
-   * Deletes all contacts belonging to the specified user.
+   * Determines whether the given viewer is eligible to request contact information from the target member.
    *
-   * <p>This method removes all contacts associated with the given user from the repository.
-   * It does not return any specific data related to the deletion but confirms the action
-   * by returning a response object.</p>
+   * <p>The eligibility is based on the following conditions:
+   * the viewer and target must have either attended a stream together or be part of the same chat space,
+   * the viewer must not have blocked the target, and the target must have at least one contact available.</p>
    *
-   * @param user the user whose contacts are to be deleted.
-   * @return an object representing the deletion response.
+   * @param viewer the member attempting to request contact information
+   * @param target the member whose contact information is being requested
+   * @return an object containing the result of the eligibility check
    */
-  @Override
-  @Transactional
-  public DeleteResponse deleteAllContact(final FleenUser user) {
-    // Delete all contacts associated with the user
-    contactRepository.deleteAllByOwner(user.toMember());
-    // Return a response object indicating successful deletion
-    return localizer.of(DeleteResponse.of());
-  }
-
   @Override
   public ContactRequestEligibilityInfo checkContactRequestEligibility(final Member viewer, final Member target) {
     final boolean attendedStreamTogether = streamOperationsService.existsByAttendees(viewer, target);
