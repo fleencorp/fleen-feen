@@ -6,7 +6,6 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.link.model.dto.DeleteLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
-import com.fleencorp.feen.model.request.search.LinkSearchRequest;
 import com.fleencorp.feen.link.model.response.DeleteLinkResponse;
 import com.fleencorp.feen.link.model.response.UpdateLinkResponse;
 import com.fleencorp.feen.link.model.response.UpdateStreamMusicLinkResponse;
@@ -14,6 +13,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeR
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
+import com.fleencorp.feen.model.request.search.LinkSearchRequest;
 import com.fleencorp.feen.model.security.FleenUser;
 
 import java.util.List;

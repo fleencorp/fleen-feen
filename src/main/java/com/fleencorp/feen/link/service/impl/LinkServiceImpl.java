@@ -1,19 +1,16 @@
 package com.fleencorp.feen.link.service.impl;
 
 import com.fleencorp.feen.constant.common.MusicLinkType;
-import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
+import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.link.mapper.LinkMapper;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.link.model.domain.Link;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.link.model.dto.DeleteLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.link.model.info.LinkTypeInfo;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
-import com.fleencorp.feen.model.request.search.LinkSearchRequest;
 import com.fleencorp.feen.link.model.response.DeleteLinkResponse;
 import com.fleencorp.feen.link.model.response.UpdateLinkResponse;
 import com.fleencorp.feen.link.model.response.UpdateStreamMusicLinkResponse;
@@ -21,10 +18,13 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeR
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.link.repository.LinkRepository;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.link.service.LinkService;
+import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.request.search.LinkSearchRequest;
+import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.localizer.service.Localizer;
@@ -335,7 +335,7 @@ public class LinkServiceImpl implements LinkService {
     // Verify if the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
     // Find all the links associated with the chat space and the specified link types
-    final List<Link> links = linkRepository.findByChatSpaceIdAndLinkType(deleteLinkDto.getChatSpaceId(), deleteLinkDto.getLinkTypes());
+    final Collection<Link> links = linkRepository.findByChatSpaceIdAndLinkType(deleteLinkDto.getChatSpaceId(), deleteLinkDto.getLinkTypes());
     // Delete the found links from the repository
     linkRepository.deleteAll(links);
     // Return a localized response indicating the deletion was successful

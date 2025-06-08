@@ -12,7 +12,6 @@ import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.model.domain.user.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
-import com.fleencorp.feen.model.response.other.DeleteResponse;
 import com.fleencorp.feen.model.security.FleenUser;
 
 public interface ContactService {
@@ -28,8 +27,6 @@ public interface ContactService {
   ContactUpdateResponse updateContacts(UpdateContactDto updateContactDto, FleenUser user);
 
   ContactDeleteResponse deleteContact(DeleteContactDto deleteContactDto, FleenUser user);
-
-  DeleteResponse deleteAllContact(FleenUser user);
 
   ContactRequestEligibilityInfo checkContactRequestEligibility(Member viewer, Member target);
 }

@@ -1,6 +1,7 @@
 package com.fleencorp.feen.exception;
 
 import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.contact.exception.ContactNotFoundException;
 import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.auth.InvalidAuthenticationTokenException;
@@ -31,7 +32,6 @@ import com.fleencorp.feen.exception.review.ReviewNotFoundException;
 import com.fleencorp.feen.exception.security.mfa.MfaGenerationFailedException;
 import com.fleencorp.feen.exception.security.mfa.MfaVerificationFailed;
 import com.fleencorp.feen.exception.security.recaptcha.InvalidReCaptchaException;
-import com.fleencorp.feen.contact.exception.ContactNotFoundException;
 import com.fleencorp.feen.exception.social.share.contact.*;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
