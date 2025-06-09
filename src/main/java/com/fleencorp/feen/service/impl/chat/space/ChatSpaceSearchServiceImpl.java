@@ -22,7 +22,7 @@ import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
@@ -116,7 +116,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @return A ChatSpaceSearchResult containing the search results of chat spaces matching the criteria.
    */
   @Override
-  public ChatSpaceSearchResult findSpaces(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceSearchResult findSpaces(final ChatSpaceSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ChatSpace> page;
     final Pageable pageable = searchRequest.getPage();
     final ChatSpaceStatus chatSpaceStatus = searchRequest.getDefaultActive();
@@ -162,7 +162,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @return A ChatSpaceSearchResult containing the search results of chat spaces created by the user matching the criteria.
    */
   @Override
-  public ChatSpaceSearchResult findMySpaces(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceSearchResult findMySpaces(final ChatSpaceSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ChatSpace> page;
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -210,7 +210,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @return A ChatSpaceSearchResult containing the search results of chat spaces the user belongs to, matching the criteria.
    */
   @Override
-  public ChatSpaceSearchResult findSpacesIBelongTo(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceSearchResult findSpacesIBelongTo(final ChatSpaceSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ChatSpaceMember> page;
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -243,7 +243,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
   }
 
   @Override
-  public MutualChatSpaceMembershipSearchResult findChatSpacesMembershipWithAnotherUser(final ChatSpaceSearchRequest searchRequest, final FleenUser user) {
+  public MutualChatSpaceMembershipSearchResult findChatSpacesMembershipWithAnotherUser(final ChatSpaceSearchRequest searchRequest, final RegisteredUser user) {
     Page<ChatSpace> page = new PageImpl<>(List.of());
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -280,7 +280,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @throws ChatSpaceNotFoundException if the chat space with the specified ID is not found.
    */
   @Override
-  public RetrieveChatSpaceResponse retrieveChatSpace(final Long chatSpaceId, final FleenUser user) {
+  public RetrieveChatSpaceResponse retrieveChatSpace(final Long chatSpaceId, final RegisteredUser user) {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Get the equivalent chat space response
@@ -339,7 +339,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @throws ChatSpaceNotFoundException if the chat space does not exist.
    */
   @Override
-  public RequestToJoinSearchResult findRequestToJoinSpace(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+  public RequestToJoinSearchResult findRequestToJoinSpace(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ChatSpaceMember> page;
     final Pageable pageable = searchRequest.getPage();
     final String memberName = searchRequest.getMemberName();
@@ -385,7 +385,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @throws ChatSpaceNotFoundException if the chat space does not exist.
    */
   @Override
-  public RemovedMemberSearchResult findRemovedMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+  public RemovedMemberSearchResult findRemovedMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ChatSpaceMember> page;
     final Pageable pageable = searchRequest.getPage();
     final String memberName = searchRequest.getMemberName();
@@ -487,7 +487,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpacesResponses the list of chat space responses to process
    * @param user                the user whose membership and organizer status are to be determined
    */
-  protected void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+  protected void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final RegisteredUser user) {
     // Check if chat spaces and user are non-null and user has a member associated
     if (allNonNull(chatSpacesResponses, user, user.toMember()) && !chatSpacesResponses.isEmpty()) {
       // Get the user's membership status map for the chat spaces
@@ -514,7 +514,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param user                the user whose membership status is to be retrieved
    * @return a map where the keys are chat space IDs and the values are the corresponding membership status
    */
-  protected Map<Long, ChatSpaceMemberSelect> getUserMembershipDetailsMap(final List<ChatSpaceResponse> chatSpacesResponses, final FleenUser user) {
+  protected Map<Long, ChatSpaceMemberSelect> getUserMembershipDetailsMap(final List<ChatSpaceResponse> chatSpacesResponses, final RegisteredUser user) {
     // Extract chat space IDs from the responses
     final List<Long> chatSpaceIds = extractAndGetEntriesIds(chatSpacesResponses);
     // Convert the user to a domain
@@ -537,7 +537,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param membershipDetailsMap  a map containing membership status information, keyed by chat space ID
    * @param user                 the user whose organizer status is to be determined
    */
-  protected void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap, final FleenUser user) {
+  protected void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap, final RegisteredUser user) {
     // Set user's membership status
     setMembershipDetails(chatSpaceResponse, membershipDetailsMap);
     // Populate recent chat space members
@@ -613,7 +613,7 @@ public class ChatSpaceSearchServiceImpl implements ChatSpaceSearchService {
    * @param chatSpaceResponse the chat space response object to which the links are being added
    * @param user the user whose context is used to fetch the chat space links
    */
-  protected void setLinks(final ChatSpaceResponse chatSpaceResponse, final FleenUser user) {
+  protected void setLinks(final ChatSpaceResponse chatSpaceResponse, final RegisteredUser user) {
     if (nonNull(chatSpaceResponse) && nonNull(user)) {
       final List<LinkResponse> links = linkService.findChatSpaceLinks(chatSpaceResponse.getNumberId());
 

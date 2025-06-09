@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.impl.stream;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.response.external.google.youtube.category.YouTub
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
@@ -110,7 +110,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    */
   @Override
   @Transactional
-  public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final FleenUser user) throws Oauth2InvalidAuthorizationException {
+  public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final RegisteredUser user) throws Oauth2InvalidAuthorizationException {
     // Check if there is a valid OAuth2 authorization for the user
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(createLiveBroadcastDto.getOauth2ServiceType(), user);
     // Create a request object to create the live broadcast on YouTube
@@ -169,7 +169,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @param user the user whose access token is being validated or refreshed
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
-  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
     return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 

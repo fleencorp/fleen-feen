@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.model.info.user.profile.*;
-import com.fleencorp.feen.model.request.search.UserProfileSearchRequest;
+import com.fleencorp.feen.user.model.search.UserProfileSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.user.model.response.UserResponse;
@@ -25,7 +25,7 @@ import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchRe
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
@@ -111,7 +111,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @return a localized {@link UserProfileResponse} describing the target user's profile
    */
   @Override
-  public UserProfileResponse getUserProfile(final UserProfileSearchRequest userProfileSearchRequest, final FleenUser user) throws MemberNotFoundException {
+  public UserProfileResponse getUserProfile(final UserProfileSearchRequest userProfileSearchRequest, final RegisteredUser user) throws MemberNotFoundException {
     final Long targetUserId = userProfileSearchRequest.getTargetUserId();
     final Member member = user.toMember();
     final Member targetMember = findMember(targetUserId);
@@ -266,7 +266,7 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    */
   protected void findAndSetFollowSearchResultDetails(final Member member, final UserProfileResponse userProfileResponse) {
     final SearchRequest searchRequest = new SearchRequest();
-    final FleenUser user = FleenUser.of(member.getMemberId());
+    final RegisteredUser user = RegisteredUser.of(member.getMemberId());
 
     final FollowerSearchResult followerSearchResult = followerService.getFollowers(searchRequest, user);
     final FollowingSearchResult followingSearchResult = followerService.getFollowings(searchRequest, user);

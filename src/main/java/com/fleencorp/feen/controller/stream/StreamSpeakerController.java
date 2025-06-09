@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.speaker.StreamSpeakerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -58,7 +58,7 @@ public class StreamSpeakerController {
       @Parameter(description = "Search criteria for stream speakers", required = true)
       @SearchParam final StreamSpeakerSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSpeakerService.findSpeakers(streamId, searchRequest, user);
   }
 
@@ -83,7 +83,7 @@ public class StreamSpeakerController {
       @Parameter(description = "Search criteria for stream speakers", required = true)
       @SearchParam final StreamSpeakerSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSpeakerService.findStreamSpeakers(streamId, searchRequest, user);
   }
 
@@ -110,7 +110,7 @@ public class StreamSpeakerController {
       @Parameter(description = "Details of the user to be marked as speaker", required = true)
       @Valid @RequestBody final MarkAsStreamSpeakerDto markAsStreamSpeakerDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSpeakerService.markAsSpeaker(streamId, markAsStreamSpeakerDto, user);
   }
 
@@ -137,7 +137,7 @@ public class StreamSpeakerController {
       @Parameter(description = "Updated speaker details", required = true)
       @Valid @RequestBody final UpdateStreamSpeakerDto updateStreamSpeakerDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSpeakerService.updateSpeakers(streamId, updateStreamSpeakerDto, user);
   }
 
@@ -167,7 +167,7 @@ public class StreamSpeakerController {
       @Parameter(description = "Details of the speaker to remove", required = true)
       @Valid @RequestBody final RemoveStreamSpeakerDto removeStreamSpeakerDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSpeakerService.removeSpeakers(streamId, removeStreamSpeakerDto, user);
   }
 }

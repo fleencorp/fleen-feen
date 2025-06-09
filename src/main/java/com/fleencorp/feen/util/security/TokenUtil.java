@@ -2,10 +2,10 @@ package com.fleencorp.feen.util.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.constant.security.token.TokenType;
-import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.model.security.TokenPayload;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.constant.token.TokenType;
+import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.security.TokenPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.durationToMilliseconds;
-import static com.fleencorp.feen.constant.security.token.TokenClaimField.*;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getRefreshTokenAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getResetPasswordAuthorities;
 import static java.lang.System.currentTimeMillis;
@@ -225,7 +224,7 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT access token as a {@code String}.
    */
-  public String generateAccessToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
+  public String generateAccessToken(final RegisteredUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
     final Map<String, Object> claims = getFreshClaims();
     setBasicDetails(claims, user.getId(), authoritiesToList(user.getAuthorities()));
     setUserDetails(user, claims);
@@ -248,7 +247,7 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT refresh token as a {@code String}.
    */
-  public String generateRefreshToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
+  public String generateRefreshToken(final RegisteredUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
     return generateToken(user, tokenType, authenticationStatus, getRefreshTokenAuthorities(), Duration.ofHours(tokenDurationProperties.getRefreshToken()));
   }
 
@@ -264,7 +263,7 @@ public class TokenUtil {
    * @param authenticationStatus The authentication status to be set in the token.
    * @return A JWT reset password token as a {@code String}.
    */
-  public String generateResetPasswordToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
+  public String generateResetPasswordToken(final RegisteredUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus) {
     return generateToken(user, tokenType, authenticationStatus, getResetPasswordAuthorities(), Duration.ofHours(tokenDurationProperties.getResetPasswordToken()));
   }
 
@@ -281,7 +280,7 @@ public class TokenUtil {
    * @param duration The duration for which the token is valid.
    * @return A signed JWT token as a {@code String}.
    */
-  public String generateToken(final FleenUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus, final List<GrantedAuthority> authorities, final Duration duration) {
+  public String generateToken(final RegisteredUser user, final TokenType tokenType, final AuthenticationStatus authenticationStatus, final List<GrantedAuthority> authorities, final Duration duration) {
     final Map<String, Object> claims = getFreshClaims();
     setBasicDetails(claims, user.getId(), authoritiesToList(authorities));
 
@@ -357,7 +356,7 @@ public class TokenUtil {
    * @param user The {@code FleenUser} object containing user details to be added to the claims.
    * @param claims The map of claims to which the user details will be added.
    */
-  public void setUserDetails(final FleenUser user, final Map<String, Object> claims) {
+  public void setUserDetails(final RegisteredUser user, final Map<String, Object> claims) {
     if (nonNull(claims) && nonNull(user)) {
       claims.put(COUNTRY.getValue(), user.getCountry());
       claims.put(FIRST_NAME.getValue(), user.getFirstName());

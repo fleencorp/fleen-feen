@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.repository.UserProfileRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
@@ -196,12 +196,12 @@ public class MemberServiceImpl implements MemberService,
   /**
    * Retrieves the member information for the specified user.
    *
-   * @param user the {@link FleenUser} whose member information is being retrieved.
+   * @param user the {@link RegisteredUser} whose member information is being retrieved.
    * @return a localized {@link RetrieveMemberInfoResponse} containing the member's information.
    * @throws FailedOperationException if no member information is found for the given user.
    */
   @Override
-  public RetrieveMemberInfoResponse getMemberInfo(final FleenUser user) throws FailedOperationException {
+  public RetrieveMemberInfoResponse getMemberInfo(final RegisteredUser user) throws FailedOperationException {
     // Retrieve member information from the user profile repository
     final MemberInfoSelect info = userProfileRepository.findInfoByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
@@ -222,12 +222,12 @@ public class MemberServiceImpl implements MemberService,
   /**
    * Retrieves the update information for the specified member.
    *
-   * @param user the {@link FleenUser} whose member update information is being retrieved.
+   * @param user the {@link RegisteredUser} whose member update information is being retrieved.
    * @return a localized {@link RetrieveMemberUpdateInfoResponse} containing the member's update information.
    * @throws FailedOperationException if no update information is found for the given member.
    */
   @Override
-  public RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(final FleenUser user) throws FailedOperationException {
+  public RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(final RegisteredUser user) throws FailedOperationException {
     // Retrieve member update information from the user profile repository
     final MemberUpdateSelect info = userProfileRepository.findByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
@@ -250,12 +250,12 @@ public class MemberServiceImpl implements MemberService,
   /**
    * Retrieves the profile verification status for the specified user.
    *
-   * @param user the {@link FleenUser} whose profile status is being retrieved.
+   * @param user the {@link RegisteredUser} whose profile status is being retrieved.
    * @return a localized {@link RetrieveProfileStatusResponse} containing the member's profile verification status.
    * @throws FailedOperationException if the profile status for the given member is not found.
    */
   @Override
-  public RetrieveProfileStatusResponse getProfileStatus(final FleenUser user) throws FailedOperationException {
+  public RetrieveProfileStatusResponse getProfileStatus(final RegisteredUser user) throws FailedOperationException {
     // Retrieve the profile status from the user profile repository
     final MemberProfileStatusSelect verificationStatus = userProfileRepository.findStatusByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);

@@ -3,7 +3,7 @@ package com.fleencorp.feen.controller.stream;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamType;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +58,7 @@ public class StreamSearchController {
       @Parameter(description = "Search criteria for streams", required = true)
         @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     searchRequest.setStreamType(StreamType.event());
     return streamSearchService.findStreams(searchRequest, user);
   }
@@ -98,7 +98,7 @@ public class StreamSearchController {
       @Parameter(description = "ID of the stream to retrieve", required = true)
         @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return streamSearchService.retrieveStream(streamId, user);
   }
 
@@ -119,7 +119,7 @@ public class StreamSearchController {
       @Parameter(description = "Search criteria for streams", required = true)
         @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     searchRequest.setDefaultStreamType();
     return streamSearchService.findMyStreams(searchRequest, user);
   }
@@ -145,7 +145,7 @@ public class StreamSearchController {
       @Parameter(description = "ID of the stream to retrieve", required = true)
         @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return streamSearchService.retrieveStream(streamId, user);
   }
 
@@ -206,7 +206,7 @@ public class StreamSearchController {
       @Parameter(description = "Search criteria for attended streams", required = true)
         @SearchParam final StreamSearchRequest searchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return streamSearchService.findStreamsAttendedByUser(searchRequest, user);
   }
 
@@ -231,7 +231,7 @@ public class StreamSearchController {
       @Parameter(description = "ID of the stream to get join requests for", required = true)
         @PathVariable(name = "streamId") final Long streamId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user,
+        @AuthenticationPrincipal final RegisteredUser user,
       @Parameter(description = "Search criteria for join requests", required = true)
         @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
     return streamAttendeeOperationsService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);

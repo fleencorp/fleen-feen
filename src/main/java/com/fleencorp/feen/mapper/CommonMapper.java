@@ -1,11 +1,11 @@
 package com.fleencorp.feen.mapper;
 
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
-import com.fleencorp.feen.model.info.security.MfaTypeInfo;
+import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;

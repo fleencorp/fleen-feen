@@ -16,15 +16,15 @@ import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface EventOperationsService {
 
   DataForCreateEventResponse getDataForCreateEvent();
 
-  CreateStreamResponse createEvent(CreateEventDto createEventDto, FleenUser user) throws CalendarNotFoundException;
+  CreateStreamResponse createEvent(CreateEventDto createEventDto, RegisteredUser user) throws CalendarNotFoundException;
 
-  CreateStreamResponse createInstantEvent(CreateInstantEventDto createInstantEventDto, FleenUser user) throws CalendarNotFoundException;
+  CreateStreamResponse createInstantEvent(CreateInstantEventDto createInstantEventDto, RegisteredUser user) throws CalendarNotFoundException;
 
   void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(String calendarExternalId, FleenStream stream, StreamVisibility previousStreamVisibility)
     throws FailedOperationException;
@@ -53,9 +53,9 @@ public interface EventOperationsService {
 
   void notAttendingEvent(NotAttendingEventRequest notAttendingEventRequest);
 
-  void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(FleenStream stream, StreamAttendee streamAttendee, String comment, FleenUser user);
+  void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(FleenStream stream, StreamAttendee streamAttendee, String comment, RegisteredUser user);
 
-  AddNewStreamAttendeeResponse addEventAttendee(Long eventId, AddNewStreamAttendeeDto addNewStreamAttendeeDto, FleenUser user)
+  AddNewStreamAttendeeResponse addEventAttendee(Long eventId, AddNewStreamAttendeeDto addNewStreamAttendeeDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 

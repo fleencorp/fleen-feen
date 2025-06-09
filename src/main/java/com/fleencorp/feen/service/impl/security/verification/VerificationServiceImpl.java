@@ -1,25 +1,24 @@
 package com.fleencorp.feen.service.impl.security.verification;
 
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.service.PublisherService;
-import com.fleencorp.feen.exception.auth.AlreadySignedUpException;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.AlreadySignedUpException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
-import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
-import com.fleencorp.feen.exception.verification.*;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.user.role.NoRoleAvailableToAssignException;
+import com.fleencorp.feen.user.exception.verification.*;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.model.domain.user.ProfileToken;
-import com.fleencorp.feen.model.domain.user.Role;
-import com.fleencorp.feen.model.dto.auth.*;
-import com.fleencorp.feen.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
-import com.fleencorp.feen.model.dto.security.mfa.ResendMfaVerificationCodeDto;
-import com.fleencorp.feen.model.request.auth.CompletedUserSignUpRequest;
-import com.fleencorp.feen.model.request.auth.ForgotPasswordRequest;
-import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.user.model.domain.ProfileToken;
+import com.fleencorp.feen.user.model.domain.Role;
+import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
+import com.fleencorp.feen.user.model.dto.security.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;
+import com.fleencorp.feen.user.model.request.authentication.ForgotPasswordRequest;
+import com.fleencorp.feen.user.model.request.mfa.MfaVerificationRequest;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
@@ -27,8 +26,9 @@ import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
+import com.fleencorp.feen.user.model.dto.authentication.*;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
 import com.fleencorp.feen.service.impl.auth.AuthenticationServiceImpl;
@@ -128,9 +128,9 @@ public class VerificationServiceImpl implements PasswordService,
    */
   @Override
   @Transactional
-  public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final FleenUser user)
+  public SignUpResponse completeSignUp(final CompleteSignUpDto completeSignUpDto, final RegisteredUser user)
       throws AlreadySignedUpException, VerificationFailedException, ExpiredVerificationCodeException,
-        InvalidVerificationCodeException, FailedOperationException {
+    InvalidVerificationCodeException, FailedOperationException {
     final String username = user.getUsername();
     // Validate sign-up verification code
     validateSignUpVerificationCode(username, completeSignUpDto.getVerificationCode());
@@ -148,7 +148,7 @@ public class VerificationServiceImpl implements PasswordService,
 
 
     // Initialize authentication and context for the new user
-    final FleenUser newUser = authenticationService.initializeAuthenticationAndContext(member);
+    final RegisteredUser newUser = authenticationService.initializeAuthenticationAndContext(member);
     // Clear temporary sign-up verification code
     clearSignUpVerificationCodeSavedTemporarily(username);
     // Set user timezone after authentication
@@ -316,27 +316,27 @@ public class VerificationServiceImpl implements PasswordService,
   /**
    * Generates an access token for the specified user with a status of {@link AuthenticationStatus#COMPLETED}.
    *
-   * <p>This method creates an access token for the given {@link FleenUser} using the
+   * <p>This method creates an access token for the given {@link RegisteredUser} using the
    * {@link TokenService} and sets the authentication status to {@link AuthenticationStatus#COMPLETED}.
    * The generated access token is then returned as a {@link String}.</p>
    *
-   * @param user the {@link FleenUser} for whom the access token is generated
+   * @param user the {@link RegisteredUser} for whom the access token is generated
    * @return a {@link String} representing the generated access token
    */
-  protected String generateAccessTokenWithCompletedAuthentication(final FleenUser user) {
+  protected String generateAccessTokenWithCompletedAuthentication(final RegisteredUser user) {
     return tokenService.createAccessToken(user, AuthenticationStatus.COMPLETED);
   }
 
   /**
    * Generates a refresh token for the specified user.
    *
-   * <p>This method creates a refresh token for the given {@link FleenUser} using the
+   * <p>This method creates a refresh token for the given {@link RegisteredUser} using the
    * {@link TokenService} and returns it as a {@link String}.</p>
    *
-   * @param user the {@link FleenUser} for whom the refresh token is generated
+   * @param user the {@link RegisteredUser} for whom the refresh token is generated
    * @return a {@link String} representing the generated refresh token
    */
-  protected String generateRefreshToken(final FleenUser user) {
+  protected String generateRefreshToken(final RegisteredUser user) {
     return tokenService.createRefreshToken(user);
   }
 
@@ -346,10 +346,10 @@ public class VerificationServiceImpl implements PasswordService,
    * <p>This method creates and sends a message containing the user and member information
    * to notify relevant parties about the completion of the sign-up process for the user.</p>
    *
-   * @param user the {@link FleenUser} representing the signed-up user
+   * @param user the {@link RegisteredUser} representing the signed-up user
    * @param member the {@link Member} associated with the user for sign-up details
    */
-  protected void sendCompletedSignUpMessage(final FleenUser user, final Member member) {
+  protected void sendCompletedSignUpMessage(final RegisteredUser user, final Member member) {
     createAndSendCompletedUserSignUpMessage(user, member);
   }
 
@@ -377,10 +377,10 @@ public class VerificationServiceImpl implements PasswordService,
    * (first name, last name, email address, phone number) and the member’s verification
    * status. It then publishes the message to the profile request publisher.</p>
    *
-   * @param user the {@link FleenUser} whose details are used in the sign-up request
+   * @param user the {@link RegisteredUser} whose details are used in the sign-up request
    * @param member the {@link Member} whose verification status is included in the request
    */
-  protected void createAndSendCompletedUserSignUpMessage(final FleenUser user, final Member member) {
+  protected void createAndSendCompletedUserSignUpMessage(final RegisteredUser user, final Member member) {
     final CompletedUserSignUpRequest completedUserSignUpRequest = CompletedUserSignUpRequest
       .of(user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), member.getVerificationStatus());
     publisherService.publishMessage(PublishMessageRequest.of(completedUserSignUpRequest));
@@ -398,7 +398,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @return ResendSignUpVerificationCodeResponse indicating the successful initiation of code resend
    */
   @Override
-  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, final FleenUser user) throws AlreadySignedUpException, FailedOperationException {
+  public ResendSignUpVerificationCodeResponse resendSignUpVerificationCode(final ResendSignUpVerificationCodeDto resendSignUpVerificationCodeDto, final RegisteredUser user) throws AlreadySignedUpException, FailedOperationException {
     // Generate a new OTP
     final String otpCode = generateOtp();
     // Verify if the two provided email addresses is the same
@@ -452,7 +452,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @return ResendMfaVerificationCodeResponse indicating the successful initiation of code resend
    */
   @Override
-  public ResendMfaVerificationCodeResponse resendMfaVerificationCode(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final FleenUser user) {
+  public ResendMfaVerificationCodeResponse resendMfaVerificationCode(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final RegisteredUser user) {
     // Generate a new OTP
     final String otpCode = generateOtp();
 
@@ -475,10 +475,10 @@ public class VerificationServiceImpl implements PasswordService,
    * The request is then published to the profile request publisher to resend the MFA verification code.</p>
    *
    * @param resendMfaVerificationCodeDto the DTO containing details for resending the MFA verification code
-   * @param user the {@link FleenUser} whose details (e.g., name, email, phone number) are included in the request
+   * @param user the {@link RegisteredUser} whose details (e.g., name, email, phone number) are included in the request
    * @param otpCode the one-time password (OTP) code to be resent for MFA verification
    */
-  protected void sendResendMfaVerificationMessage(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final FleenUser user, final String otpCode) {
+  protected void sendResendMfaVerificationMessage(final ResendMfaVerificationCodeDto resendMfaVerificationCodeDto, final RegisteredUser user, final String otpCode) {
     final MfaVerificationRequest resendMfaVerificationCodeRequest = MfaVerificationRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), resendMfaVerificationCodeDto.getVerificationType());
     // Resend mfa verification code request
@@ -495,7 +495,7 @@ public class VerificationServiceImpl implements PasswordService,
    * @throws InvalidAuthenticationException if the user cannot be found or authenticated
    */
   @Override
-  public SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(final ConfirmMfaVerificationCodeDto confirmMfaCodeDto, final FleenUser user) {
+  public SignInResponse verifyMfaVerificationCodeAndAuthenticateUser(final ConfirmMfaVerificationCodeDto confirmMfaCodeDto, final RegisteredUser user) {
     final String username = user.getUsername();
     final Member member = memberRepository.findByEmailAddress(username)
       .orElseThrow(InvalidAuthenticationException.of(username));
@@ -503,7 +503,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Validate the provided MFA verification code based on its type
     validateMfaVerificationOrOtpCode(confirmMfaCodeDto.getVerificationCode(), confirmMfaCodeDto.getMfaType(), username, member.getMemberId());
     // Initialize authentication and context for the authenticated user
-    final FleenUser authenticatedUser = authenticationService.initializeAuthenticationAndContext(member);
+    final RegisteredUser authenticatedUser = authenticationService.initializeAuthenticationAndContext(member);
     // Set user timezone after authentication
     authenticationService.setUserTimezoneAfterAuthentication(authenticatedUser);
     // Create access and refresh tokens for the authenticated user
@@ -568,7 +568,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Validate the provided verification code against the stored profile token and reset code
     validateProfileTokenAndResetPasswordCode(emailAddress, resetPasswordDto.getVerificationCode());
     // Initialize the user's authentication and security context
-    final FleenUser user = authenticationService.initializeAuthenticationAndContext(member);
+    final RegisteredUser user = authenticationService.initializeAuthenticationAndContext(member);
     // Generate a new reset password token for the user
     final String resetPasswordToken = tokenService.createResetPasswordToken(user);
 
@@ -678,7 +678,7 @@ public class VerificationServiceImpl implements PasswordService,
     // Generate and save reset password OTP for the user
     generateAndSaveResetPasswordToken(emailAddress, member, otpCode);
     // Create a FleenUser object from basic member details
-    final FleenUser user = FleenUser.fromMemberBasic(member);
+    final RegisteredUser user = RegisteredUser.fromMemberBasic(member);
     // Send forgot password verification message
     sendForgotPasswordMessage(otpCode, user, verificationType);
     // Save reset password OTP in cache or storage
@@ -717,11 +717,11 @@ public class VerificationServiceImpl implements PasswordService,
    * the request to send the forgot password message to the user.</p>
    *
    * @param otpCode the one-time password (OTP) code to be sent for forgot password verification
-   * @param user the {@link FleenUser} whose details (e.g., first name, last name, email, phone number)
+   * @param user the {@link RegisteredUser} whose details (e.g., first name, last name, email, phone number)
    *             are included in the forgot password request
    * @param verificationType the type of verification to be used (e.g., email, phone)
    */
-  protected void sendForgotPasswordMessage(final String otpCode, final FleenUser user, final VerificationType verificationType) {
+  protected void sendForgotPasswordMessage(final String otpCode, final RegisteredUser user, final VerificationType verificationType) {
     // Create a request to send forgot password code with OTP and user details
     final ForgotPasswordRequest forgotPasswordRequest = ForgotPasswordRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
@@ -752,7 +752,7 @@ public class VerificationServiceImpl implements PasswordService,
    */
   @Override
   @Transactional
-  public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final FleenUser user)
+  public ChangePasswordResponse changePassword(final ChangePasswordDto changePasswordDto, final RegisteredUser user)
     throws UserNotFoundException, InvalidAuthenticationException {
     final String emailAddress = user.getEmailAddress();
     // Check if user has associated reset password access token

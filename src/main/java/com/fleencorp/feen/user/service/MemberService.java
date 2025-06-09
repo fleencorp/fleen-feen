@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 
 public interface MemberService {
@@ -20,11 +20,11 @@ public interface MemberService {
 
   Member findMember(Long memberId) throws MemberNotFoundException;
 
-  RetrieveMemberInfoResponse getMemberInfo(FleenUser user) throws FailedOperationException;
+  RetrieveMemberInfoResponse getMemberInfo(RegisteredUser user) throws FailedOperationException;
 
-  RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(FleenUser user) throws FailedOperationException;
+  RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(RegisteredUser user) throws FailedOperationException;
 
-  RetrieveProfileStatusResponse getProfileStatus(FleenUser user) throws FailedOperationException;
+  RetrieveProfileStatusResponse getProfileStatus(RegisteredUser user) throws FailedOperationException;
 
   EmailAddressExistsResponse verifyMemberEmailAddressExists(String emailAddress);
 

@@ -4,11 +4,11 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationExce
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface LiveBroadcastService {
 
   DataForCreateLiveBroadcastResponse getDataForCreateLiveBroadcast();
 
-  CreateStreamResponse createLiveBroadcast(CreateLiveBroadcastDto createLiveBroadcastDto, FleenUser user) throws Oauth2InvalidAuthorizationException;
+  CreateStreamResponse createLiveBroadcast(CreateLiveBroadcastDto createLiveBroadcastDto, RegisteredUser user) throws Oauth2InvalidAuthorizationException;
 }

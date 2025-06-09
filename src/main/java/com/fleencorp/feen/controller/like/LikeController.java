@@ -2,7 +2,7 @@ package com.fleencorp.feen.controller.like;
 
 import com.fleencorp.feen.model.dto.like.LikeDto;
 import com.fleencorp.feen.model.response.like.LikeResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.like.LikeService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +26,7 @@ public class LikeController {
   @PostMapping(value = "")
   public LikeResponse like(
       @Valid @RequestBody final LikeDto likeDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return likeService.like(likeDto, user);
   }
 }

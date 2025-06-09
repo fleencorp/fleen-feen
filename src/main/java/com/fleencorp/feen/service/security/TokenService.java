@@ -1,17 +1,17 @@
 package com.fleencorp.feen.service.security;
 
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface TokenService {
 
-  String createAccessToken(FleenUser user);
+  String createAccessToken(RegisteredUser user);
 
-  String createAccessToken(FleenUser user, AuthenticationStatus authenticationStatus);
+  String createAccessToken(RegisteredUser user, AuthenticationStatus authenticationStatus);
 
-  String createRefreshToken(FleenUser user);
+  String createRefreshToken(RegisteredUser user);
 
-  String createResetPasswordToken(FleenUser user);
+  String createResetPasswordToken(RegisteredUser user);
 
   void saveAccessToken(String subject, String token);
 

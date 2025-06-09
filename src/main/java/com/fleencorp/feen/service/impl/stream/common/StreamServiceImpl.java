@@ -11,14 +11,14 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
@@ -124,7 +124,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if the verification fails
    */
   @Override
-  public void verifyStreamDetailAllDetails(final FleenStream stream, final FleenUser user) {
+  public void verifyStreamDetailAllDetails(final FleenStream stream, final RegisteredUser user) {
     if (nonNull(stream)) {
       // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
       stream.checkIsNotOrganizer(user.getId());
@@ -143,7 +143,7 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Validates the {@link FleenStream} and {@link FleenUser} for a protected stream.
+   * Validates the {@link FleenStream} and {@link RegisteredUser} for a protected stream.
    *
    * <p>This method performs several checks to ensure that the stream and user are valid for participation
    * in a protected stream. It verifies that the stream is not public, ensures the user is not the owner
@@ -151,12 +151,12 @@ public class StreamServiceImpl implements StreamService {
    * verifies that the stream has not been canceled, and confirms that the user is not already an attendee.</p>
    *
    * @param stream the {@link FleenStream} to validate
-   * @param user the {@link FleenUser} to validate against the stream
+   * @param user the {@link RegisteredUser} to validate against the stream
    * @throws FailedOperationException if the stream is public, already happened, is canceled, or the user
    *         is already an attendee.
    */
   @Override
-  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final FleenUser user) {
+  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final RegisteredUser user) {
     // Check if the stream is public and halt the operation
     stream.checkIsPublicForRequestToJoin();
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
@@ -229,7 +229,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   @Transactional
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final FleenUser user) {
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final RegisteredUser user) {
     // Add the organizer as an attendee of the stream
     final StreamAttendee streamAttendee = StreamAttendee.of(user.toMember(), stream);
     // Approve the organizer's request to join automatically
@@ -243,7 +243,7 @@ public class StreamServiceImpl implements StreamService {
   /**
    * Validates if the given user is the creator of the specified stream and throws an exception if they are not.
    *
-   * <p>This method first checks if either the {@link FleenStream} or {@link FleenUser} is null,
+   * <p>This method first checks if either the {@link FleenStream} or {@link RegisteredUser} is null,
    * throwing a {@link FailedOperationException} if any of the values are null.
    * Then, it checks if the creator's ID of the stream matches the user's ID.
    * If the user is not the creator of the stream, a {@link StreamNotCreatedByUserException} is thrown.</p>
@@ -253,7 +253,7 @@ public class StreamServiceImpl implements StreamService {
    * @throws FailedOperationException if either the stream or user is null
    * @throws StreamNotCreatedByUserException if the user is not the creator of the stream
    */
-  public static void validateCreatorOfStream(final FleenStream stream, final FleenUser user) {
+  public static void validateCreatorOfStream(final FleenStream stream, final RegisteredUser user) {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
@@ -273,7 +273,7 @@ public class StreamServiceImpl implements StreamService {
    * @param stream the FleenStream to be verified
    * @param user   the FleenUser to be validated as the creator of the stream
    */
-  public static void verifyStreamDetails(final FleenStream stream, final FleenUser user) {
+  public static void verifyStreamDetails(final FleenStream stream, final RegisteredUser user) {
     // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
     // Check if the stream is still active and can be joined.
@@ -394,7 +394,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   @Transactional
-  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final FleenUser user)
+  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final RegisteredUser user)
       throws CalendarNotFoundException, Oauth2InvalidAuthorizationException, FailedOperationException {
     checkIsNull(stream, FailedOperationException::new);
 

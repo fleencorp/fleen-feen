@@ -8,17 +8,17 @@ import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface FollowerService {
 
-  FollowUserResponse followUser(FollowOrUnfollowUserDto followUserDto, FleenUser follower);
+  FollowUserResponse followUser(FollowOrUnfollowUserDto followUserDto, RegisteredUser follower);
 
-  UnfollowUserResponse unfollowUser(FollowOrUnfollowUserDto unfollowUserDto, FleenUser follower);
+  UnfollowUserResponse unfollowUser(FollowOrUnfollowUserDto unfollowUserDto, RegisteredUser follower);
 
-  FollowerSearchResult getFollowers(SearchRequest searchRequest, FleenUser followed);
+  FollowerSearchResult getFollowers(SearchRequest searchRequest, RegisteredUser followed);
 
-  FollowingSearchResult getFollowings(SearchRequest searchRequest, FleenUser user);
+  FollowingSearchResult getFollowings(SearchRequest searchRequest, RegisteredUser user);
 
   void setFollowerDetails(Member targetMember, UserFollowStat userFollowStat);
 }

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.chat.space;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResu
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
@@ -66,7 +66,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.findSpaces(chatSpaceSearchRequest, user);
   }
 
@@ -88,7 +88,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.findMySpaces(chatSpaceSearchRequest, user);
   }
 
@@ -116,7 +116,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.findRequestToJoinSpace(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -142,7 +142,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.findRemovedMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -169,7 +169,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceSearchRequest chatSpaceSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceEventService.findChatSpaceEvents(chatSpaceId, chatSpaceSearchRequest, user);
   }
 
@@ -193,7 +193,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "ID of the chat space to retrieve details for", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.retrieveChatSpace(chatSpaceId, user);
   }
 
@@ -219,7 +219,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "ID of the chat space to retrieve details for", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.retrieveChatSpace(chatSpaceId, user);
   }
 
@@ -247,7 +247,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Member search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.findChatSpaceMembers(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -275,7 +275,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Admin members search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceMemberSearchRequest chatSpaceMemberSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.findChatSpaceAdmins(chatSpaceId, chatSpaceMemberSearchRequest, user);
   }
 
@@ -297,7 +297,7 @@ public class ChatSpaceSearchController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final ChatSpaceSearchRequest createdSpaceSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceSearchService.findSpacesIBelongTo(createdSpaceSearchRequest, user);
   }
 

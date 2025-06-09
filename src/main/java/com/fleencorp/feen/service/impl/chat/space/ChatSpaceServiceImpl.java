@@ -22,7 +22,7 @@ import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
@@ -110,7 +110,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public CreateChatSpaceResponse createChatSpace(final CreateChatSpaceDto createChatSpaceDto, final FleenUser user) {
+  public CreateChatSpaceResponse createChatSpace(final CreateChatSpaceDto createChatSpaceDto, final RegisteredUser user) {
     // Initialize a new chat space based on the dto details
     ChatSpace chatSpace = createChatSpaceDto.toChatSpace(user.toMember());
     // Save the new chat space to the repository
@@ -142,7 +142,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @return A {@link CreateChatSpaceRequest} object containing the chat space creation details.
    * @throws FailedOperationException If any of the provided parameters are null.
    */
-  protected static CreateChatSpaceRequest getCreateChatSpaceRequest(final CreateChatSpaceDto createChatSpaceDto, final FleenUser user) {
+  protected static CreateChatSpaceRequest getCreateChatSpaceRequest(final CreateChatSpaceDto createChatSpaceDto, final RegisteredUser user) {
     // Validate that neither the DTO nor the user is null
     checkIsNullAny(List.of(createChatSpaceDto, user), FailedOperationException::new);
 
@@ -173,7 +173,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public UpdateChatSpaceResponse updateChatSpace(final Long chatSpaceId, final UpdateChatSpaceDto updateChatSpaceDto, final FleenUser user)
+  public UpdateChatSpaceResponse updateChatSpace(final Long chatSpaceId, final UpdateChatSpaceDto updateChatSpaceDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
     // Find the chat space by ID or throw an exception if it doesn't exist
@@ -237,7 +237,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public DeleteChatSpaceResponse deleteChatSpace(final Long chatSpaceId, final FleenUser user)
+  public DeleteChatSpaceResponse deleteChatSpace(final Long chatSpaceId, final RegisteredUser user)
       throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
         FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
@@ -270,7 +270,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public DeleteChatSpaceResponse deleteChatSpaceByAdmin(final Long chatSpaceId, final FleenUser user)
+  public DeleteChatSpaceResponse deleteChatSpaceByAdmin(final Long chatSpaceId, final RegisteredUser user)
       throws ChatSpaceNotFoundException {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);
@@ -313,7 +313,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    */
   @Override
   @Transactional
-  public UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final UpdateChatSpaceStatusDto updateChatSpaceStatusDto, final FleenUser user)
+  public UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final UpdateChatSpaceStatusDto updateChatSpaceStatusDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
     return updateChatSpaceStatus(chatSpaceId, updateChatSpaceStatusDto.getStatus(), user);
@@ -335,7 +335,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws NotAnAdminOfChatSpaceException if the user is neither the creator nor an admin of the chat space
    * @throws FailedOperationException if the operation fails for any other reason
    */
-  protected UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final boolean enable, final FleenUser user)
+  protected UpdateChatSpaceStatusResponse updateChatSpaceStatus(final Long chatSpaceId, final boolean enable, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
@@ -420,7 +420,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceAlreadyDeletedException If the chat space has been deleted.
    * @throws NotAnAdminOfChatSpaceException If the user is not the creator or an admin of the chat space.
    */
-  protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final FleenUser user)
+  protected void verifyIfChatSpaceAlreadyDeletedAndCreatorOrAdminOfSpace(final ChatSpace chatSpace, final RegisteredUser user)
     throws ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException, FailedOperationException {
     // Verify if the chat space has already been deleted
     chatSpace.checkNotDeleted();

@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;
@@ -98,7 +98,7 @@ public class EventJoinServiceImpl implements EventJoinService {
    */
   @Override
   @Transactional
-  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final FleenUser user) {
+  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final RegisteredUser user) {
     // Check if the attendee is a member of a chat space if there is one associated with the stream and approve their join request
     final boolean isMemberPartOfChatSpace = chatSpaceMemberService.checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(stream, streamAttendee);
 
@@ -133,7 +133,7 @@ public class EventJoinServiceImpl implements EventJoinService {
    */
   @Override
   @Transactional
-  public AddNewStreamAttendeeResponse addEventAttendee(final Long eventId, final AddNewStreamAttendeeDto addNewAttendeeDto, final FleenUser user)
+  public AddNewStreamAttendeeResponse addEventAttendee(final Long eventId, final AddNewStreamAttendeeDto addNewAttendeeDto, final RegisteredUser user)
       throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
@@ -216,7 +216,7 @@ public class EventJoinServiceImpl implements EventJoinService {
     memberRepository.findByEmailAddress(addNewStreamAttendeeDto.getEmailAddress())
       .ifPresent(member -> {
         // If the member exists, proceed to create and approve the attendee
-        final StreamAttendee streamAttendee = streamAttendeeOperationsService.getExistingOrCreateNewStreamAttendee(stream, null, FleenUser.of(member.getMemberId()));
+        final StreamAttendee streamAttendee = streamAttendeeOperationsService.getExistingOrCreateNewStreamAttendee(stream, null, RegisteredUser.of(member.getMemberId()));
         // Approve the attendee request by the organizer
         streamAttendee.approvedByOrganizer(addNewStreamAttendeeDto.getComment());
         // Save the attendee and changes

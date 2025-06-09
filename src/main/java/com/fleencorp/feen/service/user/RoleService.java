@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.user;
 
-import com.fleencorp.feen.model.domain.user.Role;
+import com.fleencorp.feen.user.model.domain.Role;
 
 import java.util.List;
 import java.util.Set;

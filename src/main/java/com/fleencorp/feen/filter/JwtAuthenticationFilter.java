@@ -1,10 +1,10 @@
 package com.fleencorp.feen.filter;
 
 import com.fleencorp.base.service.EmailService;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationTokenException;
-import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.model.security.TokenPayload;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationTokenException;
+import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.security.TokenPayload;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.util.security.TokenUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     try {
       // Extract and validate JWT token
       final String token = extractAndValidateJwtToken(request);
-      final UsernamePasswordAuthenticationToken unauthenticatedUser = new UsernamePasswordAuthenticationToken(FleenUser.of(), null);
+      final UsernamePasswordAuthenticationToken unauthenticatedUser = new UsernamePasswordAuthenticationToken(RegisteredUser.of(), null);
 
       if (isNull(token)) {
         SecurityContextHolder.getContext().setAuthentication(unauthenticatedUser);
@@ -255,7 +255,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    */
   private UserDetails extractUserDetailsFromToken(final String token) {
     final TokenPayload details = tokenUtil.convertTokenMapToPayload(token);
-    return FleenUser.fromToken(details);
+    return RegisteredUser.fromToken(details);
   }
 
   /**

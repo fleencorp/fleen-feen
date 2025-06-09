@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.repository;
 
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.projection.MemberInfoSelect;
 import com.fleencorp.feen.user.model.projection.MemberProfileStatusSelect;
@@ -19,7 +19,7 @@ public interface UserProfileRepository extends JpaRepository<Member, Long> {
   void updateProfileStatus(@Param("member") Member member, @Param("profileStatus") ProfileStatus profileStatus);
 
   @Query(value = """
-    SELECT new com.fleencorp.feen.model.projection.member.MemberInfoSelect(
+    SELECT new com.fleencorp.feen.user.model.projection.MemberInfoSelect(
       m.memberId,
       m.firstName,
       m.lastName,
@@ -32,7 +32,7 @@ public interface UserProfileRepository extends JpaRepository<Member, Long> {
   Optional<MemberInfoSelect> findInfoByMember(@Param("member") Member member);
 
   @Query(value = """
-    SELECT new com.fleencorp.feen.model.projection.member.MemberUpdateSelect(
+    SELECT new com.fleencorp.feen.user.model.projection.MemberUpdateSelect(
       m.memberId,
       m.firstName,
       m.lastName,
@@ -46,7 +46,7 @@ public interface UserProfileRepository extends JpaRepository<Member, Long> {
   Optional<MemberUpdateSelect> findByMember(@Param("member") Member member);
 
   @Query(value = """
-    SELECT new com.fleencorp.feen.model.projection.member.MemberProfileStatusSelect(
+    SELECT new com.fleencorp.feen.user.model.projection.MemberProfileStatusSelect(
       m.profileStatus
     )
     FROM Member m

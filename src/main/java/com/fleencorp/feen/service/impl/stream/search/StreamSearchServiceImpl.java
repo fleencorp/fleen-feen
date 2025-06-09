@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
@@ -106,7 +106,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   @Override
   @MeasureExecutionTime
-  public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);
     // Get the list of stream views from the search result
@@ -190,7 +190,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized response containing the streams associated with the user, including any filtering applied and pagination details
    */
   @Override
-  public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     final Page<FleenStream> page = findMyStreams(searchRequest, user.toMember());
     // Convert the streams to response views
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
@@ -287,7 +287,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized response containing the streams attended by the user, including any filtering applied and pagination details
    */
   @Override
-  public StreamSearchResult findStreamsAttendedByUser(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public StreamSearchResult findStreamsAttendedByUser(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     final Member member = user.toMember();
     final Page<FleenStream> page = findStreamsAttendedByUser(searchRequest, member);
     // Convert the streams to response views
@@ -347,7 +347,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized response containing the streams attended together by the current user and another user, or an empty result if no `anotherUserId` is provided
    */
   @Override
-  public MutualStreamAttendanceSearchResult findStreamsAttendedWithAnotherUser(final StreamSearchRequest searchRequest, final FleenUser user) {
+  public MutualStreamAttendanceSearchResult findStreamsAttendedWithAnotherUser(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     Page<FleenStream> page = new PageImpl<>(List.of());
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -447,7 +447,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @throws StreamNotFoundException if no stream is found with the given ID
    */
   @Override
-  public RetrieveStreamResponse retrieveStream(final Long streamId, final FleenUser user) throws StreamNotFoundException {
+  public RetrieveStreamResponse retrieveStream(final Long streamId, final RegisteredUser user) throws StreamNotFoundException {
     // Retrieve the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
     // The Stream converted to a response
@@ -485,7 +485,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    *
    * @return a response containing the total number of streams created by the user, along with stream type information
    */
-  public TotalStreamsCreatedByUserResponse countTotalStreamsByUser(final StreamTypeSearchRequest searchRequest, final FleenUser user) {
+  public TotalStreamsCreatedByUserResponse countTotalStreamsByUser(final StreamTypeSearchRequest searchRequest, final RegisteredUser user) {
     final Member member = user.toMember();
     final StreamType streamType = searchRequest.getStreamType();
 
@@ -513,7 +513,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    *
    * @return a response containing the total number of streams attended by the user, along with stream type information
    */
-  public TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(final StreamTypeSearchRequest searchRequest, final FleenUser user) {
+  public TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(final StreamTypeSearchRequest searchRequest, final RegisteredUser user) {
     final Member member = user.toMember();
     final StreamType streamType = searchRequest.getStreamType();
 

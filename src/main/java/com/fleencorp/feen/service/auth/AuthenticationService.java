@@ -1,19 +1,19 @@
 package com.fleencorp.feen.service.auth;
 
-import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
-import com.fleencorp.feen.exception.user.profile.BannedAccountException;
-import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.user.profile.BannedAccountException;
+import com.fleencorp.feen.user.exception.user.profile.DisabledAccountException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.model.dto.auth.SignInDto;
-import com.fleencorp.feen.model.dto.auth.SignUpDto;
+import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
+import com.fleencorp.feen.user.model.dto.authentication.SignUpDto;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface AuthenticationService {
 
@@ -21,13 +21,13 @@ public interface AuthenticationService {
 
   SignUpResponse signUp(SignUpDto signUpDto) throws FailedOperationException;
 
-  SignOutResponse signOut(FleenUser user);
+  SignOutResponse signOut(RegisteredUser user);
 
   SignInResponse signIn(SignInDto signInDto)
     throws DisabledAccountException, BannedAccountException, InvalidAuthenticationException,
       FailedOperationException;
 
-  FleenUser initializeAuthenticationAndContext(Member member) throws FailedOperationException;
+  RegisteredUser initializeAuthenticationAndContext(Member member) throws FailedOperationException;
 
   Member getMemberDetails(String emailAddressOrUsername) throws UserNotFoundException;
 
@@ -35,9 +35,9 @@ public interface AuthenticationService {
 
   void saveMfaVerificationCodeTemporarily(String username, String verificationCode);
 
-  void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, FleenUser user);
+  void sendSignUpVerificationMessage(String otpCode, VerificationType verificationType, RegisteredUser user);
 
   void saveAuthenticationTokensToRepositoryOrCache(String username, String accessToken, String refreshToken);
 
-  void setUserTimezoneAfterAuthentication(FleenUser user);
+  void setUserTimezoneAfterAuthentication(RegisteredUser user);
 }

@@ -3,25 +3,25 @@ package com.fleencorp.feen.user.service.impl;
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.profile.*;
-import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
-import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
-import com.fleencorp.feen.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.user.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.user.exception.user.profile.*;
 import com.fleencorp.feen.user.mapper.UserMapper;
-import com.fleencorp.feen.user.model.dto.*;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.user.model.dto.profile.*;
 import com.fleencorp.feen.user.model.info.ProfileStatusInfo;
-import com.fleencorp.feen.model.request.profile.ProfileUpdateVerificationRequest;
+import com.fleencorp.feen.user.model.request.profile.ProfileUpdateVerificationRequest;
 import com.fleencorp.feen.user.model.response.RemoveProfilePhotoResponse;
 import com.fleencorp.feen.user.model.response.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.repository.UserProfileRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
@@ -123,13 +123,13 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the password for the specified user.
    *
    * @param updatePasswordDto the {@link UpdatePasswordDto} containing the old and new password information.
-   * @param user the {@link FleenUser} whose password is being updated.
+   * @param user the {@link RegisteredUser} whose password is being updated.
    * @return a localized {@link UpdatePasswordResponse} indicating the result of the password update operation.
    * @throws UpdatePasswordFailedException if the old password does not match or if the user is not found.
    */
   @Override
   @Transactional
-  public UpdatePasswordResponse updatePassword(final UpdatePasswordDto updatePasswordDto, final FleenUser user) throws UpdatePasswordFailedException {
+  public UpdatePasswordResponse updatePassword(final UpdatePasswordDto updatePasswordDto, final RegisteredUser user) throws UpdatePasswordFailedException {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(UpdatePasswordFailedException::new);
@@ -157,13 +157,13 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the profile information for the specified user.
    *
    * @param updateProfileInfoDto the {@link UpdateProfileInfoDto} containing the user's new profile details such as country, first name, and last name.
-   * @param user the {@link FleenUser} whose profile information is being updated.
+   * @param user the {@link RegisteredUser} whose profile information is being updated.
    * @return a localized {@link UpdateProfileInfoResponse} indicating the result of the profile update operation.
    * @throws UpdateProfileInfoFailedException if the user is not found in the repository.
    */
   @Override
   @Transactional
-  public UpdateProfileInfoResponse updateInfo(final UpdateProfileInfoDto updateProfileInfoDto, final FleenUser user) throws UpdateProfileInfoFailedException {
+  public UpdateProfileInfoResponse updateInfo(final UpdateProfileInfoDto updateProfileInfoDto, final RegisteredUser user) throws UpdateProfileInfoFailedException {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(UpdateProfileInfoFailedException::new);
@@ -197,13 +197,13 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Sends a verification code for updating the user's email address or phone number.
    *
    * @param updateEmailAddressOrPhoneNumberDto the {@link UpdateEmailAddressOrPhoneNumberDto} containing the details for the update request.
-   * @param user the {@link FleenUser} initiating the verification process.
+   * @param user the {@link RegisteredUser} initiating the verification process.
    * @return a localized {@link SendUpdateEmailOrPhoneVerificationCodeResponse} indicating the result of the operation.
    * @throws IllegalArgumentException if the verification type is invalid.
    */
   @Override
   @Transactional
-  public SendUpdateEmailOrPhoneVerificationCodeResponse sendUpdateEmailAddressOrPhoneNumberVerificationCode(final UpdateEmailAddressOrPhoneNumberDto updateEmailAddressOrPhoneNumberDto, final FleenUser user) {
+  public SendUpdateEmailOrPhoneVerificationCodeResponse sendUpdateEmailAddressOrPhoneNumberVerificationCode(final UpdateEmailAddressOrPhoneNumberDto updateEmailAddressOrPhoneNumberDto, final RegisteredUser user) {
     // Retrieve the verification type from the DTO
     final VerificationType verificationType = updateEmailAddressOrPhoneNumberDto.getVerificationType();
     // Find the member associated with the user's email address
@@ -228,14 +228,14 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the email address for the specified user after verifying the provided code.
    *
    * @param updateEmailAddressDto the {@link ConfirmUpdateEmailAddressDto} containing the new email address and verification code.
-   * @param user the {@link FleenUser} whose email address is being updated.
+   * @param user the {@link RegisteredUser} whose email address is being updated.
    * @return a localized {@link UpdateEmailAddressResponse} indicating the result of the operation.
    * @throws FailedOperationException if the user cannot be found or if the verification fails.
    * @throws EmailAddressAlreadyExistsException if the new email address is already in use by another member.
    */
   @Override
   @Transactional
-  public UpdateEmailAddressResponse updateEmailAddress(final ConfirmUpdateEmailAddressDto updateEmailAddressDto, final FleenUser user) {
+  public UpdateEmailAddressResponse updateEmailAddress(final ConfirmUpdateEmailAddressDto updateEmailAddressDto, final RegisteredUser user) {
     // Get the current user's email address
     final String username = user.getEmailAddress();
     // Generate the cache key for the email update verification
@@ -260,7 +260,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
     return localizer.of(UpdateEmailAddressResponse.of());
   }
 
-  private void verifyEmailIsNotUsedByAnotherUser(final ConfirmUpdateEmailAddressDto updateEmailAddressDto, final FleenUser user) {
+  private void verifyEmailIsNotUsedByAnotherUser(final ConfirmUpdateEmailAddressDto updateEmailAddressDto, final RegisteredUser user) {
     // Check if the new email address is already associated with another member
     memberRepository.findEmailOfMember(updateEmailAddressDto.getEmailAddress())
       .ifPresent(foundMember -> {
@@ -277,14 +277,14 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the phone number for the specified user after verifying the provided code.
    *
    * @param updatePhoneNumberDto the {@link ConfirmUpdatePhoneNumberDto} containing the new phone number and verification code.
-   * @param user the {@link FleenUser} whose phone number is being updated.
+   * @param user the {@link RegisteredUser} whose phone number is being updated.
    * @return a localized {@link UpdatePhoneNumberResponse} indicating the result of the operation.
    * @throws FailedOperationException if the user cannot be found or if the verification fails.
    * @throws PhoneNumberAlreadyExistsException if the new phone number is already in use by another member.
    */
   @Override
   @Transactional
-  public UpdatePhoneNumberResponse updatePhoneNumber(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final FleenUser user)
+  public UpdatePhoneNumberResponse updatePhoneNumber(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final RegisteredUser user)
     throws VerificationFailedException, ExpiredVerificationCodeException, InvalidVerificationCodeException,
       PhoneNumberAlreadyExistsException {
     // Get the current user's email address
@@ -311,7 +311,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
     return localizer.of(UpdatePhoneNumberResponse.of());
   }
 
-  private void verifyPhoneNumberIsNotUsedByAnotherUser(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final FleenUser user) {
+  private void verifyPhoneNumberIsNotUsedByAnotherUser(final ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, final RegisteredUser user) {
     // Check if the new phone number is already associated with another member
     memberRepository.findPhoneOfMember(updatePhoneNumberDto.getPhoneNumber())
       .ifPresent(foundMember -> {
@@ -327,12 +327,12 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
   /**
    * Updates the profile status of the specified user to active.
    *
-   * @param user the {@link FleenUser} whose profile status is to be updated.
+   * @param user the {@link RegisteredUser} whose profile status is to be updated.
    * @return a response indicating the outcome of the profile status update operation.
    */
   @Override
   @Transactional
-  public UpdateProfileStatusResponse updateProfileActive(final FleenUser user) {
+  public UpdateProfileStatusResponse updateProfileActive(final RegisteredUser user) {
     // Delegate to updateProfileStatus method to set the profile status to ACTIVE
     return updateProfileStatus(ProfileStatus.ACTIVE, user);
   }
@@ -340,12 +340,12 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
   /**
    * Updates the profile status of the specified user to inactive.
    *
-   * @param user the {@link FleenUser} whose profile status is to be updated.
+   * @param user the {@link RegisteredUser} whose profile status is to be updated.
    * @return a response indicating the outcome of the profile status update operation.
    */
   @Override
   @Transactional
-  public UpdateProfileStatusResponse updateProfileInactive(final FleenUser user) {
+  public UpdateProfileStatusResponse updateProfileInactive(final RegisteredUser user) {
     // Delegate to updateProfileStatus method to set the profile status to INACTIVE
     return updateProfileStatus(ProfileStatus.INACTIVE, user);
   }
@@ -354,12 +354,12 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the profile photo of the specified user.
    *
    * @param dto the {@link UpdateProfilePhotoDto} containing the new profile photo URL.
-   * @param user the {@link FleenUser} whose profile photo is to be updated.
+   * @param user the {@link RegisteredUser} whose profile photo is to be updated.
    * @return a response indicating the outcome of the profile photo update operation.
    */
   @Override
   @Transactional
-  public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final FleenUser user) {
+  public UpdateProfilePhotoResponse updateProfilePhoto(final UpdateProfilePhotoDto dto, final RegisteredUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
     // Retrieve the profile photo associated with the user
@@ -381,12 +381,12 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
   /**
    * Removes the profile photo for the specified user.
    *
-   * @param user the {@link FleenUser} whose profile photo is to be removed.
+   * @param user the {@link RegisteredUser} whose profile photo is to be removed.
    * @return a localized {@link RemoveProfilePhotoResponse} indicating the result of the operation.
    */
   @Override
   @Transactional
-  public RemoveProfilePhotoResponse removeProfilePhoto(final FleenUser user) throws FailedOperationException {
+  public RemoveProfilePhotoResponse removeProfilePhoto(final RegisteredUser user) throws FailedOperationException {
     // Find the member associated with the user's email address
     final Member member = findMember(user.getEmailAddress());
     final String profilePhotoUrl = member.getProfilePhotoUrl();
@@ -411,11 +411,11 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    * Updates the profile status of the specified user based on the provided profile status.
    *
    * @param profileStatus the {@link ProfileStatus} to be set for the user.
-   * @param user the {@link FleenUser} whose profile status is being updated.
+   * @param user the {@link RegisteredUser} whose profile status is being updated.
    * @return a localized {@link UpdateProfileStatusResponse} indicating the result of the operation.
    * @throws FailedOperationException if the user cannot be found in the member repository.
    */
-  protected UpdateProfileStatusResponse updateProfileStatus(final ProfileStatus profileStatus, final FleenUser user) {
+  protected UpdateProfileStatusResponse updateProfileStatus(final ProfileStatus profileStatus, final RegisteredUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(FailedOperationException::new);
@@ -458,10 +458,10 @@ public class MemberUpdateServiceImpl implements MemberUpdateService, PasswordSer
    *
    * @param otp the one-time password (OTP) for verification.
    * @param verificationType the {@link VerificationType} indicating the type of verification (email or phone).
-   * @param user the {@link FleenUser} containing the user's details.
+   * @param user the {@link RegisteredUser} containing the user's details.
    * @return a new instance of {@link ProfileUpdateVerificationRequest} populated with the provided details.
    */
-  public ProfileUpdateVerificationRequest createProfileUpdateVerificationRequest(final String otp, final VerificationType verificationType, final FleenUser user) {
+  public ProfileUpdateVerificationRequest createProfileUpdateVerificationRequest(final String otp, final VerificationType verificationType, final RegisteredUser user) {
     // Create and return a ProfileUpdateVerificationRequest with the user's information and OTP
     return ProfileUpdateVerificationRequest
       .of(otp, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);

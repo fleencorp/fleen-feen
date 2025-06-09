@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.impl.social;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.model.domain.social.BlockUser;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.social.block.BlockUserDto;
@@ -11,7 +11,7 @@ import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
 import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;
 import com.fleencorp.feen.model.response.social.block.BlockedUserResponse;
 import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.social.BlockUserService;
@@ -68,7 +68,7 @@ public class BlockUserServiceImpl implements BlockUserService {
    * @return a BlockingUserSearchResult containing the list of blocked users and pagination details
    */
   @Override
-  public BlockingUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final FleenUser user) {
+  public BlockingUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final RegisteredUser user) {
     final Page<BlockUser> page = blockUserRepository.findByInitiatorAndBlockStatus(user.toMember(), BlockStatus.BLOCKED, searchRequest.getPage());
 
     final List<BlockedUserResponse> blockedUserResponses = getBlockedUsers(page.getContent());
@@ -112,7 +112,7 @@ public class BlockUserServiceImpl implements BlockUserService {
    * @throws UserNotFoundException if the recipient user to be blocked or unblocked cannot be found
    */
   @Override
-  public BlockUserStatusResponse blockOrUnblockUser(final BlockUserDto blockUserDto, final FleenUser user) {
+  public BlockUserStatusResponse blockOrUnblockUser(final BlockUserDto blockUserDto, final RegisteredUser user) {
     // Validate the member or authenticated user details
     memberRepository.findById(user.getId())
       .orElseThrow(FailedOperationException::new);

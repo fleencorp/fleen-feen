@@ -20,7 +20,7 @@ import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.review.ReviewRepository;
 import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.review.ReviewService;
@@ -99,11 +99,11 @@ public class ReviewServiceImpl implements ReviewService {
    * <p>If the user has authored any of the reviews, those reviews will be marked as updatable.</p>
    *
    * @param searchRequest the pagination and sorting information for the review search
-   * @param user the {@link FleenUser} to check ownership of reviews and mark them as updatable if applicable
+   * @param user the {@link RegisteredUser} to check ownership of reviews and mark them as updatable if applicable
    * @return a {@link ReviewSearchResult} containing the reviews and pagination details, or an empty result if no reviews are found
    */
   @Override
-  public ReviewSearchResult findReviews(final ReviewSearchRequest searchRequest, final FleenUser user) {
+  public ReviewSearchResult findReviews(final ReviewSearchRequest searchRequest, final RegisteredUser user) {
     Page<Review> page = Page.empty();
 
     // Check if a stream review search request
@@ -124,11 +124,11 @@ public class ReviewServiceImpl implements ReviewService {
    *
    * @param reviewParentType the type of reviews to find
    * @param parentId the ID of the parent which review is a child of
-   * @param user the {@link FleenUser} whose ownership of the review is being verified for updatability
+   * @param user the {@link RegisteredUser} whose ownership of the review is being verified for updatability
    * @return the {@link ReviewResponse} for the most recent review, or {@code null} if no review is found
    */
   @Override
-  public ReviewResponse findMostRecentReview(final ReviewParentType reviewParentType, final Long parentId, final FleenUser user) {
+  public ReviewResponse findMostRecentReview(final ReviewParentType reviewParentType, final Long parentId, final RegisteredUser user) {
     // Prepare search request details
     final PageRequest pageRequest = PageRequest.of(0, 1);
     // List of review
@@ -157,7 +157,7 @@ public class ReviewServiceImpl implements ReviewService {
    * @return a {@link ReviewSearchResult} containing the paginated list of reviews in response format
    */
   @Override
-  public ReviewSearchResult findMyReviews(final SearchRequest searchRequest, final FleenUser user) {
+  public ReviewSearchResult findMyReviews(final SearchRequest searchRequest, final RegisteredUser user) {
     // Find all user reviews
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
     // Convert and process the reviews to responses
@@ -207,7 +207,7 @@ public class ReviewServiceImpl implements ReviewService {
    */
   @Override
   @Transactional
-  public AddReviewResponse addReview(final AddReviewDto addReviewDto, final FleenUser user)
+  public AddReviewResponse addReview(final AddReviewDto addReviewDto, final RegisteredUser user)
       throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     // Get the review type
     final ReviewParentType reviewParentType = addReviewDto.getReviewParentType();
@@ -247,7 +247,7 @@ public class ReviewServiceImpl implements ReviewService {
    */
   @Override
   @Transactional
-  public UpdateReviewResponse updateReview(final Long reviewId, final UpdateReviewDto updateReviewDto, final FleenUser user)
+  public UpdateReviewResponse updateReview(final Long reviewId, final UpdateReviewDto updateReviewDto, final RegisteredUser user)
     throws ReviewNotFoundException, StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
       FailedOperationException {
     final Member member = user.toMember();
@@ -308,7 +308,7 @@ public class ReviewServiceImpl implements ReviewService {
    */
   @Override
   @Transactional
-  public DeleteReviewResponse deleteReview(final Long reviewId, final FleenUser user) {
+  public DeleteReviewResponse deleteReview(final Long reviewId, final RegisteredUser user) {
     // Delete the StreamReview associated with the given review ID and user
     reviewRepository.deleteByStreamReviewIdAndMember(reviewId, user.toMember());
     // Return the response

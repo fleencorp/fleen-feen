@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.projection.like.UserLikeInfoSelect;
 import com.fleencorp.feen.model.response.like.LikeResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.like.LikeRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.like.LikeService;
@@ -84,7 +84,7 @@ public class LikeServiceImpl implements LikeService {
    */
   @Override
   @Transactional
-  public LikeResponse like(final LikeDto likeDto, final FleenUser user)
+  public LikeResponse like(final LikeDto likeDto, final RegisteredUser user)
       throws StreamNotFoundException, ChatSpaceNotFoundException, FailedOperationException {
     final Long parentId = likeDto.getParentId();
     final LikeParentType parentType = likeDto.getLikeParentType();

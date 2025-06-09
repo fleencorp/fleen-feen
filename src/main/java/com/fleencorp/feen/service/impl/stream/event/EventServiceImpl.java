@@ -19,7 +19,7 @@ import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
@@ -119,7 +119,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final RegisteredUser user) throws CalendarNotFoundException {
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Set event organizer as attendee in Google calendar
@@ -222,7 +222,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Transactional
-  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final RegisteredUser user) throws CalendarNotFoundException {
     // Find the calendar associated with the user's country
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     // Create a Stream object from the DTO and update its details with the Google Calendar response

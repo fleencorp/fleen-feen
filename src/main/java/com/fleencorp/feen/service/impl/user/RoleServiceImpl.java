@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.user;
 
-import com.fleencorp.feen.constant.security.role.RoleType;
-import com.fleencorp.feen.model.domain.user.Role;
+import com.fleencorp.feen.user.constant.role.RoleType;
+import com.fleencorp.feen.user.model.domain.Role;
 import com.fleencorp.feen.repository.user.RoleRepository;
 import com.fleencorp.feen.service.user.RoleService;
 import lombok.extern.slf4j.Slf4j;

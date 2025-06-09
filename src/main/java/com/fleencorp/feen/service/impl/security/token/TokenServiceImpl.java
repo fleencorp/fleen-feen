@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.security.token;
 
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.util.security.TokenUtil;
@@ -13,7 +13,6 @@ import java.time.Duration;
 import java.util.Date;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.toHours;
-import static com.fleencorp.feen.constant.security.token.TokenType.*;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
 import static java.time.Duration.ofHours;
 
@@ -54,7 +53,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to access the application or API features
    */
   @Override
-  public String createAccessToken(final FleenUser user) {
+  public String createAccessToken(final RegisteredUser user) {
     return tokenUtil.generateAccessToken(user, ACCESS_TOKEN, null);
   }
 
@@ -65,7 +64,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to access the application or API features
    */
   @Override
-  public String createAccessToken(final FleenUser user, final AuthenticationStatus authenticationStatus) {
+  public String createAccessToken(final RegisteredUser user, final AuthenticationStatus authenticationStatus) {
     return tokenUtil.generateAccessToken(user, ACCESS_TOKEN, authenticationStatus);
   }
 
@@ -76,7 +75,7 @@ public class TokenServiceImpl implements TokenService {
    * @return the token to use to obtain new access token.
    */
   @Override
-  public String createRefreshToken(final FleenUser user) {
+  public String createRefreshToken(final RegisteredUser user) {
     return tokenUtil.generateRefreshToken(user, REFRESH_TOKEN, null);
   }
 
@@ -89,7 +88,7 @@ public class TokenServiceImpl implements TokenService {
    * @return String the generated reset password token
    */
   @Override
-  public String createResetPasswordToken(final FleenUser user) {
+  public String createResetPasswordToken(final RegisteredUser user) {
     return tokenUtil.generateResetPasswordToken(user, RESET_PASSWORD_TOKEN, null);
   }
 

@@ -27,7 +27,7 @@ import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.stream.speaker.StreamSpeakerRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
@@ -111,7 +111,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @return a StreamSpeakerSearchResult containing the list of speakers matching the search criteria
    */
   @Override
-  public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
+  public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final RegisteredUser user) {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
     // Validate if the user is the creator of the stream
@@ -144,7 +144,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @return a {@code StreamSpeakerSearchResult} containing a list of speakers, or an empty result if no speakers are found
    */
   @Override
-  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final FleenUser user) {
+  public StreamSpeakerSearchResult findStreamSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final RegisteredUser user) {
     // Set default number of speakers to retrieve
     searchRequest.setDefaultPageSize();
     // Retrieve the stream with the given ID
@@ -186,7 +186,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   @Transactional
-  public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final FleenUser user)
+  public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
@@ -229,7 +229,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    *
    * @param streamId the ID of the stream to update speakers for
    * @param dto the {@link UpdateStreamSpeakerDto} containing the speaker information to update
-   * @param user the {@link FleenUser} performing the update operation
+   * @param user the {@link RegisteredUser} performing the update operation
    * @return an {@link UpdateStreamSpeakerResponse} indicating the outcome of the update
    * @throws StreamNotFoundException if the stream with the given ID does not exist
    * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
@@ -237,7 +237,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   @Transactional
-  public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final FleenUser user)
+  public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
@@ -361,7 +361,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   @Transactional
-  public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final FleenUser user)
+  public RemoveStreamSpeakerResponse removeSpeakers(final Long streamId, final RemoveStreamSpeakerDto dto, final RegisteredUser user)
       throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException {
     // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);

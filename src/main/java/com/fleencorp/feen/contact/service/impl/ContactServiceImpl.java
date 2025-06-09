@@ -20,7 +20,7 @@ import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.social.BlockUserService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
@@ -118,7 +118,7 @@ public class ContactServiceImpl implements ContactService {
    * @return a ContactSearchResult containing search result and containing the list of contact responses and pagination details.
    */
   @Override
-  public ContactSearchResult findContacts(final ContactSearchRequest searchRequest, final FleenUser user) {
+  public ContactSearchResult findContacts(final ContactSearchRequest searchRequest, final RegisteredUser user) {
     final Member member = user.toMember();
     // Retrieve a page of contacts owned by the user according to the search request
     final Page<Contact> page = contactRepository.findByOwner(member, searchRequest.getPage());
@@ -165,7 +165,7 @@ public class ContactServiceImpl implements ContactService {
    * @return an {@link ContactAddResponse} representing the added or updated contact.
    */
   @Override
-  public ContactAddResponse addContact(final AddContactDto addContactDto, final FleenUser user) {
+  public ContactAddResponse addContact(final AddContactDto addContactDto, final RegisteredUser user) {
     // Find existing contact by owner and contact type
     final Contact contact = contactRepository.findByOwnerAndContactType(user.toMember(), addContactDto.getContactType())
       .map(existingContact -> {
@@ -201,7 +201,7 @@ public class ContactServiceImpl implements ContactService {
    */
   @Override
   @Transactional
-  public ContactUpdateResponse updateContact(final Long contactId, final UpdateContactSingleDto updateContactDto, final FleenUser user) {
+  public ContactUpdateResponse updateContact(final Long contactId, final UpdateContactSingleDto updateContactDto, final RegisteredUser user) {
     // Retrieve the contact by ID, or throw an exception if not found
     final Contact contact = contactRepository.findByContactIdAndOwner(contactId, user.toMember())
       .map(existingContact -> {
@@ -236,7 +236,7 @@ public class ContactServiceImpl implements ContactService {
    */
   @Override
   @Transactional
-  public ContactUpdateResponse updateContacts(final UpdateContactDto updateContactDto, final FleenUser user) {
+  public ContactUpdateResponse updateContacts(final UpdateContactDto updateContactDto, final RegisteredUser user) {
     final Member member = user.toMember();
 
     // Fetch all existing contacts for the member
@@ -322,7 +322,7 @@ public class ContactServiceImpl implements ContactService {
    */
   @Override
   @Transactional
-  public ContactDeleteResponse deleteContact(final DeleteContactDto deleteContactDto, final FleenUser user) {
+  public ContactDeleteResponse deleteContact(final DeleteContactDto deleteContactDto, final RegisteredUser user) {
     // Find the contacts of the user
     final Collection<Contact> contacts = contactRepository.findByOwnerAndContactType(user.getId(), deleteContactDto.getContactTypes());
     // Delete the contacts from the repository

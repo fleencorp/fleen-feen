@@ -23,7 +23,7 @@ import com.fleencorp.feen.link.service.LinkService;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
@@ -153,7 +153,7 @@ public class LinkServiceImpl implements LinkService {
    * @return a {@code LinkSearchResult} containing the found links and other relevant search metadata
    */
   @Override
-  public LinkSearchResult findLinks(final LinkSearchRequest searchRequest, final FleenUser user) {
+  public LinkSearchResult findLinks(final LinkSearchRequest searchRequest, final RegisteredUser user) {
     // Update the page size to 1000 for the search request
     searchRequest.updatePageSize(1000);
     // Initialize an empty page of links
@@ -208,7 +208,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public LinkStreamMusicUpdateResponse updateStreamMusicLink(final UpdateStreamMusicLinkDto updateStreamMusicLinkDto, final FleenUser user) {
+  public LinkStreamMusicUpdateResponse updateStreamMusicLink(final UpdateStreamMusicLinkDto updateStreamMusicLinkDto, final RegisteredUser user) {
     // Retrieve the stream object based on the stream ID
     final FleenStream stream = streamService.findStream(updateStreamMusicLinkDto.getStreamId());
     // Ensure the user is the organizer of the stream
@@ -238,7 +238,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public LinkUpdateResponse updateLink(final UpdateLinkDto updateLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
+  public LinkUpdateResponse updateLink(final UpdateLinkDto updateLinkDto, final RegisteredUser user) throws ChatSpaceNotFoundException, FailedOperationException {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(updateLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
@@ -329,7 +329,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public LinkDeleteResponse deleteLink(final DeleteLinkDto deleteLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
+  public LinkDeleteResponse deleteLink(final DeleteLinkDto deleteLinkDto, final RegisteredUser user) throws ChatSpaceNotFoundException, FailedOperationException {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(deleteLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
@@ -353,7 +353,7 @@ public class LinkServiceImpl implements LinkService {
    * @param links the list of {@code LinkResponse} objects to be updated
    * @param user the user whose permissions will be checked for updating the links
    */
-  protected void setLinksThatAreUpdatableByUser(final ChatSpace chatSpace, final List<LinkResponse> links, final FleenUser user) {
+  protected void setLinksThatAreUpdatableByUser(final ChatSpace chatSpace, final List<LinkResponse> links, final RegisteredUser user) {
     // Check if links and user are not null, and if the list of links is not empty
     if (nonNull(links) && !links.isEmpty() && nonNull(user)) {
       // Verify if the user is an admin or the creator of the chat space

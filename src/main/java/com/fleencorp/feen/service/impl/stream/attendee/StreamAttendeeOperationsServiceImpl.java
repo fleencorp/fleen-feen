@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeManagementRepository;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeProjectionRepository;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeQueryRepository;
@@ -172,7 +172,7 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
 
   @Override
   public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(
-    final boolean isAttendeeMemberOfChatSpace, final String streamExternalId, final String comment, final FleenUser user) {
+    final boolean isAttendeeMemberOfChatSpace, final String streamExternalId, final String comment, final RegisteredUser user) {
     streamAttendeeService.checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(
       isAttendeeMemberOfChatSpace, streamExternalId, comment, user);
   }
@@ -198,12 +198,12 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user) {
+  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final RegisteredUser user) {
     return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
   }
 
   @Override
-  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final FleenUser user) throws FailedOperationException {
+  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final RegisteredUser user) throws FailedOperationException {
     return streamAttendeeService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
   }
 

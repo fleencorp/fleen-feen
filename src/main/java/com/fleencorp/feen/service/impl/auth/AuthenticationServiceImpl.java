@@ -1,28 +1,28 @@
 package com.fleencorp.feen.service.impl.auth;
 
-import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.constant.security.role.RoleType;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStage;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
+import com.fleencorp.feen.user.constant.role.RoleType;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
-import com.fleencorp.feen.exception.user.profile.BannedAccountException;
-import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
-import com.fleencorp.feen.exception.user.role.NoRoleAvailableToAssignException;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.user.profile.BannedAccountException;
+import com.fleencorp.feen.user.exception.user.profile.DisabledAccountException;
+import com.fleencorp.feen.user.exception.user.role.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.model.domain.other.Country;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.model.domain.user.Role;
-import com.fleencorp.feen.model.dto.auth.SignInDto;
-import com.fleencorp.feen.model.dto.auth.SignUpDto;
-import com.fleencorp.feen.model.request.auth.SignUpVerificationRequest;
-import com.fleencorp.feen.model.request.mfa.MfaVerificationRequest;
+import com.fleencorp.feen.user.model.domain.Role;
+import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
+import com.fleencorp.feen.user.model.dto.authentication.SignUpDto;
+import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;
+import com.fleencorp.feen.user.model.request.mfa.MfaVerificationRequest;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
@@ -30,7 +30,7 @@ import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.country.CountryResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
 import com.fleencorp.feen.model.search.country.CountrySearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.auth.AuthenticationService;
@@ -204,7 +204,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Save the member to the repository
     memberRepository.save(member);
     // Initialize authentication and set context for the new member
-    final FleenUser user = authenticateAndInitializeContext(member);
+    final RegisteredUser user = authenticateAndInitializeContext(member);
 
     // Generate a access token for the authenticated user
     final String accessToken = tokenService.createAccessToken(user);
@@ -243,15 +243,15 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Authenticates the provided member and initializes the authentication context.
    *
    * <p>This method handles the authentication process for the given {@link Member}, initializes the
-   * authentication context for the associated {@link FleenUser}, and sets the user's timezone after
+   * authentication context for the associated {@link RegisteredUser}, and sets the user's timezone after
    * successful authentication.</p>
    *
    * @param member the {@link Member} to be authenticated and initialized
-   * @return the authenticated {@link FleenUser} with the authentication context set
+   * @return the authenticated {@link RegisteredUser} with the authentication context set
    */
-  protected FleenUser authenticateAndInitializeContext(final Member member) {
+  protected RegisteredUser authenticateAndInitializeContext(final Member member) {
     // Initialize authentication and set context for the new member
-    final FleenUser user = initializeAuthenticationAndContext(member);
+    final RegisteredUser user = initializeAuthenticationAndContext(member);
     // Set user timezone after authentication
     setUserTimezoneAfterAuthentication(user);
     // Return the user
@@ -265,12 +265,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * verification message to the user. It also temporarily saves the OTP and stores the access
    * and refresh tokens in the repository or cache.</p>
    *
-   * @param user the {@link FleenUser} for whom the verification and token handling will be done
+   * @param user the {@link RegisteredUser} for whom the verification and token handling will be done
    * @param verificationType the type of verification to be performed (e.g., email, phone)
    * @param accessToken the access token to be saved for the user
    * @param refreshToken the refresh token to be saved for the user
    */
-  protected void handleVerificationAndTokens(final FleenUser user, final VerificationType verificationType, final String accessToken, final String refreshToken) {
+  protected void handleVerificationAndTokens(final RegisteredUser user, final VerificationType verificationType, final String accessToken, final String refreshToken) {
     final String otpCode = generateOtp();
     // Send sign up verification message to user
     sendSignUpVerificationMessage(otpCode, verificationType, user);
@@ -287,13 +287,13 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * and user details such as email address and phone number. It also updates the response with the
    * verification type information before returning the localized response.</p>
    *
-   * @param user the {@link FleenUser} whose details (email and phone number) are included in the sign-up response
+   * @param user the {@link RegisteredUser} whose details (email and phone number) are included in the sign-up response
    * @param accessToken the access token to be included in the response
    * @param refreshToken the refresh token to be included in the response
    * @param verificationType the type of verification (e.g., email, phone) to be set in the response
    * @return the {@link SignUpResponse} with localized details and necessary information for the sign-up process
    */
-  protected SignUpResponse createSignUpResponse(final FleenUser user, final String accessToken, final String refreshToken, final VerificationType verificationType) {
+  protected SignUpResponse createSignUpResponse(final RegisteredUser user, final String accessToken, final String refreshToken, final VerificationType verificationType) {
     // Create default sign up response
     final SignUpResponse signUpResponse = SignUpResponse.ofDefault(accessToken, refreshToken, user.getEmailAddress(), user.getPhoneNumber());
     // Update verification type info data and text
@@ -338,7 +338,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the authenticated user to sign out
    */
   @Override
-  public SignOutResponse signOut(final FleenUser user) {
+  public SignOutResponse signOut(final RegisteredUser user) {
     final String username = user.getUsername();
     // Clear saved authentication tokens including access and refresh token
     memberService.clearAuthenticationTokens(username);
@@ -369,7 +369,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
     // Authenticate user with email and password
     final Authentication authentication = authenticateCredentials(emailAddress, password);
     // Retrieve the user from the Authentication Object
-    final FleenUser user = (FleenUser) authentication.getPrincipal();
+    final RegisteredUser user = (RegisteredUser) authentication.getPrincipal();
     // Set user timezone after authentication
     setUserTimezoneAfterAuthentication(user);
     // Validate profile status before proceeding
@@ -415,11 +415,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * The result is returned as a localized response with a message code indicating the pre-verification status.</p>
    *
    * @param signInResponse the sign-in response object to be updated based on the user's verification status
-   * @param user the authenticated {@link FleenUser} whose profile is yet to be verified
+   * @param user the authenticated {@link RegisteredUser} whose profile is yet to be verified
    * @return a {@link SignInResponse} containing the result of the sign-in process, with a
    *         localization message for pre-verification
    */
-  protected SignInResponse processSignInForProfileYetToBeVerified(final SignInResponse signInResponse, final FleenUser user) {
+  protected SignInResponse processSignInForProfileYetToBeVerified(final SignInResponse signInResponse, final RegisteredUser user) {
     // Handle verified profile sign-in for verified user incomplete verification details like email or phone
     handleProfileYetToBeVerified(signInResponse, user);
     // Return a localized response for the sign in
@@ -434,11 +434,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * The result is returned as a localized response, with an appropriate message code for MFA.</p>
    *
    * @param signInResponse the sign-in response object to be updated based on the user's MFA settings
-   * @param user the authenticated {@link FleenUser} whose profile has MFA enabled
+   * @param user the authenticated {@link RegisteredUser} whose profile has MFA enabled
    * @return a {@link SignInResponse} containing the final result of the sign-in process, with the
    *         appropriate localization message for MFA
    */
-  protected SignInResponse processSignInForProfileWithMfaEnabled(final SignInResponse signInResponse, final FleenUser user) {
+  protected SignInResponse processSignInForProfileWithMfaEnabled(final SignInResponse signInResponse, final RegisteredUser user) {
     // Handle verified profile sign-in for verified user with mfa or 2fa enabled
     handleProfileWithMfaEnabled(signInResponse, user);
     // Return a localized response for the sign in
@@ -454,12 +454,12 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * localized response.</p>
    *
    * @param signInResponse the sign-in response object to be updated based on the verified profile
-   * @param user the authenticated {@link FleenUser} whose profile is verified
+   * @param user the authenticated {@link RegisteredUser} whose profile is verified
    * @param authentication the {@link Authentication} object containing the authenticated user's details
    * @return a {@link SignInResponse} containing the final result of the sign-in process, with any
    *         appropriate localization messages
    */
-  protected SignInResponse processSignInForProfileThatIsVerified(final SignInResponse signInResponse, final FleenUser user, final Authentication authentication) {
+  protected SignInResponse processSignInForProfileThatIsVerified(final SignInResponse signInResponse, final RegisteredUser user, final Authentication authentication) {
     // Handle verified profile sign-in for verified user
     handleProfileThatIsVerified(signInResponse, user, authentication);
     // Return a localized response after the sign in process completes
@@ -540,16 +540,16 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * Throws {@link FailedOperationException} if the member is null.
    *
    * @param member The member for whom authentication is to be initialized.
-   * @return The {@link FleenUser} associated with the member after authentication and context setup.
+   * @return The {@link RegisteredUser} associated with the member after authentication and context setup.
    * @throws FailedOperationException If the member is null.
    */
   @Override
-  public FleenUser initializeAuthenticationAndContext(final Member member) {
+  public RegisteredUser initializeAuthenticationAndContext(final Member member) {
     // Throw an exception if the provided member is null
     checkIsNull(member, FailedOperationException::new);
 
     // Create FleenUser from Member
-    final FleenUser user = FleenUser.fromMember(member);
+    final RegisteredUser user = RegisteredUser.fromMember(member);
     // Create Authentication object
     final Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     // Set Authentication object in context (example: Spring Security context)
@@ -636,7 +636,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the FleenUser for whom the sign-in response is created
    * @return SignInResponse the default sign-in response
    */
-  protected SignInResponse createDefaultSignInResponse(final FleenUser user) {
+  protected SignInResponse createDefaultSignInResponse(final RegisteredUser user) {
     // Create and return the default sign-in response using the user's email address
     final SignInResponse signInResponse = SignInResponse.ofDefault(user.getEmailAddress());
     // Set the mfa status information and localized text
@@ -650,7 +650,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the FleenUser to check
    * @return boolean true if the user's profile is inactive, and they are yet to be verified, false otherwise
    */
-  protected boolean isProfileInactiveAndUserYetToBeVerified(final FleenUser user) {
+  protected boolean isProfileInactiveAndUserYetToBeVerified(final RegisteredUser user) {
     return ProfileStatus.isInactive(user.getProfileStatus())
         && RoleType.isPreVerified(retrieveRoleForUserYetToCompleteSignUp(user));
   }
@@ -661,7 +661,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the FleenUser whose role is to be retrieved
    * @return RoleType the role type of the user before completing sign-up, or null if not available
    */
-  protected RoleType retrieveRoleForUserYetToCompleteSignUp(final FleenUser user) {
+  protected RoleType retrieveRoleForUserYetToCompleteSignUp(final RegisteredUser user) {
     // Check if the user and their authorities are not null
     if (nonNull(user) && nonNull(user.getAuthorities())) {
       // Retrieve the first role of the user before completing sign-up
@@ -680,7 +680,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param signInResponse the response object for the sign-in process
    * @param user           the FleenUser whose profile is yet to be verified
    */
-  private void handleProfileYetToBeVerified(final SignInResponse signInResponse, final FleenUser user) {
+  private void handleProfileYetToBeVerified(final SignInResponse signInResponse, final RegisteredUser user) {
     // Generate a one-time password (OTP)
     final String otpCode = generateOtp();
     // Create a pre-verification request with the OTP
@@ -703,7 +703,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user             the FleenUser for whom the verification request is being created
    * @return the SignUpVerificationRequest object
    */
-  public SignUpVerificationRequest createSignUpVerificationRequest(final String otp, final VerificationType verificationType, final FleenUser user) {
+  public SignUpVerificationRequest createSignUpVerificationRequest(final String otp, final VerificationType verificationType, final RegisteredUser user) {
     // Create and return the sign-up verification request with user details and verification type
     return SignUpVerificationRequest
         .of(otp, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
@@ -717,10 +717,10 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param otpCode the one-time password (OTP) code to be sent for sign-up verification
    * @param verificationType the type of verification to be used (e.g., email, phone)
-   * @param user the {@link FleenUser} whose details (e.g., name, email) are included in the verification request
+   * @param user the {@link RegisteredUser} whose details (e.g., name, email) are included in the verification request
    */
   @Override
-  public void sendSignUpVerificationMessage(final String otpCode, final VerificationType verificationType, final FleenUser user) {
+  public void sendSignUpVerificationMessage(final String otpCode, final VerificationType verificationType, final RegisteredUser user) {
     // Prepare and send sign-up verification code request
     final SignUpVerificationRequest signUpVerificationRequest = createSignUpVerificationRequest(otpCode, verificationType, user);
     // Publish to send message to user
@@ -733,7 +733,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user     the FleenUser whose roles need to be configured
    * @param roleType the RoleType indicating the user's role
    */
-  protected void configureAuthoritiesOrRolesForUserYetToCompleteSignUp(final FleenUser user, final RoleType roleType) {
+  protected void configureAuthoritiesOrRolesForUserYetToCompleteSignUp(final RegisteredUser user, final RoleType roleType) {
     if (RoleType.isPreVerified(requireNonNull(roleType))) {
       user.setAuthorities(getUserPreVerifiedAuthorities());
     }
@@ -742,14 +742,14 @@ public class AuthenticationServiceImpl implements AuthenticationService,
   /**
    * Initializes authentication and creates tokens for the given user, updating the sign-in response accordingly.
    *
-   * @param fleenUser      the FleenUser to authenticate and create tokens for
+   * @param user      the FleenUser to authenticate and create tokens for
    * @param signInResponse the SignInResponse to update with authentication details
    */
-  protected void initializeAuthenticationAndCreateTokens(final FleenUser fleenUser, final SignInResponse signInResponse) {
+  protected void initializeAuthenticationAndCreateTokens(final RegisteredUser user, final SignInResponse signInResponse) {
     // Initialize authentication for the user
-    initializeAuthentication(fleenUser);
+    initializeAuthentication(user);
     // Create tokens, save them, and update the sign-in response
-    createTokeAndSaveTokenAndUpdateResponse(fleenUser, signInResponse);
+    createTokeAndSaveTokenAndUpdateResponse(user, signInResponse);
   }
 
   /**
@@ -758,7 +758,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user           the FleenUser for whom the tokens are generated
    * @param signInResponse the SignInResponse to be updated with the generated tokens and user details
    */
-  protected void createTokeAndSaveTokenAndUpdateResponse(final FleenUser user, final SignInResponse signInResponse) {
+  protected void createTokeAndSaveTokenAndUpdateResponse(final RegisteredUser user, final SignInResponse signInResponse) {
     // Generate access and refresh tokens for the user
     final String accessToken = tokenService.createAccessToken(user);
     final String refreshToken = tokenService.createRefreshToken(user);
@@ -774,7 +774,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param user the FleenUser whose authentication context is to be initialized
    */
-  private void initializeAuthentication(final FleenUser user) {
+  private void initializeAuthentication(final RegisteredUser user) {
     // Create an authentication token using the user's information and authorities
     final Authentication authenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
     // Set the authentication context with the authentication token
@@ -787,7 +787,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the FleenUser to check for MFA settings
    * @return true if MFA is enabled and a valid MFA type is set; false otherwise
    */
-  protected boolean isMfaEnabledAndMfaTypeSet(final FleenUser user) {
+  protected boolean isMfaEnabledAndMfaTypeSet(final RegisteredUser user) {
     return nonNull(user) && user.isMfaEnabled() && MfaType.isNotNone(user.getMfaType());
   }
 
@@ -801,7 +801,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param signInResponse the response object that will be updated with the authentication details
    * @param user the user for whom the sign-in process with MFA will be handled
    */
-  protected void handleProfileWithMfaEnabled(final SignInResponse signInResponse, final FleenUser user) {
+  protected void handleProfileWithMfaEnabled(final SignInResponse signInResponse, final RegisteredUser user) {
     // Generate and handle OTP-based MFA verification if applicable
     handleMfaVerification(user);
     // Set up pre-authenticated authorities
@@ -821,7 +821,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param user the user for whom the MFA verification process is being handled
    */
-  protected void handleMfaVerification(final FleenUser user) {
+  protected void handleMfaVerification(final RegisteredUser user) {
     // Check if the MFA type is email or phone-based
     if (isMfaTypeByEmailOrPhone(user.getMfaType())) {
       // Generate a one-time password (OTP) for verification
@@ -843,7 +843,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the user for whom the MFA verification message is being sent
    * @param otpCode the one-time password (OTP) code for the MFA verification
    */
-  protected void sendMfaVerificationMessage(final FleenUser user, final String otpCode) {
+  protected void sendMfaVerificationMessage(final RegisteredUser user, final String otpCode) {
     // Create the MFA verification request based on the OTP code and user details
     final MfaVerificationRequest mfaVerificationRequest = getVerificationTypeAndCreateMfaVerificationRequest(otpCode, user);
     // Publish the MFA verification request message
@@ -859,7 +859,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    *
    * @param user the user for whom pre-authenticated authorities will be set
    */
-  protected void setPreAuthenticatedAuthorities(final FleenUser user) {
+  protected void setPreAuthenticatedAuthorities(final RegisteredUser user) {
     // Assign pre-authenticated authorities to the user
     user.setAuthorities(getPreAuthenticatedAuthorities());
     // Create an authentication token with the user's authorities
@@ -878,7 +878,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user the user for whom the access token will be generated
    * @return the generated access token for the user
    */
-  protected String generateAndSaveAccessToken(final FleenUser user) {
+  protected String generateAndSaveAccessToken(final RegisteredUser user) {
     final String accessToken = tokenService.createAccessToken(user);
     tokenService.saveAccessToken(user.getUsername(), accessToken);
     return accessToken;
@@ -924,7 +924,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @return MfaVerificationRequest the request object containing OTP, user details, and verification type
    * @throws FailedOperationException if there is an issue with determining or creating the verification type
    */
-  protected MfaVerificationRequest getVerificationTypeAndCreateMfaVerificationRequest(final String otpCode, final FleenUser user) {
+  protected MfaVerificationRequest getVerificationTypeAndCreateMfaVerificationRequest(final String otpCode, final RegisteredUser user) {
     final VerificationType verificationType = getVerificationTypeByMfaType(user.getMfaType());
     return MfaVerificationRequest
       .of(otpCode, user.getFirstName(), user.getLastName(), user.getEmailAddress(), user.getPhoneNumber(), verificationType);
@@ -942,7 +942,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user            the authenticated FleenUser for whom the sign-in response is being updated
    * @param signInResponse  the SignInResponse object to be updated with authentication details
    */
-  protected void updateSignInResponseForMfaVerification(final String accessToken, final FleenUser user, final SignInResponse signInResponse) {
+  protected void updateSignInResponseForMfaVerification(final String accessToken, final RegisteredUser user, final SignInResponse signInResponse) {
     // Set the authentication stage to MFA verification
     signInResponse.setAuthenticationStage(AuthenticationStage.MFA_VERIFICATION);
     // Set the enabled status and MFA type in the sign-in response
@@ -964,7 +964,7 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * @param user             the verified FleenUser for whom the sign-in response is being updated
    * @param authentication   the Authentication object representing the authenticated user's credentials
    */
-  private void handleProfileThatIsVerified(final SignInResponse signInResponse, final FleenUser user, final Authentication authentication) {
+  private void handleProfileThatIsVerified(final SignInResponse signInResponse, final RegisteredUser user, final Authentication authentication) {
     final AuthenticationStatus authenticationStatus = AuthenticationStatus.COMPLETED;
     // Generate an access token with authentication status as COMPLETED
     final String accessToken = tokenService.createAccessToken(user, authenticationStatus);
@@ -1011,11 +1011,11 @@ public class AuthenticationServiceImpl implements AuthenticationService,
    * from the cache using the user's country code. If the country information is found,
    * it updates the user's timezone based on the corresponding country data.</p>
    *
-   * @param user the {@link FleenUser} object representing the authenticated user.
+   * @param user the {@link RegisteredUser} object representing the authenticated user.
    *             If the user is {@code null}, the method will not attempt to set the timezone.
    */
   @Override
-  public void setUserTimezoneAfterAuthentication(final FleenUser user) {
+  public void setUserTimezoneAfterAuthentication(final RegisteredUser user) {
     // Check if the user is not null before proceeding
     if (nonNull(user)) {
       // Retrieve the country information from the cache based on the user's country code and set the user timezone

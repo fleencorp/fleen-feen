@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
@@ -76,7 +76,7 @@ public class UserStreamController {
       @Parameter(description = "Updated stream details", required = true)
       @Valid @RequestBody final UpdateStreamDto updateStreamDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.updateStream(streamId, updateStreamDto, user);
   }
 
@@ -106,7 +106,7 @@ public class UserStreamController {
       @Parameter(description = "Updated stream details", required = true)
         @Valid @RequestBody final UpdateStreamOtherDetailDto updateStreamOtherDetailDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.updateStreamOtherDetails(streamId, updateStreamOtherDetailDto, user);
   }
 
@@ -136,7 +136,7 @@ public class UserStreamController {
       @Parameter(description = "Stream cancellation details", required = true)
       @Valid @RequestBody final CancelStreamDto cancelStreamDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.cancelStream(streamId, cancelStreamDto, user);
   }
 
@@ -165,7 +165,7 @@ public class UserStreamController {
       @Parameter(description = "Stream deletion details", required = true)
       @Valid @RequestBody final DeleteStreamDto deleteStreamDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.deleteStream(streamId, deleteStreamDto, user);
   }
 
@@ -191,7 +191,7 @@ public class UserStreamController {
       @Parameter(description = "Join request processing details", required = true)
       @Valid @RequestBody final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamJoinService.processAttendeeRequestToJoinStream(streamId, processAttendeeRequestToJoinStreamDto, user);
   }
 
@@ -221,7 +221,7 @@ public class UserStreamController {
       @Parameter(description = "New schedule details", required = true)
       @Valid @RequestBody final RescheduleStreamDto rescheduleStreamDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.rescheduleStream(streamId, rescheduleStreamDto, user);
   }
 
@@ -247,7 +247,7 @@ public class UserStreamController {
       @Parameter(description = "New visibility settings", required = true)
       @Valid @RequestBody final UpdateStreamVisibilityDto updateStreamVisibilityDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamService.updateStreamVisibility(streamId, updateStreamVisibilityDto, user);
   }
 
@@ -271,7 +271,7 @@ public class UserStreamController {
       @Parameter(description = "Details of the attendee to add", required = true)
       @Valid @RequestBody final AddNewStreamAttendeeDto addNewStreamAttendeeDto,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     if (addNewStreamAttendeeDto.isEvent()) {
       return eventOperationsService.addEventAttendee(streamId, addNewStreamAttendeeDto, user);
     }
@@ -294,7 +294,7 @@ public class UserStreamController {
       @Parameter(description = "Search criteria for stream types", required = true)
       @SearchParam final StreamTypeSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSearchService.countTotalStreamsByUser(searchRequest, user);
   }
 
@@ -314,7 +314,7 @@ public class UserStreamController {
       @Parameter(description = "Search criteria for stream types", required = true)
       @SearchParam final StreamTypeSearchRequest searchRequest,
       @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return streamSearchService.countTotalStreamsAttendedByUser(searchRequest, user);
   }
 }

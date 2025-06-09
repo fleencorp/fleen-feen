@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
@@ -110,11 +110,11 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param isMemberOfChatSpace a boolean indicating whether the user is a member of the chat space associated with the stream
    * @param streamExternalId the external ID of the stream the user is trying to join
    * @param comment the comment provided by the user when requesting to join the stream
-   * @param user the {@link FleenUser} attempting to join the stream
+   * @param user the {@link RegisteredUser} attempting to join the stream
    */
   @Override
   @Transactional
-  public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(final boolean isMemberOfChatSpace, final String streamExternalId, final String comment, final FleenUser user) {
+  public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(final boolean isMemberOfChatSpace, final String streamExternalId, final String comment, final RegisteredUser user) {
     if (isMemberOfChatSpace) {
       // Find calendar associated with user's country
       final Calendar calendar = miscService.findCalendar(user.getCountry());
@@ -252,7 +252,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @throws StreamNotCreatedByUserException If the user is not the creator of the stream.
    */
   @Override
-  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final FleenUser user)
+  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException {
     // Find the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
@@ -325,7 +325,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @throws FailedOperationException if either the stream or user is null
    */
   @Override
-  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final FleenUser user) throws FailedOperationException {
+  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final RegisteredUser user) throws FailedOperationException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 

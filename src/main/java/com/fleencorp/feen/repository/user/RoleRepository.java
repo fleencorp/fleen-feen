@@ -1,6 +1,6 @@
 package com.fleencorp.feen.repository.user;
 
-import com.fleencorp.feen.model.domain.user.Role;
+import com.fleencorp.feen.user.model.domain.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

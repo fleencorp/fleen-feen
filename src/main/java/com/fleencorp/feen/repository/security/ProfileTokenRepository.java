@@ -1,6 +1,6 @@
 package com.fleencorp.feen.repository.security;
 
-import com.fleencorp.feen.model.domain.user.ProfileToken;
+import com.fleencorp.feen.user.model.domain.ProfileToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
