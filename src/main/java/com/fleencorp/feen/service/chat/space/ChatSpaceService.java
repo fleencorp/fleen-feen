@@ -5,7 +5,7 @@ import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;

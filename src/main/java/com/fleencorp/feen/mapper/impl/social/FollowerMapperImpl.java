@@ -6,7 +6,7 @@ import com.fleencorp.feen.mapper.social.FollowerMapper;
 import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.model.info.user.profile.IsFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.IsFollowingInfo;
-import com.fleencorp.feen.model.response.user.UserResponse;
+import com.fleencorp.feen.user.model.response.UserResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 

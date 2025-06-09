@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.like.Like;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.like.LikeDto;
 import com.fleencorp.feen.model.holder.LikeOtherDetailsHolder;
 import com.fleencorp.feen.model.info.like.UserLikeInfo;

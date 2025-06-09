@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.common.MusicLinkType;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
-import com.fleencorp.feen.link.model.response.base.MusicLinkResponse;
+import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
@@ -107,8 +107,8 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final String musicLink = entry.getMusicLink();
       final MusicLinkType musicLinkType = MusicLinkType.ofType(musicLink);
       final MusicLinkTypeInfo musicLinkTypeInfo = MusicLinkTypeInfo.of(musicLinkType);
-      final MusicLinkResponse musicLinkResponse = MusicLinkResponse.of(musicLink, musicLinkTypeInfo);
-      response.setMusicLink(musicLinkResponse);
+      final LinkMusicResponse linkMusicResponse = LinkMusicResponse.of(musicLink, musicLinkTypeInfo);
+      response.setMusicLink(linkMusicResponse);
 
       final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
       response.setStreamTypeInfo(streamTypeInfo);

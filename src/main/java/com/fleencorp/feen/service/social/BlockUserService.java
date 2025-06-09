@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.social;
 
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.social.block.BlockUserDto;
 import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
 import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;

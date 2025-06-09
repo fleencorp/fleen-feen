@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 
 import java.util.Collection;

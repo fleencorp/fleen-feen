@@ -2,7 +2,7 @@ package com.fleencorp.feen.repository.notification;
 
 import com.fleencorp.feen.constant.notification.NotificationStatus;
 import com.fleencorp.feen.model.domain.notification.Notification;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

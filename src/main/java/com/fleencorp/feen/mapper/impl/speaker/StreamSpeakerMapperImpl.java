@@ -2,7 +2,7 @@ package com.fleencorp.feen.mapper.impl.speaker;
 
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 import org.springframework.stereotype.Component;

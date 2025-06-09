@@ -11,9 +11,9 @@ import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.link.model.info.LinkTypeInfo;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
-import com.fleencorp.feen.link.model.response.DeleteLinkResponse;
-import com.fleencorp.feen.link.model.response.UpdateLinkResponse;
-import com.fleencorp.feen.link.model.response.UpdateStreamMusicLinkResponse;
+import com.fleencorp.feen.link.model.response.LinkDeleteResponse;
+import com.fleencorp.feen.link.model.response.LinkUpdateResponse;
+import com.fleencorp.feen.link.model.response.LinkStreamMusicUpdateResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
@@ -208,7 +208,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public UpdateStreamMusicLinkResponse updateStreamMusicLink(final UpdateStreamMusicLinkDto updateStreamMusicLinkDto, final FleenUser user) {
+  public LinkStreamMusicUpdateResponse updateStreamMusicLink(final UpdateStreamMusicLinkDto updateStreamMusicLinkDto, final FleenUser user) {
     // Retrieve the stream object based on the stream ID
     final FleenStream stream = streamService.findStream(updateStreamMusicLinkDto.getStreamId());
     // Ensure the user is the organizer of the stream
@@ -220,7 +220,7 @@ public class LinkServiceImpl implements LinkService {
     // Save the updated stream to the repository
     streamOperationsService.save(stream);
     // Return a localized response indicating the update was successful
-    return localizer.of(UpdateStreamMusicLinkResponse.of());
+    return localizer.of(LinkStreamMusicUpdateResponse.of());
   }
 
   /**
@@ -238,7 +238,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public UpdateLinkResponse updateLink(final UpdateLinkDto updateLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
+  public LinkUpdateResponse updateLink(final UpdateLinkDto updateLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(updateLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
@@ -257,7 +257,7 @@ public class LinkServiceImpl implements LinkService {
     // Remove stale or old links
     removeStaleLinks(existingLinks, incomingLinkTypes);
     // Return a localized response indicating the update was successful
-    return localizer.of(UpdateLinkResponse.of());
+    return localizer.of(LinkUpdateResponse.of());
   }
 
   /**
@@ -329,7 +329,7 @@ public class LinkServiceImpl implements LinkService {
    */
   @Override
   @Transactional
-  public DeleteLinkResponse deleteLink(final DeleteLinkDto deleteLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
+  public LinkDeleteResponse deleteLink(final DeleteLinkDto deleteLinkDto, final FleenUser user) throws ChatSpaceNotFoundException, FailedOperationException {
     // Retrieve the chat space using the provided chat space ID
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(deleteLinkDto.getChatSpaceId());
     // Verify if the user is the creator or an admin of the chat space
@@ -339,7 +339,7 @@ public class LinkServiceImpl implements LinkService {
     // Delete the found links from the repository
     linkRepository.deleteAll(links);
     // Return a localized response indicating the deletion was successful
-    return localizer.of(DeleteLinkResponse.of());
+    return localizer.of(LinkDeleteResponse.of());
   }
 
   /**

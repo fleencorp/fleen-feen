@@ -25,7 +25,7 @@ import com.fleencorp.feen.exception.file.FileUploadException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidScopeException;
-import com.fleencorp.feen.exception.member.MemberNotFoundException;
+import com.fleencorp.feen.user.exception.MemberNotFoundException;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
 import com.fleencorp.feen.exception.review.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.exception.review.ReviewNotFoundException;

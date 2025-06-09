@@ -1,7 +1,7 @@
 package com.fleencorp.feen.repository.user;
 
 import com.fleencorp.feen.model.domain.user.Follower;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;

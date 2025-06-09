@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.impl.chat.space;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceParticipationRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.repository.chat.space.UserChatSpaceRepository;

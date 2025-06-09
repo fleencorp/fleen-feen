@@ -8,7 +8,7 @@ import com.fleencorp.feen.constant.review.ReviewParentType;
 import com.fleencorp.feen.constant.review.ReviewRating;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

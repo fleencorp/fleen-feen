@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.social;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.model.contract.UserFollowStat;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.social.follow.FollowOrUnfollowUserDto;
 import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;

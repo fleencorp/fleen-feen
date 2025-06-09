@@ -8,7 +8,7 @@ import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import org.springframework.stereotype.Component;

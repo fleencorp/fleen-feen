@@ -10,7 +10,7 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.mapper.review.ReviewMapper;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.review.AddReviewDto;
 import com.fleencorp.feen.model.dto.review.UpdateReviewDto;
 import com.fleencorp.feen.model.holder.ReviewOtherDetailsHolder;

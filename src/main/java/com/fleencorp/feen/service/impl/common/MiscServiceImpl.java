@@ -6,7 +6,7 @@ import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.HasOrganizer;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;

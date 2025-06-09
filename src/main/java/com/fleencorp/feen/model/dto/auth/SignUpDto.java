@@ -6,7 +6,7 @@ import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

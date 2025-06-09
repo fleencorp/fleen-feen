@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.domain.stream;
 import com.fleencorp.feen.constant.stream.*;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

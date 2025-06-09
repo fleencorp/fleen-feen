@@ -8,9 +8,9 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.link.model.dto.DeleteLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
-import com.fleencorp.feen.link.model.response.DeleteLinkResponse;
-import com.fleencorp.feen.link.model.response.UpdateLinkResponse;
-import com.fleencorp.feen.link.model.response.UpdateStreamMusicLinkResponse;
+import com.fleencorp.feen.link.model.response.LinkDeleteResponse;
+import com.fleencorp.feen.link.model.response.LinkUpdateResponse;
+import com.fleencorp.feen.link.model.response.LinkStreamMusicUpdateResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
@@ -84,7 +84,7 @@ public class LinkController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Link updated successfully",
-      content = @Content(schema = @Schema(implementation = UpdateLinkResponse.class))),
+      content = @Content(schema = @Schema(implementation = LinkUpdateResponse.class))),
     @ApiResponse(responseCode = "400", description = "Invalid update parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
@@ -93,7 +93,7 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
   @PutMapping(value = "/update")
-  public UpdateLinkResponse updateLink(
+  public LinkUpdateResponse updateLink(
       @Parameter(description = "Link details to update", required = true)
         @Valid @RequestBody final UpdateLinkDto updateLinkDto,
       @Parameter(hidden = true)
@@ -106,7 +106,7 @@ public class LinkController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Link deleted successfully",
-      content = @Content(schema = @Schema(implementation = DeleteLinkResponse.class))),
+      content = @Content(schema = @Schema(implementation = LinkDeleteResponse.class))),
     @ApiResponse(responseCode = "400", description = "Invalid delete parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
@@ -115,7 +115,7 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
   @PutMapping(value = "/delete")
-  public DeleteLinkResponse deleteLink(
+  public LinkDeleteResponse deleteLink(
       @Parameter(description = "Details of the link to delete", required = true)
         @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
       @Parameter(hidden = true)
@@ -128,7 +128,7 @@ public class LinkController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Streaming music link updated successfully",
-      content = @Content(schema = @Schema(implementation = UpdateStreamMusicLinkResponse.class))),
+      content = @Content(schema = @Schema(implementation = LinkStreamMusicUpdateResponse.class))),
     @ApiResponse(responseCode = "400", description = "Invalid update parameters",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
@@ -137,7 +137,7 @@ public class LinkController {
       content = @Content(schema = @Schema(implementation = StreamNotFoundException.class)))
   })
   @PutMapping(value = "/update-music-link")
-  public UpdateStreamMusicLinkResponse updateStreamMusicLink(
+  public LinkStreamMusicUpdateResponse updateStreamMusicLink(
       @Parameter(description = "Details for updating the music stream link", required = true)
         @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
       @Parameter(hidden = true)
