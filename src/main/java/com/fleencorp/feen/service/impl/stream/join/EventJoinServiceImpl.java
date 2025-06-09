@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.common.MiscService;

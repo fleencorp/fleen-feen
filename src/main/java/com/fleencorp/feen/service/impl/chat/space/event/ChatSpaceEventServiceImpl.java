@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventReques
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;

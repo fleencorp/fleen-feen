@@ -6,7 +6,7 @@ import com.fleencorp.feen.user.model.dto.security.mfa.ResendMfaVerificationCodeD
 import com.fleencorp.feen.user.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.security.mfa.*;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.security.VerificationService;
 import com.fleencorp.feen.service.security.mfa.MfaService;
 import jakarta.validation.Valid;

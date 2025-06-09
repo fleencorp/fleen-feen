@@ -18,7 +18,7 @@ import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceMemberService {
 

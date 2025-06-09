@@ -26,7 +26,7 @@ import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.security.ProfileTokenRepository;
 import com.fleencorp.feen.user.model.dto.authentication.*;
 import com.fleencorp.feen.user.repository.MemberRepository;

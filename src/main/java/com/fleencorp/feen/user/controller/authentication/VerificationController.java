@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeRespon
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.security.VerificationService;
 import jakarta.validation.Valid;

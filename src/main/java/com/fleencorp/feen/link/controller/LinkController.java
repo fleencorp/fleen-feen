@@ -16,7 +16,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLink
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.link.service.LinkService;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

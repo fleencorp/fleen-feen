@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeManagementRepository;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeProjectionRepository;
 import com.fleencorp.feen.repository.stream.attendee.StreamAttendeeQueryRepository;

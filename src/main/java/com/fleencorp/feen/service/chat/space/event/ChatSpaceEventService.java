@@ -7,7 +7,7 @@ import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceEventService {
 

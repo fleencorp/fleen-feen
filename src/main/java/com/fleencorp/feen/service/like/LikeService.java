@@ -8,7 +8,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.like.LikeDto;
 import com.fleencorp.feen.model.response.like.LikeResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 import java.util.Collection;
 import java.util.Map;

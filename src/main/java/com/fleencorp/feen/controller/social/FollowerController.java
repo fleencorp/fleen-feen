@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.social.FollowerService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;

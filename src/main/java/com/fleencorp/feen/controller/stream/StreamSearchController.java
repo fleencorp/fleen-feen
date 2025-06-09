@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import io.swagger.v3.oas.annotations.Operation;

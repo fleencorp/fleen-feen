@@ -1,4 +1,4 @@
-package com.fleencorp.feen.util.security;
+package com.fleencorp.feen.user.util;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.fleencorp.feen.user.constant.role.RoleType.*;
 
 /**
  * Utility class for managing Fleen authorities.

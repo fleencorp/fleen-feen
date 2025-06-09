@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 
 public interface MemberService {

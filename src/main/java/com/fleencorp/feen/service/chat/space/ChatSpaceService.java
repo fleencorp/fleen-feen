@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceService {
 

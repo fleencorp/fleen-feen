@@ -1,11 +1,11 @@
-package com.fleencorp.feen.util.security;
+package com.fleencorp.feen.user.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
 import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
 import com.fleencorp.feen.user.constant.token.TokenType;
-import com.fleencorp.feen.user.security.RegisteredUser;
-import com.fleencorp.feen.user.security.TokenPayload;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.TokenPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -29,8 +29,8 @@ import java.util.function.Function;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.durationToMilliseconds;
 import static com.fleencorp.feen.user.constant.token.TokenClaimField.*;
-import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getRefreshTokenAuthorities;
-import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getResetPasswordAuthorities;
+import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.getRefreshTokenAuthorities;
+import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.getResetPasswordAuthorities;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Objects.nonNull;
 

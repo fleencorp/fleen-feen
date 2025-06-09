@@ -1,4 +1,4 @@
-package com.fleencorp.feen.user.security;
+package com.fleencorp.feen.user.model.security;
 
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.user.constant.mfa.MfaType;
@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.buildAuthorities;
+import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.buildAuthorities;
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 

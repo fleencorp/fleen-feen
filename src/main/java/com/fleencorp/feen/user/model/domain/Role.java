@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.ROLE_PREFIX;
+import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.ROLE_PREFIX;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 

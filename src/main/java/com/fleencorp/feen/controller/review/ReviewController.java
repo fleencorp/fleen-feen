@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.review.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;

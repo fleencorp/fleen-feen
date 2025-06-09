@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.response.other.EntityExistsResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.repository.UserProfileRepository;
 import com.fleencorp.feen.service.auth.PasswordService;

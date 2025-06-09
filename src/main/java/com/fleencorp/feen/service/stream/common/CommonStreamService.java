@@ -10,7 +10,7 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface CommonStreamService {
 

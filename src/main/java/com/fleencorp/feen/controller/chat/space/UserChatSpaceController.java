@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto
 import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -1,4 +1,4 @@
-package com.fleencorp.feen.user.security.mfa;
+package com.fleencorp.feen.user.exception.mfa;
 
 import com.fleencorp.localizer.model.exception.LocalizedException;
 

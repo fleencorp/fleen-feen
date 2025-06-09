@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.response.stream.base.*;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsAttendedByUserResponse;
 import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByUserResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;

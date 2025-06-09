@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.review.ReviewService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;

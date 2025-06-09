@@ -27,7 +27,7 @@ import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.StreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.stream.speaker.StreamSpeakerRepository;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;

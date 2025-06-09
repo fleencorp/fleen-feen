@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResu
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;

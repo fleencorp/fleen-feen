@@ -12,7 +12,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

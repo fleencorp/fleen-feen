@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.projection.like.UserLikeInfoSelect;
 import com.fleencorp.feen.model.response.like.LikeResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.like.LikeRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.like.LikeService;
