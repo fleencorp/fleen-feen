@@ -25,7 +25,7 @@ import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchRe
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;

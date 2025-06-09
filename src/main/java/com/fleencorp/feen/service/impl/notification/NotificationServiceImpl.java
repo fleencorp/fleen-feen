@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.response.notification.NotificationResponse;
 import com.fleencorp.feen.model.response.notification.ReadNotificationResponse;
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.notification.NotificationRepository;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.localizer.service.Localizer;

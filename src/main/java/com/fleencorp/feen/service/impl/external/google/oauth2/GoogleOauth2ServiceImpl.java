@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.response.external.google.oauth2.CompletedOauth2A
 import com.fleencorp.feen.model.response.external.google.oauth2.RefreshOauth2TokenResponse;
 import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2AuthorizationResponse;
 import com.fleencorp.feen.model.response.external.google.oauth2.base.Oauth2AuthorizationResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.oauth2.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.report.ReporterService;

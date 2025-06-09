@@ -28,7 +28,7 @@ import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastReq
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastVisibilityRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;

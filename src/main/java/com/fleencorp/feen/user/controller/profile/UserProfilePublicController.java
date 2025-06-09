@@ -2,7 +2,7 @@ package com.fleencorp.feen.user.controller.profile;
 
 import com.fleencorp.feen.user.model.search.UserProfileSearchRequest;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.profile.UserProfilePublicService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

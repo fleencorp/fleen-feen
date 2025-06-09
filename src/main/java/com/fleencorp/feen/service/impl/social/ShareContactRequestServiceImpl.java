@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestSt
 import com.fleencorp.feen.model.request.search.social.ShareContactRequestSearchRequest;
 import com.fleencorp.feen.model.response.social.share.*;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;

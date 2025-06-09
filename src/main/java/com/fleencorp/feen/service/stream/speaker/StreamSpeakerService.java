@@ -12,7 +12,7 @@ import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface StreamSpeakerService {
 

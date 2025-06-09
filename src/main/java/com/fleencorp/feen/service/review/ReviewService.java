@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ReviewService {
 

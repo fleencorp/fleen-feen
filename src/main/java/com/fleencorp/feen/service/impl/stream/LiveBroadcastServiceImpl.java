@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.response.external.google.youtube.category.YouTub
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;

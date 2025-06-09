@@ -12,7 +12,7 @@ import com.fleencorp.feen.user.model.dto.profile.*;
 import com.fleencorp.feen.user.model.response.RemoveProfilePhotoResponse;
 import com.fleencorp.feen.user.model.response.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface MemberUpdateService {
 

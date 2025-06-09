@@ -1,4 +1,4 @@
-package com.fleencorp.feen.util.security;
+package com.fleencorp.feen.user.util;
 
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;

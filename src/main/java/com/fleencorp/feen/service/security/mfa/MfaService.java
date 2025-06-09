@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface MfaService {
 

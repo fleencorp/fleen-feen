@@ -11,7 +11,7 @@ import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
 import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;
 import com.fleencorp.feen.model.response.social.block.BlockedUserResponse;
 import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.BlockUserRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.social.BlockUserService;

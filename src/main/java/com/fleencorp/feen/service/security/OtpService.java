@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.security;
 
-import static com.fleencorp.feen.util.security.TokenUtil.SECURE_RANDOM;
+import static com.fleencorp.feen.user.util.TokenUtil.SECURE_RANDOM;
 
 /**
  * Service interface for generating and validating OTPs (One-Time Passwords).

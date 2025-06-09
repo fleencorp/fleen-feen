@@ -1,4 +1,4 @@
-package com.fleencorp.feen.user.security.recaptcha;
+package com.fleencorp.feen.user.exception.recaptcha;
 
 import com.fleencorp.localizer.model.exception.LocalizedException;
 

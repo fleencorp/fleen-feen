@@ -1,4 +1,4 @@
-package com.fleencorp.feen.user.security;
+package com.fleencorp.feen.user.model.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;

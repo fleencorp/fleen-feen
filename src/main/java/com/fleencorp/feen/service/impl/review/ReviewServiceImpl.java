@@ -20,7 +20,7 @@ import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.review.ReviewRepository;
 import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.review.ReviewService;

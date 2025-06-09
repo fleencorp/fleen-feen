@@ -4,7 +4,7 @@ import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.model.response.notification.ReadNotificationResponse;
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.notification.NotificationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

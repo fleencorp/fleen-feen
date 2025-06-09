@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceRespons
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;

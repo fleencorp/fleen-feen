@@ -21,7 +21,7 @@ import com.fleencorp.feen.user.model.response.UserResponse;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
-import com.fleencorp.feen.user.security.RegisteredUser;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
