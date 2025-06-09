@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.durationToMilliseconds;
+import static com.fleencorp.feen.user.constant.token.TokenClaimField.*;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getRefreshTokenAuthorities;
 import static com.fleencorp.feen.util.security.UserAuthoritiesUtil.getResetPasswordAuthorities;
 import static java.lang.System.currentTimeMillis;

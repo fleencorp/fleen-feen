@@ -1,10 +1,10 @@
 package com.fleencorp.feen.service.impl.security.token;
 
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
-import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
-import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.util.security.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,7 @@ import java.util.Date;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.toHours;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
+import static com.fleencorp.feen.user.constant.token.TokenType.*;
 import static java.time.Duration.ofHours;
 
 /**
