@@ -2,7 +2,7 @@ package com.fleencorp.feen.contact.repository;
 
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.model.domain.Contact;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

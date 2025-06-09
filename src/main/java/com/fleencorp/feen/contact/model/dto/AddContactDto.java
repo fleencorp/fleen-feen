@@ -5,7 +5,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.model.domain.Contact;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

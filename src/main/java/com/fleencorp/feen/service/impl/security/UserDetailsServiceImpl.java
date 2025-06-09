@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.security;
 
 import com.fleencorp.feen.exception.auth.UsernameNotFoundException;
-import com.fleencorp.feen.model.domain.user.Member;
-import com.fleencorp.feen.repository.user.MemberRepository;
+import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.user.repository.MemberRepository;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

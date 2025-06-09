@@ -4,7 +4,7 @@ import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.constant.security.mfa.MfaType;
 import com.fleencorp.feen.constant.security.profile.ProfileStatus;
 import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.domain.user.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;

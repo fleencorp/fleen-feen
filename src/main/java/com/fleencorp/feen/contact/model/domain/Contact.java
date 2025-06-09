@@ -2,7 +2,7 @@ package com.fleencorp.feen.contact.model.domain;
 
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -6,7 +6,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.user.UserNotFoundException;
 import com.fleencorp.feen.exception.user.profile.BannedAccountException;
 import com.fleencorp.feen.exception.user.profile.DisabledAccountException;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.auth.SignInDto;
 import com.fleencorp.feen.model.dto.auth.SignUpDto;
 import com.fleencorp.feen.model.response.auth.DataForSignUpResponse;

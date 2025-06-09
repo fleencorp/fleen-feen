@@ -8,7 +8,7 @@ import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceExcepti
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.chat.CreateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.UpdateChatSpaceStatusDto;

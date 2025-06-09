@@ -8,7 +8,7 @@ import com.fleencorp.feen.exception.stream.core.*;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

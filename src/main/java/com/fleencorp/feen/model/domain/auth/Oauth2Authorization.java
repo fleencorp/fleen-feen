@@ -4,7 +4,7 @@ import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2Source;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

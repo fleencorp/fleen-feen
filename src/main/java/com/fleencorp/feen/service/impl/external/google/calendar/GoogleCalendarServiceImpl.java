@@ -25,7 +25,7 @@ import java.util.List;
 import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static com.fleencorp.feen.mapper.external.GoogleCalendarMapper.mapToCalendarResponse;
 import static com.fleencorp.feen.mapper.external.GoogleCalendarMapper.mapToCalendarsResponse;
-import static com.fleencorp.feen.model.domain.user.Member.isInternalEmailOrEmailIsAnOriginEmail;
+import static com.fleencorp.feen.user.model.domain.Member.isInternalEmailOrEmailIsAnOriginEmail;
 import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getHttpRequestInitializer;
 import static java.util.Objects.nonNull;

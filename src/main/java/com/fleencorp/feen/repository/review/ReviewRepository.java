@@ -1,7 +1,7 @@
 package com.fleencorp.feen.repository.review;
 
 import com.fleencorp.feen.model.domain.review.Review;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;

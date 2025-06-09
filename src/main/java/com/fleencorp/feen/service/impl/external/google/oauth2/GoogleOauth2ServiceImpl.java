@@ -11,7 +11,7 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2AuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
 import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.request.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.model.response.external.google.oauth2.CompletedOauth2AuthorizationResponse;
 import com.fleencorp.feen.model.response.external.google.oauth2.RefreshOauth2TokenResponse;

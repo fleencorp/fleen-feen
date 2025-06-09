@@ -2,7 +2,7 @@ package com.fleencorp.feen.repository.social;
 
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.model.domain.social.BlockUser;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

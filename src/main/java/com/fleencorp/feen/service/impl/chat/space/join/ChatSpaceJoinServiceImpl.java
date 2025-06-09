@@ -10,12 +10,12 @@ import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpa
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
-import com.fleencorp.feen.exception.member.MemberNotFoundException;
+import com.fleencorp.feen.user.exception.MemberNotFoundException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.notification.Notification;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;

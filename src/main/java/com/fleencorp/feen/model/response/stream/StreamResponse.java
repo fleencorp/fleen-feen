@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.link.model.response.base.MusicLinkResponse;
+import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.HasOrganizer;
 import com.fleencorp.feen.model.contract.Likeable;
@@ -142,7 +142,7 @@ public class StreamResponse extends FleenFeenResponse
   private Long totalLikeCount;
 
   @JsonProperty("music_link")
-  private MusicLinkResponse musicLink;
+  private LinkMusicResponse musicLink;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

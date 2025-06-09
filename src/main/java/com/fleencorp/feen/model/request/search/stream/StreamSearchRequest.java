@@ -5,7 +5,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

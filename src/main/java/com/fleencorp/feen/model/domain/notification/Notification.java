@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.user.Follower;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

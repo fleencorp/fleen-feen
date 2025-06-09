@@ -8,7 +8,7 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceVisibility;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -9,7 +9,7 @@ import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;

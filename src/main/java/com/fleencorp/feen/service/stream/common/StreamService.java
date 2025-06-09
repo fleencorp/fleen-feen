@@ -5,7 +5,7 @@ import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationExce
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.security.FleenUser;

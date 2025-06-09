@@ -6,7 +6,7 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.review.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

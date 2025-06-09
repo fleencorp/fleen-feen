@@ -6,7 +6,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;

@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.dto.social.share;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

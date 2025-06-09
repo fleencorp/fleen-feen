@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.auth;
 
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public interface PasswordService {

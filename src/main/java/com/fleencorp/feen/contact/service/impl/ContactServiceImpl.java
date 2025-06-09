@@ -18,7 +18,7 @@ import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.model.domain.user.Member;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.model.security.FleenUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
