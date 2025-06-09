@@ -12,7 +12,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -82,11 +82,11 @@ public interface StreamOperationsService {
 
   void increaseTotalAttendeesOrGuests(FleenStream stream);
 
-  void validateStreamAndUserForProtectedStream(FleenStream stream, FleenUser user);
+  void validateStreamAndUserForProtectedStream(FleenStream stream, RegisteredUser user);
 
-  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, FleenUser user);
+  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, RegisteredUser user);
 
-  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, FleenUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
+  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
   boolean existsByAttendees(Member viewer, Member target);
 

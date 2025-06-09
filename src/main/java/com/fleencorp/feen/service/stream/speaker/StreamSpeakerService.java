@@ -12,20 +12,20 @@ import com.fleencorp.feen.model.response.stream.speaker.MarkAsStreamSpeakerRespo
 import com.fleencorp.feen.model.response.stream.speaker.RemoveStreamSpeakerResponse;
 import com.fleencorp.feen.model.response.stream.speaker.UpdateStreamSpeakerResponse;
 import com.fleencorp.feen.model.search.stream.speaker.StreamSpeakerSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface StreamSpeakerService {
 
-  StreamSpeakerSearchResult findSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest, FleenUser user);
+  StreamSpeakerSearchResult findSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest, RegisteredUser user);
 
-  StreamSpeakerSearchResult findStreamSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest, FleenUser user);
+  StreamSpeakerSearchResult findStreamSpeakers(Long streamId, StreamSpeakerSearchRequest searchRequest, RegisteredUser user);
 
-  MarkAsStreamSpeakerResponse markAsSpeaker(Long streamId, MarkAsStreamSpeakerDto dto, FleenUser user)
+  MarkAsStreamSpeakerResponse markAsSpeaker(Long streamId, MarkAsStreamSpeakerDto dto, RegisteredUser user)
     throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException;
 
-  UpdateStreamSpeakerResponse updateSpeakers(Long streamId, UpdateStreamSpeakerDto dto, FleenUser user)
+  UpdateStreamSpeakerResponse updateSpeakers(Long streamId, UpdateStreamSpeakerDto dto, RegisteredUser user)
     throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
 
-  RemoveStreamSpeakerResponse removeSpeakers(Long streamId, RemoveStreamSpeakerDto dto, FleenUser user)
+  RemoveStreamSpeakerResponse removeSpeakers(Long streamId, RemoveStreamSpeakerDto dto, RegisteredUser user)
     throws StreamNotFoundException, OrganizerOfStreamCannotBeRemovedAsSpeakerException, FailedOperationException;
 }

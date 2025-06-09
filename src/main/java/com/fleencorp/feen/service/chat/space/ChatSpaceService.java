@@ -13,26 +13,26 @@ import com.fleencorp.feen.model.response.chat.space.CreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.DeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ChatSpaceService {
 
   ChatSpace findChatSpace(Long chatSpaceId) throws ChatSpaceNotFoundException;
 
-  CreateChatSpaceResponse createChatSpace(CreateChatSpaceDto createChatSpaceDto, FleenUser user);
+  CreateChatSpaceResponse createChatSpace(CreateChatSpaceDto createChatSpaceDto, RegisteredUser user);
 
-  UpdateChatSpaceResponse updateChatSpace(Long chatSpaceId, UpdateChatSpaceDto updateChatSpaceDto, FleenUser user)
+  UpdateChatSpaceResponse updateChatSpace(Long chatSpaceId, UpdateChatSpaceDto updateChatSpaceDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  DeleteChatSpaceResponse deleteChatSpace(Long chatSpaceId, FleenUser user)
+  DeleteChatSpaceResponse deleteChatSpace(Long chatSpaceId, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  DeleteChatSpaceResponse deleteChatSpaceByAdmin(Long chatSpaceId, FleenUser user)
+  DeleteChatSpaceResponse deleteChatSpaceByAdmin(Long chatSpaceId, RegisteredUser user)
     throws ChatSpaceNotFoundException;
 
-  UpdateChatSpaceStatusResponse updateChatSpaceStatus(Long chatSpaceId, UpdateChatSpaceStatusDto updateChatSpaceStatusDto, FleenUser user)
+  UpdateChatSpaceStatusResponse updateChatSpaceStatus(Long chatSpaceId, UpdateChatSpaceStatusDto updateChatSpaceStatusDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, NotAnAdminOfChatSpaceException,
     FailedOperationException;
 

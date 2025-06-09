@@ -3,7 +3,7 @@ package com.fleencorp.feen.user.model.info;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

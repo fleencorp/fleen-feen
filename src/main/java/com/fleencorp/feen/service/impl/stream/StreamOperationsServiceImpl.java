@@ -12,7 +12,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.stream.stream.StreamManagementRepository;
 import com.fleencorp.feen.repository.stream.stream.StreamQueryRepository;
 import com.fleencorp.feen.repository.stream.stream.StreamRepository;
@@ -216,17 +216,17 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final FleenUser user) {
+  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final RegisteredUser user) {
     streamService.validateStreamAndUserForProtectedStream(stream, user);
   }
 
   @Override
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final FleenUser user) {
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final RegisteredUser user) {
     streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
   }
 
   @Override
-  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final FleenUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException {
+  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException {
     return streamService.retrieveStreamOtherDetailsHolder(stream, user);
   }
 

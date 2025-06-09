@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventReques
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
@@ -105,7 +105,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    *         and pagination metadata.
    */
   @Override
-  public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final RegisteredUser user) {
     // Find events or streams based on the search request
     final Page<FleenStream> page = streamOperationsService.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
     // Get the list of event or stream views from the search result
@@ -138,7 +138,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
    */
   @Override
   @Transactional
-  public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final FleenUser user)
+  public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final RegisteredUser user)
       throws ChatSpaceNotFoundException, CalendarNotFoundException, FailedOperationException {
     // Find the chat space by its ID
     final ChatSpace chatSpace = findChatSpace(chatSpaceId);

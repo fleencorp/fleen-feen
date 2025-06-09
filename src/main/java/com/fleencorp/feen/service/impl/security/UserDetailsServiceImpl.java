@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.security;
 
-import com.fleencorp.feen.exception.auth.UsernameNotFoundException;
+import com.fleencorp.feen.user.exception.auth.UsernameNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import org.springframework.context.annotation.Primary;
@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.model.security.FleenUser.fromMember;
+import static com.fleencorp.feen.user.security.RegisteredUser.fromMember;
 
 /**
  * Implementation of the Spring Security UserDetailsService interface for loading user details by username.

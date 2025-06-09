@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -70,7 +70,7 @@ public class StreamController {
       @Parameter(description = "Join stream details", required = true)
         @Valid @RequestBody final JoinStreamDto joinStreamDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamJoinService.joinStream(streamId, joinStreamDto, user);
   }
 
@@ -104,7 +104,7 @@ public class StreamController {
     @Parameter(description = "Request to join stream details", required = true)
       @Valid @RequestBody final RequestToJoinStreamDto requestToJoinStreamDto,
     @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamJoinService.requestToJoinStream(streamId, requestToJoinStreamDto, user);
   }
 
@@ -136,7 +136,7 @@ public class StreamController {
     @Parameter(description = "Not attending stream details", required = true)
       @Valid @RequestBody final NotAttendingStreamDto notAttendingStreamDto,
     @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return commonStreamJoinService.notAttendingStream(streamId, notAttendingStreamDto, user);
   }
 }

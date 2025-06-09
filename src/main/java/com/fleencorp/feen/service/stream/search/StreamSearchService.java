@@ -9,25 +9,25 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface StreamSearchService {
 
-  StreamSearchResult findStreams(StreamSearchRequest searchRequest, FleenUser user);
+  StreamSearchResult findStreams(StreamSearchRequest searchRequest, RegisteredUser user);
 
-  StreamSearchResult findMyStreams(StreamSearchRequest searchRequest, FleenUser user);
+  StreamSearchResult findMyStreams(StreamSearchRequest searchRequest, RegisteredUser user);
 
   StreamSearchResult findStreamsPublic(StreamSearchRequest searchRequest, StreamTimeType streamTimeType);
 
   UserCreatedStreamsSearchResult findStreamsCreatedByUser(StreamSearchRequest searchRequest);
 
-  StreamSearchResult findStreamsAttendedByUser(StreamSearchRequest searchRequest, FleenUser user);
+  StreamSearchResult findStreamsAttendedByUser(StreamSearchRequest searchRequest, RegisteredUser user);
 
-  MutualStreamAttendanceSearchResult findStreamsAttendedWithAnotherUser(StreamSearchRequest searchRequest, FleenUser user);
+  MutualStreamAttendanceSearchResult findStreamsAttendedWithAnotherUser(StreamSearchRequest searchRequest, RegisteredUser user);
 
-  RetrieveStreamResponse retrieveStream(Long streamId, FleenUser user);
+  RetrieveStreamResponse retrieveStream(Long streamId, RegisteredUser user);
 
-  TotalStreamsCreatedByUserResponse countTotalStreamsByUser(StreamTypeSearchRequest searchRequest, FleenUser user);
+  TotalStreamsCreatedByUserResponse countTotalStreamsByUser(StreamTypeSearchRequest searchRequest, RegisteredUser user);
 
-  TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(StreamTypeSearchRequest searchRequest, FleenUser user);
+  TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(StreamTypeSearchRequest searchRequest, RegisteredUser user);
 }

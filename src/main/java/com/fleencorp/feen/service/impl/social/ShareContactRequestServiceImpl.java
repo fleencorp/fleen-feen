@@ -4,7 +4,7 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.social.share.contact.*;
-import com.fleencorp.feen.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestSt
 import com.fleencorp.feen.model.request.search.social.ShareContactRequestSearchRequest;
 import com.fleencorp.feen.model.response.social.share.*;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
@@ -83,7 +83,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    * @return a `ShareContactRequestSearchResult` containing the paginated list of `ShareContactRequestResponse`
    */
   @Override
-  public ShareContactRequestSearchResult findSentShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final FleenUser user) {
+  public ShareContactRequestSearchResult findSentShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
     // Prepare parameters
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -106,7 +106,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   /**
    * Finds and retrieves share contact requests made to the authenticated user.
    *
-   * <p>This method converts the authenticated user ({@link FleenUser}) to a {@link Member},
+   * <p>This method converts the authenticated user ({@link RegisteredUser}) to a {@link Member},
    * and based on the given {@link ShareContactRequestSearchRequest}, it retrieves a paginated list
    * of {@link ShareContactRequest} objects that were sent to this member. The status of the requests is
    * determined by the search request, with a default status of {@link ShareContactRequestStatus#SENT} if not provided.</p>
@@ -120,7 +120,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    *         or an empty result if no requests were found
    */
   @Override
-  public ShareContactRequestSearchResult findReceivedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final FleenUser user) {
+  public ShareContactRequestSearchResult findReceivedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
     // Prepare parameters
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
@@ -142,7 +142,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   /**
    * Finds and retrieves share contact requests initiated by the authenticated user that are expected to be received by others.
    *
-   * <p>This method converts the authenticated user ({@link FleenUser}) to a {@link Member},
+   * <p>This method converts the authenticated user ({@link RegisteredUser}) to a {@link Member},
    * and retrieves a paginated list of {@link ShareContactRequest} objects that were initiated by the user.
    * These requests are expected to be received by other users.</p>
    *
@@ -155,7 +155,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    *         or an empty result if no requests were found
    */
   @Override
-  public ShareContactRequestSearchResult findExpectedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final FleenUser user) {
+  public ShareContactRequestSearchResult findExpectedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ShareContactRequest> page;
     // Convert authenticated user to member
     final Member member = user.toMember();
@@ -245,7 +245,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   @Transactional
-  public ExpectShareContactRequestResponse expectShareContactRequest(final ExpectShareContactRequestDto expectShareContactRequestDto, final FleenUser user) {
+  public ExpectShareContactRequestResponse expectShareContactRequest(final ExpectShareContactRequestDto expectShareContactRequestDto, final RegisteredUser user) {
     // Validate that the recipient exists in the repository
     memberRepository.findById(expectShareContactRequestDto.getRecipientId())
       .orElseThrow(UserNotFoundException.of(expectShareContactRequestDto.getRecipientId()));
@@ -276,7 +276,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   @Transactional
-  public ProcessShareContactRequestResponse processShareContactRequest(final Long shareContactRequestId, final ProcessShareContactRequestDto processShareContactRequestDto, final FleenUser user) {
+  public ProcessShareContactRequestResponse processShareContactRequest(final Long shareContactRequestId, final ProcessShareContactRequestDto processShareContactRequestDto, final RegisteredUser user) {
     // Validate that the user exists
     memberRepository.findById(user.getId())
       .orElseThrow(UserNotFoundException.of(user.getId()));
@@ -330,7 +330,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   @Transactional
-  public SendShareContactRequestResponse sendShareContactRequest(final SendShareContactRequestDto sendShareContactRequestDto, final FleenUser user) {
+  public SendShareContactRequestResponse sendShareContactRequest(final SendShareContactRequestDto sendShareContactRequestDto, final RegisteredUser user) {
     // Validate that the recipient user exists
     final Member member = memberRepository.findById(sendShareContactRequestDto.getRecipientId())
       .orElseThrow(UserNotFoundException.of(sendShareContactRequestDto.getRecipientId()));
@@ -363,7 +363,7 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   @Transactional
-  public CancelShareContactRequestResponse cancelShareContactRequest(final Long shareContactRequestId, final FleenUser user) {
+  public CancelShareContactRequestResponse cancelShareContactRequest(final Long shareContactRequestId, final RegisteredUser user) {
     // Retrieve the share contact request based on ID and user
     final ShareContactRequest shareContactRequest = shareContactRequestRepository.findByShareContactRequestIdAndInitiator(shareContactRequestId, user.toMember())
       .orElseThrow(ShareContactRequestNotFoundException.of(shareContactRequestId));

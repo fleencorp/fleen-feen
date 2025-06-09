@@ -11,7 +11,7 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.stream.base.*;
@@ -28,7 +28,7 @@ import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastReq
 import com.fleencorp.feen.model.request.youtube.broadcast.UpdateLiveBroadcastVisibilityRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.*;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.stream.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
@@ -100,7 +100,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   @Transactional
-  public DeleteStreamResponse deleteStream(final Long streamId, final DeleteStreamDto deleteStreamDto, final FleenUser user)
+  public DeleteStreamResponse deleteStream(final Long streamId, final DeleteStreamDto deleteStreamDto, final RegisteredUser user)
       throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
     // Find the stream by its ID
@@ -211,7 +211,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Transactional
   @Override
-  public CancelStreamResponse cancelStream(final Long streamId, final CancelStreamDto cancelStreamDto, final FleenUser user)
+  public CancelStreamResponse cancelStream(final Long streamId, final CancelStreamDto cancelStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
       FailedOperationException {
@@ -311,7 +311,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   @Transactional
-  public RescheduleStreamResponse rescheduleStream(final Long streamId, final RescheduleStreamDto rescheduleStreamDto, final FleenUser user)
+  public RescheduleStreamResponse rescheduleStream(final Long streamId, final RescheduleStreamDto rescheduleStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
@@ -422,7 +422,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   @Transactional
-  public UpdateStreamResponse updateStream(final Long streamId, final UpdateStreamDto updateStreamDto, final FleenUser user)
+  public UpdateStreamResponse updateStream(final Long streamId, final UpdateStreamDto updateStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       FailedOperationException {
@@ -484,7 +484,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    * @throws FailedOperationException If any step in the update process fails.
    */
   @Override
-  public UpdateStreamResponse updateStreamOtherDetails(final Long streamId, final UpdateStreamOtherDetailDto updateStreamOtherDetailDto, final FleenUser user) throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
+  public UpdateStreamResponse updateStreamOtherDetails(final Long streamId, final UpdateStreamOtherDetailDto updateStreamOtherDetailDto, final RegisteredUser user) throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Find the stream by its ID
     FleenStream stream = streamOperationsService.findStream(streamId);
     // Verify if the stream's type is the same as the stream type of the request
@@ -586,7 +586,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   @Transactional
-  public UpdateStreamVisibilityResponse updateStreamVisibility(final Long streamId, final UpdateStreamVisibilityDto updateStreamVisibilityDto, final FleenUser user)
+  public UpdateStreamVisibilityResponse updateStreamVisibility(final Long streamId, final UpdateStreamVisibilityDto updateStreamVisibilityDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException {

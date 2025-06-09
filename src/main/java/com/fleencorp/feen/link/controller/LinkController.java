@@ -1,7 +1,7 @@
 package com.fleencorp.feen.link.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
@@ -16,7 +16,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLink
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.link.service.LinkService;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -75,7 +75,7 @@ public class LinkController {
       @Parameter(description = "Search criteria and pagination parameters", required = true)
         @SearchParam final LinkSearchRequest linkSearchRequest,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return linkService.findLinks(linkSearchRequest, user);
   }
 
@@ -97,7 +97,7 @@ public class LinkController {
       @Parameter(description = "Link details to update", required = true)
         @Valid @RequestBody final UpdateLinkDto updateLinkDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return linkService.updateLink(updateLinkDto, user);
   }
 
@@ -119,7 +119,7 @@ public class LinkController {
       @Parameter(description = "Details of the link to delete", required = true)
         @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return linkService.deleteLink(deleteLinkDto, user);
   }
 
@@ -141,7 +141,7 @@ public class LinkController {
       @Parameter(description = "Details for updating the music stream link", required = true)
         @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return linkService.updateStreamMusicLink(updateStreamMusicLinkDto, user);
   }
 }

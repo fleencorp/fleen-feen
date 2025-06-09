@@ -1,10 +1,10 @@
 package com.fleencorp.feen.controller.oauth2;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
-import com.fleencorp.feen.model.request.Oauth2AuthenticationRequest;
+import com.fleencorp.feen.user.model.request.security.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.model.response.external.google.oauth2.CompletedOauth2AuthorizationResponse;
 import com.fleencorp.feen.model.response.external.google.oauth2.StartOauth2AuthorizationResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,7 +41,7 @@ public class Oauth2Controller {
   public CompletedOauth2AuthorizationResponse verifyOauth2AuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(
       @RequestParam(name = "code") final String authorizationCode,
       @RequestParam(name = "state") final String statesStr,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     final Oauth2ServiceType oauth2ServiceType = validateOauth2ScopeAndReturn(statesStr);
     return googleOauth2Service.verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(authorizationCode, toOauth2AuthenticationRequest(oauth2ServiceType), user);
   }

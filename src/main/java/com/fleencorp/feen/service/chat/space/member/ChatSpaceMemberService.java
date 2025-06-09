@@ -18,31 +18,31 @@ import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ChatSpaceMemberService {
 
-  ChatSpaceMemberSearchResult findChatSpaceMembers(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
+  ChatSpaceMemberSearchResult findChatSpaceMembers(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, RegisteredUser user);
 
-  ChatSpaceMemberSearchResult findChatSpaceAdmins(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
+  ChatSpaceMemberSearchResult findChatSpaceAdmins(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, RegisteredUser user);
 
-  UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(Long chatSpaceId, UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, FleenUser user)
+  UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(Long chatSpaceId, UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
     FailedOperationException;
 
-  DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(Long chatSpaceId, DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, FleenUser user)
+  DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(Long chatSpaceId, DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  AddChatSpaceMemberResponse addMember(Long chatSpaceId, AddChatSpaceMemberDto addChatSpaceMemberDto, FleenUser user)
+  AddChatSpaceMemberResponse addMember(Long chatSpaceId, AddChatSpaceMemberDto addChatSpaceMemberDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, MemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  RestoreChatSpaceMemberResponse restoreRemovedMember(Long chatSpaceId, RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, FleenUser user)
+  RestoreChatSpaceMemberResponse restoreRemovedMember(Long chatSpaceId, RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException;
 
-  RemoveChatSpaceMemberResponse removeMember(Long chatSpaceId, RemoveChatSpaceMemberDto removeChatSpaceMemberDto, FleenUser user)
+  RemoveChatSpaceMemberResponse removeMember(Long chatSpaceId, RemoveChatSpaceMemberDto removeChatSpaceMemberDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException, ChatSpaceMemberNotFoundException,
       FailedOperationException;
 
@@ -50,7 +50,7 @@ public interface ChatSpaceMemberService {
 
   ChatSpaceMember findByChatSpaceAndChatSpaceMemberId(ChatSpace chatSpace, Long chatSpaceMemberId) throws ChatSpaceMemberNotFoundException;
 
-  ChatSpaceMember getExistingOrCreateNewChatSpaceMember(ChatSpace chatSpace, FleenUser user) throws FailedOperationException;
+  ChatSpaceMember getExistingOrCreateNewChatSpaceMember(ChatSpace chatSpace, RegisteredUser user) throws FailedOperationException;
 
   ChatSpaceMember findByChatSpaceAndMember(ChatSpace chatSpace, Member member) throws ChatSpaceMemberNotFoundException;
 

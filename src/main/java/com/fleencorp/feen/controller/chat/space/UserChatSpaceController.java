@@ -1,6 +1,6 @@
 package com.fleencorp.feen.controller.chat.space;
 
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.dto.chat.role.DowngradeChatSpaceAdminToMemberDto
 import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +66,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Details of the member to be promoted", required = true)
         @Valid @RequestBody final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.upgradeChatSpaceMemberToAdmin(chatSpaceId, upgradeChatSpaceMemberToAdminDto, user);
   }
 
@@ -96,7 +96,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Details of the administrator to be demoted", required = true)
         @Valid @RequestBody final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
   }
 
@@ -127,7 +127,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Processing details including approval/rejection decision", required = true)
         @Valid @RequestBody final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceJoinService.processRequestToJoinSpace(chatSpaceId, processRequestToJoinChatSpaceDto, user);
   }
 
@@ -157,7 +157,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Details of the user to be added as member", required = true)
         @Valid @RequestBody final AddChatSpaceMemberDto addChatSpaceMemberDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.addMember(chatSpaceId, addChatSpaceMemberDto, user);
   }
 
@@ -184,7 +184,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Details of the chat space member to be restore", required = true)
         @Valid @RequestBody final RestoreChatSpaceMemberDto restoreChatSpaceMemberDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.restoreRemovedMember(chatSpaceId, restoreChatSpaceMemberDto, user);
   }
 
@@ -214,7 +214,7 @@ public class UserChatSpaceController {
       @Parameter(description = "Details of the member to be removed", required = true)
         @Valid @RequestBody final RemoveChatSpaceMemberDto removeChatSpaceMemberDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceMemberService.removeMember(chatSpaceId, removeChatSpaceMemberDto, user);
   }
 }

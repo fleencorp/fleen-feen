@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceRespons
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
@@ -109,7 +109,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   @Override
   @Transactional
-  public JoinChatSpaceResponse joinSpace(final Long chatSpaceId, final JoinChatSpaceDto joinChatSpaceDto, final FleenUser user)
+  public JoinChatSpaceResponse joinSpace(final Long chatSpaceId, final JoinChatSpaceDto joinChatSpaceDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, CannotJoinPrivateChatSpaceWithoutApprovalException,
       FailedOperationException {
     // Find the chat space by its ID or throw an exception if not found
@@ -178,7 +178,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   @Override
   @Transactional
-  public RequestToJoinChatSpaceResponse requestToJoinSpace(final Long chatSpaceId, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final FleenUser user)
+  public RequestToJoinChatSpaceResponse requestToJoinSpace(final Long chatSpaceId, final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, ChatSpaceMemberRemovedException,
       FailedOperationException  {
     // Find the chat space by its ID or throw an exception if not found
@@ -249,7 +249,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    */
   @Override
   @Transactional
-  public ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(final Long chatSpaceId, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, final FleenUser user)
+  public ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(final Long chatSpaceId, final ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, final RegisteredUser user)
       throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, MemberNotFoundException,
         ChatSpaceMemberNotFoundException, AlreadyJoinedChatSpaceException, FailedOperationException {
     // Find the chat space by its ID
@@ -362,13 +362,13 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * and returns a {@link LeaveChatSpaceResponse} to confirm the member has left the chat space.</p>
    *
    * @param chatSpaceId the ID of the {@link ChatSpace} the user wishes to leave
-   * @param user        the {@link FleenUser} who is leaving the chat space
+   * @param user        the {@link RegisteredUser} who is leaving the chat space
    * @return a localized {@link LeaveChatSpaceResponse} indicating successful removal from the chat space
    * @throws FailedOperationException if there is an invalid input
    */
   @Override
   @Transactional
-  public LeaveChatSpaceResponse leaveChatSpace(final Long chatSpaceId, final FleenUser user) throws FailedOperationException {
+  public LeaveChatSpaceResponse leaveChatSpace(final Long chatSpaceId, final RegisteredUser user) throws FailedOperationException {
     // Retrieve the chat space using the provided chatSpaceId
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Locate the chat space member to be removed using the member ID from the DTO
@@ -394,7 +394,7 @@ public class ChatSpaceJoinServiceImpl implements ChatSpaceJoinService {
    * @throws ChatSpaceAlreadyDeletedException If the chat space has been deleted.
    * @throws NotAnAdminOfChatSpaceException If the user is not the creator or an admin of the chat space.
    */
-  protected void checkIsAnAdminOfChatSpace(final ChatSpace chatSpace, final FleenUser user) {
+  protected void checkIsAnAdminOfChatSpace(final ChatSpace chatSpace, final RegisteredUser user) {
     // Verify that the user is the creator or an admin of the chat space
     chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, user.toMember());
   }

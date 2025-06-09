@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.country;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.common.CountryNotFoundException;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
 import com.fleencorp.feen.model.response.country.RetrieveCountryResponse;

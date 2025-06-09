@@ -14,7 +14,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLink
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.model.request.search.LinkSearchRequest;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 import java.util.List;
 
@@ -24,16 +24,16 @@ public interface LinkService {
 
   GetAvailableMusicLinkTypeResponse getAvailableMusicLinkType();
 
-  LinkSearchResult findLinks(LinkSearchRequest searchRequest, FleenUser user);
+  LinkSearchResult findLinks(LinkSearchRequest searchRequest, RegisteredUser user);
 
   List<LinkResponse> findChatSpaceLinks(Long chatSpaceId);
 
-  LinkStreamMusicUpdateResponse updateStreamMusicLink(UpdateStreamMusicLinkDto updateStreamMusicLinkDto, FleenUser user)
+  LinkStreamMusicUpdateResponse updateStreamMusicLink(UpdateStreamMusicLinkDto updateStreamMusicLinkDto, RegisteredUser user)
     throws StreamNotFoundException, FailedOperationException;
 
-  LinkUpdateResponse updateLink(UpdateLinkDto updateLinkDto, FleenUser user)
+  LinkUpdateResponse updateLink(UpdateLinkDto updateLinkDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, FailedOperationException;
 
-  LinkDeleteResponse deleteLink(DeleteLinkDto deleteLinkDto, FleenUser user)
+  LinkDeleteResponse deleteLink(DeleteLinkDto deleteLinkDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, FailedOperationException;
 }

@@ -2,12 +2,11 @@ package com.fleencorp.feen.user.model.domain;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.base.util.StringUtil;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
-import com.fleencorp.feen.constant.security.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.user.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

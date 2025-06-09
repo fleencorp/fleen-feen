@@ -16,21 +16,21 @@ import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceRespons
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ChatSpaceJoinService {
 
-  JoinChatSpaceResponse joinSpace(Long chatSpaceId, JoinChatSpaceDto joinChatSpaceDto, FleenUser user)
+  JoinChatSpaceResponse joinSpace(Long chatSpaceId, JoinChatSpaceDto joinChatSpaceDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, CannotJoinPrivateChatSpaceWithoutApprovalException,
     FailedOperationException;
 
-  RequestToJoinChatSpaceResponse requestToJoinSpace(Long chatSpaceId, RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, FleenUser user)
+  RequestToJoinChatSpaceResponse requestToJoinSpace(Long chatSpaceId, RequestToJoinChatSpaceDto requestToJoinChatSpaceDto, RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceNotActiveException, ChatSpaceMemberRemovedException,
       FailedOperationException;
 
-  ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(Long chatSpaceId, ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, FleenUser user)
+  ProcessRequestToJoinChatSpaceResponse processRequestToJoinSpace(Long chatSpaceId, ProcessRequestToJoinChatSpaceDto processRequestToJoinChatSpaceDto, RegisteredUser user)
       throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, MemberNotFoundException,
     ChatSpaceMemberNotFoundException, AlreadyJoinedChatSpaceException, FailedOperationException;
 
-  LeaveChatSpaceResponse leaveChatSpace(Long chatSpaceId, FleenUser user) throws ChatSpaceMemberNotFoundException, FailedOperationException;
+  LeaveChatSpaceResponse leaveChatSpace(Long chatSpaceId, RegisteredUser user) throws ChatSpaceMemberNotFoundException, FailedOperationException;
 }

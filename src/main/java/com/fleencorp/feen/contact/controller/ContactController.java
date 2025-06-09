@@ -12,7 +12,7 @@ import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,14 +37,14 @@ public class ContactController {
   @GetMapping(value = "/find-contacts")
   public ContactSearchResult findContacts(
       @SearchParam final ContactSearchRequest contactSearchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return contactService.findContacts(contactSearchRequest, user);
   }
 
   @PostMapping(value = "/add")
   public ContactAddResponse addContact(
       @Valid @RequestBody final AddContactDto addContactDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return contactService.addContact(addContactDto, user);
   }
 
@@ -52,21 +52,21 @@ public class ContactController {
   public ContactUpdateResponse updateContact(
       @PathVariable(name = "contactId") final Long contactId,
       @Valid @RequestBody final UpdateContactSingleDto updateContactDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return contactService.updateContact(contactId, updateContactDto, user);
   }
 
   @PutMapping(value = "/update")
   public ContactUpdateResponse updateContact(
       @Valid @RequestBody final UpdateContactDto updateContactDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return contactService.updateContacts(updateContactDto, user);
   }
 
   @PutMapping(value = "/delete")
   public ContactDeleteResponse deleteContact(
       @Valid @RequestBody final DeleteContactDto deleteContactDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return contactService.deleteContact(deleteContactDto, user);
   }
 }

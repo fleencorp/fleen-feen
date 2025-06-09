@@ -1,40 +1,40 @@
 package com.fleencorp.feen.user.service;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.user.profile.EmailAddressAlreadyExistsException;
-import com.fleencorp.feen.exception.user.profile.PhoneNumberAlreadyExistsException;
-import com.fleencorp.feen.exception.user.profile.UpdatePasswordFailedException;
-import com.fleencorp.feen.exception.user.profile.UpdateProfileInfoFailedException;
-import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
-import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
-import com.fleencorp.feen.exception.verification.VerificationFailedException;
-import com.fleencorp.feen.user.model.dto.*;
+import com.fleencorp.feen.user.exception.user.profile.EmailAddressAlreadyExistsException;
+import com.fleencorp.feen.user.exception.user.profile.PhoneNumberAlreadyExistsException;
+import com.fleencorp.feen.user.exception.user.profile.UpdatePasswordFailedException;
+import com.fleencorp.feen.user.exception.user.profile.UpdateProfileInfoFailedException;
+import com.fleencorp.feen.user.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.VerificationFailedException;
+import com.fleencorp.feen.user.model.dto.profile.*;
 import com.fleencorp.feen.user.model.response.RemoveProfilePhotoResponse;
 import com.fleencorp.feen.user.model.response.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface MemberUpdateService {
 
-  UpdatePasswordResponse updatePassword(UpdatePasswordDto updatePasswordDto, FleenUser user) throws UpdatePasswordFailedException;
+  UpdatePasswordResponse updatePassword(UpdatePasswordDto updatePasswordDto, RegisteredUser user) throws UpdatePasswordFailedException;
 
-  UpdateProfileInfoResponse updateInfo(UpdateProfileInfoDto updateProfileInfoDto, FleenUser user) throws UpdateProfileInfoFailedException;
+  UpdateProfileInfoResponse updateInfo(UpdateProfileInfoDto updateProfileInfoDto, RegisteredUser user) throws UpdateProfileInfoFailedException;
 
-  SendUpdateEmailOrPhoneVerificationCodeResponse sendUpdateEmailAddressOrPhoneNumberVerificationCode(UpdateEmailAddressOrPhoneNumberDto updateEmailAddressOrPhoneNumberDto, FleenUser user);
+  SendUpdateEmailOrPhoneVerificationCodeResponse sendUpdateEmailAddressOrPhoneNumberVerificationCode(UpdateEmailAddressOrPhoneNumberDto updateEmailAddressOrPhoneNumberDto, RegisteredUser user);
 
-  UpdateEmailAddressResponse updateEmailAddress(ConfirmUpdateEmailAddressDto updateEmailAddressDto, FleenUser user)
+  UpdateEmailAddressResponse updateEmailAddress(ConfirmUpdateEmailAddressDto updateEmailAddressDto, RegisteredUser user)
     throws VerificationFailedException, ExpiredVerificationCodeException, InvalidVerificationCodeException,
       EmailAddressAlreadyExistsException;
 
-  UpdatePhoneNumberResponse updatePhoneNumber(ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, FleenUser user)
+  UpdatePhoneNumberResponse updatePhoneNumber(ConfirmUpdatePhoneNumberDto updatePhoneNumberDto, RegisteredUser user)
     throws VerificationFailedException, ExpiredVerificationCodeException, InvalidVerificationCodeException,
       PhoneNumberAlreadyExistsException;
 
-  UpdateProfilePhotoResponse updateProfilePhoto(UpdateProfilePhotoDto updateProfilePhotoDto, FleenUser user) throws FailedOperationException;
+  UpdateProfilePhotoResponse updateProfilePhoto(UpdateProfilePhotoDto updateProfilePhotoDto, RegisteredUser user) throws FailedOperationException;
 
-  UpdateProfileStatusResponse updateProfileActive(FleenUser user) throws FailedOperationException;
+  UpdateProfileStatusResponse updateProfileActive(RegisteredUser user) throws FailedOperationException;
 
-  UpdateProfileStatusResponse updateProfileInactive(FleenUser user) throws FailedOperationException;
+  UpdateProfileStatusResponse updateProfileInactive(RegisteredUser user) throws FailedOperationException;
 
-  RemoveProfilePhotoResponse removeProfilePhoto(FleenUser user) throws FailedOperationException;
+  RemoveProfilePhotoResponse removeProfilePhoto(RegisteredUser user) throws FailedOperationException;
 }

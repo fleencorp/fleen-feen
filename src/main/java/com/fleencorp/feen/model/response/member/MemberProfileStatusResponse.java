@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.response.member;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

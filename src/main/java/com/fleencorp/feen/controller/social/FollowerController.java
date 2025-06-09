@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.response.social.follower.FollowUserResponse;
 import com.fleencorp.feen.model.response.social.follower.UnfollowUserResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.social.FollowerService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,28 +28,28 @@ public class FollowerController {
   @GetMapping(value = "/get-followers")
   public FollowerSearchResult getFollowers(
       @SearchParam final SearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return followerService.getFollowers(searchRequest, user);
   }
 
   @GetMapping(value = "/get-followings")
   public FollowingSearchResult getFollowings(
       @SearchParam final SearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return followerService.getFollowings(searchRequest, user);
   }
 
   @PutMapping(value = "/follow")
   public FollowUserResponse followUser(
       @Valid @RequestBody final FollowOrUnfollowUserDto followUserDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return followerService.followUser(followUserDto, user);
   }
 
   @PutMapping(value = "/unfollow")
   public UnfollowUserResponse unfollowUser(
       @Valid @RequestBody final FollowOrUnfollowUserDto unfollowUserDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return followerService.unfollowUser(unfollowUserDto, user);
   }
 

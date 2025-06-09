@@ -1,6 +1,6 @@
 package com.fleencorp.feen.controller.chat.space;
 
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChat
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
@@ -75,7 +75,7 @@ public class ChatSpaceController {
       @Parameter(description = "Chat space configuration details", required = true)
         @Valid @RequestBody final CreateChatSpaceDto createChatSpaceDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceService.createChatSpace(createChatSpaceDto, user);
   }
 
@@ -103,7 +103,7 @@ public class ChatSpaceController {
       @Parameter(description = "Event configuration details", required = true)
         @Valid @RequestBody final CreateChatSpaceEventDto createChatSpaceEventDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceEventService.createChatSpaceEvent(chatSpaceId, createChatSpaceEventDto, user);
   }
 
@@ -131,7 +131,7 @@ public class ChatSpaceController {
       @Parameter(description = "Updated chat space configuration", required = true)
         @Valid @RequestBody final UpdateChatSpaceDto updateChatSpaceDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceService.updateChatSpace(chatSpaceId, updateChatSpaceDto, user);
   }
 
@@ -154,7 +154,7 @@ public class ChatSpaceController {
       @Parameter(description = "ID of the chat space to delete", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceService.deleteChatSpace(chatSpaceId, user);
   }
 
@@ -178,7 +178,7 @@ public class ChatSpaceController {
       @Parameter(description = "ID of the chat space to delete", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceService.deleteChatSpaceByAdmin(chatSpaceId, user);
   }
 
@@ -207,7 +207,7 @@ public class ChatSpaceController {
     @Parameter(description = "Update status details", required = true)
       @Valid @RequestBody final UpdateChatSpaceStatusDto updateChatSpaceStatusDto,
     @Parameter(hidden = true)
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceService.updateChatSpaceStatus(chatSpaceId, updateChatSpaceStatusDto, user);
   }
 
@@ -237,7 +237,7 @@ public class ChatSpaceController {
       @Parameter(description = "Join request details", required = true)
         @Valid @RequestBody final JoinChatSpaceDto joinChatSpaceDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceJoinService.joinSpace(chatSpaceId, joinChatSpaceDto, user);
   }
 
@@ -269,7 +269,7 @@ public class ChatSpaceController {
       @Parameter(description = "Join request details including optional message", required = true)
         @Valid @RequestBody final RequestToJoinChatSpaceDto requestToJoinChatSpaceDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceJoinService.requestToJoinSpace(chatSpaceId, requestToJoinChatSpaceDto, user);
   }
 
@@ -295,7 +295,7 @@ public class ChatSpaceController {
       @Parameter(description = "ID of the chat space to leave", required = true)
         @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return chatSpaceJoinService.leaveChatSpace(chatSpaceId, user);
   }
 

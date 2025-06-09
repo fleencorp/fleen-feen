@@ -6,11 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
-import com.fleencorp.feen.constant.security.mfa.MfaSetupStage;
-import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
-import com.fleencorp.feen.model.info.security.MfaTypeInfo;
+import com.fleencorp.feen.user.constant.mfa.MfaSetupStage;
+import com.fleencorp.feen.user.constant.mfa.MfaSetupStatus;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.*;
 

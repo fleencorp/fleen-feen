@@ -25,7 +25,7 @@ import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchR
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
@@ -108,7 +108,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @return a ChatSpaceMemberSearchResult containing the list of chat space members and pagination info
    */
   @Override
-  public ChatSpaceMemberSearchResult findChatSpaceMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceMemberSearchResult findChatSpaceMembers(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final RegisteredUser user) {
     // Retrieve the chat space
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
@@ -148,7 +148,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @return a localized search result containing the chat space member responses
    */
   @Override
-  public ChatSpaceMemberSearchResult findChatSpaceAdmins(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final FleenUser user) {
+  public ChatSpaceMemberSearchResult findChatSpaceAdmins(final Long chatSpaceId, final ChatSpaceMemberSearchRequest searchRequest, final RegisteredUser user) {
     // Retrieve the chat space
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     final Page<ChatSpaceMember> page;
@@ -194,7 +194,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   @Override
   @Transactional
-  public UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(final Long chatSpaceId, final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, final FleenUser user)
+  public UpgradeChatSpaceMemberToAdminResponse upgradeChatSpaceMemberToAdmin(final Long chatSpaceId, final UpgradeChatSpaceMemberToAdminDto upgradeChatSpaceMemberToAdminDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException {
     // Get the chat space member id
@@ -237,7 +237,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   @Override
   @Transactional
-  public DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(final Long chatSpaceId, final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, final FleenUser user)
+  public DowngradeChatSpaceAdminToMemberResponse downgradeChatSpaceAdminToMember(final Long chatSpaceId, final DowngradeChatSpaceAdminToMemberDto downgradeChatSpaceAdminToMemberDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException  {
     // Get the chat space member id
@@ -274,7 +274,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws ChatSpaceNotFoundException if the chat space cannot be found
    * @throws ChatSpaceMemberNotFoundException if the chat space member cannot be found
    */
-  protected ChatSpaceAndMemberDetailsHolder checkIfRoleCanBeUpdated(final Long chatSpaceId, final Long chatSpaceMemberId, final FleenUser user) {
+  protected ChatSpaceAndMemberDetailsHolder checkIfRoleCanBeUpdated(final Long chatSpaceId, final Long chatSpaceMemberId, final RegisteredUser user) {
     // Get the chat space and chat space member details
     final ChatSpaceAndMemberDetailsHolder chatSpaceAndMemberDetailsHolder = getChatSpaceAndMemberDetails(chatSpaceId, chatSpaceMemberId, user);
     // Get the chat space
@@ -306,7 +306,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws NotAnAdminOfChatSpaceException if the operation is not performed by an admin
    * @throws ChatSpaceMemberNotFoundException if the chat space member with the specified ID is not found in the chat space.
    */
-  private ChatSpaceAndMemberDetailsHolder getChatSpaceAndMemberDetails(final Long chatSpaceId, final Long chatSpaceMemberId, final FleenUser user) {
+  private ChatSpaceAndMemberDetailsHolder getChatSpaceAndMemberDetails(final Long chatSpaceId, final Long chatSpaceMemberId, final RegisteredUser user) {
     // Find the chat space by its ID or throw an exception if not found
     final ChatSpace chatSpace = chatSpaceService.findChatSpace(chatSpaceId);
     // Verify that the user is the creator or an admin of the chat space
@@ -337,7 +337,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   @Override
   @Transactional
-  public AddChatSpaceMemberResponse addMember(final Long chatSpaceId, final AddChatSpaceMemberDto addChatSpaceMemberDto, final FleenUser user)
+  public AddChatSpaceMemberResponse addMember(final Long chatSpaceId, final AddChatSpaceMemberDto addChatSpaceMemberDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, MemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException  {
     // Get the member id
@@ -387,7 +387,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   @Override
   @Transactional
-  public RestoreChatSpaceMemberResponse restoreRemovedMember(final Long chatSpaceId, final RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, final FleenUser user)
+  public RestoreChatSpaceMemberResponse restoreRemovedMember(final Long chatSpaceId, final RestoreChatSpaceMemberDto restoreChatSpaceMemberDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, ChatSpaceMemberNotFoundException, NotAnAdminOfChatSpaceException,
       FailedOperationException  {
     // Find the chat space by its ID
@@ -451,7 +451,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    */
   @Override
   @Transactional
-  public RemoveChatSpaceMemberResponse removeMember(final Long chatSpaceId, final RemoveChatSpaceMemberDto removeChatSpaceMemberDto, final FleenUser user)
+  public RemoveChatSpaceMemberResponse removeMember(final Long chatSpaceId, final RemoveChatSpaceMemberDto removeChatSpaceMemberDto, final RegisteredUser user)
     throws ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException, ChatSpaceMemberNotFoundException,
       FailedOperationException {
     // Retrieve the chat space using the provided chatSpaceId
@@ -623,7 +623,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   }
 
   /**
-   * Retrieves an existing {@link ChatSpaceMember} for the given {@link ChatSpace} and {@link FleenUser},
+   * Retrieves an existing {@link ChatSpaceMember} for the given {@link ChatSpace} and {@link RegisteredUser},
    * or creates a new one if none exists.
    *
    * <p>This method first validates that neither the chat space nor the user is {@code null}.
@@ -637,7 +637,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws FailedOperationException if {@code chatSpace} or {@code user} is {@code null}
    */
   @Override
-  public ChatSpaceMember getExistingOrCreateNewChatSpaceMember(final ChatSpace chatSpace, final FleenUser user) throws FailedOperationException {
+  public ChatSpaceMember getExistingOrCreateNewChatSpaceMember(final ChatSpace chatSpace, final RegisteredUser user) throws FailedOperationException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(chatSpace, user), FailedOperationException::new);
 

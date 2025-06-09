@@ -10,33 +10,33 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface CommonStreamService {
 
-  DeleteStreamResponse deleteStream(Long streamId, DeleteStreamDto deleteStreamDto, FleenUser user)
+  DeleteStreamResponse deleteStream(Long streamId, DeleteStreamDto deleteStreamDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException;
 
-  CancelStreamResponse cancelStream(Long streamId, CancelStreamDto cancelStreamDto, FleenUser user)
+  CancelStreamResponse cancelStream(Long streamId, CancelStreamDto cancelStreamDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
       FailedOperationException;
 
-  RescheduleStreamResponse rescheduleStream(Long streamId, RescheduleStreamDto rescheduleStreamDto, FleenUser user)
+  RescheduleStreamResponse rescheduleStream(Long streamId, RescheduleStreamDto rescheduleStreamDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 
-  UpdateStreamResponse updateStream(Long streamId, UpdateStreamDto updateStreamDto, FleenUser user)
+  UpdateStreamResponse updateStream(Long streamId, UpdateStreamDto updateStreamDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       FailedOperationException;
 
-  UpdateStreamResponse updateStreamOtherDetails(Long streamId, UpdateStreamOtherDetailDto updateStreamOtherDetailDto, FleenUser user)
+  UpdateStreamResponse updateStreamOtherDetails(Long streamId, UpdateStreamOtherDetailDto updateStreamOtherDetailDto, RegisteredUser user)
     throws StreamNotFoundException, StreamNotCreatedByUserException, StreamAlreadyHappenedException,
       StreamAlreadyCanceledException, FailedOperationException;
 
-  UpdateStreamVisibilityResponse updateStreamVisibility(Long eventId, UpdateStreamVisibilityDto updateStreamVisibilityDto, FleenUser user)
+  UpdateStreamVisibilityResponse updateStreamVisibility(Long eventId, UpdateStreamVisibilityDto updateStreamVisibilityDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException;

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.model.projection;
 
-import com.fleencorp.feen.constant.security.profile.ProfileStatus;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

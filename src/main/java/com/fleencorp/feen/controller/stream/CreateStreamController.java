@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
@@ -73,7 +73,7 @@ public class CreateStreamController {
       @Parameter(description = "Event details for creation", required = true)
         @Valid @RequestBody final CreateEventDto createEventDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return eventOperationsService.createEvent(createEventDto, user);
   }
 
@@ -93,7 +93,7 @@ public class CreateStreamController {
       @Parameter(description = "Instant event details for creation", required = true)
         @Valid @RequestBody final CreateInstantEventDto createInstantEventDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return eventOperationsService.createInstantEvent(createInstantEventDto, user);
   }
 
@@ -139,7 +139,7 @@ public class CreateStreamController {
       @Parameter(description = "Live broadcast details for creation", required = true)
         @Valid @RequestBody final CreateLiveBroadcastDto createLiveBroadcastDto,
       @Parameter(hidden = true)
-        @AuthenticationPrincipal final FleenUser user) {
+        @AuthenticationPrincipal final RegisteredUser user) {
     return liveBroadcastService.createLiveBroadcast(createLiveBroadcastDto, user);
   }
 }

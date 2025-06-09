@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.review.AddReviewResponse;
 import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.review.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,14 +30,14 @@ public class ReviewController {
   @GetMapping(value = "/mine")
   public ReviewSearchResult findMyReviews(
       @SearchParam final SearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return reviewService.findMyReviews(searchRequest, user);
   }
 
   @PostMapping(value = "/entries")
   public ReviewSearchResult findReviewsPublic(
       @SearchParam final ReviewSearchRequest searchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return reviewService.findReviews(searchRequest, user);
   }
 
@@ -45,7 +45,7 @@ public class ReviewController {
   @PostMapping(value = "/add")
   public AddReviewResponse addReview(
       @Valid @RequestBody final AddReviewDto addReviewDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return reviewService.addReview(addReviewDto, user);
   }
 
@@ -54,7 +54,7 @@ public class ReviewController {
   public UpdateReviewResponse updateReview(
       @PathVariable(name = "reviewId") final Long reviewId,
       @Valid @RequestBody final UpdateReviewDto updateStreamReviewDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return reviewService.updateReview(reviewId, updateStreamReviewDto, user);
   }
 
@@ -62,7 +62,7 @@ public class ReviewController {
   @DeleteMapping(value = "/delete/{reviewId}")
   public DeleteReviewResponse deleteReview(
       @PathVariable(name = "reviewId") final Long reviewId,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return reviewService.deleteReview(reviewId, user);
   }
 }

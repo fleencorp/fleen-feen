@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;

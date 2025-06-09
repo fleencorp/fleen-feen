@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -18,7 +18,7 @@ public interface StreamAttendeeService {
 
   StreamAttendeeSearchResult findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
 
-  void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, FleenUser user);
+  void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, RegisteredUser user);
 
   Collection<StreamAttendeeResponse> getAttendeesGoingToStream(StreamResponse streamResponse);
 
@@ -28,7 +28,7 @@ public interface StreamAttendeeService {
 
   Optional<StreamAttendee> findAttendee(FleenStream stream, Long attendeeId);
 
-  RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, FleenUser user);
+  RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, RegisteredUser user);
 
-  StreamAttendee getExistingOrCreateNewStreamAttendee(FleenStream stream, String comment, FleenUser user) throws FailedOperationException;
+  StreamAttendee getExistingOrCreateNewStreamAttendee(FleenStream stream, String comment, RegisteredUser user) throws FailedOperationException;
 }

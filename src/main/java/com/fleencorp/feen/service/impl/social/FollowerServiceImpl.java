@@ -21,7 +21,7 @@ import com.fleencorp.feen.user.model.response.UserResponse;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.model.search.social.follower.follower.FollowerSearchResult;
 import com.fleencorp.feen.model.search.social.follower.following.FollowingSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.user.FollowerRepository;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
@@ -85,7 +85,7 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional(readOnly = true)
-  public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final FleenUser user) {
+  public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final RegisteredUser user) {
     // Prepare parameters
     final Member member = user.toMember();
     final Pageable pageable = searchRequest.getPage();
@@ -196,7 +196,7 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional(readOnly = true)
-  public FollowingSearchResult getFollowings(final SearchRequest searchRequest, final FleenUser user) {
+  public FollowingSearchResult getFollowings(final SearchRequest searchRequest, final RegisteredUser user) {
     // Prepare parameters
     final Member member = user.toMember();
     final Pageable pageable = searchRequest.getPage();
@@ -314,7 +314,7 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional
-  public FollowUserResponse followUser(final FollowOrUnfollowUserDto followUserDto, final FleenUser user) {
+  public FollowUserResponse followUser(final FollowOrUnfollowUserDto followUserDto, final RegisteredUser user) {
     // Prepare parameters
     final Member member = user.toMember();
     // Create a Member object for the user to be followed
@@ -373,7 +373,7 @@ public class FollowerServiceImpl implements FollowerService {
    */
   @Override
   @Transactional
-  public UnfollowUserResponse unfollowUser(final FollowOrUnfollowUserDto unfollowUserDto, final FleenUser user) {
+  public UnfollowUserResponse unfollowUser(final FollowOrUnfollowUserDto unfollowUserDto, final RegisteredUser user) {
     // Create a Member object for the user to be unfollowed
     final Member targetMember = unfollowUserDto.getMember();
     // Verify user cannot unfollow itself

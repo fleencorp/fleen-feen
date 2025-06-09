@@ -10,21 +10,21 @@ import com.fleencorp.feen.model.response.review.DeleteReviewResponse;
 import com.fleencorp.feen.model.response.review.ReviewResponse;
 import com.fleencorp.feen.model.response.review.UpdateReviewResponse;
 import com.fleencorp.feen.model.search.review.ReviewSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ReviewService {
 
-  ReviewSearchResult findReviews(ReviewSearchRequest searchRequest, FleenUser user);
+  ReviewSearchResult findReviews(ReviewSearchRequest searchRequest, RegisteredUser user);
 
-  ReviewResponse findMostRecentReview(ReviewParentType reviewParentType, Long entryId, FleenUser user);
+  ReviewResponse findMostRecentReview(ReviewParentType reviewParentType, Long entryId, RegisteredUser user);
 
-  ReviewSearchResult findMyReviews(SearchRequest searchRequest, FleenUser user);
+  ReviewSearchResult findMyReviews(SearchRequest searchRequest, RegisteredUser user);
 
-  AddReviewResponse addReview(AddReviewDto addReviewDto, FleenUser user);
+  AddReviewResponse addReview(AddReviewDto addReviewDto, RegisteredUser user);
 
-  UpdateReviewResponse updateReview(Long reviewId, UpdateReviewDto updateStreamReviewDto, FleenUser user);
+  UpdateReviewResponse updateReview(Long reviewId, UpdateReviewDto updateStreamReviewDto, RegisteredUser user);
 
-  DeleteReviewResponse deleteReview(Long reviewId, FleenUser user);
+  DeleteReviewResponse deleteReview(Long reviewId, RegisteredUser user);
 
   Long incrementLikeCount(Long reviewId);
 

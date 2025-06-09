@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
 import com.fleencorp.feen.model.response.calendar.*;
 import com.fleencorp.feen.model.search.calendar.CalendarSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class CalendarController {
   @PostMapping(value = "/create")
   public CreateCalendarResponse createCalendar(
       @Valid @RequestBody final CreateCalendarDto createCalendarDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return calendarService.createCalendar(createCalendarDto, user);
   }
 
@@ -55,21 +55,21 @@ public class CalendarController {
   public UpdateCalendarResponse updateCalendar(
       @PathVariable(name = "calendarId") final Long calendarId,
       @Valid @RequestBody final UpdateCalendarDto updateCalendarDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return calendarService.updateCalendar(calendarId, updateCalendarDto, user);
   }
 
   @PutMapping(value = "/reactivate/{calendarId}")
   public ReactivateCalendarResponse reactivateCalendar(
       @PathVariable(name = "calendarId") final Long calendarId,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return calendarService.reactivateCalendar(calendarId, user);
   }
 
   @DeleteMapping(value = "/delete/{calendarId}")
   public DeletedCalendarResponse deleteCalendar(
       @PathVariable(name = "calendarId") final Long calendarId,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return calendarService.deleteCalendar(calendarId, user);
   }
 
@@ -77,7 +77,7 @@ public class CalendarController {
   public ShareCalendarWithUserResponse shareCalendarWithUser(
       @PathVariable(name = "calendarId") final Long calendarId,
       @Valid @RequestBody final ShareCalendarWithUserDto shareCalendarWithUserDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return calendarService.shareCalendarWithUser(calendarId, shareCalendarWithUserDto, user);
   }
 }

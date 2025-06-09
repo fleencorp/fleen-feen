@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.security;
 
-import com.fleencorp.feen.model.domain.user.ProfileToken;
+import com.fleencorp.feen.user.model.domain.ProfileToken;
 
 import java.util.Optional;
 

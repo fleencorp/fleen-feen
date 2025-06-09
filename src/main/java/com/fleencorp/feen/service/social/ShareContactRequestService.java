@@ -9,21 +9,21 @@ import com.fleencorp.feen.model.response.social.share.ExpectShareContactRequestR
 import com.fleencorp.feen.model.response.social.share.ProcessShareContactRequestResponse;
 import com.fleencorp.feen.model.response.social.share.SendShareContactRequestResponse;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ShareContactRequestService {
 
-  ShareContactRequestSearchResult findSentShareContactRequests(ShareContactRequestSearchRequest searchRequest, FleenUser user);
+  ShareContactRequestSearchResult findSentShareContactRequests(ShareContactRequestSearchRequest searchRequest, RegisteredUser user);
 
-  ShareContactRequestSearchResult findReceivedShareContactRequests(ShareContactRequestSearchRequest searchRequest, FleenUser user);
+  ShareContactRequestSearchResult findReceivedShareContactRequests(ShareContactRequestSearchRequest searchRequest, RegisteredUser user);
 
-  ShareContactRequestSearchResult findExpectedShareContactRequests(ShareContactRequestSearchRequest searchRequest, FleenUser user);
+  ShareContactRequestSearchResult findExpectedShareContactRequests(ShareContactRequestSearchRequest searchRequest, RegisteredUser user);
 
-  ExpectShareContactRequestResponse expectShareContactRequest(ExpectShareContactRequestDto expectShareContactRequestDto, FleenUser user);
+  ExpectShareContactRequestResponse expectShareContactRequest(ExpectShareContactRequestDto expectShareContactRequestDto, RegisteredUser user);
 
-  SendShareContactRequestResponse sendShareContactRequest(SendShareContactRequestDto sendShareContactRequestDto, FleenUser user);
+  SendShareContactRequestResponse sendShareContactRequest(SendShareContactRequestDto sendShareContactRequestDto, RegisteredUser user);
 
-  ProcessShareContactRequestResponse processShareContactRequest(Long shareContactRequestId, ProcessShareContactRequestDto processShareContactRequestDto, FleenUser user);
+  ProcessShareContactRequestResponse processShareContactRequest(Long shareContactRequestId, ProcessShareContactRequestDto processShareContactRequestDto, RegisteredUser user);
 
-  CancelShareContactRequestResponse cancelShareContactRequest(Long shareContactRequestId, FleenUser user);
+  CancelShareContactRequestResponse cancelShareContactRequest(Long shareContactRequestId, RegisteredUser user);
 }

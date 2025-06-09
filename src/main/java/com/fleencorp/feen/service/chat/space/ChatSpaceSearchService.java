@@ -8,23 +8,23 @@ import com.fleencorp.feen.model.search.chat.space.ChatSpaceSearchResult;
 import com.fleencorp.feen.model.search.chat.space.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.model.search.join.RemovedMemberSearchResult;
 import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ChatSpaceSearchService {
 
-  ChatSpaceSearchResult findSpaces(ChatSpaceSearchRequest searchRequest, FleenUser user);
+  ChatSpaceSearchResult findSpaces(ChatSpaceSearchRequest searchRequest, RegisteredUser user);
 
-  ChatSpaceSearchResult findMySpaces(ChatSpaceSearchRequest searchRequest, FleenUser user);
+  ChatSpaceSearchResult findMySpaces(ChatSpaceSearchRequest searchRequest, RegisteredUser user);
 
-  ChatSpaceSearchResult findSpacesIBelongTo(ChatSpaceSearchRequest searchRequest, FleenUser user);
+  ChatSpaceSearchResult findSpacesIBelongTo(ChatSpaceSearchRequest searchRequest, RegisteredUser user);
 
-  RequestToJoinSearchResult findRequestToJoinSpace(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
+  RequestToJoinSearchResult findRequestToJoinSpace(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, RegisteredUser user);
 
-  MutualChatSpaceMembershipSearchResult findChatSpacesMembershipWithAnotherUser(ChatSpaceSearchRequest searchRequest, FleenUser user);
+  MutualChatSpaceMembershipSearchResult findChatSpacesMembershipWithAnotherUser(ChatSpaceSearchRequest searchRequest, RegisteredUser user);
 
-  RetrieveChatSpaceResponse retrieveChatSpace(Long chatSpaceId, FleenUser user) throws ChatSpaceMemberNotFoundException;
+  RetrieveChatSpaceResponse retrieveChatSpace(Long chatSpaceId, RegisteredUser user) throws ChatSpaceMemberNotFoundException;
 
-  RemovedMemberSearchResult findRemovedMembers(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, FleenUser user);
+  RemovedMemberSearchResult findRemovedMembers(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, RegisteredUser user);
 
   Long getTotalRequestToJoinForChatSpace(Long chatSpaceId);
 }

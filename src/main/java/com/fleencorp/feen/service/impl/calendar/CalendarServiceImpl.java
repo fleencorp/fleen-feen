@@ -5,7 +5,7 @@ import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyActiveException;
 import com.fleencorp.feen.exception.calendar.CalendarAlreadyExistException;
 import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.dto.calendar.CreateCalendarDto;
 import com.fleencorp.feen.model.dto.calendar.ShareCalendarWithUserDto;
@@ -24,7 +24,7 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.model.search.calendar.CalendarSearchResult;
 import com.fleencorp.feen.model.search.country.CountrySearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.calendar.CalendarRepository;
 import com.fleencorp.feen.service.calendar.CalendarService;
 import com.fleencorp.feen.service.common.CountryService;
@@ -188,7 +188,7 @@ public class CalendarServiceImpl implements CalendarService {
   */
   @Override
   @Transactional
-  public CreateCalendarResponse createCalendar(final CreateCalendarDto createCalendarDto, final FleenUser user) {
+  public CreateCalendarResponse createCalendar(final CreateCalendarDto createCalendarDto, final RegisteredUser user) {
     Calendar calendar = createCalendarDto.toCalendar();
 
     // Check no calendar exist with matching country code or else throw an exception
@@ -233,7 +233,7 @@ public class CalendarServiceImpl implements CalendarService {
   */
   @Override
   @Transactional
-  public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final FleenUser user) {
+  public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final RegisteredUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(CalendarNotFoundException.of(calendarId));
 
@@ -281,7 +281,7 @@ public class CalendarServiceImpl implements CalendarService {
    */
   @Override
   @Transactional
-  public ReactivateCalendarResponse reactivateCalendar(final Long calendarId, final FleenUser user) {
+  public ReactivateCalendarResponse reactivateCalendar(final Long calendarId, final RegisteredUser user) {
     Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(CalendarNotFoundException.of(calendarId));
 
@@ -326,7 +326,7 @@ public class CalendarServiceImpl implements CalendarService {
   */
   @Override
   @Transactional
-  public DeletedCalendarResponse deleteCalendar(final Long calendarId, final FleenUser user) {
+  public DeletedCalendarResponse deleteCalendar(final Long calendarId, final RegisteredUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(CalendarNotFoundException.of(calendarId));
 
@@ -362,7 +362,7 @@ public class CalendarServiceImpl implements CalendarService {
   * @throws CalendarNotFoundException if the calendar with the specified ID is not found
   */
   @Override
-  public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final FleenUser user) {
+  public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final RegisteredUser user) {
     final Calendar calendar = calendarRepository.findById(calendarId)
       .orElseThrow(CalendarNotFoundException.of(calendarId));
 
@@ -399,7 +399,7 @@ public class CalendarServiceImpl implements CalendarService {
    * @param user the user whose access token is being validated or refreshed
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
-  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final FleenUser user) {
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
     return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 

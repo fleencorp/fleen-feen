@@ -1,29 +1,29 @@
 package com.fleencorp.feen.service.impl.security.mfa;
 
 import com.fleencorp.feen.configuration.security.properties.MfaProperties;
-import com.fleencorp.feen.constant.security.mfa.MfaSetupStatus;
-import com.fleencorp.feen.constant.security.mfa.MfaType;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
+import com.fleencorp.feen.user.constant.mfa.MfaSetupStatus;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.security.mfa.MfaGenerationFailedException;
-import com.fleencorp.feen.exception.security.mfa.MfaVerificationFailed;
-import com.fleencorp.feen.exception.verification.ExpiredVerificationCodeException;
-import com.fleencorp.feen.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.user.security.mfa.MfaGenerationFailedException;
+import com.fleencorp.feen.user.security.mfa.MfaVerificationFailed;
+import com.fleencorp.feen.user.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.InvalidVerificationCodeException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.model.dto.security.mfa.ConfirmSetupMfaDto;
-import com.fleencorp.feen.model.dto.security.mfa.SetupMfaDto;
-import com.fleencorp.feen.model.info.security.IsMfaEnabledInfo;
-import com.fleencorp.feen.model.info.security.MfaTypeInfo;
-import com.fleencorp.feen.model.other.MfaAuthenticatorSecurityInfo;
-import com.fleencorp.feen.model.request.mfa.MfaSetupVerificationRequest;
+import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmSetupMfaDto;
+import com.fleencorp.feen.user.model.dto.security.mfa.SetupMfaDto;
+import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
+import com.fleencorp.feen.user.model.other.MfaAuthenticatorSecurityInfo;
+import com.fleencorp.feen.user.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.security.MfaRepository;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.service.impl.cache.CacheService;
@@ -99,7 +99,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public EnableOrDisableMfaResponse reEnableMfa(final FleenUser user) {
+  public EnableOrDisableMfaResponse reEnableMfa(final RegisteredUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
       .orElseThrow(FailedOperationException::new);
@@ -124,7 +124,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public EnableOrDisableMfaResponse disableMfa(final FleenUser user) {
+  public EnableOrDisableMfaResponse disableMfa(final RegisteredUser user) {
     // Retrieve the member associated with the user's email address
     final Member member = memberRepository.findByEmailAddress(user.getEmailAddress())
         .orElseThrow(FailedOperationException::new);
@@ -149,7 +149,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public MfaStatusResponse getMfaStatus(final FleenUser user) {
+  public MfaStatusResponse getMfaStatus(final RegisteredUser user) {
     // Retrieve the member associated with the user's ID
     final Member member = memberRepository.findById(user.getId())
       .orElseThrow(FailedOperationException::new);
@@ -184,7 +184,7 @@ public class MfaServiceImpl implements MfaService {
    */
   @Override
   @Transactional
-  public SetupMfaResponse setupMfa(final SetupMfaDto dto, final FleenUser user) {
+  public SetupMfaResponse setupMfa(final SetupMfaDto dto, final RegisteredUser user) {
     final MfaType newMfaType = dto.getMfaType();
     final Long userId = user.getId();
     // Retrieve member with associated user id
@@ -226,7 +226,7 @@ public class MfaServiceImpl implements MfaService {
    * @throws FailedOperationException if the operation cannot be completed
    */
   @Override
-  public SetupMfaResponse resendMfaSetupCode(final SetupMfaDto dto, final FleenUser user) {
+  public SetupMfaResponse resendMfaSetupCode(final SetupMfaDto dto, final RegisteredUser user) {
     final Long userId = user.getId();
     final MfaType newMfaType = dto.getMfaType();
     // Retrieve member with associated user id
@@ -256,7 +256,7 @@ public class MfaServiceImpl implements MfaService {
    * @param user The authenticated FleenUser for whom MFA setup is being confirmed.
    */
   @Override
-  public ConfirmMfaSetupResponse confirmMfaSetup(final ConfirmSetupMfaDto confirmSetupMfaDto, final FleenUser user) {
+  public ConfirmMfaSetupResponse confirmMfaSetup(final ConfirmSetupMfaDto confirmSetupMfaDto, final RegisteredUser user) {
     final String emailAddress = user.getEmailAddress();
     final String username = user.getUsername();
     final MfaType mfaType = confirmSetupMfaDto.getMfaType();
@@ -526,7 +526,7 @@ public class MfaServiceImpl implements MfaService {
   protected void saveAndSendMfaVerificationCodeRequest(final Member member, final VerificationType verificationType, final MfaType mfaType) {
     // Generate a random six-digit OTP
     final String otpCode = getRandomSixDigitOtp();
-    final FleenUser user = FleenUser.fromMemberBasic(member);
+    final RegisteredUser user = RegisteredUser.fromMemberBasic(member);
 
     // Create MFA verification request to send otp code to user
     final MfaSetupVerificationRequest mfaVerificationRequest = MfaSetupVerificationRequest

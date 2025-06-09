@@ -6,7 +6,7 @@ import com.fleencorp.feen.model.dto.calendar.UpdateCalendarDto;
 import com.fleencorp.feen.model.request.search.calendar.CalendarSearchRequest;
 import com.fleencorp.feen.model.response.calendar.*;
 import com.fleencorp.feen.model.search.calendar.CalendarSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface CalendarService {
 
@@ -16,13 +16,13 @@ public interface CalendarService {
 
   RetrieveCalendarResponse findCalendar(Long calendarId);
 
-  CreateCalendarResponse createCalendar(CreateCalendarDto createCalendarDto, FleenUser user);
+  CreateCalendarResponse createCalendar(CreateCalendarDto createCalendarDto, RegisteredUser user);
 
-  UpdateCalendarResponse updateCalendar(Long calendarId, UpdateCalendarDto updateCalendarDto, FleenUser user);
+  UpdateCalendarResponse updateCalendar(Long calendarId, UpdateCalendarDto updateCalendarDto, RegisteredUser user);
 
-  ReactivateCalendarResponse reactivateCalendar(Long calendarId, FleenUser user);
+  ReactivateCalendarResponse reactivateCalendar(Long calendarId, RegisteredUser user);
 
-  DeletedCalendarResponse deleteCalendar(Long calendarId, FleenUser user);
+  DeletedCalendarResponse deleteCalendar(Long calendarId, RegisteredUser user);
 
-  ShareCalendarWithUserResponse shareCalendarWithUser(Long calendarId, ShareCalendarWithUserDto shareCalendarWithUserDto, FleenUser user);
+  ShareCalendarWithUserResponse shareCalendarWithUser(Long calendarId, ShareCalendarWithUserDto shareCalendarWithUserDto, RegisteredUser user);
 }

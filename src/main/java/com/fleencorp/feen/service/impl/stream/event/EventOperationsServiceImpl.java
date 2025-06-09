@@ -16,7 +16,7 @@ import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.event.EventService;
 import com.fleencorp.feen.service.stream.event.EventUpdateService;
@@ -49,12 +49,12 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final RegisteredUser user) throws CalendarNotFoundException {
     return eventService.createEvent(createEventDto, user);
   }
 
   @Override
-  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final FleenUser user) throws CalendarNotFoundException {
+  public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final RegisteredUser user) throws CalendarNotFoundException {
     return eventService.createInstantEvent(createInstantEventDto, user);
   }
 
@@ -124,12 +124,12 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final FleenUser user) {
+  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final RegisteredUser user) {
     eventJoinService.handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, streamAttendee, comment, user);
   }
 
   @Override
-  public AddNewStreamAttendeeResponse addEventAttendee(final Long eventId, final AddNewStreamAttendeeDto addNewStreamAttendeeDto, final FleenUser user)
+  public AddNewStreamAttendeeResponse addEventAttendee(final Long eventId, final AddNewStreamAttendeeDto addNewStreamAttendeeDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     return eventJoinService.addEventAttendee(eventId, addNewStreamAttendeeDto, user);

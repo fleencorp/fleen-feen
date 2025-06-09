@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.response.notification.NotificationResponse;
 import com.fleencorp.feen.model.response.notification.ReadNotificationResponse;
 import com.fleencorp.feen.model.search.notification.NotificationSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.repository.notification.NotificationRepository;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.localizer.service.Localizer;
@@ -67,12 +67,12 @@ public class NotificationServiceImpl implements NotificationService {
    * If no notifications are found, an empty search result is returned.</p>
    *
    * @param searchRequest the search criteria, including pagination settings.
-   * @param user the current {@link FleenUser} requesting the notifications.
+   * @param user the current {@link RegisteredUser} requesting the notifications.
    * @return a {@link NotificationSearchResult} containing the list of {@link NotificationResponse} objects and pagination details,
    *         or an empty result if no notifications are found.
    */
   @Override
-  public NotificationSearchResult findNotifications(final SearchRequest searchRequest, final FleenUser user) {
+  public NotificationSearchResult findNotifications(final SearchRequest searchRequest, final RegisteredUser user) {
     // Find a list of notifications based on the page details in the search request
     final Page<Notification> page = notificationRepository.findMany(user.toMember(), searchRequest.getPage());
     // Convert the notifications to a list of notification responses
@@ -105,21 +105,21 @@ public class NotificationServiceImpl implements NotificationService {
   }
 
   /**
-   * Marks a {@link Notification} as read for the specified {@link FleenUser} and returns a localized response.
+   * Marks a {@link Notification} as read for the specified {@link RegisteredUser} and returns a localized response.
    *
    * <p>This method retrieves the {@link Notification} with the given ID from the {@link NotificationRepository}.
    * If the notification is not found, a {@link NotificationNotFoundException} is thrown.
-   * If the {@link FleenUser} is the owner of the notification, the notification's status is updated to "read"
+   * If the {@link RegisteredUser} is the owner of the notification, the notification's status is updated to "read"
    * and saved back to the repository. Afterward, a localized response is returned, indicating the result.</p>
    *
    * @param notificationId the ID of the {@link Notification} to be marked as read.
-   * @param user the {@link FleenUser} who owns the notification.
+   * @param user the {@link RegisteredUser} who owns the notification.
    * @return a {@link ReadNotificationResponse} containing the result of the operation.
    * @throws NotificationNotFoundException if the notification with the given ID does not exist.
    */
   @Override
   @Transactional
-  public ReadNotificationResponse markAsRead(final Long notificationId, final FleenUser user) {
+  public ReadNotificationResponse markAsRead(final Long notificationId, final RegisteredUser user) {
     // Retrieve the notification by ID, or throw an exception if it doesn't exist
     final Notification notification = notificationRepository.findById(notificationId)
       .orElseThrow(NotificationNotFoundException.of(notificationId));
@@ -142,7 +142,7 @@ public class NotificationServiceImpl implements NotificationService {
    * @return a {@link ReadNotificationResponse} indicating the result of the operation.
    */
   @Override
-  public ReadNotificationResponse markAllAsRead(final FleenUser user) {
+  public ReadNotificationResponse markAllAsRead(final RegisteredUser user) {
     // Mark all notifications currently unread as now read for the given user
     notificationRepository.markAllAsRead(NotificationStatus.read(), NotificationStatus.unread(), user.toMember());
     // Return a response indicating that the notifications have been marked as read

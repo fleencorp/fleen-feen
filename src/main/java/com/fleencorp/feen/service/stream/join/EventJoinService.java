@@ -10,13 +10,13 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface EventJoinService {
 
-  void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(FleenStream stream, StreamAttendee streamAttendee, String comment, FleenUser user);
+  void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(FleenStream stream, StreamAttendee streamAttendee, String comment, RegisteredUser user);
 
-  AddNewStreamAttendeeResponse addEventAttendee(Long eventId, AddNewStreamAttendeeDto addNewStreamAttendeeDto, FleenUser user)
+  AddNewStreamAttendeeResponse addEventAttendee(Long eventId, AddNewStreamAttendeeDto addNewStreamAttendeeDto, RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
     StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException;
 

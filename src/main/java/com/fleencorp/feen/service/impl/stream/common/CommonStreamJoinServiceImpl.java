@@ -13,7 +13,7 @@ import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestTo
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.domain.auth.Oauth2Authorization;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
@@ -33,7 +33,7 @@ import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
@@ -121,7 +121,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    */
   @Override
   @Transactional
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final Long streamId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final FleenUser user)
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final Long streamId, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto, final RegisteredUser user)
       throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
         StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     // Retrieve the stream using the stream ID
@@ -286,7 +286,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    */
   @Override
   @Transactional
-  public JoinStreamResponse joinStream(final Long streamId, final JoinStreamDto joinStreamDto, final FleenUser user)
+  public JoinStreamResponse joinStream(final Long streamId, final JoinStreamDto joinStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
       CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Retrieve the stream using the stream ID
@@ -341,7 +341,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param user    the user attempting to join the stream
    * @return the {@link StreamAttendee} instance representing the user's participation
    */
-  private StreamAttendee attemptToJoinPublicStream(final FleenStream stream, final String comment, final FleenUser user)
+  private StreamAttendee attemptToJoinPublicStream(final FleenStream stream, final String comment, final RegisteredUser user)
     throws StreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
       CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Create a new StreamAttendee entry for the user
@@ -415,7 +415,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    */
   @Override
   @Transactional
-  public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final FleenUser user)
+  public RequestToJoinStreamResponse requestToJoinStream(final Long streamId, final RequestToJoinStreamDto requestToJoinStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     // Find the stream by its ID
@@ -475,7 +475,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param streamAttendee the attendee requesting to join the private stream
    * @param user           the user attempting to join the private stream, converted to a member
    */
-  private void sendJoinRequestNotificationForPrivateStream(final FleenStream stream, final StreamAttendee streamAttendee, final FleenUser user) {
+  private void sendJoinRequestNotificationForPrivateStream(final FleenStream stream, final StreamAttendee streamAttendee, final RegisteredUser user) {
     // Create and save notification
     final Notification notification = notificationMessageService.ofReceivedStreamJoinRequest(stream, streamAttendee, stream.getOrganizer(), user.toMember());
     // Save the notification
@@ -492,7 +492,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param comment  any comment provided by the attendee when requesting to join the stream
    * @param user     the user attempting to join the private stream based on chat space membership
    */
-  private void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee attendee, final String comment, final FleenUser user) {
+  private void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee attendee, final String comment, final RegisteredUser user) {
    if (nonNull(stream) && stream.isAnEvent() && nonNull(attendee) && nonNull(user)) {
      eventOperationsService.handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, attendee, comment, user);
    }
@@ -518,7 +518,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    */
   @Override
   @Transactional
-  public NotAttendingStreamResponse notAttendingStream(final Long streamId, final NotAttendingStreamDto notAttendingStreamDto, final FleenUser user)
+  public NotAttendingStreamResponse notAttendingStream(final Long streamId, final NotAttendingStreamDto notAttendingStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamAlreadyCanceledException,
       StreamAlreadyHappenedException, FailedOperationException {
     // Find the stream by its ID

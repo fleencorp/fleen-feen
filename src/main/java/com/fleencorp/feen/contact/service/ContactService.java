@@ -12,21 +12,21 @@ import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 
 public interface ContactService {
 
   GetAvailableContactTypeResponse getAvailableContactTypes();
 
-  ContactSearchResult findContacts(ContactSearchRequest searchRequest, FleenUser user);
+  ContactSearchResult findContacts(ContactSearchRequest searchRequest, RegisteredUser user);
 
-  ContactAddResponse addContact(AddContactDto dto, FleenUser user);
+  ContactAddResponse addContact(AddContactDto dto, RegisteredUser user);
 
-  ContactUpdateResponse updateContact(Long contactId, UpdateContactSingleDto updateContactDto, FleenUser user);
+  ContactUpdateResponse updateContact(Long contactId, UpdateContactSingleDto updateContactDto, RegisteredUser user);
 
-  ContactUpdateResponse updateContacts(UpdateContactDto updateContactDto, FleenUser user);
+  ContactUpdateResponse updateContacts(UpdateContactDto updateContactDto, RegisteredUser user);
 
-  ContactDeleteResponse deleteContact(DeleteContactDto deleteContactDto, FleenUser user);
+  ContactDeleteResponse deleteContact(DeleteContactDto deleteContactDto, RegisteredUser user);
 
   ContactRequestEligibilityInfo checkContactRequestEligibility(Member viewer, Member target);
 }

@@ -5,7 +5,7 @@ import com.fleencorp.feen.model.dto.social.block.BlockUserDto;
 import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
 import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;
 import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
-import com.fleencorp.feen.model.security.FleenUser;
+import com.fleencorp.feen.user.security.RegisteredUser;
 import com.fleencorp.feen.service.social.BlockUserService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,14 +26,14 @@ public class BlockingController {
   @GetMapping(value = "/find-block-users")
   public BlockingUserSearchResult findBlockedUsers(
       @SearchParam final BlockUserSearchRequest blockUserSearchRequest,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return blockUserService.findBlockedUsers(blockUserSearchRequest, user);
   }
 
   @PutMapping(value = "/block-unblock")
   public BlockUserStatusResponse blockUnblock(
       @Valid @RequestBody final BlockUserDto blockUserDto,
-      @AuthenticationPrincipal final FleenUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return blockUserService.blockOrUnblockUser(blockUserDto, user);
   }
 

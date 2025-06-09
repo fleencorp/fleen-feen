@@ -1,12 +1,12 @@
 package com.fleencorp.feen.model.response.auth;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.feen.constant.security.auth.AuthenticationStage;
-import com.fleencorp.feen.constant.security.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStage;
+import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
 import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
 import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
-import com.fleencorp.feen.constant.security.verification.VerificationType;
-import com.fleencorp.feen.model.info.security.VerificationTypeInfo;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
+import com.fleencorp.feen.user.model.info.security.VerificationTypeInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.*;
 
