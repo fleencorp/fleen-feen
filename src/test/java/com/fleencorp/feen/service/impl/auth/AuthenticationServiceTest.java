@@ -1,16 +1,16 @@
 package com.fleencorp.feen.service.impl.auth;
 
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
-import com.fleencorp.feen.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.mapper.CommonMapper;
-import com.fleencorp.feen.model.dto.auth.SignInDto;
-import com.fleencorp.feen.model.security.FleenUser;
-import com.fleencorp.feen.repository.user.MemberRepository;
 import com.fleencorp.feen.service.common.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
-import com.fleencorp.feen.service.user.MemberService;
 import com.fleencorp.feen.service.user.RoleService;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.user.repository.MemberRepository;
+import com.fleencorp.feen.user.service.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,10 +96,10 @@ class AuthenticationServiceTest {
     signInDto.setEmailAddress(emailAddress);
     signInDto.setPassword(password);
 
-    FleenUser authorizedUser = new FleenUser();
-    authorizedUser.setEmailAddress(emailAddress);
+    RegisteredUser user = new RegisteredUser();
+    user.setEmailAddress(emailAddress);
 
-    Authentication authenticatedUser = new UsernamePasswordAuthenticationToken(authorizedUser, null, List.of());
+    Authentication authenticatedUser = new UsernamePasswordAuthenticationToken(user, null, List.of());
 
     // when
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
