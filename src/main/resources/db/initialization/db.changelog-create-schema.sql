@@ -468,7 +468,7 @@ CREATE TABLE share_contact_request (
   share_contact_request_status VARCHAR(255)
     CHECK (share_contact_request_status IN ('CANCELED', 'ACCEPTED', 'REJECTED', 'SENT')),
   contact_type VARCHAR(255)
-    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+    CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER',
       'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
   initiator_id BIGINT NOT NULL,
@@ -531,7 +531,7 @@ CREATE TABLE contact (
   owner_id BIGINT NOT NULL,
 
   contact_type VARCHAR(255)
-    NOT NULL CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER'
+    NOT NULL CHECK (contact_type IN ('EMAIL', 'FACEBOOK', 'INSTAGRAM', 'LINKEDIN', 'PHONE_NUMBER',
       'SNAPCHAT', 'TELEGRAM', 'TIKTOK', 'TWITTER_OR_X', 'WECHAT', 'WHATSAPP')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
