@@ -1,12 +1,10 @@
 package com.fleencorp.feen.contact.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.contact.model.dto.AddContactDto;
 import com.fleencorp.feen.contact.model.dto.DeleteContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactSingleDto;
 import com.fleencorp.feen.contact.model.request.ContactSearchRequest;
-import com.fleencorp.feen.contact.model.response.ContactAddResponse;
 import com.fleencorp.feen.contact.model.response.ContactDeleteResponse;
 import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
@@ -41,22 +39,14 @@ public class ContactController {
     return contactService.findContacts(contactSearchRequest, user);
   }
 
-  @PostMapping(value = "/add")
-  public ContactAddResponse addContact(
-      @Valid @RequestBody final AddContactDto addContactDto,
-      @AuthenticationPrincipal final RegisteredUser user) {
-    return contactService.addContact(addContactDto, user);
-  }
-
-  @PutMapping(value = "/update/{contactId}")
+  @PutMapping(value = "/update")
   public ContactUpdateResponse updateContact(
-      @PathVariable(name = "contactId") final Long contactId,
       @Valid @RequestBody final UpdateContactSingleDto updateContactDto,
       @AuthenticationPrincipal final RegisteredUser user) {
-    return contactService.updateContact(contactId, updateContactDto, user);
+    return contactService.updateContact(updateContactDto, user);
   }
 
-  @PutMapping(value = "/update")
+  @PutMapping(value = "/update-contacts")
   public ContactUpdateResponse updateContact(
       @Valid @RequestBody final UpdateContactDto updateContactDto,
       @AuthenticationPrincipal final RegisteredUser user) {
