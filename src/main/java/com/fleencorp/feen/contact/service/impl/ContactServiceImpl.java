@@ -4,13 +4,11 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;
-import com.fleencorp.feen.contact.model.dto.AddContactDto;
 import com.fleencorp.feen.contact.model.dto.DeleteContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactSingleDto;
 import com.fleencorp.feen.contact.model.info.ContactTypeInfo;
 import com.fleencorp.feen.contact.model.request.ContactSearchRequest;
-import com.fleencorp.feen.contact.model.response.ContactAddResponse;
 import com.fleencorp.feen.contact.model.response.ContactDeleteResponse;
 import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
@@ -18,12 +16,12 @@ import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.social.BlockUserService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -153,57 +151,22 @@ public class ContactServiceImpl implements ContactService {
   }
 
   /**
-   * Adds or updates a contact for the given user.
+   * Creates or updates a contact for the given user based on the contact type.
    *
-   * <p>This method first checks if a contact with the specified type already exists for the user.
-   * If the contact exists, it updates the existing contact with the new details from the DTO.
-   * Otherwise, it creates a new contact based on the details from the DTO.
-   * Finally, the contact is saved to the repository and a response object is returned.</p>
+   * <p>This method attempts to find an existing contact by the specified contact type and the user's identity.
+   * If such a contact exists, it updates the contact with the new information from the DTO. If no contact is found,
+   * a new one is created using the data provided. The contact is then persisted to the repository,
+   * converted to a response object, localized, and returned.</p>
    *
-   * @param addContactDto the DTO containing the contact details to be added or updated.
-   * @param user the user for whom the contact is being added or updated.
-   * @return an {@link ContactAddResponse} representing the added or updated contact.
-   */
-  @Override
-  public ContactAddResponse addContact(final AddContactDto addContactDto, final RegisteredUser user) {
-    // Find existing contact by owner and contact type
-    final Contact contact = contactRepository.findByOwnerAndContactType(user.toMember(), addContactDto.getContactType())
-      .map(existingContact -> {
-        // If contact exists, update it with the new details
-        existingContact.update(addContactDto.getContactType(), addContactDto.getContact());
-        return existingContact;
-      })
-      // If contact does not exist, create a new contact
-      .orElseGet(() -> addContactDto.toContact(user.toMember()));
-
-    // Save the contact to the repository
-    contactRepository.save(contact);
-    // Convert the contact to a  response
-    final ContactResponse contactResponse = contactMapper.toContactResponse(contact);
-    // Create the response
-    final ContactAddResponse contactAddResponse = ContactAddResponse.of(contactResponse);
-    // Convert the contact to a response object and return it
-    return localizer.of(contactAddResponse);
-  }
-
-  /**
-   * Updates an existing contact for the given user.
-   *
-   * <p>This method first retrieves the contact by its ID. If the contact is not found,
-   * it throws a ContactNotFoundException. It then verifies that the user is the owner of the contact.
-   * If the verification passes, the contact is updated with the new details from the DTO,
-   * saved to the repository, and a response object is returned.</p>
-   *
-   * @param contactId the ID of the contact to be updated.
-   * @param updateContactDto the DTO containing the updated contact details.
-   * @param user the user who owns the contact.
-   * @return an {@link ContactUpdateResponse} representing the updated contact.
+   * @param updateContactDto the DTO containing the contact type and updated contact information
+   * @param user the user to whom the contact belongs
+   * @return a localized {@link ContactUpdateResponse} representing the updated or newly created contact
    */
   @Override
   @Transactional
-  public ContactUpdateResponse updateContact(final Long contactId, final UpdateContactSingleDto updateContactDto, final RegisteredUser user) {
+  public ContactUpdateResponse updateContact(final UpdateContactSingleDto updateContactDto, final RegisteredUser user) {
     // Retrieve the contact by ID, or throw an exception if not found
-    final Contact contact = contactRepository.findByContactIdAndOwner(contactId, user.toMember())
+    final Contact contact = contactRepository.findByContactTypeAndOwner(updateContactDto.getContactType(), user.toMember())
       .map(existingContact -> {
         // Update the contact with new details from the DTO
         existingContact.update(updateContactDto.getContactType(), updateContactDto.getContact());
@@ -324,7 +287,7 @@ public class ContactServiceImpl implements ContactService {
   @Transactional
   public ContactDeleteResponse deleteContact(final DeleteContactDto deleteContactDto, final RegisteredUser user) {
     // Find the contacts of the user
-    final Collection<Contact> contacts = contactRepository.findByOwnerAndContactType(user.getId(), deleteContactDto.getContactTypes());
+    final Collection<Contact> contacts = contactRepository.findByContactTypeAndOwner(user.getId(), deleteContactDto.getContactTypes());
     // Delete the contacts from the repository
     contactRepository.deleteAll(contacts);
     // Return a response object indicating successful deletion

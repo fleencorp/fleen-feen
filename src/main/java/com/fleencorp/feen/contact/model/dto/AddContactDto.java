@@ -23,7 +23,7 @@ public class AddContactDto {
   @NotBlank(message = "{share.contact.NotBlank}")
   @Size(min = 1, max = 1000, message = "{share.contact.Size}")
   @JsonProperty("contact")
-  private String contact;
+  protected String contact;
 
   @NotNull(message = "{share.contactType.NotNull}")
   @OneOf(enumClass = ContactType.class, message = "{share.contactType.Type}", ignoreCase = true)

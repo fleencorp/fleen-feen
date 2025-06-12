@@ -21,11 +21,9 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
   List<Contact> findByOwner(@Param("owner") Member owner);
 
   @Query("SELECT c FROM Contact c WHERE c.memberId = :memberId AND c.contactType IN (:contactTypes)")
-  List<Contact> findByOwnerAndContactType(@Param("memberId") Long memberId, @Param("contactTypes") List<ContactType> contactTypes);
+  List<Contact> findByContactTypeAndOwner(@Param("memberId") Long memberId, @Param("contactTypes") List<ContactType> contactTypes);
 
-  Optional<Contact> findByOwnerAndContactType(Member owner, ContactType contactType);
-
-  Optional<Contact> findByContactIdAndOwner(Long contactId, Member member);
+  Optional<Contact> findByContactTypeAndOwner(ContactType contactType, Member owner);
 
   long countByOwner(Member owner);
 }
