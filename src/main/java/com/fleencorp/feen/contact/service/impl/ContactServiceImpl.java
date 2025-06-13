@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -151,37 +152,57 @@ public class ContactServiceImpl implements ContactService {
   }
 
   /**
-   * Creates or updates a contact for the given user based on the contact type.
+   * Updates a single contact for the given user and returns a localized update response.
    *
-   * <p>This method attempts to find an existing contact by the specified contact type and the user's identity.
-   * If such a contact exists, it updates the contact with the new information from the DTO. If no contact is found,
-   * a new one is created using the data provided. The contact is then persisted to the repository,
-   * converted to a response object, localized, and returned.</p>
+   * <p>If a contact with the specified type already exists, it is updated only if the value has changed.
+   * If no such contact exists, a new one is created and saved. The resulting contact is then mapped
+   * to a response DTO, wrapped in a localized response, and returned.</p>
    *
-   * @param updateContactDto the DTO containing the contact type and updated contact information
-   * @param user the user to whom the contact belongs
-   * @return a localized {@link ContactUpdateResponse} representing the updated or newly created contact
+   * @param updateContactDto the DTO containing the contact type and new value
+   * @param user the registered user whose contact is to be updated or created
+   * @return a localized response containing the updated contact information
    */
   @Override
   @Transactional
   public ContactUpdateResponse updateContact(final UpdateContactSingleDto updateContactDto, final RegisteredUser user) {
-    // Retrieve the contact by ID, or throw an exception if not found
-    final Contact contact = contactRepository.findByContactTypeAndOwner(updateContactDto.getContactType(), user.toMember())
-      .map(existingContact -> {
-        // Update the contact with new details from the DTO
-        existingContact.update(updateContactDto.getContactType(), updateContactDto.getContact());
-        return existingContact;
-      })
-      .orElseGet(() -> updateContactDto.toContact(user.toMember()));
-
-    // Save the updated contact to the repository
-    contactRepository.save(contact);
+    // Update the contact if possible
+    final Contact contact = resolveContactToSaveIfNewOrChanged(updateContactDto, user.toMember());
     // Convert the contact to a  response
     final ContactResponse contactResponse = contactMapper.toContactResponse(contact);
     // Create the response
     final ContactUpdateResponse contactUpdateResponse = ContactUpdateResponse.of(contactResponse);
     // Convert the contact to a response object and return it
     return localizer.of(contactUpdateResponse);
+  }
+
+  /**
+   * Resolves a contact to be returned after applying an update if needed.
+   *
+   * <p>If a contact with the given type already exists for the member and its value has changed,
+   * it is updated and saved. If the existing value is unchanged, it is returned as-is without persisting.
+   * If no such contact exists, a new contact is created, saved, and returned.</p>
+   *
+   * @param dto the contact update request containing the contact type and new value
+   * @param member the owner of the contact
+   * @return the up-to-date contact after any necessary creation or update
+   */
+  protected Contact resolveContactToSaveIfNewOrChanged(UpdateContactSingleDto dto, Member member) {
+    final ContactType contactType = dto.getContactType();
+    final String newContactValue = dto.getContact();
+
+    return contactRepository.findByContactTypeAndOwner(contactType, member)
+      .map(existing -> {
+        if (existing.isChanged(newContactValue)) {
+          existing.update(contactType, newContactValue);
+          return contactRepository.save(existing);
+        }
+
+        return existing;
+      })
+      .orElseGet(() -> {
+        final Contact newContact = dto.toContact(member);
+        return contactRepository.save(newContact);
+    });
   }
 
   /**
@@ -202,50 +223,92 @@ public class ContactServiceImpl implements ContactService {
   public ContactUpdateResponse updateContacts(final UpdateContactDto updateContactDto, final RegisteredUser user) {
     final Member member = user.toMember();
 
-    // Fetch all existing contacts for the member
     final List<Contact> existingContacts = contactRepository.findByOwner(member);
-    // Map existing contacts by contact type
-    final Map<ContactType, Contact> existingContactMap = existingContacts.stream()
-      .collect(Collectors.toMap(Contact::getContactType, contact -> contact));
-    // Get valid contact DTOs
+    final Map<ContactType, Contact> existingContactMap = groupContactsByType(existingContacts);
     final List<ContactDto> validContacts = updateContactDto.getContacts();
-    // Upsert contacts
+
     upsertContacts(validContacts, existingContactMap, member);
-    // Remove stale ones
     removeStaleContacts(existingContacts, updateContactDto.getValidContactTypes());
 
-    return localizer.of(ContactUpdateResponse.of());
+    final ContactUpdateResponse contactUpdateResponse = ContactUpdateResponse.of();
+    return localizer.of(contactUpdateResponse);
   }
 
   /**
-   * Updates or inserts contact information based on the provided DTOs.
+   * Groups a list of contacts by their contact type.
    *
-   * <p>For each valid contact DTO in the input collection, if a contact with the same type
-   * already exists in the {@code existingContactMap}, its value is updated. If the contact type
-   * does not exist, a new contact is created and saved for the given user. Invalid DTOs are skipped.</p>
+   * <p>Each contact type is expected to be unique within the list. If duplicates are present,
+   * an exception will be thrown. This method is useful for fast lookup and upsert operations.</p>
    *
-   * @param contactDtos the collection of contact DTOs representing incoming updates
-   * @param existingContactMap a map of existing contacts keyed by their contact type
-   * @param user the member to associate new contacts with
+   * @param contacts the list of contacts to group
+   * @return a map where the key is the contact type and the value is the corresponding contact
    */
-  protected void upsertContacts(final Collection<UpdateContactDto.ContactDto> contactDtos, final Map<ContactType, Contact> existingContactMap, final Member user) {
-    for (final UpdateContactDto.ContactDto dto : contactDtos) {
+  protected Map<ContactType, Contact> groupContactsByType(List<Contact> contacts) {
+    return contacts.stream()
+      .collect(Collectors.toMap(
+        Contact::getContactType,
+        Function.identity()
+    ));
+  }
+
+  /**
+   * Saves new or updated contact information based on the provided DTOs.
+   *
+   * <p>For each valid contact DTO, this method determines whether the contact already exists
+   * and whether its value has changed. If the contact is new or its value differs from the existing one,
+   * it is prepared for persistence. All such contacts are saved in a single batch operation.
+   * Invalid DTOs are skipped.</p>
+   *
+   * @param contactDtos the collection of contact DTOs to process
+   * @param existingContactMap a map of the user's existing contacts keyed by contact type
+   * @param user the member to associate with any new contacts
+   */
+  protected void upsertContacts(final Collection<ContactDto> contactDtos, final Map<ContactType, Contact> existingContactMap, final Member user) {
+    final List<Contact> contactsToSave = new ArrayList<>();
+
+    for (final ContactDto dto : contactDtos) {
       if (dto.isInvalid()) {
         continue;
       }
 
-      final ContactType contactType = dto.getContactType();
-      final String contactValue = dto.getContact();
+      resolveContactToSaveIfNewOrChanged(dto, existingContactMap, user)
+        .ifPresent(contactsToSave::add);
+    }
 
-      // If the contact type already exists, update the contact value
-      if (existingContactMap.containsKey(contactType)) {
-        final Contact existing = existingContactMap.get(contactType);
-        existing.update(contactType, contactValue);
-      } else {
-        // If the contact type does not exist, create and save a new contact
-        final Contact newContact = dto.toContact(user);
-        contactRepository.save(newContact);
+    if (!contactsToSave.isEmpty()) {
+      contactRepository.saveAll(contactsToSave);
+    }
+  }
+
+  /**
+   * Determines whether a contact should be saved based on the provided DTO.
+   *
+   * <p>If a contact with the same type already exists in the {@code existingContactMap}
+   * and its value has changed, the existing contact is updated and returned.
+   * If the contact type does not exist, a new contact is created and returned.
+   * If the contact exists and its value has not changed, an empty {@code Optional} is returned.</p>
+   *
+   * @param dto the incoming contact DTO
+   * @param existingContactMap a map of existing contacts keyed by their contact type
+   * @param user the member to associate with a new contact, if needed
+   * @return an {@code Optional} containing a contact to save if new or modified; otherwise, {@code Optional.empty()}
+   */
+  protected Optional<Contact> resolveContactToSaveIfNewOrChanged(ContactDto dto, Map<ContactType, Contact> existingContactMap, Member user) {
+    final ContactType contactType = dto.getContactType();
+    final String newContactValue = dto.getContact();
+
+    if (existingContactMap.containsKey(contactType)) {
+      final Contact existing = existingContactMap.get(contactType);
+
+      if (existing.isChanged(newContactValue)) {
+        existing.update(contactType, newContactValue);
+        return Optional.of(existing);
       }
+
+      return Optional.empty();
+    } else {
+      final Contact newContact = dto.toContact(user);
+      return Optional.of(newContact);
     }
   }
 
