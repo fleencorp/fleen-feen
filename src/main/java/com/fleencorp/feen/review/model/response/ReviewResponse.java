@@ -1,13 +1,13 @@
 package com.fleencorp.feen.review.model.response;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.review.constant.ReviewParentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

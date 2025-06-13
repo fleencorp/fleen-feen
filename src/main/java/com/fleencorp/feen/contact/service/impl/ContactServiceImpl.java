@@ -1,12 +1,14 @@
 package com.fleencorp.feen.contact.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;
 import com.fleencorp.feen.contact.model.dto.DeleteContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactDto;
 import com.fleencorp.feen.contact.model.dto.UpdateContactSingleDto;
+import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.contact.model.info.ContactTypeInfo;
 import com.fleencorp.feen.contact.model.request.ContactSearchRequest;
 import com.fleencorp.feen.contact.model.response.ContactDeleteResponse;
@@ -16,9 +18,7 @@ import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
-import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -186,7 +186,7 @@ public class ContactServiceImpl implements ContactService {
    * @param member the owner of the contact
    * @return the up-to-date contact after any necessary creation or update
    */
-  protected Contact resolveContactToSaveIfNewOrChanged(UpdateContactSingleDto dto, Member member) {
+  protected Contact resolveContactToSaveIfNewOrChanged(final UpdateContactSingleDto dto, final Member member) {
     final ContactType contactType = dto.getContactType();
     final String newContactValue = dto.getContact();
 
@@ -243,7 +243,7 @@ public class ContactServiceImpl implements ContactService {
    * @param contacts the list of contacts to group
    * @return a map where the key is the contact type and the value is the corresponding contact
    */
-  protected Map<ContactType, Contact> groupContactsByType(List<Contact> contacts) {
+  protected Map<ContactType, Contact> groupContactsByType(final List<Contact> contacts) {
     return contacts.stream()
       .collect(Collectors.toMap(
         Contact::getContactType,
@@ -293,7 +293,7 @@ public class ContactServiceImpl implements ContactService {
    * @param user the member to associate with a new contact, if needed
    * @return an {@code Optional} containing a contact to save if new or modified; otherwise, {@code Optional.empty()}
    */
-  protected Optional<Contact> resolveContactToSaveIfNewOrChanged(ContactDto dto, Map<ContactType, Contact> existingContactMap, Member user) {
+  protected Optional<Contact> resolveContactToSaveIfNewOrChanged(final ContactDto dto, final Map<ContactType, Contact> existingContactMap, final Member user) {
     final ContactType contactType = dto.getContactType();
     final String newContactValue = dto.getContact();
 

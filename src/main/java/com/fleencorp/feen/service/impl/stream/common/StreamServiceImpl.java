@@ -1,9 +1,10 @@
 package com.fleencorp.feen.service.impl.stream.common;
 
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
@@ -11,7 +12,6 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
-import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;

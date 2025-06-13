@@ -1,8 +1,11 @@
 package com.fleencorp.feen.service.impl.stream.common;
 
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.calendar.model.request.event.update.NotAttendingEventRequest;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.attendee.StreamAttendeeNotFoundException;
@@ -13,7 +16,6 @@ import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestTo
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -24,8 +26,6 @@ import com.fleencorp.feen.model.dto.stream.attendance.RequestToJoinStreamDto;
 import com.fleencorp.feen.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
-import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.calendar.model.request.event.update.NotAttendingEventRequest;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;

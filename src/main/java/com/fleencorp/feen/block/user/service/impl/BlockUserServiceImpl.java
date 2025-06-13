@@ -4,6 +4,7 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.block.user.mapper.BlockUserMapper;
 import com.fleencorp.feen.block.user.model.domain.BlockUser;
 import com.fleencorp.feen.block.user.model.dto.BlockUserDto;
+import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest;
 import com.fleencorp.feen.block.user.model.response.BlockUserResponse;
 import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
 import com.fleencorp.feen.block.user.model.search.BlockingUserSearchResult;
@@ -11,7 +12,6 @@ import com.fleencorp.feen.block.user.repository.BlockUserRepository;
 import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -103,7 +103,7 @@ public class BlockUserServiceImpl implements BlockUserService {
     blockUserRepository.save(blockUser);
 
     final BlockUserResponse blockUserResponse = blockUserMapper.toBlockUserResponse(blockUser);
-    final BlockUserStatusResponse blockUserStatusResponse = BlockUserStatusResponse.of(blockUserResponse, blockStatus);
+    final BlockUserStatusResponse blockUserStatusResponse = BlockUserStatusResponse.of(blockUserResponse, blockUser.getBlockStatus());
     return localizer.of(blockUserStatusResponse);
   }
 

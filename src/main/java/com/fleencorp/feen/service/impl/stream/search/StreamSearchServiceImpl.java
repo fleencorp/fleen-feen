@@ -2,7 +2,6 @@ package com.fleencorp.feen.service.impl.stream.search;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamType;
@@ -13,7 +12,6 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.type.StreamTypeSearchRequest;
-import com.fleencorp.feen.review.model.response.ReviewResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponsesAndPage;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
@@ -23,6 +21,8 @@ import com.fleencorp.feen.model.response.stream.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
+import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.review.model.response.ReviewResponse;
 import com.fleencorp.feen.review.service.ReviewService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;

@@ -1,11 +1,11 @@
 package com.fleencorp.feen.follower.mapper.impl;
 
-import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.follower.mapper.FollowerMapper;
 import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
