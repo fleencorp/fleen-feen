@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.dto.social.block;
+package com.fleencorp.feen.block.user.model.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

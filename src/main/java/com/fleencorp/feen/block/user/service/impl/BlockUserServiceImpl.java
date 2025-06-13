@@ -1,16 +1,17 @@
-package com.fleencorp.feen.service.impl.social;
+package com.fleencorp.feen.block.user.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.block.user.mapper.BlockUserMapper;
+import com.fleencorp.feen.block.user.model.domain.BlockUser;
+import com.fleencorp.feen.block.user.model.dto.BlockUserDto;
+import com.fleencorp.feen.block.user.model.response.BlockUserResponse;
+import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
+import com.fleencorp.feen.block.user.model.search.BlockingUserSearchResult;
+import com.fleencorp.feen.block.user.repository.BlockUserRepository;
+import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.model.domain.social.BlockUser;
-import com.fleencorp.feen.model.dto.social.block.BlockUserDto;
-import com.fleencorp.feen.model.request.search.social.BlockUserSearchRequest;
-import com.fleencorp.feen.model.response.social.block.BlockUserStatusResponse;
-import com.fleencorp.feen.model.response.social.block.BlockedUserResponse;
-import com.fleencorp.feen.model.search.social.blocking.BlockingUserSearchResult;
-import com.fleencorp.feen.repository.social.BlockUserRepository;
-import com.fleencorp.feen.service.social.BlockUserService;
+import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -19,8 +20,7 @@ import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.Collection;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 
@@ -38,24 +38,28 @@ public class BlockUserServiceImpl implements BlockUserService {
 
   private final BlockUserRepository blockUserRepository;
   private final MemberRepository memberRepository;
+  private final BlockUserMapper blockUserMapper;
   private final Localizer localizer;
 
   /**
    * Constructs a new {@link BlockUserServiceImpl} instance with the required dependencies.
    *
-   * <p>This constructor initializes the service by injecting the necessary repositories and the localized response service
-   * to handle user blocking operations.</p>
+   * <p>This constructor initializes the service by injecting the necessary repositories, mapper, and localization service
+   * to support user blocking operations, member lookups, response mapping, and localized message generation.</p>
    *
-   * @param blockUserRepository  the {@link BlockUserRepository} used for managing block operations
-   * @param memberRepository     the {@link MemberRepository} used for accessing member data
-   * @param localizer    the {@link Localizer} service used to generate localized responses
+   * @param blockUserRepository the {@link BlockUserRepository} used for managing block operations
+   * @param memberRepository the {@link MemberRepository} used for accessing member data
+   * @param blockUserMapper the {@link BlockUserMapper} used to map {@code BlockUser} entities to DTOs
+   * @param localizer the {@link Localizer} service used to generate localized messages
    */
   public BlockUserServiceImpl(
       final BlockUserRepository blockUserRepository,
       final MemberRepository memberRepository,
+      final BlockUserMapper blockUserMapper,
       final Localizer localizer) {
     this.blockUserRepository = blockUserRepository;
     this.memberRepository = memberRepository;
+    this.blockUserMapper = blockUserMapper;
     this.localizer = localizer;
   }
 
@@ -71,33 +75,13 @@ public class BlockUserServiceImpl implements BlockUserService {
   public BlockingUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final RegisteredUser user) {
     final Page<BlockUser> page = blockUserRepository.findByInitiatorAndBlockStatus(user.toMember(), BlockStatus.BLOCKED, searchRequest.getPage());
 
-    final List<BlockedUserResponse> blockedUserResponses = getBlockedUsers(page.getContent());
+    final Collection<BlockUserResponse> blockUserResponse = blockUserMapper.toBlockUserResponse(page.getContent());
     // Create a search result
-    final SearchResult searchResult = toSearchResult(blockedUserResponses, page);
+    final SearchResult searchResult = toSearchResult(blockUserResponse, page);
     // Create a search result with the responses and pagination details
     final BlockingUserSearchResult blockingUserSearchResult = BlockingUserSearchResult.of(searchResult);
     // Return the search result
     return localizer.of(blockingUserSearchResult);
-  }
-
-  /**
-   * Converts a list of `BlockUser` entities into a list of `BlockedUserResponse` objects.
-   * Each `BlockUser` contains information about a recipient who has been blocked.
-   * This method extracts the full name and member ID of the recipient and creates a response object.
-   *
-   * @param blockUsers the list of `BlockUser` entities to be processed
-   * @return a list of `BlockedUserResponse` objects containing the full name and user ID of each blocked recipient
-   */
-  protected List<BlockedUserResponse> getBlockedUsers(final List<BlockUser> blockUsers) {
-    return blockUsers.stream()
-        .filter(Objects::nonNull)
-        .map(blockUser -> {
-          final String fullName = blockUser.getRecipientName();
-          final Long userId = blockUser.getRecipientMemberId();
-
-          return BlockedUserResponse.of(fullName, userId);
-        })
-        .toList();
   }
 
   /**
@@ -113,25 +97,36 @@ public class BlockUserServiceImpl implements BlockUserService {
    */
   @Override
   public BlockUserStatusResponse blockOrUnblockUser(final BlockUserDto blockUserDto, final RegisteredUser user) {
-    // Validate the member or authenticated user details
-    memberRepository.findById(user.getId())
-      .orElseThrow(FailedOperationException::new);
+    memberRepository.findById(user.getId()).orElseThrow(FailedOperationException::new);
 
-    // Retrieve the user to be blocked or unblocked, or throw an exception if not found
+    final BlockUser blockUser = blockOrUnblock(blockUserDto, user.toMember());
+    blockUserRepository.save(blockUser);
+
+    final BlockUserResponse blockUserResponse = blockUserMapper.toBlockUserResponse(blockUser);
+    final BlockUserStatusResponse blockUserStatusResponse = BlockUserStatusResponse.of(blockUserResponse, blockStatus);
+    return localizer.of(blockUserStatusResponse);
+  }
+
+  /**
+   * Retrieves an existing {@link BlockUser} entity for the specified recipient, or creates a new one
+   * if none exists, based on the block status and initiator.
+   *
+   * <p>If the recipient user is not found, a {@link UserNotFoundException} is thrown. If the block record does not exist,
+   * a new {@link BlockUser} entity is created with the given block status.</p>
+   *
+   * @param blockUserDto the DTO containing the recipient ID and the desired {@link BlockStatus}
+   * @param initiator the {@link Member} initiating the block or unblock action
+   * @return the existing or newly created {@link BlockUser} entity
+   * @throws UserNotFoundException if the recipient user does not exist
+   */
+  protected BlockUser blockOrUnblock(final BlockUserDto blockUserDto, final Member initiator) {
     final Member userToBeBlockedOrUnblocked = memberRepository.findById(blockUserDto.getRecipientId())
       .orElseThrow(UserNotFoundException.of(blockUserDto.getRecipientId()));
 
-    final Member initiator = Member.of(user.getId());
     final BlockStatus blockStatus = blockUserDto.getBlockStatus();
 
-    // Find or create a BlockUser entity for the given recipient
-    final BlockUser blockUser = blockUserRepository.findByRecipient(userToBeBlockedOrUnblocked)
-        .orElseGet(() -> BlockUser.of(initiator, userToBeBlockedOrUnblocked, blockStatus));
-
-    // Save the BlockUser entity to the repository
-    blockUserRepository.save(blockUser);
-    // Returned the localized response of the blocked user
-    return localizer.of(BlockUserStatusResponse.of(blockStatus));
+    return blockUserRepository.findByRecipient(userToBeBlockedOrUnblocked)
+      .orElseGet(() -> BlockUser.of(initiator, userToBeBlockedOrUnblocked, blockStatus));
   }
 
   /**

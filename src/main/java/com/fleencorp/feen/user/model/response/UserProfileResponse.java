@@ -3,6 +3,7 @@ package com.fleencorp.feen.user.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.model.contract.UserFollowStat;

@@ -1,5 +1,7 @@
 package com.fleencorp.feen.mapper.info;
 
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
@@ -34,6 +36,8 @@ public interface ToInfoMapper {
   IsOrganizerInfo toIsOrganizerInfo(boolean isOrganizer);
 
   IsBlockedInfo toIsBlockedInfo(boolean blocked, String blockingUser);
+
+  HasBlockedInfo toHasBlockedInfo(boolean blocked, String blockingUserName);
 
   IsFollowingInfo toIsFollowingInfo(boolean following, String userBeingFollowedName);
 

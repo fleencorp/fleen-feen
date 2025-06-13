@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.info.user.profile;
+package com.fleencorp.feen.block.user.model.info;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

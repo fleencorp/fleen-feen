@@ -2,6 +2,7 @@ package com.fleencorp.feen.user.service.impl.profile;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.stream.StreamStatus;
@@ -22,7 +23,7 @@ import com.fleencorp.feen.follower.model.search.FollowerSearchResult;
 import com.fleencorp.feen.follower.model.search.FollowingSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.repository.social.BlockUserRepository;
+import com.fleencorp.feen.block.user.repository.BlockUserRepository;
 import com.fleencorp.feen.follower.repository.FollowerRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.follower.service.FollowerService;

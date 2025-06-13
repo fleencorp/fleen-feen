@@ -1,6 +1,8 @@
 package com.fleencorp.feen.mapper.common;
 
 
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
@@ -78,6 +80,8 @@ public interface UnifiedMapper {
   IsASpeakerInfo toIsASpeakerInfo(boolean isASpeaker);
 
   IsBlockedInfo toIsBlockedInfo(boolean blocked, String blockingUser);
+
+  HasBlockedInfo toHasBlockedInfo(boolean hasBlocked, String blockingUser);
 
   IsFollowingInfo toIsFollowingInfo(boolean following, String userBeingFollowed);
 

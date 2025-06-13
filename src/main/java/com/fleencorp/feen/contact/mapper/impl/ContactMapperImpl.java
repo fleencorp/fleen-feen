@@ -1,6 +1,6 @@
 package com.fleencorp.feen.contact.mapper.impl;
 
-import com.fleencorp.feen.constant.user.IsEligibleForContactRequest;
+import com.fleencorp.feen.contact.constant.IsEligibleForContactRequest;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;

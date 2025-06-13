@@ -38,7 +38,7 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
    */
   @Query(value =
     """
-      SELECT new com.fleencorp.feen.model.projection.like.UserLikeInfoSelect(l) FROM Like l
+      SELECT new com.fleencorp.feen.like.model.projection.UserLikeInfoSelect(l) FROM Like l
       WHERE l.member.memberId = :memberId
       AND l.likeParentType = :parentType
       AND l.likeType IN :likeTypes
