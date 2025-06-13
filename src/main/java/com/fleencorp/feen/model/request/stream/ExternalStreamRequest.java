@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.request.stream;
 
 import com.fleencorp.feen.constant.external.request.ExternalStreamRequestType;
 import com.fleencorp.feen.constant.stream.StreamType;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;

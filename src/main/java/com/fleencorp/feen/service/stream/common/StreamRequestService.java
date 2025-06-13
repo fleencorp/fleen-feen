@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;

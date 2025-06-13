@@ -50,7 +50,7 @@ public class Contact extends FleenFeenEntity {
   }
 
   public boolean isChanged(String newValue) {
-    return !Objects.equals(this.getContact(), newValue);
+    return !Objects.equals(this.contactValue, newValue);
   }
 
   public void update(final ContactType contactType, final String contact) {

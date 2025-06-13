@@ -1,7 +1,7 @@
 package com.fleencorp.feen.event.handler;
 
-import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeesRequest;
+import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeesRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeesResponse;
 import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;

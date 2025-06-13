@@ -9,7 +9,7 @@ import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemo
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.mapper.impl.speaker.StreamSpeakerMapperImpl;
 import com.fleencorp.feen.mapper.stream.speaker.StreamSpeakerMapper;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.domain.stream.StreamSpeaker;
@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.model.dto.stream.base.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.model.dto.stream.speaker.UpdateStreamSpeakerDto;
-import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.request.search.stream.StreamSpeakerSearchRequest;

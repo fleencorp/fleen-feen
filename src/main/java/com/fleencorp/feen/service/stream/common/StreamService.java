@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;

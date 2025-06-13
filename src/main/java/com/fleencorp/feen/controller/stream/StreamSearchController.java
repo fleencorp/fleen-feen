@@ -6,7 +6,7 @@ import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
-import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
+import com.fleencorp.feen.calendar.model.request.search.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
