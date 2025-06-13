@@ -16,12 +16,12 @@ import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.event.EventService;
 import com.fleencorp.feen.service.stream.event.EventUpdateService;
 import com.fleencorp.feen.service.stream.event.OtherEventUpdateService;
 import com.fleencorp.feen.service.stream.join.EventJoinService;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import org.springframework.stereotype.Service;
 
 @Service

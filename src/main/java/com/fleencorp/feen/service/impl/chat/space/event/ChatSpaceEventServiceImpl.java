@@ -16,7 +16,6 @@ import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventReques
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.search.chat.space.event.ChatSpaceEventSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
@@ -25,6 +24,7 @@ import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;

@@ -2,8 +2,8 @@ package com.fleencorp.feen.controller.like;
 
 import com.fleencorp.feen.model.dto.like.LikeDto;
 import com.fleencorp.feen.model.response.like.LikeResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.like.LikeService;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

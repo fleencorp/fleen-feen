@@ -1,8 +1,8 @@
 package com.fleencorp.feen.repository.oauth2;
 
 import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

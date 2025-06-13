@@ -1,6 +1,5 @@
 package com.fleencorp.feen.controller.chat.space;
 
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.ChatSpaceAlreadyDeletedException;
@@ -24,10 +23,11 @@ import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChat
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.join.ChatSpaceJoinService;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

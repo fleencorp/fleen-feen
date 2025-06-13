@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.holder;
 
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 
 public record StreamOtherDetailsHolder(Calendar calendar, Oauth2Authorization oauth2Authorization) {
 

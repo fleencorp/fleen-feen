@@ -5,9 +5,9 @@ import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.projection.chat.space.ChatSpaceMemberSelect;
 import com.fleencorp.feen.model.projection.chat.space.ChatSpaceRequestToJoinPendingSelect;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

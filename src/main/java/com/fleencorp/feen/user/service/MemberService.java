@@ -2,10 +2,10 @@ package com.fleencorp.feen.user.service;
 
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
+import com.fleencorp.feen.user.exception.MemberNotFoundException;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;

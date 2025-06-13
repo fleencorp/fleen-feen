@@ -1,9 +1,6 @@
 package com.fleencorp.feen.mapper.impl;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
-import com.fleencorp.feen.user.constant.mfa.IsMfaEnabled;
-import com.fleencorp.feen.user.constant.mfa.MfaType;
-import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.mapper.CommonMapper;
@@ -12,9 +9,6 @@ import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
-import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
-import com.fleencorp.feen.user.model.info.security.VerificationTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -24,6 +18,12 @@ import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
+import com.fleencorp.feen.user.constant.mfa.IsMfaEnabled;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
+import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
+import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
+import com.fleencorp.feen.user.model.info.security.VerificationTypeInfo;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 

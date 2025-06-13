@@ -1,9 +1,9 @@
 package com.fleencorp.feen.repository.stream.attendee;
 
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

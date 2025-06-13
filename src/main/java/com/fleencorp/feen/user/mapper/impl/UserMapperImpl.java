@@ -1,7 +1,7 @@
 package com.fleencorp.feen.user.mapper.impl;
 
-import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.mapper.UserMapper;
 import com.fleencorp.feen.user.model.info.ProfileStatusInfo;
 import org.springframework.context.MessageSource;

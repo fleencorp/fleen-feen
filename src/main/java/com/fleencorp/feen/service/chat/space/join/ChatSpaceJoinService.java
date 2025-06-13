@@ -8,7 +8,6 @@ import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpa
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberRemovedException;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
 import com.fleencorp.feen.model.dto.chat.member.JoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.ProcessRequestToJoinChatSpaceDto;
 import com.fleencorp.feen.model.dto.chat.member.RequestToJoinChatSpaceDto;
@@ -16,6 +15,7 @@ import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceRespons
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
+import com.fleencorp.feen.user.exception.MemberNotFoundException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceJoinService {

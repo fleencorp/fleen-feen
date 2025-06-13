@@ -1,11 +1,11 @@
 package com.fleencorp.feen.filter;
 
 import com.fleencorp.base.service.EmailService;
+import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationTokenException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.model.security.TokenPayload;
-import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.util.TokenUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -32,8 +32,8 @@ import java.io.IOException;
 import static com.fleencorp.base.constant.base.SecurityConstant.AUTH_HEADER_PREFIX;
 import static com.fleencorp.feen.constant.message.ResponseMessage.UNKNOWN;
 import static com.fleencorp.feen.service.impl.common.CacheKeyService.getAccessTokenCacheKey;
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.isAuthorityWhitelisted;
+import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
