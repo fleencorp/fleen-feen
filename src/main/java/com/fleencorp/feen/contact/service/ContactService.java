@@ -8,7 +8,7 @@ import com.fleencorp.feen.contact.model.response.ContactDeleteResponse;
 import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
-import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
+import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 

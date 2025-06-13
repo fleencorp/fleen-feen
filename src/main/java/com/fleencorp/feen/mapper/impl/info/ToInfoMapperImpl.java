@@ -2,14 +2,16 @@ package com.fleencorp.feen.mapper.impl.info;
 
 import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.like.constant.IsLiked;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.constant.user.IsBlocked;
-import com.fleencorp.feen.constant.user.follower.IsFollowed;
-import com.fleencorp.feen.constant.user.follower.IsFollowing;
+import com.fleencorp.feen.follower.constant.IsFollowed;
+import com.fleencorp.feen.follower.constant.IsFollowing;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
 import com.fleencorp.feen.mapper.impl.BaseMapper;

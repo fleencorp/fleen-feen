@@ -22,10 +22,10 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.calendar.model.search.CalendarSearchResult;
-import com.fleencorp.feen.model.search.country.CountrySearchResult;
+import com.fleencorp.feen.country.model.search.CountrySearchResult;
 import com.fleencorp.feen.calendar.repository.CalendarRepository;
 import com.fleencorp.feen.calendar.service.CalendarService;
-import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
 import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;

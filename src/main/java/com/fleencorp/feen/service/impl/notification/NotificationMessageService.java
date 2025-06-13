@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Follower;
+import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
