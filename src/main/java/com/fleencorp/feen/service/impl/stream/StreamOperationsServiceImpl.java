@@ -1,10 +1,10 @@
 package com.fleencorp.feen.service.impl.stream;
 
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.constant.stream.StreamStatus;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;

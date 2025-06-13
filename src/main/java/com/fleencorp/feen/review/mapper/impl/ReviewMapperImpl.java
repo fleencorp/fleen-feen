@@ -1,11 +1,11 @@
 package com.fleencorp.feen.review.mapper.impl;
 
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
-import com.fleencorp.feen.model.info.stream.rating.RatingInfo;
 import com.fleencorp.feen.review.model.response.ReviewResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;

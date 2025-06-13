@@ -1,8 +1,8 @@
 package com.fleencorp.feen.event.publisher;
 
+import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.service.PublisherService;
-import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;

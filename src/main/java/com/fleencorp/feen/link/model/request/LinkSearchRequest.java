@@ -30,9 +30,6 @@ public class LinkSearchRequest extends SearchRequest {
     return Long.valueOf(parentId);
   }
 
-  public LinkParentType getParentType() {
-    return LinkParentType.of(parentType);
-  }
 
   public boolean isChatSpaceSearchRequest() {
     return nonNull(parentId) && LinkParentType.isChatSpace(parentType);

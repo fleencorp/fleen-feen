@@ -1,9 +1,9 @@
 package com.fleencorp.feen.review.model.domain;
 
-import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.constant.ReviewRating;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.review.constant.ReviewRating;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -49,7 +49,7 @@ public class Contact extends FleenFeenEntity {
     return nonNull(owner) ? owner.getMemberId() : null;
   }
 
-  public boolean isChanged(String newValue) {
+  public boolean isChanged(final String newValue) {
     return !Objects.equals(this.contactValue, newValue);
   }
 

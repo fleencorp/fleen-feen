@@ -1,12 +1,12 @@
 package com.fleencorp.feen.service.impl.stream.event;
 
+import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
