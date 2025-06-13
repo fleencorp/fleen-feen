@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.search.social.blocking;
+package com.fleencorp.feen.block.user.model.search;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

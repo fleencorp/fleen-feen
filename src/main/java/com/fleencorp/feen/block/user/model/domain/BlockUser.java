@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.domain.social;
+package com.fleencorp.feen.block.user.model.domain;
 
 import com.fleencorp.feen.constant.social.BlockStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
@@ -50,8 +50,16 @@ public class BlockUser extends FleenFeenEntity {
     return recipientId;
   }
 
-  public String getRecipientName() {
+  public String getBlockedMemberName() {
     return nonNull(recipient) ? recipient.getFullName() : null;
+  }
+
+  public String getBlockedMemberUsername() {
+    return nonNull(recipient) ? recipient.getUsername() : null;
+  }
+
+  public Boolean isBlocked() {
+    return nonNull(blockStatus) && BlockStatus.isBlocked(blockStatus);
   }
 
   public static BlockUser of(final Member initiator, final Member recipient, final BlockStatus blockStatus) {

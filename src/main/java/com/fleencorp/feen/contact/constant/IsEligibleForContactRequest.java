@@ -1,4 +1,4 @@
-package com.fleencorp.feen.constant.user;
+package com.fleencorp.feen.contact.constant;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;

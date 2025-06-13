@@ -1,4 +1,4 @@
-package com.fleencorp.feen.model.request.search.social;
+package com.fleencorp.feen.block.user.model.request.search;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import lombok.Getter;
@@ -10,5 +10,4 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BlockUserSearchRequest extends SearchRequest {
-}
+public class BlockUserSearchRequest extends SearchRequest { }

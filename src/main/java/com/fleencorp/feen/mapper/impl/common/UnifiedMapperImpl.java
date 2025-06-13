@@ -1,5 +1,7 @@
 package com.fleencorp.feen.mapper.impl.common;
 
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
 import com.fleencorp.feen.constant.chat.space.member.ChatSpaceMemberRole;
@@ -11,6 +13,7 @@ import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mapper.chat.ChatSpaceMapper;
 import com.fleencorp.feen.mapper.chat.member.ChatSpaceMemberMapper;
@@ -25,14 +28,14 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
-import com.fleencorp.feen.model.info.user.profile.*;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
@@ -167,6 +170,11 @@ public class UnifiedMapperImpl implements UnifiedMapper {
   @Override
   public IsBlockedInfo toIsBlockedInfo(final boolean blocked, final String blockingUser) {
     return toInfoMapper.toIsBlockedInfo(blocked, blockingUser);
+  }
+
+  @Override
+  public HasBlockedInfo toHasBlockedInfo(final boolean hasBlocked, final String blockingUser) {
+    return toInfoMapper.toHasBlockedInfo(hasBlocked, blockingUser);
   }
 
   @Override

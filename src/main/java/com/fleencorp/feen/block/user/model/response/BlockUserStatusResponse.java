@@ -1,6 +1,6 @@
-package com.fleencorp.feen.model.response.social.block;
+package com.fleencorp.feen.block.user.model.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -11,8 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,12 +18,14 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "message",
-  "block_status"
+  "user"
 })
 public class BlockUserStatusResponse extends LocalizedResponse {
 
-  @JsonFormat(shape = STRING)
-  @JsonProperty("block_status")
+  @JsonProperty("user")
+  private BlockUserResponse blockUserResponse;
+
+  @JsonIgnore
   private BlockStatus blockStatus;
 
   @Override
@@ -35,12 +35,7 @@ public class BlockUserStatusResponse extends LocalizedResponse {
       : "block.user.status.unblocked";
   }
 
-  @Override
-  public Object[] getParams() {
-    return new Object[] { blockStatus };
-  }
-
-  public static BlockUserStatusResponse of(final BlockStatus blockStatus) {
-    return new BlockUserStatusResponse(blockStatus);
+  public static BlockUserStatusResponse of(final BlockUserResponse blockUserResponse, final BlockStatus blockStatus) {
+    return new BlockUserStatusResponse(blockUserResponse, blockStatus);
   }
 }
