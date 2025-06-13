@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 
+import java.util.Objects;
+
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -45,6 +47,10 @@ public class Contact extends FleenFeenEntity {
 
   public Long getOwnerId() {
     return nonNull(owner) ? owner.getMemberId() : null;
+  }
+
+  public boolean isChanged(String newValue) {
+    return !Objects.equals(this.getContact(), newValue);
   }
 
   public void update(final ContactType contactType, final String contact) {
