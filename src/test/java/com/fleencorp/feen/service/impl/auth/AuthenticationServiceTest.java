@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.auth;
 
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.mapper.CommonMapper;
-import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.service.user.RoleService;

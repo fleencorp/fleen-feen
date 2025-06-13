@@ -9,7 +9,7 @@ import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.calendar.repository.CalendarRepository;
 import com.fleencorp.feen.service.auth.PasswordService;
-import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.service.common.MiscService;
 import com.fleencorp.feen.user.model.domain.Member;
 import lombok.extern.slf4j.Slf4j;

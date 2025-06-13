@@ -7,7 +7,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.review.exception.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.ReviewNotFoundException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
-import com.fleencorp.feen.mapper.review.ReviewMapper;
+import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.review.model.dto.AddReviewDto;

@@ -15,7 +15,7 @@ import com.fleencorp.feen.exception.chat.space.join.request.AlreadyJoinedChatSpa
 import com.fleencorp.feen.exception.chat.space.join.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.exception.common.CountryNotFoundException;
+import com.fleencorp.feen.country.exception.CountryNotFoundException;
 import com.fleencorp.feen.exception.common.ObjectNotFoundException;
 import com.fleencorp.feen.exception.file.FileUploadException;
 import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;

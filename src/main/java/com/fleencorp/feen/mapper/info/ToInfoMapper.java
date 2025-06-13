@@ -2,6 +2,8 @@ package com.fleencorp.feen.mapper.info;
 
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
