@@ -1,12 +1,12 @@
 package com.fleencorp.feen.user.service.impl;
 
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.domain.word.bank.Adjective;
 import com.fleencorp.feen.model.domain.word.bank.Noun;
+import com.fleencorp.feen.service.user.WordBankService;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.service.MemberService;
 import com.fleencorp.feen.user.service.UsernameService;
-import com.fleencorp.feen.service.user.WordBankService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

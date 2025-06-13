@@ -2,10 +2,10 @@ package com.fleencorp.feen.event.publisher;
 
 import com.fleencorp.feen.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.event.service.PublisherService;
+import com.fleencorp.feen.model.request.message.MessageRequest;
 import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;
 import com.fleencorp.feen.user.model.request.authentication.ForgotPasswordRequest;
 import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;
-import com.fleencorp.feen.model.request.message.MessageRequest;
 import com.fleencorp.feen.user.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.user.model.request.mfa.MfaVerificationRequest;
 import com.fleencorp.feen.user.model.request.profile.ProfileUpdateVerificationRequest;

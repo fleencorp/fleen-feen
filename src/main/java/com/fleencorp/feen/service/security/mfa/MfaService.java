@@ -1,12 +1,12 @@
 package com.fleencorp.feen.service.security.mfa;
 
-import com.fleencorp.feen.user.constant.mfa.MfaType;
-import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmSetupMfaDto;
-import com.fleencorp.feen.user.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.model.response.security.mfa.ConfirmMfaSetupResponse;
 import com.fleencorp.feen.model.response.security.mfa.EnableOrDisableMfaResponse;
 import com.fleencorp.feen.model.response.security.mfa.MfaStatusResponse;
 import com.fleencorp.feen.model.response.security.mfa.SetupMfaResponse;
+import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmSetupMfaDto;
+import com.fleencorp.feen.user.model.dto.security.mfa.SetupMfaDto;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface MfaService {

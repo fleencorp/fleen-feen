@@ -1,21 +1,21 @@
 package com.fleencorp.feen.event.handler;
 
-import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.message.SmsMessage;
+import com.fleencorp.feen.model.request.message.MessageRequest;
+import com.fleencorp.feen.repository.message.SmsMessageRepository;
+import com.fleencorp.feen.service.impl.message.TemplateProcessor;
+import com.fleencorp.feen.service.message.EmailMessageService;
+import com.fleencorp.feen.service.message.MobileTextService;
+import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;
 import com.fleencorp.feen.user.model.request.authentication.ForgotPasswordRequest;
 import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;
-import com.fleencorp.feen.model.request.message.MessageRequest;
 import com.fleencorp.feen.user.model.request.mfa.MfaSetupVerificationRequest;
 import com.fleencorp.feen.user.model.request.mfa.MfaVerificationRequest;
 import com.fleencorp.feen.user.model.request.profile.ProfileUpdateSuccessRequest;
 import com.fleencorp.feen.user.model.request.profile.ProfileUpdateVerificationRequest;
 import com.fleencorp.feen.user.model.request.profile.ResetPasswordSuccessRequest;
-import com.fleencorp.feen.repository.message.SmsMessageRepository;
-import com.fleencorp.feen.service.impl.message.TemplateProcessor;
-import com.fleencorp.feen.service.message.EmailMessageService;
-import com.fleencorp.feen.service.message.MobileTextService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

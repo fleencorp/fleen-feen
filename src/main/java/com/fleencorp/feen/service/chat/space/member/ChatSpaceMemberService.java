@@ -4,12 +4,10 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.dto.chat.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.RemoveChatSpaceMemberDto;
 import com.fleencorp.feen.model.dto.chat.member.RestoreChatSpaceMemberDto;
@@ -18,6 +16,8 @@ import com.fleencorp.feen.model.dto.chat.role.UpgradeChatSpaceMemberToAdminDto;
 import com.fleencorp.feen.model.request.search.chat.space.ChatSpaceMemberSearchRequest;
 import com.fleencorp.feen.model.response.chat.space.member.*;
 import com.fleencorp.feen.model.search.chat.space.member.ChatSpaceMemberSearchResult;
+import com.fleencorp.feen.user.exception.MemberNotFoundException;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceMemberService {

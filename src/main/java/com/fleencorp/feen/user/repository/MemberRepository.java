@@ -1,8 +1,8 @@
 package com.fleencorp.feen.user.repository;
 
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.projection.common.EmailAddressSelect;
 import com.fleencorp.feen.model.projection.common.PhoneNumberSelect;
+import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

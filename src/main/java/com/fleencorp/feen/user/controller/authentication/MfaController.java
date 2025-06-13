@@ -1,14 +1,14 @@
 package com.fleencorp.feen.user.controller.authentication;
 
+import com.fleencorp.feen.model.response.auth.SignInResponse;
+import com.fleencorp.feen.model.response.security.mfa.*;
+import com.fleencorp.feen.service.security.VerificationService;
+import com.fleencorp.feen.service.security.mfa.MfaService;
 import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
 import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmSetupMfaDto;
 import com.fleencorp.feen.user.model.dto.security.mfa.ResendMfaVerificationCodeDto;
 import com.fleencorp.feen.user.model.dto.security.mfa.SetupMfaDto;
-import com.fleencorp.feen.model.response.auth.SignInResponse;
-import com.fleencorp.feen.model.response.security.mfa.*;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.service.security.VerificationService;
-import com.fleencorp.feen.service.security.mfa.MfaService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

@@ -1,9 +1,9 @@
 package com.fleencorp.feen.service.impl.user;
 
-import com.fleencorp.feen.user.constant.role.RoleType;
-import com.fleencorp.feen.user.model.domain.Role;
 import com.fleencorp.feen.repository.user.RoleRepository;
 import com.fleencorp.feen.service.user.RoleService;
+import com.fleencorp.feen.user.constant.role.RoleType;
+import com.fleencorp.feen.user.model.domain.Role;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

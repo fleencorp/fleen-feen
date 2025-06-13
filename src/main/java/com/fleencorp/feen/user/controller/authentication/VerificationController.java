@@ -1,15 +1,15 @@
 package com.fleencorp.feen.user.controller.authentication;
 
-import com.fleencorp.feen.user.model.dto.authentication.ChangePasswordDto;
-import com.fleencorp.feen.user.model.dto.authentication.CompleteSignUpDto;
-import com.fleencorp.feen.user.model.dto.authentication.ResendSignUpVerificationCodeDto;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.auth.AuthenticationService;
 import com.fleencorp.feen.service.security.VerificationService;
+import com.fleencorp.feen.user.model.dto.authentication.ChangePasswordDto;
+import com.fleencorp.feen.user.model.dto.authentication.CompleteSignUpDto;
+import com.fleencorp.feen.user.model.dto.authentication.ResendSignUpVerificationCodeDto;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

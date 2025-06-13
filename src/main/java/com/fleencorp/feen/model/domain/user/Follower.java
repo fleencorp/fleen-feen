@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.domain.user;
 
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,15 +1,6 @@
 package com.fleencorp.feen.service.security;
 
-import com.fleencorp.feen.user.exception.auth.AlreadySignedUpException;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.user.exception.user.UserNotFoundException;
-import com.fleencorp.feen.user.exception.verification.ExpiredVerificationCodeException;
-import com.fleencorp.feen.user.exception.verification.InvalidVerificationCodeException;
-import com.fleencorp.feen.user.exception.verification.ResetPasswordCodeInvalidException;
-import com.fleencorp.feen.user.exception.verification.VerificationFailedException;
-import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
-import com.fleencorp.feen.user.model.dto.security.mfa.ResendMfaVerificationCodeDto;
 import com.fleencorp.feen.model.response.auth.ResendSignUpVerificationCodeResponse;
 import com.fleencorp.feen.model.response.auth.SignInResponse;
 import com.fleencorp.feen.model.response.auth.SignUpResponse;
@@ -17,9 +8,18 @@ import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
 import com.fleencorp.feen.model.response.security.mfa.ResendMfaVerificationCodeResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.user.exception.auth.AlreadySignedUpException;
+import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.user.UserNotFoundException;
+import com.fleencorp.feen.user.exception.verification.ExpiredVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.InvalidVerificationCodeException;
+import com.fleencorp.feen.user.exception.verification.ResetPasswordCodeInvalidException;
+import com.fleencorp.feen.user.exception.verification.VerificationFailedException;
 import com.fleencorp.feen.user.model.dto.authentication.*;
+import com.fleencorp.feen.user.model.dto.security.mfa.ConfirmMfaVerificationCodeDto;
+import com.fleencorp.feen.user.model.dto.security.mfa.ResendMfaVerificationCodeDto;
+import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static java.util.Objects.nonNull;
