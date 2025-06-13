@@ -5,10 +5,10 @@ import com.fleencorp.feen.constant.external.google.calendar.event.EventAttendeeD
 import com.fleencorp.feen.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeesRequest;
-import com.fleencorp.feen.model.request.calendar.event.NotAttendingEventRequest;
-import com.fleencorp.feen.model.request.calendar.event.RetrieveCalendarEventRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeesRequest;
+import com.fleencorp.feen.calendar.model.request.event.update.NotAttendingEventRequest;
+import com.fleencorp.feen.calendar.model.request.event.read.RetrieveCalendarEventRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeeResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeesResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleRetrieveCalendarEventResponse;

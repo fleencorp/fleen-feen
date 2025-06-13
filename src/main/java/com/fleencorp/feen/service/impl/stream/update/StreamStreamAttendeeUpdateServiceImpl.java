@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.update;
 
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.update.StreamAttendeeUpdateService;
 import org.springframework.stereotype.Service;

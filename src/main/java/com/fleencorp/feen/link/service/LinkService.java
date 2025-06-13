@@ -13,7 +13,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeR
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
-import com.fleencorp.feen.model.request.search.LinkSearchRequest;
+import com.fleencorp.feen.link.model.request.LinkSearchRequest;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 import java.util.List;

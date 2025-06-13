@@ -17,7 +17,7 @@ import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.*;
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import org.springframework.context.MessageSource;

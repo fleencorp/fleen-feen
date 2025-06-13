@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.contract;
 
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 
 public interface Likeable {
 

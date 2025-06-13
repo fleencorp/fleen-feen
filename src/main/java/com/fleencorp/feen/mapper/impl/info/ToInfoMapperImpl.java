@@ -2,7 +2,7 @@ package com.fleencorp.feen.mapper.impl.info;
 
 import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
-import com.fleencorp.feen.constant.like.IsLiked;
+import com.fleencorp.feen.like.constant.IsLiked;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
@@ -16,7 +16,7 @@ import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;

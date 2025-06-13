@@ -4,7 +4,7 @@ import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;

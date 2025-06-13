@@ -6,7 +6,7 @@ import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;

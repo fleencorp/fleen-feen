@@ -13,7 +13,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;

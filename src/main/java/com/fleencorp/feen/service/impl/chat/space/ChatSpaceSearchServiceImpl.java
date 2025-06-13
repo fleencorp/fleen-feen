@@ -25,7 +25,7 @@ import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.ChatSpaceService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsService;
-import com.fleencorp.feen.service.like.LikeService;
+import com.fleencorp.feen.like.service.LikeService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.MemberService;

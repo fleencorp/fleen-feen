@@ -1,7 +1,7 @@
 package com.fleencorp.feen.mapper.review;
 
-import com.fleencorp.feen.model.domain.review.Review;
-import com.fleencorp.feen.model.response.review.ReviewResponse;
+import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.review.model.response.ReviewResponse;
 
 import java.util.List;
 
