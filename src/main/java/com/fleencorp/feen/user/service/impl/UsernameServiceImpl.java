@@ -5,8 +5,8 @@ import com.fleencorp.feen.model.domain.word.bank.Adjective;
 import com.fleencorp.feen.model.domain.word.bank.Noun;
 import com.fleencorp.feen.service.user.WordBankService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.service.MemberService;
 import com.fleencorp.feen.user.service.UsernameService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

@@ -1,10 +1,6 @@
 package com.fleencorp.feen.exception;
 
-import com.fleencorp.feen.calendar.exception.CalendarAlreadyActiveException;
-import com.fleencorp.feen.calendar.exception.CalendarAlreadyExistException;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
 import com.fleencorp.feen.constant.http.FleenHttpStatus;
-import com.fleencorp.feen.contact.exception.ContactNotFoundException;
 import com.fleencorp.feen.country.exception.CountryNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
@@ -18,9 +14,6 @@ import com.fleencorp.feen.exception.chat.space.join.request.RequestToJoinChatSpa
 import com.fleencorp.feen.exception.chat.space.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.exception.common.ObjectNotFoundException;
 import com.fleencorp.feen.exception.file.FileUploadException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidGrantOrTokenException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidScopeException;
 import com.fleencorp.feen.exception.notification.NotificationNotFoundException;
 import com.fleencorp.feen.exception.social.share.contact.*;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
@@ -33,20 +26,6 @@ import com.fleencorp.feen.exception.stream.join.request.AlreadyApprovedRequestTo
 import com.fleencorp.feen.exception.stream.join.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.exception.stream.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
-import com.fleencorp.feen.review.exception.CannotAddReviewIfStreamHasNotStartedException;
-import com.fleencorp.feen.review.exception.ReviewNotFoundException;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
-import com.fleencorp.feen.user.exception.auth.AlreadySignedUpException;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationTokenException;
-import com.fleencorp.feen.user.exception.auth.UsernameNotFoundException;
-import com.fleencorp.feen.user.exception.mfa.MfaGenerationFailedException;
-import com.fleencorp.feen.user.exception.mfa.MfaVerificationFailed;
-import com.fleencorp.feen.user.exception.recaptcha.InvalidReCaptchaException;
-import com.fleencorp.feen.user.exception.user.UserNotFoundException;
-import com.fleencorp.feen.user.exception.user.profile.*;
-import com.fleencorp.feen.user.exception.user.role.NoRoleAvailableToAssignException;
-import com.fleencorp.feen.user.exception.verification.*;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
 import com.fleencorp.localizer.service.ErrorLocalizer;
@@ -94,18 +73,6 @@ public class RestExceptionHandler {
     this.localizer = localizer;
   }
 
-  /**
-   * Handles exceptions of type {@link FailedOperationException} and returns a {@link ErrorResponse} with a {@code BAD_REQUEST} status.
-   *
-   * <p>This method is triggered whenever a {@code FailedOperationException} is thrown during the processing of a request.
-   * It creates an appropriate error response by delegating to the {@code localizer} service,
-   * which formats the response based on the exception details and the localized message.</p>
-   *
-   * <p>The method sets the HTTP response status to {@code BAD_REQUEST} (400), indicating that the client's request was invalid or could not be processed.</p>
-   *
-   * @param e the exception thrown during the operation that resulted in a failure
-   * @return an {@code ErrorResponse} containing error details and the corresponding {@code BAD_REQUEST} status
-   */
   @ExceptionHandler(value = {
     FailedOperationException.class
   })
@@ -114,102 +81,30 @@ public class RestExceptionHandler {
     return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
-  /**
-   * Handles various {@link LocalizedException} types and returns an {@link ErrorResponse} with a {@code BAD_REQUEST} status.
-   *
-   * <p>This method is triggered whenever any of the specified exceptions are thrown during the processing of a request.
-   * It catches a wide range of application-specific exceptions such as {@link AlreadySignedUpException},
-   * {@link BannedAccountException}, {@link InvalidVerificationCodeException}, and many more, all of which indicate a problem
-   * with the client's request that prevents it from being processed correctly.</p>
-   *
-   * <p>The method creates an appropriate error response using the {@code localizer} service,
-   * which formats the response based on the exception details and the localized message.
-   * The response status is set to {@code BAD_REQUEST} (400), indicating that the request was invalid or could not be processed.</p>
-   *
-   * @param e the exception thrown during the operation, which could be any one of the listed exceptions
-   * @return an {@code ErrorResponse} containing error details and the corresponding {@code BAD_REQUEST} status
-   */
   @ExceptionHandler(value = {
-    AlreadySignedUpException.class,
-    BannedAccountException.class,
     CannotCancelShareContactRequestException.class,
     CannotCancelOrDeleteOngoingStreamException.class,
     CannotJoinPrivateChatSpaceWithoutApprovalException.class,
     CannotJoinPrivateStreamWithoutApprovalException.class,
     CannotProcessShareContactRequestException.class,
-    CannotAddReviewIfStreamHasNotStartedException.class,
     ChatSpaceNotActiveException.class,
-    DisabledAccountException.class,
-    ExpiredVerificationCodeException.class,
     FileUploadException.class,
     StreamNotCreatedByUserException.class,
-    InvalidVerificationCodeException.class,
-    MfaGenerationFailedException.class,
-    MfaVerificationFailed.class,
-    NoRoleAvailableToAssignException.class,
     NotAnAdminOfChatSpaceException.class,
     RequestToJoinChatSpacePendingException.class,
-    ResetPasswordCodeExpiredException.class,
-    ResetPasswordCodeInvalidException.class,
     ShareContactRequestValueRequiredException.class,
-    UpdatePasswordFailedException.class,
-    UpdateProfileInfoFailedException.class,
-    VerificationFailedException.class,
   })
   @ResponseStatus(value = BAD_REQUEST)
   public ErrorResponse handleBadRequest(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.badRequest());
   }
 
-  /**
-   * Handles external authorization and reCAPTCHA related exceptions, returning an appropriate error response with a {@code BAD_REQUEST} status.
-   *
-   * <p>This method is triggered when specific external-related exceptions such as {@link InvalidReCaptchaException},
-   * {@link Oauth2InvalidAuthorizationException}, {@link Oauth2InvalidGrantOrTokenException}, or {@link Oauth2InvalidScopeException}
-   * are thrown during request processing. These exceptions typically indicate issues with third-party services like reCAPTCHA or OAuth2.</p>
-   *
-   * <p>The method uses the {@code localizer} service to generate a localized error response,
-   * though the status in the response is mapped to {@code BAD_REQUEST} (404), despite the original request error leading to a {@code BAD_REQUEST}.
-   * This custom handling may be intended to mask certain error details.</p>
-   *
-   * @param e the exception thrown, representing an external error such as invalid reCAPTCHA or OAuth2 authorization issues
-   * @return a localized error response with a {@code BAD_REQUEST} status
-   */
-  @ExceptionHandler(value = {
-    InvalidReCaptchaException.class,
-    Oauth2InvalidAuthorizationException.class,
-    Oauth2InvalidGrantOrTokenException.class,
-    Oauth2InvalidScopeException.class,
-  })
-  @ResponseStatus(value = BAD_REQUEST)
-  public ErrorResponse handleExternalBadRequest(final LocalizedException e) {
-    return localizer.withStatus(e, FleenHttpStatus.badRequest());
-  }
-
-  /**
-   * Handles various exceptions that indicate a conflict in the application's state, returning an {@link ErrorResponse} with a {@code CONFLICT} status.
-   *
-   * <p>This method is triggered when specific exceptions, such as {@link AlreadyRequestedToJoinStreamException},
-   * {@link AlreadyJoinedChatSpaceException}, {@link CalendarAlreadyActiveException}, and others, occur during the processing of a request.
-   * These exceptions typically indicate that an operation cannot be completed due to a conflict with the current state of the application,
-   * such as trying to join a stream that the user has already requested or that a calendar event already exists.</p>
-   *
-   * <p>The method utilizes the {@code localizer} service to create a localized error response.
-   * The HTTP response status is set to {@code CONFLICT} (409), indicating that the request could not be completed due to a conflict with the current resource state.</p>
-   *
-   * @param e the exception thrown during the operation that represents a conflict in the application's state
-   * @return an {@code ErrorResponse} containing details about the conflict and the corresponding {@code CONFLICT} status
-   */
   @ExceptionHandler(value = {
     AlreadyRequestedToJoinStreamException.class,
     AlreadyApprovedRequestToJoinException.class,
     AlreadyJoinedChatSpaceException.class,
-    CalendarAlreadyActiveException.class,
-    CalendarAlreadyExistException.class,
     ChatSpaceAlreadyDeletedException.class,
-    EmailAddressAlreadyExistsException.class,
     OrganizerOfStreamCannotBeRemovedAsSpeakerException.class,
-    PhoneNumberAlreadyExistsException.class,
     ShareContactRequestAlreadyCanceledException.class,
     ShareContactRequestAlreadyProcessedException.class,
     StreamAlreadyCanceledException.class,
@@ -220,22 +115,6 @@ public class RestExceptionHandler {
     return localizer.withStatus(e, FleenHttpStatus.conflict());
   }
 
-  /**
-   * Handles exceptions indicating that an operation could not be completed due to internal server errors,
-   * returning an {@link ErrorResponse} with an {@code INTERNAL_SERVER_ERROR} status.
-   *
-   * <p>This method is triggered when the {@link UnableToCompleteOperationException} occurs during the processing
-   * of a request. This exception typically signifies that an unexpected error has occurred within the server,
-   * preventing the completion of the requested operation.</p>
-   *
-   * <p>The method utilizes the {@code localizer} service to create a localized error response,
-   * ensuring the response is relevant to the user's context. The HTTP response status is set to
-   * {@code INTERNAL_SERVER_ERROR} (500), indicating that there was a problem on the server side.</p>
-   *
-   * @param e the exception thrown during the operation indicating an internal server error
-   * @return an {@code ErrorResponse} containing details about the internal error and the corresponding
-   *         {@code INTERNAL_SERVER_ERROR} status
-   */
   @ExceptionHandler(value = {
     UnableToCompleteOperationException.class
   })
@@ -244,58 +123,19 @@ public class RestExceptionHandler {
     return localizer.withStatus(e, FleenHttpStatus.internalServerError());
   }
 
-  /**
-   * Handles exceptions related to resource not found scenarios, returning an appropriate error response with a {@code NOT_FOUND} status.
-   *
-   * <p>This method is triggered when specific exceptions, such as {@link CalendarNotFoundException},
-   * {@link ChatSpaceNotFoundException}, {@link MemberNotFoundException}, and others, occur during request processing.
-   * These exceptions indicate that the requested resource does not exist in the system, such as when attempting to access a chat space or member
-   * that cannot be found.</p>
-   *
-   * <p>The method leverages the {@code localizer} service to generate a localized error response,
-   * ensuring that the user receives a meaningful message that corresponds to the {@code NOT_FOUND} (404) HTTP status.</p>
-   *
-   * @param e the exception thrown during the operation that indicates a resource was not found
-   * @return a localized error response with a {@code NOT_FOUND} status, providing details about the missing resource
-   */
   @ExceptionHandler(value = {
-    CalendarNotFoundException.class,
     ChatSpaceNotFoundException.class,
     ChatSpaceMemberNotFoundException.class,
-    ContactNotFoundException.class,
     CountryNotFoundException.class,
     StreamNotFoundException.class,
-    MemberNotFoundException.class,
     NotificationNotFoundException.class,
     ObjectNotFoundException.class,
     StreamAttendeeNotFoundException.class,
-    ReviewNotFoundException.class,
     ShareContactRequestNotFoundException.class,
-    UserNotFoundException.class,
   })
   @ResponseStatus(value = NOT_FOUND)
   public Object handleNotFound(final LocalizedException e) {
     return localizer.withStatus(e, FleenHttpStatus.notFound());
-  }
-
-  /**
-   * Handles unauthorized access exceptions and provides a localized response.
-   *
-   * <p>This method intercepts exceptions of types {@link InvalidAuthenticationException} and
-   * {@link InvalidAuthenticationTokenException} and responds with a 404 Not Found status.
-   * It returns a localized response containing details about the exception and the unauthorized status.</p>
-   *
-   * @param e the {@link LocalizedException} being handled.
-   * @return a localized response with the unauthorized status.
-   */
-  @ExceptionHandler(value = {
-    InvalidAuthenticationException.class,
-    InvalidAuthenticationTokenException.class,
-    UsernameNotFoundException.class
-  })
-  @ResponseStatus(value = UNAUTHORIZED)
-  public ErrorResponse handleUnauthorized(final LocalizedException e) {
-    return localizer.withStatus(e, FleenHttpStatus.unauthorized());
   }
 
   /**

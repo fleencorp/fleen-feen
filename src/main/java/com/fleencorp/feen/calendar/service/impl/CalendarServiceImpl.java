@@ -1,9 +1,9 @@
 package com.fleencorp.feen.calendar.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.calendar.exception.CalendarAlreadyActiveException;
-import com.fleencorp.feen.calendar.exception.CalendarAlreadyExistException;
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyActiveException;
+import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyExistException;
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.model.dto.CreateCalendarDto;
 import com.fleencorp.feen.calendar.model.dto.ShareCalendarWithUserDto;
@@ -18,7 +18,6 @@ import com.fleencorp.feen.calendar.model.response.base.CalendarResponse;
 import com.fleencorp.feen.calendar.model.search.CalendarSearchResult;
 import com.fleencorp.feen.calendar.repository.CalendarRepository;
 import com.fleencorp.feen.calendar.service.CalendarService;
-import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
 import com.fleencorp.feen.country.model.search.CountrySearchResult;
 import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
@@ -26,10 +25,11 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleDeleteCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GooglePatchCalendarResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
+import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
-import com.fleencorp.feen.service.external.google.oauth2.GoogleOauth2Service;
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;

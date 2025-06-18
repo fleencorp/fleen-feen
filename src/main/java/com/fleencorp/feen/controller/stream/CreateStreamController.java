@@ -1,8 +1,7 @@
 package com.fleencorp.feen.controller.stream;
 
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
@@ -10,6 +9,7 @@ import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.model.response.stream.common.event.DataForCreateEventResponse;
 import com.fleencorp.feen.model.response.stream.common.live.broadcast.DataForCreateLiveBroadcastResponse;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.service.stream.LiveBroadcastService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;

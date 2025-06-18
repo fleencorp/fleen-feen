@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.fleencorp.feen.user.constant.role.RoleType.*;
+import static com.fleencorp.feen.role.constant.RoleType.*;
 
 /**
  * Utility class for managing Fleen authorities.

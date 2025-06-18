@@ -4,7 +4,7 @@ package com.fleencorp.feen.user.model.dto.profile;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.validator.ValidEmail;
-import com.fleencorp.feen.user.model.dto.security.VerificationCodeDto;
+import com.fleencorp.feen.verification.model.dto.VerificationCodeDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

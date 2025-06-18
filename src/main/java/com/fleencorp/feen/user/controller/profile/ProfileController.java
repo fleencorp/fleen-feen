@@ -8,8 +8,8 @@ import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoRespo
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
 import com.fleencorp.feen.user.model.response.update.*;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.user.service.MemberService;
-import com.fleencorp.feen.user.service.MemberUpdateService;
+import com.fleencorp.feen.user.service.member.MemberService;
+import com.fleencorp.feen.user.service.member.MemberUpdateService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

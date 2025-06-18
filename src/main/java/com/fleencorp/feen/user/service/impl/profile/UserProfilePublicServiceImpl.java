@@ -29,13 +29,13 @@ import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchRes
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
 import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
+import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import com.fleencorp.feen.user.model.search.UserProfileSearchRequest;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.user.service.MemberService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.feen.user.service.profile.UserProfilePublicService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;

@@ -8,9 +8,9 @@ import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeChannelService;
 import com.fleencorp.feen.service.external.google.youtube.YouTubeLiveBroadcastService;
-import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.service.report.ReporterService;
 import com.fleencorp.feen.util.external.google.GoogleApiUtil;
 import com.google.api.services.youtube.YouTube;

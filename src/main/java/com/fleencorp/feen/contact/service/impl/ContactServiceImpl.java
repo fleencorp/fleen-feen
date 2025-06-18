@@ -25,6 +25,7 @@ import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,8 +120,10 @@ public class ContactServiceImpl implements ContactService {
   @Override
   public ContactSearchResult findContacts(final ContactSearchRequest searchRequest, final RegisteredUser user) {
     final Member member = user.toMember();
+    final Pageable pageable = searchRequest.getPage();
+
     // Retrieve a page of contacts owned by the user according to the search request
-    final Page<Contact> page = contactRepository.findByOwner(member, searchRequest.getPage());
+    final Page<Contact> page = contactRepository.findByOwner(member, pageable);
     // Convert the retrieved contacts into a list of contact responses
     final List<ContactResponse> contactResponses = contactMapper.toContactResponses(page.getContent());
     // Process other contact details

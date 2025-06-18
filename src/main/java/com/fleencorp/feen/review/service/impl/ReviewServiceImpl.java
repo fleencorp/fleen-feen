@@ -7,8 +7,8 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.like.service.LikeService;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.exception.CannotAddReviewIfStreamHasNotStartedException;
-import com.fleencorp.feen.review.exception.ReviewNotFoundException;
+import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
+import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.review.model.dto.AddReviewDto;
@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,11 +105,13 @@ public class ReviewServiceImpl implements ReviewService {
    */
   @Override
   public ReviewSearchResult findReviews(final ReviewSearchRequest searchRequest, final RegisteredUser user) {
+    final Long parentId = searchRequest.getParentId();
+    final Pageable pageable = searchRequest.getPage();
     Page<Review> page = Page.empty();
 
     // Check if a stream review search request
     if (searchRequest.isStreamReviewSearchRequest()) {
-      page = reviewRepository.findByStreamId(searchRequest.getParentId(), searchRequest.getPage());
+      page = reviewRepository.findByStreamId(parentId, pageable);
     }
 
     // Convert and process the reviews to responses

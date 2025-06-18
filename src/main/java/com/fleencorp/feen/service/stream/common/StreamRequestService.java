@@ -5,7 +5,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.stream.base.RescheduleStreamDto;
 import com.fleencorp.feen.model.dto.stream.base.UpdateStreamDto;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 
 public interface StreamRequestService {
 

@@ -17,6 +17,8 @@ import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
+import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.info.*;
 
 public interface ToInfoMapper {
 
@@ -51,4 +53,14 @@ public interface ToInfoMapper {
   UserLikeInfo toLikeInfo(boolean liked);
 
   IsDeletedInfo toIsDeletedInfo(boolean deleted);
+
+  PollVisibilityInfo toPollVisibilityInfo(PollVisibility pollVisibility);
+
+  IsAnonymousInfo toIsAnonymousInfo(boolean anonymous);
+
+  IsEndedInfo toIsEnded(boolean ended);
+
+  IsMultipleChoiceInfo toIsMultipleChoiceInfo(boolean multipleChoice);
+
+  IsVotedInfo toIsVotedInfo(boolean voted);
 }

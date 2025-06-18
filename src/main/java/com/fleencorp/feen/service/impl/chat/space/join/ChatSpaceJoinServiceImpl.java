@@ -29,7 +29,7 @@ import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberOperationsSer
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
 import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
 import com.fleencorp.feen.service.notification.NotificationService;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
+import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;

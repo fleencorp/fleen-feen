@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.event;
 
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;

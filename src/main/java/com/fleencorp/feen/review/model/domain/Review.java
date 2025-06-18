@@ -1,6 +1,7 @@
 package com.fleencorp.feen.review.model.domain;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.constant.ReviewRating;
@@ -15,6 +16,7 @@ import org.springframework.data.annotation.CreatedBy;
 import static jakarta.persistence.EnumType.ORDINAL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
@@ -36,25 +38,32 @@ public class Review extends FleenFeenEntity {
   @Column(name = "review_id", nullable = false, updatable = false, unique = true)
   private Long reviewId;
 
-  @Column(name = "parent_id", updatable = false)
-  private Long parentId;
-
   @Column(name = "review", nullable = false, length = 1000)
   private String review;
 
+  @Column(name = "parent_id", updatable = false)
+  private Long parentId;
+
+  @Column(name = "parent_title", updatable = false)
+  private String parentTitle;
+
   @Enumerated(STRING)
-  @Column(name = "review_parent_type", nullable = false)
+  @Column(name = "parent_type", nullable = false)
   private ReviewParentType reviewParentType;
 
   @Column(name = "stream_id", updatable = false, insertable = false)
   private Long streamId;
 
-  @ManyToOne(fetch = EAGER, targetEntity = FleenStream.class)
-  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
+  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
+  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", updatable = false)
   private FleenStream stream;
 
-  @Column(name = "parent_title", updatable = false)
-  private String parentTitle;
+  @Column(name = "chat_space_id", updatable = false, insertable = false)
+  private Long chatSpaceId;
+
+  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
+  @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
+  private ChatSpace chatSpace;
 
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;

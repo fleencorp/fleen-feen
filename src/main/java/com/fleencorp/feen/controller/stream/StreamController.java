@@ -1,6 +1,6 @@
 package com.fleencorp.feen.controller.stream;
 
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;

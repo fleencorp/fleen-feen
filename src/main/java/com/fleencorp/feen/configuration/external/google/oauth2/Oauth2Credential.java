@@ -16,7 +16,7 @@ import org.springframework.context.annotation.PropertySources;
 import java.util.List;
 
 import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
-import static com.fleencorp.feen.constant.external.google.oauth2.Oauth2WebKey.*;
+import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.*;
 
 /**
 * Configuration class for OAuth 2.0 credentials used by web clients.

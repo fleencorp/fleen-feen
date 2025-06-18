@@ -1,8 +1,7 @@
 package com.fleencorp.feen.service.stream.common;
 
-import com.fleencorp.feen.calendar.exception.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.CannotCancelOrDeleteOngoingStreamException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
@@ -10,6 +9,7 @@ import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.model.dto.stream.base.*;
 import com.fleencorp.feen.model.response.stream.base.*;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface CommonStreamService {

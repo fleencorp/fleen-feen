@@ -3,7 +3,7 @@ package com.fleencorp.feen.follower.service.impl;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.follower.exception.FollowingNotFoundException;
+import com.fleencorp.feen.follower.exception.core.FollowingNotFoundException;
 import com.fleencorp.feen.follower.mapper.FollowerMapper;
 import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.follower.model.dto.FollowOrUnfollowUserDto;

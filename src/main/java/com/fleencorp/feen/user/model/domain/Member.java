@@ -2,11 +2,12 @@ package com.fleencorp.feen.user.model.domain;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.base.util.StringUtil;
+import com.fleencorp.feen.mfa.constant.MfaType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.role.model.domain.Role;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
-import com.fleencorp.feen.user.constant.verification.VerificationType;
+import com.fleencorp.feen.verification.constant.VerificationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
 
@@ -92,7 +92,7 @@ public class Member extends FleenFeenEntity {
   @Column(name = "profile_status", nullable = false)
   private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
 
-  @ManyToMany(fetch = LAZY, targetEntity = Role.class, cascade = CascadeType.ALL)
+  @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
 

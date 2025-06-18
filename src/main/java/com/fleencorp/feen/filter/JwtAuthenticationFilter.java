@@ -2,8 +2,8 @@ package com.fleencorp.feen.filter;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationTokenException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationTokenException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.model.security.TokenPayload;
 import com.fleencorp.feen.user.util.TokenUtil;

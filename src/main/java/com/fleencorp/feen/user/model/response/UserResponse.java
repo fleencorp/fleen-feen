@@ -52,4 +52,13 @@ public class UserResponse {
 
     return userResponse;
   }
+
+  public static UserResponse of(final String username, final String fullName, final String profilePhotoUrl) {
+    final UserResponse userResponse = new UserResponse();
+    userResponse.setUsername(username);
+    userResponse.setFullName(fullName);
+    userResponse.setProfilePhotoUrl(profilePhotoUrl);
+
+    return userResponse;
+  }
 }
