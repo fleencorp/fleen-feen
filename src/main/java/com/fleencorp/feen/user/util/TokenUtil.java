@@ -2,7 +2,7 @@ package com.fleencorp.feen.user.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
-import com.fleencorp.feen.user.constant.auth.AuthenticationStatus;
+import com.fleencorp.feen.user.constant.authentication.AuthenticationStatus;
 import com.fleencorp.feen.user.constant.token.TokenType;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.model.security.TokenPayload;

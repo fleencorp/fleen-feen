@@ -3,7 +3,7 @@ package com.fleencorp.feen.calendar.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
-import com.fleencorp.feen.constant.external.google.oauth2.Oauth2ServiceType;
+import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.validator.TimezoneValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

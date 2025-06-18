@@ -1,8 +1,8 @@
 package com.fleencorp.feen.user.model.request.profile;
 
 import com.fleencorp.feen.constant.message.MessageRequestType;
-import com.fleencorp.feen.user.constant.verification.VerificationType;
 import com.fleencorp.feen.user.model.request.authentication.SendVerificationCodeRequest;
+import com.fleencorp.feen.verification.constant.VerificationType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

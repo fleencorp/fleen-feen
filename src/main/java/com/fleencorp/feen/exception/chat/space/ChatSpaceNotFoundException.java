@@ -15,7 +15,7 @@ public class ChatSpaceNotFoundException extends LocalizedException {
     super(params);
   }
 
-  public static Supplier<ChatSpaceNotFoundException> of(final Object calendarId) {
-    return () -> new ChatSpaceNotFoundException(calendarId);
+  public static Supplier<ChatSpaceNotFoundException> of(final Object chatSpaceId) {
+    return () -> new ChatSpaceNotFoundException(chatSpaceId);
   }
 }

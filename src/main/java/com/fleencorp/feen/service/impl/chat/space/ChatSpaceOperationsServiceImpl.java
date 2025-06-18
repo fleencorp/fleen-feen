@@ -2,6 +2,7 @@ package com.fleencorp.feen.service.impl.chat.space;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceStatus;
+import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceParticipationRepository;
 import com.fleencorp.feen.repository.chat.space.ChatSpaceRepository;
@@ -30,6 +31,11 @@ public class ChatSpaceOperationsServiceImpl implements ChatSpaceOperationsServic
     this.chatSpaceParticipationRepository = chatSpaceParticipationRepository;
     this.chatSpaceRepository = chatSpaceRepository;
     this.userChatSpaceRepository = userChatSpaceRepository;
+  }
+
+  @Override
+  public ChatSpace findChatSpace(final Long chatSpaceId) {
+    return chatSpaceRepository.findById(chatSpaceId).orElseThrow(ChatSpaceNotFoundException.of(chatSpaceId));
   }
 
   @Override

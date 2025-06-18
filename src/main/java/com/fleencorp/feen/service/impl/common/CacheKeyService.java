@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.common;
 
 import com.fleencorp.base.constant.base.CacheKeyConstant;
-import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.mfa.constant.MfaType;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.fleencorp.base.constant.base.CacheKeyConstant.UPDATE_EMAIL_CACHE_PREFIX;

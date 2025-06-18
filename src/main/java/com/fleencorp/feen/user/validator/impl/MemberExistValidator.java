@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.validator.impl;
 
-import com.fleencorp.feen.user.service.MemberService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.feen.user.validator.MemberExist;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

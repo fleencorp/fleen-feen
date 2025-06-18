@@ -29,7 +29,7 @@ import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsServic
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.user.service.MemberService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

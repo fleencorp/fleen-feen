@@ -1,11 +1,11 @@
 package com.fleencorp.feen.user.model.security;
 
 import com.fleencorp.base.util.StringUtil;
-import com.fleencorp.feen.user.constant.mfa.MfaType;
+import com.fleencorp.feen.mfa.constant.MfaType;
+import com.fleencorp.feen.role.model.domain.Role;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.domain.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -30,6 +30,12 @@ import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
+import com.fleencorp.feen.poll.constant.IsAnonymous;
+import com.fleencorp.feen.poll.constant.IsEnded;
+import com.fleencorp.feen.poll.constant.IsMultipleChoice;
+import com.fleencorp.feen.poll.constant.IsVoted;
+import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.info.*;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -344,5 +350,34 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
     final IsDeleted isDeleted = IsDeleted.by(deleted);
     return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
+  }
+
+  @Override
+  public PollVisibilityInfo toPollVisibilityInfo(final PollVisibility pollVisibility) {
+    return PollVisibilityInfo.of(pollVisibility, translate(pollVisibility.getLabelCode()), translate(pollVisibility.getMessageCode()));
+  }
+
+  @Override
+  public IsAnonymousInfo toIsAnonymousInfo(final boolean anonymous) {
+    final IsAnonymous isAnonymous = IsAnonymous.by(anonymous);
+    return IsAnonymousInfo.of(anonymous, translate(isAnonymous.getMessageCode()), translate(isAnonymous.getMessageCode2()));
+  }
+
+  @Override
+  public IsEndedInfo toIsEnded(final boolean ended) {
+    final IsEnded isEnded = IsEnded.by(ended);
+    return IsEndedInfo.of(ended, translate(isEnded.getMessageCode()), translate(isEnded.getMessageCode2()));
+  }
+
+  @Override
+  public IsMultipleChoiceInfo toIsMultipleChoiceInfo(final boolean multipleChoice) {
+    final IsMultipleChoice isMultipleChoice = IsMultipleChoice.by(multipleChoice);
+    return IsMultipleChoiceInfo.of(multipleChoice, translate(isMultipleChoice.getMessageCode()), translate(isMultipleChoice.getMessageCode2()));
+  }
+
+  @Override
+  public IsVotedInfo toIsVotedInfo(final boolean voted) {
+    final IsVoted isVoted = IsVoted.by(voted);
+    return IsVotedInfo.of(voted, translate(isVoted.getMessageCode()), translate(isVoted.getMessageCode2()));
   }
 }

@@ -4,7 +4,7 @@ import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
 import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.service.common.MiscService;
-import com.fleencorp.feen.user.service.MemberService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

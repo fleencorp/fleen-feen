@@ -2,7 +2,7 @@ package com.fleencorp.feen.util.external.google;
 
 import com.fleencorp.feen.constant.external.google.chat.base.GoogleChatParameter;
 import com.fleencorp.feen.model.other.Schedule;
-import com.fleencorp.feen.service.impl.external.google.oauth2.GoogleOauth2ServiceImpl;
+import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.JsonObjectParser;

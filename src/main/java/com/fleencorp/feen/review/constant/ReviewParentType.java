@@ -20,7 +20,8 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum ReviewParentType implements ApiParameter {
 
-  STREAM("Stream");
+  STREAM("Stream"),
+  CHAT_SPACE("Chat Space");
 
   private final String value;
 

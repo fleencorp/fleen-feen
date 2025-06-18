@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.domain.auth;
 
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

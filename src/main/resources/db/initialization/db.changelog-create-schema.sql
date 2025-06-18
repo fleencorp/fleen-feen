@@ -349,11 +349,12 @@ CREATE TABLE review (
   parent_title varchar(1000) NULL,
 
   stream_id BIGINT NULL,
+  chat_space_id BIGINT NULL,
   member_id BIGINT NOT NULL,
   like_count INT DEFAULT 0 NOT NULL,
 
-  review_parent_type VARCHAR(255)
-    NOT NULL CHECK (review_parent_type IN ('STREAM')),
+  parent_type VARCHAR(255)
+    NOT NULL CHECK (parent_type IN ('STREAM', 'CHAT_SPACE')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -365,7 +366,11 @@ CREATE TABLE review (
   CONSTRAINT review_fk_stream_id
     FOREIGN KEY (stream_id)
       REFERENCES stream (stream_id)
-        ON DELETE SET NULL
+        ON DELETE SET NULL,
+  CONSTRAINT review_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `review`;
@@ -762,3 +767,104 @@ CREATE TABLE likes (
 );
 
 --rollback DROP TABLE IF EXISTS `likes`;
+
+
+
+--changeset alamu:create_table_poll
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll';
+
+CREATE TABLE poll (
+  poll_id BIGSERIAL PRIMARY KEY,
+  question VARCHAR(1000) NOT NULL,
+  description VARCHAR(2000),
+  expires_at TIMESTAMP,
+  parent_id BIGINT,
+  parent_title VARCHAR(1000),
+  parent_type VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
+  visibility VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
+  author_id BIGINT NOT NULL,
+  stream_id BIGINT,
+  chat_space_id BIGINT,
+
+  is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
+  is_multiple_choice BOOLEAN NOT NULL DEFAULT FALSE,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  total_entries INTEGER NOT NULL DEFAULT 0,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_fk_author_id
+    FOREIGN KEY (author_id)
+      REFERENCES member (member_id)
+      ON DELETE SET NULL,
+  CONSTRAINT poll_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+      ON DELETE SET NULL,
+  CONSTRAINT poll_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `poll`;
+
+
+
+--changeset alamu:create_table_poll_option
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_option';
+
+CREATE TABLE poll_option (
+  poll_option_id BIGSERIAL PRIMARY KEY,
+  poll_id BIGINT NOT NULL,
+  option_text VARCHAR(1000) NOT NULL,
+  vote_count INTEGER NOT NULL DEFAULT 0,
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_option_fk_poll_id
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+      ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `poll_option`;
+
+
+
+--changeset alamu:create_table_poll_vote
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_vote';
+
+CREATE TABLE poll_vote (
+  vote_id BIGSERIAL PRIMARY KEY,
+  poll_id BIGINT NOT NULL,
+  option_id BIGINT NOT NULL,
+  member_id BIGINT NOT NULL,
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_vote_fk_poll_id
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+      ON DELETE CASCADE,
+  CONSTRAINT poll_vote_fk_option_id
+    FOREIGN KEY (option_id)
+      REFERENCES poll_option (poll_option_id)
+      ON DELETE CASCADE,
+  CONSTRAINT poll_vote_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+      ON DELETE SET NULL,
+  CONSTRAINT poll_vote_unique_poll_member_option
+    UNIQUE (poll_id, member_id, option_id)
+);
+
+--rollback DROP TABLE IF EXISTS `poll_vote`;
