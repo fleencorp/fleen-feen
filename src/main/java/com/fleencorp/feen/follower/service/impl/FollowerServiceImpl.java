@@ -1,6 +1,5 @@
 package com.fleencorp.feen.follower.service.impl;
 
-import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.follower.exception.core.FollowingNotFoundException;
@@ -9,6 +8,7 @@ import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.follower.model.dto.FollowOrUnfollowUserDto;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
+import com.fleencorp.feen.follower.model.request.FollowerSearchRequest;
 import com.fleencorp.feen.follower.model.response.FollowUserResponse;
 import com.fleencorp.feen.follower.model.response.UnfollowUserResponse;
 import com.fleencorp.feen.follower.model.search.FollowerSearchResult;
@@ -80,14 +80,13 @@ public class FollowerServiceImpl implements FollowerService {
    * Retrieves a paginated list of followers for a given user.
    *
    * @param searchRequest the search request containing pagination details
-   * @param user the user whose followers are to be retrieved
    * @return a paginated result containing a list of UserResponse representing the followers
    */
   @Override
   @Transactional(readOnly = true)
-  public FollowerSearchResult getFollowers(final SearchRequest searchRequest, final RegisteredUser user) {
+  public FollowerSearchResult getFollowers(final FollowerSearchRequest searchRequest) {
     // Prepare parameters
-    final Member member = user.toMember();
+    final Member member = searchRequest.getMember();
     final Pageable pageable = searchRequest.getPage();
 
     // Retrieve a paginated list of followers based on the given follower and search request
@@ -102,6 +101,40 @@ public class FollowerServiceImpl implements FollowerService {
     final FollowerSearchResult followerSearchResult = FollowerSearchResult.of(searchResult);
     // Return the search result
     return localizer.of(followerSearchResult);
+  }
+
+  /**
+   * Retrieves a paginated list of users that are being followed by the specified user.
+   *
+   * <p>This method takes a `FleenUser` object representing the follower and a `SearchRequest`
+   * object that contains pagination details. It queries the `followerRepository` to find
+   * the users followed by the provided `follower`.</p>
+   *
+   * <p>The retrieved list of followers is then converted into `UserResponse` views, and the method
+   * returns a paginated search result encapsulating these views.</p>
+   *
+   * @param searchRequest the search request containing pagination details
+   * @return a paginated result containing the list of users followed by the given follower
+   */
+  @Override
+  @Transactional(readOnly = true)
+  public FollowingSearchResult getFollowings(final FollowerSearchRequest searchRequest) {
+    // Prepare parameters
+    final Member member = searchRequest.getMember();
+    final Pageable pageable = searchRequest.getPage();
+
+    // Retrieve a paginated list of followers based on the given follower and search request
+    final Page<Follower> page = followerRepository.findByFollowing(member, pageable);
+    // Convert the list of followers to UserResponse views
+    final List<UserResponse> userResponses = followerMapper.toFollowingResponses(page.getContent());
+    // Process followings to set isFollowingInfo
+    processFollowingsDetail(userResponses, member);
+    // Create the search result
+    final SearchResult searchResult = toSearchResult(userResponses, page);
+    // Create the following search result
+    final FollowingSearchResult followingSearchResult = FollowingSearchResult.of(searchResult);
+    // Return a search result with the responses and pagination details
+    return localizer.of(followingSearchResult);
   }
 
   /**
@@ -178,41 +211,6 @@ public class FollowerServiceImpl implements FollowerService {
     // Set isFollowingInfo (current user follows them)
     userResponse.setIsFollowingInfo(isFollowingInfo);
     userResponse.setIsFollowedInfo(isFollowedInfo);
-  }
-
-  /**
-   * Retrieves a paginated list of users that are being followed by the specified user.
-   *
-   * <p>This method takes a `FleenUser` object representing the follower and a `SearchRequest`
-   * object that contains pagination details. It queries the `followerRepository` to find
-   * the users followed by the provided `follower`.</p>
-   *
-   * <p>The retrieved list of followers is then converted into `UserResponse` views, and the method
-   * returns a paginated search result encapsulating these views.</p>
-   *
-   * @param searchRequest the search request containing pagination details
-   * @param user the user who is following others
-   * @return a paginated result containing the list of users followed by the given follower
-   */
-  @Override
-  @Transactional(readOnly = true)
-  public FollowingSearchResult getFollowings(final SearchRequest searchRequest, final RegisteredUser user) {
-    // Prepare parameters
-    final Member member = user.toMember();
-    final Pageable pageable = searchRequest.getPage();
-
-    // Retrieve a paginated list of followers based on the given follower and search request
-    final Page<Follower> page = followerRepository.findByFollowing(member, pageable);
-    // Convert the list of followers to UserResponse views
-    final List<UserResponse> userResponses = followerMapper.toFollowingResponses(page.getContent());
-    // Process followings to set isFollowingInfo
-    processFollowingsDetail(userResponses, member);
-    // Create the search result
-    final SearchResult searchResult = toSearchResult(userResponses, page);
-    // Create the following search result
-    final FollowingSearchResult followingSearchResult = FollowingSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
-    return localizer.of(followingSearchResult);
   }
 
   /**

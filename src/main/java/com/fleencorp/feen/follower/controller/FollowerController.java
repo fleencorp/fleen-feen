@@ -1,8 +1,8 @@
 package com.fleencorp.feen.follower.controller;
 
-import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.follower.model.dto.FollowOrUnfollowUserDto;
+import com.fleencorp.feen.follower.model.request.FollowerSearchRequest;
 import com.fleencorp.feen.follower.model.response.FollowUserResponse;
 import com.fleencorp.feen.follower.model.response.UnfollowUserResponse;
 import com.fleencorp.feen.follower.model.search.FollowerSearchResult;
@@ -27,16 +27,18 @@ public class FollowerController {
 
   @GetMapping(value = "/get-followers")
   public FollowerSearchResult getFollowers(
-      @SearchParam final SearchRequest searchRequest,
+      @SearchParam final FollowerSearchRequest searchRequest,
       @AuthenticationPrincipal final RegisteredUser user) {
-    return followerService.getFollowers(searchRequest, user);
+    searchRequest.setMember(user.toMember());
+    return followerService.getFollowers(searchRequest);
   }
 
   @GetMapping(value = "/get-followings")
   public FollowingSearchResult getFollowings(
-      @SearchParam final SearchRequest searchRequest,
+      @SearchParam final FollowerSearchRequest searchRequest,
       @AuthenticationPrincipal final RegisteredUser user) {
-    return followerService.getFollowings(searchRequest, user);
+    searchRequest.setMember(user.toMember());
+    return followerService.getFollowings(searchRequest);
   }
 
   @PutMapping(value = "/follow")

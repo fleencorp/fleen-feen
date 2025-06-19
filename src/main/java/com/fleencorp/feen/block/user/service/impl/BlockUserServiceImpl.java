@@ -126,6 +126,10 @@ public class BlockUserServiceImpl implements BlockUserService {
     final BlockStatus blockStatus = blockUserDto.getStatus();
 
     return blockUserRepository.findByRecipient(userToBeBlockedOrUnblocked)
+      .map(blockUser -> {
+        blockUser.setBlockStatus(blockStatus);
+        return blockUser;
+      })
       .orElseGet(() -> BlockUser.of(initiator, userToBeBlockedOrUnblocked, blockStatus));
   }
 
