@@ -32,6 +32,7 @@ public class PollSearchRequest extends SearchRequest {
   @JsonProperty("parent_id")
   protected String parentId;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Member author;
 
   public PollParentType getPollParentType() {

@@ -29,7 +29,7 @@ public class FollowerMapperImpl extends BaseMapper implements FollowerMapper {
 
   private final ToInfoMapper toInfoMapper;
 
-  private FollowerMapperImpl(
+  public FollowerMapperImpl(
       final MessageSource messageSource,
       final ToInfoMapper toInfoMapper) {
     super(messageSource);

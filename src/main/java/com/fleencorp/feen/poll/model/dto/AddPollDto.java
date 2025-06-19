@@ -121,8 +121,8 @@ public class AddPollDto {
     poll.setAuthor(author);
 
 
-    final Collection<PollOption> options = toPollOptions();
-    poll.addOptions(options);
+    final Collection<PollOption> pollOptions = toPollOptions();
+    poll.addOptions(pollOptions);
 
     return poll;
   }

@@ -184,8 +184,8 @@ public class PollSearchServiceImpl implements PollSearchService {
   @Override
   @Transactional(readOnly = true)
   public PollSearchResult findMyPolls(final PollSearchRequest searchRequest, final RegisteredUser user) {
-    final PollSearchResult pollSearchResult = findPollsWithResult(searchRequest, user.toMember(), PollSearchResult::of);
-
+    searchRequest.setAuthor(user.toMember());
+    final PollSearchResult pollSearchResult = findPolls(searchRequest, user);
     return localizer.of(pollSearchResult);
   }
 
@@ -253,7 +253,7 @@ public class PollSearchServiceImpl implements PollSearchService {
       return;
     }
 
-    final List<Long> pollIds = pollResponseEntriesHolder.getPollIds();
+    final Collection<Long> pollIds = pollResponseEntriesHolder.getPollIds();
     if (pollIds.isEmpty()) {
       return;
     }

@@ -2,6 +2,8 @@ package com.fleencorp.feen.oauth2.exception.core;
 
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.localizer.model.exception.LocalizedException;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 
@@ -9,6 +11,8 @@ import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.SERVICE_TYPE;
 
 public class Oauth2InvalidGrantOrTokenException extends LocalizedException {
 
+  @Getter
+  @Setter
   private Oauth2ServiceType oauth2ServiceType;
 
   @Override
@@ -43,7 +47,7 @@ public class Oauth2InvalidGrantOrTokenException extends LocalizedException {
    */
   public static Oauth2InvalidGrantOrTokenException of(final Object authorizationCode, final Oauth2ServiceType oauth2ServiceType) {
     final Oauth2InvalidGrantOrTokenException oauth2InvalidGrantOrTokenException = new Oauth2InvalidGrantOrTokenException(authorizationCode);
-    oauth2InvalidGrantOrTokenException.oauth2ServiceType = oauth2ServiceType;
+    oauth2InvalidGrantOrTokenException.setOauth2ServiceType(oauth2ServiceType);
     return oauth2InvalidGrantOrTokenException;
   }
 }
