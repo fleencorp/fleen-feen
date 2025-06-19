@@ -35,7 +35,7 @@ public interface StreamAttendeeProjectionRepository extends JpaRepository<Stream
       LEFT JOIN sa.stream fs
       LEFT JOIN sa.member m
       WHERE (fs.streamId = :streamId AND sa.aSpeaker = false)
-        AND (fs.organizerId = :organizerId) 
+        AND (fs.organizerId = :organizerId)
         AND (m.username = :q OR m.firstName = :q OR m.lastName = :q)
     """)
   Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(

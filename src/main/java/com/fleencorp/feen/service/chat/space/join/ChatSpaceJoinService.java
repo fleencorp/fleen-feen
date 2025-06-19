@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.response.chat.space.member.LeaveChatSpaceRespons
 import com.fleencorp.feen.model.response.chat.space.membership.JoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.model.response.chat.space.membership.RequestToJoinChatSpaceResponse;
-import com.fleencorp.feen.user.exception.MemberNotFoundException;
+import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceJoinService {

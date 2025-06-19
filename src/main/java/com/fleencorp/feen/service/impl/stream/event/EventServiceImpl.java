@@ -1,20 +1,20 @@
 package com.fleencorp.feen.service.impl.stream.event;
 
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
+import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
+import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.mapper.stream.StreamMapper;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
-import com.fleencorp.feen.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
-import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
-import com.fleencorp.feen.model.request.calendar.event.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.model.request.stream.ExternalStreamRequest;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.base.CreateStreamResponse;

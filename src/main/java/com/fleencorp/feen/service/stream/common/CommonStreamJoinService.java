@@ -1,8 +1,7 @@
 package com.fleencorp.feen.service.stream.common;
 
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
-import com.fleencorp.feen.exception.google.oauth2.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.exception.stream.core.StreamAlreadyHappenedException;
@@ -18,6 +17,7 @@ import com.fleencorp.feen.model.response.stream.attendance.JoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.RequestToJoinStreamResponse;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface CommonStreamJoinService {

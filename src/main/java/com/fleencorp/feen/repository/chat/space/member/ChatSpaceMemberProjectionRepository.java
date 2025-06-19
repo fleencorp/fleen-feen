@@ -1,9 +1,9 @@
 package com.fleencorp.feen.repository.chat.space.member;
 
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
+import com.fleencorp.feen.like.model.domain.Like;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
-import com.fleencorp.feen.model.domain.like.Like;
 import com.fleencorp.feen.model.projection.chat.space.ChatSpaceMemberSelect;
 import com.fleencorp.feen.model.projection.chat.space.ChatSpaceRequestToJoinPendingSelect;
 import com.fleencorp.feen.user.model.domain.Member;

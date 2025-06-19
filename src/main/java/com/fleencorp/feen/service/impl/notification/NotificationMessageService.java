@@ -1,13 +1,13 @@
 package com.fleencorp.feen.service.impl.notification;
 
 import com.fleencorp.feen.constant.notification.NotificationStatus;
+import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.chat.ChatSpaceMember;
 import com.fleencorp.feen.model.domain.notification.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
-import com.fleencorp.feen.model.domain.user.Follower;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;

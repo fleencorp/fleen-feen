@@ -1,16 +1,16 @@
 package com.fleencorp.feen.service.impl.auth;
 
+import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.mapper.CommonMapper;
-import com.fleencorp.feen.service.common.CountryService;
+import com.fleencorp.feen.role.service.RoleService;
 import com.fleencorp.feen.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
-import com.fleencorp.feen.service.user.RoleService;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
-import com.fleencorp.feen.user.service.MemberService;
+import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

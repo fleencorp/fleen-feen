@@ -12,6 +12,8 @@ import java.util.Collection;
 
 public interface ChatSpaceOperationsService {
 
+  ChatSpace findChatSpace(Long chatSpaceId);
+
   Page<ChatSpace> findCommonChatSpaces(
     Long memberAId,
     Long memberBId,

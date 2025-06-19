@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.request.stream;
 
+import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.constant.external.request.ExternalStreamRequestType;
 import com.fleencorp.feen.constant.stream.StreamType;
-import com.fleencorp.feen.model.domain.calendar.Calendar;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
@@ -10,7 +10,7 @@ import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.model.dto.stream.attendance.JoinStreamDto;
 import com.fleencorp.feen.model.dto.stream.attendance.ProcessAttendeeRequestToJoinStreamDto;
-import com.fleencorp.feen.user.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

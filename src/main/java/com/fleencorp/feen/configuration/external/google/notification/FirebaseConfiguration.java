@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import java.io.IOException;
 import java.util.List;
 
-import static com.fleencorp.feen.constant.external.google.GoogleOauth2Scopes.CLOUD_MESSAGING;
-import static com.fleencorp.feen.constant.external.google.GoogleOauth2Scopes.CLOUD_PLATFORM;
+import static com.fleencorp.feen.oauth2.constant.external.GoogleOauth2Scopes.CLOUD_MESSAGING;
+import static com.fleencorp.feen.oauth2.constant.external.GoogleOauth2Scopes.CLOUD_PLATFORM;
 
 /**
  * The {@code FirebaseConfiguration} class is responsible for configuring Firebase services

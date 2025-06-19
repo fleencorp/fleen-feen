@@ -1,17 +1,17 @@
 package com.fleencorp.feen.mapper;
 
 import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.mfa.constant.MfaType;
+import com.fleencorp.feen.mfa.model.info.IsMfaEnabledInfo;
+import com.fleencorp.feen.mfa.model.info.MfaTypeInfo;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
-import com.fleencorp.feen.model.response.auth.SignInResponse;
-import com.fleencorp.feen.model.response.auth.SignUpResponse;
+import com.fleencorp.feen.model.response.authentication.SignInResponse;
+import com.fleencorp.feen.model.response.authentication.SignUpResponse;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.model.response.stream.attendance.ProcessAttendeeRequestToJoinStreamResponse;
-import com.fleencorp.feen.user.constant.mfa.MfaType;
-import com.fleencorp.feen.user.constant.verification.VerificationType;
-import com.fleencorp.feen.user.model.info.security.IsMfaEnabledInfo;
-import com.fleencorp.feen.user.model.info.security.MfaTypeInfo;
+import com.fleencorp.feen.verification.constant.VerificationType;
 
 public interface CommonMapper {
 

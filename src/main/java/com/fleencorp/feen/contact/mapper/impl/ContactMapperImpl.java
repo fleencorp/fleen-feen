@@ -1,13 +1,13 @@
 package com.fleencorp.feen.contact.mapper.impl;
 
-import com.fleencorp.feen.constant.user.IsEligibleForContactRequest;
 import com.fleencorp.feen.contact.constant.ContactType;
+import com.fleencorp.feen.contact.constant.IsEligibleForContactRequest;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;
+import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.contact.model.info.ContactTypeInfo;
 import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 

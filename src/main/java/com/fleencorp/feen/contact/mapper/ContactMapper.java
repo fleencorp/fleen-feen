@@ -1,8 +1,8 @@
 package com.fleencorp.feen.contact.mapper;
 
 import com.fleencorp.feen.contact.model.domain.Contact;
+import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.contact.model.response.base.ContactResponse;
-import com.fleencorp.feen.model.info.contact.ContactRequestEligibilityInfo;
 
 import java.util.List;
 

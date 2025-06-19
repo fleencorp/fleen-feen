@@ -1,8 +1,10 @@
 package com.fleencorp.feen.service.impl.stream.event;
 
+import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
+import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.request.calendar.event.*;
 import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;

@@ -1,29 +1,41 @@
 package com.fleencorp.feen.mapper.impl.info;
 
+import com.fleencorp.feen.block.user.constant.HasBlocked;
+import com.fleencorp.feen.block.user.constant.IsBlocked;
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
+import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
-import com.fleencorp.feen.constant.like.IsLiked;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
 import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.constant.user.IsBlocked;
-import com.fleencorp.feen.constant.user.follower.IsFollowed;
-import com.fleencorp.feen.constant.user.follower.IsFollowing;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
+import com.fleencorp.feen.follower.constant.IsFollowed;
+import com.fleencorp.feen.follower.constant.IsFollowing;
+import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
+import com.fleencorp.feen.like.constant.IsLiked;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
-import com.fleencorp.feen.model.info.like.UserLikeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.user.profile.*;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
+import com.fleencorp.feen.poll.constant.IsAnonymous;
+import com.fleencorp.feen.poll.constant.IsEnded;
+import com.fleencorp.feen.poll.constant.IsMultipleChoice;
+import com.fleencorp.feen.poll.constant.IsVoted;
+import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.info.*;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -209,6 +221,28 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   }
 
   /**
+   * Constructs a {@link HasBlockedInfo} object based on the blocking status and the name of the user who was blocked.
+   *
+   * <p>It uses the {@link HasBlocked} enum to determine message codes and translates them with the target user's name
+   * to produce user-friendly, localized messages about the block status.</p>
+   *
+   * @param blocked {@code true} if the current user has blocked the target user; {@code false} otherwise
+   * @param blockingUserName the full name of the user who was blocked
+   * @return a {@link HasBlockedInfo} object containing the block status and localized messages
+   */
+  @Override
+  public HasBlockedInfo toHasBlockedInfo(final boolean blocked, final String blockingUserName) {
+    final HasBlocked hasBlocked = HasBlocked.by(blocked);
+
+    return HasBlockedInfo.of(
+      blocked,
+      translate(hasBlocked.getMessageCode(), blockingUserName),
+      translate(hasBlocked.getMessageCode2(), blockingUserName),
+      translate(hasBlocked.getMessageCode3(), blockingUserName)
+    );
+  }
+
+  /**
    * Constructs an {@link IsFollowingInfo} object based on whether the current user is following the target user.
    *
    * <p>Uses the {@link IsFollowing} enum to determine the appropriate message codes, which are then translated into
@@ -316,5 +350,34 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
     final IsDeleted isDeleted = IsDeleted.by(deleted);
     return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
+  }
+
+  @Override
+  public PollVisibilityInfo toPollVisibilityInfo(final PollVisibility pollVisibility) {
+    return PollVisibilityInfo.of(pollVisibility, translate(pollVisibility.getLabelCode()), translate(pollVisibility.getMessageCode()));
+  }
+
+  @Override
+  public IsAnonymousInfo toIsAnonymousInfo(final boolean anonymous) {
+    final IsAnonymous isAnonymous = IsAnonymous.by(anonymous);
+    return IsAnonymousInfo.of(anonymous, translate(isAnonymous.getMessageCode()), translate(isAnonymous.getMessageCode2()));
+  }
+
+  @Override
+  public IsEndedInfo toIsEnded(final boolean ended) {
+    final IsEnded isEnded = IsEnded.by(ended);
+    return IsEndedInfo.of(ended, translate(isEnded.getMessageCode()), translate(isEnded.getMessageCode2()));
+  }
+
+  @Override
+  public IsMultipleChoiceInfo toIsMultipleChoiceInfo(final boolean multipleChoice) {
+    final IsMultipleChoice isMultipleChoice = IsMultipleChoice.by(multipleChoice);
+    return IsMultipleChoiceInfo.of(multipleChoice, translate(isMultipleChoice.getMessageCode()), translate(isMultipleChoice.getMessageCode2()));
+  }
+
+  @Override
+  public IsVotedInfo toIsVotedInfo(final boolean voted) {
+    final IsVoted isVoted = IsVoted.by(voted);
+    return IsVotedInfo.of(voted, translate(isVoted.getMessageCode()), translate(isVoted.getMessageCode2()));
   }
 }

@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.stream.event;
 
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
 
 public interface OtherEventUpdateService {
 

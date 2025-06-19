@@ -1,12 +1,12 @@
 package com.fleencorp.feen.controller.stream;
 
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.calendar.model.request.search.EventSearchRequest;
 import com.fleencorp.feen.constant.stream.StreamTimeType;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
-import com.fleencorp.feen.model.request.search.calendar.EventSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.model.request.search.stream.StreamSearchRequest;
 import com.fleencorp.feen.model.response.stream.base.RetrieveStreamResponse;
@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.search.stream.attendee.StreamAttendeeSearchResul
 import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

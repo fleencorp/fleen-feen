@@ -1,5 +1,6 @@
 package com.fleencorp.feen.service.impl.stream.common;
 
+import com.fleencorp.feen.like.service.LikeService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.domain.stream.StreamAttendee;
@@ -7,7 +8,6 @@ import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.service.like.LikeService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.common.CommonStreamOtherService;
 import com.fleencorp.feen.user.model.domain.Member;

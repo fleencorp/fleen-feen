@@ -2,7 +2,7 @@ package com.fleencorp.feen.user.model.dto.profile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.user.constant.verification.VerificationType;
+import com.fleencorp.feen.verification.constant.VerificationType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

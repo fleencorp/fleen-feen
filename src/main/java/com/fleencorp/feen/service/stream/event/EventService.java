@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.stream.event;
 
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.constant.stream.StreamVisibility;
 import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.calendar.CalendarNotFoundException;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;

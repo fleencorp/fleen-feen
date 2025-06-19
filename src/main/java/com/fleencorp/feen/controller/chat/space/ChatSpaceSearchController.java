@@ -15,7 +15,7 @@ import com.fleencorp.feen.model.search.join.RequestToJoinSearchResult;
 import com.fleencorp.feen.service.chat.space.ChatSpaceSearchService;
 import com.fleencorp.feen.service.chat.space.event.ChatSpaceEventService;
 import com.fleencorp.feen.service.chat.space.member.ChatSpaceMemberService;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

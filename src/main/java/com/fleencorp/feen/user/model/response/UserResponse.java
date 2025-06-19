@@ -3,8 +3,8 @@ package com.fleencorp.feen.user.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.user.profile.IsFollowedInfo;
-import com.fleencorp.feen.model.info.user.profile.IsFollowingInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,6 +46,15 @@ public class UserResponse {
   public static UserResponse of(final Long userId, final String username, final String fullName, final String profilePhotoUrl) {
     final UserResponse userResponse = new UserResponse();
     userResponse.setUserId(userId);
+    userResponse.setUsername(username);
+    userResponse.setFullName(fullName);
+    userResponse.setProfilePhotoUrl(profilePhotoUrl);
+
+    return userResponse;
+  }
+
+  public static UserResponse of(final String username, final String fullName, final String profilePhotoUrl) {
+    final UserResponse userResponse = new UserResponse();
     userResponse.setUsername(username);
     userResponse.setFullName(fullName);
     userResponse.setProfilePhotoUrl(profilePhotoUrl);

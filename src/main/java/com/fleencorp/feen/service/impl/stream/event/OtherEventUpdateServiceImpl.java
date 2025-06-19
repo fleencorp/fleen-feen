@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.impl.stream.event;
 
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
+import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.constant.base.ResultType;
 import com.fleencorp.feen.event.broadcast.BroadcastService;
 import com.fleencorp.feen.event.model.stream.EventStreamCreatedResult;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.request.calendar.event.AddNewEventAttendeeRequest;
-import com.fleencorp.feen.model.request.calendar.event.CreateCalendarEventRequest;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAddNewCalendarEventAttendeeResponse;
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleCreateCalendarEventResponse;
 import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;

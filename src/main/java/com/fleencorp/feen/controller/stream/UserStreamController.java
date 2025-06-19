@@ -20,7 +20,7 @@ import com.fleencorp.feen.service.stream.common.CommonStreamJoinService;
 import com.fleencorp.feen.service.stream.common.CommonStreamService;
 import com.fleencorp.feen.service.stream.event.EventOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
-import com.fleencorp.feen.user.exception.auth.InvalidAuthenticationException;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
