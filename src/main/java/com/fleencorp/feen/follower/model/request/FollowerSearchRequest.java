@@ -25,11 +25,13 @@ public class FollowerSearchRequest extends SearchRequest {
   private Member member;
 
   public Member getMember() {
-    return nonNull(member) ? member : Member.of(getMemberId());
+    return nonNull(getMemberId())
+      ? Member.of(getMemberId())
+      : nonNull(member) ? member : null;
   }
 
   protected Long getMemberId() {
-    return Long.valueOf(memberId);
+    return nonNull(memberId) ? Long.valueOf(memberId) : null;
   }
 
   public static FollowerSearchRequest of(final Member member) {
