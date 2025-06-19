@@ -7,7 +7,7 @@ import com.fleencorp.feen.block.user.model.dto.BlockUserDto;
 import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest;
 import com.fleencorp.feen.block.user.model.response.BlockUserResponse;
 import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
-import com.fleencorp.feen.block.user.model.search.BlockingUserSearchResult;
+import com.fleencorp.feen.block.user.model.search.BlockUserSearchResult;
 import com.fleencorp.feen.block.user.repository.BlockUserRepository;
 import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.constant.social.BlockStatus;
@@ -72,16 +72,16 @@ public class BlockUserServiceImpl implements BlockUserService {
    * @return a BlockingUserSearchResult containing the list of blocked users and pagination details
    */
   @Override
-  public BlockingUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final RegisteredUser user) {
+  public BlockUserSearchResult findBlockedUsers(final BlockUserSearchRequest searchRequest, final RegisteredUser user) {
     final Page<BlockUser> page = blockUserRepository.findByInitiatorAndBlockStatus(user.toMember(), BlockStatus.BLOCKED, searchRequest.getPage());
 
     final Collection<BlockUserResponse> blockUserResponse = blockUserMapper.toBlockUserResponse(page.getContent());
     // Create a search result
     final SearchResult searchResult = toSearchResult(blockUserResponse, page);
     // Create a search result with the responses and pagination details
-    final BlockingUserSearchResult blockingUserSearchResult = BlockingUserSearchResult.of(searchResult);
+    final BlockUserSearchResult blockUserSearchResult = BlockUserSearchResult.of(searchResult);
     // Return the search result
-    return localizer.of(blockingUserSearchResult);
+    return localizer.of(blockUserSearchResult);
   }
 
   /**
@@ -120,10 +120,10 @@ public class BlockUserServiceImpl implements BlockUserService {
    * @throws UserNotFoundException if the recipient user does not exist
    */
   protected BlockUser blockOrUnblock(final BlockUserDto blockUserDto, final Member initiator) {
-    final Member userToBeBlockedOrUnblocked = memberRepository.findById(blockUserDto.getRecipientId())
-      .orElseThrow(UserNotFoundException.of(blockUserDto.getRecipientId()));
+    final Member userToBeBlockedOrUnblocked = memberRepository.findById(blockUserDto.getUserId())
+      .orElseThrow(UserNotFoundException.of(blockUserDto.getUserId()));
 
-    final BlockStatus blockStatus = blockUserDto.getBlockStatus();
+    final BlockStatus blockStatus = blockUserDto.getStatus();
 
     return blockUserRepository.findByRecipient(userToBeBlockedOrUnblocked)
       .orElseGet(() -> BlockUser.of(initiator, userToBeBlockedOrUnblocked, blockStatus));

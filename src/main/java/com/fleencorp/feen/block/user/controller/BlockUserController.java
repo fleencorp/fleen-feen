@@ -4,7 +4,7 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.block.user.model.dto.BlockUserDto;
 import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest;
 import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
-import com.fleencorp.feen.block.user.model.search.BlockingUserSearchResult;
+import com.fleencorp.feen.block.user.model.search.BlockUserSearchResult;
 import com.fleencorp.feen.block.user.service.BlockUserService;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import jakarta.validation.Valid;
@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/api/blocking")
 @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR', 'USER')")
-public class BlockingController {
+public class BlockUserController {
 
   private final BlockUserService blockUserService;
 
-  public BlockingController(final BlockUserService blockUserService) {
+  public BlockUserController(final BlockUserService blockUserService) {
     this.blockUserService = blockUserService;
   }
 
   @GetMapping(value = "/find-block-users")
-  public BlockingUserSearchResult findBlockedUsers(
+  public BlockUserSearchResult findBlockedUsers(
       @SearchParam final BlockUserSearchRequest blockUserSearchRequest,
       @AuthenticationPrincipal final RegisteredUser user) {
     return blockUserService.findBlockedUsers(blockUserSearchRequest, user);

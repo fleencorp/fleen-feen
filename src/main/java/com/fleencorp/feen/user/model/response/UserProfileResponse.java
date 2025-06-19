@@ -3,6 +3,7 @@ package com.fleencorp.feen.user.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
@@ -35,6 +36,7 @@ import lombok.Setter;
   "following_search_result",
   "contact_request_eligibility_info",
   "is_blocked_info",
+  "has_blocked_info",
   "is_following_info",
   "is_followed_info",
   "total_following_info",
@@ -65,6 +67,9 @@ public class UserProfileResponse extends LocalizedResponse implements UserFollow
 
   @JsonProperty("is_blocked_info")
   private IsBlockedInfo isBlockedInfo;
+
+  @JsonProperty("has_blocked_info")
+  private HasBlockedInfo hasBlockedInfo;
 
   @JsonProperty("is_followed_info")
   private IsFollowedInfo isFollowedInfo;

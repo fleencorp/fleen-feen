@@ -21,7 +21,7 @@ import static java.util.Objects.nonNull;
   "message",
   "result"
 })
-public class BlockingUserSearchResult extends LocalizedResponse {
+public class BlockUserSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
   private SearchResult result;
@@ -31,7 +31,7 @@ public class BlockingUserSearchResult extends LocalizedResponse {
     return nonNull(result) && result.hasValue() ? "blocking.user.search" : "blocking.user.empty.search";
   }
 
-  public static BlockingUserSearchResult of(final SearchResult result) {
-    return new BlockingUserSearchResult(result);
+  public static BlockUserSearchResult of(final SearchResult result) {
+    return new BlockUserSearchResult(result);
   }
 }

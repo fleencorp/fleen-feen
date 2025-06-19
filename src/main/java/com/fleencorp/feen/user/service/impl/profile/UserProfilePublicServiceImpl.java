@@ -2,6 +2,7 @@ package com.fleencorp.feen.user.service.impl.profile;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.block.user.repository.BlockUserRepository;
 import com.fleencorp.feen.constant.chat.space.ChatSpaceRequestToJoinStatus;
@@ -176,16 +177,19 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     final String targetMemberFullName = nonNull(targetMember) ? targetMember.getFullName() : null;
 
     final boolean isBlocked = isBlockedByTargetUser(memberId, targetMemberId);
+    final boolean hasBlocked = hasBlockedTargetUser(memberId, targetMemberId);
     final boolean isFollowed = isFollowedByTargetUser(memberId, targetMemberId);
     final boolean isFollowing = isFollowingTargetUser(memberId, targetMemberId);
 
     final ContactRequestEligibilityInfo contactRequestEligibilityInfo = checkContactRequestEligibility(member, targetMember);
     final IsBlockedInfo isBlockedInfo = unifiedMapper.toIsBlockedInfo(isBlocked, targetMemberFullName);
+    final HasBlockedInfo hasBlockedInfo = unifiedMapper.toHasBlockedInfo(hasBlocked, targetMemberFullName);
     final IsFollowedInfo isFollowedInfo = unifiedMapper.toIsFollowedInfo(isFollowed, targetMemberFullName);
     final IsFollowingInfo isFollowingInfo = unifiedMapper.toIsFollowingInfo(isFollowing, targetMemberFullName);
 
     userProfileResponse.setContactRequestEligibilityInfo(contactRequestEligibilityInfo);
     userProfileResponse.setIsBlockedInfo(isBlockedInfo);
+    userProfileResponse.setHasBlockedInfo(hasBlockedInfo);
     userProfileResponse.setIsFollowedInfo(isFollowedInfo);
     userProfileResponse.setIsFollowingInfo(isFollowingInfo);
   }
@@ -302,6 +306,18 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    */
   protected boolean isBlockedByTargetUser(final Long userId, final Long targetUserId) {
     return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(targetUserId, userId).isPresent();
+  }
+
+  /**
+   * Checks if the user with the given ID has blocked the target user.
+   * Returns true if a block relationship from the user to the target exists.
+   *
+   * @param userId the ID of the user who may have blocked the target
+   * @param targetUserId the ID of the user to check
+   * @return true if the user has blocked the target, false otherwise
+   */
+  protected boolean hasBlockedTargetUser(final Long userId, final Long targetUserId) {
+    return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(userId, targetUserId).isPresent();
   }
 
   /**

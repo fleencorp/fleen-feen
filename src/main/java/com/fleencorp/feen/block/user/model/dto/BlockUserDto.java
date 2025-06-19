@@ -20,20 +20,20 @@ public class BlockUserDto {
 
   @NotNull(message = "{share.recipient.NotNull}")
   @IsNumber
-  @JsonProperty("recipient_id")
-  private String recipientId;
+  @JsonProperty("user_id")
+  private String userId;
 
   @NotNull(message = "{share.blockStatus.NotNull}")
   @OneOf(enumClass = BlockStatus.class, message = "{share.blockStatus.Type}", ignoreCase = true)
   @ToUpperCase
-  @JsonProperty("block_status")
-  private String blockStatus;
+  @JsonProperty("status")
+  private String status;
 
-  public BlockStatus getBlockStatus() {
-    return BlockStatus.of(blockStatus);
+  public BlockStatus getStatus() {
+    return BlockStatus.of(status);
   }
 
-  public Long getRecipientId() {
-    return Long.parseLong(recipientId);
+  public Long getUserId() {
+    return Long.parseLong(userId);
   }
 }
