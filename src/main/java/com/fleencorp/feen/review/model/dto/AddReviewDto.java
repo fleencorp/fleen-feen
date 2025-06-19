@@ -74,7 +74,7 @@ public class AddReviewDto {
 
   public Review toReview() {
     final Review newReview = new Review();
-    newReview.setReview(review);
+    newReview.setReviewText(review);
     newReview.setRating(getRating());
 
     return newReview;

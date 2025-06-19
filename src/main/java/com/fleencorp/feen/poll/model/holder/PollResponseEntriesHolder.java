@@ -3,9 +3,7 @@ package com.fleencorp.feen.poll.model.holder;
 import com.fleencorp.feen.poll.model.response.base.PollResponse;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -19,11 +17,11 @@ public record PollResponseEntriesHolder(Collection<PollResponse> pollResponses) 
    *
    * @return a list of non-null poll IDs
    */
-  public List<Long> getPollIds() {
+  public Collection<Long> getPollIds() {
     return pollResponses.stream()
       .map(PollResponse::getNumberId)
       .filter(Objects::nonNull)
-      .collect(Collectors.toList());
+      .toList();
   }
 
   public boolean hasPolls() {

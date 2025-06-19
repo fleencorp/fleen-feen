@@ -39,7 +39,7 @@ public class Review extends FleenFeenEntity {
   private Long reviewId;
 
   @Column(name = "review", nullable = false, length = 1000)
-  private String review;
+  private String reviewText;
 
   @Column(name = "parent_id", updatable = false)
   private Long parentId;
@@ -126,7 +126,7 @@ public class Review extends FleenFeenEntity {
    * @param rating the new rating value
    */
   public void update(final String review, final ReviewRating rating) {
-    this.review = review;
+    this.reviewText = review;
     this.rating = rating;
   }
 }

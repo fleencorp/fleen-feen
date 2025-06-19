@@ -147,7 +147,6 @@ public class PollServiceImpl implements PollService {
    * @param poll the poll to save
    * @return a {@link PollCreateResponse} containing the saved poll's data
    */
-  @Transactional
   protected PollCreateResponse saveAndGetPoll(final Poll poll) {
     pollOperationsService.save(poll);
 

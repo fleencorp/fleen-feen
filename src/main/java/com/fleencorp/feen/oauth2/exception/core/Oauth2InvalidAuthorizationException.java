@@ -2,6 +2,8 @@ package com.fleencorp.feen.oauth2.exception.core;
 
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.localizer.model.exception.LocalizedException;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Map;
 import java.util.function.Supplier;
@@ -10,6 +12,8 @@ import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.SERVICE_TYPE;
 
 public class Oauth2InvalidAuthorizationException extends LocalizedException {
 
+  @Getter
+  @Setter
   private Oauth2ServiceType oauth2ServiceType;
 
   @Override
@@ -43,7 +47,7 @@ public class Oauth2InvalidAuthorizationException extends LocalizedException {
    */
   public static Supplier<Oauth2InvalidAuthorizationException> of(final Oauth2ServiceType oauth2ServiceType) {
     final Oauth2InvalidAuthorizationException oauth2InvalidAuthorizationException = new Oauth2InvalidAuthorizationException();
-    oauth2InvalidAuthorizationException.oauth2ServiceType = oauth2ServiceType;
+    oauth2InvalidAuthorizationException.setOauth2ServiceType(oauth2ServiceType);
     return () -> oauth2InvalidAuthorizationException;
   }
 
@@ -62,7 +66,7 @@ public class Oauth2InvalidAuthorizationException extends LocalizedException {
    */
   public static Oauth2InvalidAuthorizationException ofDefault(final Oauth2ServiceType oauth2ServiceType) {
     final Oauth2InvalidAuthorizationException oauth2InvalidAuthorizationException = new Oauth2InvalidAuthorizationException();
-    oauth2InvalidAuthorizationException.oauth2ServiceType = oauth2ServiceType;
+    oauth2InvalidAuthorizationException.setOauth2ServiceType(oauth2ServiceType);
     return oauth2InvalidAuthorizationException;
   }
 
