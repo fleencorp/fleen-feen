@@ -259,8 +259,8 @@ public final class PollMapperImpl implements PollMapper {
    * @return a color string selected from the color palette
    */
   private static String colorForOption(final Long optionId) {
-    final int hash = Math.abs(optionId.hashCode());
-    return COLOR_PALETTE.get(hash % COLOR_PALETTE.size());
+    final int index = (int) (optionId % COLOR_PALETTE.size());
+    return COLOR_PALETTE.get(index);
   }
 
 }
