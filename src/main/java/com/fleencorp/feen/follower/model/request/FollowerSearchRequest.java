@@ -31,4 +31,11 @@ public class FollowerSearchRequest extends SearchRequest {
   protected Long getMemberId() {
     return Long.valueOf(memberId);
   }
+
+  public static FollowerSearchRequest of(final Member member) {
+    final FollowerSearchRequest followerSearchRequest = new FollowerSearchRequest();
+    followerSearchRequest.setMember(member);
+
+    return followerSearchRequest;
+  }
 }

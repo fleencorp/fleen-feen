@@ -14,6 +14,7 @@ import com.fleencorp.feen.contact.model.info.ContactRequestEligibilityInfo;
 import com.fleencorp.feen.contact.service.ContactService;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
+import com.fleencorp.feen.follower.model.request.FollowerSearchRequest;
 import com.fleencorp.feen.follower.model.search.FollowerSearchResult;
 import com.fleencorp.feen.follower.model.search.FollowingSearchResult;
 import com.fleencorp.feen.follower.repository.FollowerRepository;
@@ -273,11 +274,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @param userProfileResponse  the response object to populate with follower and following search results
    */
   protected void findAndSetFollowSearchResultDetails(final Member member, final UserProfileResponse userProfileResponse) {
-    final SearchRequest searchRequest = new SearchRequest();
-    final RegisteredUser user = RegisteredUser.of(member.getMemberId());
-
-    final FollowerSearchResult followerSearchResult = followerService.getFollowers(searchRequest, user);
-    final FollowingSearchResult followingSearchResult = followerService.getFollowings(searchRequest, user);
+    final FollowerSearchRequest searchRequest = FollowerSearchRequest.of(member);
+    final FollowerSearchResult followerSearchResult = followerService.getFollowers(searchRequest);
+    final FollowingSearchResult followingSearchResult = followerService.getFollowings(searchRequest);
 
     localizer.of(followerSearchResult);
     localizer.of(followingSearchResult);
