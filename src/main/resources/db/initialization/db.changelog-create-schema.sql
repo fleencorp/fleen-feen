@@ -785,7 +785,7 @@ CREATE TABLE poll (
   parent_type VARCHAR(255) NOT NULL
     CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
   visibility VARCHAR(255) NOT NULL
-    CHECK (parent_type IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
+    CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
   author_id BIGINT NOT NULL,
   stream_id BIGINT,
   chat_space_id BIGINT,

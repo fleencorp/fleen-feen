@@ -121,17 +121,18 @@ public class AddPollDto {
     poll.setAuthor(author);
 
 
-    final Collection<PollOption> pollOptions = toPollOptions();
+    final Collection<PollOption> pollOptions = toPollOptions(poll);
     poll.addOptions(pollOptions);
 
     return poll;
   }
 
-  protected Collection<PollOption> toPollOptions() {
+  protected Collection<PollOption> toPollOptions(final Poll poll) {
     final List<PollOption> pollOptions = new ArrayList<>();
 
     for (final PollOptionDto option : options) {
       final PollOption pollOption = new PollOption();
+      pollOption.setPoll(poll);
       pollOption.setPollOptionId(option.getPollOptionId());
       pollOption.setOptionText(option.getOptionText());
     }
@@ -151,6 +152,7 @@ public class AddPollDto {
 
     @Size(min = 1, max = 1000, message = "{poll.option.Size}")
     @Pattern(regexp = "\\S.*\\S", message = "{poll.option.Invalid}")
+    @JsonProperty("option_text")
     private String optionText;
 
     public Long getPollOptionId() {

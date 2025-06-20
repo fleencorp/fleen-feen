@@ -126,7 +126,7 @@ public class PollVoteServiceImpl implements PollVoteService {
     poll.setTotalEntries(pollVoteAggregateHolder.totalVotes());
     pollOperationsService.save(poll);
 
-    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), poll.getTotalEntries(), pollOptionResponses);
+    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), poll.getTotalEntries());
     return localizer.of(voteResponse);
   }
 
