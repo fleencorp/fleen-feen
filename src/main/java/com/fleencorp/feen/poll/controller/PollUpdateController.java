@@ -55,11 +55,11 @@ public class PollUpdateController {
   @PutMapping(value = "/update/{pollId}")
   public PollUpdateResponse updatePoll(
     @Parameter(description = "ID of the poll to update", required = true)
-    @PathVariable(name = "pollId") final Long pollId,
+      @PathVariable(name = "pollId") final Long pollId,
     @Parameter(description = "Updated poll details", required = true)
-    @Valid @RequestBody final UpdatePollDto updatePollDto,
+      @Valid @RequestBody final UpdatePollDto updatePollDto,
     @Parameter(hidden = true)
-    @AuthenticationPrincipal final RegisteredUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return pollUpdateService.updatePoll(pollId, updatePollDto, user);
   }
 }

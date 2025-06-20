@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
@@ -26,6 +27,7 @@ public class GetDataRequiredToCreatePoll extends LocalizedResponse {
   private Map<PollVisibility, PollVisibilityInfo> visibilityTypes;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "get.data.required.to.create.poll";
   }
