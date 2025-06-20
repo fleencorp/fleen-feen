@@ -46,6 +46,10 @@ public class BlockUser extends FleenFeenEntity {
   @Column(name = "block_status", nullable = false)
   private BlockStatus blockStatus = BlockStatus.BLOCKED;
 
+  public Long getBlockedMemberId() {
+    return nonNull(recipient) ? recipient.getMemberId() : null;
+  }
+
   public String getBlockedMemberName() {
     return nonNull(recipient) ? recipient.getFullName() : null;
   }

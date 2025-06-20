@@ -28,7 +28,7 @@ public class BlockUserSearchResult extends LocalizedResponse {
 
   @Override
   public String getMessageCode() {
-    return nonNull(result) && result.hasValue() ? "blocking.user.search" : "blocking.user.empty.search";
+    return nonNull(result) && result.hasValue() ? "block.user.search" : "block.user.empty.search";
   }
 
   public static BlockUserSearchResult of(final SearchResult result) {

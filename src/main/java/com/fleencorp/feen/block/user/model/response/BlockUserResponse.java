@@ -15,11 +15,15 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "user_id",
   "full_name",
   "username",
   "has_blocked_info"
 })
 public class BlockUserResponse {
+
+  @JsonProperty("user_id")
+  private Long userId;
 
   @JsonProperty("full_name")
   private String fullName;
@@ -30,7 +34,7 @@ public class BlockUserResponse {
   @JsonProperty("has_blocked_info")
   private HasBlockedInfo hasBlockedInfo;
 
-  public static BlockUserResponse of(final String fullName, final String username, final HasBlockedInfo hasBlockedInfo) {
-    return new BlockUserResponse(fullName, username, hasBlockedInfo);
+  public static BlockUserResponse of(final Long userId, final String fullName, final String username, final HasBlockedInfo hasBlockedInfo) {
+    return new BlockUserResponse(userId, fullName, username, hasBlockedInfo);
   }
 }

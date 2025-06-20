@@ -42,6 +42,7 @@ public class BlockUserMapperImpl extends BaseMapper implements BlockUserMapper {
       final HasBlockedInfo hasBlockedInfo = unifiedMapper.toHasBlockedInfo(entry.isBlocked(), entry.getBlockedMemberName());
 
       final BlockUserResponse response = new BlockUserResponse();
+      response.setUserId(entry.getBlockedMemberId());
       response.setFullName(entry.getBlockedMemberName());
       response.setUsername(entry.getBlockedMemberUsername());
       response.setHasBlockedInfo(hasBlockedInfo);

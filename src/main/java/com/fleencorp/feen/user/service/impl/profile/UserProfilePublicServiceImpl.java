@@ -2,6 +2,7 @@ package com.fleencorp.feen.user.service.impl.profile;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.block.user.model.domain.BlockUser;
 import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.block.user.repository.BlockUserRepository;
@@ -179,6 +180,8 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
 
     final boolean isBlocked = isBlockedByTargetUser(memberId, targetMemberId);
     final boolean hasBlocked = hasBlockedTargetUser(memberId, targetMemberId);
+
+    System.out.println("Did I block too ? " + hasBlocked);
     final boolean isFollowed = isFollowedByTargetUser(memberId, targetMemberId);
     final boolean isFollowing = isFollowingTargetUser(memberId, targetMemberId);
 
@@ -304,7 +307,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @return true if the user is blocked by the target, false otherwise
    */
   protected boolean isBlockedByTargetUser(final Long userId, final Long targetUserId) {
-    return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(targetUserId, userId).isPresent();
+    return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(targetUserId, userId)
+      .map(BlockUser::isBlocked)
+      .orElse(false);
   }
 
   /**
@@ -316,7 +321,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @return true if the user has blocked the target, false otherwise
    */
   protected boolean hasBlockedTargetUser(final Long userId, final Long targetUserId) {
-    return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(userId, targetUserId).isPresent();
+    return allNonNull(userId, targetUserId) && blockUserRepository.findByInitiatorIdAndRecipientId(userId, targetUserId)
+      .map(BlockUser::isBlocked)
+      .orElse(false);
   }
 
   /**
