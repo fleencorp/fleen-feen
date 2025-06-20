@@ -41,6 +41,13 @@ public class VotePollDto {
       .toList();
   }
 
+  public Collection<Long> getOptionIds() {
+    return pollOptions.stream()
+      .filter(Objects::nonNull)
+      .map(PollOptionIdDto::getPollOptionId)
+      .toList();
+  }
+
   public Collection<PollVote> toPollVotes(final Poll poll, final Member member) {
     final List<PollVote> votes = new ArrayList<>();
 

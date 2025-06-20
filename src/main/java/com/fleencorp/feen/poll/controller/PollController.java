@@ -7,8 +7,11 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
+import com.fleencorp.feen.poll.model.dto.DeletePollDto;
+import com.fleencorp.feen.poll.model.response.GetDataRequiredToCreatePoll;
 import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
+import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.poll.service.PollService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -28,11 +31,30 @@ import org.springframework.web.bind.annotation.*;
 @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class PollController {
 
+  private final PollSearchService pollSearchService;
   private final PollService pollService;
 
-  public PollController(final PollService pollService) {
+  public PollController(
+      final PollSearchService pollSearchService,
+      final PollService pollService) {
+    this.pollSearchService = pollSearchService;
     this.pollService = pollService;
   }
+
+
+  @Operation(summary = "Retrieve data to use in UI to create poll",
+    description = "Fetches the details to use to create poll.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved data to be able to create poll",
+      content = @Content(schema = @Schema(implementation = GetDataRequiredToCreatePoll.class))),
+    @ApiResponse(responseCode = "400", description = "Failed operation",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
+  @GetMapping(value = "/data-required-create")
+  public GetDataRequiredToCreatePoll getDataRequiredToCreatePoll() {
+    return pollSearchService.getDataRequiredToCreatePoll();
+  }
+
 
   @Operation(summary = "Create a new poll",
     description = "Creates a new poll with the provided details. Requires user authentication.")
@@ -51,6 +73,31 @@ public class PollController {
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
     return pollService.addPoll(addPollDto, user);
+  }
+
+  @Operation(summary = "Create a new poll for a chat space",
+    description = "Creates a new poll associated with a specific chat space. Requires user authentication and admin privileges for the chat space.")
+  @ApiResponses({
+    @ApiResponse(responseCode = "200", description = "Successfully created the chat space poll",
+      content = @Content(schema = @Schema(implementation = PollCreateResponse.class))),
+    @ApiResponse(responseCode = "404", description = "Member or chat space not found",
+      content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Chat Space not found",
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not an admin of the chat space",
+      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+    @ApiResponse(responseCode = "400", description = "Failed operation",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
+  })
+  @PostMapping(value = "/add/chat-space/{chatSpaceId}")
+  public PollCreateResponse chatSpaceAddPoll(
+    @Parameter(description = "ID of the chat space to associate the poll with", required = true)
+    @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
+    @Parameter(description = "Poll details for creation", required = true)
+    @Valid @RequestBody final AddPollDto addPollDto,
+    @Parameter(hidden = true)
+    @AuthenticationPrincipal final RegisteredUser user) {
+    return pollService.chatSpaceAddPoll(chatSpaceId, addPollDto, user);
   }
 
   @Operation(summary = "Create a new poll for a stream",
@@ -78,31 +125,6 @@ public class PollController {
     return pollService.streamAddPoll(streamId, addPollDto, user);
   }
 
-  @Operation(summary = "Create a new poll for a chat space",
-    description = "Creates a new poll associated with a specific chat space. Requires user authentication and admin privileges for the chat space.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully created the chat space poll",
-      content = @Content(schema = @Schema(implementation = PollCreateResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Member or chat space not found",
-      content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat Space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
-    @ApiResponse(responseCode = "403", description = "User is not an admin of the chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
-    @ApiResponse(responseCode = "400", description = "Failed operation",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
-  })
-  @PostMapping(value = "/add/chat-space/{chatSpaceId}")
-  public PollCreateResponse chatSpaceAddPoll(
-    @Parameter(description = "ID of the chat space to associate the poll with", required = true)
-      @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-    @Parameter(description = "Poll details for creation", required = true)
-      @Valid @RequestBody final AddPollDto addPollDto,
-    @Parameter(hidden = true)
-      @AuthenticationPrincipal final RegisteredUser user) {
-    return pollService.chatSpaceAddPoll(chatSpaceId, addPollDto, user);
-  }
-
   @Operation(summary = "Delete an existing poll",
     description = "Deletes an existing poll. Requires user authentication and appropriate permissions.")
   @ApiResponses({
@@ -113,13 +135,14 @@ public class PollController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @DeleteMapping(value = "/delete/{pollId}")
+  @PutMapping(value = "/delete/{pollId}")
   public PollDeleteResponse deletePoll(
     @Parameter(description = "ID of the poll to delete", required = true)
       @PathVariable(name = "pollId") final Long pollId,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
-    return pollService.deletePoll(pollId, user);
+    final DeletePollDto deletePollDto = DeletePollDto.of(pollId);
+    return pollService.deletePoll(deletePollDto, user);
   }
 
 }

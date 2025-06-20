@@ -12,6 +12,7 @@ import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.mapper.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
+import com.fleencorp.feen.poll.model.dto.DeletePollDto;
 import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
 import com.fleencorp.feen.poll.model.response.base.PollResponse;
@@ -162,14 +163,15 @@ public class PollServiceImpl implements PollService {
    * <p>The method retrieves the poll, verifies that the user has update permissions,
    * marks the poll as deleted, and returns a localized response indicating the deletion status.</p>
    *
-   * @param pollId the ID of the poll to delete
+   * @param deletePollDto the dto of the poll to delete
    * @param user the user requesting the deletion
    * @return a {@link PollDeleteResponse} indicating whether the poll was successfully deleted
    * @throws PollNotFoundException if the poll with the given ID does not exist
    */
   @Override
   @Transactional
-  public PollDeleteResponse deletePoll(final Long pollId, final RegisteredUser user) throws PollNotFoundException {
+  public PollDeleteResponse deletePoll(final DeletePollDto deletePollDto, final RegisteredUser user) throws PollNotFoundException {
+    final Long pollId = deletePollDto.getPollId();
     final Poll poll = pollCommonService.findPollById(pollId);
 
     pollCommonService.checkUpdatePermission(poll, user.toMember());

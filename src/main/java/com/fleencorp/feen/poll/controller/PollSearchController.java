@@ -4,7 +4,6 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.model.request.PollSearchRequest;
-import com.fleencorp.feen.poll.model.response.GetDataRequiredToCreatePoll;
 import com.fleencorp.feen.poll.model.response.PollRetrieveResponse;
 import com.fleencorp.feen.poll.model.search.ChatSpacePollSearchResult;
 import com.fleencorp.feen.poll.model.search.PollSearchResult;
@@ -33,19 +32,6 @@ public class PollSearchController {
     this.pollSearchService = pollSearchService;
   }
 
-  @Operation(summary = "Retrieve data to use in UI to create poll",
-    description = "Fetches the details to use to create poll.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved data to be able to create poll",
-      content = @Content(schema = @Schema(implementation = GetDataRequiredToCreatePoll.class))),
-    @ApiResponse(responseCode = "400", description = "Failed operation",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
-  })
-  @GetMapping(value = "/data-required-create-poll")
-  public GetDataRequiredToCreatePoll getDataRequiredToCreatePoll() {
-    return pollSearchService.getDataRequiredToCreatePoll();
-  }
-
   @Operation(summary = "Retrieve a specific poll",
     description = "Fetches the details of a poll by its ID.")
   @ApiResponses({
@@ -71,7 +57,7 @@ public class PollSearchController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @GetMapping(value = "/find-poll")
+  @GetMapping(value = "/find-polls")
   public PollSearchResult findPolls(
     @Parameter(description = "Search criteria for polls", required = true)
       @SearchParam final PollSearchRequest searchRequest,
@@ -88,7 +74,7 @@ public class PollSearchController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @GetMapping(value = "/find-chat-space-poll")
+  @GetMapping(value = "/find-chat-space-polls")
   public ChatSpacePollSearchResult findChatSpacePolls(
     @Parameter(description = "Search criteria for chat space polls", required = true)
       @SearchParam final PollSearchRequest searchRequest,
@@ -105,7 +91,7 @@ public class PollSearchController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @GetMapping(value = "/find-stream-poll")
+  @GetMapping(value = "/find-stream-polls")
   public StreamPollSearchResult findStreamPolls(
     @Parameter(description = "Search criteria for stream polls", required = true)
       @SearchParam final PollSearchRequest searchRequest,

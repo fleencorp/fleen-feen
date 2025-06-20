@@ -16,7 +16,6 @@ import com.fleencorp.feen.poll.model.holder.PollVoteAggregateHolder;
 import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
 import com.fleencorp.feen.poll.model.request.PollVoteSearchRequest;
 import com.fleencorp.feen.poll.model.response.base.PollOptionResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
 import com.fleencorp.feen.poll.model.response.base.PollVoteResponse;
 import com.fleencorp.feen.poll.model.search.PollVoteSearchResult;
 import com.fleencorp.feen.poll.service.PollCommonService;
@@ -127,10 +126,7 @@ public class PollVoteServiceImpl implements PollVoteService {
     poll.setTotalEntries(pollVoteAggregateHolder.totalVotes());
     pollOperationsService.save(poll);
 
-    // Map to response and include vote details
-    final PollResponse pollResponse = pollMapper.toPollResponse(poll);
-    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), pollResponse, poll.getTotalEntries(), pollOptionResponses);
-
+    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), poll.getTotalEntries(), pollOptionResponses);
     return localizer.of(voteResponse);
   }
 

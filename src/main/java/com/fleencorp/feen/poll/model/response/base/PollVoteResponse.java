@@ -63,10 +63,9 @@ public class PollVoteResponse extends LocalizedResponse {
     return pollVoteResponse;
   }
 
-  public static PollVoteResponse of(final Long pollId, final PollResponse poll, final Integer pollTotalEntries, final Collection<PollOptionResponse> pollOptions) {
+  public static PollVoteResponse of(final Long pollId, final Integer pollTotalEntries, final Collection<PollOptionResponse> pollOptions) {
     final PollVoteResponse pollVoteResponse = new PollVoteResponse();
     pollVoteResponse.setPollId(pollId);
-    pollVoteResponse.setPoll(poll);
     pollVoteResponse.setPollTotalEntries(pollTotalEntries);
     pollVoteResponse.setPollOptions(pollOptions);
 

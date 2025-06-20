@@ -26,6 +26,7 @@ import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
+import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,16 +48,19 @@ public class PollSearchServiceImpl implements PollSearchService {
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
   private final PollMapper pollMapper;
+  private final DefaultLocalizer defaultLocalizer;
   private final Localizer localizer;
 
   public PollSearchServiceImpl(
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
       final PollMapper pollMapper,
+      final DefaultLocalizer defaultLocalizer,
       final Localizer localizer) {
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
     this.pollMapper = pollMapper;
+    this.defaultLocalizer = defaultLocalizer;
     this.localizer = localizer;
   }
 
@@ -83,8 +87,8 @@ public class PollSearchServiceImpl implements PollSearchService {
             pv -> pv,
             pv -> PollVisibilityInfo.of(
               pv,
-              localizer.getMessage(pv.getLabelCode()),
-              localizer.getMessage(pv.getMessageCode())
+              defaultLocalizer.getMessage(pv.getLabelCode()),
+              defaultLocalizer.getMessage(pv.getMessageCode())
             ),
             (_, b) -> b,
             () -> new EnumMap<>(PollVisibility.class)
