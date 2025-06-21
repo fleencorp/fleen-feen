@@ -41,7 +41,6 @@ public class PollController {
     this.pollService = pollService;
   }
 
-
   @Operation(summary = "Retrieve data to use in UI to create poll",
     description = "Fetches the details to use to create poll.")
   @ApiResponses({

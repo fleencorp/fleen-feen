@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.form.PollFormField;
+import com.fleencorp.feen.poll.model.form.field.PollFormFieldGuide;
 import com.fleencorp.feen.poll.model.info.PollVisibilityInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
@@ -19,12 +21,16 @@ import java.util.Map;
 @AllArgsConstructor
 @JsonPropertyOrder({
   "message",
-  "visibility_types"
+  "visibility_types",
+  "form_fields_guide",
 })
 public class GetDataRequiredToCreatePoll extends LocalizedResponse {
 
   @JsonProperty("visibility_types")
   private Map<PollVisibility, PollVisibilityInfo> visibilityTypes;
+
+  @JsonProperty("form_fields_guide")
+  private Map<PollFormField, PollFormFieldGuide> formFieldsGuide;
 
   @Override
   @JsonIgnore
@@ -32,7 +38,7 @@ public class GetDataRequiredToCreatePoll extends LocalizedResponse {
     return "get.data.required.to.create.poll";
   }
 
-  public static GetDataRequiredToCreatePoll of(final Map<PollVisibility, PollVisibilityInfo> visibilityTypes) {
-    return new GetDataRequiredToCreatePoll(visibilityTypes);
+  public static GetDataRequiredToCreatePoll of(final Map<PollVisibility, PollVisibilityInfo> visibilityTypes, final Map<PollFormField, PollFormFieldGuide> formFieldsGuide) {
+    return new GetDataRequiredToCreatePoll(visibilityTypes, formFieldsGuide);
   }
 }

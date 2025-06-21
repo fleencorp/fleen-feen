@@ -7,6 +7,8 @@ import com.fleencorp.feen.poll.mapper.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.domain.PollVote;
+import com.fleencorp.feen.poll.model.form.PollFormField;
+import com.fleencorp.feen.poll.model.form.field.PollFormFieldGuide;
 import com.fleencorp.feen.poll.model.holder.PollResponseEntriesHolder;
 import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
 import com.fleencorp.feen.poll.model.info.IsVotedInfo;
@@ -96,7 +98,19 @@ public class PollSearchServiceImpl implements PollSearchService {
           Map::copyOf
         ));
 
-    final GetDataRequiredToCreatePoll getDataRequiredToCreatePoll = GetDataRequiredToCreatePoll.of(availablePollVisibilities);
+    final Map<PollFormField, PollFormFieldGuide> formFieldsGuide =
+      Stream.of(PollFormField.values())
+        .collect(Collectors.collectingAndThen(
+          Collectors.toMap(
+            guide -> guide,
+            guide -> PollFormFieldGuide.of(defaultLocalizer.getMessage(guide.getDescription())),
+            (_, b) -> b,
+            () -> new EnumMap<>(PollFormField.class)
+          ),
+          Map::copyOf
+        ));
+
+    final GetDataRequiredToCreatePoll getDataRequiredToCreatePoll = GetDataRequiredToCreatePoll.of(availablePollVisibilities, formFieldsGuide);
     return localizer.of(getDataRequiredToCreatePoll);
   }
 
