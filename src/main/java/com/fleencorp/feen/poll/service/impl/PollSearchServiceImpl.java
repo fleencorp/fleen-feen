@@ -103,7 +103,10 @@ public class PollSearchServiceImpl implements PollSearchService {
         .collect(Collectors.collectingAndThen(
           Collectors.toMap(
             guide -> guide,
-            guide -> PollFormFieldGuide.of(defaultLocalizer.getMessage(guide.getDescription())),
+            guide -> PollFormFieldGuide.of(
+              guide,
+              defaultLocalizer.getMessage(guide.getDescription())
+            ),
             (_, b) -> b,
             () -> new EnumMap<>(PollFormField.class)
           ),

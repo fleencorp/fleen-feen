@@ -6,12 +6,13 @@ import lombok.Getter;
 @Getter
 public enum PollFormField implements ApiParameter {
 
-  TITLE("poll.form.model.description.title"),
   DESCRIPTION("poll.form.model.description.description"),
-  OPTIONS("poll.form.model.description.options"),
-  IS_MULTIPLE_CHOICE("poll.form.model.description.isMultipleChoice"),
+  EXPIRES_AT("poll.form.model.description.expiresAt"),
   IS_ANONYMOUS("poll.form.model.description.isAnonymous"),
-  EXPIRES_AT("poll.form.model.description.expiresAt");
+  IS_MULTIPLE_CHOICE("poll.form.model.description.isMultipleChoice"),
+  OPTIONS("poll.form.model.description.options"),
+  TITLE("poll.form.model.description.title"),
+  VISIBILITY("poll.form.model.description.visibility");
 
   private final String value;
 

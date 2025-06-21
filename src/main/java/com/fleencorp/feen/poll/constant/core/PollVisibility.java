@@ -8,11 +8,11 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum PollVisibility implements ApiParameter {
 
-  STREAM_ATTENDEES_ONLY("poll.visibility.stream.attendees.label", "poll.visibility.stream.attendees.only"),
-  FOLLOWERS_ONLY("poll.visibility.followers.label", "poll.visibility.followers.only"),
   CHAT_SPACE_MEMBERS_ONLY("poll.visibility.chat.space.member.label", "poll.visibility.chat.space.members.only"),
+  FOLLOWERS_ONLY("poll.visibility.followers.label", "poll.visibility.followers.only"),
+  PRIVATE("poll.visibility.private.label", "poll.visibility.private.only"),
   PUBLIC("poll.visibility.public.label", "poll.visibility.public.only"),
-  PRIVATE("poll.visibility.private.label", "poll.visibility.private.only");
+  STREAM_ATTENDEES_ONLY("poll.visibility.stream.attendees.label", "poll.visibility.stream.attendees.only");
 
   private final String value;
   private final String messageCode;
