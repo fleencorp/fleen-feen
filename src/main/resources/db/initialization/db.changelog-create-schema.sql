@@ -697,7 +697,7 @@ CREATE TABLE link (
   chat_space_id BIGINT,
 
   link_parent_type VARCHAR(255)
-    NOT NULL CHECK (link_parent_type IN ('CHAT_SPACE', 'STREAM')),
+    NOT NULL CHECK (link_parent_type IN ('CHAT_SPACE', 'STREAM', 'USER')),
 
   link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
     'EMAIL',

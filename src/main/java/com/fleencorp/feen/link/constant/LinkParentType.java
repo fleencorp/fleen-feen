@@ -8,8 +8,9 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum LinkParentType implements ApiParameter {
 
+  CHAT_SPACE("Chat Space"),
   STREAM("Stream"),
-  CHAT_SPACE("Chat Space");
+  USER("User");
 
   private final String value;
 

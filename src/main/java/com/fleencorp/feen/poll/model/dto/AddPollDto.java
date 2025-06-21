@@ -121,13 +121,13 @@ public class AddPollDto {
     poll.setAuthor(author);
 
 
-    final Collection<PollOption> pollOptions = toPollOptions(poll);
+    final Collection<PollOption> pollOptions = toPollOptions();
     poll.addOptions(pollOptions);
 
     return poll;
   }
 
-  protected Collection<PollOption> toPollOptions(final Poll poll) {
+  protected Collection<PollOption> toPollOptions() {
     final List<PollOption> pollOptions = new ArrayList<>();
 
     for (final PollOptionDto option : options) {
@@ -135,6 +135,7 @@ public class AddPollDto {
       pollOption.setPoll(poll);
       pollOption.setPollOptionId(option.getPollOptionId());
       pollOption.setOptionText(option.getOptionText());
+      pollOptions.add(pollOption);
     }
 
     return pollOptions;
