@@ -20,7 +20,6 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
@@ -128,13 +127,10 @@ public class AddPollDto {
   }
 
   protected Collection<PollOption> toPollOptions() {
-    final List<PollOption> pollOptions = new ArrayList<>();
+    final Collection<PollOption> pollOptions = new ArrayList<>();
 
     for (final PollOptionDto option : options) {
-      final PollOption pollOption = new PollOption();
-      pollOption.setPoll(poll);
-      pollOption.setPollOptionId(option.getPollOptionId());
-      pollOption.setOptionText(option.getOptionText());
+      final PollOption pollOption = option.toPollOption();
       pollOptions.add(pollOption);
     }
 
@@ -158,6 +154,14 @@ public class AddPollDto {
 
     public Long getPollOptionId() {
       return nonNull(pollOptionId) ? Long.parseLong(pollOptionId) : null;
+    }
+
+    public PollOption toPollOption() {
+      final PollOption pollOption = new PollOption();
+      pollOption.setPollOptionId(getPollOptionId());
+      pollOption.setOptionText(getOptionText());
+
+      return pollOption;
     }
   }
 }
