@@ -14,7 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "poll_vote", uniqueConstraints = {
+@Table(name = "poll_option", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"poll_id", "member_id", "option_id"})
 })
 public class PollOption extends FleenFeenEntity {
