@@ -48,7 +48,6 @@ public final class PollMapperImpl implements PollMapper {
       response.setId(entry.getPollId());
       response.setQuestion(entry.getQuestion());
       response.setDescription(entry.getDescription());
-      response.setTotalEntries(entry.getTotalEntries());
 
       response.setExpiresAt(entry.getExpiresAt());
       response.setCreatedOn(entry.getCreatedOn());
@@ -70,10 +69,13 @@ public final class PollMapperImpl implements PollMapper {
 
       final Collection<PollOption> pollOptions = entry.getOptions();
       final PollOptionEntriesHolder pollOptionEntriesHolder = PollOptionEntriesHolder.from(pollOptions);
-      final Collection<PollOptionResponse> options = toPollOptionResponses(pollOptions, pollOptionEntriesHolder);
+      final Collection<PollOptionResponse> options = toPollOptionResponses(pollOptions, pollOptionEntriesHolder, new ArrayList<>());
       response.setPollOptions(options);
 
-      final PollVoteResponse pollVoteResponse = PollVoteResponse.of(isVotedInfo, pollOptionEntriesHolder.totalVotes());
+      final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = toInfoMapper.toTotalPollVoteEntriesInfo(pollOptionEntriesHolder.totalVotes());
+      response.setTotalPollVoteEntriesInfo(totalPollVoteEntriesInfo);
+
+      final PollVoteResponse pollVoteResponse = PollVoteResponse.of(isVotedInfo, totalPollVoteEntriesInfo);
       response.setPollVote(pollVoteResponse);
 
       final Member author = entry.getAuthor();
@@ -141,11 +143,12 @@ public final class PollMapperImpl implements PollMapper {
    * @return a collection of {@link PollOptionResponse} objects
    */
   @Override
-  public Collection<PollOptionResponse> toPollOptionResponses(final Collection<PollOption> entries) {
+  public Collection<PollOptionResponse> toVotedPollOptionResponses(final Collection<PollOption> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(this::toPollOptionResponse)
+        .peek(PollOptionResponse::markUserVoted)
         .toList();
     }
 
@@ -166,30 +169,48 @@ public final class PollMapperImpl implements PollMapper {
    * @return a collection of {@link PollOptionResponse} objects containing vote statistics
    */
   @Override
-  public Collection<PollOptionResponse> toPollOptionResponses(final Collection<PollOption> entries, final PollOptionEntriesHolder pollOptionEntriesHolder) {
-    final boolean isZeroTotal = pollOptionEntriesHolder.isZeroTotalVotes();
-    final int totalVotes = pollOptionEntriesHolder.totalVotes();
-    final String defaultColor = "#BDC3C7";
+  public Collection<PollOptionResponse> toPollOptionResponses(final Collection<PollOption> entries, final PollOptionEntriesHolder pollOptionEntriesHolder, final Collection<Long> votedPollOptionIds) {
 
     return Optional.ofNullable(entries)
       .orElseGet(Collections::emptyList)
       .stream()
       .filter(Objects::nonNull)
-      .map(option -> {
-        final Long optionId = option.getPollOptionId();
-        final Integer pollOptionTotalEntries = pollOptionEntriesHolder.pollOptionTotalEntries(optionId);
-
-        final PollStatResponse stat = isZeroTotal
-          ? PollStatResponse.of(defaultColor, 0.0)
-          : buildPollStat(pollOptionTotalEntries, totalVotes, optionId);
-
-        final PollOptionResponse response = toPollOptionResponse(option);
-        response.setVoteCount(pollOptionTotalEntries);
-        response.setStat(stat);
-
-        return response;
-      })
+      .map(option -> buildPollOptionResponse(pollOptionEntriesHolder, votedPollOptionIds, option))
       .toList();
+  }
+
+  /**
+   * Builds a {@link PollOptionResponse} DTO from a given {@link PollOption} entity, enriching it with
+   * vote count, user voting status, and computed statistics such as percentage of total votes and a color.
+   *
+   * <p>This method uses the vote data from the {@link PollOptionEntriesHolder} and checks if the user
+   * has voted for the given option using the {@code votedPollOptionIds}. If no votes have been cast at all,
+   * the statistics default to 0% with a predefined color.</p>
+   *
+   * @param pollOptionEntriesHolder holds vote-related data such as total votes and individual counts per option
+   * @param votedPollOptionIds the set of poll option IDs the current user has voted for
+   * @param option the poll option entity to convert
+   * @return a fully populated {@link PollOptionResponse} including vote count, statistics, and user vote status
+   */
+  private PollOptionResponse buildPollOptionResponse(final PollOptionEntriesHolder pollOptionEntriesHolder, final Collection<Long> votedPollOptionIds, final PollOption option) {
+    final boolean isZeroTotal = pollOptionEntriesHolder.isZeroTotalVotes();
+    final int totalVotes = pollOptionEntriesHolder.totalVotes();
+    final String defaultColor = "#BDC3C7";
+
+    final Long optionId = option.getPollOptionId();
+    final Integer pollOptionTotalEntries = pollOptionEntriesHolder.pollOptionTotalEntries(optionId);
+    final Boolean isOptionVoted = votedPollOptionIds.contains(optionId);
+
+    final PollStatResponse stat = isZeroTotal
+      ? PollStatResponse.of(defaultColor, 0.0)
+      : buildPollStat(pollOptionTotalEntries, totalVotes, optionId);
+
+    final PollOptionResponse response = toPollOptionResponse(option);
+    response.setVoteCount(pollOptionTotalEntries);
+    response.setStat(stat);
+    response.setUserVoted(isOptionVoted);
+
+    return response;
   }
 
   /**
@@ -228,6 +249,20 @@ public final class PollMapperImpl implements PollMapper {
   @Override
   public IsVotedInfo toIsVotedInfo(final boolean isVoted) {
     return toInfoMapper.toIsVotedInfo(isVoted);
+  }
+
+  /**
+   * Delegates the creation of a {@link TotalPollVoteEntriesInfo} object to {@code toInfoMapper}.
+   *
+   * <p>This method simply forwards the total vote count to the {@code toInfoMapper.toTotalPollVoteEntriesInfo}
+   * method, which is responsible for translating and constructing the response DTO.</p>
+   *
+   * @param pollVoteEntries the total number of votes recorded in the poll
+   * @return a {@link TotalPollVoteEntriesInfo} with the vote count and its localized messages
+   */
+  @Override
+  public TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(final Integer pollVoteEntries) {
+    return toInfoMapper.toTotalPollVoteEntriesInfo(pollVoteEntries);
   }
 
   /**

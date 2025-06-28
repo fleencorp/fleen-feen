@@ -63,4 +63,6 @@ public interface ToInfoMapper {
   IsMultipleChoiceInfo toIsMultipleChoiceInfo(boolean multipleChoice);
 
   IsVotedInfo toIsVotedInfo(boolean voted);
+
+  TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(Integer pollVoteEntries);
 }

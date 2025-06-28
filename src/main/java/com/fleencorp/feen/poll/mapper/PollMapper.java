@@ -5,6 +5,7 @@ import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
 import com.fleencorp.feen.poll.model.holder.PollResponseEntriesHolder;
 import com.fleencorp.feen.poll.model.info.IsVotedInfo;
+import com.fleencorp.feen.poll.model.info.TotalPollVoteEntriesInfo;
 import com.fleencorp.feen.poll.model.response.base.PollOptionResponse;
 import com.fleencorp.feen.poll.model.response.base.PollResponse;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -21,11 +22,13 @@ public interface PollMapper {
 
   PollOptionResponse toPollOptionResponse(PollOption option);
 
-  Collection<PollOptionResponse> toPollOptionResponses(Collection<PollOption> entries);
+  Collection<PollOptionResponse> toVotedPollOptionResponses(Collection<PollOption> entries);
 
-  Collection<PollOptionResponse> toPollOptionResponses(Collection<PollOption> entries, PollOptionEntriesHolder pollOptionEntriesHolder);
+  Collection<PollOptionResponse> toPollOptionResponses(Collection<PollOption> entries, PollOptionEntriesHolder pollOptionEntriesHolder, Collection<Long> votedPollOptionIds);
 
   Collection<UserResponse> toPollVoteResponses(Collection<Member> entries);
 
   IsVotedInfo toIsVotedInfo(boolean isVoted);
+
+  TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(Integer pollVoteEntries);
 }

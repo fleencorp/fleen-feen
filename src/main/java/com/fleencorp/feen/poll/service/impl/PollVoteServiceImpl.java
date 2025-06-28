@@ -3,10 +3,7 @@ package com.fleencorp.feen.poll.service.impl;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.poll.exception.option.PollOptionNotFoundException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNoMultipleChoiceException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollDeletedException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollEndedException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollNoOptionException;
+import com.fleencorp.feen.poll.exception.vote.*;
 import com.fleencorp.feen.poll.mapper.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollVote;
@@ -14,6 +11,8 @@ import com.fleencorp.feen.poll.model.dto.VotePollDto;
 import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
 import com.fleencorp.feen.poll.model.holder.PollVoteAggregateHolder;
 import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
+import com.fleencorp.feen.poll.model.info.IsVotedInfo;
+import com.fleencorp.feen.poll.model.info.TotalPollVoteEntriesInfo;
 import com.fleencorp.feen.poll.model.request.PollVoteSearchRequest;
 import com.fleencorp.feen.poll.model.response.base.PollOptionResponse;
 import com.fleencorp.feen.poll.model.response.base.PollVoteResponse;
@@ -27,6 +26,7 @@ import com.fleencorp.feen.user.model.response.UserResponse;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,6 +38,7 @@ import java.util.List;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Service
 public class PollVoteServiceImpl implements PollVoteService {
 
@@ -104,29 +105,33 @@ public class PollVoteServiceImpl implements PollVoteService {
   @Transactional
   public PollVoteResponse votePoll(final Long pollId, final VotePollDto votePollDto, final RegisteredUser user)
     throws MemberNotFoundException, PollNotFoundException, PollVotingNotAllowedPollDeletedException,
-    PollVotingNotAllowedPollEndedException, PollVotingNotAllowedPollNoOptionException, PollOptionNotFoundException,
-    PollVotingNoMultipleChoiceException {
+      PollVotingNotAllowedPollEndedException, PollVotingNotAllowedPollNoOptionException, PollOptionNotFoundException,
+      PollVotingNoMultipleChoiceException {
     final Member member = memberService.findMember(user.getId());
     final Collection<Long> votePollOptionIds = votePollDto.getOptionIds();
     final Poll poll = pollCommonService.findPollById(pollId);
 
     // Validate poll eligibility
     poll.validatePollForVote();
-    validatePoll(poll, votePollOptionIds, member);
+    validatePoll(poll, votePollOptionIds);
+    validateUserVoteEntries(poll, member);
     // Create and save new votes
     final Collection<PollVote> pollVotes = votePollDto.toPollVotes(poll, member);
 
     pollOperationsService.saveAll(pollVotes);
     pollOperationsService.incrementPollOptionTotalEntries(pollId, votePollOptionIds);
 
-    final PollOptionEntriesHolder pollOptionEntriesHolder = pollOperationsService.findOptionEntries(pollId, votePollOptionIds);
-    final Collection<PollOptionResponse> pollOptionResponses = pollMapper.toPollOptionResponses(poll.getOptions(), pollOptionEntriesHolder);
+    final PollOptionEntriesHolder pollOptionEntriesHolder = pollOperationsService.findOptionEntries(pollId, poll.getPollOptionIds());
+    final Collection<PollOptionResponse> pollOptionResponses = pollMapper.toPollOptionResponses(poll.getOptions(), pollOptionEntriesHolder, votePollOptionIds);
 
     final PollVoteAggregateHolder pollVoteAggregateHolder = pollOperationsService.findPollVoteAggregate(pollId);
     poll.setTotalEntries(pollVoteAggregateHolder.totalVotes());
     pollOperationsService.save(poll);
 
-    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), poll.getTotalEntries());
+    final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = pollMapper.toTotalPollVoteEntriesInfo(poll.getTotalEntries());
+
+    final IsVotedInfo isVotedInfo = pollMapper.toIsVotedInfo(true);
+    final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), totalPollVoteEntriesInfo, isVotedInfo, pollOptionResponses);
     return localizer.of(voteResponse);
   }
 
@@ -143,11 +148,31 @@ public class PollVoteServiceImpl implements PollVoteService {
    * @throws PollOptionNotFoundException if any of the selected option IDs are invalid
    * @throws PollVotingNoMultipleChoiceException if multiple options are selected in a single-choice poll
    */
-  protected void validatePoll(final Poll poll, final Collection<Long> votePollOptionIds, final Member member) {
+  protected void validatePoll(final Poll poll, final Collection<Long> votePollOptionIds) {
     final Collection<Long> existingPollOptionIds = poll.getPollOptionIds();
     validatePollOptions(existingPollOptionIds, votePollOptionIds);
     validateMultipleChoice(poll, votePollOptionIds);
-    discardPreviousVotesAndEntries(poll, member);
+  }
+
+  /**
+   * Validates and prepares the voting state for the given {@link Member} on the specified {@link Poll}.
+   *
+   * <p>This method first retrieves any existing vote entries associated with the member for the given poll.
+   * It then checks if the user has already voted using {@code ensureUserHasNotAlreadyVoted}, which throws
+   * an exception if any prior votes exist. If no exception is thrown, it proceeds to discard any previous
+   * votes and decrement associated counts using {@code discardPreviousVotesAndEntries}.</p>
+   *
+   * <p>This method should be used when the voting logic requires a clean state before accepting a new vote,
+   * but still enforces a "vote only once" policy.</p>
+   *
+   * @param poll the poll in which the user is attempting to vote
+   * @param member the member attempting to vote
+   * @throws PollVotingAlreadyVotedException if the member has already voted in the poll
+   */
+  protected void validateUserVoteEntries(final Poll poll, final Member member) {
+    final PollVoteEntriesHolder pollVoteEntriesHolder = pollOperationsService.findVotesByPollIdAndMemberId(poll.getPollId(), member.getMemberId());
+    ensureUserHasNotAlreadyVoted(poll.getPollId(), member.getMemberId());
+    discardPreviousVotesAndEntries(poll, member, pollVoteEntriesHolder);
   }
 
   /**
@@ -196,17 +221,38 @@ public class PollVoteServiceImpl implements PollVoteService {
    *
    * @param poll the poll for which previous votes should be discarded
    * @param member the member whose previous votes are to be removed
+   * @param pollVoteEntriesHolder the record containing the user votes for the poll
    */
-  protected void discardPreviousVotesAndEntries(final Poll poll, final Member member) {
-    final PollVoteEntriesHolder pollVoteEntriesHolder = pollOperationsService.findVotesByPollIdAndMemberId(poll.getPollId(), member.getMemberId());
-
+  protected void discardPreviousVotesAndEntries(final Poll poll, final Member member, final PollVoteEntriesHolder pollVoteEntriesHolder) {
     if (pollVoteEntriesHolder.hasVotes()) {
+      log.info("Did not discard previous votes?????");
       // Decrement totalEntries for previously voted options
       final Collection<Long> previousOptionIds = pollVoteEntriesHolder.getPollVoteIds();
 
       pollOperationsService.decrementPollOptionTotalEntries(poll.getPollId(), previousOptionIds);
       // Delete the previous votes
       pollOperationsService.deleteVoteByPollIdAndMemberId(poll.getPollId(), member.getMemberId());
+    }
+  }
+
+  /**
+   * Ensures that the given member has not already voted in the specified poll.
+   *
+   * <p>This method queries for any existing vote entries by the member in the poll.
+   * If any votes are found, it throws an {@link IllegalStateException} to prevent
+   * duplicate voting.</p>
+   *
+   * <p>This check is typically used in single-vote enforcement scenarios where a user
+   * is allowed to vote only once per poll.</p>
+   *
+   * @param pollId the ID of the poll to check
+   * @param memberId the ID of the member attempting to vote
+   * @throws IllegalStateException if the member has already voted in the poll
+   */
+  protected void ensureUserHasNotAlreadyVoted(final Long pollId, final Long memberId) {
+    final PollVoteEntriesHolder existingVotes = pollOperationsService.findVotesByPollIdAndMemberId(pollId, memberId);
+    if (existingVotes.hasVotes()) {
+      throw PollVotingAlreadyVotedException.of();
     }
   }
 

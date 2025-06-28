@@ -28,17 +28,17 @@ public interface PollVoteRepository extends JpaRepository<PollVote, Long> {
 
   @Query(value =
     """
-    SELECT po.pollOptionId AS optionId,
-           po.optionText AS optionText,
-           COUNT(pv.pollVoteId) AS voteCount,
+    SELECT po.poll_option_id AS optionId,
+           po.option_text AS optionText,
+           COUNT(pv.vote_id) AS voteCount,
            (SELECT COUNT(*)
-             FROM PollVote pv2
-             WHERE pv2.pollId = :pollId) AS totalVotes
-    FROM PollOption po
-    LEFT JOIN PollVote pv ON po.pollOptionId = pv.pollOptionId
-    WHERE po.pollId = :pollId
-    GROUP BY po.pollOptionId, po.optionText
-    """)
+             FROM poll_vote pv2
+             WHERE pv2.poll_id = :pollId) AS totalVotes
+    FROM poll_option po
+    LEFT JOIN poll_vote pv ON po.poll_option_id = pv.option_id
+    WHERE po.poll_id = :pollId
+    GROUP BY po.poll_option_id, po.option_text
+    """, nativeQuery = true)
   List<PollVoteAggregate> findVoteAggregatesByPollId(@Param("pollId") Long pollId);
 
 }

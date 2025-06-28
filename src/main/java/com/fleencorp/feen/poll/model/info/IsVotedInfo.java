@@ -16,7 +16,9 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "voted",
   "voted_text",
-  "voted_other_text"
+  "voted_text_2",
+  "voted_text_3",
+  "voted_text_4"
 })
 public class IsVotedInfo {
 
@@ -26,10 +28,16 @@ public class IsVotedInfo {
   @JsonProperty("voted_text")
   private String votedText;
 
-  @JsonProperty("voted_other_text")
-  private String votedOtherText;
+  @JsonProperty("voted_text_2")
+  private String votedText2;
 
-  public static IsVotedInfo of(final Boolean voted, final String votedText, final String votedOtherText) {
-    return new IsVotedInfo(voted, votedText, votedOtherText);
+  @JsonProperty("voted_text_3")
+  private String votedText3;
+
+  @JsonProperty("voted_text_4")
+  private String votedText4;
+
+  public static IsVotedInfo of(final Boolean voted, final String votedText, final String votedText2, final String votedText3, final String votedText4) {
+    return new IsVotedInfo(voted, votedText, votedText2, votedText3, votedText4);
   }
 }

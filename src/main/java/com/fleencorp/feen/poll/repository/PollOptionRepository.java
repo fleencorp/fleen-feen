@@ -34,7 +34,7 @@ public interface PollOptionRepository extends JpaRepository<PollOption, Long> {
   """
     SELECT new com.fleencorp.feen.poll.model.projection.PollOptionEntry(po.pollOptionId, po.voteCount)
     FROM PollOption po
-    WHERE po.pollId = :pollId AND po.pollOptionId IN :optionIds
+    WHERE po.pollId = :pollId AND po.pollOptionId IN (:optionIds)
     """)
   List<PollOptionEntry> findOptionEntries(@Param("pollId") Long pollId, @Param("optionIds") Collection<Long> optionIds);
 }

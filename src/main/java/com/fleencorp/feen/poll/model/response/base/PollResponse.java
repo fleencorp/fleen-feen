@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
-import com.fleencorp.feen.poll.model.info.IsAnonymousInfo;
-import com.fleencorp.feen.poll.model.info.IsEndedInfo;
-import com.fleencorp.feen.poll.model.info.IsMultipleChoiceInfo;
-import com.fleencorp.feen.poll.model.info.PollVisibilityInfo;
+import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +31,7 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "poll_visibility_info",
   "expires_at",
   "total_entries",
+  "total_vote_entries_info",
   "is_multiple_choice_info",
   "is_anonymous_info",
   "is_ended_info",
@@ -65,8 +63,8 @@ public class PollResponse extends FleenFeenResponse {
   @JsonProperty("is_ended_info")
   private IsEndedInfo isEndedInfo;
 
-  @JsonProperty("total_entries")
-  private Integer totalEntries;
+  @JsonProperty("total_vote_entries_info")
+  private TotalPollVoteEntriesInfo totalPollVoteEntriesInfo;
 
   @JsonProperty("poll_options")
   private Collection<PollOptionResponse> pollOptions = new ArrayList<>();

@@ -15,9 +15,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "option_text",
   "vote_count",
-  "stat"
+  "stat",
+  "user_voted"
 })
 public class PollOptionResponse extends FleenFeenResponse {
 
@@ -29,4 +31,11 @@ public class PollOptionResponse extends FleenFeenResponse {
 
   @JsonProperty("stat")
   private PollStatResponse stat;
+
+  @JsonProperty("user_voted")
+  private Boolean userVoted = false;
+
+  public void markUserVoted() {
+    userVoted = true;
+  }
 }

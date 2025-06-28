@@ -74,7 +74,7 @@ public class VotePollDto {
 
     @NotNull(message = "{poll.vote.option.NotNull}")
     @IsNumber
-    @JsonProperty("poll_option_id")
+    @JsonProperty("option_id")
     private String pollOptionId;
 
     public Long getPollOptionId() {

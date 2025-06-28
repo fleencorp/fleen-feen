@@ -24,8 +24,8 @@ public record PollResponseEntriesHolder(Collection<PollResponse> pollResponses) 
       .toList();
   }
 
-  public boolean hasPolls() {
-    return nonNull(pollResponses) && !pollResponses.isEmpty();
+  public boolean hasNoPolls() {
+    return nonNull(pollResponses) && pollResponses.isEmpty();
   }
 
   public static PollResponseEntriesHolder of(final Collection<PollResponse> pollResponses) {

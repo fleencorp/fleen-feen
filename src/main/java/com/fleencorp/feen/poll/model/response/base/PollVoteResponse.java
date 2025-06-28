@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.poll.model.info.IsVotedInfo;
+import com.fleencorp.feen.poll.model.info.TotalPollVoteEntriesInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.util.Collection;
   "message",
   "poll_id",
   "poll",
-  "poll_total_entries",
+  "total_vote_entries_info",
   "poll_options"
 })
 public class PollVoteResponse extends LocalizedResponse {
@@ -36,8 +37,8 @@ public class PollVoteResponse extends LocalizedResponse {
   @JsonProperty("vote_info")
   private IsVotedInfo isVotedInfo;
 
-  @JsonProperty("poll_total_entries")
-  private Integer pollTotalEntries;
+  @JsonProperty("total_vote_entries_info")
+  private TotalPollVoteEntriesInfo totalPollVoteEntriesInfo;
 
   @JsonProperty("poll_options")
   private Collection<PollOptionResponse> pollOptions = new ArrayList<>();
@@ -47,10 +48,10 @@ public class PollVoteResponse extends LocalizedResponse {
     return "poll.vote";
   }
 
-  public static PollVoteResponse of(final IsVotedInfo isVotedInfo, final Integer pollTotalEntries) {
+  public static PollVoteResponse of(final IsVotedInfo isVotedInfo, final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo) {
     final PollVoteResponse voteResponse = new PollVoteResponse();
     voteResponse.setIsVotedInfo(isVotedInfo);
-    voteResponse.setPollTotalEntries(pollTotalEntries);
+    voteResponse.setTotalPollVoteEntriesInfo(totalPollVoteEntriesInfo);
 
     return voteResponse;
   }
@@ -63,10 +64,12 @@ public class PollVoteResponse extends LocalizedResponse {
     return pollVoteResponse;
   }
 
-  public static PollVoteResponse of(final Long pollId, final Integer pollTotalEntries) {
+  public static PollVoteResponse of(final Long pollId, final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo, final IsVotedInfo isVotedInfo, final Collection<PollOptionResponse> pollOptions) {
     final PollVoteResponse pollVoteResponse = new PollVoteResponse();
     pollVoteResponse.setPollId(pollId);
-    pollVoteResponse.setPollTotalEntries(pollTotalEntries);
+    pollVoteResponse.setTotalPollVoteEntriesInfo(totalPollVoteEntriesInfo);
+    pollVoteResponse.setIsVotedInfo(isVotedInfo);
+    pollVoteResponse.setPollOptions(pollOptions);
 
     return pollVoteResponse;
   }

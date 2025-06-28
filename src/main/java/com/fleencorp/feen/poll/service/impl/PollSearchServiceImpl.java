@@ -29,6 +29,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,7 @@ import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Service
 public class PollSearchServiceImpl implements PollSearchService {
 
@@ -270,7 +272,7 @@ public class PollSearchServiceImpl implements PollSearchService {
    * @param member the member whose voting details should be applied
    */
   protected void processPollOtherDetails(final PollResponseEntriesHolder pollResponseEntriesHolder, final Member member) {
-    if (isNull(member) || pollResponseEntriesHolder.hasPolls()) {
+    if (isNull(member) || pollResponseEntriesHolder.hasNoPolls()) {
       return;
     }
 
@@ -322,7 +324,7 @@ public class PollSearchServiceImpl implements PollSearchService {
       .map(PollVote::getPollOption)
       .toList();
 
-    final Collection<PollOptionResponse> optionResponses = pollMapper.toPollOptionResponses(pollOptions);
+    final Collection<PollOptionResponse> optionResponses = pollMapper.toVotedPollOptionResponses(pollOptions);
 
     final boolean isVoted = !votes.isEmpty();
     final IsVotedInfo isVotedInfo = pollMapper.toIsVotedInfo(isVoted);

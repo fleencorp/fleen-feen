@@ -4,10 +4,7 @@ import com.fleencorp.feen.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.poll.exception.option.PollOptionNotFoundException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNoMultipleChoiceException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollDeletedException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollEndedException;
-import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollNoOptionException;
+import com.fleencorp.feen.poll.exception.vote.*;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
 import com.fleencorp.localizer.service.ErrorLocalizer;
@@ -34,6 +31,7 @@ public class PollExceptionHandler {
     PollUpdateCantChangeQuestionException.class,
     PollUpdateCantChangeVisibilityException.class,
     PollUpdateUnauthorizedException.class,
+    PollVotingAlreadyVotedException.class,
     PollVotingNoMultipleChoiceException.class,
     PollVotingNotAllowedPollDeletedException.class,
     PollVotingNotAllowedPollDeletedException.class,

@@ -7,11 +7,11 @@ import java.util.List;
 public record PollVoteAggregateHolder(List<PollVoteAggregate> pollVotesAggregates) {
 
   public boolean hasVotes() {
-    return !pollVotesAggregates.isEmpty() && pollVotesAggregates.getFirst().totalVotes() > 0;
+    return !pollVotesAggregates.isEmpty() && pollVotesAggregates.getFirst().getTotalVotes() > 0;
   }
 
   public Integer totalVotes() {
-    return (int) (pollVotesAggregates.isEmpty() ? 0L : pollVotesAggregates.getFirst().totalVotes());
+    return (int) (pollVotesAggregates.isEmpty() ? 0L : pollVotesAggregates.getFirst().getTotalVotes());
   }
 
   public static PollVoteAggregateHolder of(final List<PollVoteAggregate> pollVotesAggregates) {

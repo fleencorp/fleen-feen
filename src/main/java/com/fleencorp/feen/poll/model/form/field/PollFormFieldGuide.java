@@ -29,7 +29,7 @@ public class PollFormFieldGuide {
 
   private String description;
 
-  public static PollFormFieldGuide of(PollFormField pollFormField, String description) {
+  public static PollFormFieldGuide of(final PollFormField pollFormField, final String description) {
     return new PollFormFieldGuide(pollFormField, description);
   }
 }
