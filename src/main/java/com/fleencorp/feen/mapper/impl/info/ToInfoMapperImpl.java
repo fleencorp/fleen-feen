@@ -445,9 +445,9 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   public TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(final Integer pollVoteEntries) {
     final TotalVoteEntries totalVoteEntries = TotalVoteEntries.totalVoteEntries();
     return TotalPollVoteEntriesInfo.of(pollVoteEntries,
-      translate(totalVoteEntries.getMessageCode()),
-      translate(totalVoteEntries.getMessageCode2()),
-      translate(totalVoteEntries.getMessageCode3())
+      translate(totalVoteEntries.getMessageCode(), pollVoteEntries),
+      translate(totalVoteEntries.getMessageCode2(), pollVoteEntries),
+      translate(totalVoteEntries.getMessageCode3(), pollVoteEntries)
     );
   }
 }
