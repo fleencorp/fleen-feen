@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -46,11 +47,14 @@ public class AddPollDto {
   @JsonProperty("options")
   private Collection<PollOptionDto> options = new ArrayList<>();
 
-  @NotNull(message = "{user.visibility.NotNull}")
-  @OneOf(enumClass = PollVisibility.class, message = "{user.visibility.Type}", ignoreCase = true)
+  @NotNull(message = "{poll.visibility.NotNull}")
+  @OneOf(enumClass = PollVisibility.class, message = "{poll.visibility.Type}", ignoreCase = true)
   @ToUpperCase
   @JsonProperty("visibility")
   private String visibility;
+
+  @JsonProperty("parent")
+  private PollParentDto parent;
 
   @NotNull(message = "{poll.multipleChoice.NotNull}")
   @ValidBoolean
@@ -84,31 +88,34 @@ public class AddPollDto {
     return PollVisibility.of(visibility);
   }
 
-  public Poll toChatSpacePoll(final ChatSpace chatSpace, final Member member) {
-    final Poll poll = toPoll(member);
-    poll.setPollParentType(PollParentType.CHAT_SPACE);
-
-    poll.setParentId(chatSpace.getChatSpaceId());
-    poll.setParentTitle(chatSpace.getTitle());
-    poll.setChatSpace(chatSpace);
-    poll.setChatSpaceId(chatSpace.getChatSpaceId());
-
-    return poll;
+  public boolean hasParent() {
+    return nonNull(parent) && nonNull(parent.getParentId()) && nonNull(parent.getParentType());
   }
 
-  public Poll toStreamPoll(final FleenStream stream, final Member member) {
-    final Poll poll = toPoll(member);
-    poll.setPollParentType(PollParentType.STREAM);
-
-    poll.setParentId(stream.getStreamId());
-    poll.setParentTitle(stream.getTitle());
-    poll.setStream(stream);
-    poll.setStreamId(stream.getStreamId());
-
-    return poll;
+  public boolean hasNoParent() {
+    return isNull(parent);
   }
 
-  public Poll toPoll(final Member author) {
+  public Long getParentId() {
+    return nonNull(parent) ? parent.getParentId() : null;
+  }
+
+  public PollParentType getParentType() {
+    return hasParent() ? parent.getParentType() : null;
+  }
+
+  public boolean isChatSpaceParent() {
+    return hasParent() && parent.isChatSpaceParent();
+  }
+
+  public boolean isStreamParent() {
+    return hasParent() && parent.isStreamParent();
+  }
+
+  public Poll toPoll(final Member author, final String title, final ChatSpace chatSpace, final FleenStream stream) {
+    final Long parentId = hasParent() ? getParentId() : null;
+    final PollParentType parentType = hasParent() ? getParentType() : null;
+
     final Poll poll = new Poll();
     poll.setQuestion(question);
     poll.setDescription(description);
@@ -118,6 +125,15 @@ public class AddPollDto {
     poll.setVisibility(getVisibility());
     poll.setAuthorId(author.getMemberId());
     poll.setAuthor(author);
+    poll.setParentId(parentId);
+    poll.setPollParentType(parentType);
+    poll.setParentTitle(title);
+
+    poll.setChatSpace(chatSpace);
+    poll.setChatSpaceId(parentId);
+
+    poll.setStream(stream);
+    poll.setStreamId(parentId);
 
 
     final Collection<PollOption> pollOptions = toPollOptions();
@@ -162,6 +178,41 @@ public class AddPollDto {
       pollOption.setOptionText(getOptionText());
 
       return pollOption;
+    }
+  }
+
+  @Getter
+  @Setter
+  @NoArgsConstructor
+  public static class PollParentDto {
+
+    @IsNumber(message = "{poll.parentId.IsNumber}")
+    @JsonProperty("parent_id")
+    private String parentId;
+
+    @OneOf(enumClass = PollParentType.class, message = "{poll.parentType.Type}", ignoreCase = true)
+    @ToUpperCase
+    @JsonProperty("parent_type")
+    private String parentType;
+
+    public Long getParentId() {
+      return nonNull(parentId) ? Long.parseLong(parentId) : null;
+    }
+
+    public PollParentType getParentType() {
+      return PollParentType.of(parentType);
+    }
+
+    public boolean isStreamParent() {
+      return PollParentType.isStream(getParentType());
+    }
+
+    public boolean isChatSpaceParent() {
+      return PollParentType.isChatSpace(getParentType());
+    }
+
+    public static PollParentDto of() {
+      return new PollParentDto();
     }
   }
 }

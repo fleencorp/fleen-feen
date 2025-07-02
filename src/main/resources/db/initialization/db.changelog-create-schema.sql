@@ -350,7 +350,7 @@ CREATE TABLE review (
 
   stream_id BIGINT NULL,
   chat_space_id BIGINT NULL,
-  member_id BIGINT NOT NULL,
+  author_id BIGINT NOT NULL,
   like_count INT DEFAULT 0 NOT NULL,
 
   parent_type VARCHAR(255)
@@ -359,8 +359,8 @@ CREATE TABLE review (
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT review_fk_member_id
-    FOREIGN KEY (member_id)
+  CONSTRAINT review_fk_author_id
+    FOREIGN KEY (author_id)
       REFERENCES member (member_id)
         ON DELETE SET NULL,
   CONSTRAINT review_fk_stream_id

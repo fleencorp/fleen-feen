@@ -3,6 +3,7 @@ package com.fleencorp.feen.poll.model.holder;
 import com.fleencorp.feen.poll.model.response.base.PollResponse;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -29,6 +30,11 @@ public record PollResponseEntriesHolder(Collection<PollResponse> pollResponses) 
   }
 
   public static PollResponseEntriesHolder of(final Collection<PollResponse> pollResponses) {
+    return new PollResponseEntriesHolder(pollResponses);
+  }
+
+  public static PollResponseEntriesHolder of(final PollResponse pollResponse) {
+    final Collection<PollResponse> pollResponses = Collections.singletonList(pollResponse);
     return new PollResponseEntriesHolder(pollResponses);
   }
 }

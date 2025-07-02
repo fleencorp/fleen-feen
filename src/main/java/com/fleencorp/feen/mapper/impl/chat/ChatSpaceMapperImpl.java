@@ -18,6 +18,7 @@ import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.*;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.chat.space.base.ChatSpaceResponse;
 import org.springframework.context.MessageSource;
@@ -92,7 +93,6 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       response.setTags(entry.getTags());
       response.setGuidelinesOrRules(entry.getGuidelinesOrRules());
       response.setTotalMembers(entry.getTotalMembers());
-      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());
@@ -116,6 +116,9 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
       final JoinStatus joinStatus = JoinStatus.byChatSpaceStatus(entry.isPrivate());
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
+
+      final LikeCountInfo likeCountInfo = toInfoMapper.toLikeCountInfo(entry.getLikeCount());
+      response.setLikeCountInfo(likeCountInfo);
 
       final IsAChatSpaceMemberInfo isAMemberInfo = chatSpaceMemberMapper.toIsAChatSpaceMemberInfo(false);
       final IsAChatSpaceAdminInfo isAAdminInfo = chatSpaceMemberMapper.toIsAChatSpaceAdminInfo(false);

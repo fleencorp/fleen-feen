@@ -54,7 +54,6 @@ public class PollController {
     return pollSearchService.getDataRequiredToCreatePoll();
   }
 
-
   @Operation(summary = "Create a new poll",
     description = "Creates a new poll with the provided details. Requires user authentication.")
   @ApiResponses({
@@ -62,6 +61,16 @@ public class PollController {
       content = @Content(schema = @Schema(implementation = PollCreateResponse.class))),
     @ApiResponse(responseCode = "404", description = "Member not found",
       content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Chat Space not found",
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
+    @ApiResponse(responseCode = "403", description = "User is not an admin of the chat space",
+      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+    @ApiResponse(responseCode = "404", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
+    @ApiResponse(responseCode = "403", description = "Stream not created by user",
+      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
+    @ApiResponse(responseCode = "400", description = "Failed operation",
+      content = @Content(schema = @Schema(implementation = FailedOperationException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
@@ -72,56 +81,6 @@ public class PollController {
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
     return pollService.addPoll(addPollDto, user);
-  }
-
-  @Operation(summary = "Create a new poll for a chat space",
-    description = "Creates a new poll associated with a specific chat space. Requires user authentication and admin privileges for the chat space.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully created the chat space poll",
-      content = @Content(schema = @Schema(implementation = PollCreateResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Member or chat space not found",
-      content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat Space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
-    @ApiResponse(responseCode = "403", description = "User is not an admin of the chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
-    @ApiResponse(responseCode = "400", description = "Failed operation",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
-  })
-  @PostMapping(value = "/add/chat-space/{chatSpaceId}")
-  public PollCreateResponse chatSpaceAddPoll(
-    @Parameter(description = "ID of the chat space to associate the poll with", required = true)
-    @PathVariable(name = "chatSpaceId") final Long chatSpaceId,
-    @Parameter(description = "Poll details for creation", required = true)
-    @Valid @RequestBody final AddPollDto addPollDto,
-    @Parameter(hidden = true)
-    @AuthenticationPrincipal final RegisteredUser user) {
-    return pollService.chatSpaceAddPoll(chatSpaceId, addPollDto, user);
-  }
-
-  @Operation(summary = "Create a new poll for a stream",
-    description = "Creates a new poll associated with a specific stream. Requires user authentication and stream ownership.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully created the stream poll",
-      content = @Content(schema = @Schema(implementation = PollCreateResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Member not found",
-      content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
-    @ApiResponse(responseCode = "403", description = "Stream not created by user",
-      content = @Content(schema = @Schema(implementation = StreamNotCreatedByUserException.class))),
-    @ApiResponse(responseCode = "400", description = "Failed operation",
-      content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
-  })
-  @PostMapping(value = "/add/stream/{streamId}")
-  public PollCreateResponse streamAddPoll(
-    @Parameter(description = "ID of the stream to associate the poll with", required = true)
-      @PathVariable(name = "streamId") final Long streamId,
-    @Parameter(description = "Poll details for creation", required = true)
-      @Valid @RequestBody final AddPollDto addPollDto,
-    @Parameter(hidden = true)
-      @AuthenticationPrincipal final RegisteredUser user) {
-    return pollService.streamAddPoll(streamId, addPollDto, user);
   }
 
   @Operation(summary = "Delete an existing poll",

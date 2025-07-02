@@ -41,7 +41,7 @@ public class JoinStreamResponse extends LocalizedResponse {
   private String streamLink;
 
   @JsonProperty("total_attending")
-  private Long totalAttending;
+  private Integer totalAttending;
 
   @JsonIgnore
   protected StreamType getStreamType() {
@@ -53,7 +53,7 @@ public class JoinStreamResponse extends LocalizedResponse {
     return StreamType.isEvent(getStreamType()) ? "join.event" : "join.live.broadcast";
   }
 
-  public static JoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final String streamLink, final Long totalAttending) {
+  public static JoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final String streamLink, final Integer totalAttending) {
     return new JoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, streamLink, totalAttending);
   }
 }

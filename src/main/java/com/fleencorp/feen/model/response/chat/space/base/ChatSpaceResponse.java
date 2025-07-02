@@ -16,6 +16,7 @@ import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.model.info.chat.space.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.chat.space.member.base.ChatSpaceMemberResponse;
@@ -55,7 +56,7 @@ import static java.util.Objects.nonNull;
   "join_status_info",
   "membership_info",
   "user_like_info",
-  "total_like_count",
+  "like_count_info",
   "is_updatable",
   "created_on",
   "updated_on"
@@ -112,8 +113,8 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
-  @JsonProperty("total_like_count")
-  private Long totalLikeCount;
+  @JsonProperty("like_count_info")
+  private LikeCountInfo likeCountInfo;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

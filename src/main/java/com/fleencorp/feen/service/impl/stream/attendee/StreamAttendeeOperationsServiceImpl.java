@@ -58,7 +58,7 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public long countByStreamAndRequestToJoinStatusAndAttending(final FleenStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final Boolean isAttending) {
+  public int countByStreamAndRequestToJoinStatusAndAttending(final FleenStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final Boolean isAttending) {
     return streamAttendeeManagementRepository.countByStreamAndRequestToJoinStatusAndAttending(
       stream, requestToJoinStatus, isAttending);
   }

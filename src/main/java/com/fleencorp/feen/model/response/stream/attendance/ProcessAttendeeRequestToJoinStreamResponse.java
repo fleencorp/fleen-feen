@@ -38,7 +38,7 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedRespons
   protected StreamTypeInfo streamTypeInfo;
 
   @JsonProperty("total_attending")
-  private Long totalAttending;
+  private Integer totalAttending;
 
   @JsonIgnore
   protected StreamType getStreamType() {
@@ -52,7 +52,7 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedRespons
       : "process.attendee.request.to.join.live.broadcast";
   }
 
-  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Long totalAttending) {
+  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Integer totalAttending) {
     return new ProcessAttendeeRequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending);
   }
 }

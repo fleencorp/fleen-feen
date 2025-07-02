@@ -8,6 +8,7 @@ import com.fleencorp.feen.exception.stream.core.*;
 import com.fleencorp.feen.exception.stream.join.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -145,13 +146,13 @@ public class FleenStream extends FleenFeenEntity {
   private Boolean deleted = false;
 
   @Column(name = "total_attendees", nullable = false)
-  private Long totalAttendees = 0L;
+  private Integer totalAttendees = 0;
 
   @Column(name = "total_speakers", nullable = false)
-  private Long totalSpeakers = 0L;
+  private Integer totalSpeakers = 0;
 
   @Column(name = "like_count", nullable = false)
-  private Long likeCount = 0L;
+  private Integer likeCount = 0;
 
   public boolean isForKids() {
     return nonNull(forKids) && forKids;
@@ -543,6 +544,21 @@ public class FleenStream extends FleenFeenEntity {
   public void checkIsPublicForRequestToJoin() {
     if (isPublic()) {
       throw FailedOperationException.of();
+    }
+  }
+
+  /**
+   * Checks the eligibility for adding a review based on the review type and the stream status.
+   *
+   * <p>This method ensures that a review can only be added for streams that are ongoing or completed.
+   * If the stream has not started yet, it throws a {@link CannotAddReviewIfStreamHasNotStartedException}.</p>
+   *
+   * @throws CannotAddReviewIfStreamHasNotStartedException if the stream has not started yet
+   */
+  public void checkAddReviewEligibility() {
+    // Only streams that are ongoing or completed can be reviewed
+    if (hasNotStarted()) {
+      throw CannotAddReviewIfStreamHasNotStartedException.of();
     }
   }
 

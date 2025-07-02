@@ -14,6 +14,7 @@ import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -74,7 +75,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setTags(entry.getTags());
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
-      response.setTotalLikeCount(entry.getLikeCount());
 
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
@@ -140,6 +140,9 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
       response.setUserLikeInfo(userLikeInfo);
+
+      final LikeCountInfo likeCountInfo = toInfoMapper.toLikeCountInfo(entry.getLikeCount());
+      response.setLikeCountInfo(likeCountInfo);
 
       return response;
 

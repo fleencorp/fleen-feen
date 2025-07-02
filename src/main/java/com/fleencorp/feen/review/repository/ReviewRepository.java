@@ -21,14 +21,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
   @Query("SELECT sr FROM Review sr WHERE sr.streamId = :streamId ORDER BY sr.createdOn DESC")
   List<Review> findMostRecentReviewByStream(@Param("streamId") Long streamId, PageRequest pageRequest);
 
-  @Query("SELECT r FROM Review r WHERE r.member = :member")
+  @Query("SELECT r FROM Review r WHERE r.author = :member")
   Page<Review> findByMember(Member member, Pageable pageable);
 
-  @Query("SELECT r FROM Review r WHERE r.reviewId = :reviewId AND r.streamId = :streamId AND r.member = :member")
+  @Query("SELECT r FROM Review r WHERE r.reviewId = :reviewId AND r.streamId = :streamId AND r.author = :member")
   Optional<Review> findByReviewIdAndStreamAndMember(@Param("reviewId") Long reviewId, @Param("streamId") Long streamId, Member member);
 
   @Modifying
-  @Query("DELETE FROM Review r WHERE r.reviewId = :reviewId AND r.member = :member")
+  @Query("DELETE FROM Review r WHERE r.reviewId = :reviewId AND r.author = :member")
   void deleteByStreamReviewIdAndMember(Long reviewId, Member member);
 
   @Modifying

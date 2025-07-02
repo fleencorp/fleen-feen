@@ -319,7 +319,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     // Send invitation to new attendee
     joinStreamExternally(externalStreamRequest);
     // Calculate total employees going to stream
-    final Long totalAttendeesGoing = stream.getTotalAttendees() + 1;
+    final Integer totalAttendeesGoing = stream.getTotalAttendees() + 1;
     // Create the response
     final JoinStreamResponse joinStreamResponse = JoinStreamResponse.of(streamId, attendanceInfo, streamTypeInfo, stream.getStreamLink(), totalAttendeesGoing);
     // Return localized response of the joined stream including status

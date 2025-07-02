@@ -45,8 +45,10 @@ public class PollSearchController {
   @GetMapping(value = "/detail/{pollId}")
   public PollRetrieveResponse findPoll(
     @Parameter(description = "ID of the poll to retrieve", required = true)
-      @PathVariable(name = "pollId") final Long pollId) {
-    return pollSearchService.findPoll(pollId);
+      @PathVariable(name = "pollId") final Long pollId,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
+    return pollSearchService.findPoll(pollId, user);
   }
 
   @Operation(summary = "Search for polls",

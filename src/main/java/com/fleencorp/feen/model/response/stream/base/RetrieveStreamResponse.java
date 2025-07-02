@@ -44,7 +44,7 @@ public class RetrieveStreamResponse extends LocalizedResponse {
   private Collection<StreamAttendeeResponse> attendees = new HashSet<>();
 
   @JsonProperty("total_attending")
-  private Long totalAttending;
+  private Integer totalAttending;
 
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
@@ -59,7 +59,7 @@ public class RetrieveStreamResponse extends LocalizedResponse {
     return StreamType.isEvent(getStreamType()) ? "retrieve.event" : "retrieve.live.broadcast";
   }
 
-  public static RetrieveStreamResponse of(final Long streamId, final StreamResponse stream, final Collection<StreamAttendeeResponse> attendees, final Long totalAttending, final StreamTypeInfo streamTypeInfo) {
+  public static RetrieveStreamResponse of(final Long streamId, final StreamResponse stream, final Collection<StreamAttendeeResponse> attendees, final Integer totalAttending, final StreamTypeInfo streamTypeInfo) {
     return new RetrieveStreamResponse(streamId, stream, attendees, totalAttending, streamTypeInfo);
   }
 }

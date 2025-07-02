@@ -13,6 +13,7 @@ import com.fleencorp.feen.poll.mapper.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.poll.model.dto.DeletePollDto;
+import com.fleencorp.feen.poll.model.holder.AddPollParentDetailHolder;
 import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
 import com.fleencorp.feen.poll.model.response.base.PollResponse;
@@ -65,96 +66,120 @@ public class PollServiceImpl implements PollService {
   }
 
   /**
-   * Creates and saves a new standalone {@link Poll} (not associated with a chat space or stream).
+   * Creates a new poll based on the provided {@link AddPollDto} and the authenticated {@link RegisteredUser}.
    *
-   * <p>This method retrieves the {@link Member} from the given {@link RegisteredUser},
-   * constructs the poll using the provided {@link AddPollDto}, saves it,
-   * and returns a localized response containing the created poll.</p>
+   * <p>This method first retrieves the {@link Member} entity associated with the user. It then determines and
+   * validates the poll’s parent entity (if any) and constructs the {@link Poll} instance using the member and
+   * parent information. The poll is persisted, and a localized {@link PollCreateResponse} is returned.</p>
    *
-   * @param addPollDto the DTO containing poll creation data
-   * @param user the user creating the poll
-   * @return a {@link PollCreateResponse} containing the newly created poll
-   * @throws MemberNotFoundException if the user does not correspond to a valid member
+   * @param addPollDto the DTO containing data required to create the poll
+   * @param user the authenticated user initiating the poll creation
+   * @return a localized {@link PollCreateResponse} containing poll metadata and response
+   * @throws MemberNotFoundException if the member associated with the user ID is not found
+   * @throws ChatSpaceNotFoundException if the specified chat space does not exist
+   * @throws NotAnAdminOfChatSpaceException if the member is not an admin or creator of the chat space
+   * @throws StreamNotFoundException if the specified stream does not exist
+   * @throws StreamNotCreatedByUserException if the member is not the organizer of the stream
    */
   @Override
   @Transactional
-  public PollCreateResponse addPoll(final AddPollDto addPollDto, final RegisteredUser user) throws MemberNotFoundException {
+  public PollCreateResponse addPoll(final AddPollDto addPollDto, final RegisteredUser user)
+    throws MemberNotFoundException, ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException,
+      StreamNotFoundException, StreamNotCreatedByUserException {
     final Member member = memberService.findMember(user.getId());
 
-    final Poll poll = addPollDto.toPoll(member);
-    return saveAndGetPoll(poll);
-  }
-  /**
-   * Creates and saves a new {@link Poll} within the specified {@link FleenStream}, if the user is the organizer.
-   *
-   * <p>This method retrieves the member and stream, verifies that the user is the stream organizer,
-   * constructs the poll using the provided {@link AddPollDto}, and saves it.
-   * Returns a localized response containing the newly created poll.</p>
-   *
-   * @param streamId the ID of the stream where the poll will be added
-   * @param addPollDto the DTO containing poll creation data
-   * @param user the user attempting to create the poll
-   * @return a {@link PollCreateResponse} containing the newly created poll
-   * @throws MemberNotFoundException if the user does not correspond to a valid member
-   * @throws StreamNotFoundException if the stream does not exist
-   * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
-   */
-  @Override
-  @Transactional
-  public PollCreateResponse streamAddPoll(final Long streamId, final AddPollDto addPollDto, final RegisteredUser user)
-      throws MemberNotFoundException, StreamNotFoundException, StreamNotCreatedByUserException {
-    final Member member = memberService.findMember(user.getId());
-    final FleenStream stream = streamOperationsService.findStream(streamId);
+    final AddPollParentDetailHolder parentDetailHolder = findAndValidateParent(addPollDto, member);
+    final String parentTitle = parentDetailHolder.parentTitle();
+    final ChatSpace chatSpace = parentDetailHolder.chatSpace();
+    final FleenStream stream = parentDetailHolder.stream();
 
-    stream.checkIsOrganizer(user.getId());
-
-    final Poll poll = addPollDto.toStreamPoll(stream, member);
-    return saveAndGetPoll(poll);
-  }
-
-  /**
-   * Creates and saves a new {@link Poll} within the specified {@link ChatSpace}, if the user has admin or creator privileges.
-   *
-   * <p>This method retrieves the member and chat space, verifies the user's permission to create polls in the chat space,
-   * constructs the poll from the provided {@link AddPollDto}, and persists it. The result is returned as a localized response.</p>
-   *
-   * @param chatSpaceId the ID of the chat space where the poll will be added
-   * @param addPollDto the DTO containing poll creation data
-   * @param user the user attempting to create the poll
-   * @return a {@link PollCreateResponse} containing the newly created poll
-   * @throws MemberNotFoundException if the user does not correspond to a valid member
-   * @throws ChatSpaceNotFoundException if the chat space does not exist
-   * @throws NotAnAdminOfChatSpaceException if the user lacks permission to create polls in the chat space
-   */
-  @Override
-  @Transactional
-  public PollCreateResponse chatSpaceAddPoll(final Long chatSpaceId, final AddPollDto addPollDto, final RegisteredUser user)
-      throws MemberNotFoundException, ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException {
-    final Member member = memberService.findMember(user.getId());
-    final ChatSpace chatSpace = chatSpaceOperationsService.findChatSpace(chatSpaceId);
-
-    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, member);
-
-    final Poll poll = addPollDto.toChatSpacePoll(chatSpace, member);
-    return saveAndGetPoll(poll);
-  }
-
-  /**
-   * Saves the given {@link Poll} and returns a localized {@link PollCreateResponse}.
-   *
-   * <p>This method persists the poll using the poll operations service, maps the saved poll to a response DTO,
-   * and wraps it in a localized create response.</p>
-   *
-   * @param poll the poll to save
-   * @return a {@link PollCreateResponse} containing the saved poll's data
-   */
-  protected PollCreateResponse saveAndGetPoll(final Poll poll) {
+    final Poll poll = addPollDto.toPoll(member, parentTitle, chatSpace, stream);
     pollOperationsService.save(poll);
 
     final PollResponse response = pollMapper.toPollResponse(poll);
     final PollCreateResponse createResponse = PollCreateResponse.of(poll.getPollId(), response);
 
     return localizer.of(createResponse);
+  }
+
+  /**
+   * Determines and validates the parent entity (stream or chat space) for a poll based on the given {@link AddPollDto}.
+   *
+   * <p>This method checks if a parent is specified in the DTO. If a parent exists, it validates the parent
+   * according to its type—either a stream or a chat space. Validation ensures the given member has the appropriate
+   * permission (organizer or admin). If no parent is specified or the type is unrecognized, an empty
+   * {@link AddPollParentDetailHolder} is returned.</p>
+   *
+   * @param addPollDto the DTO containing poll creation data, including parent information
+   * @param member the member attempting to create the poll
+   * @return an {@link AddPollParentDetailHolder} representing the validated parent (stream or chat space), or empty if none
+   * @throws MemberNotFoundException if the member is not found
+   * @throws ChatSpaceNotFoundException if the specified chat space does not exist
+   * @throws NotAnAdminOfChatSpaceException if the member is not an admin or creator of the chat space
+   * @throws StreamNotFoundException if the specified stream does not exist
+   * @throws StreamNotCreatedByUserException if the member is not the organizer of the stream
+   */
+  protected AddPollParentDetailHolder findAndValidateParent(final AddPollDto addPollDto, final Member member)
+    throws MemberNotFoundException, ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException,
+      StreamNotFoundException, StreamNotCreatedByUserException {
+
+    if (addPollDto.hasNoParent()) {
+      return AddPollParentDetailHolder.of();
+    }
+
+    if (addPollDto.isChatSpaceParent()) {
+      return validateChatSpaceParent(addPollDto.getParentId(), member);
+    }
+
+    if (addPollDto.isStreamParent()) {
+      return validateStreamParent(addPollDto.getParentId(), member);
+    }
+
+    return AddPollParentDetailHolder.of();
+  }
+
+  /**
+   * Validates the specified {@code streamId} as the parent for a poll by ensuring the member is
+   * the organizer of the stream.
+   *
+   * <p>This method retrieves the stream using the provided ID and checks if the given member is
+   * the organizer of the stream. If validation succeeds, it returns an
+   * {@link AddPollParentDetailHolder} with the stream as the parent.</p>
+   *
+   * @param streamId the ID of the stream to be validated
+   * @param member the member requesting to add a poll under the stream
+   * @return an {@link AddPollParentDetailHolder} representing the validated stream as the poll parent
+   * @throws StreamNotFoundException if the stream with the given ID is not found
+   * @throws StreamNotCreatedByUserException if the member is not the organizer of the stream
+   */
+  protected AddPollParentDetailHolder validateStreamParent(final Long streamId, final Member member)
+      throws StreamNotFoundException, StreamNotCreatedByUserException {
+    final FleenStream stream = streamOperationsService.findStream(streamId);
+    stream.checkIsOrganizer(member.getMemberId());
+
+    return AddPollParentDetailHolder.of(null, stream);
+  }
+
+  /**
+   * Validates the specified {@code chatSpaceId} as the parent for a poll by ensuring the member is
+   * either the creator or an admin of the chat space.
+   *
+   * <p>This method retrieves the chat space using the provided ID and verifies that the given member
+   * has administrative rights or is the creator of the chat space. If validation passes, it returns
+   * a {@link AddPollParentDetailHolder} containing the chat space as the parent.</p>
+   *
+   * @param chatSpaceId the ID of the chat space to be validated
+   * @param member the member requesting to add a poll under the chat space
+   * @return an {@link AddPollParentDetailHolder} representing the validated chat space as the poll parent
+   * @throws ChatSpaceNotFoundException if the chat space with the given ID is not found
+   * @throws NotAnAdminOfChatSpaceException if the member is neither an admin nor the creator of the chat space
+   */
+  protected AddPollParentDetailHolder validateChatSpaceParent(final Long chatSpaceId, final Member member)
+      throws ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException {
+    final ChatSpace chatSpace = chatSpaceOperationsService.findChatSpace(chatSpaceId);
+    chatSpaceService.verifyCreatorOrAdminOfChatSpace(chatSpace, member);
+
+    return AddPollParentDetailHolder.of(chatSpace, null);
   }
 
   /**

@@ -13,7 +13,7 @@ public interface PollSearchService {
 
   GetDataRequiredToCreatePoll getDataRequiredToCreatePoll();
 
-  PollRetrieveResponse findPoll(Long pollId) throws PollNotFoundException;
+  PollRetrieveResponse findPoll(Long pollId, final RegisteredUser user) throws PollNotFoundException;
 
   PollSearchResult findPolls(PollSearchRequest searchRequest, RegisteredUser user);
 

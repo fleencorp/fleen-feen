@@ -9,6 +9,8 @@ import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
+import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -65,4 +67,8 @@ public interface ToInfoMapper {
   IsVotedInfo toIsVotedInfo(boolean voted);
 
   TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(Integer pollVoteEntries);
+
+  LikeCountInfo toLikeCountInfo(Integer likeCount);
+
+  ReviewCountInfo toReviewCountInfo(Integer reviewCount);
 }

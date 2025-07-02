@@ -6,6 +6,8 @@ import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
 import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
+import com.fleencorp.feen.constant.interaction.LikeCount;
+import com.fleencorp.feen.constant.interaction.ReviewCount;
 import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
 import com.fleencorp.feen.constant.stream.attendee.IsAttending;
 import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
@@ -22,6 +24,8 @@ import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.JoinStatusInfo;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
+import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
@@ -448,6 +452,42 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
       translate(totalVoteEntries.getMessageCode(), pollVoteEntries),
       translate(totalVoteEntries.getMessageCode2(), pollVoteEntries),
       translate(totalVoteEntries.getMessageCode3(), pollVoteEntries)
+    );
+  }
+
+  /**
+   * Converts a raw like count into a {@link LikeCountInfo} DTO,
+   * including a translated message with the count embedded.
+   *
+   * <p>For example, if {@code likeCount} is 3 and the message code resolves to
+   * "{0} likes", the resulting message will be "You have 3 likes".</p>
+   *
+   * @param likeCount the total number of likes
+   * @return a {@link LikeCountInfo} containing the like count and its localized message
+   */
+  @Override
+  public LikeCountInfo toLikeCountInfo(final Integer likeCount) {
+    final LikeCount totalLikeCount = LikeCount.totalLikes();
+    return LikeCountInfo.of(likeCount,
+      translate(totalLikeCount.getMessageCode(), likeCount)
+    );
+  }
+
+  /**
+   * Converts a raw review count into a {@link ReviewCountInfo} DTO,
+   * including a translated message with the count embedded.
+   *
+   * <p>For example, if {@code reviewCount} is 5 and the message code resolves to
+   * "{0} reviews", the resulting message will be "You have 5 reviews".</p>
+   *
+   * @param reviewCount the total number of reviews
+   * @return a {@link ReviewCountInfo} containing the review count and its localized message
+   */
+  @Override
+  public ReviewCountInfo toReviewCountInfo(final Integer reviewCount) {
+    final ReviewCount totalReviewCount = ReviewCount.totalReviews();
+    return ReviewCountInfo.of(reviewCount,
+      translate(totalReviewCount.getMessageCode(), reviewCount)
     );
   }
 }

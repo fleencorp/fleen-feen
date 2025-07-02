@@ -13,7 +13,7 @@ import java.util.Set;
 
 public interface StreamAttendeeManagementRepository extends JpaRepository<StreamAttendee, Long> {
 
-  long countByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
+  int countByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
 
   @Query("SELECT COUNT(sa.attendeeId) FROM StreamAttendee sa WHERE sa.attendeeId IN (:ids)")
   long countByIds(@Param("ids") Set<Long> ids);

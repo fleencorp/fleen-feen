@@ -14,13 +14,9 @@ import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface PollService {
 
-  PollCreateResponse addPoll(AddPollDto addPollDto, RegisteredUser user) throws MemberNotFoundException;
-
-  PollCreateResponse streamAddPoll(Long streamId, AddPollDto addPollDto, RegisteredUser user)
-    throws MemberNotFoundException, StreamNotFoundException, StreamNotCreatedByUserException;
-
-  PollCreateResponse chatSpaceAddPoll(Long chatSpaceId, AddPollDto addPollDto, RegisteredUser user)
-    throws MemberNotFoundException, ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException;
+  PollCreateResponse addPoll(AddPollDto addPollDto, RegisteredUser user)
+    throws MemberNotFoundException, ChatSpaceNotFoundException, NotAnAdminOfChatSpaceException,
+      StreamNotFoundException, StreamNotCreatedByUserException;
 
   PollDeleteResponse deletePoll(DeletePollDto deletePollDto, RegisteredUser user) throws PollNotFoundException;
 }

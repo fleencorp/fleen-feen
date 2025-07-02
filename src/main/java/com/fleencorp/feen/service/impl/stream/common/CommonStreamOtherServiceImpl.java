@@ -158,7 +158,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
     if (nonNull(streamResponse)) {
       final Long streamId = streamResponse.getNumberId();
       // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
-      final long totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true);
+      final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true);
       streamResponse.setTotalAttending(totalAttendees);
     }
   }

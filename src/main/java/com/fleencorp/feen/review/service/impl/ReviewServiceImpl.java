@@ -5,6 +5,7 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.like.service.LikeService;
+import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
@@ -25,6 +26,7 @@ import com.fleencorp.feen.review.service.ReviewService;
 import com.fleencorp.feen.service.stream.common.StreamService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -62,6 +64,7 @@ import static java.util.Objects.nonNull;
 public class ReviewServiceImpl implements ReviewService {
 
   private final LikeService likeService;
+  private final MemberService memberService;
   private final StreamService streamService;
   private final ReviewRepository reviewRepository;
   private final ReviewMapper reviewMapper;
@@ -72,6 +75,7 @@ public class ReviewServiceImpl implements ReviewService {
    * such as likes on reviews within streams.
    *
    * @param likeService the service used to handle like operations on reviews (injected lazily to avoid circular dependencies)
+   * @param memberService the service for managing members
    * @param streamService the service for retrieving and validating stream-related data associated with reviews
    * @param reviewRepository the repository for performing CRUD operations on review entities
    * @param reviewMapper the mapper for converting between review entities and their corresponding DTOs
@@ -79,11 +83,13 @@ public class ReviewServiceImpl implements ReviewService {
    */
   public ReviewServiceImpl(
       @Lazy final LikeService likeService,
+      @Lazy final MemberService memberService,
       final StreamService streamService,
       final ReviewRepository reviewRepository,
       final ReviewMapper reviewMapper,
       final Localizer localizer) {
     this.likeService = likeService;
+    this.memberService = memberService;
     this.streamService = streamService;
     this.reviewRepository = reviewRepository;
     this.reviewMapper = reviewMapper;
@@ -212,16 +218,15 @@ public class ReviewServiceImpl implements ReviewService {
   @Transactional
   public AddReviewResponse addReview(final AddReviewDto addReviewDto, final RegisteredUser user)
       throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
-    // Get the review type
-    final ReviewParentType reviewParentType = addReviewDto.getReviewParentType();
+    final Member member = memberService.findMember(user.getId());
     // Get the necessary details
-    final ReviewOtherDetailsHolder reviewOtherDetailsHolder = retrieveReviewOtherDetailsHolder(reviewParentType, addReviewDto.getParentId());
-    // Retrieve the stream
+    final ReviewOtherDetailsHolder reviewOtherDetailsHolder = retrieveReviewOtherDetailsHolder(addReviewDto);
+    final String parentTitle = reviewOtherDetailsHolder.parentTitle();
+    final ChatSpace chatSpace = reviewOtherDetailsHolder.chatSpace();
     final FleenStream stream = reviewOtherDetailsHolder.stream();
-    // Check other details
-    checkAddReviewEligibility(reviewParentType, stream);
+
     // Convert the dto to the entity
-    final Review review = addReviewDto.toStreamReview(stream, user.toMember());
+    final Review review = addReviewDto.toReview(member, parentTitle, chatSpace, stream);
     // Save the new StreamReview to the repository
     reviewRepository.save(review);
     // Create the review response
@@ -254,8 +259,9 @@ public class ReviewServiceImpl implements ReviewService {
     throws ReviewNotFoundException, StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
       FailedOperationException {
     final Member member = user.toMember();
+
     // Find the associated review
-    if (updateReviewDto.isStreamReviewType()) {
+    if (updateReviewDto.isStreamParent()) {
       final Review review = reviewRepository.findByReviewIdAndStreamAndMember(reviewId, updateReviewDto.getParentId(), member)
         .orElseThrow(ReviewNotFoundException.of(reviewId));
 
@@ -300,6 +306,53 @@ public class ReviewServiceImpl implements ReviewService {
   }
 
   /**
+   * Retrieves the {@link ReviewOtherDetailsHolder} based on the given {@link AddReviewDto}.
+   *
+   * <p>This method first checks that the provided {@code addReviewDto} is not {@code null}. It then evaluates
+   * whether the review is associated with a stream by calling {@link AddReviewDto#isStreamParent()}. If so,
+   * it attempts to retrieve and validate the parent {@link FleenStream} using the provided parent ID and
+   * returns the corresponding {@link ReviewOtherDetailsHolder}.</p>
+   *
+   * @param addReviewDto the DTO containing information about the review, including its parent type and ID
+   * @return a {@link ReviewOtherDetailsHolder} containing additional details related to the review
+   * @throws FailedOperationException if the {@code addReviewDto} is {@code null} or the review parent type is invalid
+   */
+  protected ReviewOtherDetailsHolder retrieveReviewOtherDetailsHolder(final AddReviewDto addReviewDto) throws FailedOperationException {
+    // Ensure reviewParentType is not null
+    checkIsNull(addReviewDto, FailedOperationException::new);
+
+    // If the reviewParentType is a stream, retrieve the associated FleenStream
+     if (addReviewDto.isStreamParent()) {
+       return validateStreamParent(addReviewDto.getParentId());
+     }
+
+     throw FailedOperationException.of();
+  }
+
+  /**
+   * Validates the given stream ID and retrieves the associated {@link FleenStream} to ensure it is eligible for reviews.
+   *
+   * <p>If the {@code streamId} is not {@code null}, this method fetches the corresponding {@link FleenStream} using
+   * {@link StreamService#findStream(Long)}. It then checks whether the stream is eligible to receive a review
+   * by calling {@link FleenStream#checkAddReviewEligibility()}. If valid, it returns a {@link ReviewOtherDetailsHolder}
+   * containing the stream.</p>
+   *
+   * @param streamId the ID of the stream to validate
+   * @return a {@link ReviewOtherDetailsHolder} containing the stream
+   * @throws FailedOperationException if the {@code streamId} is {@code null}
+   */
+  protected ReviewOtherDetailsHolder validateStreamParent(final Long streamId) {
+    if (nonNull(streamId)) {
+      final FleenStream stream = streamService.findStream(streamId);
+      stream.checkAddReviewEligibility();
+
+      return ReviewOtherDetailsHolder.of(null, stream);
+    }
+
+    throw FailedOperationException.of();
+  }
+
+  /**
    * Deletes a stream review by its ID and the associated member.
    *
    * <p>This method attempts to delete a review with the specified ID, associated with the current user.
@@ -314,50 +367,9 @@ public class ReviewServiceImpl implements ReviewService {
   public DeleteReviewResponse deleteReview(final Long reviewId, final RegisteredUser user) {
     // Delete the StreamReview associated with the given review ID and user
     reviewRepository.deleteByStreamReviewIdAndMember(reviewId, user.toMember());
-    // Return the response
-    return localizer.of(DeleteReviewResponse.of());
-  }
 
-  /**
-   * Retrieves the {@link ReviewOtherDetailsHolder} for the specified review type and stream ID.
-   *
-   * <p>This method checks the validity of the {@code reviewParentType} parameter and retrieves the corresponding
-   * {@link FleenStream} if the review type is a stream. The {@link ReviewOtherDetailsHolder} is then created
-   * based on the stream details.</p>
-   *
-   * @param reviewParentType the type of review, used to determine whether to retrieve stream details
-   * @param streamId the ID of the stream, applicable only if the review type is {@code STREAM}
-   * @return a {@link ReviewOtherDetailsHolder} containing other details related to the review
-   * @throws FailedOperationException if the {@code reviewParentType} is null or invalid
-   */
-  protected ReviewOtherDetailsHolder retrieveReviewOtherDetailsHolder(final ReviewParentType reviewParentType, final Long streamId) throws FailedOperationException {
-    // Ensure reviewParentType is not null
-    checkIsNull(reviewParentType, FailedOperationException::new);
-
-    // If the reviewParentType is a stream, retrieve the associated FleenStream
-    final FleenStream stream = ReviewParentType.isStream(reviewParentType)
-      ? streamService.findStream(streamId)
-      : null;
-
-    // Return the ReviewOtherDetailsHolder based on the stream
-    return ReviewOtherDetailsHolder.of(stream);
-  }
-
-  /**
-   * Checks the eligibility for adding a review based on the review type and the stream status.
-   *
-   * <p>This method ensures that a review can only be added for streams that are ongoing or completed.
-   * If the stream has not started yet, it throws a {@link CannotAddReviewIfStreamHasNotStartedException}.</p>
-   *
-   * @param reviewParentType the type of the review, used to verify the type of review being added
-   * @param stream the {@link FleenStream} being reviewed, used to determine the stream's current status
-   * @throws CannotAddReviewIfStreamHasNotStartedException if the stream has not started yet
-   */
-  protected void checkAddReviewEligibility(final ReviewParentType reviewParentType, final FleenStream stream) {
-    // Only streams that are ongoing or completed can be reviewed
-    if (nonNull(reviewParentType) && nonNull(stream) && stream.hasNotStarted()) {
-      throw CannotAddReviewIfStreamHasNotStartedException.of();
-    }
+    final DeleteReviewResponse deleteReviewResponse = DeleteReviewResponse.of();
+    return localizer.of(deleteReviewResponse);
   }
 
   /**

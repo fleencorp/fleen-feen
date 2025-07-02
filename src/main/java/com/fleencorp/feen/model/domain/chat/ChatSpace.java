@@ -87,7 +87,7 @@ public class ChatSpace extends FleenFeenEntity {
   private Set<Link> links = new HashSet<>();
 
   @Column(name = "like_count", nullable = false)
-  private Long likeCount = 0L;
+  private Integer likeCount = 0;
 
   public Member getOrganizer() {
     return member;

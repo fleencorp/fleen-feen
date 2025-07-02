@@ -463,7 +463,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Process other details of the streams
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
     // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
-    final long totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
+    final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response

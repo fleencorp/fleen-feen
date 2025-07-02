@@ -65,13 +65,13 @@ public class Review extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
 
-  @Column(name = "member_id", insertable = false, updatable = false)
-  private Long memberId;
+  @Column(name = "author_id", insertable = false, updatable = false)
+  private Long authorId;
 
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member member;
+  @JoinColumn(name = "author_id", referencedColumnName = "member_id", nullable = false, updatable = false)
+  private Member author;
 
   @Enumerated(ORDINAL)
   @Column(name = "rating", nullable = false)
@@ -107,7 +107,7 @@ public class Review extends FleenFeenEntity {
    * @return the username of the reviewer, or null if the reviewer is not set.
    */
   public String getReviewerName() {
-    return nonNull(member) ? member.getUsername() : null;
+    return nonNull(author) ? author.getUsername() : null;
   }
 
   /**
@@ -116,7 +116,7 @@ public class Review extends FleenFeenEntity {
    * @return the URL of the reviewer's profile photo, or null if the reviewer is not set.
    */
   public String getReviewerPhoto() {
-    return nonNull(member) ? member.getProfilePhotoUrl() : null;
+    return nonNull(author) ? author.getProfilePhotoUrl() : null;
   }
 
   /**

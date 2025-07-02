@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
+import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -127,17 +128,20 @@ public class PollSearchServiceImpl implements PollSearchService {
    * is localized before being returned.</p>
    *
    * @param pollId the ID of the poll to retrieve
+   * @param user the authenticated user
    * @return a localized {@link PollRetrieveResponse} containing the poll details
    * @throws PollNotFoundException if no poll exists with the given ID
    */
   @Override
   @Transactional(readOnly = true)
-  public PollRetrieveResponse findPoll(final Long pollId) throws PollNotFoundException {
+  public PollRetrieveResponse findPoll(final Long pollId, final RegisteredUser user) throws PollNotFoundException {
     final Poll poll = pollCommonService.findPollById(pollId);
 
     final PollResponse pollResponse = pollMapper.toPollResponse(poll);
-    final PollRetrieveResponse pollRetrieveResponse = PollRetrieveResponse.of(pollId, pollResponse);
+    final PollResponseEntriesHolder pollResponseEntriesHolder = PollResponseEntriesHolder.of(pollResponse);
+    processPollOtherDetails(pollResponseEntriesHolder, user.toMember());
 
+    final PollRetrieveResponse pollRetrieveResponse = PollRetrieveResponse.of(pollId, pollResponse);
     return localizer.of(pollRetrieveResponse);
   }
 
@@ -286,7 +290,10 @@ public class PollSearchServiceImpl implements PollSearchService {
 
     pollResponses.stream()
       .filter(Objects::nonNull)
-      .forEach(pollResponse -> setUserVote(pollResponse, pollVoteEntriesHolder));
+      .forEach(pollResponse -> {
+        setUserVote(pollResponse, pollVoteEntriesHolder);
+        setEntityUpdatableByUser(pollResponse, member.getMemberId());
+    });
   }
 
   /**

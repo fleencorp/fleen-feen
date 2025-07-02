@@ -13,6 +13,7 @@ import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
+import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
@@ -61,7 +62,7 @@ import static java.util.Objects.nonNull;
   "is_deleted_info",
   "other_detail_info",
   "user_like_info",
-  "total_like_count",
+  "like_count_info",
   "music_link",
   "schedule_time_type_info",
   "total_attending",
@@ -118,7 +119,7 @@ public class StreamResponse extends FleenFeenResponse
   private Schedule otherSchedule;
 
   @JsonProperty("total_attending")
-  private long totalAttending;
+  private Integer totalAttending;
 
   @JsonProperty("some_attendees")
   private Collection<StreamAttendeeResponse> someAttendees = new HashSet<>();
@@ -138,8 +139,8 @@ public class StreamResponse extends FleenFeenResponse
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
-  @JsonProperty("total_like_count")
-  private Long totalLikeCount;
+  @JsonProperty("like_count_info")
+  private LikeCountInfo likeCountInfo;
 
   @JsonProperty("music_link")
   private LinkMusicResponse musicLink;

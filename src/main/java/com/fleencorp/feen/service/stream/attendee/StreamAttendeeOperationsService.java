@@ -25,7 +25,7 @@ import java.util.Set;
 
 public interface StreamAttendeeOperationsService {
 
-  long countByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
+  int countByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending);
 
   long countByIds(Set<Long> ids);
 

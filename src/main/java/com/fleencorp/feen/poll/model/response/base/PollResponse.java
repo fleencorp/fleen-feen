@@ -1,9 +1,7 @@
 package com.fleencorp.feen.poll.model.response.base;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.user.model.response.UserResponse;
@@ -35,11 +33,13 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "is_multiple_choice_info",
   "is_anonymous_info",
   "is_ended_info",
+  "is_updatable",
   "poll_options",
   "poll_vote",
-  "author"
+  "author",
 })
-public class PollResponse extends FleenFeenResponse {
+public class PollResponse extends FleenFeenResponse
+    implements Updatable {
 
   @JsonProperty("question")
   private String question;
@@ -74,5 +74,27 @@ public class PollResponse extends FleenFeenResponse {
 
   @JsonProperty("author")
   private UserResponse author;
+
+  @JsonProperty("is_updatable")
+  private Boolean isUpdatable;
+
+  @JsonIgnore
+  private Long organizerId;
+
+  @Override
+  @JsonIgnore
+  public Long getAuthorId() {
+    return getOrganizerId();
+  }
+
+  @Override
+  public void setIsUpdatable(final boolean isUpdatable) {
+    this.isUpdatable = isUpdatable;
+  }
+
+  @Override
+  public void markAsUpdatable() {
+    setIsUpdatable(true);
+  }
 
 }
