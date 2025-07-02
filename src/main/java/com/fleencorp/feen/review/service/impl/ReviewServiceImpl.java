@@ -7,6 +7,8 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.like.service.LikeService;
 import com.fleencorp.feen.model.domain.chat.ChatSpace;
 import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.model.holder.ReviewParentCountHolder;
+import com.fleencorp.feen.model.projection.stream.review.ReviewParentCount;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
@@ -403,6 +405,12 @@ public class ReviewServiceImpl implements ReviewService {
   public Long decrementLikeCount(final Long reviewId) {
     final int total = reviewRepository.decrementAndGetLikeCount(reviewId);
     return (long) total;
+  }
+
+  @Override
+  public ReviewParentCountHolder getTotalReviewsByParent(final ReviewParentType parentType, final Collection<Long> parentIds) {
+    final List<ReviewParentCount> reviewParentCounts = reviewRepository.countReviewsGroupedByParentId(parentType, parentIds);
+    return ReviewParentCountHolder.of(reviewParentCounts);
   }
 
   /**

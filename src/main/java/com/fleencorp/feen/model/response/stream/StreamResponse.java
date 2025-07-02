@@ -14,9 +14,11 @@ import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.IsForKidsInfo;
 import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
+import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
@@ -65,7 +67,8 @@ import static java.util.Objects.nonNull;
   "like_count_info",
   "music_link",
   "schedule_time_type_info",
-  "total_attending",
+  "attendee_count_info",
+  "review_count_info",
   "some_attendees",
   "reviews",
   "is_updatable",
@@ -118,8 +121,11 @@ public class StreamResponse extends FleenFeenResponse
   @JsonProperty("other_schedule")
   private Schedule otherSchedule;
 
-  @JsonProperty("total_attending")
-  private Integer totalAttending;
+  @JsonProperty("attendee_count_info")
+  private AttendeeCountInfo attendeeCountInfo;
+
+  @JsonProperty("review_count_info")
+  private ReviewCountInfo reviewCountInfo;
 
   @JsonProperty("some_attendees")
   private Collection<StreamAttendeeResponse> someAttendees = new HashSet<>();

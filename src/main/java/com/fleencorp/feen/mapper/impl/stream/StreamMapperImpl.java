@@ -18,6 +18,7 @@ import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.model.info.stream.*;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.StreamAttendeeRequestToJoinStatusInfo;
@@ -79,7 +80,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
       response.setStreamLinkNotMasked(entry.getStreamLink());
-      response.setTotalAttending(entry.getTotalAttendees());
       response.setOrganizerId(entry.getOrganizerId());
 
       response.setCreatedOn(entry.getCreatedOn());
@@ -87,6 +87,9 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       final Schedule schedule = Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone());
       response.setSchedule(schedule);
+
+      final AttendeeCountInfo attendeeCountInfo = toInfoMapper.toAttendeeCountInfo(entry.getTotalAttendees());
+      response.setAttendeeCountInfo(attendeeCountInfo);
 
       final StreamStatusInfo streamStatusInfo = toStreamStatusInfo(entry.getStreamStatus());
       response.setStreamStatusInfo(streamStatusInfo);

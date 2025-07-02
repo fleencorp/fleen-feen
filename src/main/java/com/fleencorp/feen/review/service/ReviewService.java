@@ -3,6 +3,7 @@ package com.fleencorp.feen.review.service;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.exception.stream.StreamNotFoundException;
+import com.fleencorp.feen.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
@@ -15,6 +16,8 @@ import com.fleencorp.feen.review.model.response.ReviewResponse;
 import com.fleencorp.feen.review.model.response.UpdateReviewResponse;
 import com.fleencorp.feen.review.model.search.ReviewSearchResult;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
+
+import java.util.Collection;
 
 public interface ReviewService {
 
@@ -35,4 +38,6 @@ public interface ReviewService {
   Long incrementLikeCount(Long reviewId);
 
   Long decrementLikeCount(Long reviewId);
+
+  ReviewParentCountHolder getTotalReviewsByParent(ReviewParentType parentType, Collection<Long> parentIds);
 }

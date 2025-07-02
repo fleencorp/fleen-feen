@@ -22,11 +22,13 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
+import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
@@ -93,6 +95,10 @@ public interface UnifiedMapper {
   TotalFollowingInfo toTotalFollowingInfo(Long following, String targetMemberName);
 
   UserLikeInfo toLikeInfo(boolean liked);
+
+  AttendeeCountInfo toAttendeeCountInfo(Integer attendeeCount);
+
+  ReviewCountInfo toReviewCountInfo(Integer reviewCount);
 
   ShareContactRequestStatusInfo toShareContactRequestStatusInfo(ShareContactRequestStatus requestStatus);
 

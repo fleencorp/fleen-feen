@@ -8,10 +8,7 @@ import com.fleencorp.feen.constant.common.IsDeleted;
 import com.fleencorp.feen.constant.common.JoinStatus;
 import com.fleencorp.feen.constant.interaction.LikeCount;
 import com.fleencorp.feen.constant.interaction.ReviewCount;
-import com.fleencorp.feen.constant.stream.attendee.IsASpeaker;
-import com.fleencorp.feen.constant.stream.attendee.IsAttending;
-import com.fleencorp.feen.constant.stream.attendee.IsOrganizer;
-import com.fleencorp.feen.constant.stream.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.constant.stream.attendee.*;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowed;
 import com.fleencorp.feen.constant.user.follower.stat.TotalFollowing;
 import com.fleencorp.feen.follower.constant.IsFollowed;
@@ -27,6 +24,7 @@ import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
@@ -489,5 +487,15 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
     return ReviewCountInfo.of(reviewCount,
       translate(totalReviewCount.getMessageCode(), reviewCount)
     );
+  }
+
+  @Override
+  public AttendeeCountInfo toAttendeeCountInfo(final Integer attendeeCount) {
+    final AttendeeCount totalAttendeeCount = AttendeeCount.totalAttendee();
+    return AttendeeCountInfo.of(attendeeCount,
+        translate(totalAttendeeCount.getMessageCode(), attendeeCount),
+        translate(totalAttendeeCount.getMessageCode2(), attendeeCount),
+        translate(totalAttendeeCount.getMessageCode3(), attendeeCount)
+      );
   }
 }

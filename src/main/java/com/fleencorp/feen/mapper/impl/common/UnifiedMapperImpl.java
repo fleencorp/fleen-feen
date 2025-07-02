@@ -28,11 +28,13 @@ import com.fleencorp.feen.model.domain.stream.StreamAttendee;
 import com.fleencorp.feen.model.info.IsDeletedInfo;
 import com.fleencorp.feen.model.info.chat.space.ChatSpaceStatusInfo;
 import com.fleencorp.feen.model.info.chat.space.membership.ChatSpaceMembershipInfo;
+import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamStatusInfo;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.StreamVisibilityInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
@@ -205,6 +207,16 @@ public class UnifiedMapperImpl implements UnifiedMapper {
   @Override
   public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
     return toInfoMapper.toIsDeletedInfo(deleted);
+  }
+
+  @Override
+  public AttendeeCountInfo toAttendeeCountInfo(final Integer attendeeCount) {
+    return toInfoMapper.toAttendeeCountInfo(attendeeCount);
+  }
+
+  @Override
+  public ReviewCountInfo toReviewCountInfo(final Integer reviewCount) {
+    return toInfoMapper.toReviewCountInfo(reviewCount);
   }
 
   @Override

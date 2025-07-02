@@ -208,7 +208,7 @@ public class CommonMapperImpl extends BaseMapper implements CommonMapper {
         stream.getNumberId(),
         attendanceInfo,
         streamTypeInfo,
-        stream.getTotalAttending()
+        stream.getAttendeeCountInfo()
       );
     }
 

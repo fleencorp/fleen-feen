@@ -12,6 +12,7 @@ import com.fleencorp.feen.model.info.JoinStatusInfo;
 import com.fleencorp.feen.model.info.interaction.LikeCountInfo;
 import com.fleencorp.feen.model.info.interaction.ReviewCountInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsAttendingInfo;
 import com.fleencorp.feen.model.info.stream.attendee.IsOrganizerInfo;
@@ -71,4 +72,6 @@ public interface ToInfoMapper {
   LikeCountInfo toLikeCountInfo(Integer likeCount);
 
   ReviewCountInfo toReviewCountInfo(Integer reviewCount);
+
+  AttendeeCountInfo toAttendeeCountInfo(Integer attendeeCount);
 }

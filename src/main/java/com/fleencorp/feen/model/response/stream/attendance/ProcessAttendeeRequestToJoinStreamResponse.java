@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.constant.stream.StreamType;
 import com.fleencorp.feen.model.info.stream.StreamTypeInfo;
 import com.fleencorp.feen.model.info.stream.attendance.AttendanceInfo;
+import com.fleencorp.feen.model.info.stream.attendance.AttendeeCountInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +24,7 @@ import static java.util.Objects.nonNull;
   "stream_id",
   "attendance_info",
   "stream_type_info",
-  "total_attending",
+  "attendee_count_info",
   "stream"
 })
 public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedResponse {
@@ -37,8 +38,8 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedRespons
   @JsonProperty("stream_type_info")
   protected StreamTypeInfo streamTypeInfo;
 
-  @JsonProperty("total_attending")
-  private Integer totalAttending;
+  @JsonProperty("attendee_count_info")
+  private AttendeeCountInfo attendeeCountInfo;
 
   @JsonIgnore
   protected StreamType getStreamType() {
@@ -52,7 +53,7 @@ public class ProcessAttendeeRequestToJoinStreamResponse extends LocalizedRespons
       : "process.attendee.request.to.join.live.broadcast";
   }
 
-  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final Integer totalAttending) {
-    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, totalAttending);
+  public static ProcessAttendeeRequestToJoinStreamResponse of(final Long streamId, final AttendanceInfo attendanceInfo, final StreamTypeInfo streamTypeInfo, final AttendeeCountInfo attendeeCountInfo) {
+    return new ProcessAttendeeRequestToJoinStreamResponse(streamId, attendanceInfo, streamTypeInfo, attendeeCountInfo);
   }
 }

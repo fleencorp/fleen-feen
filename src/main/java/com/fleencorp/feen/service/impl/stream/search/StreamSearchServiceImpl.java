@@ -421,7 +421,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
           streamOperationsService.setStreamAttendeesAndTotalAttendeesAttending(streamResponse);
           // Retrieve the first 10 attendees in any order
           streamOperationsService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponse);
-        });
+      });
     }
     // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
