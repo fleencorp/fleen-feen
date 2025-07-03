@@ -25,7 +25,7 @@ public class PollSearchRequest extends SearchRequest {
   private String authorId;
 
   @ToUpperCase
-  @JsonProperty("poll_parent_type")
+  @JsonProperty("parent_type")
   protected String pollParentType;
 
   @IsNumber

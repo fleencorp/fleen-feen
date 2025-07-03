@@ -20,7 +20,7 @@ import static com.fleencorp.base.util.FleenUtil.isValidNumber;
 public class ReviewSearchRequest extends SearchRequest {
 
   @ToUpperCase
-  @JsonProperty("review_parent_type")
+  @JsonProperty("parent_type")
   protected String reviewParentType;
 
   @IsNumber

@@ -17,7 +17,7 @@ import static java.util.Objects.nonNull;
 public class PollVoteSearchRequest extends SearchRequest {
 
   @IsNumber
-  @JsonProperty("poll_option_id")
+  @JsonProperty("option_id")
   private String pollOptionId;
 
   public boolean hasOptionId() {
