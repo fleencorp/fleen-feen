@@ -4,14 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.exception.base.FailedOperationException;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.FleenUtil.isValidNumber;
+import static java.util.Objects.nonNull;
 
 @SuperBuilder
 @Getter
@@ -32,11 +31,7 @@ public class ReviewSearchRequest extends SearchRequest {
   }
 
   public Long getParentId() {
-    if (isValidNumber(parentId)) {
-      return Long.parseLong(parentId);
-    }
-
-    throw FailedOperationException.of();
+    return nonNull(parentId) ? Long.parseLong(parentId) : 0L;
   }
 
   public boolean isStreamReviewSearchRequest() {

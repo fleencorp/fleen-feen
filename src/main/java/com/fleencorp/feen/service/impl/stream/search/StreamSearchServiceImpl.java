@@ -22,8 +22,8 @@ import com.fleencorp.feen.model.search.stream.common.StreamSearchResult;
 import com.fleencorp.feen.model.search.stream.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.model.search.stream.mutual.MutualStreamAttendanceSearchResult;
 import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.model.response.ReviewResponse;
-import com.fleencorp.feen.review.service.ReviewService;
+import com.fleencorp.feen.review.model.response.base.ReviewResponse;
+import com.fleencorp.feen.review.service.ReviewSearchService;
 import com.fleencorp.feen.service.stream.StreamOperationsService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.search.StreamSearchService;
@@ -70,7 +70,7 @@ import static java.util.Objects.nonNull;
 public class StreamSearchServiceImpl implements StreamSearchService {
 
   private final MemberService memberService;
-  private final ReviewService reviewService;
+  private final ReviewSearchService reviewSearchService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
   private final StreamMapper streamMapper;
@@ -78,13 +78,13 @@ public class StreamSearchServiceImpl implements StreamSearchService {
 
   public StreamSearchServiceImpl(
       final MemberService memberService,
-      final ReviewService reviewService,
+      final ReviewSearchService reviewSearchService,
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
       final StreamMapper streamMapper,
       final Localizer localizer) {
     this.memberService = memberService;
-    this.reviewService = reviewService;
+    this.reviewSearchService = reviewSearchService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
     this.streamMapper = streamMapper;
@@ -455,7 +455,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     // Add the single response to a List
     final List<StreamResponse> streamResponses = List.of(streamResponse);
     // Get most recent review of the stream
-    final ReviewResponse mostRecentReview = reviewService.findMostRecentReview(ReviewParentType.STREAM, streamId, user);
+    final ReviewResponse mostRecentReview = reviewSearchService.findMostRecentReview(ReviewParentType.STREAM, streamId, user);
     // Set the reviews
     streamResponse.setReviews(mostRecentReview);
     // Get all stream or stream attendees

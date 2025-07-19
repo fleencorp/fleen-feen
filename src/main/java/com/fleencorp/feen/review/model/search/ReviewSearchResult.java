@@ -36,6 +36,7 @@ public class ReviewSearchResult extends LocalizedResponse {
   }
 
   public static ReviewSearchResult empty() {
-    return new ReviewSearchResult(SearchResult.empty());
+    final SearchResult result = SearchResult.empty();
+    return new ReviewSearchResult(result);
   }
 }

@@ -32,11 +32,7 @@ public enum LikeType implements ApiParameter {
     return parseEnumOrNull(value, LikeType.class);
   }
 
-  public static boolean isLike(final LikeType likeType) {
-    return LIKE == likeType;
-  }
-
-  public static boolean liked(final LikeType likeType) {
+  public static boolean isLiked(final LikeType likeType) {
     return LIKE == likeType;
   }
 }

@@ -12,7 +12,7 @@ import com.fleencorp.feen.model.projection.stream.attendee.StreamAttendeeSelect;
 import com.fleencorp.feen.model.response.stream.StreamResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.service.ReviewService;
+import com.fleencorp.feen.review.service.ReviewCommonService;
 import com.fleencorp.feen.service.stream.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.service.stream.common.CommonStreamOtherService;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -36,17 +36,17 @@ import static java.util.Objects.nonNull;
 public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
 
   private final LikeService likeService;
-  private final ReviewService reviewService;
+  private final ReviewCommonService reviewCommonService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final UnifiedMapper unifiedMapper;
 
   public CommonStreamOtherServiceImpl(
       final LikeService likeService,
-      final ReviewService reviewService,
+      final ReviewCommonService reviewCommonService,
       @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final UnifiedMapper unifiedMapper) {
     this.likeService = likeService;
-    this.reviewService = reviewService;
+    this.reviewCommonService = reviewCommonService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.unifiedMapper = unifiedMapper;
   }
@@ -69,7 +69,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
 
       // Collect the details of reviews for each stream
       final Collection<Long> streamsIds = getStreamsIds(streamResponses);
-      final ReviewParentCountHolder reviewParentCountHolder = reviewService.getTotalReviewsByParent(ReviewParentType.STREAM, streamsIds);
+      final ReviewParentCountHolder reviewParentCountHolder = reviewCommonService.getTotalReviewsByParent(ReviewParentType.STREAM, streamsIds);
 
       // Populate like status for streams where the user has not joined or requested to join
       likeService.populateStreamLikesForNonAttendance(streamResponses, attendanceDetailsMap, member);

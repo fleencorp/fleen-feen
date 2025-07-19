@@ -6,7 +6,7 @@ import com.fleencorp.feen.exception.stream.StreamNotFoundException;
 import com.fleencorp.feen.like.model.dto.LikeDto;
 import com.fleencorp.feen.like.model.response.LikeResponse;
 import com.fleencorp.feen.model.contract.Likeable;
-import com.fleencorp.feen.review.model.response.ReviewResponse;
+import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 

@@ -53,6 +53,9 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "description", nullable = false, length = 3000)
   private String description;
 
+  @Column(name = "summary")
+  private String summary;
+
   @Column(name = "tags", length = 300)
   private String tags;
 

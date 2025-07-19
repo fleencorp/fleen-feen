@@ -112,7 +112,7 @@ public class AddPollDto {
     return hasParent() && parent.isStreamParent();
   }
 
-  public Poll toPoll(final Member author, final String title, final ChatSpace chatSpace, final FleenStream stream) {
+  public Poll toPoll(final Member author, final String parentTitle, final ChatSpace chatSpace, final FleenStream stream) {
     final Long parentId = hasParent() ? getParentId() : null;
     final PollParentType parentType = hasParent() ? getParentType() : null;
 
@@ -127,7 +127,7 @@ public class AddPollDto {
     poll.setAuthor(author);
     poll.setParentId(parentId);
     poll.setPollParentType(parentType);
-    poll.setParentTitle(title);
+    poll.setParentTitle(parentTitle);
 
     poll.setChatSpace(chatSpace);
     poll.setChatSpaceId(parentId);
@@ -153,7 +153,7 @@ public class AddPollDto {
     return pollOptions;
   }
 
-
+  @Valid
   @Getter
   @Setter
   @NoArgsConstructor
@@ -181,6 +181,7 @@ public class AddPollDto {
     }
   }
 
+  @Valid
   @Getter
   @Setter
   @NoArgsConstructor
@@ -209,10 +210,6 @@ public class AddPollDto {
 
     public boolean isChatSpaceParent() {
       return PollParentType.isChatSpace(getParentType());
-    }
-
-    public static PollParentDto of() {
-      return new PollParentDto();
     }
   }
 }
