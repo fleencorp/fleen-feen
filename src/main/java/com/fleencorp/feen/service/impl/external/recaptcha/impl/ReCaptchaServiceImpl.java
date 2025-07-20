@@ -2,7 +2,7 @@ package com.fleencorp.feen.service.impl.external.recaptcha.impl;
 
 import com.fleencorp.feen.adapter.google.recaptcha.ReCaptchaAdapter;
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
-import com.fleencorp.feen.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.service.impl.external.recaptcha.ReCaptchaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

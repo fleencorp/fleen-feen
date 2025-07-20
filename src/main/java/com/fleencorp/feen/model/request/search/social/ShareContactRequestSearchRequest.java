@@ -3,7 +3,7 @@ package com.fleencorp.feen.model.request.search.social;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
-import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,21 +1,21 @@
 package com.fleencorp.feen.service.impl.external.google.chat;
 
-import com.fleencorp.feen.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.constant.external.google.chat.space.ChatSpaceField;
-import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
-import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.RetrieveChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.common.constant.external.google.chat.space.ChatSpaceField;
+import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
+import com.fleencorp.feen.chat.space.model.request.external.core.CreateChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.DeleteChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.RetrieveChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.UpdateChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleCreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleRetrieveChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatUpdateService;
-import com.fleencorp.feen.service.report.ReporterService;
-import com.fleencorp.feen.util.external.google.GoogleChatMessageBuilder;
+import com.fleencorp.feen.common.service.report.ReporterService;
+import com.fleencorp.feen.common.util.external.google.GoogleChatMessageBuilder;
 import com.google.chat.v1.*;
 import com.google.protobuf.FieldMask;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CHAT;
-import static com.fleencorp.feen.exception.RestExceptionHandler.toSnakeCase;
-import static com.fleencorp.feen.mapper.external.GoogleChatSpaceMapper.toGoogleChatSpaceResponse;
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
-import static com.fleencorp.feen.util.external.google.GoogleChatMessageBuilder.ofCardWithId;
+import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
+import static com.fleencorp.feen.chat.space.ChatSpaceExceptionHandler.toSnakeCase;
+import static com.fleencorp.feen.chat.space.mapper.external.GoogleChatSpaceMapper.toGoogleChatSpaceResponse;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.external.google.GoogleChatMessageBuilder.ofCardWithId;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 

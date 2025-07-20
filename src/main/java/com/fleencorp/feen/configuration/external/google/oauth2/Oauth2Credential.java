@@ -15,7 +15,7 @@ import org.springframework.context.annotation.PropertySources;
 
 import java.util.List;
 
-import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
+import static com.fleencorp.feen.common.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.*;
 
 /**

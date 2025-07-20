@@ -1,6 +1,6 @@
 package com.fleencorp.feen.poll.service;
 
-import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;

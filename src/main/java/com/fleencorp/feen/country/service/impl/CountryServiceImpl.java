@@ -1,6 +1,7 @@
 package com.fleencorp.feen.country.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.country.exception.CountryNotFoundException;
 import com.fleencorp.feen.country.mapper.CountryMapper;
 import com.fleencorp.feen.country.model.domain.Country;
@@ -10,8 +11,7 @@ import com.fleencorp.feen.country.model.search.CountrySearchResult;
 import com.fleencorp.feen.country.repository.CountryRepository;
 import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
-import com.fleencorp.feen.model.response.other.CountAllResponse;
-import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -134,16 +134,16 @@ public class CountryServiceImpl implements CountryService {
   * Counts the total number of Country entities in the repository.
   *
   * <p>This method retrieves the total count of Country entities from the repository and returns it wrapped in a
-  * {@link CountAllResponse} DTO.</p>
+  * {@link FleenFeenResponse.CountAllResponse} DTO.</p>
   *
-  * @return a {@link CountAllResponse} containing the total count of Country entities
+  * @return a {@link FleenFeenResponse.CountAllResponse} containing the total count of Country entities
   */
   @Override
-  public CountAllResponse countAll() {
+  public FleenFeenResponse.CountAllResponse countAll() {
     // Count the total number of countries in the repository
     final long total = repository.count();
     // Return a localized response containing the total count of countries
-    return localizer.of(CountAllResponse.of(total));
+    return localizer.of(FleenFeenResponse.CountAllResponse.of(total));
   }
 
   /**

@@ -1,16 +1,16 @@
 package com.fleencorp.feen.review.service.impl;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.review.model.dto.AddReviewDto;
 import com.fleencorp.feen.review.model.dto.UpdateReviewDto;
-import com.fleencorp.feen.review.model.holder.ReviewOtherDetailsHolder;
+import com.fleencorp.feen.review.model.holder.ReviewParentDetailHolder;
 import com.fleencorp.feen.review.model.response.ReviewAddResponse;
 import com.fleencorp.feen.review.model.response.ReviewDeleteResponse;
 import com.fleencorp.feen.review.model.response.ReviewUpdateResponse;
@@ -18,7 +18,7 @@ import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.review.repository.ReviewRepository;
 import com.fleencorp.feen.review.service.ReviewCommonService;
 import com.fleencorp.feen.review.service.ReviewService;
-import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
 
 /**
@@ -102,10 +102,10 @@ public class ReviewServiceImpl implements ReviewService {
       throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     final Member member = memberService.findMember(user.getId());
     // Get the necessary details
-    final ReviewOtherDetailsHolder reviewOtherDetailsHolder = retrieveReviewOtherDetailsHolder(addReviewDto);
-    final String parentTitle = reviewOtherDetailsHolder.parentTitle();
-    final ChatSpace chatSpace = reviewOtherDetailsHolder.chatSpace();
-    final FleenStream stream = reviewOtherDetailsHolder.stream();
+    final ReviewParentDetailHolder reviewParentDetailHolder = retrieveReviewOtherDetailsHolder(addReviewDto);
+    final String parentTitle = reviewParentDetailHolder.parentTitle();
+    final ChatSpace chatSpace = reviewParentDetailHolder.chatSpace();
+    final FleenStream stream = reviewParentDetailHolder.stream();
 
     // Convert the dto to the entity
     final Review review = addReviewDto.toReview(member, parentTitle, chatSpace, stream);
@@ -165,18 +165,18 @@ public class ReviewServiceImpl implements ReviewService {
   }
 
   /**
-   * Retrieves the {@link ReviewOtherDetailsHolder} based on the given {@link AddReviewDto}.
+   * Retrieves the {@link ReviewParentDetailHolder} based on the given {@link AddReviewDto}.
    *
    * <p>This method first checks that the provided {@code addReviewDto} is not {@code null}. It then evaluates
    * whether the review is associated with a stream by calling {@link AddReviewDto#isStreamParent()}. If so,
    * it attempts to retrieve and validate the parent {@link FleenStream} using the provided parent ID and
-   * returns the corresponding {@link ReviewOtherDetailsHolder}.</p>
+   * returns the corresponding {@link ReviewParentDetailHolder}.</p>
    *
    * @param addReviewDto the DTO containing information about the review, including its parent type and ID
-   * @return a {@link ReviewOtherDetailsHolder} containing additional details related to the review
+   * @return a {@link ReviewParentDetailHolder} containing additional details related to the review
    * @throws FailedOperationException if the {@code addReviewDto} is {@code null} or the review parent type is invalid
    */
-  protected ReviewOtherDetailsHolder retrieveReviewOtherDetailsHolder(final AddReviewDto addReviewDto) throws FailedOperationException {
+  protected ReviewParentDetailHolder retrieveReviewOtherDetailsHolder(final AddReviewDto addReviewDto) throws FailedOperationException {
     // Ensure reviewParentType is not null
     checkIsNull(addReviewDto, FailedOperationException::new);
 
@@ -193,19 +193,19 @@ public class ReviewServiceImpl implements ReviewService {
    *
    * <p>If the {@code streamId} is not {@code null}, this method fetches the corresponding {@link FleenStream} using
    * {@link StreamService#findStream(Long)}. It then checks whether the stream is eligible to receive a review
-   * by calling {@link FleenStream#checkAddReviewEligibility()}. If valid, it returns a {@link ReviewOtherDetailsHolder}
+   * by calling {@link FleenStream#checkAddReviewEligibility()}. If valid, it returns a {@link ReviewParentDetailHolder}
    * containing the stream.</p>
    *
    * @param streamId the ID of the stream to validate
-   * @return a {@link ReviewOtherDetailsHolder} containing the stream
+   * @return a {@link ReviewParentDetailHolder} containing the stream
    * @throws FailedOperationException if the {@code streamId} is {@code null}
    */
-  protected ReviewOtherDetailsHolder validateStreamParent(final Long streamId) {
+  protected ReviewParentDetailHolder validateStreamParent(final Long streamId) {
     if (nonNull(streamId)) {
       final FleenStream stream = streamService.findStream(streamId);
       stream.checkAddReviewEligibility();
 
-      return ReviewOtherDetailsHolder.of(null, stream);
+      return ReviewParentDetailHolder.of(null, stream);
     }
 
     throw FailedOperationException.of();

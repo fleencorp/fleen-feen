@@ -1,7 +1,7 @@
 package com.fleencorp.feen.verification.service.impl;
 
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
-import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.user.constant.authentication.AuthenticationStatus;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.Date;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.toHours;
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
+import static com.fleencorp.feen.common.service.impl.cache.CacheKeyService.*;
 import static com.fleencorp.feen.user.constant.token.TokenType.*;
 import static java.time.Duration.ofHours;
 

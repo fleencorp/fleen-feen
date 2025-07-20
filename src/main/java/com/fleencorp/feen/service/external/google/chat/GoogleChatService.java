@@ -1,10 +1,10 @@
 package com.fleencorp.feen.service.external.google.chat;
 
-import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.DeleteChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.RetrieveChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.UpdateChatSpaceRequest;
-import com.fleencorp.feen.model.request.chat.space.message.GoogleChatSpaceMessageRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.CreateChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.DeleteChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.RetrieveChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.UpdateChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.message.GoogleChatSpaceMessageRequest;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleCreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleRetrieveChatSpaceResponse;

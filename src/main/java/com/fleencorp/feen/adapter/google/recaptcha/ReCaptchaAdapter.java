@@ -6,7 +6,7 @@ import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.adapter.google.recaptcha.model.constant.GoogleRecaptchaEndpointBlock;
 import com.fleencorp.feen.adapter.google.recaptcha.model.constant.GoogleRecaptchaParameter;
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
-import com.fleencorp.feen.constant.external.ExternalSystemType;
+import com.fleencorp.feen.common.constant.external.ExternalSystemType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
 
 /**
  * The ReCaptchaAdapter is used for authentication and security purpose to verify that

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.repository.social;
 
-import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;

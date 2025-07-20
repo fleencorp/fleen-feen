@@ -7,7 +7,7 @@ import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.link.model.dto.base.BaseLinkDto;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.dto.aws;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.feen.constant.file.ObjectTypeUpload;
+import com.fleencorp.feen.common.constant.file.ObjectTypeUpload;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

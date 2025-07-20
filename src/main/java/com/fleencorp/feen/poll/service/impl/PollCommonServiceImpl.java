@@ -5,7 +5,7 @@ import com.fleencorp.feen.poll.exception.poll.PollUpdateUnauthorizedException;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.stereotype.Service;
 

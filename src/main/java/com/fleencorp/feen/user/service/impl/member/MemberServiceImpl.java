@@ -2,11 +2,11 @@ package com.fleencorp.feen.user.service.impl.member;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.model.response.common.EmailAddressExistsResponse;
-import com.fleencorp.feen.model.response.common.PhoneNumberExistsResponse;
-import com.fleencorp.feen.model.response.other.EntityExistsResponse;
-import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.model.response.EmailAddressExistsResponse;
+import com.fleencorp.feen.common.model.response.PhoneNumberExistsResponse;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.projection.MemberInfoSelect;
@@ -29,7 +29,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.*;
+import static com.fleencorp.feen.common.service.impl.cache.CacheKeyService.*;
 
 /**
  * Implementation of the {@link MemberService}, {@link EmailService}, and {@link PhoneService} interfaces.
@@ -94,7 +94,7 @@ public class MemberServiceImpl implements MemberService,
    * indicating the result.
    *
    * @param emailAddress the email address to check for existence
-   * @return an {@link EntityExistsResponse} containing a localized response
+   * @return an {@link FleenFeenResponse.EntityExistsResponse} containing a localized response
    *         indicating whether the email address exists or not
    */
   @Override
@@ -127,7 +127,7 @@ public class MemberServiceImpl implements MemberService,
    * the result.
    *
    * @param phoneNumber the phone number to check for existence
-   * @return an {@link EntityExistsResponse} containing a localized response
+   * @return an {@link FleenFeenResponse.EntityExistsResponse} containing a localized response
    *         indicating whether the phone number exists or not
    */
   @Override

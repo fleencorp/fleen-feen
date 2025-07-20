@@ -2,7 +2,7 @@ package com.fleencorp.feen.configuration.cache;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fleencorp.feen.event.subscriber.StreamEventSubscriber;
+import com.fleencorp.feen.common.event.subscriber.StreamEventSubscriber;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

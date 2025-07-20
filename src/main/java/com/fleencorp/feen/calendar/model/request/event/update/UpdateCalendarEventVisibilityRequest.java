@@ -1,6 +1,6 @@
 package com.fleencorp.feen.calendar.model.request.event.update;
 
-import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
+import com.fleencorp.feen.common.constant.external.google.calendar.event.EventVisibility;
 import lombok.*;
 
 import static java.util.Objects.nonNull;

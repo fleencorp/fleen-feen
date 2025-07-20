@@ -3,7 +3,7 @@ package com.fleencorp.feen.country.model.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,8 +1,8 @@
 package com.fleencorp.feen.softask.model.domain;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;

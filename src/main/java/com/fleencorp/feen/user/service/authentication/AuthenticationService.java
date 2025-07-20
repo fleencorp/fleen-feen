@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.service.authentication;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.response.authentication.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.authentication.SignInResponse;
 import com.fleencorp.feen.model.response.authentication.SignUpResponse;

@@ -2,7 +2,7 @@ package com.fleencorp.feen.model.response.external.google.chat.chat;
 
 import com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleChatSpaceResponse;
 
-import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getSpaceIdOrNameFrom;
+import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getSpaceIdOrNameFrom;
 
 public record GoogleCreateChatSpaceResponse(String name, String displayName, String spaceUri, GoogleChatSpaceResponse chatSpace) {
 

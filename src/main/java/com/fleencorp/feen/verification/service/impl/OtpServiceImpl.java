@@ -1,6 +1,6 @@
 package com.fleencorp.feen.verification.service.impl;
 
-import com.fleencorp.feen.exception.base.UnableToCompleteOperationException;
+import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
 import com.fleencorp.feen.verification.service.OtpService;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 

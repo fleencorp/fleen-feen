@@ -1,6 +1,6 @@
 package com.fleencorp.feen.poll.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.poll.exception.option.PollOptionNotFoundException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;

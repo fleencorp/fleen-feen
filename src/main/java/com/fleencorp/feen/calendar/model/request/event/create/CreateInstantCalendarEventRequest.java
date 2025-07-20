@@ -1,6 +1,6 @@
 package com.fleencorp.feen.calendar.model.request.event.create;
 
-import com.fleencorp.feen.model.dto.event.CreateInstantEventDto;
+import com.fleencorp.feen.stream.model.dto.event.CreateInstantEventDto;
 import lombok.*;
 
 @Builder

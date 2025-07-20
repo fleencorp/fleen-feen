@@ -1,11 +1,11 @@
 package com.fleencorp.feen.service.impl.social;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.exception.social.share.contact.*;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.domain.notification.Notification;
+import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.dto.social.share.ExpectShareContactRequestDto;
 import com.fleencorp.feen.model.dto.social.share.ProcessShareContactRequestDto;
@@ -15,8 +15,8 @@ import com.fleencorp.feen.model.request.search.social.ShareContactRequestSearchR
 import com.fleencorp.feen.model.response.social.share.*;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
 import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
-import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
-import com.fleencorp.feen.service.notification.NotificationService;
+import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
+import com.fleencorp.feen.notification.service.NotificationService;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;

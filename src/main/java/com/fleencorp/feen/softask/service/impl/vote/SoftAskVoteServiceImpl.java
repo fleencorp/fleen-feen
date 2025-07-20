@@ -1,6 +1,6 @@
 package com.fleencorp.feen.softask.service.impl.vote;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.exception.core.SoftAskAnswerNotFoundException;

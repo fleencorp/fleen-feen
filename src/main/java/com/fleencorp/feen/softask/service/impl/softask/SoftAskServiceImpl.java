@@ -1,13 +1,13 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
-import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.model.info.IsDeletedInfo;
-import com.fleencorp.feen.service.chat.space.ChatSpaceOperationsService;
-import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;

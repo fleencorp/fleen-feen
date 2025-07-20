@@ -1,7 +1,7 @@
 package com.fleencorp.feen.configuration.external.aws.s3;
 
 
-import com.fleencorp.feen.constant.file.ObjectTypeUpload;
+import com.fleencorp.feen.common.constant.file.ObjectTypeUpload;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

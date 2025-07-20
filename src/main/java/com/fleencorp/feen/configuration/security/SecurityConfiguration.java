@@ -1,7 +1,7 @@
 package com.fleencorp.feen.configuration.security;
 
 import com.fleencorp.feen.configuration.security.provider.CustomAuthenticationProvider;
-import com.fleencorp.feen.filter.JwtAuthenticationFilter;
+import com.fleencorp.feen.common.filter.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;

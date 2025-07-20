@@ -1,14 +1,14 @@
 package com.fleencorp.feen.service.impl.external.google.chat;
 
-import com.fleencorp.feen.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.chat.space.model.request.external.core.CreateChatSpaceRequest;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatUpdateService;
-import com.fleencorp.feen.service.report.ReporterService;
+import com.fleencorp.feen.common.service.report.ReporterService;
 import com.google.chat.v1.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import static com.fleencorp.feen.constant.base.ReportMessageType.GOOGLE_CHAT;
+import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
 import static com.fleencorp.feen.service.impl.external.google.chat.GoogleChatServiceImpl.*;
 
 /**

@@ -1,10 +1,10 @@
 package com.fleencorp.feen.poll.controller;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
-import com.fleencorp.feen.exception.stream.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
+import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.poll.model.dto.DeletePollDto;

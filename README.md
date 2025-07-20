@@ -1,63 +1,98 @@
 # Fleen Feen
 
-## A New Way to Connect: Live, Real-Time Social Networking & Discovery
+### A New Way to Connect: Real-Time Social Networking & Discovery
 
 ---
 
-### Sector
-Social Networking, Knowledge Discovery, Community Tools
+## 🧭 Sector
+Social Networking · Knowledge Discovery · Community Tools
 
-### Model
-D2C with B2B tools for creators, communities & SMBs
-
----
-
-## The Problem
-
-Social media today is overwhelming, fragmented, and shallow. People scroll endlessly but struggle to form real connections or discover like-minded communities. Most platforms separate communication, community, and discovery across different apps—making authentic networking hard and messy.
+## 💼 Model
+Direct-to-Consumer (D2C) with B2B tools for creators, communities, and small businesses
 
 ---
 
-## The Solution
+## ❗ The Problem
 
-Fleen reimagines social networking as live, real-time connection and discovery. It’s a platform where users speak, listen, and explore through voice/video streams, interest-based communities, and an integrated social search engine. It’s not about posts—it’s about presence.
-
-- **Live Real-Time Streams (Instant or Scheduled):** Join or host conversations with people who share your interests, knowledge, or curiosity.
-- **Pre-call Vibes:** Use Spotify or YouTube Music links to set the mood before a stream.
-- **Social Search Engine:** Find people, streams, knowledge topics, communities, or small businesses—live and evolving, not static content.
-- **Voice-Led Discovery:** Learn from real people, in real time—like a living knowledge network.
+Social networking today is fragmented and overwhelming. Real connection is buried under algorithmic feeds, siloed communities, and passive scrolling. Discovery is accidental, not intentional. Live conversations and community activity are scattered across platforms like X, Discord, Telegram, and Reddit—with little searchability or context.
 
 ---
 
-## Why Now?
+## 💡 The Solution
 
-People crave depth and authenticity. Fleen enables live, human-first interactions at scale—offering a different kind of social networking: where what you say matters more than what you post, and where discovery feels personal, not algorithmic.
+Fleen is a real-time social network built for presence, not just posts. It unifies live conversation, interest-driven discovery, and community participation in one seamless experience.
 
----
+Key Features:
 
-## Philosophy: Be Real, Discover Real
+- 🎙️ Live Real-Time Streams  
+  Start or join interest-based conversations instantly or on a schedule—voice-first and deeply contextual.
 
-Fleen lets users be themselves, connect naturally, and grow through authentic voice and shared curiosity. You don’t follow people—you meet them.
+- 🎧 Pre-Call Vibes  
+  Let users set the tone for streams with Spotify or YouTube Music links—create atmosphere before conversation begins.
 
----
+- 🔍 Social Search Engine  
+  Search people, streams, polls, soft asks, businesses, opportunities, and ideas—all linked to Fleen’s real-time graph.
 
-## Technology
+- 🧠 Voice-Led Discovery  
+  Real people sharing ideas in real time. Think living conversations, not static content.
 
-- Spring Boot backend
-- Real-time streaming infrastructure
-- Interest-based search engine
-- Social link aggregation for external platforms
-
----
-
-## Current Traction
-
-- MVP in development
-- Early creator & community interest
-- Waitlist forming organically
+- 🌐 Business & Community Pages  
+  Help local creators and communities get discovered with rich, searchable profiles linking external channels (Instagram, Reddit, etc.).
 
 ---
 
-## Vision
+## 🕰️ Why Now?
 
-To build the world’s first real-time social discovery engine—connecting people not through content, but through voice, knowledge, and shared presence.
+The need for meaningful interaction is growing. Fleen fills the void by creating intentional, low-friction spaces for real-time conversations and shared curiosity. In an era of algorithm fatigue, people want human-first platforms—not passive content feeds.
+
+---
+
+## ✨ Philosophy: Be Real, Discover Real
+Fleen values authentic voice over filtered posts. It’s built for conversation, not performance. You don’t scroll—you participate. You don’t follow—you meet.
+
+---
+
+## 🧱 Technology Stack
+
+- 💻 Java (Spring Boot) Backend
+- 📡 Real-Time Infrastructure
+- 💬 Integrated Poll & Soft Ask Engine
+- ⚡ Redis + PostgreSQL
+- 📈 TypeScript + Angular Frontend with SSR
+- 🔗 External Platform Integration (Telegram, Discord, Reddit, etc.)
+- 🧠 OpenAI GPT-4 for intelligent summarization and content discovery
+
+---
+
+## 📈 Current Traction
+
+- MVP in development (core backend & streaming features near completion)
+- Organically growing waitlist
+- Ongoing outreach to creators, project managers, and UI/UX designers
+- Early feedback from social networkers, small businesses, and digital nomads
+
+---
+
+## 🌍 Vision
+
+To build the world’s first real-time discovery engine where people connect through voice, curiosity, and presence—not just likes and follows.
+
+Fleen aims to become the default space for spontaneous, thoughtful, and interest-driven interaction—across communities, knowledge, and businesses.
+
+---
+
+## 📄 Details
+
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)  
+![Build Status](https://github.com/fleencorp/fleen-feen/actions/workflows/start.yml/badge.svg)  
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=fleencorp_fleen-feen&metric=alert_status)](https://sonarcloud.io/dashboard?id=fleencorp_fleen-feen)  
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fleencorp_fleen-feen&metric=ncloc)](https://sonarcloud.io/dashboard?id=fleencorp_fleen-feen)
+
+---
+
+## 🙌 Contributing
+
+Fleen is still early. If you're a designer, builder, or curious collaborator—reach out. We're building something new for people, not just users.
+
+---
+

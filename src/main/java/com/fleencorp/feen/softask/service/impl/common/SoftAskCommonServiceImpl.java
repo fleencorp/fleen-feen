@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.common;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -192,12 +192,13 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @param softAskCommonData the entity to persist; must be an instance of {@link SoftAsk}, {@link SoftAskAnswer}, or {@link SoftAskReply}.
    */
   private void saveSoftAskCommonData(final SoftAskCommonData softAskCommonData) {
-    if (softAskCommonData instanceof SoftAskAnswer) {
-      softAskOperationService.save((SoftAskAnswer) softAskCommonData);
-    } else if (softAskCommonData instanceof SoftAskReply) {
-      softAskOperationService.save((SoftAskReply) softAskCommonData);
-    } else if (softAskCommonData instanceof SoftAsk) {
-      softAskOperationService.save((SoftAsk) softAskCommonData);
+    if (softAskCommonData instanceof SoftAskAnswer softAskAnswer) {
+      softAskOperationService.save(softAskAnswer);
+    } else if (softAskCommonData instanceof SoftAskReply softAskReply) {
+      softAskOperationService.save(softAskReply);
+    } else if (softAskCommonData instanceof SoftAsk softAsk) {
+      softAskOperationService.save(softAsk);
     }
   }
+
 }

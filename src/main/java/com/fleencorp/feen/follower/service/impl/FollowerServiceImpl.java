@@ -1,7 +1,7 @@
 package com.fleencorp.feen.follower.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.follower.exception.core.FollowingNotFoundException;
 import com.fleencorp.feen.follower.mapper.FollowerMapper;
 import com.fleencorp.feen.follower.model.domain.Follower;
@@ -17,11 +17,11 @@ import com.fleencorp.feen.follower.repository.FollowerRepository;
 import com.fleencorp.feen.follower.service.FollowerService;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.model.contract.UserFollowStat;
-import com.fleencorp.feen.model.domain.notification.Notification;
+import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
-import com.fleencorp.feen.service.impl.notification.NotificationMessageService;
-import com.fleencorp.feen.service.notification.NotificationService;
+import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
+import com.fleencorp.feen.notification.service.NotificationService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.user.model.response.UserResponse;

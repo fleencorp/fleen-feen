@@ -1,6 +1,6 @@
 package com.fleencorp.feen.softask.controller.user;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.model.response.user.SoftAskUserProfileRetrieveResponse;
 import com.fleencorp.feen.softask.service.participant.SoftAskParticipantService;
 import com.fleencorp.feen.user.model.security.RegisteredUser;

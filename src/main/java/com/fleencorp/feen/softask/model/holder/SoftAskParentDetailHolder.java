@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.model.holder;
 
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 
 import java.util.Optional;

@@ -2,8 +2,8 @@ package com.fleencorp.feen.model.response.external.google.chat.membership;
 
 import com.fleencorp.feen.model.response.external.google.chat.membership.base.GoogleChatSpaceMemberResponse;
 
-import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getSpaceIdOrNameFrom;
-import static com.fleencorp.feen.util.external.google.GoogleApiUtil.getSpaceMemberIdOrNameFrom;
+import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getSpaceIdOrNameFrom;
+import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getSpaceMemberIdOrNameFrom;
 
 public record GoogleAddChatSpaceMemberResponse(String spaceIdOrName, String memberIdOrName, GoogleChatSpaceMemberResponse memberResponse) {
 

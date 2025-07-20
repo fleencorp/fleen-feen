@@ -1,0 +1,20 @@
+package com.fleencorp.feen.stream.service.external;
+
+import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
+import com.fleencorp.feen.stream.model.request.external.broadcast.*;
+
+public interface YouTubeLiveBroadcastService {
+
+  CreateYouTubeLiveBroadcastResponse createBroadcast(CreateLiveBroadcastRequest createLiveBroadcastRequest);
+
+  UpdateYouTubeLiveBroadcastResponse updateLiveBroadcast(UpdateLiveBroadcastRequest updateLiveBroadcastRequest);
+
+  RescheduleYouTubeLiveBroadcastResponse rescheduleLiveBroadcast(RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest);
+
+  DeleteYouTubeLiveBroadcastResponse deleteLiveBroadcast(DeleteLiveBroadcastRequest deleteLiveBroadcastRequest);
+
+  UpdateYouTubeLiveBroadcastResponse updateLiveBroadcastVisibility(UpdateLiveBroadcastVisibilityRequest updateLiveBroadcastVisibilityRequest);
+}

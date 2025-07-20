@@ -1,6 +1,6 @@
 package com.fleencorp.feen.mfa.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.mfa.exception.core.MfaGenerationFailedException;
 import com.fleencorp.feen.mfa.exception.core.MfaVerificationFailed;
 import com.fleencorp.localizer.model.exception.LocalizedException;

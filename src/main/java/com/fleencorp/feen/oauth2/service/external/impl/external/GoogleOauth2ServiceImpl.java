@@ -2,9 +2,9 @@ package com.fleencorp.feen.oauth2.service.external.impl.external;
 
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.base.util.StringUtil;
-import com.fleencorp.feen.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.configuration.external.google.oauth2.Oauth2Credential;
-import com.fleencorp.feen.constant.base.ReportMessageType;
+import com.fleencorp.feen.common.constant.base.ReportMessageType;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.constant.Oauth2Source;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2AuthorizationException;
@@ -18,7 +18,7 @@ import com.fleencorp.feen.oauth2.model.response.StartOauth2AuthorizationResponse
 import com.fleencorp.feen.oauth2.model.response.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.oauth2.repository.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
-import com.fleencorp.feen.service.report.ReporterService;
+import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 
 import static com.fleencorp.base.util.FleenUtil.setIfNonNull;
-import static com.fleencorp.feen.constant.base.SimpleConstant.COMMA;
+import static com.fleencorp.feen.common.constant.base.SimpleConstant.COMMA;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.SPACE;
