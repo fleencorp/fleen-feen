@@ -67,6 +67,7 @@ public class VotePollDto {
     return votes;
   }
 
+  @Valid
   @Getter
   @Setter
   @NoArgsConstructor

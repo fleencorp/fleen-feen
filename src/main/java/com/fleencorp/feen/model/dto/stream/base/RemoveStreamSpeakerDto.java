@@ -5,7 +5,6 @@ import com.fleencorp.base.util.FleenUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class RemoveStreamSpeakerDto {
 
   @Valid
@@ -27,10 +25,10 @@ public class RemoveStreamSpeakerDto {
   @JsonProperty("speakers")
   private List<SpeakerDto> speakers;
 
+  @Valid
   @Getter
   @Setter
   @NoArgsConstructor
-  @AllArgsConstructor
   public static class SpeakerDto {
 
     @JsonProperty("speaker_id")

@@ -12,39 +12,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Slack Alarm
-        uses: 8398a7/action-slack@v3
-        with:
-          status: custom
-          fields: workflow, job, commit, repo, message, author, eventName, ref, pr
-          custom_payload: |
-            {
-              "text": ":tada: A new pull request has been *${{ github.event.action }}* by *${{ github.event.pull_request.user.login }}*",
-              "attachments": [
-                {
-                  "color": "#36a64f",
-                  "title": "${{ github.event.pull_request.title }}",
-                  "title_link": "${{ github.event.pull_request.html_url }}",
-                  "fields": [
-                    {
-                      "title": "Repository",
-                      "value": "${{ github.repository }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Branch",
-                      "value": "${{ github.event.pull_request.head.ref }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Action",
-                      "value": "${{ github.event.action }}",
-                      "short": true
-                    }
-                  ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_PULL_REQUEST_WEBHOOK_URL }} # required
-        if: always() # Pick up events even if the job fails or is canceled.
+#      - name: Slack Alarm
+#        uses: 8398a7/action-slack@v3
+#        with:
+#          status: custom
+#          fields: workflow, job, commit, repo, message, author, eventName, ref, pr
+#          custom_payload: |
+#            {
+#              "text": ":tada: A new pull request has been *${{ github.event.action }}* by *${{ github.event.pull_request.user.login }}*",
+#              "attachments": [
+#                {
+#                  "color": "#36a64f",
+#                  "title": "${{ github.event.pull_request.title }}",
+#                  "title_link": "${{ github.event.pull_request.html_url }}",
+#                  "fields": [
+#                    {
+#                      "title": "Repository",
+#                      "value": "${{ github.repository }}",
+#                      "short": true
+#                    },
+#                    {
+#                      "title": "Branch",
+#                      "value": "${{ github.event.pull_request.head.ref }}",
+#                      "short": true
+#                    },
+#                    {
+#                      "title": "Action",
+#                      "value": "${{ github.event.action }}",
+#                      "short": true
+#                    }
+#                  ]
+#                }
+#              ]
+#            }
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_PULL_REQUEST_WEBHOOK_URL }} # required
+#        if: always() # Pick up events even if the job fails or is canceled.

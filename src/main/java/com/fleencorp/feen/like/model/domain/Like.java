@@ -76,7 +76,7 @@ public class Like extends FleenFeenEntity {
   private Member member;
 
   public boolean isLiked() {
-    return LikeType.liked(likeType);
+    return LikeType.isLiked(likeType);
   }
 
 }

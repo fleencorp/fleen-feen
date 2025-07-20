@@ -12,6 +12,7 @@ import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.constant.ReviewRating;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.user.model.domain.Member;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -39,6 +40,7 @@ public class AddReviewDto {
   @JsonProperty("rating")
   private String rating;
 
+  @NotNull(message = "{review.parent.NotNull}")
   @JsonProperty("parent")
   private ReviewParentDto parent;
 
@@ -80,10 +82,10 @@ public class AddReviewDto {
     newReview.setStreamId(parentId);
     newReview.setStream(stream);
 
-
     return newReview;
   }
 
+  @Valid
   @Getter
   @Setter
   @NoArgsConstructor

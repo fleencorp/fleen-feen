@@ -36,6 +36,7 @@ public class DeleteContactDto {
       .toList();
   }
 
+  @Valid
   @Getter
   @Setter
   public static class ContactDto {

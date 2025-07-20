@@ -10,6 +10,7 @@ import com.fleencorp.feen.link.exception.core.UnsupportedMusicLinkFormatExceptio
 import com.fleencorp.feen.link.model.dto.base.BaseLinkDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,8 +25,9 @@ import static java.util.Objects.isNull;
 @AllArgsConstructor
 public class UpdateStreamMusicLinkDto extends BaseLinkDto {
 
-  @NotBlank(message = "{link.musicLink.NotNull}")
+  @NotBlank(message = "{link.musicLink.NotBlank}")
   @URL(message = "{link.musicLink.URL}")
+  @Size(max = 1000, message = "{link.musicLink.Size}")
   @JsonProperty("url")
   private String url;
 

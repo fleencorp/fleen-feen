@@ -23,7 +23,7 @@ import com.fleencorp.feen.model.other.Organizer;
 import com.fleencorp.feen.model.other.Schedule;
 import com.fleencorp.feen.model.response.base.FleenFeenResponse;
 import com.fleencorp.feen.model.response.stream.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.review.model.response.ReviewResponse;
+import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

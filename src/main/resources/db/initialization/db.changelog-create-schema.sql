@@ -148,6 +148,7 @@ CREATE TABLE chat_space (
   external_id_or_name VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
+  summary VARCHAR(3000) NULL,
   tags VARCHAR(300) NULL,
   guidelines_or_rules VARCHAR(3000) NOT NULL,
   space_link VARCHAR(1000),
@@ -229,6 +230,7 @@ CREATE TABLE stream (
   external_id VARCHAR(1000),
   title VARCHAR(500) NOT NULL,
   description VARCHAR(3000) NOT NULL,
+  summary VARCHAR(3000) NULL,
   tags VARCHAR(300) NULL,
   location VARCHAR(100) NOT NULL,
   timezone VARCHAR(30) NOT NULL,
@@ -779,6 +781,7 @@ CREATE TABLE poll (
   poll_id BIGSERIAL PRIMARY KEY,
   question VARCHAR(1000) NOT NULL,
   description VARCHAR(2000),
+  summary VARCHAR(2000) NULL,
   expires_at TIMESTAMP,
   parent_id BIGINT,
   parent_title VARCHAR(1000),
@@ -868,3 +871,179 @@ CREATE TABLE poll_vote (
 );
 
 --rollback DROP TABLE IF EXISTS `poll_vote`;
+
+
+
+--changeset alamu:create_table_soft_ask
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask';
+
+CREATE TABLE soft_ask (
+  soft_ask_id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(500) NOT NULL,
+  description VARCHAR(4000) NOT NULL,
+  summary VARCHAR(4000),
+  tags VARCHAR(500),
+  other_text VARCHAR(2000) NOT NULL,
+  link VARCHAR(1000),
+  parent_id BIGINT,
+  parent_title VARCHAR(1000),
+  user_other_name VARCHAR(255) NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  answer_count INTEGER NOT NULL DEFAULT 0,
+  vote_count INTEGER NOT NULL DEFAULT 0,
+
+  chat_space_id BIGINT NOT NULL,
+  stream_id BIGINT,
+  author_id BIGINT NOT NULL,
+
+  parent_type VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
+  soft_ask_status VARCHAR(255) NOT NULL
+    CHECK (soft_ask_status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
+  soft_ask_visibility VARCHAR(255) NOT NULL
+    CHECK (soft_ask_visibility IN ('PUBLIC', 'PRIVATE')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT soft_ask_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+        ON DELETE SET NULL,
+
+  CONSTRAINT soft_ask_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+        ON DELETE SET NULL,
+
+  CONSTRAINT soft_ask_fk_author_id
+    FOREIGN KEY (author_id)
+      REFERENCES member (member_id)
+        ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask`;
+
+
+
+--changeset alamu:create_table_soft_ask_answer
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_answer';
+
+CREATE TABLE soft_ask_answer (
+  soft_ask_answer_id BIGSERIAL PRIMARY KEY,
+  content VARCHAR(4000) NOT NULL,
+  user_other_name VARCHAR(255) NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  reply_count INTEGER NOT NULL DEFAULT 0,
+  vote_count INTEGER NOT NULL DEFAULT 0,
+
+  soft_ask_id BIGINT NOT NULL,
+  author_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT soft_ask_answer_fk_soft_ask_id
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT soft_ask_answer_fk_author_id
+    FOREIGN KEY (author_id)
+      REFERENCES member (member_id)
+        ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask_answer`;
+
+
+
+--changeset alamu:create_table_soft_ask_reply
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_reply';
+
+CREATE TABLE soft_ask_reply (
+  soft_ask_reply_id BIGSERIAL PRIMARY KEY,
+  description VARCHAR(2000) NOT NULL,
+  user_other_name VARCHAR(255) NOT NULL,
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  vote_count INTEGER NOT NULL DEFAULT 0,
+
+  author_id BIGINT NOT NULL,
+  parent_reply_id BIGINT,
+  soft_answer_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT soft_ask_reply_fk_answer_id
+    FOREIGN KEY (soft_answer_id)
+      REFERENCES soft_ask_answer (soft_ask_answer_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT soft_ask_reply_fk_author_id
+    FOREIGN KEY (author_id)
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
+
+  CONSTRAINT soft_ask_reply_fk_parent_reply
+    FOREIGN KEY (parent_reply_id)
+      REFERENCES soft_ask_reply (soft_ask_reply_id)
+      ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask_reply`;
+
+
+
+--changeset alamu:create_table_soft_ask_votes
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_votes';
+
+CREATE TABLE soft_ask_votes (
+  vote_id BIGSERIAL PRIMARY KEY,
+  parent_id BIGINT,
+  parent_title VARCHAR(1000),
+
+  member_id BIGINT NOT NULL,
+  soft_ask_id BIGINT,
+  soft_ask_answer_id BIGINT,
+  soft_ask_reply_id BIGINT,
+
+  vote_parent_type VARCHAR(255) NOT NULL
+    CHECK (vote_parent_type IN ('SOFT_ASK_ANSWER', 'SOFT_ASK_REPLY', 'SOFT_ASK')),
+  vote_type VARCHAR(255) NOT NULL
+    CHECK (vote_type IN ('NOT_VOTED', 'VOTED')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT soft_ask_vote_fk_soft_ask_id
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT soft_ask_vote_fk_answer_id
+    FOREIGN KEY (soft_ask_answer_id)
+      REFERENCES soft_ask_answer (soft_ask_answer_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT soft_ask_vote_fk_reply_id
+    FOREIGN KEY (soft_ask_reply_id)
+      REFERENCES soft_ask_reply (soft_ask_reply_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT soft_ask_vote_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+        ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask_votes`;
+

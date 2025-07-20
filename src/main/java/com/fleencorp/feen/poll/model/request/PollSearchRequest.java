@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.base.util.FleenUtil.isValidNumber;
 import static java.util.Objects.nonNull;
 
 @SuperBuilder
@@ -40,11 +39,7 @@ public class PollSearchRequest extends SearchRequest {
   }
 
   public Long getParentId() {
-    if (isValidNumber(parentId)) {
-      return Long.parseLong(parentId);
-    }
-
-    return 0L;
+    return nonNull(parentId) ? Long.parseLong(parentId) : 0L;
   }
 
   public boolean isParentValid() {

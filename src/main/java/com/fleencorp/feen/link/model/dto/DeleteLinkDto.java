@@ -38,6 +38,7 @@ public class DeleteLinkDto extends BaseLinkDto {
   }
 
 
+  @Valid
   @Getter
   @Setter
   public static class LinkDto {

@@ -46,8 +46,8 @@ public class CreateStreamDto {
   @JsonProperty("description")
   protected String description;
 
-  @NotBlank(message = "{tags.NotBlank}")
-  @Size(min = 1, max = 300, message = "{tags.Size}")
+  @NotBlank(message = "{stream.tags.NotBlank}")
+  @Size(min = 1, max = 300, message = "{stream.tags.Size}")
   @ToLowerCase
   @JsonProperty("tags")
   protected String tags;

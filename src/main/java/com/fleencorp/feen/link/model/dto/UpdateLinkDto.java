@@ -76,6 +76,7 @@ public class UpdateLinkDto extends BaseLinkDto {
       .collect(Collectors.toSet());
   }
 
+  @Valid
   @Getter
   @Setter
   public static class LinkDto {
