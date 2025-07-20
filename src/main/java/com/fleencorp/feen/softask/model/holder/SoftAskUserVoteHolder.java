@@ -24,6 +24,6 @@ public record SoftAskUserVoteHolder(Collection<SoftAskVote> userVotes) {
     return softAskCommonResponses.stream()
       .filter(Objects::nonNull)
       .map(SoftAskCommonResponse::getParentId)
-      .collect(Collectors.toList());
+      .toList();
   }
 }

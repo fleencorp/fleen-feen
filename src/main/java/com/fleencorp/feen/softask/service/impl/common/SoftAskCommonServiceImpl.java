@@ -192,12 +192,13 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @param softAskCommonData the entity to persist; must be an instance of {@link SoftAsk}, {@link SoftAskAnswer}, or {@link SoftAskReply}.
    */
   private void saveSoftAskCommonData(final SoftAskCommonData softAskCommonData) {
-    if (softAskCommonData instanceof SoftAskAnswer) {
-      softAskOperationService.save((SoftAskAnswer) softAskCommonData);
-    } else if (softAskCommonData instanceof SoftAskReply) {
-      softAskOperationService.save((SoftAskReply) softAskCommonData);
-    } else if (softAskCommonData instanceof SoftAsk) {
-      softAskOperationService.save((SoftAsk) softAskCommonData);
+    if (softAskCommonData instanceof SoftAskAnswer softAskAnswer) {
+      softAskOperationService.save(softAskAnswer);
+    } else if (softAskCommonData instanceof SoftAskReply softAskReply) {
+      softAskOperationService.save(softAskReply);
+    } else if (softAskCommonData instanceof SoftAsk softAsk) {
+      softAskOperationService.save(softAsk);
     }
   }
+
 }

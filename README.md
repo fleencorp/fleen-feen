@@ -61,3 +61,13 @@ Fleen lets users be themselves, connect naturally, and grow through authentic vo
 ## Vision
 
 To build the world’s first real-time social discovery engine—connecting people not through content, but through voice, knowledge, and shared presence.
+
+## Details
+![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
+
+![Build Status](https://github.com/fleencorp/fleen-feen/actions/workflows/start.yml/badge.svg)
+
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=fleencorp_fleen-feen&metric=alert_status)](https://sonarcloud.io/dashboard?id=fleencorp_fleen-feen)
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fleencorp_fleen-feen&metric=ncloc)](https://sonarcloud.io/dashboard?id=fleencorp_fleen-feen)
+
