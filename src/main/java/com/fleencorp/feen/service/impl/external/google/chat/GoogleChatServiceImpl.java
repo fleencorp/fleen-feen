@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
-import static com.fleencorp.feen.chat.space.ChatSpaceExceptionHandler.toSnakeCase;
 import static com.fleencorp.feen.chat.space.mapper.external.GoogleChatSpaceMapper.toGoogleChatSpaceResponse;
 import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.util.external.google.GoogleChatMessageBuilder.ofCardWithId;
@@ -66,10 +65,10 @@ public class GoogleChatServiceImpl implements GoogleChatService {
    * @param reporterService the ReporterService instance used for reporting operations
    */
   public GoogleChatServiceImpl(
-      final GoogleChatUpdateService googleChatUpdateService,
-      final ChatServiceClient chatBot,
-      final ChatServiceClient chatService,
-      final ReporterService reporterService) {
+    final GoogleChatUpdateService googleChatUpdateService,
+    final ChatServiceClient chatBot,
+    final ChatServiceClient chatService,
+    final ReporterService reporterService) {
     this.googleChatUpdateService = requireNonNull(googleChatUpdateService);
     this.chatBot = chatBot;
     this.chatService = chatService;
@@ -451,7 +450,8 @@ public class GoogleChatServiceImpl implements GoogleChatService {
     final List<String> updatedFields = new ArrayList<>();
     // Convert each field name to snake_case and add it to the updated fields list
     for (final String field : fields) {
-      updatedFields.add(toSnakeCase(field));
+      updatedFields.add(field);
+//      updatedFields.add(toSnakeCase(field));
     }
     // Return the list of updated fields
     return updatedFields.stream()
