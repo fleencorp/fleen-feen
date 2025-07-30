@@ -1,8 +1,8 @@
 package com.fleencorp.feen.model.response.authentication;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.feen.constant.security.mask.MaskedEmailAddress;
-import com.fleencorp.feen.constant.security.mask.MaskedPhoneNumber;
+import com.fleencorp.feen.common.constant.mask.MaskedEmailAddress;
+import com.fleencorp.feen.common.constant.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.mfa.constant.MfaType;
 import com.fleencorp.feen.mfa.model.info.IsMfaEnabledInfo;
 import com.fleencorp.feen.mfa.model.info.MfaTypeInfo;

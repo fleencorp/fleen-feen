@@ -1,7 +1,7 @@
 package com.fleencorp.feen.review.service;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.model.dto.AddReviewDto;

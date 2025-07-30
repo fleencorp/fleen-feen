@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.constant.LinkParentType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

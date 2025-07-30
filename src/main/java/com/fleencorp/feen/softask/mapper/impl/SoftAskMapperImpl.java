@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.mapper.impl;
 
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;

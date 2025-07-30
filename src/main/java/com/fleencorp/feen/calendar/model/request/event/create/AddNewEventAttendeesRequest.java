@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
+import static com.fleencorp.feen.stream.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 
 @Builder
 @Getter

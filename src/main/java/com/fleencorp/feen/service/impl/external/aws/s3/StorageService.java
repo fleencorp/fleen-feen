@@ -1,8 +1,8 @@
 package com.fleencorp.feen.service.impl.external.aws.s3;
 
-import com.fleencorp.feen.exception.common.ObjectNotFoundException;
-import com.fleencorp.feen.exception.file.FileUploadException;
-import com.fleencorp.feen.model.response.other.DeleteResponse;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.common.exception.ObjectNotFoundException;
+import com.fleencorp.feen.common.exception.file.FileUploadException;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +31,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.getTimeInMillis;
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
 import static java.time.Duration.ofHours;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -319,7 +319,7 @@ public class StorageService {
    * @return a DeleteResponse indicating the success of the deletion operation
    * @throws ObjectNotFoundException if the specified object does not exist in the bucket
    */
-  public DeleteResponse deleteObject(@NotNull final String bucketName, @NotNull final String objectKey) {
+  public FleenFeenResponse.DeleteResponse deleteObject(@NotNull final String bucketName, @NotNull final String objectKey) {
     if (isObjectExists(bucketName, objectKey)) {
       final DeleteObjectRequest objectRequest = DeleteObjectRequest
         .builder()
@@ -328,7 +328,7 @@ public class StorageService {
         .build();
 
       amazonS3.deleteObject(objectRequest);
-      return DeleteResponse.of();
+      return FleenFeenResponse.DeleteResponse.of();
     }
 
     throw new ObjectNotFoundException(objectKey);

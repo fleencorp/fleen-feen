@@ -1,6 +1,6 @@
 package com.fleencorp.feen.country.exception.core;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.country.exception.CountryNotFoundException;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.service.ErrorLocalizer;

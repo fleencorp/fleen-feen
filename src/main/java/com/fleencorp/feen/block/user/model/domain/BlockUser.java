@@ -1,6 +1,6 @@
 package com.fleencorp.feen.block.user.model.domain;
 
-import com.fleencorp.feen.constant.social.BlockStatus;
+import com.fleencorp.feen.common.constant.social.BlockStatus;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;

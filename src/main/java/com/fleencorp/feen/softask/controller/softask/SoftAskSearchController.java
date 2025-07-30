@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.controller.softask;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskRetrieveResponse;

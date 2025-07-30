@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationTokenException;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;

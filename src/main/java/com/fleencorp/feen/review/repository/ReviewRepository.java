@@ -1,6 +1,6 @@
 package com.fleencorp.feen.review.repository;
 
-import com.fleencorp.feen.model.projection.stream.review.ReviewParentCount;
+import com.fleencorp.feen.review.model.projection.ReviewParentCount;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.user.model.domain.Member;

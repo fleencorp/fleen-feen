@@ -1,7 +1,7 @@
 package com.fleencorp.feen.poll.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.model.request.PollSearchRequest;
 import com.fleencorp.feen.poll.model.response.PollRetrieveResponse;

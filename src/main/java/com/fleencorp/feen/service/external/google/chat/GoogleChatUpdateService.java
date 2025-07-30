@@ -1,6 +1,6 @@
 package com.fleencorp.feen.service.external.google.chat;
 
-import com.fleencorp.feen.model.request.chat.space.CreateChatSpaceRequest;
+import com.fleencorp.feen.chat.space.model.request.external.core.CreateChatSpaceRequest;
 import com.google.chat.v1.Space;
 
 public interface GoogleChatUpdateService {

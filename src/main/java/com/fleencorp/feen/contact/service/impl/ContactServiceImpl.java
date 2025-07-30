@@ -18,8 +18,8 @@ import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
-import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.contact.model.dto.UpdateContactDto.ContactDto;
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
 
 /**

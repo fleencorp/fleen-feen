@@ -1,14 +1,14 @@
 package com.fleencorp.feen.user.model.request.authentication;
 
 
-import com.fleencorp.feen.constant.message.MessageRequestType;
+import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import com.fleencorp.feen.verification.constant.VerificationType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_VERIFICATION;
+import static com.fleencorp.feen.common.constant.message.CommonMessageDetails.SIGN_UP_VERIFICATION;
 
 @SuperBuilder
 @Getter

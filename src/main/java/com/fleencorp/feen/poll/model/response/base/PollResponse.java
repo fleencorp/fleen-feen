@@ -2,7 +2,7 @@ package com.fleencorp.feen.poll.model.response.base;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.model.response.base.FleenFeenResponse;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;

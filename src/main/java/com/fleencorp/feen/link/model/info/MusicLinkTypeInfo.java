@@ -3,7 +3,7 @@ package com.fleencorp.feen.link.model.info;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.common.MusicLinkType;
+import com.fleencorp.feen.stream.constant.common.MusicLinkType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

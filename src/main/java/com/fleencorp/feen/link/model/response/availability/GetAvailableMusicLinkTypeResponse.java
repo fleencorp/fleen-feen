@@ -2,7 +2,7 @@ package com.fleencorp.feen.link.model.response.availability;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.constant.common.MusicLinkType;
+import com.fleencorp.feen.stream.constant.common.MusicLinkType;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;

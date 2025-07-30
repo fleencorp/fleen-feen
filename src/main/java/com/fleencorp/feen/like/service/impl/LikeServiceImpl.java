@@ -1,8 +1,8 @@
 package com.fleencorp.feen.like.service.impl;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
 import com.fleencorp.feen.like.model.domain.Like;
@@ -15,12 +15,12 @@ import com.fleencorp.feen.like.repository.LikeRepository;
 import com.fleencorp.feen.like.service.LikeService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.contract.Likeable;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.review.service.ReviewCommonService;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
-import com.fleencorp.feen.service.stream.StreamOperationsService;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import org.springframework.context.annotation.Lazy;

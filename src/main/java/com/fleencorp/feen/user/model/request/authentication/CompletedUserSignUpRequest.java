@@ -1,7 +1,7 @@
 package com.fleencorp.feen.user.model.request.authentication;
 
-import com.fleencorp.feen.constant.message.MessageRequestType;
-import com.fleencorp.feen.model.request.message.MessageRequest;
+import com.fleencorp.feen.common.constant.message.MessageRequestType;
+import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
 import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,8 +12,8 @@ import lombok.experimental.SuperBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fleencorp.feen.constant.message.CommonMessageDetails.SIGN_UP_COMPLETED;
-import static com.fleencorp.feen.constant.message.MessageTemplateField.PROFILE_VERIFICATION_STATUS;
+import static com.fleencorp.feen.common.constant.message.CommonMessageDetails.SIGN_UP_COMPLETED;
+import static com.fleencorp.feen.common.constant.message.MessageTemplateField.PROFILE_VERIFICATION_STATUS;
 
 @SuperBuilder
 @Getter

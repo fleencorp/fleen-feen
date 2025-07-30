@@ -1,6 +1,6 @@
 package com.fleencorp.feen.link.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.link.exception.core.InvalidLinkException;
 import com.fleencorp.feen.link.exception.core.UnsupportedMusicLinkFormatException;
 import com.fleencorp.localizer.model.exception.LocalizedException;

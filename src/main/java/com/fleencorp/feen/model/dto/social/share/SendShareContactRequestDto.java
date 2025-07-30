@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.constant.social.ShareContactRequestStatus;
+import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.user.model.domain.Member;

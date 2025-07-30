@@ -1,12 +1,12 @@
 package com.fleencorp.feen.country.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.country.exception.CountryNotFoundException;
 import com.fleencorp.feen.country.model.response.RetrieveCountryResponse;
 import com.fleencorp.feen.country.model.search.CountrySearchResult;
 import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.model.request.search.CountrySearchRequest;
-import com.fleencorp.feen.model.response.other.CountAllResponse;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -73,12 +73,12 @@ public class CountryController {
   )
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully retrieved country count",
-      content = @Content(schema = @Schema(implementation = CountAllResponse.class))),
+      content = @Content(schema = @Schema(implementation = FleenFeenResponse.CountAllResponse.class))),
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class)))
   })
   @GetMapping(value = "/count-all")
-  public CountAllResponse countAll() {
+  public FleenFeenResponse.CountAllResponse countAll() {
     return countryService.countAll();
   }
 }

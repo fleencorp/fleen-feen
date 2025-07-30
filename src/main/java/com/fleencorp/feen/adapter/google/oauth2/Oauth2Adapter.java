@@ -4,7 +4,7 @@ import com.fleencorp.base.adapter.base.BaseAdapter;
 import com.fleencorp.base.exception.externalsystem.ExternalSystemException;
 import com.fleencorp.feen.adapter.google.oauth2.model.Oauth2UserResponse;
 import com.fleencorp.feen.adapter.google.oauth2.model.constant.GoogleOauth2EndpointBlock;
-import com.fleencorp.feen.constant.external.ExternalSystemType;
+import com.fleencorp.feen.common.constant.external.ExternalSystemType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.util.Map;
 
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
 
 @Slf4j
 public class Oauth2Adapter extends BaseAdapter {

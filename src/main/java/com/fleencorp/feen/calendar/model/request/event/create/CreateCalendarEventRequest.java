@@ -1,9 +1,9 @@
 package com.fleencorp.feen.calendar.model.request.event.create;
 
-import com.fleencorp.feen.constant.external.google.calendar.event.EventVisibility;
-import com.fleencorp.feen.constant.stream.StreamVisibility;
-import com.fleencorp.feen.model.dto.event.CreateEventDto;
-import com.fleencorp.feen.model.dto.stream.base.CreateStreamDto;
+import com.fleencorp.feen.common.constant.external.google.calendar.event.EventVisibility;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
+import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
+import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.fleencorp.feen.constant.external.google.calendar.event.EventMetaDataKeys.TAGS;
-import static com.fleencorp.feen.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
+import static com.fleencorp.feen.common.constant.external.google.calendar.event.EventMetaDataKeys.TAGS;
+import static com.fleencorp.feen.stream.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 

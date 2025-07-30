@@ -2,7 +2,7 @@ package com.fleencorp.feen.review.controller;
 
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.review.model.request.ReviewSearchRequest;
 import com.fleencorp.feen.review.model.search.ReviewSearchResult;
 import com.fleencorp.feen.review.service.ReviewSearchService;

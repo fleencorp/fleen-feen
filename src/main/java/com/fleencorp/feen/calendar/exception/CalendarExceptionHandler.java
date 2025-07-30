@@ -3,7 +3,7 @@ package com.fleencorp.feen.calendar.exception;
 import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyActiveException;
 import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyExistException;
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
 import com.fleencorp.localizer.service.ErrorLocalizer;

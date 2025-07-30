@@ -46,8 +46,8 @@ import java.util.Set;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.calendar.mapper.CalendarMapper.toCalendarResponse;
 import static com.fleencorp.feen.calendar.mapper.CalendarMapper.toCalendarResponses;
-import static com.fleencorp.feen.util.LoggingUtil.logIfEnabled;
-import static com.fleencorp.feen.validator.impl.TimezoneValidValidator.getAvailableTimezones;
+import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static java.util.Objects.nonNull;
 
 /**

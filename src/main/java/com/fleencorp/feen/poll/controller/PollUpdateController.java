@@ -1,7 +1,7 @@
 package com.fleencorp.feen.poll.controller;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;

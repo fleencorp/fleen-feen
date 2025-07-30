@@ -1,9 +1,9 @@
 package com.fleencorp.feen.link.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
-import com.fleencorp.feen.exception.stream.StreamNotFoundException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.link.model.dto.DeleteLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;

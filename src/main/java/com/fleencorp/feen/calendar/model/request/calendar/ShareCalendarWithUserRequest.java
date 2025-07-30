@@ -1,7 +1,7 @@
 package com.fleencorp.feen.calendar.model.request.calendar;
 
-import com.fleencorp.feen.constant.external.google.calendar.calendar.AclRole;
-import com.fleencorp.feen.constant.external.google.calendar.calendar.AclScopeType;
+import com.fleencorp.feen.common.constant.external.google.calendar.calendar.AclRole;
+import com.fleencorp.feen.common.constant.external.google.calendar.calendar.AclScopeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

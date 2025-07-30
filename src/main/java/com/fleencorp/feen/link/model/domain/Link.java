@@ -2,7 +2,7 @@ package com.fleencorp.feen.link.model.domain;
 
 import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

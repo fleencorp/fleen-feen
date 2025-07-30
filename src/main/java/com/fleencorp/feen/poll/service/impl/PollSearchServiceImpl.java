@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 

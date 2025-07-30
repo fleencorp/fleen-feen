@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.fleencorp.feen.user.service.member;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.user.exception.user.EmailAddressAlreadyExistsException;
 import com.fleencorp.feen.user.exception.user.PhoneNumberAlreadyExistsException;
 import com.fleencorp.feen.user.exception.user.UpdatePasswordFailedException;

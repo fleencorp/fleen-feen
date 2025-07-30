@@ -1,6 +1,6 @@
 package com.fleencorp.feen.oauth2.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidGrantOrTokenException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidScopeException;

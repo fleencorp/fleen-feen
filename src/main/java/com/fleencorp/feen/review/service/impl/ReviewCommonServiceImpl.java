@@ -1,8 +1,8 @@
 package com.fleencorp.feen.review.service.impl;
 
 import com.fleencorp.feen.like.service.LikeService;
-import com.fleencorp.feen.model.holder.ReviewParentCountHolder;
-import com.fleencorp.feen.model.projection.stream.review.ReviewParentCount;
+import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
+import com.fleencorp.feen.review.model.projection.ReviewParentCount;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
@@ -18,8 +18,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.service.impl.common.MiscServiceImpl.setEntityUpdatableByUser;
-import static com.fleencorp.feen.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
 import static java.util.Objects.nonNull;
 
 @Service

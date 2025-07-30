@@ -1,6 +1,6 @@
 package com.fleencorp.feen.follower.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.follower.exception.core.FollowingNotFoundException;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.service.ErrorLocalizer;

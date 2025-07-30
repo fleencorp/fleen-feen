@@ -5,10 +5,10 @@ import com.fleencorp.base.service.PhoneService;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.country.model.domain.Country;
 import com.fleencorp.feen.country.service.CountryService;
-import com.fleencorp.feen.event.model.base.PublishMessageRequest;
-import com.fleencorp.feen.event.publisher.ProfileRequestPublisher;
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.service.impl.cache.CacheService;
+import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
+import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.exception.user.*;
@@ -42,8 +42,8 @@ import java.util.List;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsFalse;
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.getUpdateEmailCacheKey;
-import static com.fleencorp.feen.service.impl.common.CacheKeyService.getUpdatePhoneNumberCacheKey;
+import static com.fleencorp.feen.common.service.impl.cache.CacheKeyService.getUpdateEmailCacheKey;
+import static com.fleencorp.feen.common.service.impl.cache.CacheKeyService.getUpdatePhoneNumberCacheKey;
 import static com.fleencorp.feen.verification.service.OtpService.getRandomSixDigitOtp;
 import static java.util.Objects.nonNull;
 

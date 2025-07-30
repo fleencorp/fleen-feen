@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;

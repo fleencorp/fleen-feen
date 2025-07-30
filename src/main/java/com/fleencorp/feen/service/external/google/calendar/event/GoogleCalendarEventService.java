@@ -3,7 +3,7 @@ package com.fleencorp.feen.service.external.google.calendar.event;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
-import com.fleencorp.feen.constant.external.google.calendar.ConferenceSolutionType;
+import com.fleencorp.feen.common.constant.external.google.calendar.ConferenceSolutionType;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.model.*;
@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fleencorp.feen.util.DateTimeUtil.toMilliseconds;
-import static com.fleencorp.feen.util.external.google.GoogleApiUtil.toDateTime;
+import static com.fleencorp.feen.common.util.DateTimeUtil.toMilliseconds;
+import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
 
 public interface GoogleCalendarEventService {

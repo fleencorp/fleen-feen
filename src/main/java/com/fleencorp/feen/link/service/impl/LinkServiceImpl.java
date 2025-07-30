@@ -1,8 +1,8 @@
 package com.fleencorp.feen.link.service.impl;
 
-import com.fleencorp.feen.constant.common.MusicLinkType;
-import com.fleencorp.feen.exception.base.FailedOperationException;
-import com.fleencorp.feen.exception.chat.space.ChatSpaceNotFoundException;
+import com.fleencorp.feen.stream.constant.common.MusicLinkType;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.link.mapper.LinkMapper;
 import com.fleencorp.feen.link.model.domain.Link;
@@ -21,11 +21,11 @@ import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.link.repository.LinkRepository;
 import com.fleencorp.feen.link.service.LinkService;
-import com.fleencorp.feen.model.domain.chat.ChatSpace;
-import com.fleencorp.feen.model.domain.stream.FleenStream;
-import com.fleencorp.feen.service.chat.space.ChatSpaceService;
-import com.fleencorp.feen.service.stream.StreamOperationsService;
-import com.fleencorp.feen.service.stream.common.StreamService;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
+import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.cache.annotation.Cacheable;

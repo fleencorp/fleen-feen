@@ -1,6 +1,6 @@
 package com.fleencorp.feen.review.exception;
 
-import com.fleencorp.feen.constant.http.FleenHttpStatus;
+import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.localizer.model.exception.LocalizedException;

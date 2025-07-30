@@ -1,6 +1,6 @@
 package com.fleencorp.feen.model.response.external.google.chat.chat.base;
 
-import com.fleencorp.feen.constant.external.google.chat.space.ChatSpaceField;
+import com.fleencorp.feen.common.constant.external.google.chat.space.ChatSpaceField;
 import com.google.gson.Gson;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.user.repository;
 
-import com.fleencorp.feen.model.projection.common.EmailAddressSelect;
-import com.fleencorp.feen.model.projection.common.PhoneNumberSelect;
+import com.fleencorp.feen.common.model.projection.EmailAddressSelect;
+import com.fleencorp.feen.common.model.projection.PhoneNumberSelect;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,9 +21,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   boolean existsByMemberId(Long memberId);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.common.EmailAddressSelect(m.memberId, m.emailAddress) FROM Member m WHERE m.emailAddress = :emailAddress")
+  @Query("SELECT new com.fleencorp.feen.common.model.projection.EmailAddressSelect(m.memberId, m.emailAddress) FROM Member m WHERE m.emailAddress = :emailAddress")
   Optional<EmailAddressSelect> findEmailOfMember(@Param("emailAddress") String emailAddress);
 
-  @Query("SELECT new com.fleencorp.feen.model.projection.common.PhoneNumberSelect(m.memberId, m.phoneNumber) FROM Member m WHERE m.phoneNumber = :phoneNumber")
+  @Query("SELECT new com.fleencorp.feen.common.model.projection.PhoneNumberSelect(m.memberId, m.phoneNumber) FROM Member m WHERE m.phoneNumber = :phoneNumber")
   Optional<PhoneNumberSelect> findPhoneOfMember(@Param("phoneNumber") String phoneNumber);
 }

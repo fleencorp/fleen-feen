@@ -1,6 +1,6 @@
 package com.fleencorp.feen.softask.controller.common;
 
-import com.fleencorp.feen.exception.base.FailedOperationException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.exception.core.SoftAskAnswerNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;

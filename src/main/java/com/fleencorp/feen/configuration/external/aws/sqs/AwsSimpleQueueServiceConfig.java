@@ -1,7 +1,7 @@
 package com.fleencorp.feen.configuration.external.aws.sqs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fleencorp.feen.converter.impl.json.TextPlainJsonMessageConverter;
+import com.fleencorp.feen.common.converter.TextPlainJsonMessageConverter;
 import io.awspring.cloud.sqs.MessageExecutionThreadFactory;
 import io.awspring.cloud.sqs.config.SqsMessageListenerContainerFactory;
 import io.awspring.cloud.sqs.listener.acknowledgement.AcknowledgementOrdering;
