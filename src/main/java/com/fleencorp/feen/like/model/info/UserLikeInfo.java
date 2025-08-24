@@ -15,21 +15,21 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "liked",
-  "like_other_text"
+  "like_text",
+  "like_text_2"
 })
 public class UserLikeInfo {
 
   @JsonProperty("liked")
   private Boolean liked;
 
-  @JsonProperty("like_other_text")
-  private String likeOtherText;
+  @JsonProperty("like_text")
+  private String likeText;
 
-  public static UserLikeInfo of(final boolean liked, final String likeOtherText) {
-    return new UserLikeInfo(liked, likeOtherText);
-  }
+  @JsonProperty("like_text_2")
+  private String likeText2;
 
-  public static UserLikeInfo of() {
-    return new UserLikeInfo();
+  public static UserLikeInfo of(final boolean liked, final String likeText, final String likeText2) {
+    return new UserLikeInfo(liked, likeText, likeText2);
   }
 }

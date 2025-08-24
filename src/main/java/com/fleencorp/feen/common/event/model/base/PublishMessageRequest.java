@@ -1,7 +1,7 @@
 package com.fleencorp.feen.common.event.model.base;
 
-import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
+import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import lombok.*;
 
 @Builder

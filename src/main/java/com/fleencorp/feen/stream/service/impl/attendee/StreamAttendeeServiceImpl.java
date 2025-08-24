@@ -2,22 +2,22 @@ package com.fleencorp.feen.stream.service.impl.attendee;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.common.service.misc.MiscService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
@@ -84,19 +84,14 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    */
   @Override
   public StreamAttendeeSearchResult findStreamAttendees(final Long streamId, final StreamAttendeeSearchRequest searchRequest) {
-    // Set default number of attendees to retrieve during the search
     searchRequest.setDefaultPageSize();
-    // Retrieve paginated list of attendees associated with the given event or stream
+
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findAttendeesGoingToStream(FleenStream.of(streamId), searchRequest.getPage());
-    // Retrieve the fleen stream
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Convert the list of attendees to response objects
     final Collection<StreamAttendeeResponse> attendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), unifiedMapper.toStreamResponse(stream));
-    // Create the search result
     final SearchResult searchResult = toSearchResult(attendeeResponses, page);
-    // Create the attendee search result
     final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(streamAttendeeSearchResult);
   }
 
@@ -156,19 +151,14 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    */
   @Override
   public StreamAttendeeSearchResult getStreamAttendees(final Long streamId, final StreamAttendeeSearchRequest searchRequest) throws StreamNotFoundException {
-    // Set default number of attendees to retrieve during the search
     searchRequest.setDefaultPageSize();
-    // Find and retrieve the stream
+
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Perform a search and retrieve the page and search result of attendees
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
-    // Get stream attendees
     final Collection<StreamAttendeeResponse> attendeeResponses = getAttendees(stream, page.getContent());
-    // Create the search result
     final SearchResult searchResult = toSearchResult(attendeeResponses, page);
-    // Create the attendee search result
     final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
-    // Return a search result with the attendee responses and pagination details
+
     return localizer.of(streamAttendeeSearchResult);
   }
 
@@ -254,23 +244,16 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   @Override
   public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException {
-    // Find the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Validate owner of the stream
     stream.checkIsOrganizer(user.getId());
 
     final Set<StreamAttendeeRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
-    // Find pending attendees requesting to join a stream
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndRequestToJoinStatus(stream, joinStatusesForSearch, searchRequest.getPage());
-    // Convert the stream to response
     final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
-    // Convert the stream attendee to their equivalent responses
     final Collection<StreamAttendeeResponse> streamAttendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
-    // Create the search result
     final SearchResult searchResult = toSearchResult(streamAttendeeResponses, page);
-    // Create the attendee search result
     final RequestToJoinSearchResult requestToJoinSearchResult = RequestToJoinSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(requestToJoinSearchResult);
   }
 

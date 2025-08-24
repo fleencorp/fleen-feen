@@ -1,32 +1,34 @@
 package com.fleencorp.feen.chat.space.model.response.core;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
-import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
-import com.fleencorp.feen.link.model.response.base.LinkResponse;
-import com.fleencorp.feen.model.contract.HasId;
-import com.fleencorp.feen.model.contract.HasOrganizer;
-import com.fleencorp.feen.model.contract.Likeable;
-import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceStatusInfo;
+import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceTotalMemberInfo;
+import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceTotalMemberRequestToJoinInfo;
 import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.chat.space.model.info.member.ChatSpaceRequestToJoinStatusInfo;
 import com.fleencorp.feen.chat.space.model.info.membership.ChatSpaceMembershipInfo;
-import com.fleencorp.feen.like.model.info.LikeCountInfo;
-import com.fleencorp.feen.stream.model.other.Organizer;
-import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.chat.space.model.response.member.base.ChatSpaceMemberResponse;
+import com.fleencorp.feen.common.constant.common.JoinStatus;
+import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.like.model.info.LikeCountInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.link.model.response.base.LinkResponse;
+import com.fleencorp.feen.model.contract.*;
+import com.fleencorp.feen.stream.model.other.Organizer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static java.util.Objects.nonNull;
@@ -44,8 +46,8 @@ import static java.util.Objects.nonNull;
   "guidelines_or_rules",
   "space_link",
   "space_link_unmasked",
-  "total_members",
-  "total_request_to_join",
+  "total_member_info",
+  "total_member_request_to_join_info",
   "visibility_info",
   "status_info",
   "is_deleted_info",
@@ -55,14 +57,17 @@ import static java.util.Objects.nonNull;
   "request_to_join_status_info",
   "join_status_info",
   "membership_info",
+  "bookmark_count_info",
+  "user_bookmark_info",
   "user_like_info",
   "like_count_info",
+  "share_count",
   "is_updatable",
   "created_on",
   "updated_on"
 })
 public class ChatSpaceResponse extends FleenFeenResponse
-    implements HasId, HasOrganizer, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasLinks, HasOrganizer, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -80,11 +85,11 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("space_link")
   private MaskedChatSpaceUri spaceLink;
 
-  @JsonProperty("total_members")
-  private Long totalMembers;
+  @JsonProperty("total_member_info")
+  private ChatSpaceTotalMemberInfo chatSpaceTotalMemberInfo;
 
-  @JsonProperty("total_request_to_join")
-  private Long totalRequestToJoin;
+  @JsonProperty("total_member_request_to_join_info")
+  private ChatSpaceTotalMemberRequestToJoinInfo chatSpaceTotalMemberRequestToJoinInfo;
 
   @JsonProperty("visibility_info")
   private ChatSpaceVisibilityInfo visibilityInfo;
@@ -99,10 +104,10 @@ public class ChatSpaceResponse extends FleenFeenResponse
   private Organizer organizer;
 
   @JsonProperty("some_members")
-  private Set<ChatSpaceMemberResponse> someMembers = new HashSet<>();
+  private Collection<ChatSpaceMemberResponse> someMembers = new HashSet<>();
 
   @JsonProperty("links")
-  private Set<LinkResponse> links = new HashSet<>();
+  private Collection<LinkResponse> links = new HashSet<>();
 
   @JsonProperty("request_to_join_status_info")
   private ChatSpaceRequestToJoinStatusInfo requestToJoinStatusInfo;
@@ -110,11 +115,20 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("membership_info")
   private ChatSpaceMembershipInfo membershipInfo;
 
+  @JsonProperty("bookmark_count_info")
+  private BookmarkCountInfo bookmarkCountInfo;
+
+  @JsonProperty("user_bookmark_info")
+  private UserBookmarkInfo userBookmarkInfo;
+
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
   @JsonProperty("like_count_info")
   private LikeCountInfo likeCountInfo;
+
+  @JsonProperty("share_count")
+  private Integer shareCount;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
@@ -123,6 +137,9 @@ public class ChatSpaceResponse extends FleenFeenResponse
   public boolean isPrivate() {
     return ChatSpaceVisibility.isPrivate(visibilityInfo.getVisibility());
   }
+
+  @JsonIgnore
+  private Long authorId;
 
   @JsonIgnore
   private Long organizerId;
@@ -150,6 +167,11 @@ public class ChatSpaceResponse extends FleenFeenResponse
   public String getSpaceLinkUnmasked() {
     disableAndResetUnmaskedLinkIfNotApproved();
     return spaceLinkUnMasked;
+  }
+
+  @Override
+  public ParentInfo getParentInfo() {
+    return null;
   }
 
   @Override

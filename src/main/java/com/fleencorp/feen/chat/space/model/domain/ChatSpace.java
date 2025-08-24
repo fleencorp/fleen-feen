@@ -3,11 +3,11 @@ package com.fleencorp.feen.chat.space.model.domain;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
-import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotActiveException;
 import com.fleencorp.feen.chat.space.exception.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
+import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -75,7 +75,7 @@ public class ChatSpace extends FleenFeenEntity {
   private ChatSpaceStatus status = ChatSpaceStatus.ACTIVE;
 
   @Column(name = "total_members", nullable = false)
-  private Long totalMembers = 0L;
+  private Integer totalMembers = 0;
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
@@ -88,6 +88,12 @@ public class ChatSpace extends FleenFeenEntity {
 
   @Column(name = "like_count", nullable = false)
   private Integer likeCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
 
   public Member getOrganizer() {
     return member;

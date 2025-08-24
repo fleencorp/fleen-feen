@@ -1,21 +1,19 @@
 package com.fleencorp.feen.stream.service.impl.common;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.stream.repository.core.StreamManagementRepository;
-import com.fleencorp.feen.stream.repository.core.StreamQueryRepository;
 import com.fleencorp.feen.stream.repository.core.StreamRepository;
+import com.fleencorp.feen.stream.repository.core.StreamSearchRepository;
 import com.fleencorp.feen.stream.repository.user.UserStreamCountRepository;
-import com.fleencorp.feen.stream.repository.user.UserStreamQueryRepository;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamOtherService;
 import com.fleencorp.feen.stream.service.core.StreamService;
@@ -26,7 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,149 +33,60 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   private final CommonStreamOtherService commonStreamOtherService;
   private final StreamService streamService;
   private final StreamRepository streamRepository;
-  private final StreamQueryRepository streamQueryRepository;
+  private final StreamSearchRepository streamSearchRepository;
   private final StreamManagementRepository streamManagementRepository;
-  private final UserStreamQueryRepository userStreamQueryRepository;
   private final UserStreamCountRepository userStreamCountRepository;
 
   public StreamOperationsServiceImpl(
       final CommonStreamOtherService commonStreamOtherService,
       final StreamService streamService,
       final StreamRepository streamRepository,
-      final StreamQueryRepository streamQueryRepository,
+      final StreamSearchRepository streamSearchRepository,
       final StreamManagementRepository streamManagementRepository,
-      final UserStreamQueryRepository userStreamQueryRepository,
       final UserStreamCountRepository userStreamCountRepository) {
     this.commonStreamOtherService = commonStreamOtherService;
     this.streamService = streamService;
     this.streamRepository = streamRepository;
-    this.streamQueryRepository = streamQueryRepository;
+    this.streamSearchRepository = streamSearchRepository;
     this.streamManagementRepository = streamManagementRepository;
-    this.userStreamQueryRepository = userStreamQueryRepository;
     this.userStreamCountRepository = userStreamCountRepository;
   }
 
   @Override
-  public Page<FleenStream> findByDateBetween(final LocalDateTime startDate, final LocalDateTime endDate, final StreamStatus status, final Pageable pageable) {
-    return streamQueryRepository.findByDateBetween(startDate, endDate, status, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findByTitle(final String title, final StreamStatus status, final Pageable pageable) {
-    return streamQueryRepository.findByTitle(title, status, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findMany(final StreamStatus status, final Pageable pageable) {
-    return streamQueryRepository.findMany(status, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findUpcomingStreams(final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findUpcomingStreams(dateTime, streamType, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findUpcomingStreamsByTitle(final String title, final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findUpcomingStreamsByTitle(title, dateTime, streamType, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findPastStreams(final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findPastStreams(dateTime, streamType, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findPastStreamsByTitle(final String title, final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findPastStreamsByTitle(title, dateTime, streamType, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findLiveStreams(final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findLiveStreams(dateTime, streamType, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findLiveStreamsByTitle(final String title, final LocalDateTime dateTime, final StreamType streamType, final Pageable pageable) {
-    return streamQueryRepository.findLiveStreamsByTitle(title, dateTime, streamType, pageable);
-  }
-
-  @Override
   public Page<FleenStream> findByChatSpaceId(final Long chatSpaceId, final Pageable pageable) {
-    return streamQueryRepository.findByChatSpaceId(chatSpaceId, pageable);
+    return streamSearchRepository.findByChatSpaceId(chatSpaceId, pageable);
   }
 
   @Override
   @Transactional
-  public void incrementTotalAttendees(final Long streamId) {
-    streamManagementRepository.incrementTotalAttendees(streamId);
+  public void updateTotalAttendeeCount(final Long streamId, final boolean increment) {
+    if (increment) {
+      streamManagementRepository.incrementTotalAttendees(streamId);
+    } else {
+      streamManagementRepository.decrementTotalAttendees(streamId);
+    }
   }
 
-  @Override
-  @Transactional
-  public void decrementTotalAttendees(final Long streamId) {
-    streamManagementRepository.decrementTotalAttendees(streamId);
-  }
-
-  @Override
-  @Transactional
-  public int incrementAndGetLikeCount(final Long streamId) {
+  private int incrementAndGetLikeCount(final Long streamId) {
     streamManagementRepository.incrementAndGetLikeCount(streamId);
     return streamManagementRepository.getLikeCount(streamId);
   }
 
-  @Override
-  @Transactional
-  public int decrementAndGetLikeCount(final Long streamId) {
+  private int decrementAndGetLikeCount(final Long streamId) {
     streamManagementRepository.decrementAndGetLikeCount(streamId);
     return streamManagementRepository.getLikeCount(streamId);
   }
 
-  @Override
-  public Page<FleenStream> findManyByMe(final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findManyByMe(member, pageable);
+  private int incrementAndGetBookmarkCount(final Long streamId) {
+    streamManagementRepository.incrementAndGetBookmarkCount(streamId);
+    return streamManagementRepository.getBookmarkCount(streamId);
   }
 
-  @Override
-  public Page<FleenStream> findByTitleAndUser(final String title, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findByTitleAndUser(title, member, pageable);
+  private int decrementAndGetBookmarkCount(final Long streamId) {
+    streamManagementRepository.decrementAndGetBookmarkCount(streamId);
+    return streamManagementRepository.getBookmarkCount(streamId);
   }
 
-  @Override
-  public Page<FleenStream> findByTitleAndUser(final String title, final StreamVisibility streamVisibility, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findByTitleAndUser(title, streamVisibility, member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findByDateBetweenAndUser(startDate, endDate, member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final StreamVisibility streamVisibility, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findByDateBetweenAndUser(startDate, endDate, streamVisibility, member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findAttendedByUser(final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findAttendedByUser(member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findAttendedByDateBetweenAndUser(
-    final LocalDateTime startDate, final LocalDateTime endDate, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findAttendedByDateBetweenAndUser(startDate, endDate, member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findAttendedByTitleAndUser(final String title, final Member member, final Pageable pageable) {
-    return userStreamQueryRepository.findAttendedByTitleAndUser(title, member, pageable);
-  }
-
-  @Override
-  public Page<FleenStream> findStreamsAttendedTogether(final Member you, final Member friend, final Pageable pageable) {
-    return userStreamQueryRepository.findStreamsAttendedTogether(you, friend, pageable);
-  }
 
   @Override
   public Long countTotalStreamsAttended(final Member member) {
@@ -236,13 +144,19 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public Long incrementLikeCount(final Long streamId) {
-    return streamService.incrementLikeCount(streamId);
+  @Transactional
+  public Integer updateLikeCount(final Long streamId, final boolean isLiked) {
+    return isLiked ? incrementAndGetLikeCount(streamId) : decrementAndGetLikeCount(streamId);
   }
 
   @Override
-  public Long decrementLikeCount(final Long streamId) {
-    return streamService.decrementLikeCount(streamId);
+  @Transactional
+  public Integer updateBookmarkCount(final Long streamId, final boolean bookmarked) {
+    if (bookmarked) {
+      return incrementAndGetBookmarkCount(streamId);
+    } else {
+      return decrementAndGetBookmarkCount(streamId);
+    }
   }
 
   @Override
@@ -285,5 +199,3 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
     return streamRepository.findCommonPastAttendedStreams(memberAId, memberBId, approvedStatuses, includedStatuses, pageable);
   }
 }
-
-

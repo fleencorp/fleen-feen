@@ -73,7 +73,7 @@ public class CreateChatSpaceDto {
     chatSpace.setTags(tags);
     chatSpace.setSpaceVisibility(getVisibility());
     chatSpace.setDeleted(false);
-    chatSpace.setTotalMembers(0L);
+    chatSpace.setTotalMembers(0);
     chatSpace.enable();
 
     return chatSpace;

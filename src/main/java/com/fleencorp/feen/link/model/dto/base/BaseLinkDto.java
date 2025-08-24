@@ -4,21 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.constant.LinkParentType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.fleencorp.base.util.FleenUtil.isValidNumber;
-
 @Getter
 @Setter
 @NoArgsConstructor
 public abstract class BaseLinkDto {
 
-  @IsNumber(message = "link.parentId.IsNumber")
+  @IsNumber(message = "{link.parentId.IsNumber}")
   @JsonProperty("parent_id")
   protected String parentId;
 
@@ -28,19 +25,20 @@ public abstract class BaseLinkDto {
   @JsonProperty("parent_link_type")
   protected String parentLinkType;
 
-  public Long getChatSpaceId() {
-    if (isValidNumber(parentId) && LinkParentType.isChatSpace(parentLinkType)) {
-      return Long.valueOf(parentId);
-    }
-    throw FailedOperationException.of();
+  public Long getParentId() {
+    return hasParent() ? Long.parseLong(parentId) : null;
+  }
+
+  public LinkParentType getParentLinkType() {
+    return LinkParentType.of(parentLinkType);
   }
 
   public Long getStreamId() {
-    if (isValidNumber(parentId) && LinkParentType.isStream(parentLinkType)) {
-      return Long.valueOf(parentId);
-    }
+    return hasParent() && LinkParentType.isStream(getParentLinkType())? Long.parseLong(parentId) : null;
+  }
 
-    throw FailedOperationException.of();
+  public boolean hasParent() {
+    return parentId != null;
   }
 }
 

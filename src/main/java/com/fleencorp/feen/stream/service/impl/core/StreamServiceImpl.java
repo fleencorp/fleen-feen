@@ -2,25 +2,22 @@ package com.fleencorp.feen.stream.service.impl.core;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
-import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
-import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
-import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.stream.exception.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.stream.model.response.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
-import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
-import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
-import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -29,7 +26,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -202,7 +198,7 @@ public class StreamServiceImpl implements StreamService {
   @Transactional
   public void increaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Increase total attendees or guests in the stream
-    streamOperationsService.incrementTotalAttendees(stream.getStreamId());
+    streamOperationsService.updateTotalAttendeeCount(stream.getStreamId(), true);
   }
 
   /**
@@ -210,11 +206,10 @@ public class StreamServiceImpl implements StreamService {
    *
    * @param stream The stream where the number of attendees or guests is to be decreased.
    */
-  @Override
   @Transactional
   public void decreaseTotalAttendeesOrGuests(final FleenStream stream) {
     // Decrease total attendees or guests in the stream
-    streamOperationsService.decrementTotalAttendees(stream.getStreamId());
+    streamOperationsService.updateTotalAttendeeCount(stream.getStreamId(), false);
   }
 
   /**
@@ -241,30 +236,6 @@ public class StreamServiceImpl implements StreamService {
   }
 
   /**
-   * Validates if the given user is the creator of the specified stream and throws an exception if they are not.
-   *
-   * <p>This method first checks if either the {@link FleenStream} or {@link RegisteredUser} is null,
-   * throwing a {@link FailedOperationException} if any of the values are null.
-   * Then, it checks if the creator's ID of the stream matches the user's ID.
-   * If the user is not the creator of the stream, a {@link StreamNotCreatedByUserException} is thrown.</p>
-   *
-   * @param stream the stream whose creator needs to be validated; must not be null
-   * @param user   the user to validate as the creator of the stream; must not be null
-   * @throws FailedOperationException if either the stream or user is null
-   * @throws StreamNotCreatedByUserException if the user is not the creator of the stream
-   */
-  public static void validateCreatorOfStream(final FleenStream stream, final RegisteredUser user) {
-    // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
-
-    // Check if the stream creator's ID matches the user's ID
-    final boolean isSame = Objects.equals(stream.getOrganizerId(), user.getId());
-    if (!isSame) {
-      throw StreamNotCreatedByUserException.of(user.getId());
-    }
-  }
-
-  /**
    * Verifies the details of a given stream to ensure it is valid for further processing.
    *
    * <p>This method performs several checks on the provided stream: it validates if the user is the creator of the stream,
@@ -274,51 +245,9 @@ public class StreamServiceImpl implements StreamService {
    * @param user   the FleenUser to be validated as the creator of the stream
    */
   public static void verifyStreamDetails(final FleenStream stream, final RegisteredUser user) {
-    // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
-    // Check if the stream is still active and can be joined.
-    verifyStreamHasNotHappenedAlready(stream);
-    // Verify the stream is not cancelled
-    verifyStreamIsNotCancelled(stream);
-  }
-
-  /**
-   * Verifies that the provided stream has not already ended.
-   *
-   * <p>This method checks if the stream has already ended by evaluating its end date. If the stream has ended,
-   * it throws a {@link StreamAlreadyHappenedException}. If the provided stream is null, a {@link FailedOperationException} is thrown.</p>
-   *
-   * @param stream the {@link FleenStream} to check for its end status
-   * @throws FailedOperationException if the provided stream is null
-   * @throws StreamAlreadyHappenedException if the stream has already ended
-   */
-  protected static void verifyStreamHasNotHappenedAlready(final FleenStream stream) throws StreamAlreadyHappenedException, FailedOperationException {
-    // Throw an exception if the provided value is null
-    checkIsNull(stream, FailedOperationException::new);
-
-    // Check if the stream has already ended and throw an exception if true
-    if (stream.hasEnded()) {
-      throw new StreamAlreadyHappenedException(stream.getStreamId(), stream.getScheduledEndDate());
-    }
-  }
-
-  /**
-   * Verifies that the provided stream is not canceled.
-   *
-   * <p>This method checks whether the provided stream has been canceled. If the stream is canceled,
-   * it throws a {@link StreamAlreadyCanceledException}. If the stream is null, a {@link FailedOperationException} is thrown.</p>
-   *
-   * @param stream the {@link FleenStream} to check for cancellation status
-   * @throws FailedOperationException if the provided stream is null
-   * @throws StreamAlreadyCanceledException if the stream has been canceled
-   */
-  protected static void verifyStreamIsNotCancelled(final FleenStream stream) throws StreamAlreadyCanceledException, FailedOperationException {
-    // Throw an exception if the provided stream is null
-    checkIsNull(stream, FailedOperationException::new);
-
-    if (stream.isCanceled()) {
-      throw StreamAlreadyCanceledException.of(stream.getStreamId());
-    }
+    stream.checkNotEnded();
+    stream.checkNotCancelled();
   }
 
   /**
@@ -425,41 +354,5 @@ public class StreamServiceImpl implements StreamService {
   @Override
   public boolean existsByAttendees(final Member viewer, final Member target) {
     return streamOperationsService.existsByAttendees(viewer.getMemberId(), target.getMemberId());
-  }
-
-  /**
-   * Increments the like count for a given stream and returns the updated total.
-   *
-   * <p>This method invokes {@code incrementAndGetLikeCount} on the
-   * {@code streamOperationsService} to increase the like count associated with the
-   * specified {@code streamId}. The returned value represents the total number
-   * of likes after the increment operation.</p>
-   *
-   * @param streamId the ID of the stream whose like count is to be incremented
-   * @return the updated total like count as a {@code Long}
-   */
-  @Override
-  @Transactional
-  public Long incrementLikeCount(final Long streamId) {
-    final int total = streamOperationsService.incrementAndGetLikeCount(streamId);
-    return (long) total;
-  }
-
-  /**
-   * Decrements the like count for a given stream and returns the updated total.
-   *
-   * <p>This method calls {@code decrementAndGetLikeCount} on the
-   * {@code streamOperationsService} to reduce the like count associated with the
-   * provided {@code streamId}. The result is the updated number of likes
-   * after the decrement operation.</p>
-   *
-   * @param streamId the ID of the stream whose like count is to be decremented
-   * @return the updated total like count as a {@code Long}
-   */
-  @Transactional
-  @Override
-  public Long decrementLikeCount(final Long streamId) {
-    final int total = streamOperationsService.decrementAndGetLikeCount(streamId);
-    return (long) total;
   }
 }

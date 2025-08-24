@@ -14,7 +14,7 @@ public interface CalendarService {
 
   CalendarSearchResult findCalendars(CalendarSearchRequest searchRequest);
 
-  RetrieveCalendarResponse findCalendar(Long calendarId);
+  RetrieveCalendarResponse retrieveCalendar(Long calendarId);
 
   CreateCalendarResponse createCalendar(CreateCalendarDto createCalendarDto, RegisteredUser user);
 

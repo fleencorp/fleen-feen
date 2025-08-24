@@ -2,6 +2,7 @@ package com.fleencorp.feen.contact.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.block.user.service.BlockUserService;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.contact.mapper.ContactMapper;
 import com.fleencorp.feen.contact.model.domain.Contact;
@@ -18,7 +19,6 @@ import com.fleencorp.feen.contact.model.response.base.ContactResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.repository.ContactRepository;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.contact.model.dto.UpdateContactDto.ContactDto;
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.contact.model.dto.UpdateContactDto.ContactDto;
 import static java.util.Objects.nonNull;
 
 /**

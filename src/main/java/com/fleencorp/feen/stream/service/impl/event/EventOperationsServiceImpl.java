@@ -5,12 +5,12 @@ import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttende
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.event.AddNewStreamAttendeeDto;

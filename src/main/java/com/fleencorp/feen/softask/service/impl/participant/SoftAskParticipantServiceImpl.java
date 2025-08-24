@@ -1,17 +1,14 @@
 package com.fleencorp.feen.softask.service.impl.participant;
 
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
-import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskAnswerVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskConversationVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskReplyVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskVotedInfo;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.user.SoftAskUserProfileRetrieveResponse;
-import com.fleencorp.feen.softask.model.search.SoftAskAnswerSearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskVoteSearchResult;
-import com.fleencorp.feen.softask.service.answer.SoftAskAnswerSearchService;
 import com.fleencorp.feen.softask.service.participant.SoftAskParticipantService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
@@ -27,7 +24,6 @@ import static java.util.Objects.nonNull;
 @Service
 public class SoftAskParticipantServiceImpl implements SoftAskParticipantService {
 
-  private final SoftAskAnswerSearchService softAskAnswerSearchService;
   private final SoftAskReplySearchService softAskReplySearchService;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskVoteSearchService softAskVoteSearchService;
@@ -36,14 +32,12 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
   private final Localizer localizer;
 
   public SoftAskParticipantServiceImpl(
-      final SoftAskAnswerSearchService softAskAnswerSearchService,
       final SoftAskReplySearchService softAskReplySearchService,
       final SoftAskSearchService softAskSearchService,
       final SoftAskVoteSearchService softAskVoteSearchService,
       final SoftAskVoteService softAskVoteService,
       final SoftAskInfoMapper softAskInfoMapper,
       final Localizer localizer) {
-    this.softAskAnswerSearchService = softAskAnswerSearchService;
     this.softAskReplySearchService = softAskReplySearchService;
     this.softAskSearchService = softAskSearchService;
     this.softAskVoteSearchService = softAskVoteSearchService;
@@ -79,7 +73,7 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
   /**
    * Sets various search result data on the user profile response based on the given search request and user.
    *
-   * <p>Performs searches for answers, replies, soft asks, and user votes,
+   * <p>Performs searches for replies, soft asks, and user votes,
    * then assigns the resulting search results to the response.</p>
    *
    * @param softAskUserProfileResponse the profile response to populate with search results.
@@ -88,12 +82,10 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
    */
   private void setSearchResults(final SoftAskUserProfileRetrieveResponse softAskUserProfileResponse, final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
     if (nonNull(softAskUserProfileResponse) && nonNull(searchRequest)) {
-      final SoftAskAnswerSearchResult softAskAnswerSearchResult = softAskAnswerSearchService.findSoftAskAnswers(searchRequest, user);
       final SoftAskReplySearchResult softAskReplySearchResult = softAskReplySearchService.findSoftAskReplies(searchRequest, user);
       final SoftAskSearchResult softAskSearchResult = softAskSearchService.findSoftAsks(searchRequest, user);
       final SoftAskVoteSearchResult softAskVoteSearchResult = softAskVoteSearchService.findUserVotes(searchRequest, user);
 
-      softAskUserProfileResponse.setSoftAskAnswerSearchResult(softAskAnswerSearchResult);
       softAskUserProfileResponse.setSoftAskReplySearchResult(softAskReplySearchResult);
       softAskUserProfileResponse.setSoftAskSearchResult(softAskSearchResult);
       softAskUserProfileResponse.setSoftAskVoteSearchResult(softAskVoteSearchResult);
@@ -103,7 +95,7 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
   /**
    * Sets the total vote counts for various SoftAsk categories on the given user profile response.
    *
-   * <p>Fetches the total number of votes the user has received for answers, replies, and general SoftAsk,
+   * <p>Fetches the total number of votes the user has received for replies, and general SoftAsk,
    * then calculates the total votes across all categories.</p>
    *
    * <p>Maps these counts to their respective info objects and assigns them to the response.</p>
@@ -113,17 +105,14 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
    */
   private void setTotalVotes(final SoftAskUserProfileRetrieveResponse softAskUserProfileResponse, final Long memberId) {
     if (nonNull(softAskUserProfileResponse)) {
-      final Integer totalSoftAskAnswerVotes = softAskVoteService.countUserSoftAskAnswerVotes(memberId);
       final Integer totalSoftAskReplyVotes = softAskVoteService.countUserSoftAskReplyVotes(memberId);
       final Integer totalSoftAskVotes = softAskVoteService.countUserSoftAskVotes(memberId);
-      final Integer totalSoftAskConversationVotes = totalSoftAskAnswerVotes + totalSoftAskReplyVotes + totalSoftAskVotes;
+      final Integer totalSoftAskConversationVotes = totalSoftAskReplyVotes + totalSoftAskVotes;
 
-      final TotalSoftAskAnswerVotedInfo totalSoftAskAnswerVotedInfo = softAskInfoMapper.toTotalSoftAskAnswerVotedInfo(totalSoftAskAnswerVotes);
       final TotalSoftAskReplyVotedInfo totalSoftAskReplyVotedInfo = softAskInfoMapper.toTotalSoftAskReplyVotedInfo(totalSoftAskReplyVotes);
       final TotalSoftAskVotedInfo totalSoftAskVotedInfo = softAskInfoMapper.toTotalSoftAskVotedInfo(totalSoftAskVotes);
       final TotalSoftAskConversationVotedInfo totalSoftAskConversationVotedInfo = softAskInfoMapper.toTotalSoftAskConversationVotedInfo(totalSoftAskConversationVotes);
 
-      softAskUserProfileResponse.setTotalSoftAskAnswerVotedInfo(totalSoftAskAnswerVotedInfo);
       softAskUserProfileResponse.setTotalSoftAskReplyVotedInfo(totalSoftAskReplyVotedInfo);
       softAskUserProfileResponse.setTotalSoftAskVotedInfo(totalSoftAskVotedInfo);
       softAskUserProfileResponse.setTotalSoftAskConversationVotedInfo(totalSoftAskConversationVotedInfo);

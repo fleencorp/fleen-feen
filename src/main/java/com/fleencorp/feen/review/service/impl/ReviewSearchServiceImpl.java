@@ -3,6 +3,7 @@ package com.fleencorp.feen.review.service.impl;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.review.model.request.ReviewSearchRequest;
@@ -55,6 +56,23 @@ public class ReviewSearchServiceImpl implements ReviewSearchService {
   }
 
   /**
+   * Finds a {@link Review} by its ID.
+   *
+   * <p>The method queries the repository for the given review ID and returns the
+   * corresponding {@link Review}. If the review does not exist, a
+   * {@link ReviewNotFoundException} is thrown.</p>
+   *
+   * @param reviewId the ID of the review to find
+   * @return the {@link Review} with the given ID
+   * @throws ReviewNotFoundException if no review exists with the given ID
+   */
+  @Override
+  public Review findReview(final Long reviewId) {
+    return reviewRepository.findById(reviewId)
+      .orElseThrow(ReviewNotFoundException.of(reviewId));
+  }
+
+  /**
    * Retrieves a paginated list of public reviews for the specified stream or event.
    *
    * <p>This method performs a search for reviews associated with the given stream ID, based on the provided
@@ -96,20 +114,16 @@ public class ReviewSearchServiceImpl implements ReviewSearchService {
    */
   @Override
   public ReviewResponse findMostRecentReview(final ReviewParentType reviewParentType, final Long parentId, final RegisteredUser user) {
-    // Prepare search request details
     final PageRequest pageRequest = PageRequest.of(0, 1);
-    // List of review
     List<Review> reviews = new ArrayList<>();
 
     if (ReviewParentType.isStream(reviewParentType)) {
       reviews = reviewRepository.findMostRecentReviewByStream(parentId, pageRequest);
     }
 
-    // Return the most recent review
     final List<ReviewResponse> reviewResponses = reviewCommonService.getMostRecentReviews(reviews);
-    // Process other details of the reviews
     reviewCommonService.processReviewsOtherDetails(reviewResponses, user.toMember());
-    // Return the review
+
     return reviewResponses.isEmpty() ? null : reviewResponses.getFirst();
   }
 
@@ -125,9 +139,7 @@ public class ReviewSearchServiceImpl implements ReviewSearchService {
    */
   @Override
   public ReviewSearchResult findMyReviews(final SearchRequest searchRequest, final RegisteredUser user) {
-    // Find all user reviews
     final Page<Review> page = reviewRepository.findByMember(user.toMember(), searchRequest.getPage());
-    // Convert and process the reviews to responses
     return processAndReturnReviews(page, user.toMember());
   }
 
@@ -144,15 +156,12 @@ public class ReviewSearchServiceImpl implements ReviewSearchService {
    */
   protected ReviewSearchResult processAndReturnReviews(final Page<Review> page, final Member member) {
     if (nonNull(page)) {
-      // Convert Review entities to responses
       final Collection<ReviewResponse> reviewResponses = reviewMapper.toReviewResponsesPublic(page.getContent());
-      // Process other details of the reviews
-      reviewCommonService.processReviewsOtherDetails(reviewResponses, member);
-      // Create the search result
+
+
       final SearchResult searchResult = toSearchResult(reviewResponses, page);
-      // Create the search result
       final ReviewSearchResult reviewSearchResult = ReviewSearchResult.of(searchResult);
-      // Return a search result with the responses and pagination details
+
       return localizer.of(reviewSearchResult);
     }
 

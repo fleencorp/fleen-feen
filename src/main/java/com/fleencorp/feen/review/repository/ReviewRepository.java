@@ -1,8 +1,8 @@
 package com.fleencorp.feen.review.repository;
 
-import com.fleencorp.feen.review.model.projection.ReviewParentCount;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.review.model.projection.ReviewParentCount;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,12 +35,26 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
   void deleteByStreamReviewIdAndMember(Long reviewId, Member member);
 
   @Modifying
-  @Query(value = "UPDATE review SET like_count = like_count + 1 WHERE review = :chatSpaceId RETURNING like_count", nativeQuery = true)
-  int incrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
+  @Query(value = "UPDATE review SET like_count = like_count - 1 WHERE review_id = :reviewId", nativeQuery = true)
+  void decrementAndGetLikeCount(@Param("reviewId") Long reviewId);
 
   @Modifying
-  @Query(value = "UPDATE review SET like_count = like_count - 1 WHERE review = :chatSpaceId RETURNING like_count", nativeQuery = true)
-  int decrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
+  @Query(value = "UPDATE review SET like_count = like_count + 1 WHERE review_id = :reviewId", nativeQuery = true)
+  void incrementAndGetLikeCount(@Param("reviewId") Long reviewId);
+
+  @Query(value = "SELECT bookmark_count FROM review WHERE review_id = :reviewId", nativeQuery = true)
+  Integer getLikeCount(@Param("reviewId") Long reviewId);
+
+  @Modifying
+  @Query(value = "UPDATE review SET bookmark_count = bookmark_count - 1 WHERE review_id = :reviewId", nativeQuery = true)
+  void decrementAndGetBookmarkCount(@Param("reviewId") Long reviewId);
+
+  @Modifying
+  @Query(value = "UPDATE review SET bookmark_count = bookmark_count + 1 WHERE review_id = :reviewId", nativeQuery = true)
+  void incrementAndBookmarkCount(@Param("reviewId") Long reviewId);
+
+  @Query(value = "SELECT bookmark_count FROM review WHERE review_id = :reviewId", nativeQuery = true)
+  Integer getBookmarkCount(@Param("reviewId") Long reviewId);
 
   @Query(value =
     """

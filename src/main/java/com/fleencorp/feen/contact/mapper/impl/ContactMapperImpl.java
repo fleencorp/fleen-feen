@@ -77,7 +77,9 @@ public final class ContactMapperImpl extends BaseMapper implements ContactMapper
       response.setId(entry.getContactId());
       response.setContact(entry.getContactValue());
       response.setContactTypeInfo(contactTypeInfo);
+
       response.setAuthorId(entry.getOwnerId());
+      response.setOrganizerId(entry.getOwnerId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());

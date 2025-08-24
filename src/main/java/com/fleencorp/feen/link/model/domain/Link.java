@@ -1,13 +1,16 @@
 package com.fleencorp.feen.link.model.domain;
 
+import com.fleencorp.feen.business.model.domain.Business;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -46,5 +49,22 @@ public class Link {
   @ManyToOne(fetch = LAZY, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
+
+  @Column(name = "business_id", updatable = false, insertable = false)
+  private Long businessId;
+
+  @ManyToOne(fetch = LAZY, targetEntity = Business.class)
+  @JoinColumn(name = "business_id", referencedColumnName = "business_id", updatable = false)
+  private Business business;
+
+  @Column(name = "member_id", updatable = false, insertable = false)
+  private Long memberId;
+
+  @CreatedBy
+  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
+  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
+  private Member member;
+
+
 
 }

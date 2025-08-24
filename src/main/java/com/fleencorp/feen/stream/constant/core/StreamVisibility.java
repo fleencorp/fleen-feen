@@ -73,4 +73,8 @@ public enum StreamVisibility implements ApiParameter {
     return PUBLIC.getValue().equalsIgnoreCase(visibility);
   }
 
+  public static boolean isPrivate(final StreamVisibility visibility) {
+    return visibility == PRIVATE;
+  }
+
 }

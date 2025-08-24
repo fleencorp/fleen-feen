@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.contact.model.info.ContactTypeInfo;
 import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +38,9 @@ public class ContactResponse extends FleenFeenResponse implements Updatable {
 
   @JsonIgnore
   private Long authorId;
+
+  @JsonIgnore
+  private Long organizerId;
 
   @Override
   public void setIsUpdatable(final boolean isUpdatable) {

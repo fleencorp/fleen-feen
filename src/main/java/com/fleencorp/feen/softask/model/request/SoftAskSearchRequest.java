@@ -23,11 +23,19 @@ public class SoftAskSearchRequest extends SearchRequest {
   @JsonProperty("parent_id")
   private String parentId;
 
+  @IsNumber
+  @JsonProperty("parent_reply_id")
+  private String parentReplyId;
+
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Member author;
 
   public Long getParentId() {
     return nonNull(parentId) ? Long.parseLong(parentId) : null;
+  }
+
+  public Long getParentReplyId() {
+    return nonNull(parentReplyId) ? Long.parseLong(parentReplyId) : null;
   }
 
   public boolean isByAuthor() {
@@ -38,6 +46,14 @@ public class SoftAskSearchRequest extends SearchRequest {
     return nonNull(author);
   }
 
+  public boolean hasParentReplyId() {
+    return nonNull(parentReplyId);
+  }
+
+  public boolean hasParentId() {
+    return nonNull(parentId);
+  }
+
   public Long getAuthorId() {
     return hasAuthor() ? author.getMemberId() : null;
   }
@@ -45,6 +61,13 @@ public class SoftAskSearchRequest extends SearchRequest {
   public static SoftAskSearchRequest of(final Long parentId) {
     final SoftAskSearchRequest searchRequest = new SoftAskSearchRequest();
     searchRequest.setParentId(String.valueOf(parentId));
+    return searchRequest;
+  }
+
+  public static SoftAskSearchRequest of(final Long parentId, final Long replyId) {
+    final SoftAskSearchRequest searchRequest = of(parentId);
+    searchRequest.setParentReplyId(String.valueOf(replyId));
+
     return searchRequest;
   }
 }

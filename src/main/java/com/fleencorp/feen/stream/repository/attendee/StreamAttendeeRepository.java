@@ -1,7 +1,7 @@
 package com.fleencorp.feen.stream.repository.attendee;
 
-import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import org.springframework.data.domain.Page;

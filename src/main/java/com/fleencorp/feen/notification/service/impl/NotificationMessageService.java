@@ -1,11 +1,11 @@
 package com.fleencorp.feen.notification.service.impl;
 
-import com.fleencorp.feen.notification.constant.NotificationStatus;
-import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
-import com.fleencorp.feen.notification.model.domain.Notification;
+import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
+import com.fleencorp.feen.notification.constant.NotificationStatus;
+import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.user.model.domain.Member;

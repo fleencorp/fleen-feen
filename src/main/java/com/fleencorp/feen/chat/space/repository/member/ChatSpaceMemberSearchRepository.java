@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Set;
 
-public interface ChatSpaceMemberQueryRepository extends JpaRepository<ChatSpaceMember, Long> {
+public interface ChatSpaceMemberSearchRepository extends JpaRepository<ChatSpaceMember, Long> {
 
   @Query(value =
   """

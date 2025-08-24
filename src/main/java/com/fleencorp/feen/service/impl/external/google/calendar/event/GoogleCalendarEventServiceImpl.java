@@ -1,17 +1,17 @@
 package com.fleencorp.feen.service.impl.external.google.calendar.event;
 
-import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.read.RetrieveCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.common.constant.external.google.calendar.event.EventSendUpdate;
 import com.fleencorp.feen.common.constant.external.google.calendar.event.EventStatus;
 import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
+import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventSearchService;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
-import com.fleencorp.feen.common.service.report.ReporterService;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
@@ -28,9 +28,9 @@ import java.util.Date;
 import java.util.List;
 
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
-import static com.fleencorp.feen.stream.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
-import static com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl.addOrInviteAttendeesOrGuests;
 import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl.addOrInviteAttendeesOrGuests;
+import static com.fleencorp.feen.stream.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 

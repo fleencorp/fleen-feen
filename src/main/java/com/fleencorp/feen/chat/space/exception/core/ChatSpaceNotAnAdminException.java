@@ -2,10 +2,10 @@ package com.fleencorp.feen.chat.space.exception.core;
 
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
-public class NotAnAdminOfChatSpaceException extends LocalizedException {
+public class ChatSpaceNotAnAdminException extends LocalizedException {
 
   @Override
   public String getMessageCode() {
-    return "not.an.admin.of.chat.space";
+    return "chat.space.not.an.admin";
   }
 }

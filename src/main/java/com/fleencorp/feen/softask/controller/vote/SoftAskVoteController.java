@@ -1,8 +1,8 @@
 package com.fleencorp.feen.softask.controller.vote;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
 import com.fleencorp.feen.softask.model.response.vote.SoftAskVoteUpdateResponse;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteService;
@@ -37,10 +37,10 @@ public class SoftAskVoteController {
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully submitted the vote",
       content = @Content(schema = @Schema(implementation = SoftAskVoteUpdateResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat Space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Soft Ask not found",
+      content = @Content(schema = @Schema(implementation = SoftAskNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Soft Ask Reply not found",
+      content = @Content(schema = @Schema(implementation = SoftAskReplyNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

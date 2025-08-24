@@ -1,14 +1,14 @@
 package com.fleencorp.feen.poll.model.domain;
 
-import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.poll.constant.core.PollParentType;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.exception.poll.PollUpdateUnauthorizedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollDeletedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollEndedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollNoOptionException;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -98,6 +98,9 @@ public class Poll extends FleenFeenEntity {
 
   @Column(name = "total_entries", nullable = false)
   private Integer totalEntries = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
 
   public void update(
       final String question,final String description, final LocalDateTime expiresAt,

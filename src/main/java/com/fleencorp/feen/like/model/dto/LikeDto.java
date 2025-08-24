@@ -3,11 +3,12 @@ package com.fleencorp.feen.like.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
 import com.fleencorp.feen.like.model.domain.Like;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
@@ -46,20 +47,27 @@ public class LikeDto {
     return LikeType.of(likeType);
   }
 
-  public Like by(final FleenStream stream, final ChatSpace chatSpace, final Member member) {
-    if (LikeParentType.isStream(getLikeParentType())) {
-      return toStreamLike(stream, member);
-    } else if (LikeParentType.isChatSpace(getLikeParentType())) {
-      return toChatSpaceLike(chatSpace, member);
-    }
-
-    throw FailedOperationException.of();
+  public Like by(final ChatSpace chatSpace, final Review review, final FleenStream stream, final Member member) {
+    return switch (getLikeParentType()) {
+      case CHAT_SPACE -> toChatSpaceLike(chatSpace, member);
+      case REVIEW -> toReviewLike(review, member);
+      case STREAM -> toStreamLike(stream, member);
+      case null -> throw FailedOperationException.of();
+    };
   }
 
   protected Like toChatSpaceLike(final ChatSpace chatSpace, final Member member) {
     final Like like = toLike(chatSpace.getChatSpaceId(), chatSpace.getTitle(), member);
     like.setChatSpaceId(chatSpace.getChatSpaceId());
     like.setChatSpace(chatSpace);
+
+    return like;
+  }
+
+  protected Like toReviewLike(final Review review, final Member member) {
+    final Like like = toLike(review.getReviewId(), review.getReviewText(), member);
+    like.setReviewId(review.getReviewId());
+    like.setReview(review);
 
     return like;
   }

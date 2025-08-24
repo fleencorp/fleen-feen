@@ -1,14 +1,11 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
@@ -21,6 +18,9 @@ import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -38,7 +38,6 @@ public class SoftAskServiceImpl implements SoftAskService {
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskRepository softAskRepository;
   private final SoftAskMapper softAskMapper;
-  private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
   
   public SoftAskServiceImpl(
@@ -48,7 +47,6 @@ public class SoftAskServiceImpl implements SoftAskService {
       final SoftAskSearchService softAskSearchService,
       final SoftAskRepository softAskRepository,
       final SoftAskMapper softAskMapper,
-      final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.chatSpaceOperationsService = chatSpaceOperationsService;
     this.memberService = memberService;
@@ -56,22 +54,22 @@ public class SoftAskServiceImpl implements SoftAskService {
     this.softAskSearchService = softAskSearchService;
     this.softAskRepository = softAskRepository;
     this.softAskMapper = softAskMapper;
-    this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
   }
 
   /**
-   * Adds a new {@link SoftAsk} using the data from the given DTO and the user.
+   * Adds a new {@link SoftAsk} authored by the given {@link RegisteredUser}.
    *
-   * <p>Validates and resolves the parent details, constructs a new SoftAsk entity,
-   * saves it, maps it to a response, and returns a localized add response.</p>
+   * <p>The method resolves the requesting member, validates and retrieves the parent context
+   * (such as stream or chat space), constructs a new soft ask, persists it, and maps it into
+   * a localized response object.</p>
    *
-   * @param addSoftAskDto the DTO containing data for the new SoftAsk.
-   * @param user the {@link RegisteredUser} adding the SoftAsk.
-   * @return a localized {@link SoftAskAddResponse} containing the saved SoftAsk’s ID and response data.
-   * @throws MemberNotFoundException if the member is not found.
-   * @throws StreamNotFoundException if the stream parent is not found.
-   * @throws ChatSpaceNotFoundException if the chat space parent is not found.
+   * @param addSoftAskDto the DTO containing the details required to create a soft ask
+   * @param user the user authoring the soft ask
+   * @return a {@link SoftAskAddResponse} containing the created soft ask's identifier and details
+   * @throws MemberNotFoundException if the member corresponding to the given user does not exist
+   * @throws StreamNotFoundException if the specified stream parent cannot be found
+   * @throws ChatSpaceNotFoundException if the specified chat space parent cannot be found
    */
   @Override
   @Transactional
@@ -94,20 +92,21 @@ public class SoftAskServiceImpl implements SoftAskService {
   }
 
   /**
-   * Finds and validates the parent entity for a new SoftAsk based on the DTO.
+   * Finds and validates the parent entity for a new {@link SoftAsk}.
    *
-   * <p>If the DTO has no parent, returns an empty holder.
-   * Otherwise, attempts to find the parent as a {@link ChatSpace} or a {@link FleenStream}
-   * depending on the DTO’s flags, throwing exceptions if not found.</p>
+   * <p>The method checks whether the given {@link AddSoftAskDto} specifies a parent. If no parent is provided,
+   * an empty {@link SoftAskParentDetailHolder} is returned. If a parent is specified, the method retrieves the
+   * parent {@link ChatSpace} or {@link FleenStream} based on the parent type, and returns a detail holder
+   * containing the resolved entities and type information.</p>
    *
-   * @param addSoftAskDto the DTO containing parent info.
-   * @return a {@link SoftAskParentDetailHolder} encapsulating the resolved parent details.
-   * @throws MemberNotFoundException if the member is not found.
-   * @throws ChatSpaceNotFoundException if the chat space parent is not found.
-   * @throws StreamNotFoundException if the stream parent is not found.
+   * @param addSoftAskDto the DTO containing details of the soft ask and its potential parent
+   * @return a {@link SoftAskParentDetailHolder} encapsulating the resolved parent details
+   * @throws MemberNotFoundException if the parent member does not exist
+   * @throws ChatSpaceNotFoundException if the parent chat space does not exist
+   * @throws StreamNotFoundException if the parent stream does not exist
    */
   private SoftAskParentDetailHolder findAndValidateParent(final AddSoftAskDto addSoftAskDto)
-    throws MemberNotFoundException, ChatSpaceNotFoundException, StreamNotFoundException {
+      throws MemberNotFoundException, ChatSpaceNotFoundException, StreamNotFoundException {
 
     if (addSoftAskDto.hasNoParent()) {
       return SoftAskParentDetailHolder.of();
@@ -117,30 +116,32 @@ public class SoftAskServiceImpl implements SoftAskService {
     final ChatSpace chatSpace = addSoftAskDto.isChatSpaceParent() ? chatSpaceOperationsService.findChatSpace(parentId) : null;
     final FleenStream stream = addSoftAskDto.isStreamParent() ? streamOperationsService.findStream(parentId) : null;
 
-    return SoftAskParentDetailHolder.of(chatSpace, stream);
+    return SoftAskParentDetailHolder.of(chatSpace, stream, addSoftAskDto.getParentType());
   }
 
   /**
-   * Deletes a {@link SoftAsk} after verifying the requesting user is the author.
+   * Deletes the specified {@link SoftAsk} if the given {@link RegisteredUser} is the author.
    *
-   * <p>Fetches the SoftAsk by ID, checks author permissions, marks it as deleted,
-   * and returns a localized response indicating deletion status.</p>
+   * <p>The method retrieves the soft ask by ID, verifies that the requesting user is the author,
+   * marks the soft ask as deleted, and returns a localized response containing the deletion status.</p>
    *
-   * @param deleteSoftAskDto the DTO containing the ID of the SoftAsk to delete.
-   * @param user the {@link RegisteredUser} requesting the deletion.
-   * @return a localized {@link SoftAskDeleteResponse} indicating the outcome.
-   * @throws SoftAskUpdateDeniedException if the user is not authorized to delete the SoftAsk.
+   * @param deleteSoftAskDto the DTO containing the ID of the soft ask to delete
+   * @param user the user requesting the deletion
+   * @return a {@link SoftAskDeleteResponse} indicating whether the soft ask was successfully deleted
+   * @throws SoftAskNotFoundException if the soft ask with the given ID does not exist
+   * @throws SoftAskUpdateDeniedException if the user is not authorized to delete the soft ask
    */
   @Override
   @Transactional
-  public SoftAskDeleteResponse deleteSoftAsk(final DeleteSoftAskDto deleteSoftAskDto, final RegisteredUser user) throws SoftAskUpdateDeniedException {
+  public SoftAskDeleteResponse deleteSoftAsk(final DeleteSoftAskDto deleteSoftAskDto, final RegisteredUser user)
+      throws SoftAskNotFoundException, SoftAskUpdateDeniedException {
     final Long softAskId = deleteSoftAskDto.getSoftAskId();
     final SoftAsk softAsk = softAskSearchService.findSoftAsk(softAskId);
 
     softAsk.checkIsAuthor(user.getId());
     softAsk.delete();
 
-    final IsDeletedInfo isDeletedInfo = unifiedMapper.toIsDeletedInfo(softAsk.isDeleted());
+    final IsDeletedInfo isDeletedInfo = softAskMapper.toIsDeletedInfo(softAsk.isDeleted());
     final SoftAskDeleteResponse softAskDeleteResponse = SoftAskDeleteResponse.of(softAskId, isDeletedInfo);
 
     return localizer.of(softAskDeleteResponse);

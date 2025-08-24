@@ -1,15 +1,15 @@
 package com.fleencorp.feen.user.controller.profile;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.chat.space.model.request.core.ChatSpaceSearchRequest;
-import com.fleencorp.feen.stream.model.request.search.StreamSearchRequest;
 import com.fleencorp.feen.chat.space.model.search.core.ChatSpaceSearchResult;
 import com.fleencorp.feen.chat.space.model.search.mutual.MutualChatSpaceMembershipSearchResult;
+import com.fleencorp.feen.chat.space.service.core.ChatSpaceSearchService;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.stream.model.request.search.StreamSearchRequest;
 import com.fleencorp.feen.stream.model.search.common.StreamSearchResult;
 import com.fleencorp.feen.stream.model.search.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.stream.model.search.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceSearchService;
 import com.fleencorp.feen.stream.service.search.StreamSearchService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;

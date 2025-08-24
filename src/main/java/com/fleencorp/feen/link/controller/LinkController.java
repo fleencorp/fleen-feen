@@ -1,9 +1,8 @@
 package com.fleencorp.feen.link.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.model.dto.DeleteLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateLinkDto;
 import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
@@ -14,7 +13,9 @@ import com.fleencorp.feen.link.model.response.LinkUpdateResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeResponse;
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
+import com.fleencorp.feen.link.service.LinkSearchService;
 import com.fleencorp.feen.link.service.LinkService;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +32,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/link")
 public class LinkController {
 
+  private final LinkSearchService linkSearchService;
   private final LinkService linkService;
 
-  public LinkController(final LinkService linkService) {
+  public LinkController(
+      final LinkSearchService linkSearchService,
+      final LinkService linkService) {
+    this.linkSearchService = linkSearchService;
     this.linkService = linkService;
   }
 
@@ -46,7 +51,7 @@ public class LinkController {
   })
   @GetMapping(value = "/link-types")
   public GetAvailableLinkTypeResponse getAvailableLinkTypes() {
-    return linkService.getAvailableLinkTypes();
+    return linkSearchService.getAvailableLinkTypes();
   }
 
   @Operation(summary = "Retrieve available music link types",
@@ -58,7 +63,7 @@ public class LinkController {
   })
   @GetMapping(value = "/music-link-types")
   public GetAvailableMusicLinkTypeResponse getAvailableMusicLinkTypes() {
-    return linkService.getAvailableMusicLinkType();
+    return linkSearchService.getAvailableMusicLinkType();
   }
 
   @Operation(summary = "Search for links",
@@ -72,11 +77,11 @@ public class LinkController {
   })
   @GetMapping(value = "")
   public LinkSearchResult findLinks(
-      @Parameter(description = "Search criteria and pagination parameters", required = true)
-        @SearchParam final LinkSearchRequest linkSearchRequest,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final RegisteredUser user) {
-    return linkService.findLinks(linkSearchRequest, user);
+    @Parameter(description = "Search criteria and pagination parameters", required = true)
+      @SearchParam final LinkSearchRequest linkSearchRequest,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
+    return linkSearchService.findLinks(linkSearchRequest, user);
   }
 
   @Operation(summary = "Update an existing link",
@@ -92,13 +97,13 @@ public class LinkController {
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
-  @PutMapping(value = "/update")
-  public LinkUpdateResponse updateLink(
-      @Parameter(description = "Link details to update", required = true)
-        @Valid @RequestBody final UpdateLinkDto updateLinkDto,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final RegisteredUser user) {
-    return linkService.updateLink(updateLinkDto, user);
+  @PutMapping(value = "/update-chat-space-link")
+  public LinkUpdateResponse updateChatSpaceLink(
+    @Parameter(description = "Link details to update", required = true)
+      @Valid @RequestBody final UpdateLinkDto updateLinkDto,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
+    return linkService.updateChatSpaceLink(updateLinkDto, user);
   }
 
   @Operation(summary = "Delete a link",
@@ -116,11 +121,11 @@ public class LinkController {
   })
   @PutMapping(value = "/delete")
   public LinkDeleteResponse deleteLink(
-      @Parameter(description = "Details of the link to delete", required = true)
-        @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final RegisteredUser user) {
-    return linkService.deleteLink(deleteLinkDto, user);
+    @Parameter(description = "Details of the link to delete", required = true)
+      @Valid @RequestBody final DeleteLinkDto deleteLinkDto,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
+    return linkService.deleteLinks(deleteLinkDto, user);
   }
 
   @Operation(summary = "Update the streaming music link",
@@ -138,10 +143,10 @@ public class LinkController {
   })
   @PutMapping(value = "/update-music-link")
   public LinkStreamMusicUpdateResponse updateStreamMusicLink(
-      @Parameter(description = "Details for updating the music stream link", required = true)
-        @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
-      @Parameter(hidden = true)
-        @AuthenticationPrincipal final RegisteredUser user) {
+    @Parameter(description = "Details for updating the music stream link", required = true)
+      @Valid @RequestBody final UpdateStreamMusicLinkDto updateStreamMusicLinkDto,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
     return linkService.updateStreamMusicLink(updateStreamMusicLinkDto, user);
   }
 }

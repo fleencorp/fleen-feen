@@ -1,7 +1,7 @@
 package com.fleencorp.feen.common.validator.impl;
 
-import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
 import com.fleencorp.feen.common.validator.StreamDuration;
+import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

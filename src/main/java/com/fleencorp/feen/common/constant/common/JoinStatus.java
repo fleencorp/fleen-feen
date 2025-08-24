@@ -3,8 +3,8 @@ package com.fleencorp.feen.common.constant.common;
 import com.fleencorp.base.constant.base.ApiParameter;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

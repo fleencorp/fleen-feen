@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.controller.reply;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.softask.exception.core.SoftAskAnswerNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
@@ -37,8 +37,8 @@ public class SoftAskReplyController {
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully added the reply",
       content = @Content(schema = @Schema(implementation = SoftAskReplyAddResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Soft Ask Answer cannot be found",
-      content = @Content(schema = @Schema(implementation = SoftAskAnswerNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Soft Ask cannot be found",
+      content = @Content(schema = @Schema(implementation = SoftAskNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Member cannot be found",
       content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
@@ -46,7 +46,7 @@ public class SoftAskReplyController {
   })
   @PostMapping(value = "/add")
   public SoftAskReplyAddResponse addSoftAskReply(
-    @Parameter(description = "Reply dto for an answer", required = true)
+    @Parameter(description = "Add Reply dto for a soft ask", required = true)
       @Valid @RequestBody final AddSoftAskReplyDto addSoftAskReplyDto,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
@@ -67,9 +67,10 @@ public class SoftAskReplyController {
   public SoftAskReplyDeleteResponse deleteSoftAskReply(
     @Parameter(description = "ID of the reply to delete", required = true)
       @PathVariable(name = "replyId") final Long replyId,
+    @Parameter(description = "Delete Soft Ask Reply dto", required = true)
+      @Valid @RequestBody final DeleteSoftAskReplyDto deleteSoftAskReplyDto,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
-    final DeleteSoftAskReplyDto deleteSoftAskReplyDto = DeleteSoftAskReplyDto.of(replyId);
-    return softAskReplyService.deleteSoftAskReply(deleteSoftAskReplyDto, user);
+    return softAskReplyService.deleteSoftAskReply(replyId, deleteSoftAskReplyDto, user);
   }
 } 

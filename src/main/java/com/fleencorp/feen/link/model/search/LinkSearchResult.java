@@ -28,14 +28,14 @@ public class LinkSearchResult extends LocalizedResponse {
   private SearchResult result;
 
   @JsonProperty("parent_id")
-  private Object parentId;
+  private Long parentId;
 
   @Override
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "link.search" : "link.empty.search";
   }
 
-  public static LinkSearchResult of(final SearchResult result, final Object parentId) {
+  public static LinkSearchResult of(final SearchResult result, final Long parentId) {
     return new LinkSearchResult(result, parentId);
   }
 

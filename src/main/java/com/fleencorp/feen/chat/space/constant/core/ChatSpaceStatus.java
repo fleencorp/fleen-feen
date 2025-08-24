@@ -1,6 +1,5 @@
 package com.fleencorp.feen.chat.space.constant.core;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
@@ -12,7 +11,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 * @version 1.0
 */
 @Getter
-public enum ChatSpaceStatus implements ApiParameter {
+public enum ChatSpaceStatus {
 
   ACTIVE(
     "Active", 

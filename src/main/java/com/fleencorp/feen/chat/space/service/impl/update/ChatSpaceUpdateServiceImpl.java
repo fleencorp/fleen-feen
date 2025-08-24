@@ -7,14 +7,14 @@ import com.fleencorp.feen.chat.space.model.request.external.core.DeleteChatSpace
 import com.fleencorp.feen.chat.space.model.request.external.core.UpdateChatSpaceRequest;
 import com.fleencorp.feen.chat.space.model.request.external.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.chat.space.model.request.external.membership.RemoveChatSpaceMemberRequest;
+import com.fleencorp.feen.chat.space.repository.ChatSpaceRepository;
+import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberOperationsService;
+import com.fleencorp.feen.chat.space.service.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleCreateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleDeleteChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.chat.GoogleUpdateChatSpaceResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleAddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleRemoveChatSpaceMemberResponse;
-import com.fleencorp.feen.chat.space.repository.ChatSpaceRepository;
-import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberOperationsService;
-import com.fleencorp.feen.chat.space.service.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatMemberService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import lombok.extern.slf4j.Slf4j;

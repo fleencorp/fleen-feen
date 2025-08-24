@@ -8,9 +8,8 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum SoftAskVoteParentType implements ApiParameter {
 
-  SOFT_ASK_ANSWER("Soft Ask Answer"),
-  SOFT_ASK_REPLY("Soft Ask Reply"),
-  SOFT_ASK("Soft Ask");
+  SOFT_ASK("Soft Ask"),
+  SOFT_ASK_REPLY("Soft Ask Reply");
 
   private final String value;
 
@@ -23,14 +22,10 @@ public enum SoftAskVoteParentType implements ApiParameter {
   }
 
   public static boolean isSoftAsk(final SoftAskVoteParentType softAskVoteParentType) {
-    return SOFT_ASK == softAskVoteParentType;
-  }
-
-  public static boolean isSoftAskAnswer(final SoftAskVoteParentType softAskVoteParentType) {
-    return SOFT_ASK_ANSWER == softAskVoteParentType;
+    return softAskVoteParentType == SOFT_ASK;
   }
 
   public static boolean isSoftAskReply(final SoftAskVoteParentType softAskVoteParentType) {
-    return SOFT_ASK_REPLY == softAskVoteParentType;
+    return softAskVoteParentType == SOFT_ASK_REPLY;
   }
 }

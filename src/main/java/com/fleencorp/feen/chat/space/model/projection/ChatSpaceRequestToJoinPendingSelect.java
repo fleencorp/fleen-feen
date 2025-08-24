@@ -12,5 +12,9 @@ import lombok.Setter;
 public class ChatSpaceRequestToJoinPendingSelect {
 
  private Long chatSpaceId;
- private Long requestToJoinTotal;
+ private long requestToJoinTotal;
+
+ public Integer getTotalRequestToJoinTotal() {
+   return (int) requestToJoinTotal;
+ }
 }

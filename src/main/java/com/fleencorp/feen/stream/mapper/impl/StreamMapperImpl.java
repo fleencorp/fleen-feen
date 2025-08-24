@@ -1,31 +1,29 @@
 package com.fleencorp.feen.stream.mapper.impl;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.stream.constant.common.MusicLinkType;
-import com.fleencorp.feen.stream.constant.*;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.IsForKidsInfo;
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.stream.constant.IsForKids;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.stream.constant.common.MusicLinkType;
+import com.fleencorp.feen.stream.constant.core.*;
 import com.fleencorp.feen.stream.mapper.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.common.model.info.IsForKidsInfo;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
-import com.fleencorp.feen.like.model.info.LikeCountInfo;
-import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
 import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
+import com.fleencorp.feen.stream.model.info.core.*;
+import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.stream.model.other.Organizer;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
-import com.fleencorp.feen.stream.constant.core.*;
-import com.fleencorp.feen.stream.model.info.core.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -77,14 +75,22 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setTags(entry.getTags());
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
+      response.setSpeakerCount(entry.getTotalSpeakers());
+      response.setShareCount(entry.getShareCount());
 
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
       response.setStreamLinkNotMasked(entry.getStreamLink());
+
+      response.setIsUpdatable(false);
+      response.setAuthorId(entry.getOrganizerId());
       response.setOrganizerId(entry.getOrganizerId());
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
+      toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
 
       final Schedule schedule = Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone());
       response.setSchedule(schedule);
@@ -141,12 +147,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
       response.setAttendanceInfo(attendanceInfo);
-
-      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
-      response.setUserLikeInfo(userLikeInfo);
-
-      final LikeCountInfo likeCountInfo = toInfoMapper.toLikeCountInfo(entry.getLikeCount());
-      response.setLikeCountInfo(likeCountInfo);
 
       return response;
 

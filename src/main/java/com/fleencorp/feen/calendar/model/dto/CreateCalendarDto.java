@@ -2,9 +2,10 @@ package com.fleencorp.feen.calendar.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToTitleCase;
+import com.fleencorp.feen.calendar.constant.CalendarStatus;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
-import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.common.validator.TimezoneValid;
+import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -46,7 +47,7 @@ public class CreateCalendarDto {
     calendar.setDescription(description);
     calendar.setTimezone(timezone);
     calendar.setCode(countryCode);
-    calendar.setIsActive(true);
+    calendar.setStatus(CalendarStatus.ACTIVE);
 
     return calendar;
   }

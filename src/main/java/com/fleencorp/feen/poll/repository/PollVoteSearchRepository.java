@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PollVoteQueryRepository extends JpaRepository<PollVote, Long> {
+public interface PollVoteSearchRepository extends JpaRepository<PollVote, Long> {
 
   @Query("SELECT pv FROM PollVote pv WHERE pv.pollVoteId IS NOT NULL ORDER BY pv.updatedOn DESC")
   Page<PollVote> findMany(Pageable pageable);

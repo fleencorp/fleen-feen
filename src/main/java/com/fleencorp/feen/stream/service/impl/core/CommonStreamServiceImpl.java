@@ -2,71 +2,48 @@ package com.fleencorp.feen.stream.service.impl.core;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
-import com.fleencorp.feen.calendar.model.request.event.update.*;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.exception.core.CannotCancelOrDeleteOngoingStreamException;
-import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
-import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
-import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.stream.exception.core.*;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.model.dto.core.*;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
 import com.fleencorp.feen.stream.model.request.external.ExternalStreamRequest;
-import com.fleencorp.feen.stream.model.request.external.broadcast.DeleteLiveBroadcastRequest;
-import com.fleencorp.feen.stream.model.request.external.broadcast.RescheduleLiveBroadcastRequest;
-import com.fleencorp.feen.stream.model.request.external.broadcast.UpdateLiveBroadcastRequest;
-import com.fleencorp.feen.stream.model.request.external.broadcast.UpdateLiveBroadcastVisibilityRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.base.*;
-import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
-import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
-import com.fleencorp.feen.stream.service.impl.update.LiveBroadcastUpdateService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamService;
+import com.fleencorp.feen.stream.service.core.ExternalStreamRequestService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
-import com.fleencorp.feen.stream.service.event.EventOperationsService;
-import com.fleencorp.feen.stream.model.dto.core.*;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.stream.service.impl.core.StreamServiceImpl.validateCreatorOfStream;
 import static com.fleencorp.feen.stream.service.impl.core.StreamServiceImpl.verifyStreamDetails;
 
 @Service
 public class CommonStreamServiceImpl implements CommonStreamService, StreamRequestService {
 
-  private final EventOperationsService eventOperationsService;
-  private final LiveBroadcastUpdateService liveBroadcastUpdateService;
+  private final ExternalStreamRequestService externalStreamRequestService;
   private final StreamOperationsService streamOperationsService;
   private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new {@code CommonStreamServiceImpl}, which manages core stream functionality such as broadcasting and event coordination.
-   *
-   * @param eventOperationsService the service responsible for handling event-related operations tied to streams
-   * @param liveBroadcastUpdateService the service for updating live broadcast details and states
-   * @param streamOperationsService the service that provides low-level operations on stream entities
-   * @param unifiedMapper the utility for mapping domain models to DTOs and vice versa
-   * @param localizer the component used for resolving localized messages based on locale
-   */
   public CommonStreamServiceImpl(
-      final EventOperationsService eventOperationsService,
-      final LiveBroadcastUpdateService liveBroadcastUpdateService,
+      final ExternalStreamRequestService externalStreamRequestService,
       final StreamOperationsService streamOperationsService,
       final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
-    this.eventOperationsService = eventOperationsService;
-    this.liveBroadcastUpdateService = liveBroadcastUpdateService;
+    this.externalStreamRequestService = externalStreamRequestService;
     this.streamOperationsService = streamOperationsService;
     this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
@@ -103,80 +80,27 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   public DeleteStreamResponse deleteStream(final Long streamId, final DeleteStreamDto deleteStreamDto, final RegisteredUser user)
       throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
         CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
-    // Find the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
     stream.checkStreamTypeNotEqual(deleteStreamDto.getStreamType());
 
-    // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
-    // Retrieve the calendar from the stream details
     final Calendar calendar = streamOtherDetailsHolder.calendar();
-    // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    // Validate if the user is the creator of the event
-    validateCreatorOfStream(stream, user);
-    // Verify if stream is still ongoing
+    stream.checkIsOrganizer(user.getId());
     stream.checkNotOngoingForCancelOrDeleteOrUpdate();
-    // Update delete status of event
     stream.delete();
-    // Save the stream
     streamOperationsService.save(stream);
 
-    // Create the request to delete the stream externally
     final ExternalStreamRequest deleteStreamRequest = createDeleteStreamRequest(calendar, oauth2Authorization, stream);
-    // Delete the stream externally
-    deleteStreamExternally(deleteStreamRequest);
-    // Get the deleted info
+    externalStreamRequestService.deleteStreamExternally(deleteStreamRequest);
+
     final IsDeletedInfo deletedInfo = unifiedMapper.toIsDeletedInfo(stream.isDeleted());
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
+
     final DeleteStreamResponse deleteStreamResponse = DeleteStreamResponse.of(streamId, streamTypeInfo, deletedInfo);
-    // Return a localized response of the Deleted event
     return localizer.of(deleteStreamResponse);
   }
-
-  /**
-   * Handles the external deletion of a stream, whether it is an event or a live broadcast.
-   * Based on the type of the stream (event or broadcast), this method creates the appropriate request to either
-   * delete a calendar event (such as in Google Calendar) or delete a live broadcast.
-   *
-   * <p>If the stream is identified as an event and the request indicates a deletion, a `DeleteCalendarEventRequest`
-   * is created with the external calendar ID and stream ID. This request is then passed to the `eventUpdateService`
-   * to delete the event from Google Calendar.</p>
-   *
-   * <p>If the stream is identified as a broadcast and the request is for deletion, a `DeleteLiveBroadcastRequest`
-   * is created with the external stream ID and access token. This request is then sent to `liveBroadcastUpdateService`
-   * to delete the live broadcast using the specified external service.</p>
-   *
-   * @param deleteStreamRequest  the request containing information about the stream to be deleted, including
-   *                             stream type (event or broadcast), external IDs, and necessary access tokens for
-   *                             performing the external deletion
-   */
-  protected void deleteStreamExternally(final ExternalStreamRequest deleteStreamRequest) {
-    if (deleteStreamRequest.isAnEvent() && deleteStreamRequest.isDeleteRequest()) {
-      // Create a request to delete the calendar event
-      final DeleteCalendarEventRequest deleteCalendarEventRequest = DeleteCalendarEventRequest.of(
-        deleteStreamRequest.calendarExternalId(),
-        deleteStreamRequest.streamExternalId()
-      );
-      // Delete the event in the Google Calendar
-      eventOperationsService.deleteEventInGoogleCalendar(deleteCalendarEventRequest);
-
-    } else if (deleteStreamRequest.isABroadcast() && deleteStreamRequest.isDeleteRequest()) {
-      // Create a request to delete the live broadcast
-      final DeleteLiveBroadcastRequest deleteLiveBroadcastRequest = DeleteLiveBroadcastRequest.of(
-        deleteStreamRequest.streamExternalId(),
-        deleteStreamRequest.accessToken()
-      );
-
-      // Reschedule the live broadcast using an external service
-      liveBroadcastUpdateService.deleteLiveBroadcast(deleteLiveBroadcastRequest);
-    }
-  }
-
 
   /**
    * Cancels an existing stream based on the provided stream ID and cancellation details. This method ensures that
@@ -215,67 +139,28 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
       StreamAlreadyHappenedException, StreamAlreadyCanceledException, CannotCancelOrDeleteOngoingStreamException,
       FailedOperationException {
-    // Find the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Retrieve the stream type
     final StreamType streamType = stream.getStreamType();
-    // Verify if the stream's type is the same as the stream type of the request
+
     stream.checkStreamTypeNotEqual(cancelStreamDto.getStreamType());
-    // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
-    // Verify if the event or stream is still ongoing
     stream.checkNotOngoingForCancelOrDeleteOrUpdate();
-    // Update event status to canceled
     stream.cancel();
 
-    // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
-    // Retrieve the calendar from the stream details
     final Calendar calendar = streamOtherDetailsHolder.calendar();
-    // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    // Save the stream to the repository
     streamOperationsService.save(stream);
-    // Convert the stream status to info
+
     final StreamStatusInfo statusInfo = unifiedMapper.toStreamStatusInfo(stream.getStreamStatus());
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the cancel stream request
+
     final ExternalStreamRequest cancelStreamRequest = ExternalStreamRequest.ofCancel(calendar, oauth2Authorization, stream, streamType);
-    // Check other details and if necessary, cancel stream externally
-    cancelStreamExternally(cancelStreamRequest);
-    // Create a response
+    externalStreamRequestService.cancelStreamExternally(cancelStreamRequest);
+
     final CancelStreamResponse cancelStreamResponse = CancelStreamResponse.of(streamId, statusInfo, streamTypeInfo);
-    // Return a localized response of the cancellation
     return localizer.of(cancelStreamResponse);
-  }
-
-  /**
-   * Cancels a stream externally based on the provided request. This method specifically handles the cancellation
-   * of events that are associated with external calendar services. If the stream is identified as an event
-   * and the request is for cancellation, it creates and submits a request to cancel the event in an external
-   * calendar service (e.g., Google Calendar).
-   *
-   * <p>The method checks the type of stream in the request and ensures that the stream is an event
-   * and the request is indeed a cancellation request. It then proceeds to create a `CancelCalendarEventRequest`
-   * using the external calendar and stream identifiers. This request is then processed by the
-   * external service to handle the event cancellation.</p>
-   *
-   * @param cancelStreamRequest  the request object containing the necessary information to cancel the stream
-   *                             externally, including stream and calendar identifiers
-   */
-  protected void cancelStreamExternally(final ExternalStreamRequest cancelStreamRequest) {
-    if (cancelStreamRequest.isAnEvent() && cancelStreamRequest.isCancelRequest()) {
-      // Create a request to cancel the calendar event and submit request to external Calendar service
-      final CancelCalendarEventRequest cancelCalendarEventRequest = CancelCalendarEventRequest.of(
-        cancelStreamRequest.calendarExternalId(),
-        cancelStreamRequest.streamExternalId()
-      );
-
-      // Cancel the stream in the external service
-      eventOperationsService.cancelEventInGoogleCalendar(cancelCalendarEventRequest);
-    }
   }
 
   /**
@@ -313,87 +198,31 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   @Transactional
   public RescheduleStreamResponse rescheduleStream(final Long streamId, final RescheduleStreamDto rescheduleStreamDto, final RegisteredUser user)
     throws StreamNotFoundException, CalendarNotFoundException, StreamNotCreatedByUserException,
-    StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
-    // Find the stream by its ID
+      StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
+
     stream.checkStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
 
-    // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
-    // Retrieve the calendar from the stream details
     final Calendar calendar = streamOtherDetailsHolder.calendar();
-    // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    // Verify stream details like the owner, event date and active status of the event
     verifyStreamDetails(stream, user);
-    // Update Stream schedule details and time
     stream.reschedule(
       rescheduleStreamDto.getStartDateTime(),
       rescheduleStreamDto.getEndDateTime(),
       rescheduleStreamDto.getTimezone()
     );
 
-    // Save the stream and event details
     streamOperationsService.save(stream);
-    // Create the reschedule stream request
     final ExternalStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(calendar, oauth2Authorization, stream, rescheduleStreamDto);
-    // Reschedule the stream externally
-    rescheduleStreamExternally(rescheduleStreamRequest);
-    // Get the stream response
+    externalStreamRequestService.rescheduleStreamExternally(rescheduleStreamRequest);
+
     final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
     final RescheduleStreamResponse rescheduleStreamResponse = RescheduleStreamResponse.of(streamId, streamResponse, streamTypeInfo);
-    // Return a localized response of the rescheduled stream
+
     return localizer.of(rescheduleStreamResponse);
-  }
-
-  /**
-   * Handles the external rescheduling of a stream, either as a calendar event or a live broadcast.
-   * If the stream is an event, the method prepares a request to reschedule the calendar event with
-   * new schedule details such as start time, end time, and timezone. It then updates the schedule
-   * in the external calendar service, such as Google Calendar.
-   *
-   * <p>If the stream is a live broadcast, the method prepares a request to reschedule the live broadcast
-   * with updated schedule details. It interacts with the external service to reschedule the live
-   * broadcast using the provided OAuth2 access token.</p>
-   *
-   * <p>The method checks if the reschedule request pertains to an event or broadcast before executing
-   * the corresponding external service call.</p>
-   *
-   * @param rescheduleStreamRequest the request object containing rescheduling details, such as start
-   *                                time, end time, and timezone, along with external stream IDs and
-   *                                authorization tokens if necessary.
-   */
-  protected void rescheduleStreamExternally(final ExternalStreamRequest rescheduleStreamRequest) {
-    if (rescheduleStreamRequest.isAnEvent() && rescheduleStreamRequest.isRescheduleRequest()) {
-      // Prepare a request to reschedule the calendar event with the new schedule details
-      final RescheduleCalendarEventRequest rescheduleCalendarEventRequest = RescheduleCalendarEventRequest.of(
-        rescheduleStreamRequest.calendarExternalId(),
-        rescheduleStreamRequest.streamExternalId(),
-        rescheduleStreamRequest.getStartDateTime(),
-        rescheduleStreamRequest.getEndDateTime(),
-        rescheduleStreamRequest.getTimezone()
-      );
-      // Update event schedule details in the Google Calendar service
-      eventOperationsService.rescheduleEventInGoogleCalendar(rescheduleCalendarEventRequest);
-
-    } else if (rescheduleStreamRequest.isABroadcast() && rescheduleStreamRequest.isRescheduleRequest()) {
-      // Create a request object to reschedule the live broadcast on the external service
-      final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest = RescheduleLiveBroadcastRequest.of(
-        rescheduleStreamRequest.accessToken(),
-        rescheduleStreamRequest.getStartDateTime(),
-        rescheduleStreamRequest.getEndDateTime(),
-        rescheduleStreamRequest.getTimezone(),
-        rescheduleStreamRequest.streamExternalId()
-      );
-
-      // Reschedule the live broadcast using an external service
-      liveBroadcastUpdateService.rescheduleLiveBroadcastAndStream(rescheduleStreamRequest.getStream(), rescheduleLiveBroadcastRequest);
-    }
   }
 
   /**
@@ -426,13 +255,11 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       FailedOperationException {
-    // Find the stream by its ID
     FleenStream stream = streamOperationsService.findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
+
     stream.checkStreamTypeNotEqual(updateStreamDto.getStreamType());
-    // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
-    // Update the FleenStream object with the response from Google Calendar
+
     stream.update(
       updateStreamDto.getTitle(),
       updateStreamDto.getDescription(),
@@ -440,27 +267,19 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
       updateStreamDto.getLocation()
     );
 
-    // Save the updated stream to the repository
     stream = streamOperationsService.save(stream);
 
-    // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
-    // Retrieve the calendar from the stream details
     final Calendar calendar = streamOtherDetailsHolder.calendar();
-    // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    // Create and build the patch stream request with necessary payload
     final ExternalStreamRequest patchStreamRequest = createPatchStreamRequest(calendar, oauth2Authorization, stream, updateStreamDto);
-    // Patch or update the stream externally
-    patchStreamExternally(patchStreamRequest);
-    // Get the stream response
+    externalStreamRequestService.patchStreamExternally(patchStreamRequest);
+
     final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
     final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
-    // Return a localized response the updated stream
+
     return localizer.of(updateStreamResponse);
   }
 
@@ -485,72 +304,25 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
    */
   @Override
   public UpdateStreamResponse updateStreamOtherDetails(final Long streamId, final UpdateStreamOtherDetailDto updateStreamOtherDetailDto, final RegisteredUser user) throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException, StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException, FailedOperationException {
-    // Find the stream by its ID
     FleenStream stream = streamOperationsService.findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
+
     stream.checkStreamTypeNotEqual(updateStreamOtherDetailDto.getStreamType());
-    // Validate if the user is the creator of the event
     verifyStreamDetails(stream, user);
-    // Update the FleenStream object with the response from Google Calendar
+
     stream.updateOtherDetail(
       updateStreamOtherDetailDto.getOtherDetails(),
       updateStreamOtherDetailDto.getOtherLink(),
       updateStreamOtherDetailDto.getGroupOrOrganizationName()
     );
 
-    // Save the updated stream to the repository
     stream = streamOperationsService.save(stream);
-    // Get the stream response
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
-    // Retrieve the stream type info
+
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
+
+    final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
     final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
-    // Return a localized response the updated stream
+
     return localizer.of(updateStreamResponse);
-  }
-
-  /**
-   * Handles updating or patching stream details externally, either as a calendar event or a live broadcast.
-   * If the stream is an event, it prepares a request to update the calendar event details, such as the title,
-   * description, and location, and interacts with the external calendar service, like Google Calendar.
-   *
-   * <p>If the stream is a live broadcast, the method creates an update request containing the necessary details
-   * and uses the provided OAuth2 access token to update the live broadcast through the external service.</p>
-   *
-   * <p>The method determines whether the stream is an event or a broadcast, and whether it is a patch request,
-   * before executing the corresponding external service update.</p>
-   *
-   * @param patchStreamRequest the request object containing updated stream details, such as the title,
-   *                           description, and location, along with external stream IDs and authorization tokens if necessary.
-   */
-  protected void patchStreamExternally(final ExternalStreamRequest patchStreamRequest) {
-    // Verify if the stream to be updated is an event
-    if (patchStreamRequest.isAnEvent() && patchStreamRequest.isPatchRequest()) {
-      // Prepare a request to patch the calendar event with updated details
-      final PatchCalendarEventRequest patchCalendarEventRequest = PatchCalendarEventRequest.of(
-        patchStreamRequest.calendarExternalId(),
-        patchStreamRequest.streamExternalId(),
-        patchStreamRequest.getTitle(),
-        patchStreamRequest.getDescription(),
-        patchStreamRequest.getLocation()
-      );
-
-      // Update the event details in the Google Calendar
-      eventOperationsService.updateEventInGoogleCalendar(patchStreamRequest.getStream(), patchCalendarEventRequest);
-
-    } else if (patchStreamRequest.isABroadcast() && patchStreamRequest.isPatchRequest()) {
-      // Create an update request using the access token and update details
-      final UpdateLiveBroadcastRequest updateLiveBroadcastRequest = UpdateLiveBroadcastRequest.of(
-        patchStreamRequest.accessToken(),
-        patchStreamRequest.getTitle(),
-        patchStreamRequest.getDescription(),
-        patchStreamRequest.streamExternalId()
-      );
-
-      // Update the live broadcast using an external service
-      liveBroadcastUpdateService.updateLiveBroadcastAndStream(patchStreamRequest.getStream(), updateLiveBroadcastRequest);
-    }
   }
 
   /**
@@ -590,83 +362,29 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     throws StreamNotFoundException, CalendarNotFoundException, Oauth2InvalidAuthorizationException,
       StreamNotCreatedByUserException, StreamAlreadyHappenedException, StreamAlreadyCanceledException,
       CannotCancelOrDeleteOngoingStreamException, FailedOperationException {
-    // Find the stream by its ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Verify if the stream's type is the same as the stream type of the request
+
     stream.checkStreamTypeNotEqual(updateStreamVisibilityDto.getStreamType());
-    // Retrieve the current or existing status or visibility status of a stream
     final StreamVisibility currentStreamVisibility = stream.getStreamVisibility();
-    // Verify stream details like the owner, event date and active status of the event
+
     verifyStreamDetails(stream, user);
-    // Verify if the stream is still ongoing
     stream.checkNotOngoingForUpdate();
-    // Update the visibility of an event or stream
     stream.setStreamVisibility(updateStreamVisibilityDto.getActualVisibility());
-    // Save the updated stream in the repository
+
     streamOperationsService.save(stream);
 
-    // Get stream other details
     final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
-    // Retrieve the calendar from the stream details
     final Calendar calendar = streamOtherDetailsHolder.calendar();
-    // Retrieve the oauth2Authorization from the stream details
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    // Create request to update stream visibility
     final ExternalStreamRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(calendar, oauth2Authorization, stream, updateStreamVisibilityDto.getVisibility());
-    // Update the stream visibility using an external service
-    updateStreamVisibilityExternally(updateStreamVisibilityRequest, currentStreamVisibility);
+    externalStreamRequestService.updateStreamVisibilityExternally(updateStreamVisibilityRequest, currentStreamVisibility);
 
-    // Retrieve the stream visibility information
     final StreamVisibilityInfo streamVisibility = unifiedMapper.toStreamVisibilityInfo(stream.getStreamVisibility());
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Return a localized response of the update
-    return localizer.of(UpdateStreamVisibilityResponse.of(streamId, streamVisibility, streamTypeInfo));
-  }
+    final UpdateStreamVisibilityResponse updateStreamVisibilityResponse = UpdateStreamVisibilityResponse.of(stream.getStreamId(), streamVisibility, streamTypeInfo);
 
-  /**
-   * Updates the stream's visibility both internally and externally based on the type of stream (event or broadcast).
-   *
-   * <p>The method checks if the stream is an event or a broadcast and prepares the necessary requests to update the stream's
-   * visibility in external services. For events, it sends pending invitations to attendees if the visibility change affects
-   * their status.</p>
-   *
-   * <p>If the stream is an event, it updates the visibility in Google Calendar. If it's a broadcast, it updates the stream
-   * visibility on the external live broadcasting platform using the provided access token.</p>
-   *
-   * @param updateStreamVisibilityRequest  the request containing the necessary details for updating the stream visibility
-   * @param previousStreamVisibility       the previous visibility status of the stream to determine attendee updates
-   */
-  protected void updateStreamVisibilityExternally(final ExternalStreamRequest updateStreamVisibilityRequest, final StreamVisibility previousStreamVisibility) {
-    if (updateStreamVisibilityRequest.isAnEvent() && updateStreamVisibilityRequest.isVisibilityUpdateRequest()) {
-      // Create a request to update the stream's visibility
-      final UpdateCalendarEventVisibilityRequest request = UpdateCalendarEventVisibilityRequest.of(
-        updateStreamVisibilityRequest.calendarExternalId(),
-        updateStreamVisibilityRequest.streamExternalId(),
-        updateStreamVisibilityRequest.getVisibility()
-      );
-
-      // Update the event visibility using an external service
-      eventOperationsService.updateEventVisibility(request);
-
-      eventOperationsService.sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(
-        updateStreamVisibilityRequest.calendarExternalId(),
-        updateStreamVisibilityRequest.getStream(),
-        previousStreamVisibility
-      );
-
-    } else if (updateStreamVisibilityRequest.isABroadcast() && updateStreamVisibilityRequest.isVisibilityUpdateRequest()) {
-      // Create a request to update the service's visibility
-      final UpdateLiveBroadcastVisibilityRequest updateLiveBroadcastVisibilityRequest = UpdateLiveBroadcastVisibilityRequest.of(
-        updateStreamVisibilityRequest.accessToken(),
-        updateStreamVisibilityRequest.streamExternalId(),
-        updateStreamVisibilityRequest.getVisibility()
-      );
-
-      // Update the stream visibility using an external service
-      liveBroadcastUpdateService.updateStreamVisibility(updateLiveBroadcastVisibilityRequest);
-    }
+    return localizer.of(updateStreamVisibilityResponse);
   }
 
 }

@@ -12,6 +12,6 @@ public interface SoftAskSearchRepository extends JpaRepository<SoftAsk, Long> {
   @Query("SELECT sa FROM SoftAsk sa WHERE sa.softAskId IS NOT NULL ORDER BY sa.updatedOn DESC")
   Page<SoftAsk> findMany(Pageable pageable);
 
-  @Query("SELECT sa FROM SoftAskAnswer sa WHERE sa.authorId = :authorId ORDER BY sa.updatedOn DESC")
+  @Query("SELECT sa FROM SoftAsk sa WHERE sa.authorId = :authorId ORDER BY sa.updatedOn DESC")
   Page<SoftAsk> findByAuthor(@Param("authorId") Long authorId, Pageable pageable);
 }

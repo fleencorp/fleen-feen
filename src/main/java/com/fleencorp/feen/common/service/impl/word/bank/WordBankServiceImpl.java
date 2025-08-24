@@ -1,10 +1,10 @@
 package com.fleencorp.feen.common.service.impl.word.bank;
 
-import com.fleencorp.feen.model.domain.word.bank.Adjective;
-import com.fleencorp.feen.model.domain.word.bank.Noun;
 import com.fleencorp.feen.common.repository.word.bank.AdjectiveRepository;
 import com.fleencorp.feen.common.repository.word.bank.NounRepository;
 import com.fleencorp.feen.common.service.word.bank.WordBankService;
+import com.fleencorp.feen.model.domain.word.bank.Adjective;
+import com.fleencorp.feen.model.domain.word.bank.Noun;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;

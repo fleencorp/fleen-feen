@@ -48,14 +48,6 @@ public class SoftAskVote extends FleenFeenEntity {
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id")
   private SoftAsk softAsk;
 
-  @Column(name = "soft_ask_answer_id", updatable = false, insertable = false)
-  private Long softAskAnswerId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = SoftAskAnswer.class)
-  @JoinColumn(name = "soft_ask_answer_id", referencedColumnName = "soft_ask_answer_id")
-  private SoftAskAnswer softAskAnswer;
-
   @Column(name = "soft_ask_reply_id", updatable = false, insertable = false)
   private Long softAskReplyId;
 
@@ -75,7 +67,6 @@ public class SoftAskVote extends FleenFeenEntity {
 
   public String getParentContent() {
     return switch (parentType) {
-      case SOFT_ASK_ANSWER -> nonNull(softAskAnswer) ? softAskAnswer.getContent() : null;
       case SOFT_ASK_REPLY -> nonNull(softAskReply) ? softAskReply.getContent(): null;
       case SOFT_ASK -> nonNull(softAsk) ? softAsk.getDescription() : null;
     };

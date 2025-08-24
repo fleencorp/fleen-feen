@@ -1,5 +1,6 @@
 package com.fleencorp.feen.stream.service.attendee;
 
+import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
@@ -7,7 +8,6 @@ import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 

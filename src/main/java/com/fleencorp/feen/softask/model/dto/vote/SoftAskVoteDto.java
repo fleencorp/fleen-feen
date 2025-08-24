@@ -6,7 +6,6 @@ import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -34,12 +33,16 @@ public class SoftAskVoteDto {
   @JsonProperty("type")
   private String voteType;
 
-  private boolean hasParent() {
+  protected boolean hasParent() {
     return nonNull(parent);
   }
 
-  public Long getParentId() {
-    return hasParent() ? parent.getParentId() : null;
+  public Long getSoftAskReplyId() {
+    return hasParent() ? parent.getSoftAskReplyId() : null;
+  }
+
+  public Long getSoftAskId() {
+    return hasParent() ? parent.getSoftAskId() : null;
   }
 
   public SoftAskVoteParentType getVoteParentType() {
@@ -50,28 +53,21 @@ public class SoftAskVoteDto {
     return SoftAskVoteType.of(voteType);
   }
 
-  public SoftAskVote by(final Member member, final SoftAsk softAsk, final SoftAskAnswer softAskAnswer, final SoftAskReply softAskReply) {
+  public SoftAskVote by(final Member member, final SoftAsk softAsk, final SoftAskReply softAskReply) {
     final SoftAskVoteParentType parentType = getVoteParentType();
 
     return switch (parentType) {
-      case SOFT_ASK_ANSWER -> toSoftAskAnswerVote(softAskAnswer, member);
-      case SOFT_ASK_REPLY -> toSoftAskReplyVote(softAskReply, member);
       case SOFT_ASK -> toSoftAskVote(softAsk, member);
+      case SOFT_ASK_REPLY -> toSoftAskReplyVote(softAsk, softAskReply, member);
     };
   }
 
-  protected SoftAskVote toSoftAskAnswerVote(final SoftAskAnswer softAskAnswer, final Member member) {
-    final SoftAskVote softAskVote = toVote(softAskAnswer.getSoftAskAnswerId(), member);
-    softAskVote.setSoftAskAnswerId(softAskAnswer.getSoftAskAnswerId());
-    softAskVote.setSoftAskAnswer(softAskAnswer);
-
-    return softAskVote;
-  }
-
-  protected SoftAskVote toSoftAskReplyVote(final SoftAskReply softAskReply, final Member member) {
+  protected SoftAskVote toSoftAskReplyVote(final SoftAsk softAsk, final SoftAskReply softAskReply, final Member member) {
     final SoftAskVote softAskVote = toVote(softAskReply.getSoftAskReplyId(), member);
     softAskVote.setSoftAskReplyId(softAskReply.getSoftAskReplyId());
     softAskVote.setSoftAskReply(softAskReply);
+    softAskVote.setSoftAskId(softAsk.getId());
+    softAskVote.setSoftAsk(softAsk);
 
     return softAskVote;
   }
@@ -84,7 +80,6 @@ public class SoftAskVoteDto {
 
     return softAskVote;
   }
-
 
   protected SoftAskVote toVote(final Long parentId, final Member member) {
     final SoftAskVote softAskVote = new SoftAskVote();
@@ -105,16 +100,24 @@ public class SoftAskVoteDto {
 
     @NotNull(message = "{softAskVote.parentId.NotNull}")
     @IsNumber(message = "{softAskVote.parentId.IsNumber}")
-    @JsonProperty(value = "parent_id")
-    private String parentId;
+    @JsonProperty(value = "soft_ask_id")
+    private String softAskId;
+
+    @IsNumber(message = "{softAskReply.parentId.IsNumber}")
+    @JsonProperty(value = "soft_ask_reply_id")
+    private String softAskReplyId;
 
     @NotNull(message = "{softAskVote.parentType.NotNull}")
     @OneOf(enumClass = SoftAskVoteParentType.class, message = "{softAskVote.parentType.Type}")
     @JsonProperty("parent_type")
     private String voteParentType;
 
-    public Long getParentId() {
-      return nonNull(parentId) ? Long.parseLong(parentId) : null;
+    public Long getSoftAskReplyId() {
+      return nonNull(softAskReplyId) ? Long.parseLong(softAskReplyId) : null;
+    }
+
+    public Long getSoftAskId() {
+      return nonNull(softAskId) ? Long.parseLong(softAskId) : null;
     }
 
     public SoftAskVoteParentType getVoteParentType() {

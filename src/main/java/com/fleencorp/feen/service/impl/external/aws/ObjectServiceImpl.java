@@ -1,9 +1,9 @@
 package com.fleencorp.feen.service.impl.external.aws;
 
+import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.model.dto.aws.CreateSignedUrlDto;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse;
-import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -104,28 +104,20 @@ public class ObjectServiceImpl implements ObjectService {
    */
   @Override
   public SignedUrlsResponse createSignedUrls(final CreateSignedUrlDto createSignedUrlDto) {
-    // Retrieve the list of file names from the DTO.
     final List<String> fileNames = createSignedUrlDto.getAllFileNames();
-    // Initialize a list to store the generated signed URLs.
     final List<SignedUrlsResponse.SignedUrl> signedUrls = new ArrayList<>();
 
     // Iterate over each file name to generate signed URLs.
     for (final String fileName : fileNames) {
-      // Generate a random file name to avoid conflicts.
       final String generatedFileName = generateRandomNameForFile(fileName);
-      // Detect the content type of the file.
       final String fileContentType = storageService.detectContentType(generatedFileName);
-      // Retrieve the bucket name based on the object type in the DTO.
       final String bucketName = bucketNames.byObjectType(createSignedUrlDto.getObjectType());
-      // Generate the signed URL for uploading the file to the cloud storage.
       final String url = storageService.generateSignedUrl(bucketName, generatedFileName, fileContentType);
-      // Create a SignedUrl object
       final SignedUrl signedUrl = SignedUrl.of(url, generatedFileName, fileContentType, fileContentType);
-      // And add it to the list.
+
       signedUrls.add(signedUrl);
     }
 
-    // Return the response containing the list of signed URLs.
     return SignedUrlsResponse.of(signedUrls);
   }
 

@@ -3,24 +3,26 @@ package com.fleencorp.feen.chat.space.mapper.impl;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
+import com.fleencorp.feen.chat.space.constant.core.TotalChatSpaceMember;
 import com.fleencorp.feen.chat.space.constant.member.ChatSpaceMemberRole;
-import com.fleencorp.feen.chat.space.model.info.membership.*;
-import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.chat.space.mapper.ChatSpaceMapper;
 import com.fleencorp.feen.chat.space.mapper.ChatSpaceMemberMapper;
-import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceStatusInfo;
+import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceTotalMemberInfo;
+import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceTotalMemberRequestToJoinInfo;
 import com.fleencorp.feen.chat.space.model.info.core.ChatSpaceVisibilityInfo;
 import com.fleencorp.feen.chat.space.model.info.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.chat.space.model.info.member.ChatSpaceRequestToJoinStatusInfo;
-import com.fleencorp.feen.like.model.info.LikeCountInfo;
-import com.fleencorp.feen.stream.model.other.Organizer;
+import com.fleencorp.feen.chat.space.model.info.membership.*;
 import com.fleencorp.feen.chat.space.model.response.core.ChatSpaceResponse;
+import com.fleencorp.feen.common.constant.common.JoinStatus;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.stream.model.other.Organizer;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -92,14 +94,24 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       response.setDescription(entry.getDescription());
       response.setTags(entry.getTags());
       response.setGuidelinesOrRules(entry.getGuidelinesOrRules());
-      response.setTotalMembers(entry.getTotalMembers());
+      response.setShareCount(entry.getShareCount());
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());
+
+      response.setAuthorId(entry.getOrganizerId());
       response.setOrganizerId(entry.getOrganizerId());
+      response.setIsUpdatable(false);
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
+      toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
+
+      final Integer totalMembers = entry.getTotalMembers();
+      final ChatSpaceTotalMemberInfo totalMemberInfo = toChatSpaceTotalMemberInfo(totalMembers);
+      response.setChatSpaceTotalMemberInfo(totalMemberInfo);
 
       final ChatSpaceVisibility visibility = entry.getSpaceVisibility();
       final ChatSpaceVisibilityInfo visibilityInfo = ChatSpaceVisibilityInfo.of(visibility, translate(visibility.getMessageCode()));
@@ -116,9 +128,6 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
       final JoinStatus joinStatus = JoinStatus.byChatSpaceStatus(entry.isPrivate());
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
-
-      final LikeCountInfo likeCountInfo = toInfoMapper.toLikeCountInfo(entry.getLikeCount());
-      response.setLikeCountInfo(likeCountInfo);
 
       final IsAChatSpaceMemberInfo isAMemberInfo = chatSpaceMemberMapper.toIsAChatSpaceMemberInfo(false);
       final IsAChatSpaceAdminInfo isAAdminInfo = chatSpaceMemberMapper.toIsAChatSpaceAdminInfo(false);
@@ -265,6 +274,38 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       translate(status.getMessageCode4()),
       translate(status.getMessageCode5())
     );
+  }
+
+  /**
+   * Converts the total number of chat space members into a {@link ChatSpaceTotalMemberRequestToJoinInfo}.
+   *
+   * <p>This method uses {@link TotalChatSpaceMember#totalChatSpaceMemberRequestToJoin()} to
+   * obtain the corresponding message template, then localizes it using {@code translate(...)}
+   * before building the info object.</p>
+   *
+   * @param totalMember the total number of members in the chat space
+   * @return a {@link ChatSpaceTotalMemberRequestToJoinInfo} containing the total and localized message
+   */
+  @Override
+  public ChatSpaceTotalMemberRequestToJoinInfo toChatSpaceTotalMemberRequestToJoinInfo(final Integer totalMember) {
+    final TotalChatSpaceMember totalChatSpaceMember = TotalChatSpaceMember.totalChatSpaceMemberRequestToJoin();
+    return ChatSpaceTotalMemberRequestToJoinInfo.of(totalMember, translate(totalChatSpaceMember.getMessageCode(), totalChatSpaceMember));
+  }
+
+  /**
+   * Converts the total number of chat space members into a {@link ChatSpaceTotalMemberInfo}.
+   *
+   * <p>This method uses {@link TotalChatSpaceMember#totalChatSpaceMember()} to
+   * obtain the corresponding message template, then localizes it using {@code translate(...)}
+   * before building the info object.</p>
+   *
+   * @param totalMember the total number of members in the chat space
+   * @return a {@link ChatSpaceTotalMemberInfo} containing the total and localized message
+   */
+  @Override
+  public ChatSpaceTotalMemberInfo toChatSpaceTotalMemberInfo(final Integer totalMember) {
+    final TotalChatSpaceMember totalChatSpaceMember = TotalChatSpaceMember.totalChatSpaceMember();
+    return ChatSpaceTotalMemberInfo.of(totalMember, translate(totalChatSpaceMember.getMessageCode(), totalChatSpaceMember));
   }
 
 }

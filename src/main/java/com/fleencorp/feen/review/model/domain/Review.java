@@ -1,10 +1,10 @@
 package com.fleencorp.feen.review.model.domain;
 
-import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.constant.ReviewRating;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -78,7 +78,10 @@ public class Review extends FleenFeenEntity {
   private ReviewRating rating;
 
   @Column(name = "like_count", nullable = false)
-  private Long likeCount = 0L;
+  private Integer likeCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
 
   /**
    * Retrieves the rating number.

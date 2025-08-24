@@ -1,7 +1,7 @@
 package com.fleencorp.feen.user.model.request.profile;
 
-import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
+import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

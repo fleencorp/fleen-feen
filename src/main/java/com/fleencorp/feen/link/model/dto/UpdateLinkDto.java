@@ -3,11 +3,8 @@ package com.fleencorp.feen.link.model.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
-import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.link.model.dto.base.BaseLinkDto;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -104,17 +101,6 @@ public class UpdateLinkDto extends BaseLinkDto {
       return !isValid();
     }
 
-    public Link toLink(final ChatSpace chatSpace) {
-      final Link link = new Link();
-      link.setParentId(chatSpace.getChatSpaceId());
-      link.setLinkParentType(LinkParentType.CHAT_SPACE);
-      link.setUrl(url);
-      link.setLinkType(getLinkType());
-      link.setChatSpace(chatSpace);
-      link.setChatSpaceId(chatSpace.getChatSpaceId());
-
-      return link;
-    }
   }
 }
 

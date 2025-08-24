@@ -1,10 +1,10 @@
 package com.fleencorp.feen.common.event.publisher;
 
+import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
 import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.common.event.service.PublisherService;
 import com.fleencorp.feen.mfa.model.request.MfaSetupVerificationRequest;
 import com.fleencorp.feen.mfa.model.request.MfaVerificationRequest;
-import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
 import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;
 import com.fleencorp.feen.user.model.request.authentication.ForgotPasswordRequest;
 import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;

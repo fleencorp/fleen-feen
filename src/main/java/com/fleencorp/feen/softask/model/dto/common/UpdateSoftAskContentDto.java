@@ -7,6 +7,7 @@ import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UpdateSoftAskContentDto {
+@AllArgsConstructor
+public class UpdateSoftAskContentDto extends SoftAskWithParentDto {
 
   @NotBlank(message = "{softAskOther.content.NotBlank}")
   @Size(min = 10, max = 4000, message = "{softAskOther.content.Size}")

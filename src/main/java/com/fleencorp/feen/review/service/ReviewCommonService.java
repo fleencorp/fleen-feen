@@ -1,8 +1,8 @@
 package com.fleencorp.feen.review.service;
 
-import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 
@@ -15,9 +15,9 @@ public interface ReviewCommonService {
 
   List<ReviewResponse> getMostRecentReviews(List<Review> reviews);
 
-  Long incrementLikeCount(Long reviewId);
+  Integer updateLikeCount(Long reviewId, boolean isLiked);
 
-  Long decrementLikeCount(Long reviewId);
+  Integer updateBookmarkCount(Long reviewId, boolean increment);
 
   ReviewParentCountHolder getTotalReviewsByParent(ReviewParentType parentType, Collection<Long> parentIds);
 }

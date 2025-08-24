@@ -4,37 +4,43 @@ import com.fleencorp.feen.block.user.constant.HasBlocked;
 import com.fleencorp.feen.block.user.constant.IsBlocked;
 import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
+import com.fleencorp.feen.bookmark.constant.BookmarkCount;
+import com.fleencorp.feen.bookmark.constant.IsBookmarked;
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.constant.common.IsDeleted;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.like.constant.LikeCount;
-import com.fleencorp.feen.review.constant.ReviewCount;
-import com.fleencorp.feen.stream.constant.attendee.*;
 import com.fleencorp.feen.common.constant.stat.TotalFollowed;
 import com.fleencorp.feen.common.constant.stat.TotalFollowing;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.follower.constant.IsFollowed;
 import com.fleencorp.feen.follower.constant.IsFollowing;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.like.constant.IsLiked;
+import com.fleencorp.feen.like.constant.LikeCount;
+import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
-import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
-import com.fleencorp.feen.like.model.info.LikeCountInfo;
+import com.fleencorp.feen.model.contract.Bookmarkable;
+import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
+import com.fleencorp.feen.poll.constant.*;
+import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.info.*;
+import com.fleencorp.feen.review.constant.ReviewCount;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
+import com.fleencorp.feen.stream.constant.attendee.*;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
-import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
-import com.fleencorp.feen.poll.constant.*;
-import com.fleencorp.feen.poll.constant.core.PollVisibility;
-import com.fleencorp.feen.poll.model.info.*;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -67,7 +73,6 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatus(final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
     return StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
   }
-
 
   /**
    * Converts the given {@link JoinStatus} into a {@link JoinStatusInfo} object.
@@ -325,11 +330,89 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
       translate(totalFollowing.getMessageCode(), targetMemberName, following));
   }
 
+  /**
+   * Creates a {@link UserLikeInfo} instance representing the like status of the user.
+   *
+   * <p>The method determines the {@link IsLiked} state based on the provided
+   * {@code liked} flag and resolves two localized messages from its associated message codes.
+   * The resulting {@link UserLikeInfo} contains both the raw status and
+   * the translated messages.</p>
+   *
+   * @param liked whether the entity is liked by the current user
+   * @return a {@link UserLikeInfo} containing the like state and its localized descriptions
+   */
   @Override
   public UserLikeInfo toLikeInfo(final boolean liked) {
     final IsLiked isLiked = IsLiked.by(liked);
 
-    return UserLikeInfo.of(liked, translate(isLiked.getMessageCode()));
+    return UserLikeInfo.of(liked, translate(isLiked.getMessageCode()), translate(isLiked.getMessageCode2()));
+  }
+
+  /**
+   * Creates a {@link UserBookmarkInfo} instance representing the bookmark status of the user.
+   *
+   * <p>The method determines the {@link IsBookmarked} state based on the provided
+   * {@code bookmarked} flag and uses its message code to resolve a localized message.
+   * The resulting {@link UserBookmarkInfo} contains both the raw status and
+   * the translated message.</p>
+   *
+   * @param bookmarked whether the entity is bookmarked by the current user
+   * @return a {@link UserBookmarkInfo} containing the bookmark state and its localized description
+   */
+  @Override
+  public UserBookmarkInfo toBookmarkInfo(final boolean bookmarked) {
+    final IsBookmarked isBookmarked = IsBookmarked.by(bookmarked);
+    return UserBookmarkInfo.of(bookmarked, translate(isBookmarked.getMessageCode()));
+  }
+
+  /**
+   * Populates the given {@link Bookmarkable} response object with user bookmark information
+   * and the total bookmark count details.
+   *
+   * <p>If the response is non-null, a {@link UserBookmarkInfo} is created based on the
+   * {@code isBookmarked} flag and assigned to the response. Similarly, a
+   * {@link BookmarkCountInfo} is created from the given {@code bookmarkCount} and set on
+   * the response.</p>
+   *
+   * @param response       the response object implementing {@link Bookmarkable}
+   * @param isBookmarked   whether the current user has bookmarked the entity
+   * @param bookmarkCount  the total number of bookmarks for the entity
+   * @param <T>            the type of the response implementing {@link Bookmarkable}
+   */
+  @Override
+  public <T extends Bookmarkable> void setBookmarkInfo(final T response, final boolean isBookmarked, final int bookmarkCount) {
+    if (nonNull(response)) {
+      final UserBookmarkInfo userBookmarkInfo = toBookmarkInfo(isBookmarked);
+      response.setUserBookmarkInfo(userBookmarkInfo);
+
+      final BookmarkCountInfo bookmarkCountInfo = toBookmarkCountInfo(bookmarkCount);
+      response.setBookmarkCountInfo(bookmarkCountInfo);
+    }
+  }
+
+  /**
+   * Populates the given {@link Likeable} response object with user like information
+   * and the total like count details.
+   *
+   * <p>If the response is non-null, a {@link UserLikeInfo} is created based on the
+   * {@code isLiked} flag and assigned to the response. Similarly, a
+   * {@link LikeCountInfo} is created from the given {@code likeCount} and set on
+   * the response.</p>
+   *
+   * @param response  the response object implementing {@link Likeable}
+   * @param isLiked   whether the current user has liked the entity
+   * @param likeCount the total number of likes for the entity
+   * @param <T>       the type of the response implementing {@link Likeable}
+   */
+  @Override
+  public <T extends Likeable> void setLikeInfo(final T response, final boolean isLiked, final int likeCount) {
+    if (nonNull(response)) {
+      final UserLikeInfo userLikeInfo = toLikeInfo(isLiked);
+      response.setUserLikeInfo(userLikeInfo);
+
+      final LikeCountInfo likeCountInfo = toLikeCountInfo(likeCount);
+      response.setLikeCountInfo(likeCountInfo);
+    }
   }
 
   /**
@@ -472,6 +555,26 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   }
 
   /**
+   * Converts the given bookmark count into a {@link BookmarkCountInfo} containing both
+   * the numeric count and its localized message representation.
+   *
+   * <p>The method creates a {@link BookmarkCount} instance representing the total
+   * bookmark count, then resolves a localized message using the provided count
+   * and the message code from the {@link BookmarkCount}. Finally, it constructs
+   * and returns a {@link BookmarkCountInfo} with this information.</p>
+   *
+   * @param bookmarkCount the total number of bookmarks
+   * @return a {@link BookmarkCountInfo} containing the numeric count and a localized message
+   */
+  @Override
+  public BookmarkCountInfo toBookmarkCountInfo(final Integer bookmarkCount) {
+    final BookmarkCount totalBookmarkCount = BookmarkCount.totalBookmarks();
+    return BookmarkCountInfo.of(bookmarkCount,
+      translate(totalBookmarkCount.getMessageCode(), bookmarkCount)
+    );
+  }
+
+  /**
    * Converts a raw review count into a {@link ReviewCountInfo} DTO,
    * including a translated message with the count embedded.
    *
@@ -489,6 +592,18 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
     );
   }
 
+  /**
+   * Converts the given attendee count into an {@link AttendeeCountInfo} containing both
+   * the numeric count and its localized message representations.
+   *
+   * <p>The method creates a {@link AttendeeCount} instance representing the total
+   * attendee count, then resolves multiple localized messages using the provided count
+   * and the message codes from the {@link AttendeeCount}. Finally, it constructs and
+   * returns an {@link AttendeeCountInfo} with this information.</p>
+   *
+   * @param attendeeCount the total number of attendees
+   * @return an {@link AttendeeCountInfo} containing the numeric count and its localized messages
+   */
   @Override
   public AttendeeCountInfo toAttendeeCountInfo(final Integer attendeeCount) {
     final AttendeeCount totalAttendeeCount = AttendeeCount.totalAttendee();

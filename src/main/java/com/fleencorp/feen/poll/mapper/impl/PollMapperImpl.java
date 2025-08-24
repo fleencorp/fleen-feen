@@ -48,7 +48,11 @@ public final class PollMapperImpl implements PollMapper {
       response.setId(entry.getPollId());
       response.setQuestion(entry.getQuestion());
       response.setDescription(entry.getDescription());
+      response.setShareCount(entry.getShareCount());
+
+      response.setAuthorId(entry.getAuthorId());
       response.setOrganizerId(entry.getAuthorId());
+      response.setIsUpdatable(false);
 
       response.setExpiresAt(entry.getExpiresAt());
       response.setCreatedOn(entry.getCreatedOn());

@@ -1,9 +1,9 @@
 package com.fleencorp.feen.common.service.impl.message;
 
-import com.fleencorp.feen.configuration.message.EmailMessageProperties;
 import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
 import com.fleencorp.feen.common.model.message.EmailMessage;
 import com.fleencorp.feen.common.service.message.EmailMessageService;
+import com.fleencorp.feen.configuration.message.EmailMessageProperties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -199,6 +199,4 @@ public class EmailMessageServiceImpl implements EmailMessageService {
   public void sendMessage(final String to, final String subject, final String messageBody) {
     sendMessage(getOriginEmailAddress(), to, subject, messageBody);
   }
-
-
 }

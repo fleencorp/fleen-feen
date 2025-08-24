@@ -5,9 +5,10 @@ import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.mapper.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
@@ -19,9 +20,8 @@ import com.fleencorp.feen.stream.model.request.external.ExternalStreamRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.stream.model.response.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.event.EventService;
@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.Set;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
+import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
 import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.getAttendeeIds;
 import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.getAttendeesEmailAddresses;
-import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 
 /**
  * Implementation of the EventService interface.

@@ -1,7 +1,6 @@
 package com.fleencorp.feen.review.service;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.model.dto.AddReviewDto;
@@ -9,6 +8,7 @@ import com.fleencorp.feen.review.model.dto.UpdateReviewDto;
 import com.fleencorp.feen.review.model.response.ReviewAddResponse;
 import com.fleencorp.feen.review.model.response.ReviewDeleteResponse;
 import com.fleencorp.feen.review.model.response.ReviewUpdateResponse;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ReviewService {
@@ -17,7 +17,7 @@ public interface ReviewService {
 
   ReviewUpdateResponse updateReview(Long reviewId, UpdateReviewDto updateStreamReviewDto, RegisteredUser user)
     throws ReviewNotFoundException, StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException,
-    FailedOperationException;
+      FailedOperationException;
 
   ReviewDeleteResponse deleteReview(Long reviewId, RegisteredUser user);
 

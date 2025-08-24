@@ -2,9 +2,9 @@ package com.fleencorp.feen.stream.controller.core;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.stream.exception.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;

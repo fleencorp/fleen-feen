@@ -5,7 +5,6 @@ import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.exception.social.share.contact.*;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.model.dto.social.share.ExpectShareContactRequestDto;
 import com.fleencorp.feen.model.dto.social.share.ProcessShareContactRequestDto;
@@ -14,9 +13,10 @@ import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestSt
 import com.fleencorp.feen.model.request.search.social.ShareContactRequestSearchRequest;
 import com.fleencorp.feen.model.response.social.share.*;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
-import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
-import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
+import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.notification.service.NotificationService;
+import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
+import com.fleencorp.feen.repository.social.ShareContactRequestRepository;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -84,22 +84,16 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   public ShareContactRequestSearchResult findSentShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
-    // Prepare parameters
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
 
-    // Determine the query based on the presence of a share contact request status
     final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getShareContactRequestStatus(ShareContactRequestStatus.SENT);
-    // Retrieve the share contact request sent by the user
     final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsSentByMember(member, shareContactRequestStatus, pageable);
 
-    // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
     final List<ShareContactRequestResponse> shareContactRequestResponses = getSentShareContactRequests(page.getContent());
-    // Create the search result
     final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
-    // Create the share contact search result
     final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(shareContactRequestSearchResult);
   }
 
@@ -121,21 +115,16 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
    */
   @Override
   public ShareContactRequestSearchResult findReceivedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
-    // Prepare parameters
     final Pageable pageable = searchRequest.getPage();
     final Member member = user.toMember();
 
     final ShareContactRequestStatus shareContactRequestStatus = searchRequest.getShareContactRequestStatus(ShareContactRequestStatus.SENT);
-    // Retrieve the share contact request made to the user
     final Page<ShareContactRequest> page = shareContactRequestRepository.findRequestsMadeToMember(member, shareContactRequestStatus, pageable);
 
-    // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
     final List<ShareContactRequestResponse> shareContactRequestResponses = getReceivedShareContactRequests(page.getContent());
-    // Create the search result
     final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
-    // Create the search result
     final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(shareContactRequestSearchResult);
   }
 
@@ -157,27 +146,20 @@ public class ShareContactRequestServiceImpl implements ShareContactRequestServic
   @Override
   public ShareContactRequestSearchResult findExpectedShareContactRequests(final ShareContactRequestSearchRequest searchRequest, final RegisteredUser user) {
     final Page<ShareContactRequest> page;
-    // Convert authenticated user to member
     final Member member = user.toMember();
     final List<ShareContactRequestResponse> shareContactRequestResponses;
 
     if (searchRequest.getIsSentExpectedRequest()) {
-      // Retrieve the share contact request expected and initiated by the user
       page = shareContactRequestRepository.findExpectedRequestsMadeByMember(member, true, searchRequest.getPage());
-      // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
       shareContactRequestResponses = getSentShareContactRequests(page.getContent());
     } else {
-      // Retrieve the share contact request expected and initiated to the user
       page = shareContactRequestRepository.findExpectedRequestsMadeToMember(member, true, searchRequest.getPage());
-      // Convert the retrieved ShareContactRequests to ShareContactRequestResponse
       shareContactRequestResponses = getReceivedShareContactRequests(page.getContent());
     }
 
-    // Create the search result
     final SearchResult searchResult = toSearchResult(shareContactRequestResponses, page);
-    // Create the search result
     final ShareContactRequestSearchResult shareContactRequestSearchResult = ShareContactRequestSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(shareContactRequestSearchResult);
   }
 

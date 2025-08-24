@@ -1,29 +1,29 @@
 package com.fleencorp.feen.stream.model.response;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.constant.mask.MaskedStreamLinkUri;
-import com.fleencorp.feen.stream.constant.core.StreamType;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
-import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
-import com.fleencorp.feen.model.contract.HasId;
-import com.fleencorp.feen.model.contract.HasOrganizer;
-import com.fleencorp.feen.model.contract.Likeable;
-import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.IsForKidsInfo;
-import com.fleencorp.feen.like.model.info.LikeCountInfo;
-import com.fleencorp.feen.review.model.info.ReviewCountInfo;
-import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
-import com.fleencorp.feen.stream.model.other.Organizer;
-import com.fleencorp.feen.stream.model.other.Schedule;
+import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
-import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
+import com.fleencorp.feen.like.model.info.LikeCountInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
+import com.fleencorp.feen.model.contract.*;
+import com.fleencorp.feen.review.model.info.ReviewCountInfo;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
+import com.fleencorp.feen.stream.constant.core.StreamType;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.core.*;
+import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
+import com.fleencorp.feen.stream.model.other.Organizer;
+import com.fleencorp.feen.stream.model.other.Schedule;
+import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -64,7 +64,11 @@ import static java.util.Objects.nonNull;
   "is_deleted_info",
   "other_detail_info",
   "user_like_info",
+  "bookmark_count_info",
+  "user_bookmark_info",
   "like_count_info",
+  "speaker_count",
+  "share_count",
   "music_link",
   "schedule_time_type_info",
   "attendee_count_info",
@@ -76,7 +80,7 @@ import static java.util.Objects.nonNull;
   "attendance_info"
 })
 public class StreamResponse extends FleenFeenResponse
-    implements HasId, HasOrganizer, Updatable, Likeable {
+    implements Bookmarkable, HasId, HasOrganizer, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -142,11 +146,23 @@ public class StreamResponse extends FleenFeenResponse
   @JsonProperty("other_detail_info")
   private OtherStreamDetailInfo otherDetailInfo;
 
+  @JsonProperty("bookmark_count_info")
+  private BookmarkCountInfo bookmarkCountInfo;
+
+  @JsonProperty("user_bookmark_info")
+  private UserBookmarkInfo userBookmarkInfo;
+
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
   @JsonProperty("like_count_info")
   private LikeCountInfo likeCountInfo;
+
+  @JsonProperty("speaker_count")
+  private Integer speakerCount;
+
+  @JsonProperty("share_count")
+  private Integer shareCount;
 
   @JsonProperty("music_link")
   private LinkMusicResponse musicLink;
@@ -156,6 +172,9 @@ public class StreamResponse extends FleenFeenResponse
 
   @JsonIgnore
   private String streamLinkUnmasked;
+
+  @JsonIgnore
+  private Long authorId;
 
   @JsonIgnore
   private Long organizerId;
@@ -210,6 +229,11 @@ public class StreamResponse extends FleenFeenResponse
   @JsonIgnore
   public StreamType getStreamType() {
     return nonNull(streamTypeInfo) ? streamTypeInfo.getStreamType() : null;
+  }
+
+  @Override
+  public ParentInfo getParentInfo() {
+    return null;
   }
 
   @JsonIgnore

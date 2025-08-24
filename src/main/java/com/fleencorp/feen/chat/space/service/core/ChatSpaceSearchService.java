@@ -5,9 +5,9 @@ import com.fleencorp.feen.chat.space.model.request.core.ChatSpaceMemberSearchReq
 import com.fleencorp.feen.chat.space.model.request.core.ChatSpaceSearchRequest;
 import com.fleencorp.feen.chat.space.model.response.RetrieveChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.search.core.ChatSpaceSearchResult;
-import com.fleencorp.feen.chat.space.model.search.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.chat.space.model.search.core.RemovedMemberSearchResult;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
+import com.fleencorp.feen.chat.space.model.search.mutual.MutualChatSpaceMembershipSearchResult;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface ChatSpaceSearchService {
@@ -26,5 +26,5 @@ public interface ChatSpaceSearchService {
 
   RemovedMemberSearchResult findRemovedMembers(Long chatSpaceId, ChatSpaceMemberSearchRequest searchRequest, RegisteredUser user);
 
-  Long getTotalRequestToJoinForChatSpace(Long chatSpaceId);
+  Integer getTotalRequestToJoinForChatSpace(Long chatSpaceId);
 }

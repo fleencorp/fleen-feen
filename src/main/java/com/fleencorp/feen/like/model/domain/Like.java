@@ -1,11 +1,11 @@
 package com.fleencorp.feen.like.model.domain;
 
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -74,6 +74,11 @@ public class Like extends FleenFeenEntity {
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
+
+  public Like updateType(final LikeType type) {
+    setLikeType(type);
+    return this;
+  }
 
   public boolean isLiked() {
     return LikeType.isLiked(likeType);

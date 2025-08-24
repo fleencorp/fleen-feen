@@ -1,11 +1,11 @@
 package com.fleencorp.feen.chat.space.repository.member;
 
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
-import com.fleencorp.feen.like.model.domain.Like;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceMemberSelect;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceRequestToJoinPendingSelect;
+import com.fleencorp.feen.like.model.domain.Like;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,15 +17,15 @@ public interface ChatSpaceMemberProjectionRepository extends JpaRepository<ChatS
 
   /**
    * Retrieves a list of {@link ChatSpaceMemberSelect} projections for the specified member and a list of chat space IDs,
-   * including the like status for each chat space.
+   * including the bookmark status for each chat space.
    *
    * <p>This method uses a custom query to join the {@link ChatSpaceMember}, {@link Member}, {@link ChatSpace},
-   * and {@link Like} entities to return a projection with chat space details and the like status of the member
+   * and {@link Like} entities to return a projection with chat space details and the bookmark status of the member
    * for each chat space.</p>
    *
-   * @param member the {@link Member} for whom the chat spaces and like status are to be retrieved
-   * @param chatSpaceIds the list of chat space IDs for which the like status will be checked
-   * @return a list of {@link ChatSpaceMemberSelect} objects containing chat space information and the like status
+   * @param member the {@link Member} for whom the chat spaces and bookmark status are to be retrieved
+   * @param chatSpaceIds the list of chat space IDs for which the bookmark status will be checked
+   * @return a list of {@link ChatSpaceMemberSelect} objects containing chat space information and the bookmark status
    */
   @Query(value =
   """
@@ -41,11 +41,11 @@ public interface ChatSpaceMemberProjectionRepository extends JpaRepository<ChatS
     FROM ChatSpaceMember csm
     LEFT JOIN csm.member m
     LEFT JOIN csm.chatSpace cs
-    LEFT JOIN Like l
+    LEFT JOIN Bookmark l
         ON l.memberId = m.memberId
-        AND l.likeParentType = 'CHAT_SPACE'
+        AND l.bookmarkParentType = 'CHAT_SPACE'
         AND l.parentId = cs.chatSpaceId
-        AND l.likeType = 'LIKE'
+        AND l.bookmarkType = 'LIKE'
     WHERE m = :member
     AND cs.chatSpaceId IN (:ids)
     GROUP BY cs.chatSpaceId, csm.requestToJoinStatus, csm.chatSpace.spaceVisibility, csm.left, csm.removed, csm.role

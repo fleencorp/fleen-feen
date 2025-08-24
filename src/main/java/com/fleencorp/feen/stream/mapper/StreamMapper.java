@@ -1,15 +1,15 @@
 package com.fleencorp.feen.stream.mapper;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
-import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 
 import java.util.List;

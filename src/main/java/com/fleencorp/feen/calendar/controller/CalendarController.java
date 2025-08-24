@@ -1,6 +1,7 @@
 package com.fleencorp.feen.calendar.controller;
 
 import com.fleencorp.base.resolver.SearchParam;
+import com.fleencorp.feen.calendar.constant.CalendarStatus;
 import com.fleencorp.feen.calendar.model.dto.CreateCalendarDto;
 import com.fleencorp.feen.calendar.model.dto.ShareCalendarWithUserDto;
 import com.fleencorp.feen.calendar.model.dto.UpdateCalendarDto;
@@ -10,13 +11,11 @@ import com.fleencorp.feen.calendar.model.search.CalendarSearchResult;
 import com.fleencorp.feen.calendar.service.CalendarService;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/calendar")
 @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
@@ -36,12 +35,13 @@ public class CalendarController {
 
   @GetMapping(value = "/entries")
   public CalendarSearchResult findCalendars(@SearchParam final CalendarSearchRequest searchRequest) {
+    searchRequest.setStatus(CalendarStatus.ACTIVE);
     return calendarService.findCalendars(searchRequest);
   }
 
   @GetMapping(value = "/detail/{calendarId}")
   public RetrieveCalendarResponse findCalendar(@PathVariable(name = "calendarId") final Long calendarId) {
-    return calendarService.findCalendar(calendarId);
+    return calendarService.retrieveCalendar(calendarId);
   }
 
   @PostMapping(value = "/create")

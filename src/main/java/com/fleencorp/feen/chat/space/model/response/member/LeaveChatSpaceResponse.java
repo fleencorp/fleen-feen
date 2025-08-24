@@ -30,14 +30,14 @@ public class LeaveChatSpaceResponse extends LocalizedResponse {
   private ChatSpaceMembershipInfo membershipInfo;
 
   @JsonProperty("total_members")
-  private Long totalMembers;
+  private Integer totalMembers;
 
   @Override
   public String getMessageCode() {
     return "leave.chat.space";
   }
 
-  public static LeaveChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers) {
+  public static LeaveChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final Integer totalMembers) {
     return new LeaveChatSpaceResponse(chatSpaceId, membershipInfo, totalMembers);
   }
 }

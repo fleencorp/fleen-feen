@@ -1,13 +1,13 @@
 package com.fleencorp.feen.softask.model.domain;
 
-import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -101,15 +101,21 @@ public class SoftAsk extends FleenFeenEntity implements SoftAskCommonData {
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
-  @Column(name = "answer_count", nullable = false)
-  private Integer answerCount = 0;
+  @Column(name = "reply_count", nullable = false)
+  private Integer replyCount = 0;
 
   @Column(name = "vote_count", nullable = false)
   private Integer voteCount = 0;
 
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
+
   @ToString.Exclude
-  @OneToMany(fetch = LAZY, mappedBy = "softAsk", targetEntity = SoftAskAnswer.class, cascade = CascadeType.ALL)
-  private Set<SoftAskAnswer> answers = new HashSet<>();
+  @OneToMany(fetch = LAZY, mappedBy = "softAsk", targetEntity = SoftAskReply.class, cascade = CascadeType.ALL)
+  private Set<SoftAskReply> replies = new HashSet<>();
 
   public Long getId() {
     return softAskId;
@@ -133,8 +139,8 @@ public class SoftAsk extends FleenFeenEntity implements SoftAskCommonData {
     }
   }
 
-  public void checkIsAnswerIsNotMoreThanOne() {
-    if (nonNull(answerCount) && answerCount > 0) {
+  public void checkIsReplyIsNotMoreThanOne() {
+    if (nonNull(replyCount) && replyCount > 0) {
       throw SoftAskUpdateDeniedException.of();
     }
   }

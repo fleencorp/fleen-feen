@@ -5,13 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.util.datetime.DateFormatUtil;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
-@Getter
 @AllArgsConstructor
 @JsonPropertyOrder({
   "encoded_password",

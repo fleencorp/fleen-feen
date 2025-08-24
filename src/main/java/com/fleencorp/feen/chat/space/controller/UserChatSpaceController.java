@@ -1,11 +1,10 @@
 package com.fleencorp.feen.chat.space.controller;
 
-import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.chat.space.exception.member.ChatSpaceMemberNotFoundException;
-import com.fleencorp.feen.chat.space.model.dto.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.chat.space.model.dto.join.request.ProcessRequestToJoinChatSpaceDto;
+import com.fleencorp.feen.chat.space.model.dto.member.AddChatSpaceMemberDto;
 import com.fleencorp.feen.chat.space.model.dto.member.RemoveChatSpaceMemberDto;
 import com.fleencorp.feen.chat.space.model.dto.member.RestoreChatSpaceMemberDto;
 import com.fleencorp.feen.chat.space.model.dto.role.DowngradeChatSpaceAdminToMemberDto;
@@ -14,6 +13,7 @@ import com.fleencorp.feen.chat.space.model.response.member.*;
 import com.fleencorp.feen.chat.space.model.response.membership.ProcessRequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.chat.space.service.join.ChatSpaceJoinService;
 import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +53,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to promote members",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Member not found",
@@ -83,7 +83,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to demote administrators",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Administrator not found",
@@ -100,7 +100,6 @@ public class UserChatSpaceController {
     return chatSpaceMemberService.downgradeChatSpaceAdminToMember(chatSpaceId, downgradeChatSpaceAdminToMemberDto, user);
   }
 
-
   @Operation(summary = "Process a pending join request",
     description = "Approves or rejects a request to join the chat space. Only chat space administrators " +
                  "can process join requests. When approved, the user becomes a member with default " +
@@ -114,7 +113,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to process join requests",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Join request not found",
@@ -144,7 +143,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to add members",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Target user not found",
@@ -173,7 +172,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to restore members in this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space or member not found",
       content = @Content(schema = @Schema(oneOf = {ChatSpaceNotFoundException.class, ChatSpaceMemberNotFoundException.class})))
   })
@@ -201,7 +200,7 @@ public class UserChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to remove members",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Member not found",

@@ -39,14 +39,6 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id", nullable = false, updatable = false)
   private SoftAsk softAsk;
 
-  @Column(name = "soft_ask_answer_id", nullable = false, updatable = false, insertable = false)
-  private Long softAnswerId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, optional = false)
-  @JoinColumn(name = "soft_ask_answer_id", referencedColumnName = "soft_ask_answer_id", nullable = false, updatable = false)
-  private SoftAskAnswer softAnswer;
-
   @Column(name = "author_id", nullable = false, updatable = false, insertable = false)
   private Long authorId;
 
@@ -60,6 +52,9 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @ToString.Exclude
   private Set<SoftAskReply> childReplies = new HashSet<>();
 
+  @Column(name = "parent_reply_id", nullable = false, updatable = false, insertable = false)
+  private Long parentReplyId;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_reply_id", referencedColumnName = "soft_ask_reply_id")
   @ToString.Exclude
@@ -71,15 +66,24 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
+  @Column(name = "child_reply_count", nullable = false)
+  private Integer childReplyCount = 0;
+
   @Column(name = "vote_count", nullable = false)
   private Integer voteCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
 
   public Long getId() {
     return softAskReplyId;
   }
 
   public Long getParentId() {
-    return nonNull(softAnswerId) ? softAnswerId : null;
+    return nonNull(parentReplyId) ? parentReplyId : null;
   }
 
   @Override

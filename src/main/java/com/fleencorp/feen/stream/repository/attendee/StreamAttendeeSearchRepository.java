@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public interface StreamAttendeeQueryRepository extends JpaRepository<StreamAttendee, Long> {
+public interface StreamAttendeeSearchRepository extends JpaRepository<StreamAttendee, Long> {
 
   @Query(value = "SELECT sa FROM StreamAttendee sa WHERE sa.stream = :stream AND sa.member = :member")
   Optional<StreamAttendee> findOrganizerByStream(FleenStream stream, Member member);

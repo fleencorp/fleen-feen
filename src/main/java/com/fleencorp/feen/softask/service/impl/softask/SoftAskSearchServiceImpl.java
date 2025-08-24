@@ -7,7 +7,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskRetrieveResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
-import com.fleencorp.feen.softask.model.search.SoftAskAnswerSearchResult;
+import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskSearchRepository;
@@ -67,7 +67,7 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
   /**
    * Retrieves a {@link SoftAsk} by its ID and returns a localized {@link SoftAskRetrieveResponse}.
    *
-   * <p>Fetches the entity, maps it to a response, attaches related answers, processes voting and editability metadata,
+   * <p>Fetches the entity, maps it to a response, attaches related replies, processes voting and editability metadata,
    * and wraps the result in a localized response.</p>
    *
    * @param softAskId the ID of the {@link SoftAsk} to retrieve.
@@ -81,8 +81,8 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
     final Collection<SoftAskResponse> softAskResponses = List.of(softAskResponse);
 
-    final SoftAskAnswerSearchResult softAskAnswerSearchResult = softAskCommonService.findSomeSoftAskAnswersForSoftAsk(softAskResponse, member);
-    softAskResponse.setAnswerSearchResult(softAskAnswerSearchResult);
+    final SoftAskReplySearchResult softAskReplySearchResult = softAskCommonService.findSomeSoftAskRepliesForSoftAsk(softAskResponse, member);
+    softAskResponse.setSoftAskReplySearchResult(softAskReplySearchResult);
 
     softAskCommonService.processSoftAskResponses(softAskResponses, member);
     final SoftAskRetrieveResponse softAskRetrieveResponse = SoftAskRetrieveResponse.of(softAskId, softAskResponse);

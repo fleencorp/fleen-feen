@@ -1,7 +1,7 @@
 package com.fleencorp.feen.model.domain.stream;
 
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.stream.constant.core.*;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -958,32 +958,6 @@ class FleenStreamTest {
 
     // then
     assertTrue(stream.hasChatSpaceId());
-  }
-
-  @Test
-  @DisplayName("Ensure increase of total attendees")
-  void ensure_increase_of_total_attendees() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // act
-    stream.increaseTotalAttendees();
-
-    // then
-    assertEquals(1, stream.getTotalAttendees());
-  }
-
-  @Test
-  @DisplayName("Ensure decrease of total attendees")
-  void ensure_decrease_of_total_attendees() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // act
-    stream.decreaseTotalAttendees();
-
-    // then
-    assertEquals(0, stream.getTotalAttendees());
   }
 
   @Test

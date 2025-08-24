@@ -15,8 +15,8 @@ import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeManagementRepository;
 import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeProjectionRepository;
-import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeQueryRepository;
 import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeRepository;
+import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeSearchRepository;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.update.StreamAttendeeUpdateService;
@@ -40,7 +40,7 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   private final StreamAttendeeRepository streamAttendeeRepository;
   private final StreamAttendeeManagementRepository streamAttendeeManagementRepository;
   private final StreamAttendeeProjectionRepository streamAttendeeProjectionRepository;
-  private final StreamAttendeeQueryRepository streamAttendeeQueryRepository;
+  private final StreamAttendeeSearchRepository streamAttendeeSearchRepository;
 
   public StreamAttendeeOperationsServiceImpl(
       final StreamAttendeeService streamAttendeeService,
@@ -48,13 +48,13 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
       final StreamAttendeeRepository streamAttendeeRepository,
       final StreamAttendeeManagementRepository streamAttendeeManagementRepository,
       final StreamAttendeeProjectionRepository streamAttendeeProjectionRepository,
-      final StreamAttendeeQueryRepository streamAttendeeQueryRepository) {
+      final StreamAttendeeSearchRepository streamAttendeeSearchRepository) {
     this.streamAttendeeService = streamAttendeeService;
     this.streamAttendeeUpdateService = streamAttendeeUpdateService;
     this.streamAttendeeRepository = streamAttendeeRepository;
     this.streamAttendeeManagementRepository = streamAttendeeManagementRepository;
     this.streamAttendeeProjectionRepository = streamAttendeeProjectionRepository;
-    this.streamAttendeeQueryRepository = streamAttendeeQueryRepository;
+    this.streamAttendeeSearchRepository = streamAttendeeSearchRepository;
   }
 
   @Override
@@ -82,42 +82,42 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
 
   @Override
   public Optional<StreamAttendee> findOrganizerByStream(final FleenStream stream, final Member member) {
-    return streamAttendeeQueryRepository.findOrganizerByStream(stream, member);
+    return streamAttendeeSearchRepository.findOrganizerByStream(stream, member);
   }
 
   @Override
   public Optional<StreamAttendee> findDistinctByEmail(final String emailAddress) {
-    return streamAttendeeQueryRepository.findDistinctByEmail(emailAddress);
+    return streamAttendeeSearchRepository.findDistinctByEmail(emailAddress);
   }
 
   @Override
   public List<StreamAttendee> findAllByAttendeeIds(final Set<Long> attendeeIds) {
-    return streamAttendeeQueryRepository.findAllByAttendeeIds(attendeeIds);
+    return streamAttendeeSearchRepository.findAllByAttendeeIds(attendeeIds);
   }
 
   @Override
   public List<StreamAttendee> findAllByStreamAndRequestToJoinStatus(final FleenStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    return streamAttendeeQueryRepository.findAllByStreamAndRequestToJoinStatus(stream, requestToJoinStatus);
+    return streamAttendeeSearchRepository.findAllByStreamAndRequestToJoinStatus(stream, requestToJoinStatus);
   }
 
   @Override
   public Optional<StreamAttendee> findAttendeeByStreamAndUser(final FleenStream stream, final Member member) {
-    return streamAttendeeQueryRepository.findAttendeeByStreamAndUser(stream, member);
+    return streamAttendeeSearchRepository.findAttendeeByStreamAndUser(stream, member);
   }
 
   @Override
   public Optional<StreamAttendee> findAttendeeByIdAndStream(final Long attendeeId, final FleenStream stream) {
-    return streamAttendeeQueryRepository.findAttendeeByIdAndStream(attendeeId, stream);
+    return streamAttendeeSearchRepository.findAttendeeByIdAndStream(attendeeId, stream);
   }
 
   @Override
   public List<StreamAttendee> findAttendeesGoingToStream(final Long streamId) {
-    return streamAttendeeQueryRepository.findAttendeesGoingToStream(streamId);
+    return streamAttendeeSearchRepository.findAttendeesGoingToStream(streamId);
   }
 
   @Override
   public Set<StreamAttendee> findAttendeesByIdsAndStreamIdAndStatuses(final List<Long> speakerAttendeeIds, final Long streamId, final List<StreamAttendeeRequestToJoinStatus> statuses) {
-    return streamAttendeeQueryRepository.findAttendeesByIdsAndStreamIdAndStatuses(speakerAttendeeIds, streamId, statuses);
+    return streamAttendeeSearchRepository.findAttendeesByIdsAndStreamIdAndStatuses(speakerAttendeeIds, streamId, statuses);
   }
 
   @Override

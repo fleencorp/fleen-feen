@@ -2,9 +2,9 @@ package com.fleencorp.feen.stream.model.dto.livebroadcast;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
-import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

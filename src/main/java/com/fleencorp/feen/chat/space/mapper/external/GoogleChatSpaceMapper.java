@@ -4,9 +4,9 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleCh
 import com.google.chat.v1.Space;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleChatSpaceResponse.MembershipCount.parseChatSpaceResponse;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.convertToLocalDateTime;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.createSpaceUriFromSpaceName;
+import static com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleChatSpaceResponse.MembershipCount.parseChatSpaceResponse;
 import static java.util.Objects.nonNull;
 
 /**

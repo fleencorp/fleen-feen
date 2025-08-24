@@ -1,25 +1,23 @@
 package com.fleencorp.feen.softask.mapper.impl;
 
-import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
-import com.fleencorp.feen.softask.model.info.SoftAskAnswerCountInfo;
 import com.fleencorp.feen.softask.model.info.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
-import com.fleencorp.feen.softask.model.response.answer.core.SoftAskAnswerResponse;
 import com.fleencorp.feen.softask.model.response.participant.SoftAskParticipantResponse;
 import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.response.vote.core.SoftAskVoteResponse;
-import com.fleencorp.feen.softask.model.search.SoftAskAnswerSearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -35,18 +33,21 @@ import static java.util.Objects.nonNull;
 public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper {
 
   private final SoftAskInfoMapper softAskInfoMapper;
+  private final ToInfoMapper toInfoMapper;
 
   public SoftAskMapperImpl(
     final SoftAskInfoMapper softAskInfoMapper,
+    final ToInfoMapper toInfoMapper,
     final MessageSource messageSource) {
     super(messageSource);
     this.softAskInfoMapper = softAskInfoMapper;
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
    * Converts a {@link SoftAsk} entity into a {@link SoftAskResponse} DTO.
    *
-   * <p>Maps fields such as ID, title, content, timestamps, author ID, and answer count information.
+   * <p>Maps fields such as ID, title, content, timestamps, author ID, and reply count information.
    * Also delegates additional detail population to {@code setOtherDetails}.</p>
    *
    * @param entry the {@link SoftAsk} entity to convert; can be {@code null}.
@@ -60,15 +61,22 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setMemberId(entry.getAuthorId());
       response.setTitle(entry.getTitle());
       response.setContent(entry.getDescription());
+      response.setShareCount(entry.getShareCount());
+
+      response.setAuthorId(entry.getAuthorId());
+      response.setOrganizerId(entry.getAuthorId());
+      response.setIsUpdatable(false);
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
-      final SoftAskAnswerCountInfo answerCountInfo = softAskInfoMapper.toAnswerCountInfo(entry.getAnswerCount());
-      response.setAnswerCountInfo(answerCountInfo);
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
 
-      final SoftAskAnswerSearchResult softAskAnswerSearchResult = SoftAskAnswerSearchResult.empty(entry.getSoftAskId());
-      response.setAnswerSearchResult(softAskAnswerSearchResult);
+      final SoftAskReplyCountInfo softAskReplyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getReplyCount());
+      response.setReplyCountInfo(softAskReplyCountInfo);
+
+      final SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.empty(entry.getSoftAskId());
+      response.setSoftAskReplySearchResult(softAskReplySearchResult);
 
       setOtherDetails(entry, response);
 
@@ -98,59 +106,6 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
   }
 
   /**
-   * Converts a {@link SoftAskAnswer} entity into a {@link SoftAskAnswerResponse} DTO.
-   *
-   * <p>Maps fields such as ID, author ID, content, timestamps, and reply count information,
-   * and delegates additional detail population to {@code setOtherDetails}.</p>
-   *
-   * @param entry the {@link SoftAskAnswer} entity to convert; can be {@code null}.
-   * @return the corresponding {@link SoftAskAnswerResponse} object, or {@code null} if the input is {@code null}.
-   */
-  @Override
-  public SoftAskAnswerResponse toSoftAskAnswerResponse(final SoftAskAnswer entry) {
-    if (nonNull(entry)) {
-      final SoftAskAnswerResponse response = new SoftAskAnswerResponse();
-      response.setId(entry.getSoftAskId());
-      response.setMemberId(entry.getAuthorId());
-      response.setContent(entry.getContent());
-
-      response.setCreatedOn(entry.getCreatedOn());
-      response.setUpdatedOn(entry.getUpdatedOn());
-
-      final SoftAskReplyCountInfo replyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getReplyCount());
-      response.setReplyCountInfo(replyCountInfo);
-
-      final SoftAskReplySearchResult searchResult = SoftAskReplySearchResult.empty(entry.getSoftAskAnswerId());
-      response.setReplySearchResult(searchResult);
-
-      setOtherDetails(entry, response);
-
-      return response;
-    }
-
-    return null;
-  }
-
-  /**
-   * Converts a collection of {@link SoftAskAnswer} entities into a collection of {@link SoftAskAnswerResponse} DTOs.
-   *
-   * <p>If the input collection is {@code null}, an empty list is returned. Null elements within the collection
-   * are filtered out before conversion using {@code toSoftAskAnswerResponse}.</p>
-   *
-   * @param entries the collection of {@link SoftAskAnswer} entities to convert; can be {@code null}.
-   * @return a list of corresponding {@link SoftAskAnswerResponse} instances; never {@code null}.
-   */
-  @Override
-  public Collection<SoftAskAnswerResponse> toSoftAskAnswerResponses(final Collection<SoftAskAnswer> entries) {
-    return Optional.ofNullable(entries)
-      .orElseGet(Collections::emptyList)
-      .stream()
-      .filter(Objects::nonNull)
-      .map(this::toSoftAskAnswerResponse)
-      .toList();
-  }
-
-  /**
    * Converts a {@link SoftAskReply} entity into a {@link SoftAskReplyResponse} DTO.
    *
    * <p>Maps fields such as ID, author ID, content, timestamps, and member ID,
@@ -167,8 +122,21 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setMemberId(entry.getAuthorId());
       response.setContent(entry.getContent());
 
+      response.setAuthorId(entry.getAuthorId());
+      response.setOrganizerId(entry.getAuthorId());
+      response.setShareCount(entry.getShareCount());
+      response.setIsUpdatable(false);
+
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
+
+      final SoftAskReplyCountInfo replyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getChildReplyCount());
+      response.setReplyCountInfo(replyCountInfo);
+
+      final SoftAskReplySearchResult searchResult = SoftAskReplySearchResult.empty(entry.getSoftAskReplyId());
+      response.setChildRepliesSearchResult(searchResult);
 
       setOtherDetails(entry, response);
 
@@ -301,5 +269,10 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       final SoftAskParticipantResponse softAskParticipantResponse = SoftAskParticipantResponse.of(entry.getUserOtherName());
       response.setSoftAskParticipantResponse(softAskParticipantResponse);
     }
+  }
+
+  @Override
+  public IsDeletedInfo toIsDeletedInfo(final boolean isDeleted) {
+    return toInfoMapper.toIsDeletedInfo(isDeleted);
   }
 }

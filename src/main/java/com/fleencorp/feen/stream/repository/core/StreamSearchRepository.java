@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 
-public interface StreamQueryRepository extends JpaRepository<FleenStream, Long> {
+public interface StreamSearchRepository extends JpaRepository<FleenStream, Long> {
 
   @Query(value = "SELECT fs FROM FleenStream fs WHERE fs.createdOn BETWEEN :startDate AND :endDate AND fs.streamStatus = :status ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("status") StreamStatus status, Pageable pageable);

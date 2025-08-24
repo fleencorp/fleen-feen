@@ -1,9 +1,7 @@
 package com.fleencorp.feen.review.service.impl;
 
-import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
@@ -18,6 +16,8 @@ import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.review.repository.ReviewRepository;
 import com.fleencorp.feen.review.service.ReviewCommonService;
 import com.fleencorp.feen.review.service.ReviewService;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -101,23 +101,19 @@ public class ReviewServiceImpl implements ReviewService {
   public ReviewAddResponse addReview(final AddReviewDto addReviewDto, final RegisteredUser user)
       throws StreamNotFoundException, CannotAddReviewIfStreamHasNotStartedException {
     final Member member = memberService.findMember(user.getId());
-    // Get the necessary details
+
     final ReviewParentDetailHolder reviewParentDetailHolder = retrieveReviewOtherDetailsHolder(addReviewDto);
     final String parentTitle = reviewParentDetailHolder.parentTitle();
     final ChatSpace chatSpace = reviewParentDetailHolder.chatSpace();
     final FleenStream stream = reviewParentDetailHolder.stream();
 
-    // Convert the dto to the entity
     final Review review = addReviewDto.toReview(member, parentTitle, chatSpace, stream);
-    // Save the new Review to the repository
     reviewRepository.save(review);
-    // Create the review response
+
     final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
-    // Set the review is-updatable check
     setEntityUpdatableByUser(reviewResponse, user.getId());
-    // Get the response
+
     final ReviewAddResponse reviewAddResponse = ReviewAddResponse.of(reviewResponse);
-    // Return a localized response for the added review
     return localizer.of(reviewAddResponse);
   }
 
@@ -224,12 +220,9 @@ public class ReviewServiceImpl implements ReviewService {
   @Override
   @Transactional
   public ReviewDeleteResponse deleteReview(final Long reviewId, final RegisteredUser user) {
-    // Delete the Review associated with the given review ID and user
     reviewRepository.deleteByStreamReviewIdAndMember(reviewId, user.toMember());
 
     final ReviewDeleteResponse reviewDeleteResponse = ReviewDeleteResponse.of();
     return localizer.of(reviewDeleteResponse);
   }
-
-
 }

@@ -2,10 +2,10 @@ package com.fleencorp.feen.user.service.impl.member;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
-import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.model.response.EmailAddressExistsResponse;
 import com.fleencorp.feen.common.model.response.PhoneNumberExistsResponse;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -99,11 +99,9 @@ public class MemberServiceImpl implements MemberService,
    */
   @Override
   public EmailAddressExistsResponse verifyMemberEmailAddressExists(final String emailAddress) {
-    // Check if the email address exist
     final boolean exists = isEmailAddressExist(emailAddress);
-    // Create the response
     final EmailAddressExistsResponse emailAddressExistsResponse = EmailAddressExistsResponse.of(exists);
-    // Return a localized response of the status
+
     return localizer.of(emailAddressExistsResponse);
   }
 
@@ -202,10 +200,8 @@ public class MemberServiceImpl implements MemberService,
    */
   @Override
   public RetrieveMemberInfoResponse getMemberInfo(final RegisteredUser user) throws FailedOperationException {
-    // Retrieve member information from the user profile repository
     final MemberInfoSelect info = userProfileRepository.findInfoByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
-    // Convert to a response
     final MemberInfoResponse memberInfoResponse = MemberInfoResponse.of(
       info.getMemberId(),
       info.getFirstName(),
@@ -213,9 +209,8 @@ public class MemberServiceImpl implements MemberService,
       info.getProfilePhoto(),
       info.getCountry()
     );
-    // Create the response
+
     final RetrieveMemberInfoResponse retrieveMemberInfoResponse = RetrieveMemberInfoResponse.of(memberInfoResponse);
-    // Return the localized response containing the retrieved member information
     return localizer.of(retrieveMemberInfoResponse);
   }
 
@@ -228,10 +223,8 @@ public class MemberServiceImpl implements MemberService,
    */
   @Override
   public RetrieveMemberUpdateInfoResponse getMemberUpdateInfo(final RegisteredUser user) throws FailedOperationException {
-    // Retrieve member update information from the user profile repository
     final MemberUpdateSelect info = userProfileRepository.findByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
-    // Convert to response
     final MemberUpdateInfoResponse memberUpdateInfoResponse = MemberUpdateInfoResponse.of(
       info.getMemberId(),
       info.getFirstName(),
@@ -241,9 +234,7 @@ public class MemberServiceImpl implements MemberService,
       info.getCountry()
     );
 
-    // Create the response
     final RetrieveMemberUpdateInfoResponse retrieveMemberUpdateInfoResponse = RetrieveMemberUpdateInfoResponse.of(memberUpdateInfoResponse);
-    // Return the localized response containing the retrieved member update information
     return localizer.of(retrieveMemberUpdateInfoResponse);
   }
 
@@ -256,14 +247,12 @@ public class MemberServiceImpl implements MemberService,
    */
   @Override
   public RetrieveProfileStatusResponse getProfileStatus(final RegisteredUser user) throws FailedOperationException {
-    // Retrieve the profile status from the user profile repository
     final MemberProfileStatusSelect verificationStatus = userProfileRepository.findStatusByMember(user.toMember())
       .orElseThrow(FailedOperationException::new);
-    // Convert to response
+
     final MemberProfileStatusResponse memberProfileStatusResponse = MemberProfileStatusResponse.of(verificationStatus.getProfileStatus());
-    // Create the response
     final RetrieveProfileStatusResponse retrieveProfileStatusResponse = RetrieveProfileStatusResponse.of(memberProfileStatusResponse);
-    // Return the localized response containing the retrieved profile status
+
     return localizer.of(retrieveProfileStatusResponse);
   }
 
@@ -275,16 +264,12 @@ public class MemberServiceImpl implements MemberService,
   @Override
   @Async
   public void clearAuthenticationTokens(final String username) {
-    // Retrieve the associated token cache keys
     final String accessTokenCacheKeyKey = getAccessTokenCacheKey(username);
     final String refreshTokenCacheKeyKey = getRefreshTokenCacheKey(username);
     final String resetPasswordTokenCacheKey = getResetPasswordTokenCacheKey(username);
 
-    // Delete access token from cache if it exists
     cacheService.existsAndDelete(accessTokenCacheKeyKey);
-    // Delete reset password token from cache if it exists
     cacheService.existsAndDelete(resetPasswordTokenCacheKey);
-    // Delete refresh token from cache if it exists
     cacheService.existsAndDelete(refreshTokenCacheKeyKey);
   }
 

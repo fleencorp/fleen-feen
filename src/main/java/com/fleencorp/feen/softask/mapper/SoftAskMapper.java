@@ -1,10 +1,9 @@
 package com.fleencorp.feen.softask.mapper;
 
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
-import com.fleencorp.feen.softask.model.response.answer.core.SoftAskAnswerResponse;
 import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.response.vote.core.SoftAskVoteResponse;
@@ -17,10 +16,6 @@ public interface SoftAskMapper {
 
   Collection<SoftAskResponse> toSoftAskResponses(final Collection<SoftAsk> entries);
 
-  SoftAskAnswerResponse toSoftAskAnswerResponse(SoftAskAnswer entry);
-
-  Collection<SoftAskAnswerResponse> toSoftAskAnswerResponses(Collection<SoftAskAnswer> entries);
-
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry);
 
   Collection<SoftAskReplyResponse> toSoftAskReplyResponses(Collection<SoftAskReply> entries);
@@ -30,4 +25,6 @@ public interface SoftAskMapper {
   SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry, boolean voted);
 
   Collection<SoftAskVoteResponse> toSoftAskVoteResponses(Collection<SoftAskVote> entries);
+
+  IsDeletedInfo toIsDeletedInfo(boolean isDeleted);
 }

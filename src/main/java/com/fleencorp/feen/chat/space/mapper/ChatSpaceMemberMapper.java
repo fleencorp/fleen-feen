@@ -2,15 +2,15 @@ package com.fleencorp.feen.chat.space.mapper;
 
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.chat.space.constant.member.ChatSpaceMemberRole;
-import com.fleencorp.feen.chat.space.model.info.membership.*;
-import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.chat.space.model.info.member.ChatSpaceMemberRoleInfo;
 import com.fleencorp.feen.chat.space.model.info.member.ChatSpaceRequestToJoinStatusInfo;
+import com.fleencorp.feen.chat.space.model.info.membership.*;
 import com.fleencorp.feen.chat.space.model.response.core.ChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.member.base.ChatSpaceMemberResponse;
+import com.fleencorp.feen.common.constant.common.JoinStatus;
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 
 import java.util.List;
 

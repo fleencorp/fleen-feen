@@ -35,17 +35,17 @@ public class ProcessRequestToJoinChatSpaceResponse extends LocalizedResponse {
   private ChatSpaceMembershipInfo membershipInfo;
 
   @JsonProperty("total_members")
-  private Long totalMembers;
+  private Integer totalMembers;
 
   @JsonProperty("total_request_to_join")
-  private Long totalRequestToJoin;
+  private Integer totalRequestToJoin;
 
   @Override
   public String getMessageCode() {
     return "process.request.to.join.chat.space";
   }
 
-  public static ProcessRequestToJoinChatSpaceResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers, final Long totalRequestToJoin) {
+  public static ProcessRequestToJoinChatSpaceResponse of(final Long chatSpaceId, final Long chatSpaceMemberId, final ChatSpaceMembershipInfo membershipInfo, final Integer totalMembers, final Integer totalRequestToJoin) {
     return new ProcessRequestToJoinChatSpaceResponse(chatSpaceId, chatSpaceMemberId, membershipInfo, totalMembers, totalRequestToJoin);
   }
 }

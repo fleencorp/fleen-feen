@@ -1,36 +1,34 @@
 package com.fleencorp.feen.softask.service.impl.common;
 
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.repository.answer.SoftAskAnswerRepository;
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplyRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
+import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
-  private final SoftAskAnswerRepository softAskAnswerRepository;
+  private final SoftAskReplySearchService softAskReplySearchService;
+  private final SoftAskSearchService softAskSearchService;
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskRepository softAskRepository;
 
   public SoftAskOperationServiceImpl(
-      final SoftAskAnswerRepository softAskAnswerRepository,
+      final SoftAskReplySearchService softAskReplySearchService,
+      final SoftAskSearchService softAskSearchService,
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskRepository softAskRepository) {
-    this.softAskAnswerRepository = softAskAnswerRepository;
+    this.softAskReplySearchService = softAskReplySearchService;
+    this.softAskSearchService = softAskSearchService;
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskRepository = softAskRepository;
   }
 
-  @Override
-  @Transactional
-  public SoftAskAnswer save(final SoftAskAnswer softAskAnswer) {
-    return softAskAnswerRepository.save(softAskAnswer);
-  }
 
   @Override
   @Transactional
@@ -45,59 +43,99 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
   }
 
   @Override
-  @Transactional
-  public Integer incrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
+  public SoftAsk findSoftAsk(final Long softAskId) {
+    return softAskSearchService.findSoftAsk(softAskId);
+  }
+
+  @Override
+  public SoftAskReply findSoftAskReply(final Long softAskId, final Long softAskReplyId) {
+    return softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId);
+  }
+
+  private Integer incrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
     softAskRepository.incrementVoteCount(softAskId);
     return softAskRepository.getVoteCount(softAskId);
   }
 
-  @Override
-  @Transactional
-  public Integer decrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
+  private Integer decrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
     softAskRepository.decrementVoteCount(softAskId);
     return softAskRepository.getVoteCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerVoteAndGetVoteCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.incrementVoteCount(softAskAnswerId);
-    return softAskAnswerRepository.getVoteCount(softAskAnswerId);
+  public Integer updateVoteCount(final Long softAskId, final boolean isVoted) {
+    return isVoted
+      ? incrementSoftAskVoteAndGetVoteCount(softAskId)
+      : decrementSoftAskVoteAndGetVoteCount(softAskId);
+  }
+
+  private Integer incrementSoftAskReplyVoteAndGetVoteCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.incrementVoteCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getVoteCount(softAskId, softAskReplyId);
+  }
+
+  private Integer decrementSoftAskReplyVoteAndGetVoteCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.decrementVoteCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getVoteCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer decrementSoftAskAnswerVoteAndGetVoteCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.decrementVoteCount(softAskAnswerId);
-    return softAskAnswerRepository.getVoteCount(softAskAnswerId);
+  public Integer updateVoteCount(final Long softAskId, final Long softAskReplyId, final boolean isVoted) {
+    return isVoted
+      ? incrementSoftAskReplyVoteAndGetVoteCount(softAskId, softAskReplyId)
+      : decrementSoftAskReplyVoteAndGetVoteCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskReplyVoteAndGetVoteCount(final Long softAskReplyId) {
-    softAskReplyRepository.incrementVoteCount(softAskReplyId);
-    return softAskReplyRepository.getVoteCount(softAskReplyId);
+  public Integer incrementSoftAskReplyCountAndGetReplyCount(final Long softAskId) {
+    softAskRepository.incrementReplyCount(softAskId);
+    return softAskRepository.getReplyCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer decrementSoftAskReplyVoteAndGetVoteCount(final Long softAskReplyId) {
-    softAskReplyRepository.decrementVoteCount(softAskReplyId);
-    return softAskReplyRepository.getVoteCount(softAskReplyId);
+  public Integer incrementSoftAskReplyChildReplyCountAndGetReplyCount(final Long softAskId, final Long softAskReplyParentId) {
+    softAskReplyRepository.incrementReplyChildReplyCount(softAskId, softAskReplyParentId);
+    return softAskReplyRepository.getReplyChildReplyCount(softAskId, softAskReplyParentId);
+  }
+
+  private Integer incrementBookmarkCount(final Long softAskId) {
+    softAskRepository.incrementAndBookmarkCount(softAskId);
+    return softAskRepository.getBookmarkCount(softAskId);
+  }
+
+  private Integer decrementBookmarkCount(final Long softAskId) {
+    softAskRepository.decrementAndGetBookmarkCount(softAskId);
+    return softAskRepository.getBookmarkCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerCountAndGetAnswerCount(final Long softAskId) {
-    softAskRepository.incrementAnswerCount(softAskId);
-    return softAskRepository.getAnswerCount(softAskId);
+  public Integer updateBookmarkCount(final Long softAskId, final boolean isBookmarked) {
+    return isBookmarked
+      ? incrementBookmarkCount(softAskId)
+      : decrementBookmarkCount(softAskId);
+  }
+
+  private Integer incrementSoftAskReplyBookmarkCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.incrementAndBookmarkCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getBookmarkCount(softAskId, softAskReplyId);
+  }
+
+  private Integer decrementSoftAskReplyBookmarkCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.decrementAndGetBookmarkCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getBookmarkCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerReplyCountAndGetReplyCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.incrementReplyCount(softAskAnswerId);
-    return softAskAnswerRepository.getReplyCount(softAskAnswerId);
+  public Integer updateBookmarkCount(final Long softAskId, final Long softAskReplyId, final boolean isBookmarked) {
+    return isBookmarked
+      ? incrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId)
+      : decrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId);
   }
 
 }

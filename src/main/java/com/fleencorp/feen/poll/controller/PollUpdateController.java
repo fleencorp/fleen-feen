@@ -1,7 +1,7 @@
 package com.fleencorp.feen.poll.controller;
 
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
@@ -48,7 +48,7 @@ public class PollUpdateController {
     @ApiResponse(responseCode = "403", description = "Unauthorized to update poll",
       content = @Content(schema = @Schema(implementation = PollUpdateUnauthorizedException.class))),
     @ApiResponse(responseCode = "403", description = "Not an admin of chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
