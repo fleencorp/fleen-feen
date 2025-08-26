@@ -8,6 +8,7 @@ import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -105,9 +106,13 @@ public class AddSoftAskDto {
     softAsk.setLink(link);
     softAsk.setSoftAskVisibility(softAskVisibility);
     softAsk.setSoftAskStatus(softAskStatus);
+    softAsk.setModerationStatus(ModerationStatus.CLEAN);
+    softAsk.setVisible(true);
+
     softAsk.setAuthorId(author.getMemberId());
     softAsk.setAuthor(author);
     softAsk.setUserOtherName(author.getUsername());
+
     softAsk.setParentId(getParentId());
     softAsk.setParentTitle(parentTitle);
     softAsk.setSoftAskParentType(parentType);

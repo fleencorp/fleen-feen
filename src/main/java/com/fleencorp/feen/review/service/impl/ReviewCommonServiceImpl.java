@@ -1,5 +1,6 @@
 package com.fleencorp.feen.review.service.impl;
 
+import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.like.service.LikeOperationService;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
@@ -24,14 +25,17 @@ import static java.util.Objects.nonNull;
 @Service
 public class ReviewCommonServiceImpl implements ReviewCommonService {
 
+  private final BookmarkOperationService bookmarkOperationService;
   private final LikeOperationService likeOperationService;
   private final ReviewRepository reviewRepository;
   private final ReviewMapper reviewMapper;
 
   public ReviewCommonServiceImpl(
+    final BookmarkOperationService bookmarkOperationService,
     final LikeOperationService likeOperationService,
     final ReviewRepository reviewRepository,
     final ReviewMapper reviewMapper) {
+    this.bookmarkOperationService = bookmarkOperationService;
     this.likeOperationService = likeOperationService;
     this.reviewRepository = reviewRepository;
     this.reviewMapper = reviewMapper;
@@ -52,11 +56,10 @@ public class ReviewCommonServiceImpl implements ReviewCommonService {
       reviewResponses.stream()
         .filter(Objects::nonNull)
         .forEach(reviewResponse -> {
-          // Set the review is-updatable check
           setEntityUpdatableByUser(reviewResponse, member.getMemberId());
-        });
+      });
 
-      // Set the like info by the user if any
+      bookmarkOperationService.populateBookmarkForReviews(reviewResponses, member);
       likeOperationService.populateLikesForReviews(reviewResponses, member);
     }
   }

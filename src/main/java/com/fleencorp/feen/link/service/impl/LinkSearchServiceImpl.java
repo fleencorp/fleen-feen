@@ -6,7 +6,6 @@ import com.fleencorp.feen.business.service.BusinessOperationService;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl;
 import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.link.mapper.LinkMapper;
@@ -22,7 +21,6 @@ import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.link.repository.LinkRepository;
 import com.fleencorp.feen.link.service.LinkSearchService;
 import com.fleencorp.feen.model.contract.HasLinks;
-import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.stream.constant.common.MusicLinkType;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -232,7 +230,7 @@ public class LinkSearchServiceImpl implements LinkSearchService {
    *
    * <p>This method queries the {@link LinkRepository} to fetch links associated with the given
    * parent entity (e.g., business or chat space), maps them to {@link LinkResponse} objects,
-   * and assigns them to the parent via {@link HasLinks#setLinks(Set)}.</p>
+   * and assigns them to the parent via {@link HasLinks}.</p>
    *
    * <p>If the {@code parent} or {@code linkParentType} is {@code null}, a {@link FailedOperationException}
    * is thrown. The resulting links are stored as a {@link HashSet} to avoid duplicates.</p>

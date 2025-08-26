@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import static java.util.Objects.nonNull;
@@ -176,6 +177,26 @@ public class MiscServiceImpl implements MiscService, PasswordService {
       if (isAuthor) {
         entry.markAsUpdatable();
       }
+    }
+  }
+
+  /**
+   * Marks the provided links as updatable by the user if the user has administrative privileges.
+   *
+   * <p>This method iterates through the given list of {@link Updatable} objects and marks each
+   * non-{@code null} entry as updatable only if the {@code isAdmin} flag is {@code true}.
+   * If the list is {@code null} or empty, or if the user is not an admin, no action is taken.</p>
+   *
+   * @param links   the list of {@link Updatable} entities to be marked as updatable;
+   *                may be {@code null} or empty
+   * @param isAdmin {@code true} if the user has administrative privileges and the links
+   *                should be marked as updatable; {@code false} otherwise
+   */
+  public static <T extends Updatable> void setLinksThatAreUpdatableByUser(final List<T> links, final boolean isAdmin) {
+    if (nonNull(links) && !links.isEmpty() && isAdmin) {
+      links.stream()
+        .filter(Objects::nonNull)
+        .forEach(Updatable::markAsUpdatable);
     }
   }
 

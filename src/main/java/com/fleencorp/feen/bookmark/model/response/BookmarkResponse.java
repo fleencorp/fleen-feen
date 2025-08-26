@@ -1,6 +1,9 @@
 package com.fleencorp.feen.bookmark.model.response;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.bookmark.constant.BookmarkParentType;
 import com.fleencorp.feen.bookmark.constant.BookmarkType;
 import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;

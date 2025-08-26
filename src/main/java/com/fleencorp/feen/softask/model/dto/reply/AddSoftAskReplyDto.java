@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.model.dto.reply;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.dto.common.SoftAskWithParentDto;
@@ -26,8 +27,13 @@ public class AddSoftAskReplyDto extends SoftAskWithParentDto {
   public SoftAskReply toSoftAskReply(final Member author, final SoftAsk softAsk, final SoftAskReply parentReply) {
     final SoftAskReply reply = new SoftAskReply();
     reply.setContent(content);
+    reply.setModerationStatus(ModerationStatus.CLEAN);
+    reply.setVisible(true);
+
+    reply.setAuthorId(author.getMemberId());
     reply.setAuthor(author);
     reply.setUserOtherName(author.getUsername());
+
     reply.setSoftAskId(softAsk.getSoftAskId());
     reply.setSoftAsk(softAsk);
 

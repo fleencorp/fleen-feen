@@ -5,6 +5,7 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
@@ -63,12 +64,16 @@ public class SoftAsk extends FleenFeenEntity implements SoftAskCommonData {
   private SoftAskParentType softAskParentType = SoftAskParentType.NONE;
 
   @Enumerated(STRING)
-  @Column(name = "soft_ask_visibility", nullable = false)
+  @Column(name = "visibility", nullable = false)
   private SoftAskVisibility softAskVisibility;
 
   @Enumerated(STRING)
-  @Column(name = "soft_ask_status", nullable = false)
+  @Column(name = "status", nullable = false)
   private SoftAskStatus softAskStatus;
+
+  @Enumerated(STRING)
+  @Column(name = "moderation_status", nullable = false)
+  private ModerationStatus moderationStatus;
 
   @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
   private Long chatSpaceId;
@@ -100,6 +105,9 @@ public class SoftAsk extends FleenFeenEntity implements SoftAskCommonData {
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
+
+  @Column(name = "is_visible", nullable = false)
+  private Boolean visible = true;
 
   @Column(name = "reply_count", nullable = false)
   private Integer replyCount = 0;

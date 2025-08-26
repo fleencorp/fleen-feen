@@ -1,6 +1,9 @@
 package com.fleencorp.feen.like.model.response;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.like.constant.LikeParentType;
@@ -22,7 +25,9 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "parent_info",
   "parent_total_likes",
   "user_like_info",
-  "like_parent_type"
+  "like_parent_type",
+  "like_type",
+  "is_liked"
 })
 public class LikeResponse extends FleenFeenResponse {
 
@@ -39,9 +44,11 @@ public class LikeResponse extends FleenFeenResponse {
   @JsonProperty("like_parent_type")
   private LikeParentType likeParentType;
 
-  @JsonIgnore
+  @JsonFormat(shape = STRING)
+  @JsonProperty("like_type")
   private LikeType type;
 
+  @JsonProperty("is_liked")
   public boolean isLiked() {
     return LikeType.isLiked(type);
   }

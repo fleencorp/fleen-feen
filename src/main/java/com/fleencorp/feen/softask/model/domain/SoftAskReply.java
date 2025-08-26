@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.model.domain;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.CreatedBy;
 import java.util.HashSet;
 import java.util.Set;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
@@ -30,6 +32,10 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
 
   @Column(name = "content", nullable = false, length = 3000)
   private String content;
+
+  @Enumerated(STRING)
+  @Column(name = "moderation_status", nullable = false)
+  private ModerationStatus moderationStatus;
 
   @Column(name = "soft_ask_id", nullable = false, updatable = false, insertable = false)
   private Long softAskId;
@@ -65,6 +71,9 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
+
+  @Column(name = "is_visible", nullable = false)
+  private Boolean visible = true;
 
   @Column(name = "child_reply_count", nullable = false)
   private Integer childReplyCount = 0;

@@ -302,8 +302,8 @@ CREATE TABLE calendar (
   timezone VARCHAR(30) NOT NULL,
   code VARCHAR(100) NOT NULL,
 
-  status VARCHAR(255) DEFAULT 'ACTIVE'
-    NOT NULL CHECK (status IN ('ACTIVE', 'INACTIVE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ACTIVE', 'INACTIVE')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -918,10 +918,12 @@ CREATE TABLE soft_ask (
 
   parent_type VARCHAR(255) NOT NULL
     CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
-  soft_ask_status VARCHAR(255) NOT NULL
-    CHECK (soft_ask_status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
-  soft_ask_visibility VARCHAR(255) NOT NULL
-    CHECK (soft_ask_visibility IN ('PUBLIC', 'PRIVATE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
+  visibility VARCHAR(255) NOT NULL
+    CHECK (visibility IN ('PUBLIC', 'PRIVATE')),
+  moderation_status VARCHAR(255) NOT NULL
+    CHECK (moderation_status IN ('ABUSE', 'CLEAN', 'FLAGGED', 'HIDDEN', 'SPAM')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1017,11 +1019,6 @@ CREATE TABLE soft_ask_votes (
       REFERENCES soft_ask (soft_ask_id)
         ON DELETE CASCADE,
 
-  CONSTRAINT soft_ask_vote_fk_answer_id
-    FOREIGN KEY (soft_ask_answer_id)
-      REFERENCES soft_ask_answer (soft_ask_answer_id)
-        ON DELETE CASCADE,
-
   CONSTRAINT soft_ask_vote_fk_reply_id
     FOREIGN KEY (soft_ask_reply_id)
       REFERENCES soft_ask_reply (soft_ask_reply_id)
@@ -1096,3 +1093,38 @@ CREATE TABLE bookmarks (
 --rollback DROP TABLE IF EXISTS `bookmarks`;
 
 
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'business';
+
+CREATE TABLE business (
+  business_id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(300) NOT NULL,
+  description VARCHAR(3000) NOT NULL,
+
+  motto VARCHAR(500),
+  other_details VARCHAR(3000),
+  address VARCHAR(500),
+  country VARCHAR(300),
+  founding_year INTEGER,
+
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  share_count INT NOT NULL DEFAULT 0,
+
+  channel_type VARCHAR(255) NOT NULL
+    CHECK (channel_type IN ('OFFLINE', 'ONLINE', 'OFFLINE_AND_ONLINE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ACTIVE', 'INACTIVE')),
+
+  owner_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT business_fk_owner
+    FOREIGN KEY (owner_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `business`;
