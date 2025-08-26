@@ -1106,6 +1106,7 @@ CREATE TABLE business (
   other_details VARCHAR(3000),
   address VARCHAR(500),
   country VARCHAR(300),
+  logo_url VARCHAR(2000),
   founding_year INTEGER,
 
   deleted BOOLEAN NOT NULL DEFAULT FALSE,

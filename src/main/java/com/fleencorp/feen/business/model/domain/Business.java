@@ -55,6 +55,9 @@ public class Business extends FleenFeenEntity {
   @Column(name = "country", length = 300)
   private String country;
 
+  @Column(name = "logo_url", length = 1500)
+  private String logoUrl;
+
   @Enumerated(STRING)
   @Column(name = "channel_type", nullable = false)
   private BusinessChannelType channelType;
