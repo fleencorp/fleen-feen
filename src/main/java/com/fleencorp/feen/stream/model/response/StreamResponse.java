@@ -71,16 +71,17 @@ import static java.util.Objects.nonNull;
   "schedule_time_type_info",
   "attendee_count_info",
   "review_count_info",
+  "attendance_info",
   "some_attendees",
   "reviews",
+  "slug",
   "is_updatable",
   "is_private",
-  "attendance_info",
   "created_on",
   "updated_on",
 })
 public class StreamResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasOrganizer, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasOrganizer, HasSlug, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -166,6 +167,9 @@ public class StreamResponse extends FleenFeenResponse
 
   @JsonProperty("music_link")
   private LinkMusicResponse musicLink;
+
+  @JsonProperty("slug")
+  private String slug;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

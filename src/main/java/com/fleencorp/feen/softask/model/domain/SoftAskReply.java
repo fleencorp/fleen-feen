@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -109,6 +110,9 @@ public class SoftAskReply extends FleenFeenEntity
   @Column(name = "longitude", precision = 4, scale = 1)
   private BigDecimal longitude;
 
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
+
   @Transient
   private SoftAskUsername softAskUsername;
 
@@ -162,4 +166,10 @@ public class SoftAskReply extends FleenFeenEntity
       throw SoftAskUpdateDeniedException.of();
     }
   }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(content);
+  }
+
 }

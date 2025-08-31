@@ -67,6 +67,7 @@ public class BusinessMapperImpl extends BaseMapper implements BusinessMapper {
 
       response.setUpdatedOn(entry.getUpdatedOn());
       response.setCreatedOn(entry.getCreatedOn());
+      response.setSlug(entry.getSlug());
       response.setIsUpdatable(false);
 
       final BusinessChannelType channelType = entry.getChannelType();

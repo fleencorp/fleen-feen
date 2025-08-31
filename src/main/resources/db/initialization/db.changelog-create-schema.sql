@@ -152,6 +152,7 @@ CREATE TABLE chat_space (
   tags VARCHAR(300) NULL,
   guidelines_or_rules VARCHAR(3000) NOT NULL,
   space_link VARCHAR(1000),
+  slug VARCHAR(255) NOT NULL,
 
   is_active BOOLEAN DEFAULT TRUE NOT NULL,
   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
@@ -242,6 +243,7 @@ CREATE TABLE stream (
   organizer_phone VARCHAR(20) NOT NULL,
   stream_link VARCHAR(1000),
   thumbnail_link VARCHAR(1000),
+  slug VARCHAR(255) NOT NULL,
 
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
   is_deleted BOOLEAN NOT NULL DEFAULT false,
@@ -795,12 +797,11 @@ CREATE TABLE poll (
   description VARCHAR(2000),
   summary VARCHAR(2000) NULL,
   expires_at TIMESTAMP,
+  slug VARCHAR(255) NOT NULL,
+
   parent_id BIGINT,
   parent_title VARCHAR(1000),
-  parent_type VARCHAR(255) NOT NULL
-    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
-  visibility VARCHAR(255) NOT NULL
-    CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
+
   author_id BIGINT NOT NULL,
   stream_id BIGINT,
   chat_space_id BIGINT,
@@ -809,6 +810,11 @@ CREATE TABLE poll (
   is_multiple_choice BOOLEAN NOT NULL DEFAULT FALSE,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
   total_entries INTEGER NOT NULL DEFAULT 0,
+
+  parent_type VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
+  visibility VARCHAR(255) NOT NULL
+    CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -897,6 +903,7 @@ CREATE TABLE soft_ask (
   description VARCHAR(4000) NOT NULL,
   tags VARCHAR(500),
   link VARCHAR(1000),
+  slug VARCHAR(255) NOT NULL,
 
   parent_id BIGINT,
   parent_title VARCHAR(1000),
@@ -905,6 +912,7 @@ CREATE TABLE soft_ask (
   other_text VARCHAR(2000) NOT NULL,
 
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  is_visible BOOLEAN NOT NULL DEFAULT TRUE,
 
   bookmark_count INTEGER DEFAULT 0 NOT NULL,
   reply_count INTEGER NOT NULL DEFAULT 0,
@@ -966,6 +974,8 @@ CREATE TABLE soft_ask_reply (
   soft_ask_reply_id BIGSERIAL PRIMARY KEY,
   content VARCHAR(3000) NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  is_visible BOOLEAN NOT NULL DEFAULT TRUE,
+  slug VARCHAR(255) NOT NULL,
 
   bookmark_count INTEGER NOT NULL DEFAULT 0,
   child_reply_count INTEGER NOT NULL DEFAULT 0,
@@ -1153,6 +1163,7 @@ CREATE TABLE business (
   business_id BIGSERIAL PRIMARY KEY,
   title VARCHAR(300) NOT NULL,
   description VARCHAR(3000) NOT NULL,
+  slug VARCHAR(255) NOT NULL,
 
   motto VARCHAR(500),
   other_details VARCHAR(3000),

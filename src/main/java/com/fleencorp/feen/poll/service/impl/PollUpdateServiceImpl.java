@@ -9,7 +9,7 @@ import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
 import com.fleencorp.feen.poll.model.holder.PollVoteAggregateHolder;
 import com.fleencorp.feen.poll.model.response.PollUpdateResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollUpdateService;
@@ -142,7 +142,7 @@ public class PollUpdateServiceImpl implements PollUpdateService {
    */
   private void validateOptionChanges(final Poll poll, final Collection<PollOption> newOptions, final PollVoteAggregateHolder voteAggregateHolder) throws PollUpdateCantChangeOptionsException {
     final Collection<Long> existingOptionIds = poll.getPollOptionIds();
-    final Collection<Long> newOptionIds = Poll.getOptionIds(newOptions);
+    final Collection<Long> newOptionIds = PollOption.getOptionIds(newOptions);
     final boolean hasVotes = voteAggregateHolder.hasVotes();
     final Map<Long, PollOption> existingOptionsById = poll.getOptionsGrouped();
 

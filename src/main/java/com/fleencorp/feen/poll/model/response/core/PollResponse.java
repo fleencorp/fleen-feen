@@ -1,8 +1,9 @@
-package com.fleencorp.feen.poll.model.response.base;
+package com.fleencorp.feen.poll.model.response.core;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.model.contract.HasSlug;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.user.model.response.UserResponse;
@@ -36,6 +37,7 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "is_ended_info",
   "share_count_info",
   "is_updatable",
+  "slug",
   "poll_options",
   "poll_vote",
   "author",
@@ -43,7 +45,7 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "updated_on",
 })
 public class PollResponse extends FleenFeenResponse
-  implements Updatable {
+  implements HasSlug, Updatable {
 
   @JsonProperty("question")
   private String question;
@@ -81,6 +83,9 @@ public class PollResponse extends FleenFeenResponse
 
   @JsonProperty("author")
   private UserResponse author;
+
+  @JsonProperty("slug")
+  private String slug;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

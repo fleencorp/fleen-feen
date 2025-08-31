@@ -12,6 +12,7 @@ import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.model.contract.HasSlug;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import com.fleencorp.feen.softask.contract.HasMood;
@@ -50,13 +51,14 @@ import static java.util.Objects.nonNull;
   "mood_tag_info",
   "display_time_label",
   "user",
+  "slug",
+  "is_updatable",
   "created_on",
   "updated_on",
-  "is_updatable",
   "reply_search_result"
 })
 public class SoftAskResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasMood, SoftAskCommonResponse, Updatable {
+  implements Bookmarkable, HasId, HasMood, HasSlug, SoftAskCommonResponse, Updatable {
 
   @JsonProperty("title")
   private String title;
@@ -99,6 +101,9 @@ public class SoftAskResponse extends FleenFeenResponse
 
   @JsonProperty("display_time_label")
   private String displayTimeLabel;
+
+  @JsonProperty("slug")
+  private String slug;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

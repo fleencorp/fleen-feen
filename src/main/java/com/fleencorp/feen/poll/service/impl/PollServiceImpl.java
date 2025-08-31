@@ -15,7 +15,7 @@ import com.fleencorp.feen.poll.model.dto.DeletePollDto;
 import com.fleencorp.feen.poll.model.holder.PollParentDetailHolder;
 import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollService;

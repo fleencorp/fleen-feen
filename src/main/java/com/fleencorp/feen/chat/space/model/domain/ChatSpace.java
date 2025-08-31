@@ -18,6 +18,7 @@ import org.springframework.data.annotation.CreatedBy;
 
 import java.util.*;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
@@ -96,6 +97,9 @@ public class ChatSpace extends FleenFeenEntity
 
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
+
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
 
   public Member getOrganizer() {
     return member;
@@ -347,4 +351,10 @@ public class ChatSpace extends FleenFeenEntity
 
     return metadata;
   }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(title);
+  }
+
 }

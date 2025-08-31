@@ -25,7 +25,6 @@ import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
 import com.fleencorp.feen.stream.model.other.Organizer;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -34,18 +33,7 @@ import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
-/**
-* Mapper class for converting FleenStream entities to various DTOs.
-*
-* <p>This class provides static methods to map FleenStream entities to their
-* corresponding Data Transfer Objects (DTOs). It includes methods to convert
-* single entities as well as lists of entities.</p>
-*
-* @author Yusuf Alamu Musa
-* @version 1.0
-*/
 @Component
-@Slf4j
 public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
   private final ToInfoMapper toInfoMapper;
@@ -88,6 +76,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+      response.setSlug(entry.getSlug());
 
       toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
       toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
@@ -270,7 +259,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
     }
     return null;
   }
-
 
   /**
    * Converts the given attendance status into an {@link IsAttendingInfo} object.

@@ -105,6 +105,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+      response.setSlug(entry.getSlug());
 
       toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
       toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());

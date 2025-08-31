@@ -70,6 +70,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+      response.setSlug(entry.getSlug());
 
       toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
 
@@ -136,6 +137,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setOrganizerId(entry.getAuthorId());
       response.setAuthorId(entry.getAuthorId());
 
+      response.setSlug(entry.getSlug());
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 

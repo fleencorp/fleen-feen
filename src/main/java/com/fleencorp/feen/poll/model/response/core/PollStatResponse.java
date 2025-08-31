@@ -1,4 +1,4 @@
-package com.fleencorp.feen.poll.model.response.base;
+package com.fleencorp.feen.poll.model.response.core;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

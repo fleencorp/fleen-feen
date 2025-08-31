@@ -63,12 +63,13 @@ import static java.util.Objects.nonNull;
   "user_like_info",
   "like_count_info",
   "share_count_info",
+  "slug",
   "is_updatable",
   "created_on",
   "updated_on"
 })
 public class ChatSpaceResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasLinks, HasOrganizer, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasLinks, HasOrganizer, HasSlug, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -130,6 +131,9 @@ public class ChatSpaceResponse extends FleenFeenResponse
 
   @JsonProperty("share_count_info")
   private ShareCountInfo shareCountInfo;
+
+  @JsonProperty("slug")
+  private String slug;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
