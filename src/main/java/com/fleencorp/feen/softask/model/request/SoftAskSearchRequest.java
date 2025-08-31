@@ -3,16 +3,18 @@ package com.fleencorp.feen.softask.model.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
+import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
 import com.fleencorp.feen.user.model.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+
+import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +28,9 @@ public class SoftAskSearchRequest extends SearchRequest {
   @IsNumber
   @JsonProperty("parent_reply_id")
   private String parentReplyId;
+
+  @JsonProperty("user_other_detail")
+  private UserOtherDetailDto userOtherDetailDto;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Member author;
@@ -56,6 +61,26 @@ public class SoftAskSearchRequest extends SearchRequest {
 
   public Long getAuthorId() {
     return hasAuthor() ? author.getMemberId() : null;
+  }
+
+  public UserOtherDetailHolder getUserOtherDetail() {
+    if (nonNull(userOtherDetailDto) && userOtherDetailDto.hasLatitudeAndLongitude()) {
+      return UserOtherDetailHolder.of(userOtherDetailDto.getLatitude(), userOtherDetailDto.getLongitude());
+    }
+
+    return UserOtherDetailHolder.empty();
+  }
+
+  public Double getLatitude() {
+    return nonNull(userOtherDetailDto) ? userOtherDetailDto.getLatitude() : null;
+  }
+
+  public Double getLongitude() {
+    return nonNull(userOtherDetailDto) ? userOtherDetailDto.getLongitude() : null;
+  }
+
+  public void updateParentId(final Long parentId) {
+    this.parentId = Objects.toString(parentId, null);
   }
 
   public static SoftAskSearchRequest of(final Long parentId) {

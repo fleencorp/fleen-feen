@@ -45,10 +45,11 @@ public class LikeMapperImpl extends BaseMapper implements LikeMapper {
     if (nonNull(entry)) {
       final LikeResponse response = new LikeResponse();
       response.setId(entry.getLikeId());
-      response.setCreatedOn(entry.getCreatedOn());
-      response.setUpdatedOn(entry.getUpdatedOn());
       response.setType(entry.getLikeType());
       response.setLikeParentType(entry.getLikeParentType());
+
+      response.setCreatedOn(entry.getCreatedOn());
+      response.setUpdatedOn(entry.getUpdatedOn());
 
       final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentTitle());
       response.setParentInfo(parentInfo);

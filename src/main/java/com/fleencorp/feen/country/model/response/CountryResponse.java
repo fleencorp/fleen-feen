@@ -20,8 +20,7 @@ import lombok.Setter;
   "code",
   "timezone",
   "created_on",
-  "updated_on",
-  "message"
+  "updated_on"
 })
 public class CountryResponse extends FleenFeenResponse {
 

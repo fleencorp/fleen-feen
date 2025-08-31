@@ -59,8 +59,8 @@ public class SoftAskVote extends FleenFeenEntity {
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
-  @CreatedBy
   @ToString.Exclude
+  @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;

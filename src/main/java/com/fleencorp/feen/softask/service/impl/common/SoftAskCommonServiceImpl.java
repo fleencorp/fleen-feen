@@ -3,7 +3,9 @@ package com.fleencorp.feen.softask.service.impl.common;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.softask.mapper.UserLocationMapper;
 import com.fleencorp.feen.model.contract.Updatable;
+import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
@@ -42,6 +44,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   private final SoftAskOperationService softAskOperationService;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskVoteSearchService softAskVoteSearchService;
+  private final UserLocationMapper userLocationMapper;
   private final Localizer localizer;
 
   public SoftAskCommonServiceImpl(
@@ -50,31 +53,43 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
       final SoftAskOperationService softAskOperationService,
       final SoftAskSearchService softAskSearchService,
       final SoftAskVoteSearchService softAskVoteSearchService,
+      final UserLocationMapper userLocationMapper,
       final Localizer localizer) {
     this.bookmarkOperationService = bookmarkOperationService;
     this.softAskReplySearchService = softAskReplySearchService;
     this.softAskOperationService = softAskOperationService;
     this.softAskSearchService = softAskSearchService;
     this.softAskVoteSearchService = softAskVoteSearchService;
+    this.userLocationMapper = userLocationMapper;
     this.localizer = localizer;
   }
 
   /**
-   * Enriches a collection of {@link SoftAskCommonResponse} objects with user-specific metadata.
+   * Processes a collection of soft ask responses by enriching them with bookmarks, votes,
+   * location details, and update permissions for a given member.
    *
-   * <p>Processes votes for each response using {@link SoftAskVoteSearchService}, and sets whether the entity
-   * is updatable by the current member.</p>
+   * <p>This method applies multiple transformations to the provided responses. It first
+   * processes bookmarks and votes for each response in the collection. Then, it sets the
+   * location details using the provided {@link UserHaveOtherDetail}. If the member is not
+   * null, each response is marked as updatable by that member.</p>
    *
-   * @param softAskCommonResponses the collection of responses to process.
-   * @param member the {@link Member} whose context is used for vote and update permissions.
-   * @param <T> the type of response, extending {@link SoftAskCommonResponse}.
+   * @param softAskCommonResponses the collection of responses to process, may be {@code null}
+   * @param member                 the member for whom bookmarks, votes, and update permissions are applied
+   * @param userHaveOtherDetail    the user detail object used to set location information
    */
   @Override
-  public <T extends SoftAskCommonResponse> void processSoftAskResponses(final Collection<T> softAskCommonResponses, final Member member) {
-    if (nonNull(softAskCommonResponses) && nonNull(member)) {
+  public <T extends SoftAskCommonResponse> void processSoftAskResponses(final Collection<T> softAskCommonResponses, final Member member, final UserHaveOtherDetail userHaveOtherDetail) {
+    if (nonNull(softAskCommonResponses)) {
       processBookmarkForResponses(softAskCommonResponses, member);
       softAskVoteSearchService.processVotesForResponses(softAskCommonResponses, member);
-      softAskCommonResponses.forEach(softAskCommonResponse -> setEntityUpdatableByUser((Updatable) softAskCommonResponse, member.getMemberId()));
+
+      softAskCommonResponses.forEach(softAskCommonResponse -> {
+        userLocationMapper.setLocationDetails(softAskCommonResponse, userHaveOtherDetail);
+
+        if (nonNull(member)) {
+          setEntityUpdatableByUser((Updatable) softAskCommonResponse, member.getMemberId());
+        }
+      });
     }
   }
 
@@ -91,7 +106,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @param member the member for whom the bookmarks are being populated
    */
   private <T extends SoftAskCommonResponse> void processBookmarkForResponses(final Collection<T> responses, final Member member) {
-    if (nonNull(responses)) {
+    if (nonNull(responses) && nonNull(member)) {
       final Optional<T> anyResponse = responses.stream().findFirst();
 
       anyResponse.ifPresent(response -> {
@@ -105,20 +120,24 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   }
 
   /**
-   * Finds some soft ask replies for a given soft ask, including limited child replies for each reply.
+   * Finds a limited number of replies for a given soft ask and enriches them with their child replies.
    *
-   * <p>Creates a search request for replies to the provided {@code softAskResponse}, limiting
-   * the result to 10 items. For each reply found, it also fetches some child replies and
-   * attaches them to the parent reply response.</p>
+   * <p>This method updates the provided {@link SoftAskSearchRequest} with the parent ID from
+   * the given {@link SoftAskResponse} and sets a fixed page size of 10. It then retrieves
+   * the replies for the soft ask by delegating to the {@code softAskReplySearchService}.
+   * For each reply found, the method further retrieves a limited number of its child replies
+   * by calling {@code findSomeSoftAskChildReplyForReply}, and attaches the result to the
+   * corresponding {@link SoftAskReplyResponse}.</p>
    *
-   * @param softAskResponse the soft ask response whose replies are being searched
-   * @param member the member performing the search
-   * @return a search result containing soft ask replies with their child replies included
+   * @param searchRequest   the search request to configure and use for finding replies
+   * @param softAskResponse the parent soft ask whose replies should be retrieved
+   * @param member          the member performing the search
+   * @return a {@link SoftAskReplySearchResult} containing the replies and their associated child replies
    */
   @Override
   @Transactional(readOnly = true)
-  public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskResponse softAskResponse, final Member member) {
-    final SoftAskSearchRequest searchRequest = SoftAskSearchRequest.of(softAskResponse.getNumberId());
+  public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskSearchRequest searchRequest, final SoftAskResponse softAskResponse, final Member member) {
+    searchRequest.updateParentId(softAskResponse.getParentId());
     searchRequest.setPageSize(10);
 
     final SoftAskReplySearchResult softAskReplySearchResult = softAskReplySearchService.findSoftAskReplies(searchRequest, member);

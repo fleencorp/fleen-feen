@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.toDateTime;
 import static com.fleencorp.feen.stream.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
 import static java.util.Objects.nonNull;

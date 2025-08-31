@@ -7,6 +7,7 @@ import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
 import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.like.model.info.LikeCountInfo;
@@ -82,6 +83,8 @@ public interface ToInfoMapper {
   LikeCountInfo toLikeCountInfo(Integer likeCount);
 
   BookmarkCountInfo toBookmarkCountInfo(Integer bookmarkCount);
+
+  ShareCountInfo toShareCountInfo(Integer shareCount);
 
   ReviewCountInfo toReviewCountInfo(Integer reviewCount);
 

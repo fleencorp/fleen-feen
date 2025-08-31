@@ -26,7 +26,7 @@ import lombok.*;
   "is_updatable"
 })
 public class ChatSpaceMemberResponse
-    implements HasOrganizer, Updatable {
+  implements HasOrganizer, Updatable {
 
   @JsonProperty("chat_space_member_id")
   private Long chatSpaceMemberId;

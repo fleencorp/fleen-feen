@@ -32,7 +32,7 @@ import java.io.IOException;
 import static com.fleencorp.base.constant.base.SecurityConstant.AUTH_HEADER_PREFIX;
 import static com.fleencorp.feen.common.constant.message.ResponseMessage.UNKNOWN;
 import static com.fleencorp.feen.common.service.impl.cache.CacheKeyService.getAccessTokenCacheKey;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.isAuthorityWhitelisted;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;

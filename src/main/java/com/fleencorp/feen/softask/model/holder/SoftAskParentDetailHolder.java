@@ -1,25 +1,16 @@
 package com.fleencorp.feen.softask.model.holder;
 
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-
-import java.util.Optional;
 
 public record SoftAskParentDetailHolder(ChatSpace chatSpace, FleenStream stream, SoftAskParentType parentType) {
 
   public String parentTitle() {
     return switch (parentType) {
-      case CHAT_SPACE -> Optional
-        .ofNullable(chatSpace)
-        .map(ChatSpace::getTitle)
-        .orElse(null);
-
-      case STREAM -> Optional
-        .ofNullable(stream)
-        .map(FleenStream::getTitle)
-        .orElse(null);
-
+      case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
+      case STREAM -> HasTitle.getTitle(stream);
       default -> null;
     };
   }

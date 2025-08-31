@@ -1,6 +1,6 @@
 package com.fleencorp.feen.softask.mapper;
 
-import com.fleencorp.feen.softask.model.info.SoftAskReplyCountInfo;
+import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskConversationVotedInfo;

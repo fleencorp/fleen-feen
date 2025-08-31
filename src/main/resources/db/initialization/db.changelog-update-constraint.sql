@@ -82,3 +82,27 @@ ALTER TABLE nouns ADD CONSTRAINT unique_noun_word UNIQUE (word);
 ALTER TABLE soft_ask_votes ADD CONSTRAINT unique_soft_ask_vote_per_item UNIQUE (member_id, vote_parent_type, parent_id);
 
 --rollback ALTER TABLE soft_ask_votes DROP CONSTRAINT IF EXISTS unique_soft_ask_vote_per_item;
+
+
+
+--changeset alamu:add_constraint_soft_ask_username_unique_softask_username
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_username' AND constraint_name = 'unique_soft_ask_username' AND constraint_type = 'UNIQUE';
+
+ALTER TABLE soft_ask_username
+  ADD CONSTRAINT unique_soft_ask_username UNIQUE (soft_ask_id, username);
+
+--rollback ALTER TABLE soft_ask_username DROP CONSTRAINT IF EXISTS unique_soft_ask_username;
+
+
+
+--changeset alamu:add_constraint_soft_ask_username_unique_softask_user
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_username' AND constraint_name = 'uq_soft_ask_username_softask_user' AND constraint_type = 'UNIQUE';
+
+ALTER TABLE soft_ask_username
+  ADD CONSTRAINT uq_soft_ask_username_softask_user UNIQUE (soft_ask_id, user_id);
+
+--rollback ALTER TABLE soft_ask_username DROP CONSTRAINT IF EXISTS uq_soft_ask_username_softask_user;

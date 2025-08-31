@@ -3,10 +3,7 @@ package com.fleencorp.feen.verification.model.domain;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
@@ -34,6 +31,7 @@ public class ProfileToken extends FleenFeenEntity {
   @Column(name = "reset_password_token_expiry_date")
   private LocalDateTime resetPasswordTokenExpiryDate;
 
+  @ToString.Exclude
   @CreatedBy
   @OneToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false, unique = true)

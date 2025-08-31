@@ -2,6 +2,7 @@ package com.fleencorp.feen.review.service.impl;
 
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
@@ -138,22 +139,17 @@ public class ReviewServiceImpl implements ReviewService {
       FailedOperationException {
     final Member member = user.toMember();
 
-    // Find the associated review
     if (updateReviewDto.isStreamParent()) {
       final Review review = reviewRepository.findByReviewIdAndStreamAndMember(reviewId, updateReviewDto.getParentId(), member)
         .orElseThrow(ReviewNotFoundException.of(reviewId));
 
-      // Update the existing review with the new details
       review.update(updateReviewDto.getReview(), updateReviewDto.getRating());
-      // Save the Review to the repository
       reviewRepository.save(review);
-      // Create the review response
+
       final ReviewResponse reviewResponse = reviewMapper.toReviewResponsePublic(review);
-      // Process other details of the reviews
       reviewCommonService.processReviewsOtherDetails(List.of(reviewResponse), member);
-      // Get the response
       final ReviewUpdateResponse reviewUpdateResponse = ReviewUpdateResponse.of(reviewResponse);
-      // Return a localized response for the updated review
+
       return localizer.of(reviewUpdateResponse);
     }
 
@@ -178,30 +174,32 @@ public class ReviewServiceImpl implements ReviewService {
 
     // If the reviewParentType is a stream, retrieve the associated FleenStream
      if (addReviewDto.isStreamParent()) {
-       return validateStreamParent(addReviewDto.getParentId());
+       return validateStreamParent(addReviewDto.getParentId(), addReviewDto.getParentType());
      }
 
      throw FailedOperationException.of();
   }
 
   /**
-   * Validates the given stream ID and retrieves the associated {@link FleenStream} to ensure it is eligible for reviews.
+   * Validates and retrieves the parent details for a review based on a stream ID and parent type.
    *
-   * <p>If the {@code streamId} is not {@code null}, this method fetches the corresponding {@link FleenStream} using
-   * {@link StreamService#findStream(Long)}. It then checks whether the stream is eligible to receive a review
-   * by calling {@link FleenStream#checkAddReviewEligibility()}. If valid, it returns a {@link ReviewParentDetailHolder}
-   * containing the stream.</p>
+   * <p>This method checks whether the given stream ID is non-null and attempts to find the
+   * corresponding {@link FleenStream}. It then verifies that the stream is eligible to
+   * receive a review by calling {@code checkAddReviewEligibility()}. If valid, a new
+   * {@link ReviewParentDetailHolder} is returned containing the stream and the specified
+   * parent type. If the stream ID is null, a {@link FailedOperationException} is thrown.</p>
    *
-   * @param streamId the ID of the stream to validate
-   * @return a {@link ReviewParentDetailHolder} containing the stream
-   * @throws FailedOperationException if the {@code streamId} is {@code null}
+   * @param streamId   the ID of the stream to validate, must not be {@code null}
+   * @param parentType the type of the review parent to associate with the stream
+   * @return a {@link ReviewParentDetailHolder} containing the validated stream and parent type
+   * @throws FailedOperationException if the stream ID is {@code null} or validation fails
    */
-  protected ReviewParentDetailHolder validateStreamParent(final Long streamId) {
+  protected ReviewParentDetailHolder validateStreamParent(final Long streamId, final ReviewParentType parentType) {
     if (nonNull(streamId)) {
       final FleenStream stream = streamService.findStream(streamId);
       stream.checkAddReviewEligibility();
 
-      return ReviewParentDetailHolder.of(null, stream);
+      return ReviewParentDetailHolder.of(null, stream, parentType);
     }
 
     throw FailedOperationException.of();

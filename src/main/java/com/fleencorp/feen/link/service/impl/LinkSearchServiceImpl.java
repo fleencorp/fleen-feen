@@ -157,7 +157,7 @@ public class LinkSearchServiceImpl implements LinkSearchService {
     final LinkParentDetailHolder linkParentDetailHolder = findLinkParent(parentId, linkParentType, member);
     final Page<Link> page = findLinksByParent(parentId, linkParentType, pageable);
 
-    final List<LinkResponse> responses = linkMapper.toLinkResponses(page.getContent());
+    final Collection<LinkResponse> responses = linkMapper.toLinkResponses(page.getContent());
     setLinksThatAreUpdatableByUser(responses, linkParentDetailHolder.isAdmin());
 
     final SearchResult searchResult = toSearchResult(responses, page);
@@ -253,7 +253,7 @@ public class LinkSearchServiceImpl implements LinkSearchService {
       case CHAT_SPACE: links = linkRepository.findByChatSpace(parentId, linkParentType);
     }
 
-    final List<LinkResponse> linkResponses = linkMapper.toLinkResponses(links);
+    final Collection<LinkResponse> linkResponses = linkMapper.toLinkResponses(links);
     parent.setLinks(new HashSet<>(linkResponses));
   }
 }

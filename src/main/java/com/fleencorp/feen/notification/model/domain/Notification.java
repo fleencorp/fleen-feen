@@ -12,10 +12,7 @@ import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -44,10 +41,12 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "receiver_id", insertable = false, updatable = false)
   private Long receiverId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "receiver_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member receiver;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Member.class)
   @JoinColumn(name = "initiator_or_requester_id", referencedColumnName = "member_id")
   private Member initiatorOrRequester;
@@ -55,6 +54,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "initiator_or_requester_name")
   private String initiatorOrRequesterName;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Member.class)
   @JoinColumn(name = "recipient_id", referencedColumnName = "member_id")
   private Member recipient;
@@ -96,6 +96,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "stream_title")
   private String streamTitle;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
   @JoinColumn(name = "stream_attendee_id", referencedColumnName = "stream_attendee_id")
   private StreamAttendee streamAttendee;
@@ -103,6 +104,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "stream_attendee_name")
   private String streamAttendeeName;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id")
   private ChatSpace chatSpace;
@@ -110,6 +112,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "chat_space_title")
   private String chatSpaceTitle;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = ChatSpaceMember.class)
   @JoinColumn(name = "chat_space_member_id", referencedColumnName = "chat_space_member_id")
   private ChatSpaceMember chatSpaceMember;
@@ -117,6 +120,7 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "chat_space_member_name")
   private String chatSpaceMemberName;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Follower.class)
   @JoinColumn(name = "follower_id", referencedColumnName = "follower_id")
   private Follower follower;

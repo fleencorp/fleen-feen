@@ -4,18 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class ShareContactRequestSearchRequest extends SearchRequest {
 
   @JsonProperty("share_contact_request_status")
@@ -25,11 +24,11 @@ public class ShareContactRequestSearchRequest extends SearchRequest {
   private Boolean isExpected;
 
   @JsonIgnore
-  @Builder.Default
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private Boolean isSentExpectedRequest = false;
 
   @JsonIgnore
-  @Builder.Default
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Boolean isReceivedExpectedRequest = false;
 
   @JsonIgnore

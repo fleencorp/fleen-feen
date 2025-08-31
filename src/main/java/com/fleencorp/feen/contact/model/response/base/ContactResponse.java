@@ -25,7 +25,8 @@ import lombok.Setter;
   "created_on",
   "updated_on"
 })
-public class ContactResponse extends FleenFeenResponse implements Updatable {
+public class ContactResponse extends FleenFeenResponse
+  implements Updatable {
 
   @JsonProperty("contact")
   private String contact;

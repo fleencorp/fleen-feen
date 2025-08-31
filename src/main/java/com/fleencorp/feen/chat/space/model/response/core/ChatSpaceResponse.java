@@ -16,6 +16,7 @@ import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
@@ -61,7 +62,7 @@ import static java.util.Objects.nonNull;
   "user_bookmark_info",
   "user_like_info",
   "like_count_info",
-  "share_count",
+  "share_count_info",
   "is_updatable",
   "created_on",
   "updated_on"
@@ -127,8 +128,8 @@ public class ChatSpaceResponse extends FleenFeenResponse
   @JsonProperty("like_count_info")
   private LikeCountInfo likeCountInfo;
 
-  @JsonProperty("share_count")
-  private Integer shareCount;
+  @JsonProperty("share_count_info")
+  private ShareCountInfo shareCountInfo;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
@@ -170,6 +171,7 @@ public class ChatSpaceResponse extends FleenFeenResponse
   }
 
   @Override
+  @JsonIgnore
   public ParentInfo getParentInfo() {
     return null;
   }

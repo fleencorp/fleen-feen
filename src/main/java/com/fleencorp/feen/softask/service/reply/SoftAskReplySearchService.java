@@ -10,7 +10,7 @@ import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface SoftAskReplySearchService {
 
-  SoftAskReplyRetrieveResponse retrieveSoftAskReply(Long softAskId, Long softAskReplyId) throws SoftAskReplyNotFoundException;
+  SoftAskReplyRetrieveResponse retrieveSoftAskReply(SoftAskSearchRequest searchRequest, Long softAskId, Long softAskReplyId) throws SoftAskReplyNotFoundException;
 
   SoftAskReply findSoftAskReply(Long softAskId, Long softAskReplyId) throws SoftAskReplyNotFoundException;
 

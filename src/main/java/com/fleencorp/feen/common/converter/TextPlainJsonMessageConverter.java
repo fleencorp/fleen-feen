@@ -10,7 +10,7 @@ import org.springframework.util.MimeType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 
 /**
  * A custom message converter that converts messages with "text/plain" MIME type to JSON objects using {@link ObjectMapper}.

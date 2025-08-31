@@ -19,6 +19,7 @@ import com.fleencorp.feen.chat.space.model.response.core.ChatSpaceResponse;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
@@ -94,7 +95,6 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
       response.setDescription(entry.getDescription());
       response.setTags(entry.getTags());
       response.setGuidelinesOrRules(entry.getGuidelinesOrRules());
-      response.setShareCount(entry.getShareCount());
 
       response.setSpaceLink(entry.getMaskedSpaceLink());
       response.setSpaceLinkUnMasked(entry.getSpaceLink());
@@ -108,6 +108,9 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
 
       toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
       toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
+
+      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
+      response.setShareCountInfo(shareCountInfo);
 
       final Integer totalMembers = entry.getTotalMembers();
       final ChatSpaceTotalMemberInfo totalMemberInfo = toChatSpaceTotalMemberInfo(totalMembers);

@@ -17,5 +17,4 @@ public interface AdjectiveRepository extends JpaRepository<Adjective, Long> {
 
   @Query(value = "SELECT * FROM adjectives WHERE id = :id", nativeQuery = true)
   Optional<Adjective> findAdjectiveById(@Param("id") int id);
-
 }

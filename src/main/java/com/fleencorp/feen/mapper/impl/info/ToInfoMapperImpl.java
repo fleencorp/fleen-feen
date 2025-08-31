@@ -10,10 +10,12 @@ import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
 import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.constant.common.IsDeleted;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
+import com.fleencorp.feen.common.constant.common.ShareCount;
 import com.fleencorp.feen.common.constant.stat.TotalFollowed;
 import com.fleencorp.feen.common.constant.stat.TotalFollowing;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.follower.constant.IsFollowed;
 import com.fleencorp.feen.follower.constant.IsFollowing;
 import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
@@ -445,7 +447,7 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
    */
   @Override
   public PollVisibilityInfo toPollVisibilityInfo(final PollVisibility pollVisibility) {
-    return PollVisibilityInfo.of(pollVisibility, translate(pollVisibility.getLabelCode()), translate(pollVisibility.getMessageCode()));
+    return PollVisibilityInfo.of(pollVisibility, translate(pollVisibility.getLabelCode()), translate(pollVisibility.getMessageCode2()));
   }
 
   /**
@@ -572,6 +574,24 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
     return BookmarkCountInfo.of(bookmarkCount,
       translate(totalBookmarkCount.getMessageCode(), bookmarkCount)
     );
+  }
+
+  /**
+   * Converts a share count value into a {@link ShareCountInfo} object.
+   *
+   * <p>This method creates a {@link ShareCountInfo} by combining the given
+   * share count with a localized message obtained from the {@link ShareCount}
+   * message code. The message is translated based on the total share count
+   * context and the provided count.</p>
+   *
+   * @param shareCount the number of shares to include in the response
+   * @return a {@link ShareCountInfo} containing the share count and its localized message
+   */
+  @Override
+  public ShareCountInfo toShareCountInfo(final Integer shareCount) {
+    final ShareCount totalShareCount = ShareCount.totalShares();
+    return ShareCountInfo.of(shareCount,
+      translate(totalShareCount.getMessageCode(), shareCount));
   }
 
   /**

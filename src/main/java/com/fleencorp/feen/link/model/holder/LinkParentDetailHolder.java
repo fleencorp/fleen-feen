@@ -22,12 +22,4 @@ public record LinkParentDetailHolder(Business business, ChatSpace chatSpace, Lin
   public static LinkParentDetailHolder of(final Business business, final ChatSpace chatSpace, final LinkParentType parentType) {
     return new LinkParentDetailHolder(business, chatSpace, parentType, false);
   }
-
-  public static LinkParentDetailHolder ofBusiness(final Business business) {
-    return new LinkParentDetailHolder(business, null, LinkParentType.BUSINESS);
-  }
-
-  public static LinkParentDetailHolder ofChatSpace(final ChatSpace chatSpace) {
-    return new LinkParentDetailHolder(null, chatSpace, LinkParentType.CHAT_SPACE);
-  }
 }

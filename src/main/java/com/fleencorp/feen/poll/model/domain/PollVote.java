@@ -3,10 +3,7 @@ package com.fleencorp.feen.poll.model.domain;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
@@ -26,6 +23,7 @@ public class PollVote extends FleenFeenEntity {
   @Column(name = "poll_id", insertable = false, updatable = false)
   private Long pollId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "poll_id", nullable = false)
   private Poll poll;
@@ -33,6 +31,7 @@ public class PollVote extends FleenFeenEntity {
   @Column(name = "option_id", insertable = false, updatable = false)
   private Long pollOptionId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "option_id", nullable = false)
   private PollOption pollOption;
@@ -40,6 +39,7 @@ public class PollVote extends FleenFeenEntity {
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long voterId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "member_id", nullable = false)
   private Member voter;

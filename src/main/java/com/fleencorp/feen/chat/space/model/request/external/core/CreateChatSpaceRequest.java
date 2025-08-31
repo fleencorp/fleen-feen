@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +15,6 @@ import static com.fleencorp.feen.common.constant.external.google.chat.space.perm
 import static com.fleencorp.feen.common.constant.external.google.chat.space.permission.PermissionSettingField.managersAllowed;
 import static com.fleencorp.feen.common.constant.external.google.chat.space.permission.PermissionSettingField.membersAllowed;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -64,16 +62,17 @@ public class CreateChatSpaceRequest extends ChatSpaceRequest {
   }
 
   public static CreateChatSpaceRequest of(final String displayName, final String description, final String guidelinesOrRules, final String userEmailAddress) {
-    return CreateChatSpaceRequest.builder()
-      .displayName(displayName)
-      .description(description)
-      .guidelinesOrRules(guidelinesOrRules)
-      .userEmailAddress(userEmailAddress)
-      .historyState(ChatHistoryState.HISTORY_ON)
-      .threadState(ChatSpaceThreadState.THREADED_MESSAGES)
-      .externalUsersAllowed(true)
-      .spaceType(ChatSpaceType.SPACE)
-      .build();
+    final CreateChatSpaceRequest request = new CreateChatSpaceRequest();
+    request.setDisplayName(displayName);
+    request.setDescription(description);
+    request.setGuidelinesOrRules(guidelinesOrRules);
+    request.setUserEmailAddress(userEmailAddress);
+    request.setHistoryState(ChatHistoryState.HISTORY_ON);
+    request.setSpaceType(ChatSpaceType.SPACE);
+    request.setThreadState(ChatSpaceThreadState.THREADED_MESSAGES);
+    request.setExternalUsersAllowed(true);
+
+    return request;
   }
 
   @Getter

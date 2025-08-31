@@ -1,16 +1,14 @@
 package com.fleencorp.feen.stream.model.request.external.broadcast;
 
 import com.fleencorp.feen.common.constant.external.google.youtube.LiveBroadcastPrivacyStatus;
-import com.fleencorp.feen.stream.model.request.broadcast.core.LiveBroadcastRequest;
+import com.fleencorp.feen.stream.model.request.external.broadcast.core.LiveBroadcastRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,10 +23,11 @@ public class UpdateLiveBroadcastVisibilityRequest extends LiveBroadcastRequest {
   }
 
   public static UpdateLiveBroadcastVisibilityRequest of(final String accessToken, final String broadcastId, final String visibility) {
-    return UpdateLiveBroadcastVisibilityRequest.builder()
-            .accessTokenForHttpRequest(accessToken)
-            .broadcastId(broadcastId)
-            .privacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(visibility)))
-            .build();
+    final UpdateLiveBroadcastVisibilityRequest request = new UpdateLiveBroadcastVisibilityRequest();
+    request.setBroadcastId(broadcastId);
+    request.setAccessTokenForHttpRequest(accessToken);
+    request.setPrivacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(visibility)));
+
+    return request;
   }
 }

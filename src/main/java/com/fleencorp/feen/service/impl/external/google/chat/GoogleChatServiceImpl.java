@@ -27,7 +27,7 @@ import java.util.Objects;
 
 import static com.fleencorp.feen.chat.space.mapper.external.GoogleChatSpaceMapper.toGoogleChatSpaceResponse;
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.util.external.google.GoogleChatMessageBuilder.ofCardWithId;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;

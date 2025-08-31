@@ -1,20 +1,19 @@
 package com.fleencorp.feen.softask.constant.core;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 @Getter
-public enum SoftAskType implements ApiParameter {
+public enum SoftAskType{
 
   SOFT_ASK("Soft Ask"),
   SOFT_ASK_REPLY("Reply");
 
-  private final String value;
+  private final String label;
 
-  SoftAskType(final String value) {
-    this.value = value;
+  SoftAskType(final String label) {
+    this.label = label;
   }
 
   public static SoftAskType of(final String value) {

@@ -24,6 +24,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "review",
   "review_parent_type",
   "reviewer_name",
@@ -34,10 +35,12 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "user_bookmark_info",
   "user_like_info",
   "like_count_info",
-  "is_updatable"
+  "is_updatable",
+  "created_on",
+  "updated_on",
 })
 public class ReviewResponse extends FleenFeenResponse
-    implements Bookmarkable, HasId, Likeable, Updatable {
+  implements Bookmarkable, HasId, Likeable, Updatable {
 
   @JsonProperty("review")
   private String review;
@@ -83,6 +86,7 @@ public class ReviewResponse extends FleenFeenResponse
   private Long memberId;
 
   @Override
+  @JsonIgnore
   public Long getAuthorId() {
     return getMemberId();
   }

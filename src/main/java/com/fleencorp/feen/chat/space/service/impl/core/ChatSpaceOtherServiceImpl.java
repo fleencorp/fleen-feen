@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static java.util.Objects.nonNull;
 
 @Service
@@ -64,14 +64,13 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    */
   @Override
   public void processOtherChatSpaceDetails(final List<ChatSpaceResponse> chatSpacesResponses, final RegisteredUser user) {
-    // Check if chat spaces and user are non-null and user has a member associated
     if (allNonNull(chatSpacesResponses, user, user.toMember()) && !chatSpacesResponses.isEmpty()) {
       final Member member = user.toMember();
       final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap = getUserMembershipDetailsMap(chatSpacesResponses, user);
 
       bookmarkOperationService.populateChatSpaceBookmarksFor(chatSpacesResponses, member);
       likeOperationService.populateChatSpaceLikesFor(chatSpacesResponses, member);
-      // Process each non-null chat space response
+
       chatSpacesResponses.stream()
         .filter(Objects::nonNull)
         .forEach(chatSpaceResponse -> processChatSpaceResponse(chatSpaceResponse, membershipDetailsMap, user));
@@ -90,13 +89,10 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    * @return a map where the keys are chat space IDs and the values are the corresponding membership status
    */
   protected Map<Long, ChatSpaceMemberSelect> getUserMembershipDetailsMap(final List<ChatSpaceResponse> chatSpacesResponses, final RegisteredUser user) {
-    // Extract chat space IDs from the responses
     final List<Long> chatSpaceIds = HasId.getIds(chatSpacesResponses);
-    // Convert the user to a domain
     final Member member = user.toMember();
-    // Retrieve the user's membership details for the given chat spaces
+
     final List<ChatSpaceMemberSelect> userMemberships = chatSpaceMemberOperationsService.findByMemberAndChatSpaceIds(member, chatSpaceIds);
-    // Group membership statuses by chat space ID
     return HasId.groupMembershipByEntriesId(userMemberships);
   }
 
@@ -113,15 +109,12 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    * @param user                 the user whose organizer status is to be determined
    */
   protected void processChatSpaceResponse(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap, final RegisteredUser user) {
-    // Set user's membership status
     setMembershipDetails(chatSpaceResponse, membershipDetailsMap);
-    // Populate recent chat space members
+
     setSomeRecentChatSpaceMembers(chatSpaceResponse);
-    // Set links that are updatable by the user
     setChatSpaceThatAreUpdatableByUser(chatSpaceResponse, membershipDetailsMap);
-    // Set the links associated with the chat space
+
     linkSearchService.findAndSetParentLinks(chatSpaceResponse, LinkParentType.CHAT_SPACE);
-    // Check if the user is the organizer
     determineIfUserIsTheOrganizerOfEntity(chatSpaceResponse, user.toMember());
   }
 
@@ -136,9 +129,8 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    * @param membershipDetailsMap  a map containing membership status information, keyed by chat space ID
    */
   protected void setMembershipDetails(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap) {
-    // Retrieve the member details
     final ChatSpaceMemberSelect membershipDetail = membershipDetailsMap.get(chatSpaceResponse.getNumberId());
-    // Check if is not null
+
     Optional.ofNullable(membershipDetail)
       .ifPresent(membership -> unifiedMapper.setMembershipInfo(
         chatSpaceResponse,
@@ -162,19 +154,14 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    * @param chatSpaceResponse the chat space response object to which the recent members will be assigned
    */
   protected void setSomeRecentChatSpaceMembers(final ChatSpaceResponse chatSpaceResponse) {
-    // Parse string ID to Long
     final Long chatSpaceId = chatSpaceResponse.getNumberId();
-    // Convert to chat space
     final ChatSpace chatSpace = ChatSpace.of(chatSpaceId);
-    // Create a pageable request to fetch a limited number of members
     final Pageable pageable = PageRequest.of(0, DEFAULT_NUMBER_OF_MEMBERS_TO_GET_FOR_CHAT_SPACE);
-    // Retrieve active chat space members with approved status
+
     final Page<ChatSpaceMember> page = chatSpaceMemberOperationsService.findActiveChatSpaceMembers(chatSpace, ChatSpaceRequestToJoinStatus.APPROVED, pageable);
-    // Convert members to their response representation
     final List<ChatSpaceMemberResponse> chatSpaceMemberResponses = unifiedMapper.toChatSpaceMemberResponsesPublic(page.getContent());
-    // Convert list to a set to ensure uniqueness
     final Set<ChatSpaceMemberResponse> chatSpaceMemberResponsesSet = new HashSet<>(chatSpaceMemberResponses);
-    // Set members in response object
+
     chatSpaceResponse.setSomeMembers(chatSpaceMemberResponsesSet);
   }
 
@@ -190,9 +177,8 @@ public class ChatSpaceOtherServiceImpl implements ChatSpaceOtherService {
    * @param membershipDetailsMap A map of chat space IDs to corresponding membership status objects.
    */
   protected static void setChatSpaceThatAreUpdatableByUser(final ChatSpaceResponse chatSpaceResponse, final Map<Long, ChatSpaceMemberSelect> membershipDetailsMap) {
-    // Retrieve the member details
     final ChatSpaceMemberSelect membershipStatus = membershipDetailsMap.get(chatSpaceResponse.getNumberId());
-    // Check if is not null
+
     if (nonNull(membershipStatus) && membershipStatus.isAdmin()) {
       chatSpaceResponse.markAsUpdatable();
     }

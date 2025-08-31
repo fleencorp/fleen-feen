@@ -1,4 +1,4 @@
-package com.fleencorp.feen.common.util;
+package com.fleencorp.feen.common.util.common;
 
 import java.util.function.Supplier;
 

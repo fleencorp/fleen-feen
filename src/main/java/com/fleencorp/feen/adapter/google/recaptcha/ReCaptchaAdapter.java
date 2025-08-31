@@ -8,7 +8,6 @@ import com.fleencorp.feen.adapter.google.recaptcha.model.constant.GoogleRecaptch
 import com.fleencorp.feen.adapter.google.recaptcha.model.response.ReCaptchaResponse;
 import com.fleencorp.feen.common.constant.external.ExternalSystemType;
 import jakarta.validation.constraints.NotBlank;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpMethod;
@@ -21,7 +20,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 
 /**
  * The ReCaptchaAdapter is used for authentication and security purpose to verify that
@@ -30,7 +29,6 @@ import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
  * @author Yusuf Alamu Musa
  * @version 1.0
  */
-@Slf4j
 @Component
 public class ReCaptchaAdapter extends BaseAdapter {
 

@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse.SignedUrl;
 import static java.util.Objects.nonNull;
@@ -119,6 +120,11 @@ public class ObjectServiceImpl implements ObjectService {
     }
 
     return SignedUrlsResponse.of(signedUrls);
+  }
+
+  @Override
+  public Map<String, String> getAvatarUrls(final String avatarId) {
+    return storageService.getAvatarUrls(bucketNames.getSoftAskAvatar(), avatarId);
   }
 
 }

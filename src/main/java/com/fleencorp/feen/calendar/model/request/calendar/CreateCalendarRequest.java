@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,13 +16,19 @@ public class CreateCalendarRequest extends CalendarRequest {
   private String timezone;
   private String creatorEmailAddress;
 
-  public static CreateCalendarRequest of(final String title, final String description, final String timezone, final String accessToken, final String creatorEmailAddress) {
-    return CreateCalendarRequest.builder()
-            .title(title)
-            .description(description)
-            .timezone(timezone)
-            .accessToken(accessToken)
-            .creatorEmailAddress(creatorEmailAddress)
-            .build();
+  public static CreateCalendarRequest of(
+      final String title,
+      final String description,
+      final String timezone,
+      final String accessToken,
+      final String creatorEmailAddress) {
+    final CreateCalendarRequest request = new CreateCalendarRequest();
+    request.setTitle(title);
+    request.setDescription(description);
+    request.setTimezone(timezone);
+    request.setCreatorEmailAddress(creatorEmailAddress);
+    request.setAccessToken(accessToken);
+
+    return request;
   }
 }

@@ -37,7 +37,8 @@ public class UsernameServiceImpl implements UsernameService {
    *
    * @return a randomly selected {@code Adjective} from the adjective repository
    */
-  private String generateRandomUsername() {
+  @Override
+  public String generateRandomUsername() {
     final Random random = new SecureRandom();
     final Adjective adjective = wordBankService.findRandomAdjective();
     final Noun noun = wordBankService.findRandomNoun();

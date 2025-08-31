@@ -22,12 +22,15 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "parent_info",
   "user_bookmark_info",
   "bookmark_parent_type",
   "bookmark_type",
   "is_bookmarked",
-  "other_id"
+  "other_id",
+  "created_on",
+  "updated_on",
 })
 public class BookmarkResponse extends FleenFeenResponse {
 

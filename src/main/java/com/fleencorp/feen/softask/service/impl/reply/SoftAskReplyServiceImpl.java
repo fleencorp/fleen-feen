@@ -1,7 +1,6 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
@@ -9,6 +8,7 @@ import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.holder.SoftAskReplyParentDetailHolder;
@@ -40,7 +40,6 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskMapper softAskMapper;
-  private final UnifiedMapper unifiedMapper;
   private final Localizer localizer;
 
   public SoftAskReplyServiceImpl(
@@ -50,7 +49,6 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskSearchService softAskSearchService,
       final SoftAskMapper softAskMapper,
-      final UnifiedMapper unifiedMapper,
       final Localizer localizer) {
     this.memberService = memberService;
     this.softAskCommonService = softAskCommonService;
@@ -58,26 +56,25 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskSearchService = softAskSearchService;
     this.softAskMapper = softAskMapper;
-    this.unifiedMapper = unifiedMapper;
     this.localizer = localizer;
   }
 
   /**
-   * Adds a new {@code SoftAskReply} to a {@code SoftAsk} or to an existing {@code SoftAskReply}.
+   * Adds a reply to a soft ask and returns the corresponding response.
    *
-   * <p>This method creates a reply from the given DTO and user information, associates it either with
-   * the main {@code SoftAsk} or with a parent reply (if provided), and persists it in the repository.
-   * After saving, it updates the appropriate reply count (either for the main SoftAsk or for a
-   * parent reply) and processes the reply for additional soft-ask-related operations.</p>
+   * <p>This method creates a new {@link SoftAskReply} based on the provided
+   * {@link AddSoftAskReplyDto} and the authenticated {@link RegisteredUser}.
+   * It validates and retrieves the parent soft ask or parent reply, constructs
+   * the new reply, and persists it. The method also sets geohash information,
+   * assigns or retrieves a username for the reply, and updates the reply count
+   * of the associated soft ask or parent reply. The saved reply is then mapped
+   * to a {@link SoftAskReplyResponse}, enriched with bookmarks, votes, location,
+   * and update permissions. Finally, the method returns a localized
+   * {@link SoftAskReplyAddResponse} containing the reply count and reply details.</p>
    *
-   * <p>The response includes the updated reply count and details of the newly added reply, localized
-   * for the requesting user.</p>
-   *
-   * @param addSoftAskReplyDto the DTO containing reply creation details, including target {@code SoftAsk} and optional parent reply
+   * @param addSoftAskReplyDto the data transfer object containing reply information
    * @param user               the registered user creating the reply
-   * @return a localized {@link SoftAskReplyAddResponse} containing the new reply’s details and the updated reply count
-   * @throws SoftAskReplyNotFoundException if a specified parent reply does not exist
-   * @throws SoftAskNotFoundException      if the target {@code SoftAsk} does not exist
+   * @return a localized {@link SoftAskReplyAddResponse} containing the reply count and reply details
    */
   @Override
   @Transactional
@@ -92,11 +89,15 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
 
     final SoftAskReply reply = addSoftAskReplyDto.toSoftAskReply(author, softAsk, softAskParentReply);
     softAskReplyRepository.save(reply);
+    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+
+    final SoftAskUsername softAskUsername = softAskOperationService.getOrAssignUsername(softAskId, user.getId());
+    reply.setSoftAskUsername(softAskUsername);
     final Integer replyCount = updateReplyCountOfSoftAskOrSoftAskReply(addSoftAskReplyDto, softAskId, softAskParentReplyId);
 
     final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(reply);
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskReplyResponse);
-    softAskCommonService.processSoftAskResponses(softAskCommonResponses, author);
+    softAskCommonService.processSoftAskResponses(softAskCommonResponses, author, addSoftAskReplyDto.getUserOtherDetail());
 
     final SoftAskReplyAddResponse softAskReplyAddResponse = SoftAskReplyAddResponse.of(replyCount, softAskReplyResponse);
     return localizer.of(softAskReplyAddResponse);
@@ -131,7 +132,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     softAskReply.delete();
     softAskReplyRepository.save(softAskReply);
 
-    final IsDeletedInfo isDeletedInfo = unifiedMapper.toIsDeletedInfo(softAskReply.isDeleted());
+    final IsDeletedInfo isDeletedInfo = softAskMapper.toIsDeletedInfo(softAskReply.isDeleted());
     final SoftAskReplyDeleteResponse softAskReplyDeleteResponse = SoftAskReplyDeleteResponse.of(softAskReplyId, isDeletedInfo);
 
     return localizer.of(softAskReplyDeleteResponse);

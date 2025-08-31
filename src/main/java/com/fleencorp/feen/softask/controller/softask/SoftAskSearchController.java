@@ -42,11 +42,13 @@ public class SoftAskSearchController {
   })
   @GetMapping(value = "/detail/{softAskId}")
   public SoftAskRetrieveResponse findSoftAsk(
+    @Parameter(description = "Search criteria for soft asks", required = true)
+      @SearchParam final SoftAskSearchRequest searchRequest,
     @Parameter(description = "ID of the soft ask to retrieve", required = true)
       @PathVariable(name = "softAskId") final Long softAskId,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
-    return softAskSearchService.retrieveSoftAsk(softAskId, user);
+    return softAskSearchService.retrieveSoftAsk(softAskId, searchRequest, user);
   }
 
   @Operation(summary = "Search for soft asks",

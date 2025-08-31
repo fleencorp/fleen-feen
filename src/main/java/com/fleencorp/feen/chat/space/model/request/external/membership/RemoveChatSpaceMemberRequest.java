@@ -4,12 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getChatSpaceIdOrNameAndMemberRequiredPattern;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getChatSpaceIdOrNameRequiredPattern;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,9 +17,10 @@ public class RemoveChatSpaceMemberRequest extends ChatSpaceMemberRequest {
   private String memberSpaceIdOrName;
 
   public static RemoveChatSpaceMemberRequest of(final String spaceIdOrName, final String memberSpaceIdOrName) {
-    return RemoveChatSpaceMemberRequest.builder()
-      .spaceIdOrName(getChatSpaceIdOrNameRequiredPattern(spaceIdOrName))
-      .memberSpaceIdOrName(getChatSpaceIdOrNameAndMemberRequiredPattern(spaceIdOrName, memberSpaceIdOrName))
-      .build();
+    final RemoveChatSpaceMemberRequest request = new RemoveChatSpaceMemberRequest();
+    request.setSpaceIdOrName(getChatSpaceIdOrNameRequiredPattern(spaceIdOrName));
+    request.setMemberSpaceIdOrName(getChatSpaceIdOrNameAndMemberRequiredPattern(spaceIdOrName, memberSpaceIdOrName));
+
+    return request;
   }
 }

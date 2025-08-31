@@ -903,7 +903,6 @@ CREATE TABLE soft_ask (
 
   summary VARCHAR(4000),
   other_text VARCHAR(2000) NOT NULL,
-  user_other_name VARCHAR(255) NOT NULL,
 
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
@@ -911,6 +910,12 @@ CREATE TABLE soft_ask (
   reply_count INTEGER NOT NULL DEFAULT 0,
   share_count INTEGER NOT NULL DEFAULT 0,
   vote_count INTEGER NOT NULL DEFAULT 0,
+
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+
+  geohash VARCHAR(9) NULL,
+  geohash_prefix VARCHAR(5) NULL,
 
   chat_space_id BIGINT NOT NULL,
   stream_id BIGINT,
@@ -922,8 +927,12 @@ CREATE TABLE soft_ask (
     CHECK (status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
   visibility VARCHAR(255) NOT NULL
     CHECK (visibility IN ('PUBLIC', 'PRIVATE')),
+  location_visibility VARCHAR(255) NOT NULL
+    CHECK (location_visibility IN ('COUNTRY', 'GLOBAL', 'LOCAL', 'NEARBY', 'PRIVATE', 'REGION')),
   moderation_status VARCHAR(255) NOT NULL
     CHECK (moderation_status IN ('ABUSE', 'CLEAN', 'FLAGGED', 'HIDDEN', 'SPAM')),
+  mood_tag VARCHAR(255) NULL
+    CHECK (mood_tag IN ('HAPPY','SAD','EXCITED','ANGRY','THOUGHTFUL','CURIOUS','BORED','GRATEFUL','HOPEFUL','CONFUSED','RELAXED','INSPIRED')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -956,7 +965,6 @@ CREATE TABLE soft_ask (
 CREATE TABLE soft_ask_reply (
   soft_ask_reply_id BIGSERIAL PRIMARY KEY,
   content VARCHAR(3000) NOT NULL,
-  user_other_name VARCHAR(255) NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
   bookmark_count INTEGER NOT NULL DEFAULT 0,
@@ -964,9 +972,22 @@ CREATE TABLE soft_ask_reply (
   share_count INTEGER NOT NULL DEFAULT 0,
   vote_count INTEGER NOT NULL DEFAULT 0,
 
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+
+  geohash VARCHAR(9) NULL,
+  geohash_prefix VARCHAR(5) NULL,
+
   author_id BIGINT NOT NULL,
   parent_reply_id BIGINT,
   soft_ask_id BIGINT NOT NULL,
+
+  location_visibility VARCHAR(255) NOT NULL
+    CHECK (location_visibility IN ('COUNTRY', 'GLOBAL', 'LOCAL', 'NEARBY', 'PRIVATE', 'REGION')),
+  moderation_status VARCHAR(255) NOT NULL
+    CHECK (moderation_status IN ('ABUSE', 'CLEAN', 'FLAGGED', 'HIDDEN', 'SPAM')),
+  mood_tag VARCHAR(255) NULL
+    CHECK (mood_tag IN ('HAPPY','SAD','EXCITED','ANGRY','THOUGHTFUL','CURIOUS','BORED','GRATEFUL','HOPEFUL','CONFUSED','RELAXED','INSPIRED')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1031,6 +1052,37 @@ CREATE TABLE soft_ask_votes (
 );
 
 --rollback DROP TABLE IF EXISTS `soft_ask_votes`;
+
+
+
+--changeset alamu:create_table_soft_ask_username
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_username';
+
+CREATE TABLE soft_ask_username (
+  id BIGSERIAL PRIMARY KEY,
+
+  soft_ask_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+
+  username VARCHAR(100) NOT NULL,
+
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_soft_ask_username_soft_ask
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT fk_soft_ask_username_author
+    FOREIGN KEY (user_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask_username`;
+
 
 
 

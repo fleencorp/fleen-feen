@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fleencorp.feen.common.util.DateTimeUtil.toMilliseconds;
+import static com.fleencorp.feen.common.util.common.DateTimeUtil.toMilliseconds;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.toDateTime;
 import static java.util.Objects.nonNull;
 

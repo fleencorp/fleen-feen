@@ -9,10 +9,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -43,6 +40,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
@@ -51,7 +49,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
-  @CreatedBy
+  @ToString.Exclude
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;

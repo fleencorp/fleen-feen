@@ -28,7 +28,7 @@ import java.util.*;
 
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM;
 import static java.util.Objects.nonNull;

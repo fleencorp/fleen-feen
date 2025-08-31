@@ -5,10 +5,7 @@ import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -43,11 +40,13 @@ public class ShareContactRequest extends FleenFeenEntity {
   @Column(name = "contact", length = 1000)
   private String contact;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "initiator_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member initiator;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "recipient_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member recipient;

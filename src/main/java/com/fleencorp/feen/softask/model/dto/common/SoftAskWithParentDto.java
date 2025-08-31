@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.model.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import static java.util.Objects.nonNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SoftAskWithParentDto {
+public class SoftAskWithParentDto extends UserOtherDetailDto {
 
   @NotNull(message = "{softAskReply.parent.NotNull}")
   @JsonProperty("parent")

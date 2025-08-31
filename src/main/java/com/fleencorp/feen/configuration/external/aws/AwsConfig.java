@@ -2,6 +2,7 @@ package com.fleencorp.feen.configuration.external.aws;
 
 import io.awspring.cloud.ses.SimpleEmailServiceJavaMailSender;
 import io.awspring.cloud.ses.SimpleEmailServiceMailSender;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
@@ -34,6 +35,8 @@ public class AwsConfig {
 
   private final String accessKeyId;
   private final String accessKeySecret;
+
+  @Getter
   private final String regionName;
 
   /**

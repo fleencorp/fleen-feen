@@ -1,11 +1,8 @@
-package com.fleencorp.feen.common.util;
+package com.fleencorp.feen.common.util.common;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -127,6 +124,43 @@ public final class DateTimeUtil {
       return targetZonedDateTime.toLocalDateTime();
     }
     return LocalDateTime.now();
+  }
+
+  /**
+   * Formats a LocalDateTime into a human-readable relative time string.
+   *
+   * <p>This method compares the given LocalDateTime with the current system time
+   * and returns a short representation of the elapsed duration. Times less than
+   * one minute are represented in seconds, times less than one hour are represented
+   * in minutes, times less than one day are represented in hours, and times less
+   * than one week are represented in days. For times older than a week, the date
+   * is formatted using the pattern {@code MM/dd/yyyy}.</p>
+   *
+   * @param time the LocalDateTime to format, may be {@code null}
+   * @return a formatted relative time string, or an empty string if the input is null
+   */
+  public static String formatTime(final LocalDateTime time) {
+    if (nonNull(time)) {
+      final LocalDateTime now = LocalDateTime.now();
+
+      final Duration duration = Duration.between(time, now);
+      final long seconds = duration.getSeconds();
+
+      if (seconds < 60) {
+        return seconds + "s";
+      } else if (seconds < 3600) {
+        return (seconds / 60) + "m";
+      } else if (seconds < 86400) {
+        return (seconds / 3600) + "h";
+      } else if (seconds < 604800) {
+        return (seconds / 86400) + "d";
+      }
+
+      final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+      return time.format(formatter);
+    }
+
+    return "";
   }
 
 

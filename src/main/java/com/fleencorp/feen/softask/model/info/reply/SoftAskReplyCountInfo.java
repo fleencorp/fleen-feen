@@ -1,4 +1,4 @@
-package com.fleencorp.feen.softask.model.info;
+package com.fleencorp.feen.softask.model.info.reply;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

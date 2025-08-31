@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
-import static com.fleencorp.feen.common.util.DateTimeUtil.convertToTimezone;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
 
 public final class StreamServiceUtil {

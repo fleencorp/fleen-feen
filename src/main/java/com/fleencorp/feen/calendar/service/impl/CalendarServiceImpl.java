@@ -43,7 +43,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 
 /**

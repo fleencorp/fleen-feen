@@ -1,6 +1,5 @@
 package com.fleencorp.feen.common.constant.common;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
@@ -8,18 +7,9 @@ import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Enum representing different join statuses for stream attendees.
- *
- * <p>This enum does not currently define any specific constants, but provides a static method to
- * map a {@link StreamAttendeeRequestToJoinStatus} to a string representation of the join status.</p>
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
 @Slf4j
 @Getter
-public enum JoinStatus implements ApiParameter {
+public enum JoinStatus {
 
   DISAPPROVED(
     "Disapproved",
@@ -91,27 +81,27 @@ public enum JoinStatus implements ApiParameter {
     "join.status.pending.2");
 
 
-  private final String value;
+  private final String label;
   private final String messageCode;
   private final String messageCode2;
   private final String messageCode3;
 
   JoinStatus(
-      final String value,
+      final String label,
       final String messageCode,
       final String messageCode2) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
     this.messageCode3 = "empty";
   }
 
   JoinStatus(
-      final String value,
+      final String label,
       final String messageCode,
       final String messageCode2,
       final String messageCode3) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
     this.messageCode3 = messageCode3;

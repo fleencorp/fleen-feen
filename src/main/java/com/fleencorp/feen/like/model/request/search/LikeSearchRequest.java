@@ -9,13 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,6 +30,7 @@ public class LikeSearchRequest extends SearchRequest {
 
   public List<LikeParentType> getLikeParentType() {
    final LikeParentType parentType = LikeParentType.of(likeParentType);
+
    return nonNull(parentType) ? List.of(parentType) : LikeParentType.all();
   }
 }

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.common.util.DateTimeUtil;
+import com.fleencorp.feen.common.util.common.DateTimeUtil;
 import com.fleencorp.feen.common.util.external.google.GoogleApiUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
-import static com.fleencorp.feen.common.util.DateTimeUtil.getTimezoneAbbreviation;
+import static com.fleencorp.feen.common.util.common.DateTimeUtil.getTimezoneAbbreviation;
 import static java.util.Objects.nonNull;
 
 @Getter

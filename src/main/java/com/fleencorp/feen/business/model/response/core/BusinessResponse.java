@@ -6,12 +6,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.business.model.info.BusinessChannelTypeInfo;
 import com.fleencorp.feen.business.model.info.BusinessStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.link.model.response.base.LinkResponse;
+import com.fleencorp.feen.model.contract.HasLinks;
 import com.fleencorp.feen.model.contract.Updatable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 @Getter
 @Setter
@@ -29,12 +35,13 @@ import lombok.Setter;
   "country",
   "channel_type_info",
   "status_info",
-  "share_count",
+  "links",
+  "share_count_info",
   "created_on",
   "updated_on"
 })
 public class BusinessResponse extends FleenFeenResponse
-  implements Updatable {
+  implements HasLinks, Updatable {
 
   @JsonProperty("title")
   private String title;
@@ -63,8 +70,11 @@ public class BusinessResponse extends FleenFeenResponse
   @JsonProperty("status_info")
   private BusinessStatusInfo statusInfo;
 
-  @JsonProperty("share_count")
-  private Integer shareCount;
+  @JsonProperty("links")
+  private Collection<LinkResponse> links = new HashSet<>();
+
+  @JsonProperty("share_count_info")
+  private ShareCountInfo shareCountInfo;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

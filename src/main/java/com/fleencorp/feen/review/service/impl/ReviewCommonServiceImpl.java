@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static java.util.Objects.nonNull;
 
 @Service

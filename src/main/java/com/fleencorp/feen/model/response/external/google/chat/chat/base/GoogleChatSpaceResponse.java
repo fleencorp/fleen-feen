@@ -3,7 +3,6 @@ package com.fleencorp.feen.model.response.external.google.chat.chat.base;
 import com.fleencorp.feen.common.constant.external.google.chat.space.ChatSpaceField;
 import com.google.gson.Gson;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -13,7 +12,6 @@ import java.util.regex.Pattern;
 
 import static com.fleencorp.base.util.FleenUtil.isValidNumber;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

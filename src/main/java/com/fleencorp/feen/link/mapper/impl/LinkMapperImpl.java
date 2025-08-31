@@ -7,6 +7,7 @@ import com.fleencorp.feen.link.model.info.LinkTypeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -57,7 +58,7 @@ public class LinkMapperImpl implements LinkMapper {
    * @return a list of {@code LinkResponse} objects corresponding to the provided {@code Link} entries, or an empty list if the input is null or empty
    */
   @Override
-  public List<LinkResponse> toLinkResponses(final List<Link> entries) {
+  public Collection<LinkResponse> toLinkResponses(final Collection<Link> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)

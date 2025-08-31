@@ -22,12 +22,15 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "parent_info",
   "parent_total_likes",
   "user_like_info",
   "like_parent_type",
   "like_type",
-  "is_liked"
+  "is_liked",
+  "created_on",
+  "updated_on",
 })
 public class LikeResponse extends FleenFeenResponse {
 

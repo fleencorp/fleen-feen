@@ -4,6 +4,7 @@ import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.IsForKidsInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
@@ -76,7 +77,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
       response.setSpeakerCount(entry.getTotalSpeakers());
-      response.setShareCount(entry.getShareCount());
 
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
@@ -91,6 +91,9 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
       toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
+
+      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
+      response.setShareCountInfo(shareCountInfo);
 
       final Schedule schedule = Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone());
       response.setSchedule(schedule);

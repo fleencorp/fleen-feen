@@ -10,7 +10,7 @@ public interface SoftAskSearchService {
 
   SoftAsk findSoftAsk(Long softAskId);
 
-  SoftAskRetrieveResponse retrieveSoftAsk(Long softAskId, RegisteredUser user);
+  SoftAskRetrieveResponse retrieveSoftAsk(Long softAskId, SoftAskSearchRequest searchRequest, RegisteredUser user);
 
   SoftAskSearchResult findSoftAsks(SoftAskSearchRequest searchRequest, RegisteredUser user);
 }

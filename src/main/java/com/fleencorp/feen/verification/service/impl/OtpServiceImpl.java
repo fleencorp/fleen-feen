@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 

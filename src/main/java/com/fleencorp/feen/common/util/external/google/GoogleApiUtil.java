@@ -19,7 +19,7 @@ import java.util.Locale;
 
 import static com.fleencorp.feen.common.constant.base.SimpleConstant.FORWARD_SLASH;
 import static com.fleencorp.feen.common.constant.external.google.youtube.base.YouTubeParameter.LIVE_STREAMING_BASE_LINK;
-import static com.fleencorp.feen.common.util.DateTimeUtil.toDate;
+import static com.fleencorp.feen.common.util.common.DateTimeUtil.toDate;
 import static com.google.auth.http.AuthHttpConstants.AUTHORIZATION;
 import static com.google.auth.http.AuthHttpConstants.BEARER;
 import static java.util.Objects.isNull;

@@ -7,22 +7,32 @@ import com.fleencorp.feen.business.model.domain.Business;
 import com.fleencorp.feen.business.model.info.BusinessChannelTypeInfo;
 import com.fleencorp.feen.business.model.info.BusinessStatusInfo;
 import com.fleencorp.feen.business.model.response.core.BusinessResponse;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.link.mapper.LinkMapper;
+import com.fleencorp.feen.link.model.domain.Link;
+import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.Objects.nonNull;
 
 @Component
 public class BusinessMapperImpl extends BaseMapper implements BusinessMapper {
 
-  public BusinessMapperImpl(final MessageSource messageSource) {
+  private final LinkMapper linkMapper;
+  private final ToInfoMapper toInfoMapper;
+
+  public BusinessMapperImpl(
+      final LinkMapper linkMapper,
+      final ToInfoMapper toInfoMapper,
+      final MessageSource messageSource) {
     super(messageSource);
+    this.linkMapper = linkMapper;
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -47,7 +57,6 @@ public class BusinessMapperImpl extends BaseMapper implements BusinessMapper {
       response.setMotto(entry.getMotto());
       response.setDescription(entry.getDescription());
       response.setOtherDetails(entry.getOtherDetails());
-      response.setShareCount(entry.getShareCount());
 
       response.setFoundingYear(entry.getFoundingYear());
       response.setAddress(entry.getAddress());
@@ -55,6 +64,9 @@ public class BusinessMapperImpl extends BaseMapper implements BusinessMapper {
 
       response.setAuthorId(entry.getOwnerId());
       response.setOrganizerId(entry.getOwnerId());
+
+      response.setUpdatedOn(entry.getUpdatedOn());
+      response.setCreatedOn(entry.getCreatedOn());
       response.setIsUpdatable(false);
 
       final BusinessChannelType channelType = entry.getChannelType();
@@ -65,8 +77,12 @@ public class BusinessMapperImpl extends BaseMapper implements BusinessMapper {
       final BusinessStatusInfo businessStatusInfo = toBusinessStatusInfo(status);
       response.setStatusInfo(businessStatusInfo);
 
-      response.setUpdatedOn(entry.getUpdatedOn());
-      response.setCreatedOn(entry.getCreatedOn());
+      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
+      response.setShareCountInfo(shareCountInfo);
+
+      final Set<Link> links = entry.getLinks();
+      final Collection<LinkResponse> linkResponses = linkMapper.toLinkResponses(new ArrayList<>(links));
+      response.setLinks(linkResponses);
 
       return response;
     }

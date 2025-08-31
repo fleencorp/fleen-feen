@@ -33,6 +33,7 @@ public class S3BucketNames {
 
   private String userPhoto;
   private String streamCoverPhoto;
+  private String softAskAvatar;
 
   /**
    * Returns the corresponding photo URL or path based on the provided {@link ObjectTypeUpload}.

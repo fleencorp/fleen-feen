@@ -1,23 +1,22 @@
 package com.fleencorp.feen.like.constant;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum IsLiked implements ApiParameter {
+public enum IsLiked {
 
   NO("No", "is.liked.no", "is.liked.no.2"),
   YES("Yes", "is.liked.yes", "is.liked.yes.2"),;
 
-  private final String value;
+  private final String label;
   private final String messageCode;
   private final String messageCode2;
 
   IsLiked(
-      final String value,
+      final String label,
       final String messageCode,
       final String messageCode2) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
   }

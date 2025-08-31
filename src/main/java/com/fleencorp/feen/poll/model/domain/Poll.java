@@ -11,10 +11,7 @@ import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollNoOptionEx
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -66,6 +63,7 @@ public class Poll extends FleenFeenEntity {
   @Column(name = "author_id", insertable = false, updatable = false)
   private Long authorId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "author_id", nullable = false)
   private Member author;
@@ -73,6 +71,7 @@ public class Poll extends FleenFeenEntity {
   @Column(name = "stream_id", insertable = false, updatable = false)
   private Long streamId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", updatable = false)
   private FleenStream stream;
@@ -80,10 +79,12 @@ public class Poll extends FleenFeenEntity {
   @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
 
+  @ToString.Exclude
   @OneToMany(mappedBy = "poll", fetch = EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
   private Collection<PollOption> options = new HashSet<>();
 

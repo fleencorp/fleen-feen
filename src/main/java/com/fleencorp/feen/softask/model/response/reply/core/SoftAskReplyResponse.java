@@ -7,13 +7,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
 import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
+import com.fleencorp.feen.softask.contract.HasMood;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
-import com.fleencorp.feen.softask.model.info.SoftAskReplyCountInfo;
+import com.fleencorp.feen.softask.model.info.core.MoodTagInfo;
+import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
 import com.fleencorp.feen.softask.model.response.participant.SoftAskParticipantResponse;
@@ -39,16 +43,19 @@ import static java.util.Objects.nonNull;
   "bookmark_count_info",
   "user_bookmark_info",
   "child_reply_count_info",
-  "share_count",
+  "share_count_info",
   "parent_info",
   "child_replies_search_result",
+  "user_location_info",
+  "mood_tag_info",
+  "display_time_label",
   "user",
   "created_on",
   "updated_on",
   "is_updatable"
 })
 public class SoftAskReplyResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, SoftAskCommonResponse, Updatable {
+  implements Bookmarkable, HasId, HasMood, SoftAskCommonResponse, Updatable {
 
   @JsonProperty("content")
   private String content;
@@ -68,8 +75,8 @@ public class SoftAskReplyResponse extends FleenFeenResponse
   @JsonProperty("child_reply_count_info")
   private SoftAskReplyCountInfo replyCountInfo;
 
-  @JsonProperty("share_count")
-  private Integer shareCount;
+  @JsonProperty("share_count_info")
+  private ShareCountInfo shareCountInfo;
 
   @JsonProperty("parent_info")
   private ParentInfo parentInfo;
@@ -79,6 +86,15 @@ public class SoftAskReplyResponse extends FleenFeenResponse
 
   @JsonProperty("child_replies_search_result")
   private SoftAskReplySearchResult childRepliesSearchResult;
+
+  @JsonProperty("user_location_info")
+  private UserLocationInfo userLocationInfo;
+
+  @JsonProperty("mood_tag_info")
+  private MoodTagInfo moodTagInfo;
+
+  @JsonProperty("display_time_label")
+  private String displayTimeLabel;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
@@ -92,14 +108,22 @@ public class SoftAskReplyResponse extends FleenFeenResponse
   @JsonIgnore
   private Long memberId;
 
+  @Override
   @JsonIgnore
   public SoftAskType getSoftAskType() {
     return SoftAskType.SOFT_ASK_REPLY;
   }
 
+  @Override
   @JsonIgnore
   public Long getParentId() {
     return nonNull(parentInfo) ? parentInfo.getParentId() : null;
+  }
+
+  @Override
+  @JsonIgnore
+  public boolean hasLatitudeAndLongitude() {
+    return nonNull(userLocationInfo) && userLocationInfo.hasLatitudeAndLongitude();
   }
 
   @Override

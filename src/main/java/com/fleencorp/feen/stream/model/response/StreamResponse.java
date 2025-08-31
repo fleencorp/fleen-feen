@@ -8,6 +8,7 @@ import com.fleencorp.feen.common.constant.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.IsForKidsInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
@@ -44,15 +45,12 @@ import static java.util.Objects.nonNull;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "id",
-  "message",
   "title",
   "description",
   "tags",
   "location",
   "schedule",
   "other_schedule",
-  "created_on",
-  "updated_on",
   "organizer",
   "is_for_kids_info",
   "stream_link",
@@ -68,7 +66,7 @@ import static java.util.Objects.nonNull;
   "user_bookmark_info",
   "like_count_info",
   "speaker_count",
-  "share_count",
+  "share_count_info",
   "music_link",
   "schedule_time_type_info",
   "attendee_count_info",
@@ -77,10 +75,12 @@ import static java.util.Objects.nonNull;
   "reviews",
   "is_updatable",
   "is_private",
-  "attendance_info"
+  "attendance_info",
+  "created_on",
+  "updated_on",
 })
 public class StreamResponse extends FleenFeenResponse
-    implements Bookmarkable, HasId, HasOrganizer, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasOrganizer, Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;
@@ -161,8 +161,8 @@ public class StreamResponse extends FleenFeenResponse
   @JsonProperty("speaker_count")
   private Integer speakerCount;
 
-  @JsonProperty("share_count")
-  private Integer shareCount;
+  @JsonProperty("share_count_info")
+  private ShareCountInfo shareCountInfo;
 
   @JsonProperty("music_link")
   private LinkMusicResponse musicLink;
@@ -232,6 +232,7 @@ public class StreamResponse extends FleenFeenResponse
   }
 
   @Override
+  @JsonIgnore
   public ParentInfo getParentInfo() {
     return null;
   }

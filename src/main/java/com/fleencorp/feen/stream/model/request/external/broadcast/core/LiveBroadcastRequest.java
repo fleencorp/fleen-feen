@@ -1,4 +1,4 @@
-package com.fleencorp.feen.stream.model.request.broadcast.core;
+package com.fleencorp.feen.stream.model.request.external.broadcast.core;
 
 import com.fleencorp.feen.common.constant.external.google.youtube.base.YouTubeLiveBroadcastVisibility;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

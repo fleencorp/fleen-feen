@@ -4,6 +4,7 @@ import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.stream.constant.core.*;
@@ -11,10 +12,7 @@ import com.fleencorp.feen.stream.exception.core.*;
 import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
@@ -36,7 +34,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "stream")
-public class FleenStream extends FleenFeenEntity {
+public class FleenStream extends FleenFeenEntity
+  implements HasTitle {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -125,18 +124,20 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
+  @ToString.Exclude
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
   @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
   private Long chatSpaceId;
 
-  @CreatedBy
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
   private ChatSpace chatSpace;

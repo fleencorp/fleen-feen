@@ -61,4 +61,6 @@ public enum ObjectTypeUpload {
     return objectTypeUpload == STREAM_COVER_PHOTO;
   }
 
+
+
 }

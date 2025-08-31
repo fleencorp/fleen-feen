@@ -93,7 +93,7 @@ public class PollSearchServiceImpl implements PollSearchService {
             pv -> PollVisibilityInfo.of(
               pv,
               defaultLocalizer.getMessage(pv.getLabelCode()),
-              defaultLocalizer.getMessage(pv.getMessageCode())
+              defaultLocalizer.getMessage(pv.getMessageCode2())
             ),
             (_, b) -> b,
             () -> new EnumMap<>(PollVisibility.class)

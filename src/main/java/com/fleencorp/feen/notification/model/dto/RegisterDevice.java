@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegisterDevice {
 
-  @NotBlank(message = "device.token.NotBlank")
+  @NotBlank(message = "{device.token.NotBlank}")
   @JsonProperty("device_token")
   private String deviceToken;
 }

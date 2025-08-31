@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.readResourceFile;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 
 /**
  * Repository for managing SMS message templates.

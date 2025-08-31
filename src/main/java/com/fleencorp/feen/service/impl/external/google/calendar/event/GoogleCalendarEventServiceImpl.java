@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl.addOrInviteAttendeesOrGuests;
 import static com.fleencorp.feen.stream.mapper.external.GoogleCalendarEventMapper.mapToEventExpanded;
 import static java.util.Objects.nonNull;

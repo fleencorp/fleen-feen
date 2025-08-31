@@ -10,10 +10,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -50,6 +47,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "chat_space_id", updatable = false, insertable = false)
   private Long chatSpaceId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id")
   private ChatSpace chatSpace;
@@ -57,6 +55,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "stream_id", updatable = false, insertable = false)
   private Long streamId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
   private FleenStream stream;
@@ -64,6 +63,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "review_id", updatable = false, insertable = false)
   private Long reviewId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Review.class)
   @JoinColumn(name = "review_id", referencedColumnName = "review_id")
   private Review review;
@@ -71,6 +71,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "soft_ask_id", updatable = false, insertable = false)
   private Long softAskId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = SoftAsk.class)
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id")
   private SoftAsk softAsk;
@@ -78,6 +79,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "soft_ask_reply_id", updatable = false, insertable = false)
   private Long softAskReplyId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = SoftAskReply.class)
   @JoinColumn(name = "soft_ask_reply_id", referencedColumnName = "soft_ask_reply_id")
   private SoftAskReply softAskReply;
@@ -85,6 +87,7 @@ public class Bookmark extends FleenFeenEntity {
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)

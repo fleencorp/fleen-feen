@@ -1,34 +1,45 @@
 package com.fleencorp.feen.softask.service.impl.common;
 
+import com.fleencorp.feen.common.service.location.GeoService;
+import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplyRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.participant.SoftAskUsernameService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static java.util.Objects.nonNull;
+
 @Service
 public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
+  private final GeoService geoService;
   private final SoftAskReplySearchService softAskReplySearchService;
   private final SoftAskSearchService softAskSearchService;
+  private final SoftAskUsernameService softAskUsernameService;
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskRepository softAskRepository;
 
   public SoftAskOperationServiceImpl(
+      final GeoService geoService,
       final SoftAskReplySearchService softAskReplySearchService,
       final SoftAskSearchService softAskSearchService,
+      final SoftAskUsernameService softAskUsernameService,
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskRepository softAskRepository) {
+    this.geoService = geoService;
     this.softAskReplySearchService = softAskReplySearchService;
     this.softAskSearchService = softAskSearchService;
+    this.softAskUsernameService = softAskUsernameService;
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskRepository = softAskRepository;
   }
-
 
   @Override
   @Transactional
@@ -136,6 +147,40 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
     return isBookmarked
       ? incrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId)
       : decrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId);
+  }
+
+  @Override
+  public SoftAskUsername generateUsername(final Long softAskId, final Long userId) {
+    return softAskUsernameService.generateUsername(softAskId, userId);
+  }
+
+  @Override
+  public SoftAskUsername getOrAssignUsername(final Long softAskId, final Long userId) {
+    final String username = softAskUsernameService.getOrAssignUsername(softAskId, userId);
+    return SoftAskUsername.of(softAskId, userId, username);
+  }
+
+  /**
+   * Sets the geohash and geohash prefix for the given soft ask data.
+   *
+   * <p>This method encodes the latitude and longitude of the provided
+   * {@link SoftAskCommonData} into a geohash with precision 9 and derives
+   * a geohash prefix of length 5. Both values are then stored in the
+   * corresponding fields of the provided object. If the input is null,
+   * the method performs no action.</p>
+   *
+   * @param softAskCommonData the soft ask data containing latitude and longitude,
+   *                          may be {@code null}
+   */
+  @Override
+  public void setGeoHashAndGeoPrefix(final SoftAskCommonData softAskCommonData) {
+    if (nonNull(softAskCommonData)) {
+      final String geoHash = geoService.encodeAndGetGeohash(softAskCommonData.getLatitude(), softAskCommonData.getLongitude(), 9);
+      final String geohashPrefix = geoService.getGeohashPrefix(geoHash, 5);
+
+      softAskCommonData.setGeoHash(geoHash);
+      softAskCommonData.setGeoHashPrefix(geohashPrefix);
+    }
   }
 
 }

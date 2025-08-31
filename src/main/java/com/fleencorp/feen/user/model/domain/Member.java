@@ -3,16 +3,15 @@ package com.fleencorp.feen.user.model.domain;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.mfa.constant.MfaType;
+import com.fleencorp.feen.model.contract.IsAMember;
+import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.role.model.domain.Role;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.verification.constant.VerificationType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,7 +32,8 @@ import static java.util.Objects.nonNull;
   @UniqueConstraint(columnNames = "phone_number"),
   @UniqueConstraint(columnNames = "username")
 })
-public class Member extends FleenFeenEntity {
+public class Member extends FleenFeenEntity
+  implements IsAMember, UserHaveOtherDetail {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -67,6 +67,12 @@ public class Member extends FleenFeenEntity {
   @Transient
   private String timezone;
 
+  @Transient
+  private Double longitude;
+
+  @Transient
+  private Double latitude;
+
   @Column(name ="email_address_verified", nullable = false)
   private boolean emailAddressVerified;
 
@@ -92,6 +98,7 @@ public class Member extends FleenFeenEntity {
   @Column(name = "profile_status", nullable = false)
   private ProfileStatus profileStatus = ProfileStatus.INACTIVE;
 
+  @ToString.Exclude
   @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   @JoinTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles = new HashSet<>();
@@ -117,6 +124,10 @@ public class Member extends FleenFeenEntity {
    */
   public boolean isMfaDisabled() {
     return !mfaEnabled;
+  }
+
+  public boolean hasLatitudeAndLongitude() {
+    return nonNull(getLatitude()) && nonNull(getLongitude());
   }
 
   /**

@@ -3,19 +3,16 @@ package com.fleencorp.feen.stream.model.request.external.broadcast;
 import com.fleencorp.feen.common.constant.external.google.youtube.LiveBroadcastClosedCaptionType;
 import com.fleencorp.feen.common.constant.external.google.youtube.LiveBroadcastPrivacyStatus;
 import com.fleencorp.feen.stream.model.dto.livebroadcast.CreateLiveBroadcastDto;
-import com.fleencorp.feen.stream.model.request.broadcast.core.LiveBroadcastRequest;
+import com.fleencorp.feen.stream.model.request.external.broadcast.core.LiveBroadcastRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-import static java.lang.Boolean.parseBoolean;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -45,19 +42,20 @@ public class CreateLiveBroadcastRequest extends LiveBroadcastRequest {
   }
 
   public static CreateLiveBroadcastRequest by(final CreateLiveBroadcastDto dto) {
-    return CreateLiveBroadcastRequest.builder()
-            .title(dto.getTitle())
-            .description(dto.getDescription())
-            .thumbnailUrl(dto.getThumbnailUrl())
-            .scheduledStartDateTime(dto.getStartDateTime())
-            .scheduledEndDateTime(dto.getEndDateTime())
-            .madeForKids(parseBoolean(dto.getForKids()))
-            .privacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(dto.getVisibility())))
-            .enableLowLatencyStreamingOrLowDataStreaming(true)
-            .enableAutoStart(false)
-            .closedCaptionsType(LiveBroadcastClosedCaptionType.CLOSED_CAPTIONS_DISABLED)
-            .categoryId(dto.getCategoryId())
-            .build();
+    final CreateLiveBroadcastRequest request = new CreateLiveBroadcastRequest();
+    request.setTitle(dto.getTitle());
+    request.setDescription(dto.getDescription());
+    request.setThumbnailUrl(dto.getThumbnailUrl());
+    request.setScheduledStartDateTime(dto.getStartDateTime());
+    request.setScheduledEndDateTime(dto.getEndDateTime());
+    request.setMadeForKids(dto.getForKids());
+    request.setPrivacyStatus(LiveBroadcastPrivacyStatus.of(getVisibility(dto.getVisibility())));
+    request.setEnableLowLatencyStreamingOrLowDataStreaming(true);
+    request.setEnableAutoStart(false);
+    request.setClosedCaptionsType(LiveBroadcastClosedCaptionType.CLOSED_CAPTIONS_DISABLED);
+    request.setCategoryId(dto.getCategoryId());
+
+    return request;
   }
 
   public String getLiveStreamFormat() {

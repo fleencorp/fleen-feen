@@ -6,10 +6,7 @@ import com.fleencorp.feen.link.constant.LinkParentType;
 import com.fleencorp.feen.link.constant.LinkType;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
@@ -46,6 +43,7 @@ public class Link {
   @Column(name = "chat_space_id", updatable = false, insertable = false)
   private Long chatSpaceId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
@@ -53,6 +51,7 @@ public class Link {
   @Column(name = "business_id", updatable = false, insertable = false)
   private Long businessId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Business.class)
   @JoinColumn(name = "business_id", referencedColumnName = "business_id", updatable = false)
   private Business business;
@@ -60,11 +59,10 @@ public class Link {
   @Column(name = "member_id", updatable = false, insertable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
-
-
 
 }

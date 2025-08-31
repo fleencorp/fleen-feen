@@ -8,10 +8,7 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.HashSet;
@@ -69,19 +66,21 @@ public class Business extends FleenFeenEntity {
   @Column(name = "deleted", nullable = false)
   private boolean deleted = false;
 
+  @ToString.Exclude
   @OneToMany(fetch = LAZY, mappedBy = "business", targetEntity = Link.class, cascade = CascadeType.PERSIST)
   private Set<Link> links = new HashSet<>();
 
   @Column(name = "owner_id", updatable = false, insertable = false)
   private Long ownerId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member owner;
 
   @Column(name = "share_count", nullable = false)
-  private Integer shareCount;
+  private Integer shareCount = 0;
 
   public boolean checkIsOwner(final Long userId) {
     return nonNull(ownerId) && !ownerId.equals(userId);

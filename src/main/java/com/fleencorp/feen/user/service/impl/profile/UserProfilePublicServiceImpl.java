@@ -50,7 +50,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static java.util.Objects.nonNull;
 
 @Service

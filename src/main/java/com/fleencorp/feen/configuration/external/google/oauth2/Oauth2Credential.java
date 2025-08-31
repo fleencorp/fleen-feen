@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -33,7 +32,6 @@ import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.*;
 * @author Yusuf Alamu Musa
 * @version 1.0
 **/
-@SuperBuilder
 @Getter
 @Setter
 @AllArgsConstructor

@@ -1,10 +1,9 @@
 package com.fleencorp.feen.poll.model.form;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum PollFormField implements ApiParameter {
+public enum PollFormField {
 
   DESCRIPTION("poll.form.model.description.description"),
   EXPIRES_AT("poll.form.model.description.expiresAt"),
@@ -14,13 +13,13 @@ public enum PollFormField implements ApiParameter {
   TITLE("poll.form.model.description.title"),
   VISIBILITY("poll.form.model.description.visibility");
 
-  private final String value;
+  private final String messageCode;
 
-  PollFormField(final String value) {
-    this.value = value;
+  PollFormField(final String messageCode) {
+    this.messageCode = messageCode;
   }
 
   public String getDescription() {
-    return value;
+    return messageCode;
   }
 }

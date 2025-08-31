@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.stream.constant.core.StreamVisibility.PUBLIC;
 import static java.util.Objects.nonNull;

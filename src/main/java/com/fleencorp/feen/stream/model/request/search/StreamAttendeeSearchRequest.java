@@ -11,7 +11,6 @@ import com.fleencorp.feen.stream.constant.core.StreamType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
@@ -19,7 +18,6 @@ import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestT
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

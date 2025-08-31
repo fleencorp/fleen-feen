@@ -6,7 +6,7 @@ import com.fleencorp.feen.softask.constant.info.count.VoteCount;
 import com.fleencorp.feen.softask.constant.info.vote.IsVoted;
 import com.fleencorp.feen.softask.constant.info.vote.TotalSoftAskVoted;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
-import com.fleencorp.feen.softask.model.info.SoftAskReplyCountInfo;
+import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskConversationVotedInfo;

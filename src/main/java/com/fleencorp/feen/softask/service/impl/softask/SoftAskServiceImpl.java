@@ -9,13 +9,14 @@ import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
+import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 import com.fleencorp.feen.softask.model.dto.softask.DeleteSoftAskDto;
 import com.fleencorp.feen.softask.model.holder.SoftAskParentDetailHolder;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
-import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
+import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
@@ -36,23 +37,23 @@ public class SoftAskServiceImpl implements SoftAskService {
   private final MemberService memberService;
   private final StreamOperationsService streamOperationsService;
   private final SoftAskSearchService softAskSearchService;
-  private final SoftAskRepository softAskRepository;
+  private final SoftAskOperationService softAskOperationService;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
   
   public SoftAskServiceImpl(
       final ChatSpaceOperationsService chatSpaceOperationsService,
       final MemberService memberService,
+      final SoftAskOperationService softAskOperationService,
       final StreamOperationsService streamOperationsService,
       final SoftAskSearchService softAskSearchService,
-      final SoftAskRepository softAskRepository,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
     this.chatSpaceOperationsService = chatSpaceOperationsService;
     this.memberService = memberService;
-    this.streamOperationsService = streamOperationsService;
+    this.softAskOperationService = softAskOperationService;
     this.softAskSearchService = softAskSearchService;
-    this.softAskRepository = softAskRepository;
+    this.streamOperationsService = streamOperationsService;
     this.softAskMapper = softAskMapper;
     this.localizer = localizer;
   }
@@ -84,7 +85,11 @@ public class SoftAskServiceImpl implements SoftAskService {
     final FleenStream stream = softAskParentDetailHolder.stream();
 
     final SoftAsk softAsk = addSoftAskDto.toSoftAsk(member, parentTitle, parentType, chatSpace, stream);
-    softAskRepository.save(softAsk);
+    softAskOperationService.save(softAsk);
+    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+
+    final SoftAskUsername softAskUsername = softAskOperationService.generateUsername(softAsk.getSoftAskId(), user.getId());
+    softAsk.setSoftAskUsername(softAskUsername);
 
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
     final SoftAskAddResponse softAskAddResponse = SoftAskAddResponse.of(softAsk.getSoftAskId(), softAskResponse);

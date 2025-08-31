@@ -1,7 +1,10 @@
 package com.fleencorp.feen.softask.model.domain;
 
+import com.fleencorp.feen.common.constant.location.LocationVisibility;
+import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
+import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -9,6 +12,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +27,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "soft_ask_reply")
-public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
+public class SoftAskReply extends FleenFeenEntity
+  implements HasTitle, SoftAskCommonData {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -37,6 +42,14 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @Column(name = "moderation_status", nullable = false)
   private ModerationStatus moderationStatus;
 
+  @Enumerated(STRING)
+  @Column(name = "location_visibility", nullable = false)
+  private LocationVisibility locationVisibility;
+
+  @Enumerated(STRING)
+  @Column(name = "mood_tag")
+  private MoodTag moodTag;
+
   @Column(name = "soft_ask_id", nullable = false, updatable = false, insertable = false)
   private Long softAskId;
 
@@ -48,26 +61,29 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @Column(name = "author_id", nullable = false, updatable = false, insertable = false)
   private Long authorId;
 
-  @CreatedBy
   @ToString.Exclude
+  @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false)
   @JoinColumn(name = "author_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member author;
 
-  @OneToMany(mappedBy = "parentReply", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Column(name = "geohash", length = 9, nullable = false, updatable = false)
+  private String geoHash;
+
+  @Column(name = "geohash_prefix", length = 5, nullable = false, updatable = false)
+  private String geoHashPrefix;
+
   @ToString.Exclude
+  @OneToMany(mappedBy = "parentReply", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<SoftAskReply> childReplies = new HashSet<>();
 
   @Column(name = "parent_reply_id", nullable = false, updatable = false, insertable = false)
   private Long parentReplyId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_reply_id", referencedColumnName = "soft_ask_reply_id")
-  @ToString.Exclude
   private SoftAskReply parentReply;
-
-  @Column(name = "user_other_name", nullable = false, updatable = false, insertable = false)
-  private String userOtherName;
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
@@ -87,6 +103,15 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 
+  @Column(name = "latitude", precision = 3, scale = 1)
+  private BigDecimal latitude;
+
+  @Column(name = "longitude", precision = 4, scale = 1)
+  private BigDecimal longitude;
+
+  @Transient
+  private SoftAskUsername softAskUsername;
+
   public Long getId() {
     return softAskReplyId;
   }
@@ -96,12 +121,36 @@ public class SoftAskReply extends FleenFeenEntity implements SoftAskCommonData {
   }
 
   @Override
+  public String getTitle() {
+    return content;
+  }
+
+  @Override
+  public String getUserAliasOrUsername() {
+    return nonNull(softAskUsername) ? softAskUsername.getUsername() : null;
+  }
+
+  @Override
   public String getParentTitle() {
     return "";
   }
 
+  @Override
+  public Double getLatitude() {
+    return nonNull(latitude) ?  latitude.doubleValue() : null;
+  }
+
+  @Override
+  public Double getLongitude() {
+    return nonNull(longitude) ?  longitude.doubleValue() : null;
+  }
+
   public boolean isDeleted() {
     return nonNull(deleted) && deleted;
+  }
+
+  public boolean hasLatitudeAndLongitude() {
+    return nonNull(latitude) && nonNull(longitude);
   }
 
   public void delete() {

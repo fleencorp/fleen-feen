@@ -1,9 +1,11 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyRetrieveResponse;
 import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse;
@@ -43,20 +45,8 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     this.localizer = localizer;
   }
 
-  /**
-   * Retrieves a SoftAskReply by its associated SoftAsk ID and reply ID.
-   *
-   * <p>This method attempts to find the specified reply using the repository. If the reply
-   * is not found, a {@link SoftAskReplyNotFoundException} is thrown. Upon successful retrieval,
-   * the reply entity is mapped to a response DTO and wrapped in a localized response object.</p>
-   *
-   * @param softAskId      the ID of the SoftAsk to which the reply belongs
-   * @param softAskReplyId the ID of the SoftAskReply to retrieve
-   * @return a localized {@link SoftAskReplyRetrieveResponse} containing the reply details
-   * @throws SoftAskReplyNotFoundException if no reply exists for the given IDs
-   */
   @Override
-  public SoftAskReplyRetrieveResponse retrieveSoftAskReply(final Long softAskId, final Long softAskReplyId) throws SoftAskReplyNotFoundException {
+  public SoftAskReplyRetrieveResponse retrieveSoftAskReply(final SoftAskSearchRequest searchRequest, final Long softAskId, final Long softAskReplyId) throws SoftAskReplyNotFoundException {
     final SoftAskReply softAskReply = findSoftAskReply(softAskId, softAskReplyId);
 
     final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(softAskReply);
@@ -116,7 +106,7 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     final Long authorId = searchRequest.getAuthorId();
     final Pageable pageable = searchRequest.getPage();
 
-    final Page<SoftAskReply> page;
+    final Page<SoftAskReplyWithDetail> page;
     if (searchRequest.hasParentReplyId()) {
       page = softAskReplySearchRepository.findBySoftAskAndParentReply(parentId, parentReplyId, pageable);
     } else if (searchRequest.hasParentId()) {
@@ -127,7 +117,7 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
       page = Page.empty();
     }
 
-    return processAndReturnSoftAskReplies(parentId, page, user.toMember());
+    return processAndReturnSoftAskReplies(parentId, page, user.toMember(), searchRequest.getUserOtherDetail());
   }
 
   /**
@@ -143,10 +133,10 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
    * @return a localized {@link SoftAskReplySearchResult} containing the processed replies,
    *         or an empty result if the page is {@code null}.
    */
-  protected SoftAskReplySearchResult processAndReturnSoftAskReplies(final Long parentId, final Page<SoftAskReply> page, final Member member) {
+  protected SoftAskReplySearchResult processAndReturnSoftAskReplies(final Long parentId, final Page<SoftAskReplyWithDetail> page, final Member member, final UserHaveOtherDetail userHaveOtherDetail) {
     if (nonNull(page)) {
       final Collection<SoftAskReplyResponse> softAskReplyResponses = softAskMapper.toSoftAskReplyResponses(page.getContent());
-      softAskCommonService.processSoftAskResponses(softAskReplyResponses, member);
+      softAskCommonService.processSoftAskResponses(softAskReplyResponses, member, userHaveOtherDetail);
 
       final SearchResult searchResult = toSearchResult(softAskReplyResponses, page);
       final SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.of(parentId, searchResult);

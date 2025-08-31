@@ -91,6 +91,11 @@ public class CreateStreamDto {
   @JsonProperty("organizer_alias_or_display_name")
   private String organizerAliasOrDisplayName;
 
+  @JsonIgnore
+  public boolean getForKids() {
+    return parseBoolean(forKids);
+  }
+
   /**
    * Retrieves the organizer's alias or display name. If it is not set or is blank, returns a default value.
    *
