@@ -82,11 +82,12 @@ public class UpdateContactDto {
     }
 
     public Contact toContact(final Member member) {
-      final Contact contact = new Contact();
-      contact.setOwner(member);
-      contact.setContactType(getContactType());
-      contact.setContactValue(this.contact);
-      return contact;
+      final Contact newContact = new Contact();
+      newContact.setOwner(member);
+      newContact.setContactType(getContactType());
+      newContact.setContactValue(contact);
+
+      return newContact;
     }
   }
 }
