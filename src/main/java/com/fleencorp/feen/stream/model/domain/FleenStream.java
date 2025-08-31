@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -162,6 +163,9 @@ public class FleenStream extends FleenFeenEntity
 
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
+
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
 
   public boolean isForKids() {
     return nonNull(forKids) && forKids;
@@ -473,4 +477,10 @@ public class FleenStream extends FleenFeenEntity
   public static FleenStream empty() {
     return null;
   }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(content);
+  }
+
 }

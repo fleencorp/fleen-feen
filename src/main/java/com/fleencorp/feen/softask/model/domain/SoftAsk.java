@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.model.domain;
 
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
+import com.fleencorp.feen.common.util.common.HybridSlugGenerator;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -143,6 +145,9 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "longitude", precision = 4, scale = 1, updatable = false)
   private BigDecimal longitude;
 
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
+
   @ToString.Exclude
   @OneToMany(fetch = LAZY, mappedBy = "softAsk", targetEntity = SoftAskReply.class, cascade = CascadeType.ALL)
   private Set<SoftAskReply> replies = new HashSet<>();
@@ -203,4 +208,10 @@ public class SoftAsk extends FleenFeenEntity
 
     return softAsk;
   }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(description);
+  }
+
 }

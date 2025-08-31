@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
@@ -103,6 +104,9 @@ public class Poll extends FleenFeenEntity {
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
+
   public void update(
       final String question,final String description, final LocalDateTime expiresAt,
       final PollVisibility pollVisibility, final Boolean isAnonymous, final Boolean isMultipleChoice) {
@@ -140,16 +144,6 @@ public class Poll extends FleenFeenEntity {
     return options.stream()
       .filter(Objects::nonNull)
       .map(PollOption::getPollOptionId)
-      .collect(Collectors.toSet());
-  }
-
-  public static Collection<Long> getOptionIds(final Collection<PollOption> pollOptions) {
-    return isNull(pollOptions)
-      ? new ArrayList<>()
-      : pollOptions.stream()
-      .filter(Objects::nonNull)
-      .map(PollOption::getPollOptionId)
-      .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
 
@@ -229,5 +223,11 @@ public class Poll extends FleenFeenEntity {
     poll.setPollId(pollId);
     return poll;
   }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(content);
+  }
+
 }
 

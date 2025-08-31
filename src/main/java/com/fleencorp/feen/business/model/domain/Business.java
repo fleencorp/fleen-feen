@@ -14,6 +14,7 @@ import org.springframework.data.annotation.CreatedBy;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generateHybridSlug;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static java.util.Objects.nonNull;
@@ -82,6 +83,9 @@ public class Business extends FleenFeenEntity {
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 
+  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  private String slug;
+
   public boolean checkIsOwner(final Long userId) {
     return nonNull(ownerId) && !ownerId.equals(userId);
   }
@@ -109,6 +113,11 @@ public class Business extends FleenFeenEntity {
     if (nonNull(ownerId) && !ownerId.equals(userId)) {
       throw BusinessNotOwnerException.of();
     }
+  }
+
+  @PrePersist
+  public void prePersist() {
+    slug = generateHybridSlug(content);
   }
 
 }

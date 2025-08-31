@@ -4,7 +4,12 @@ import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @Getter
 @Setter
@@ -44,5 +49,15 @@ public class PollOption extends FleenFeenEntity {
     pollOption.setPollOptionId(optionId);
 
     return pollOption;
+  }
+
+  public static Collection<Long> getOptionIds(final Collection<PollOption> pollOptions) {
+    return isNull(pollOptions)
+      ? new ArrayList<>()
+      : pollOptions.stream()
+      .filter(Objects::nonNull)
+      .map(PollOption::getPollOptionId)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toSet());
   }
 }

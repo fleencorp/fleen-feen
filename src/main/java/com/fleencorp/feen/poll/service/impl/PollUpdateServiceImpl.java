@@ -142,7 +142,7 @@ public class PollUpdateServiceImpl implements PollUpdateService {
    */
   private void validateOptionChanges(final Poll poll, final Collection<PollOption> newOptions, final PollVoteAggregateHolder voteAggregateHolder) throws PollUpdateCantChangeOptionsException {
     final Collection<Long> existingOptionIds = poll.getPollOptionIds();
-    final Collection<Long> newOptionIds = Poll.getOptionIds(newOptions);
+    final Collection<Long> newOptionIds = PollOption.getOptionIds(newOptions);
     final boolean hasVotes = voteAggregateHolder.hasVotes();
     final Map<Long, PollOption> existingOptionsById = poll.getOptionsGrouped();
 
