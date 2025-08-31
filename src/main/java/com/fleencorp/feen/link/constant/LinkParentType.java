@@ -33,4 +33,8 @@ public enum LinkParentType {
   public static boolean isStream(final LinkParentType type) {
     return type == STREAM;
   }
+
+  public static boolean isUser(final LinkParentType type) {
+    return type == USER;
+  }
 }

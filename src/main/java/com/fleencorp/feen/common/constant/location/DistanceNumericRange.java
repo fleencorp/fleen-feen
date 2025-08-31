@@ -17,31 +17,31 @@ public enum DistanceNumericRange {
   );
 
   private final String label;
-  private final String lessThan1Km;
-  private final String _1To5Km;
-  private final String _5To10Km;
-  private final String _10To25Km;
-  private final String _25To50Km;
-  private final String _50To100Km;
-  private final String _100PlusKm;
+  private final String lessThanOneKm;
+  private final String oneToFiveKm;
+  private final String fiveToTenKm;
+  private final String tenToTwentyFiveKm;
+  private final String twentyFiveToFiftyKm;
+  private final String fiftyToOneHundredKm;
+  private final String oneHundredPlusKm;
 
   DistanceNumericRange(
       final String label,
-      final String lessThan1Km,
-      final String _1To5Km,
-      final String _5To10Km,
-      final String _10To25Km,
-      final String _25To50Km,
-      final String _50To100Km,
-      final String _100PlusKm) {
+      final String lessThanOneKm,
+      final String oneToFiveKm,
+      final String fiveToTenKm,
+      final String tenToTwentyFiveKm,
+      final String twentyFiveToFiftyKm,
+      final String fiftyToOneHundredKm,
+      final String oneHundredPlusKm) {
     this.label = label;
-    this.lessThan1Km = lessThan1Km;
-    this._1To5Km = _1To5Km;
-    this._5To10Km = _5To10Km;
-    this._10To25Km = _10To25Km;
-    this._25To50Km = _25To50Km;
-    this._50To100Km = _50To100Km;
-    this._100PlusKm = _100PlusKm;
+    this.lessThanOneKm = lessThanOneKm;
+    this.oneToFiveKm = oneToFiveKm;
+    this.fiveToTenKm = fiveToTenKm;
+    this.tenToTwentyFiveKm = tenToTwentyFiveKm;
+    this.twentyFiveToFiftyKm = twentyFiveToFiftyKm;
+    this.fiftyToOneHundredKm = fiftyToOneHundredKm;
+    this.oneHundredPlusKm = oneHundredPlusKm;
   }
 
   private static DistanceNumericRange distanceNumericRange() {
@@ -57,14 +57,23 @@ public enum DistanceNumericRange {
     else if (distance <= 100) { return "50-100 km"; }
     else { return "100+ km"; }
   }
-  
+
   public static String getDistanceRangeMessageCode(final double distance) {
-    if (distance < 1) { return distanceNumericRange().getLessThan1Km(); }
-    else if (distance <= 5) { return distanceNumericRange().get_1To5Km(); }
-    else if (distance <= 10) { return distanceNumericRange().get_5To10Km(); }
-    else if (distance <= 25) { return distanceNumericRange().get_10To25Km(); }
-    else if (distance <= 50) { return distanceNumericRange().get_25To50Km(); }
-    else if (distance <= 100) { return distanceNumericRange().get_50To100Km(); }
-    else { return distanceNumericRange().get_100PlusKm(); }
+    if (distance < 1) {
+      return distanceNumericRange().getLessThanOneKm();
+    } else if (distance <= 5) {
+      return distanceNumericRange().getOneToFiveKm();
+    } else if (distance <= 10) {
+      return distanceNumericRange().getFiveToTenKm();
+    } else if (distance <= 25) {
+      return distanceNumericRange().getTenToTwentyFiveKm();
+    } else if (distance <= 50) {
+      return distanceNumericRange().getTwentyFiveToFiftyKm();
+    } else if (distance <= 100) {
+      return distanceNumericRange().getFiftyToOneHundredKm();
+    } else {
+      return distanceNumericRange().getOneHundredPlusKm();
+    }
   }
+
 }

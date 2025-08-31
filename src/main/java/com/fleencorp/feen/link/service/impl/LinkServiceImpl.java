@@ -185,8 +185,8 @@ public class LinkServiceImpl implements LinkService {
   private LinkParentDetailHolder findOrVerifyLinkParent(final Long parentId, final LinkParentType linkParentType, final Member member) {
     checkIsNullAny(List.of(parentId, linkParentType), FailedOperationException::new);
 
-    switch (linkParentType) {
-      case STREAM, USER: throw FailedOperationException.of();
+    if (LinkParentType.isStream(linkParentType) || LinkParentType.isUser(linkParentType)) {
+      throw FailedOperationException.of();
     }
 
     final Business business = LinkParentType.isBusiness(linkParentType) ? businessOperationService.findBusinessAndVerifyOwner(parentId, member) : null;

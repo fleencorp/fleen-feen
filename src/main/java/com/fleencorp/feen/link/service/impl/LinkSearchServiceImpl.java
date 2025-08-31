@@ -209,17 +209,18 @@ public class LinkSearchServiceImpl implements LinkSearchService {
   private LinkParentDetailHolder findLinkParent(final Long parentId, final LinkParentType linkParentType, final Member member) {
     checkIsNullAny(List.of(parentId, linkParentType), FailedOperationException::new);
 
-    switch (linkParentType) {
-      case STREAM, USER: throw FailedOperationException.of();
+    if (LinkParentType.isStream(linkParentType) || LinkParentType.isUser(linkParentType)) {
+      throw FailedOperationException.of();
     }
 
     final Business business = LinkParentType.isBusiness(linkParentType) ? businessOperationService.findBusiness(parentId) : null;
     final ChatSpace chatSpace = LinkParentType.isChatSpace(linkParentType) ? chatSpaceOperationsService.findChatSpace(parentId) : null;
 
     boolean isAdmin = false;
-    switch (linkParentType) {
-      case BUSINESS: isAdmin = nonNull(business) && business.checkIsOwner(parentId);
-      case CHAT_SPACE: isAdmin = chatSpaceOperationsService.checkIsAdmin(chatSpace, member);
+    if (LinkParentType.isBusiness(linkParentType)) {
+      isAdmin = nonNull(business) && business.checkIsOwner(parentId);
+    } else if (LinkParentType.isChatSpace(linkParentType)) {
+      isAdmin = chatSpaceOperationsService.checkIsAdmin(chatSpace, member);
     }
 
     return LinkParentDetailHolder.of(business, chatSpace, linkParentType, isAdmin);
@@ -248,9 +249,10 @@ public class LinkSearchServiceImpl implements LinkSearchService {
     final Long parentId = parent.getNumberId();
     List<Link> links = new ArrayList<>();
 
-    switch (linkParentType) {
-      case BUSINESS: links = linkRepository.findByBusiness(parentId, linkParentType);
-      case CHAT_SPACE: links = linkRepository.findByChatSpace(parentId, linkParentType);
+    if (LinkParentType.isChatSpace(linkParentType)) {
+      links = linkRepository.findByChatSpace(parentId, linkParentType);
+    } else if (LinkParentType.isBusiness(linkParentType)) {
+      links = linkRepository.findByBusiness(parentId, linkParentType);
     }
 
     final Collection<LinkResponse> linkResponses = linkMapper.toLinkResponses(links);
