@@ -86,11 +86,11 @@ public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
 
         cacheUsername(cacheKey, newUsername);
         return newUsername;
-      } catch (final DataIntegrityViolationException e) {
+      } catch (final DataIntegrityViolationException ex) {
         logIfEnabled(log::isErrorEnabled, () -> log.debug("""
         Username is already in use and may be because of race conditions. Continue and try to generate a new username.
         Message: {}
-        """, e.getMessage()));
+        """, ex.getMessage()));
       }
     }
   }
