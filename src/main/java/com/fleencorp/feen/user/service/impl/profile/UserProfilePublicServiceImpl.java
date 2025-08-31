@@ -181,7 +181,6 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     final boolean isBlocked = isBlockedByTargetUser(memberId, targetMemberId);
     final boolean hasBlocked = hasBlockedTargetUser(memberId, targetMemberId);
 
-    System.out.println("Did I block too ? " + hasBlocked);
     final boolean isFollowed = isFollowedByTargetUser(memberId, targetMemberId);
     final boolean isFollowing = isFollowingTargetUser(memberId, targetMemberId);
 
