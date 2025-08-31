@@ -87,8 +87,19 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
     }
   }
 
+  /**
+   * Generates a random number within the range {@code 1} to {@code 2,000,000} (inclusive)
+   * and returns it as a string.
+   *
+   * <p>This method uses {@link ThreadLocalRandom} to produce a uniformly distributed
+   * random integer suitable for use as an avatar identifier. The generated value is
+   * converted to its string representation before being returned.</p>
+   *
+   * @return a string representing the randomly generated number between 1 and 2,000,000
+   */
   private static String generateRandomNumberForAvatar() {
-    return String.valueOf(ThreadLocalRandom.current().nextInt(1, 2_000_001));
+    final int randoNumber = ThreadLocalRandom.current().nextInt(1, 2_000_001);
+    return Integer.toString(randoNumber);
   }
 
   /**
