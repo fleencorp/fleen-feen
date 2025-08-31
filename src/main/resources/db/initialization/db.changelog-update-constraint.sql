@@ -106,3 +106,29 @@ ALTER TABLE soft_ask_username
   ADD CONSTRAINT uq_soft_ask_username_softask_user UNIQUE (soft_ask_id, user_id);
 
 --rollback ALTER TABLE soft_ask_username DROP CONSTRAINT IF EXISTS uq_soft_ask_username_softask_user;
+
+
+
+--changeset alamu:add_unique_slug_business_poll_stream_chatspace_softask_softaskreply
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'business' AND constraint_name = 'uq_business_slug' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'chat_space' AND constraint_name = 'uq_chat_space_slug' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'poll' AND constraint_name = 'uq_poll_slug' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask' AND constraint_name = 'uq_soft_ask_slug' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_reply' AND constraint_name = 'uq_soft_ask_reply_slug' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'stream' AND constraint_name = 'uq_stream_slug' AND constraint_type = 'UNIQUE';
+
+ALTER TABLE business ADD CONSTRAINT uq_business_slug UNIQUE (slug);
+ALTER TABLE chat_space ADD CONSTRAINT uq_chat_space_slug UNIQUE (slug);
+ALTER TABLE poll ADD CONSTRAINT uq_poll_slug UNIQUE (slug);
+ALTER TABLE soft_ask ADD CONSTRAINT uq_soft_ask_slug UNIQUE (slug);
+ALTER TABLE soft_ask_reply ADD CONSTRAINT uq_soft_ask_reply_slug UNIQUE (slug);
+ALTER TABLE stream ADD CONSTRAINT uq_stream_slug UNIQUE (slug);
+
+--rollback ALTER TABLE business DROP CONSTRAINT IF EXISTS uq_business_slug;
+--rollback ALTER TABLE chat_space DROP CONSTRAINT IF EXISTS uq_chat_space_slug;
+--rollback ALTER TABLE poll DROP CONSTRAINT IF EXISTS uq_poll_slug;
+--rollback ALTER TABLE soft_ask DROP CONSTRAINT IF EXISTS uq_soft_ask_slug;
+--rollback ALTER TABLE soft_ask_reply DROP CONSTRAINT IF EXISTS uq_soft_ask_reply_slug;
+--rollback ALTER TABLE stream DROP CONSTRAINT IF EXISTS uq_stream_slug;
