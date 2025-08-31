@@ -156,8 +156,12 @@ public final class PollMapperImpl implements PollMapper {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(this::toPollOptionResponse)
-        .peek(PollOptionResponse::markUserVoted)
+        .map(response -> {
+          PollOptionResponse pollOptionResponse = toPollOptionResponse(response);
+          pollOptionResponse.markUserVoted();
+
+          return pollOptionResponse;
+        })
         .toList();
     }
 
