@@ -354,7 +354,7 @@ public class ChatSpace extends FleenFeenEntity
 
   @PrePersist
   public void prePersist() {
-    slug = generateHybridSlug(content);
+    slug = generateHybridSlug(title);
   }
 
 }

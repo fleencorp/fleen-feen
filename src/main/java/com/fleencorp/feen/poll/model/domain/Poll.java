@@ -226,7 +226,7 @@ public class Poll extends FleenFeenEntity {
 
   @PrePersist
   public void prePersist() {
-    slug = generateHybridSlug(content);
+    slug = generateHybridSlug(question);
   }
 
 }
