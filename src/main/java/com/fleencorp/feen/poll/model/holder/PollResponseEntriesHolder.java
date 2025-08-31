@@ -1,6 +1,6 @@
 package com.fleencorp.feen.poll.model.holder;
 
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 
 import java.util.Collection;
 import java.util.Collections;

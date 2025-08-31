@@ -8,10 +8,10 @@ import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
 import com.fleencorp.feen.poll.model.holder.PollResponseEntriesHolder;
 import com.fleencorp.feen.poll.model.info.*;
-import com.fleencorp.feen.poll.model.response.base.PollOptionResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
-import com.fleencorp.feen.poll.model.response.base.PollStatResponse;
-import com.fleencorp.feen.poll.model.response.base.PollVoteResponse;
+import com.fleencorp.feen.poll.model.response.core.PollOptionResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollStatResponse;
+import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import org.springframework.stereotype.Component;
@@ -52,6 +52,7 @@ public final class PollMapperImpl implements PollMapper {
 
       response.setAuthorId(entry.getAuthorId());
       response.setOrganizerId(entry.getAuthorId());
+      response.setSlug(entry.getSlug());
       response.setIsUpdatable(false);
 
       response.setExpiresAt(entry.getExpiresAt());

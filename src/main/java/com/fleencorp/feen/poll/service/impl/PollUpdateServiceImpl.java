@@ -9,7 +9,7 @@ import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
 import com.fleencorp.feen.poll.model.holder.PollVoteAggregateHolder;
 import com.fleencorp.feen.poll.model.response.PollUpdateResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollUpdateService;

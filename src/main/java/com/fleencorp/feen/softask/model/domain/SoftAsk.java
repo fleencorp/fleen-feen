@@ -2,7 +2,6 @@ package com.fleencorp.feen.softask.model.domain;
 
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
-import com.fleencorp.feen.common.util.common.HybridSlugGenerator;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;

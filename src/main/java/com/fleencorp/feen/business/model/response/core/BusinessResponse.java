@@ -10,6 +10,7 @@ import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.model.contract.HasLinks;
+import com.fleencorp.feen.model.contract.HasSlug;
 import com.fleencorp.feen.model.contract.Updatable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,11 +38,13 @@ import java.util.HashSet;
   "status_info",
   "links",
   "share_count_info",
+  "slug",
+  "is_updatable",
   "created_on",
   "updated_on"
 })
 public class BusinessResponse extends FleenFeenResponse
-  implements HasLinks, Updatable {
+  implements HasLinks, HasSlug, Updatable {
 
   @JsonProperty("title")
   private String title;
@@ -75,6 +78,9 @@ public class BusinessResponse extends FleenFeenResponse
 
   @JsonProperty("share_count_info")
   private ShareCountInfo shareCountInfo;
+
+  @JsonProperty("slug")
+  private String slug;
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;

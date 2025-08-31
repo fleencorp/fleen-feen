@@ -6,8 +6,8 @@ import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
 import com.fleencorp.feen.poll.model.holder.PollResponseEntriesHolder;
 import com.fleencorp.feen.poll.model.info.IsVotedInfo;
 import com.fleencorp.feen.poll.model.info.TotalPollVoteEntriesInfo;
-import com.fleencorp.feen.poll.model.response.base.PollOptionResponse;
-import com.fleencorp.feen.poll.model.response.base.PollResponse;
+import com.fleencorp.feen.poll.model.response.core.PollOptionResponse;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserResponse;
 

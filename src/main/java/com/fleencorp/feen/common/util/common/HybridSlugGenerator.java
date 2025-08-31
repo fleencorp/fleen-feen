@@ -26,8 +26,8 @@ public final class HybridSlugGenerator {
    * @param title the input title to be transformed into a slug
    * @return a slug composed of a sanitized title segment and a UUID fragment
    */
-  public static String generateHybridSlug(String title) {
-    UUID uuid = UUID.randomUUID();
+  public static String generateHybridSlug(final String title) {
+    final UUID uuid = UUID.randomUUID();
 
     // Sanitize and lowercase the title
     String sanitizedTitle = Normalizer.normalize(title, Normalizer.Form.NFD)
@@ -48,7 +48,7 @@ public final class HybridSlugGenerator {
     sanitizedTitle = sanitizedTitle.replaceAll("^-|-$", "");
 
     // Use 12 hex chars (48 bits randomness = 281 trillion possibilities)
-    String uuidPart = uuid.toString().replace("-", "").substring(0, 12);
+    final String uuidPart = uuid.toString().replace("-", "").substring(0, 12);
 
     // Combine
     if (sanitizedTitle.isEmpty()) {

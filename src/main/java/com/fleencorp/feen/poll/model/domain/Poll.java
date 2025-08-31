@@ -14,7 +14,10 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,7 +25,6 @@ import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generate
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
