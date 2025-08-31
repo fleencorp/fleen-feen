@@ -14,9 +14,14 @@ import static com.fleencorp.feen.common.constant.message.CommonMessageDetails.MF
 @NoArgsConstructor
 public class MfaSetupVerificationRequest extends SendVerificationCodeRequest {
 
-  public static MfaSetupVerificationRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
-    final String phoneNumber, final VerificationType verificationType) {
-    MfaSetupVerificationRequest request = new MfaSetupVerificationRequest();
+  public static MfaSetupVerificationRequest of(
+      final String verificationCode,
+      final String firstName,
+      final String lastName,
+      final String emailAddress,
+      final String phoneNumber,
+      final VerificationType verificationType) {
+    final MfaSetupVerificationRequest request = new MfaSetupVerificationRequest();
     request.setVerificationCode(verificationCode);
     request.setFirstName(firstName);
     request.setLastName(lastName);

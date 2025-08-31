@@ -13,10 +13,6 @@ public enum ShareCount {
     this.messageCode = messageCode;
   }
 
-  public String getMessageCode() {
-    return messageCode;
-  }
-
   public static ShareCount totalShares() {
     return TOTAL_SHARE;
   }

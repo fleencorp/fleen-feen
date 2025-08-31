@@ -6,7 +6,7 @@ public interface HasTitle {
 
   String getTitle();
 
-  static String getTitle(HasTitle hasTitle) {
+  static String getTitle(final HasTitle hasTitle) {
     return Optional
       .ofNullable(hasTitle)
       .map(entity -> entity.getTitle())

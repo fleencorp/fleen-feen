@@ -2,12 +2,12 @@ package com.fleencorp.feen.softask.mapper.impl;
 
 import com.fleencorp.feen.common.constant.location.DistanceNumericRange;
 import com.fleencorp.feen.common.constant.location.DistanceRange;
-import com.fleencorp.feen.softask.mapper.UserLocationMapper;
 import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.common.service.location.GeoService;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
+import com.fleencorp.feen.softask.mapper.UserLocationMapper;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 

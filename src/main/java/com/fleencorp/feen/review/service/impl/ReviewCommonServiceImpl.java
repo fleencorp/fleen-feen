@@ -55,9 +55,7 @@ public class ReviewCommonServiceImpl implements ReviewCommonService {
     if (allNonNull(reviewResponses, member)) {
       reviewResponses.stream()
         .filter(Objects::nonNull)
-        .forEach(reviewResponse -> {
-          setEntityUpdatableByUser(reviewResponse, member.getMemberId());
-      });
+        .forEach(reviewResponse -> setEntityUpdatableByUser(reviewResponse, member.getMemberId()));
 
       bookmarkOperationService.populateBookmarkForReviews(reviewResponses, member);
       likeOperationService.populateLikesForReviews(reviewResponses, member);

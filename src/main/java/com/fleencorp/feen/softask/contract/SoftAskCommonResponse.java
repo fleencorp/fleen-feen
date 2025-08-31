@@ -5,12 +5,11 @@ import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
-import com.fleencorp.feen.softask.model.info.core.MoodTagInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
 import com.fleencorp.feen.softask.model.response.participant.SoftAskParticipantResponse;
 
-public interface SoftAskCommonResponse extends Bookmarkable, Updatable {
+public interface SoftAskCommonResponse extends Bookmarkable, HasMood, Updatable {
 
   Long getParentId();
 
@@ -29,8 +28,6 @@ public interface SoftAskCommonResponse extends Bookmarkable, Updatable {
   void setSoftAskParticipantResponse(SoftAskParticipantResponse softAskParticipantResponse);
 
   void setUserLocationInfo(UserLocationInfo userLocationInfo);
-
-  void setMoodTagInfo(MoodTagInfo moodTagInfo);
 
   SoftAskType getSoftAskType();
 }

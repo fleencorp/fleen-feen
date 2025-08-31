@@ -36,14 +36,14 @@ public class LocationService {
    * @param ipAddress the IP address for which to retrieve location data
    * @return a {@link LocationResponse} containing location information, or an empty response if the lookup fails
    */
-  public LocationResponse getLocationFromIP(String ipAddress) {
+  public LocationResponse getLocationFromIP(final String ipAddress) {
     try {
-      String url = ipapiKey != null ?
+      final String url = ipapiKey != null ?
         "https://ipapi.co/" + ipAddress + "/json/?key=" + ipapiKey :
         "https://ipapi.co/" + ipAddress + "/json/";
 
       return restTemplate.getForObject(url, LocationResponse.class);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       log.warn("Failed to get location from IP {}: {}", ipAddress, e.getMessage());
     }
     return LocationResponse.empty();

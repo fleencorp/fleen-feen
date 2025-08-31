@@ -17,16 +17,19 @@ public class GeoServiceImpl implements GeoService {
   private static final String BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
 
   /**
-   * Generates all possible prefix substrings of a given geohash.
+   * Encodes a latitude and longitude into a geohash string of the specified precision.
    *
-   * <p>If the input geohash is not {@code null}, this method creates a list of substrings
-   * where each element is a prefix of the geohash starting from the first character
-   * up to the current index. For example, given a geohash "abcd", the returned list
-   * will contain ["a", "ab", "abc", "abcd"]. If the geohash is {@code null}, an
-   * empty list is returned.</p>
+   * <p>A geohash is a base32-encoded string that represents a geographic location
+   * by subdividing latitude and longitude intervals. The encoding alternates between
+   * refining longitude and latitude ranges, producing a compact string where greater
+   * precision corresponds to a longer geohash. If the provided coordinates are invalid
+   * (i.e., {@code null}, or outside the ranges -90 to 90 for latitude and -180 to 180
+   * for longitude), this method returns {@code null}.</p>
    *
-   * @param geohash the geohash string from which prefixes are derived
-   * @return a list of prefix substrings, or an empty list if the input is {@code null}
+   * @param lat the latitude value, must be within [-90.0, 90.0]
+   * @param lon the longitude value, must be within [-180.0, 180.0]
+   * @param precision the desired length of the geohash string
+   * @return the geohash string representing the given coordinates, or {@code null} if the input is invalid
    */
   @Override
   public String encodeAndGetGeohash(final Double lat, final Double lon, final int precision) {

@@ -40,6 +40,19 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
     this.softAskInfoMapper = softAskInfoMapper;
   }
 
+  /**
+   * Populates additional details of a soft ask response based on the provided entry data.
+   *
+   * <p>If both {@code entry} and {@code response} are not {@code null}, this method enriches
+   * the response with various contextual details about the soft ask. These include vote
+   * information, parent reference, participant details with avatar URLs, geographic data,
+   * mood tags, and a display time label. It also sets whether the entity can be updated by
+   * the user. The response is therefore augmented with metadata that supports rendering
+   * and interaction in the client application.</p>
+   *
+   * @param entry the source object containing soft ask data
+   * @param response the response object to be populated with additional details
+   */
   @Override
   public void setOtherDetails(final SoftAskCommonData entry, final SoftAskCommonResponse response) {
     if (nonNull(entry) && nonNull(response)) {
@@ -159,11 +172,23 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       .toList();
   }
 
+  /**
+   * Converts a {@link MoodTag} into a {@link MoodTagInfo} representation.
+   *
+   * <p>If the provided {@code moodTag} is not {@code null}, this method creates a
+   * {@link MoodTagInfo} containing the tag itself, its label, and a translated
+   * text based on the tag’s message code. If the input is {@code null}, the method
+   * returns {@code null}.</p>
+   *
+   * @param moodTag the mood tag to be converted
+   * @return a {@link MoodTagInfo} object representing the given tag, or {@code null} if the input is {@code null}
+   */
   private MoodTagInfo toMoodTagInfo(final MoodTag moodTag) {
     if (nonNull(moodTag)) {
       final String moodTagText = translate(moodTag.getMessageCode());
       return MoodTagInfo.of(moodTag, moodTag.getLabel(), moodTagText);
     }
+
     return null;
   }
 
