@@ -1,8 +1,8 @@
 package com.fleencorp.feen.stream.service.speaker;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.stream.model.dto.core.RemoveStreamSpeakerDto;
 import com.fleencorp.feen.stream.model.dto.speaker.MarkAsStreamSpeakerDto;

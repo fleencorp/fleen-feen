@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.controller.common;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.softask.exception.core.SoftAskAnswerNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.common.UpdateSoftAskContentDto;
@@ -16,7 +16,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/soft-ask/update")
@@ -28,14 +31,14 @@ public class SoftAskUpdateController {
     this.softAskCommonService = softAskCommonService;
   }
 
-  @Operation(summary = "Update the content of a soft ask (answer or reply)",
-    description = "Updates the content of an existing soft ask answer or reply. Requires user authentication and permissions.")
+  @Operation(summary = "Update the content of a soft ask or reply",
+    description = "Updates the content of an existing soft ask or reply. Requires user authentication and permissions.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully updated the content",
       content = @Content(schema = @Schema(implementation = SoftAskContentUpdateResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Soft ask answer or reply not found",
+    @ApiResponse(responseCode = "404", description = "Soft ask or reply not found",
       content = @Content(schema = @Schema(oneOf = {
-        SoftAskAnswerNotFoundException.class,
+        SoftAskNotFoundException.class,
         SoftAskReplyNotFoundException.class
       }))),
     @ApiResponse(responseCode = "403", description = "Update denied due to insufficient permissions",
@@ -43,14 +46,12 @@ public class SoftAskUpdateController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @PutMapping(value = "/content/{softAskTypeId}")
+  @PutMapping(value = "/content")
   public SoftAskContentUpdateResponse updateSoftAskContent(
-    @Parameter(description = "ID of the soft ask content (answer or reply) to update", required = true)
-      @PathVariable(name = "softAskTypeId") final Long softAskTypeId,
     @Parameter(description = "Updated content details", required = true)
       @Valid @RequestBody final UpdateSoftAskContentDto updateSoftAskContentDto,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
-    return softAskCommonService.updateSoftAskContent(softAskTypeId, updateSoftAskContentDto, user);
+    return softAskCommonService.updateSoftAskContent(updateSoftAskContentDto, user);
   }
 }

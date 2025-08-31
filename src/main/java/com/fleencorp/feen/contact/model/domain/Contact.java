@@ -4,10 +4,7 @@ import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.Objects;
@@ -40,6 +37,7 @@ public class Contact extends FleenFeenEntity {
   @Column(name = "owner_id", insertable = false, updatable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)

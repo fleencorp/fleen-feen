@@ -3,10 +3,7 @@ package com.fleencorp.feen.follower.model.domain;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -28,6 +25,7 @@ public class Follower extends FleenFeenEntity {
   @Column(name = "following_id", nullable = false, updatable = false, insertable = false)
   private Long followingId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "following_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member following;
@@ -35,6 +33,7 @@ public class Follower extends FleenFeenEntity {
   @Column(name = "followed_id", nullable = false, updatable = false, insertable = false)
   private Long followedId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "followed_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member followed;

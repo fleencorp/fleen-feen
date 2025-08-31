@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.mapper.impl;
 
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.poll.mapper.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
@@ -48,11 +49,17 @@ public final class PollMapperImpl implements PollMapper {
       response.setId(entry.getPollId());
       response.setQuestion(entry.getQuestion());
       response.setDescription(entry.getDescription());
+
+      response.setAuthorId(entry.getAuthorId());
       response.setOrganizerId(entry.getAuthorId());
+      response.setIsUpdatable(false);
 
       response.setExpiresAt(entry.getExpiresAt());
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+
+      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
+      response.setShareCountInfo(shareCountInfo);
 
       final PollVisibilityInfo pollVisibilityInfo = toInfoMapper.toPollVisibilityInfo(entry.getVisibility());
       response.setPollVisibilityInfo(pollVisibilityInfo);

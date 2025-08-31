@@ -2,10 +2,7 @@ package com.fleencorp.feen.poll.model.domain;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Objects;
 
@@ -30,6 +27,7 @@ public class PollOption extends FleenFeenEntity {
   @Column(name = "poll_id", insertable = false, updatable = false)
   private Long pollId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "poll_id", nullable = false, updatable = false)
   private Poll poll;

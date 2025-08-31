@@ -30,14 +30,14 @@ public class RequestToJoinChatSpaceResponse extends LocalizedResponse {
   private ChatSpaceMembershipInfo membershipInfo;
 
   @JsonProperty("total_members")
-  private Long totalMembers;
+  private Integer totalMembers;
 
   @Override
   public String getMessageCode() {
     return "request.to.join.chat.space";
   }
 
-  public static RequestToJoinChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final Long totalMembers) {
+  public static RequestToJoinChatSpaceResponse of(final Long chatSpaceId, final ChatSpaceMembershipInfo membershipInfo, final Integer totalMembers) {
     return new RequestToJoinChatSpaceResponse(chatSpaceId, membershipInfo, totalMembers);
   }
 }

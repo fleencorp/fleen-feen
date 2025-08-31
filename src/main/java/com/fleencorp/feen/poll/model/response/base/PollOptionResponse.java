@@ -19,7 +19,9 @@ import lombok.Setter;
   "option_text",
   "vote_count",
   "stat",
-  "user_voted"
+  "user_voted",
+  "created_on",
+  "updated_on",
 })
 public class PollOptionResponse extends FleenFeenResponse {
 

@@ -9,8 +9,8 @@ import com.fleencorp.feen.poll.model.projection.PollOptionEntry;
 import com.fleencorp.feen.poll.model.projection.PollVoteAggregate;
 import com.fleencorp.feen.poll.repository.PollOptionRepository;
 import com.fleencorp.feen.poll.repository.PollRepository;
-import com.fleencorp.feen.poll.repository.PollVoteQueryRepository;
 import com.fleencorp.feen.poll.repository.PollVoteRepository;
+import com.fleencorp.feen.poll.repository.PollVoteSearchRepository;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
@@ -27,17 +27,17 @@ public class PollOperationsServiceImpl implements PollOperationsService {
 
   private final PollRepository pollRepository;
   private final PollOptionRepository pollOptionRepository;
-  private final PollVoteQueryRepository pollVoteQueryRepository;
+  private final PollVoteSearchRepository pollVoteSearchRepository;
   private final PollVoteRepository pollVoteRepository;
 
   public PollOperationsServiceImpl(
       final PollRepository pollRepository,
       final PollOptionRepository pollOptionRepository,
-      final PollVoteQueryRepository pollVoteQueryRepository,
+      final PollVoteSearchRepository pollVoteSearchRepository,
       final PollVoteRepository pollVoteRepository) {
     this.pollRepository = pollRepository;
     this.pollOptionRepository = pollOptionRepository;
-    this.pollVoteQueryRepository = pollVoteQueryRepository;
+    this.pollVoteSearchRepository = pollVoteSearchRepository;
     this.pollVoteRepository = pollVoteRepository;
   }
 
@@ -66,12 +66,12 @@ public class PollOperationsServiceImpl implements PollOperationsService {
 
   @Override
   public Page<Member> findVoters(final Long pollId, final Pageable pageable) {
-    return pollVoteQueryRepository.findDistinctVotersByPollId(pollId, pageable);
+    return pollVoteSearchRepository.findDistinctVotersByPollId(pollId, pageable);
   }
 
   @Override
   public Page<Member> findVoters(final Long pollId, final Long pollOptionId, final Pageable pageable) {
-    return pollVoteQueryRepository.findDistinctVotersByPollIdAndOptionId(pollId, pollOptionId, pageable);
+    return pollVoteSearchRepository.findDistinctVotersByPollIdAndOptionId(pollId, pollOptionId, pageable);
   }
 
   @Override

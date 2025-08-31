@@ -1,7 +1,6 @@
 package com.fleencorp.feen.softask.exception;
 
 import com.fleencorp.feen.common.constant.http.FleenHttpStatus;
-import com.fleencorp.feen.softask.exception.core.SoftAskAnswerNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -26,7 +25,6 @@ public class SoftAskExceptionHandler {
 
   @ExceptionHandler(value = {
     SoftAskNotFoundException.class,
-    SoftAskAnswerNotFoundException.class,
     SoftAskReplyNotFoundException.class
   })
   @ResponseStatus(value = BAD_REQUEST)

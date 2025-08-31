@@ -3,10 +3,7 @@ package com.fleencorp.feen.stream.model.domain;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -26,6 +23,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Column(name = "stream_speaker_id", nullable = false, updatable = false, unique = true)
   private Long speakerId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = FleenStream.class)
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", nullable = false, updatable = false)
   private FleenStream stream;
@@ -33,6 +31,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Column(name = "attendee_id", updatable = false, insertable = false)
   private Long attendeeId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
   @JoinColumn(name = "attendee_id", referencedColumnName = "stream_attendee_id")
   private StreamAttendee attendee;
@@ -40,6 +39,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   @Column(name = "member_id", updatable = false, insertable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id")
   private Member member;

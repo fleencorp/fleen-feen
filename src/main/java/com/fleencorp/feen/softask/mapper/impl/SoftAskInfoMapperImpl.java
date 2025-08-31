@@ -1,17 +1,14 @@
 package com.fleencorp.feen.softask.mapper.impl;
 
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.softask.constant.info.count.AnswerCount;
 import com.fleencorp.feen.softask.constant.info.count.ReplyCount;
 import com.fleencorp.feen.softask.constant.info.count.VoteCount;
 import com.fleencorp.feen.softask.constant.info.vote.IsVoted;
 import com.fleencorp.feen.softask.constant.info.vote.TotalSoftAskVoted;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
-import com.fleencorp.feen.softask.model.info.SoftAskAnswerCountInfo;
-import com.fleencorp.feen.softask.model.info.SoftAskReplyCountInfo;
+import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskVoteCountInfo;
-import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskAnswerVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskConversationVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskReplyVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskVotedInfo;
@@ -57,24 +54,6 @@ public final class SoftAskInfoMapperImpl extends BaseMapper implements SoftAskIn
   }
 
   /**
-   * Converts the given total answer count into a {@link SoftAskAnswerCountInfo} object,
-   * including two localized messages related to the answer count.
-   *
-   * @param totalAnswerCount the total number of answers; can be {@code null}.
-   * @return a {@link SoftAskAnswerCountInfo} instance containing the answer count and two
-   *         localized messages derived from it.
-   */
-  @Override
-  public SoftAskAnswerCountInfo toAnswerCountInfo(final Integer totalAnswerCount) {
-    final AnswerCount answerCount = AnswerCount.totalAnswer();
-    return SoftAskAnswerCountInfo.of(
-      totalAnswerCount,
-      translate(answerCount.getMessageCode(), totalAnswerCount),
-      translate(answerCount.getMessageCode2(), totalAnswerCount)
-    );
-  }
-
-  /**
    * Maps the given total reply count to a {@link SoftAskReplyCountInfo} object, including a
    * localized message based on the reply count.
    *
@@ -89,20 +68,6 @@ public final class SoftAskInfoMapperImpl extends BaseMapper implements SoftAskIn
       totalReplyCount,
       translate(replyCount.getMessageCode(), totalReplyCount)
     );
-  }
-
-  /**
-   * Converts the given total vote count for SoftAsk answers into a {@link TotalSoftAskAnswerVotedInfo}
-   * object, including a localized message indicating the total vote status.
-   *
-   * @param totalVoteCount the total number of votes cast on SoftAsk answers; can be {@code null}.
-   * @return a {@link TotalSoftAskAnswerVotedInfo} instance containing the vote count and a
-   *         localized message.
-   */
-  @Override
-  public TotalSoftAskAnswerVotedInfo toTotalSoftAskAnswerVotedInfo(final Integer totalVoteCount) {
-    final TotalSoftAskVoted totalSoftAskVoted = TotalSoftAskVoted.totalSoftAskAnswerVoted();
-    return TotalSoftAskAnswerVotedInfo.of(totalVoteCount, translate(totalSoftAskVoted.getMessageCode()));
   }
 
   /**

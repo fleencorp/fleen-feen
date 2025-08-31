@@ -2,26 +2,31 @@ package com.fleencorp.feen.mapper.info;
 
 import com.fleencorp.feen.block.user.model.info.HasBlockedInfo;
 import com.fleencorp.feen.block.user.model.info.IsBlockedInfo;
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
-import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowedInfo;
+import com.fleencorp.feen.follower.model.info.IsFollowingInfo;
 import com.fleencorp.feen.like.model.info.LikeCountInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.model.contract.Bookmarkable;
+import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
+import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
+import com.fleencorp.feen.poll.constant.core.PollVisibility;
+import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsOrganizerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
-import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
-import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
-import com.fleencorp.feen.poll.constant.core.PollVisibility;
-import com.fleencorp.feen.poll.model.info.*;
 
 public interface ToInfoMapper {
 
@@ -53,7 +58,13 @@ public interface ToInfoMapper {
 
   TotalFollowingInfo toTotalFollowingInfo(Long following, String targetMemberName);
 
-  UserLikeInfo toLikeInfo(boolean liked);
+  UserLikeInfo toLikeInfo(boolean isLiked);
+
+  UserBookmarkInfo toBookmarkInfo(boolean isBookmarked);
+
+  <T extends Bookmarkable> void setBookmarkInfo(T response, boolean isBookmarked, int bookmarkCount);
+
+  <T extends Likeable> void setLikeInfo(T response, boolean isLiked, int likeCount);
 
   IsDeletedInfo toIsDeletedInfo(boolean deleted);
 
@@ -61,15 +72,19 @@ public interface ToInfoMapper {
 
   IsAnonymousInfo toIsAnonymousInfo(boolean anonymous);
 
-  IsEndedInfo toIsEnded(boolean ended);
+  IsEndedInfo toIsEnded(boolean isEnded);
 
-  IsMultipleChoiceInfo toIsMultipleChoiceInfo(boolean multipleChoice);
+  IsMultipleChoiceInfo toIsMultipleChoiceInfo(boolean isMultipleChoice);
 
-  IsVotedInfo toIsVotedInfo(boolean voted);
+  IsVotedInfo toIsVotedInfo(boolean isVoted);
 
   TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(Integer pollVoteEntries);
 
   LikeCountInfo toLikeCountInfo(Integer likeCount);
+
+  BookmarkCountInfo toBookmarkCountInfo(Integer bookmarkCount);
+
+  ShareCountInfo toShareCountInfo(Integer shareCount);
 
   ReviewCountInfo toReviewCountInfo(Integer reviewCount);
 

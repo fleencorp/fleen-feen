@@ -2,11 +2,13 @@ package com.fleencorp.feen.adapter.slack.model.request;
 
 import com.fleencorp.feen.adapter.slack.model.enums.SlackColor;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Map;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,21 +25,19 @@ public class SendMessageRequest {
   private Exception exception;
 
   public static SendMessageRequest of(final String url, final String title, final Map<String, Object> data, final SlackColor slackColor) {
-    return SendMessageRequest.builder()
-        .url(url)
-        .title(title)
-        .data(data)
-        .slackColor(slackColor)
-        .build();
+    final SendMessageRequest sendMessageRequest = new SendMessageRequest();
+    sendMessageRequest.setUrl(url);
+    sendMessageRequest.setTitle(title);
+    sendMessageRequest.setData(data);
+    sendMessageRequest.setSlackColor(slackColor);
+
+    return sendMessageRequest;
   }
 
   public static SendMessageRequest of(final String url, final String title, final Map<String, Object> data, final SlackColor slackColor, final HttpServletRequest httpRequest) {
-    return SendMessageRequest.builder()
-        .url(url)
-        .title(title)
-        .data(data)
-        .slackColor(slackColor)
-        .httpRequest(httpRequest)
-        .build();
+    final SendMessageRequest sendMessageRequest = of(url, title, data, slackColor);
+    sendMessageRequest.setHttpRequest(httpRequest);
+
+    return sendMessageRequest;
   }
 }

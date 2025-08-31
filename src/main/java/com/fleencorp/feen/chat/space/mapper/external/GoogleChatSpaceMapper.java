@@ -4,9 +4,9 @@ import com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleCh
 import com.google.chat.v1.Space;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleChatSpaceResponse.MembershipCount.parseChatSpaceResponse;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.convertToLocalDateTime;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.createSpaceUriFromSpaceName;
+import static com.fleencorp.feen.model.response.external.google.chat.chat.base.GoogleChatSpaceResponse.MembershipCount.parseChatSpaceResponse;
 import static java.util.Objects.nonNull;
 
 /**
@@ -33,22 +33,22 @@ public final class GoogleChatSpaceMapper {
     // Check if the space object is non-null before proceeding
     if (nonNull(space)) {
       // Parse the space object into a response to retrieve additional details like membership count
-      final GoogleChatSpaceResponse response = parseChatSpaceResponse(space.toString());
+      final GoogleChatSpaceResponse parsedResponse = parseChatSpaceResponse(space.toString());
 
       // Build and return the GoogleChatSpaceResponse object with mapped properties
-      return GoogleChatSpaceResponse.builder()
-        .name(space.getName())
-        .displayName(space.getDisplayName())
-        .description(space.getSpaceDetails().getDescription())
-        .guidelinesOrRules(space.getSpaceDetails().getGuidelines())
-        .externalId(space.getName())
-        .spaceType(space.getSpaceType().toString())
-        .spaceHistoryState(space.getSpaceHistoryState().toString())
-        .spaceThreadingState(space.getSpaceThreadingState().toString())
-        .createTime(convertToLocalDateTime(space.getCreateTime()))
-        .spaceUri(createSpaceUriFromSpaceName(space.getName()))
-        .membershipCount(response.getMembershipCount())
-        .build();
+      final GoogleChatSpaceResponse response = new GoogleChatSpaceResponse();
+      response.setName(space.getName());
+      response.setExternalId(space.getName());
+      response.setDisplayName(space.getDisplayName());
+      response.setSpaceType(space.getSpaceType().toString());
+      response.setMembershipCount(parsedResponse.getMembershipCount());
+      response.setDescription(space.getSpaceDetails().getDescription());
+      response.setGuidelinesOrRules(space.getSpaceDetails().getGuidelines());
+      response.setSpaceHistoryState(space.getSpaceHistoryState().toString());
+      response.setCreateTime(convertToLocalDateTime(space.getCreateTime()));
+      response.setSpaceUri(createSpaceUriFromSpaceName(space.getName()));
+      response.setSpaceThreadingState(space.getSpaceThreadingState().toString());
+
     }
     return null;
   }

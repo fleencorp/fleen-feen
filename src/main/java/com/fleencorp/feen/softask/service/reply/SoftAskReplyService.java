@@ -11,5 +11,5 @@ public interface SoftAskReplyService {
 
   SoftAskReplyAddResponse addSoftAskReply(AddSoftAskReplyDto dto, RegisteredUser user);
 
-  SoftAskReplyDeleteResponse deleteSoftAskReply(DeleteSoftAskReplyDto deleteSoftAskReplyDto, RegisteredUser user) throws SoftAskUpdateDeniedException;
+  SoftAskReplyDeleteResponse deleteSoftAskReply(final Long softAskReplyId, DeleteSoftAskReplyDto deleteSoftAskReplyDto, RegisteredUser user) throws SoftAskUpdateDeniedException;
 }

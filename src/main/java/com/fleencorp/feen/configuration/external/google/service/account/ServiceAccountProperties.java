@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -28,11 +27,10 @@ import org.springframework.context.annotation.PropertySources;
 * @author Yusuf Alamu Musa
 * @version 1.0
 */
-@SuperBuilder
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Configuration
 @ConfigurationProperties(prefix = "sa")
 @PropertySources({

@@ -1,11 +1,11 @@
 package com.fleencorp.feen.stream.service.core;
 
 import com.fleencorp.feen.calendar.model.domain.Calendar;
+import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.core.RescheduleStreamDto;
 import com.fleencorp.feen.stream.model.dto.core.UpdateStreamDto;
 import com.fleencorp.feen.stream.model.request.external.ExternalStreamRequest;
-import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 
 public interface StreamRequestService {
 

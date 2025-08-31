@@ -2,8 +2,8 @@ package com.fleencorp.feen.calendar.model.request.event.create;
 
 import com.fleencorp.feen.common.constant.external.google.calendar.event.EventVisibility;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
+import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
 import lombok.*;
 
 import java.time.LocalDateTime;

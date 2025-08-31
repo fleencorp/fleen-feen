@@ -5,34 +5,39 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.link.constant.LinkParentType;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class LinkSearchRequest extends SearchRequest {
 
   @ToUpperCase
   @JsonProperty("parent_type")
   protected String parentType;
 
+  @NotNull
   @IsNumber
   @JsonProperty("parent_id")
   protected String parentId;
+
+  public Long getParentId() {
+    return nonNull(parentId) ? Long.valueOf(parentId) : null;
+  }
 
   public Long getChatSpaceId() {
     return Long.valueOf(parentId);
   }
 
-
-  public boolean isChatSpaceSearchRequest() {
-    return nonNull(parentId) && LinkParentType.isChatSpace(parentType);
+  public LinkParentType getParentType() {
+    return LinkParentType.of(parentType);
   }
 
   public static LinkSearchRequest of(final Long chatSpaceId) {

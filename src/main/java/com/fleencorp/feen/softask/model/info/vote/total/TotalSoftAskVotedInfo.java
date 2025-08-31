@@ -20,7 +20,7 @@ import lombok.Setter;
 public class TotalSoftAskVotedInfo {
 
   @JsonProperty("total")
-  private Object total;
+  private Integer total;
 
   @JsonProperty("total_soft_ask_voted_text")
   private String totalSoftAskVotedText;

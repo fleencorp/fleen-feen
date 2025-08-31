@@ -30,4 +30,8 @@ public enum StreamStatus implements ApiParameter {
     this.messageCode2 = messageCode2;
     this.messageCode3 = messageCode3;
   }
+
+  public static boolean isCanceled(final StreamStatus streamStatus) {
+    return streamStatus == CANCELED;
+  }
 }

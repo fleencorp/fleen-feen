@@ -51,7 +51,7 @@ public interface StreamAttendeeProjectionRepository extends JpaRepository<Stream
    *
    * @param member the {@link Member} whose attendance data is to be fetched
    * @param streamIds the list of stream IDs to filter the attendance records
-   * @return a list of {@link StreamAttendeeSelect} projections containing attendance and like info for the member
+   * @return a list of {@link StreamAttendeeSelect} projections containing attendance and bookmark info for the member
    */
   @Query(value =
     """

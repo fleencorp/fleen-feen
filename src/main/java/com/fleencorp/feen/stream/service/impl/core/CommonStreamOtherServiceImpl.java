@@ -1,20 +1,22 @@
 package com.fleencorp.feen.stream.service.impl.core;
 
-import com.fleencorp.feen.like.service.LikeService;
+import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
+import com.fleencorp.feen.like.service.LikeOperationService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
+import com.fleencorp.feen.model.contract.HasId;
+import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
+import com.fleencorp.feen.review.service.ReviewCommonService;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
-import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
-import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.service.ReviewCommonService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamOtherService;
+import com.fleencorp.feen.stream.util.StreamServiceUtil;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -22,30 +24,32 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.determineIfUserIsTheOrganizerOfEntity;
+import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.*;
 import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
-import static com.fleencorp.feen.common.util.DateTimeUtil.convertToTimezone;
 import static java.util.Objects.nonNull;
 
 @Service
 public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
 
-  private final LikeService likeService;
+  private final BookmarkOperationService bookmarkOperationService;
+  private final LikeOperationService likeOperationService;
   private final ReviewCommonService reviewCommonService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final UnifiedMapper unifiedMapper;
 
   public CommonStreamOtherServiceImpl(
-      final LikeService likeService,
+      final BookmarkOperationService bookmarkOperationService,
+      final LikeOperationService likeOperationService,
       final ReviewCommonService reviewCommonService,
       @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final UnifiedMapper unifiedMapper) {
-    this.likeService = likeService;
+    this.bookmarkOperationService = bookmarkOperationService;
+    this.likeOperationService = likeOperationService;
     this.reviewCommonService = reviewCommonService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.unifiedMapper = unifiedMapper;
@@ -62,21 +66,15 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    */
   @Override
   public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final Member member) {
-    // Ensure inputs are valid and the response list is not empty
     if (allNonNull(streamResponses, member) && !streamResponses.isEmpty()) {
-      // Get attendance details for the streams, grouped by stream ID
       final Map<Long, StreamAttendeeSelect> attendanceDetailsMap = getUserAttendanceDetailsMap(streamResponses, member);
 
-      // Collect the details of reviews for each stream
-      final Collection<Long> streamsIds = getStreamsIds(streamResponses);
+      final Collection<Long> streamsIds = StreamServiceUtil.getStreamsIds(streamResponses);
       final ReviewParentCountHolder reviewParentCountHolder = reviewCommonService.getTotalReviewsByParent(ReviewParentType.STREAM, streamsIds);
 
-      // Populate like status for streams where the user has not joined or requested to join
-      likeService.populateStreamLikesForNonAttendance(streamResponses, attendanceDetailsMap, member);
-      // Populate like status for streams where the user has joined or requested to join
-      likeService.populateStreamLikesForAttendance(streamResponses, attendanceDetailsMap, member);
+      bookmarkOperationService.populateStreamBookmarksFor(streamResponses, member);
+      likeOperationService.populateStreamLikesFor(streamResponses, member);
 
-      // Process each stream response with detailed enrichment
       streamResponses.stream()
         .filter(Objects::nonNull)
         .forEach(streamResponse -> processStreamResponse(streamResponse, attendanceDetailsMap, reviewParentCountHolder, member));
@@ -100,7 +98,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
     // Update join status, attendance, and speaker info
     updateJoinStatusInResponses(streamResponse, attendanceDetailMap);
     // Adjust schedule to user's timezone
-    setOtherScheduleBasedOnUserTimezone(streamResponse, member);
+    StreamServiceUtil.setOtherScheduleBasedOnUserTimezone(streamResponse, member);
     // Set the total number of attendees attending this stream
     setStreamAttendeesAndTotalAttendeesAttending(streamResponse);
     // Set the first 10 attendees attending the stream (unordered)
@@ -125,11 +123,11 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    */
   protected Map<Long, StreamAttendeeSelect> getUserAttendanceDetailsMap(final Collection<StreamResponse> streamResponses, final Member member) {
     // Extract the stream IDs from the search result views
-    final List<Long> streamIds = extractAndGetEntriesIds(streamResponses);
+    final List<Long> streamIds = HasId.getIds(streamResponses);
     // Retrieve the user's attendance records for the provided stream IDs
     final List<StreamAttendeeSelect> attendeeAttendance = streamAttendeeOperationsService.findByMemberAndStreamIds(member, streamIds);
     // Group the attendance details by stream ID and return as a map
-    return groupMembershipByEntriesId(attendeeAttendance);
+    return HasId.groupMembershipByEntriesId(attendeeAttendance);
   }
 
   /**
@@ -217,81 +215,4 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
     streamResponse.setReviewCountInfo(reviewCountInfo);
   }
 
-  /**
-   * Sets the stream's schedule in the user's timezone if it differs from the stream's original timezone.
-   *
-   * <p>If the user's timezone is different from the stream's original timezone, this method converts
-   * the stream's schedule accordingly and sets it as the "other schedule" in the response. Otherwise,
-   * an empty schedule is set.</p>
-   *
-   * @param streamResponse the stream response containing the original schedule
-   * @param member the user whose timezone is used for conversion
-   */
-  public void setOtherScheduleBasedOnUserTimezone(final StreamResponse streamResponse, final Member member) {
-    if (allNonNull(streamResponse, member)) {
-      // Get the stream's original timezone
-      final String streamTimezone = streamResponse.getSchedule().getTimezone();
-      // Get the user's timezone
-      final String userTimezone = member.getTimezone();
-      // Check if the stream's timezone and user's timezone are different
-      if (!streamTimezone.equalsIgnoreCase(userTimezone)) {
-        // Convert the stream's schedule to the user's timezone
-        final Schedule otherSchedule = createSchedule(streamResponse, userTimezone);
-        // Set the converted dates and user's timezone in the stream's other schedule
-        streamResponse.setOtherSchedule(otherSchedule);
-      } else {
-        // If the timezones are the same, set an empty schedule
-        streamResponse.setOtherSchedule(Schedule.of());
-      }
-    }
-  }
-
-  /**
-   * Creates a schedule for a stream adjusted to the user's timezone.
-   *
-   * <p>This method checks if the stream and user timezone are valid. If so, it retrieves the
-   * stream's original start and end dates, converts them to the user's timezone, and returns
-   * the converted schedule with the adjusted dates. If either the stream or user timezone is
-   * invalid (null), an empty schedule is returned.</p>
-   *
-   * @param stream the FleenStreamResponse object representing the stream.
-   * @param userTimezone the timezone of the user to which the schedule will be adjusted.
-   * @return a Schedule object with the adjusted start and end dates in the user's timezone.
-   */
-  protected static Schedule createSchedule(final StreamResponse stream, final String userTimezone) {
-    if (nonNull(stream) && nonNull(userTimezone)) {
-      // Get the stream's original timezone
-      final String streamTimezone = stream.getSchedule().getTimezone();
-
-      // Retrieve the start dates from the stream's schedule
-      final LocalDateTime startDate = stream.getSchedule().getStartDate();
-      // Retrieve the end dates from the stream's schedule
-      final LocalDateTime endDate = stream.getSchedule().getEndDate();
-
-      // Convert the stream's start date to the user's timezone
-      final LocalDateTime userStartDate = convertToTimezone(startDate, streamTimezone, userTimezone);
-      // Convert the stream's end date to the user's timezone
-      final LocalDateTime userEndDate = convertToTimezone(endDate, streamTimezone, userTimezone);
-      // Return the schedule with the dates in the user's timezone
-      return Schedule.of(userStartDate, userEndDate, userTimezone);
-    }
-    // If the stream or userTimezone is null, return an empty schedule
-    return Schedule.of();
-  }
-
-  /**
-   * Extracts the stream number IDs from a collection of {@link StreamResponse} objects.
-   *
-   * <p>Null entries in the collection are ignored. Each non-null {@code StreamResponse}
-   * is mapped to its {@code numberId}.</p>
-   *
-   * @param streamResponses the collection of stream responses
-   * @return a list of stream number IDs
-   */
-  protected static List<Long> getStreamsIds(final Collection<StreamResponse> streamResponses) {
-    return streamResponses.stream()
-      .filter(Objects::nonNull)
-      .map(StreamResponse::getNumberId)
-      .toList();
-  }
 }

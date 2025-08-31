@@ -1,70 +1,56 @@
 package com.fleencorp.feen.softask.model.dto.reply;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fleencorp.base.validator.IsNumber;
+import com.fleencorp.feen.common.constant.location.LocationVisibility;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.dto.common.SoftAskWithParentDto;
 import com.fleencorp.feen.user.model.domain.Member;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static java.util.Objects.nonNull;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddSoftAskReplyDto {
+@AllArgsConstructor
+public class AddSoftAskReplyDto extends SoftAskWithParentDto {
 
   @NotBlank(message = "{softAskReply.content.NotBlank}")
   @Size(min = 10, max = 4000, message = "{softAskReply.content.Size}")
   @JsonProperty("reply")
   private String content;
 
-  @NotNull(message = "{softAskReply.parent.NotNull}")
-  @JsonProperty("parent")
-  private SoftAskAnswerParentDto parent;
-
-  private boolean hasParent() {
-    return nonNull(parent);
-  }
-
-  public Long getSoftAskAnswerId() {
-    return hasParent() ? parent.getParentId() : null;
-  }
-
-  public SoftAskReply toSoftAskReply(final Member author, final SoftAsk softAsk, final SoftAskAnswer answer) {
+  public SoftAskReply toSoftAskReply(final Member author, final SoftAsk softAsk, final SoftAskReply parentReply) {
     final SoftAskReply reply = new SoftAskReply();
     reply.setContent(content);
+    reply.setVisible(true);
+
+    reply.setAuthorId(author.getMemberId());
     reply.setAuthor(author);
-    reply.setUserOtherName(author.getUsername());
+
     reply.setSoftAskId(softAsk.getSoftAskId());
     reply.setSoftAsk(softAsk);
-    reply.setSoftAnswerId(answer.getSoftAskAnswerId());
-    reply.setSoftAnswer(answer);
+
+    reply.setLatitude(BigDecimal.valueOf(latitude));
+    reply.setLongitude(BigDecimal.valueOf(longitude));
+
+    reply.setModerationStatus(ModerationStatus.CLEAN);
+    reply.setLocationVisibility(LocationVisibility.GLOBAL);
+    reply.setMoodTag(getMood());
+
+    if (parentReply != null) {
+      reply.setParentReplyId(parentReply.getSoftAskReplyId());
+      reply.setParentReply(parentReply);
+    }
 
     return reply;
-  }
-
-  @Valid
-  @Getter
-  @Setter
-  @NoArgsConstructor
-  public static class SoftAskAnswerParentDto {
-
-    @NotNull(message = "{softAskReply.parentId.NotNull}")
-    @IsNumber(message = "{softAskReply.parentId.IsNumber}")
-    @JsonProperty(value = "parent_id")
-    private String parentId;
-
-    public Long getParentId() {
-      return nonNull(parentId) ? Long.parseLong(parentId) : null;
-    }
   }
 }
 

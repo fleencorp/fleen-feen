@@ -3,13 +3,12 @@ package com.fleencorp.feen.common.service.impl.misc;
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.repository.CalendarRepository;
-import com.fleencorp.feen.stream.constant.core.StreamType;
+import com.fleencorp.feen.common.service.misc.MiscService;
 import com.fleencorp.feen.country.service.CountryService;
-import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.HasOrganizer;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
-import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.service.authentication.PasswordService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,24 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
-/**
- * Implementation of the {@link MiscService} and {@link PasswordService} interfaces.
- *
- * <p>This class provides various miscellaneous services including country management,
- * calendar operations, and password encoding. It acts as a bridge between the application
- * logic and the underlying data repositories.</p>
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
 @Slf4j
 @Service
 @Qualifier("misc")
@@ -95,11 +80,9 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    */
   @Override
   public Calendar findCalendar(final String countryTitle) {
-    // Retrieve the country code by its title or throw an exception if not found
     final String countryCode = countryService.getCountryCodeByTitle(countryTitle)
       .orElseThrow(CalendarNotFoundException.of(countryTitle));
 
-    // Find the calendar by code or throw an exception if not found
     return calendarRepository.findDistinctByCodeIgnoreCase(countryCode)
       .orElseThrow(CalendarNotFoundException.of(countryCode));
   }
@@ -175,15 +158,19 @@ public class MiscServiceImpl implements MiscService, PasswordService {
   }
 
   /**
-   * <p>Marks a single entity as updatable if the provided user is the organizer of the entity.</p>
+   * Marks the given entity as updatable if the provided user is the author or organizer.
    *
-   * <p>This method checks whether the given entry and user ID are non-null.
-   * If the user's ID matches the entity's organizer ID, the entity is marked as updatable.</p>
+   * <p>This method checks whether the specified {@code userId} matches either the
+   * author ID or the organizer ID of the given {@code entry}. If a match is found,
+   * the entity is marked as updatable by invoking {@link Updatable#markAsUpdatable()}.</p>
    *
-   * @param entry  the entity to check and potentially mark as updatable
-   * @param userId the ID of the user to verify as the organizer
+   * @param <T>    the type of entity, which must implement {@link Updatable}
+   * @param entry  the entity to evaluate and potentially mark as updatable;
+   *               may be {@code null}
+   * @param userId the ID of the user attempting to update the entity;
+   *               may be {@code null}
    */
-  public static void setEntityUpdatableByUser(final Updatable entry, final Long userId) {
+  public static <T extends Updatable> void setEntityUpdatableByUser(final T entry, final Long userId) {
     if (nonNull(entry) && nonNull(userId)) {
       final boolean isAuthor = entry.getAuthorId().equals(userId) || entry.getOrganizerId().equals(userId);
       if (isAuthor) {
@@ -193,46 +180,23 @@ public class MiscServiceImpl implements MiscService, PasswordService {
   }
 
   /**
-   * Extracts and returns the numeric IDs from a collection of objects that implement {@link HasId}.
+   * Marks the provided links as updatable by the user if the user has administrative privileges.
    *
-   * <p>Returns an empty list if the input collection is null or empty. Null elements within
-   * the collection are safely ignored during processing.</p>
+   * <p>This method iterates through the given list of {@link Updatable} objects and marks each
+   * non-{@code null} entry as updatable only if the {@code isAdmin} flag is {@code true}.
+   * If the list is {@code null} or empty, or if the user is not an admin, no action is taken.</p>
    *
-   * @param entries the collection of ID-holding objects
-   * @return a list of numeric IDs, or an empty list if input is null or empty
+   * @param links   the list of {@link Updatable} entities to be marked as updatable;
+   *                may be {@code null} or empty
+   * @param isAdmin {@code true} if the user has administrative privileges and the links
+   *                should be marked as updatable; {@code false} otherwise
    */
-  public static <T extends HasId> List<Long> extractAndGetEntriesIds(final Collection<T> entries) {
-    // Filter null responses and map to the corresponding stream ID
-    if (nonNull(entries) && !entries.isEmpty()) {
-      return entries.stream()
+  public static <T extends Updatable> void setLinksThatAreUpdatableByUser(final Collection<T> links, final boolean isAdmin) {
+    if (nonNull(links) && !links.isEmpty() && isAdmin) {
+      links.stream()
         .filter(Objects::nonNull)
-        .map(HasId::getNumberId)
-        .toList();
+        .forEach(Updatable::markAsUpdatable);
     }
-    // Return an empty list if the input list is null
-    return List.of();
-  }
-
-  /**
-   * Groups a collection of items implementing {@link HasId} by their numeric ID.
-   *
-   * <p>This is typically used to map stream IDs to their corresponding attendance
-   * or membership objects. Null entries are filtered out. Returns an empty map
-   * if the input collection is null or empty.</p>
-   *
-   * @param entries the collection of items to group
-   * @param <T> a type that implements {@link HasId}
-   * @return a map of numeric IDs to their corresponding items
-   */
-  public static <T extends HasId> Map<Long, T> groupMembershipByEntriesId(final Collection<T> entries) {
-    // Filter null values and map stream ID to request-to-join status
-    if (nonNull(entries) && !entries.isEmpty()) {
-      return entries.stream()
-        .filter(Objects::nonNull)
-        .collect(Collectors.toMap(HasId::getNumberId, Function.identity()));
-    }
-    // Return an empty map if the input list is null or empty
-    return Map.of();
   }
 
 }

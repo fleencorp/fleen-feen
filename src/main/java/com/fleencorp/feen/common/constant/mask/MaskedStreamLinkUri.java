@@ -93,6 +93,10 @@ public enum MaskedStreamLinkUri implements ApiParameter {
    * @return a MaskedStreamLinkUri instance with the masked link based on the source
    */
   public static MaskedStreamLinkUri of(final String value, final StreamSource source) {
+    if (isNull(value)) {
+      return null;
+    }
+
     // Initialize with default Google Meet masked stream link
     MaskedStreamLinkUri maskedStreamLinkUri = MaskedStreamLinkUri.GOOGLE_MEET;
 

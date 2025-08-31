@@ -1,9 +1,9 @@
 package com.fleencorp.feen.calendar.service.impl;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyActiveException;
 import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyExistException;
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.mapper.CalendarMapper;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.model.dto.CreateCalendarDto;
 import com.fleencorp.feen.calendar.model.dto.ShareCalendarWithUserDto;
@@ -40,15 +40,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.calendar.mapper.CalendarMapper.toCalendarResponse;
-import static com.fleencorp.feen.calendar.mapper.CalendarMapper.toCalendarResponses;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
-import static java.util.Objects.nonNull;
 
 /**
  * Implementation of the CalendarService interface.
@@ -66,36 +62,23 @@ public class CalendarServiceImpl implements CalendarService {
   private final GoogleCalendarUpdateService googleCalendarUpdateService;
   private final CalendarRepository calendarRepository;
   private final GoogleOauth2Service googleOauth2Service;
+  private final CalendarMapper calendarMapper;
   private final Localizer localizer;
 
-  /**
-   * Creates an instance of CalendarServiceImpl with the specified services and repository.
-   *
-   * <p>This constructor initializes the CalendarServiceImpl instance with the provided
-   * CountryService for handling country-related operations, GoogleCalendarService and
-   * GoogleCalendarUpdateService for interacting with Google Calendar, GoogleOauth2Service
-   * for OAuth2 authentication, CalendarRepository for managing calendar data, and Localizer
-   * for localization tasks.</p>
-   *
-   * @param countryService the CountryService instance for country-related functionality
-   * @param googleCalendarService the GoogleCalendarService instance for interacting with Google Calendar
-   * @param googleCalendarUpdateService the GoogleCalendarUpdateService instance for updating Google Calendar events
-   * @param googleOauth2Service the GoogleOauth2Service instance for handling OAuth2 authentication
-   * @param calendarRepository the CalendarRepository instance for accessing and storing calendar data
-   * @param localizer the Localizer instance for localization operations
-   */
   public CalendarServiceImpl(
       final CountryService countryService,
       final GoogleCalendarService googleCalendarService,
       final GoogleCalendarUpdateService googleCalendarUpdateService,
       final GoogleOauth2Service googleOauth2Service,
       final CalendarRepository calendarRepository,
+      final CalendarMapper calendarMapper,
       final Localizer localizer) {
     this.countryService = countryService;
     this.googleCalendarService = googleCalendarService;
     this.googleCalendarUpdateService = googleCalendarUpdateService;
     this.googleOauth2Service = googleOauth2Service;
     this.calendarRepository = calendarRepository;
+    this.calendarMapper = calendarMapper;
     this.localizer = localizer;
   }
 
@@ -106,67 +89,96 @@ public class CalendarServiceImpl implements CalendarService {
    */
   @Override
   public DataForCreateCalendarResponse getDataForCreateCalendar() {
-    // Create the search request
     final CountrySearchRequest countrySearchRequest = CountrySearchRequest.ofPageSize(1000);
-    // Fetch a list of countries with a large number of entries (1000 in this case).
     final CountrySearchResult searchResult = countryService.findCountries(countrySearchRequest);
-    // Get the countries in the search result
+
     final Collection<?> countries = searchResult.getResult().getValues();
-    // Get the set of available timezones.
     final Set<String> timezones = getAvailableTimezones();
-    // Create the response
+
     final DataForCreateCalendarResponse dataForCreateCalendarResponse = DataForCreateCalendarResponse.of(timezones, countries);
-    // Return the response object containing both the countries and timezones.
     return localizer.of(dataForCreateCalendarResponse);
   }
 
   /**
-  * Finds calendars based on the search criteria provided in the CalendarSearchRequest.
-  *
-  * @param searchRequest the request containing the search criteria
-  * @return a CalendarSearchResult containing the search results
-  */
+   * Retrieves a calendar by its identifier.
+   *
+   * <p>If no calendar exists with the given identifier, a {@link CalendarNotFoundException} is thrown.</p>
+   *
+   * @param calendarId the identifier of the calendar to retrieve
+   * @return the {@link Calendar} entity associated with the given identifier
+   * @throws CalendarNotFoundException if no calendar exists with the given identifier
+   */
+  private Calendar findCalendar(final Long calendarId) {
+    return calendarRepository.findById(calendarId)
+      .orElseThrow(CalendarNotFoundException.of(calendarId));
+  }
+
+  /**
+   * Finds calendars based on the given {@link CalendarSearchRequest} and returns a localized {@link CalendarSearchResult}.
+   *
+   * <p>The method performs a search using {@link #searchCalendars(CalendarSearchRequest)} and maps the results
+   * into {@link CalendarResponse} objects. These are wrapped in a {@link SearchResult} which is then converted
+   * into a {@link CalendarSearchResult}. Finally, the result is localized before being returned.</p>
+   *
+   * @param searchRequest the criteria for searching calendars, including pagination, title, date range, and statuses
+   * @return a localized {@link CalendarSearchResult} containing the search results
+   */
   @Override
   public CalendarSearchResult findCalendars(final CalendarSearchRequest searchRequest) {
-    final Page<Calendar> page;
-    final Pageable pageable = searchRequest.getPage();
-    final Boolean active = searchRequest.getActive();
-    final String title = searchRequest.getTitle();
-    final LocalDateTime startDate = searchRequest.getStartDateTime();
-    final LocalDateTime endDate = searchRequest.getEndDateTime();
+    final Page<Calendar> page = searchCalendars(searchRequest);
+    final Collection<CalendarResponse> calendarResponses = calendarMapper.toCalendarResponses(page.getContent());
 
-
-    if (searchRequest.areAllDatesSet()) {
-      page = calendarRepository.findByDateBetween(startDate, endDate, pageable);
-    } else if (nonNull(title))  {
-      page = calendarRepository.findByTitle(title, pageable);
-    } else if (nonNull(active)) {
-      page = calendarRepository.findByIsActive(active, pageable);
-    } else {
-      page = calendarRepository.findMany(pageable);
-    }
-
-    final List<CalendarResponse> calendarResponses = toCalendarResponses(page.getContent());
-    // Create a search result
     final SearchResult searchResult = toSearchResult(calendarResponses, page);
-    // Create a search result with the responses and pagination details
     final CalendarSearchResult calendarSearchResult = CalendarSearchResult.of(searchResult);
-    // Return the search result
+
     return localizer.of(calendarSearchResult);
   }
 
   /**
-  * Finds a calendar by its ID.
-  *
-  * @param calendarId the ID of the calendar to find
-  * @return {@link RetrieveCalendarResponse} containing the calendar details
-  * @throws CalendarNotFoundException if the calendar with the specified ID is not found
-  */
+   * Searches calendars based on the provided {@link CalendarSearchRequest}.
+   *
+   * <p>The search criteria are applied in the following order of precedence:
+   * if both start and end dates are set, calendars within the date range are returned.
+   * If a title is specified, calendars matching the title are returned.
+   * Otherwise, calendars are filtered by status.</p>
+   *
+   * @param searchRequest the search criteria including pagination, title, date range, and statuses
+   * @return a {@link Page} of matching {@link Calendar} entities
+   */
+  private Page<Calendar> searchCalendars(final CalendarSearchRequest searchRequest) {
+    final Pageable pageable = searchRequest.getPage();
+    final String title = searchRequest.getTitle();
+    final LocalDateTime startDate = searchRequest.getStartDateTime();
+    final LocalDateTime endDate = searchRequest.getEndDateTime();
+
+    if (searchRequest.areAllDatesSet()) {
+      return calendarRepository.findByDateBetween(startDate, endDate, pageable);
+    } else if (searchRequest.hasTitle())  {
+      return calendarRepository.findByTitle(title, pageable);
+    } else {
+      return calendarRepository.findByStatus(searchRequest.getStatuses(), pageable);
+    }
+  }
+
+  /**
+   * Finds a calendar by its identifier and returns a localized {@link RetrieveCalendarResponse}.
+   *
+   * <p>If the calendar with the given identifier does not exist, a {@link CalendarNotFoundException}
+   * is thrown. The retrieved calendar is mapped to a {@link CalendarResponse} and wrapped into a
+   * {@link RetrieveCalendarResponse}, which is then localized before being returned.</p>
+   *
+   * @param calendarId the identifier of the calendar to retrieve
+   * @return a localized {@link RetrieveCalendarResponse} containing the calendar details
+   * @throws CalendarNotFoundException if no calendar exists with the given identifier
+   */
   @Override
-  public RetrieveCalendarResponse findCalendar(final Long calendarId) {
-    final Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(CalendarNotFoundException.of(calendarId));
-    return localizer.of(RetrieveCalendarResponse.of(calendarId, toCalendarResponse(calendar)));
+  public RetrieveCalendarResponse retrieveCalendar(final Long calendarId) {
+    final Calendar calendar = findCalendar(calendarId);
+
+    final CalendarResponse calendarResponse = calendarMapper.toCalendarResponse(calendar);
+    final RetrieveCalendarResponse retrieveCalendarResponse = RetrieveCalendarResponse.of(calendarId, calendarResponse);
+
+    return localizer.of(retrieveCalendarResponse);
   }
 
   /**
@@ -215,7 +227,7 @@ public class CalendarServiceImpl implements CalendarService {
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
     // Create the response
-    final CreateCalendarResponse createCalendarResponse = CreateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
+    final CreateCalendarResponse createCalendarResponse = CreateCalendarResponse.of(calendar.getCalendarId(), calendarMapper.toCalendarResponse(calendar));
     // Return the response
     return localizer.of(createCalendarResponse);
   }
@@ -234,8 +246,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   @Transactional
   public UpdateCalendarResponse updateCalendar(final Long calendarId, final UpdateCalendarDto updateCalendarDto, final RegisteredUser user) {
-    Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(CalendarNotFoundException.of(calendarId));
+    Calendar calendar = findCalendar(calendarId);
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
@@ -264,7 +275,7 @@ public class CalendarServiceImpl implements CalendarService {
     logIfEnabled(log::isInfoEnabled, () -> log.info("Patch calendar response: {}", googlePatchCalendarResponse));
 
     // Create the response
-    final UpdateCalendarResponse updateCalendarResponse = UpdateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
+    final UpdateCalendarResponse updateCalendarResponse = UpdateCalendarResponse.of(calendar.getCalendarId(), calendarMapper.toCalendarResponse(calendar));
     // Return the response
     return localizer.of(updateCalendarResponse);
   }
@@ -282,11 +293,9 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   @Transactional
   public ReactivateCalendarResponse reactivateCalendar(final Long calendarId, final RegisteredUser user) {
-    Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(CalendarNotFoundException.of(calendarId));
+    Calendar calendar = findCalendar(calendarId);
+    calendar.verifyCalendarIsNotAlreadyActive();
 
-    // Verify calendar is not already active
-    verifyCalendarIsNotAlreadyActive(calendar);
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
@@ -301,16 +310,13 @@ public class CalendarServiceImpl implements CalendarService {
     );
 
     calendar.markAsActive();
-    // Save updated calendar
     calendar = calendarRepository.save(calendar);
 
-    // Update the calendar through Google Calendar API Service
     final GoogleCreateCalendarResponse googleCreateCalendarResponse = googleCalendarService.createCalendar(createCalendarRequest);
     calendar.setExternalId(googleCreateCalendarResponse.calendarId());
 
-    // Create the response
-    final ReactivateCalendarResponse reactivateCalendarResponse = ReactivateCalendarResponse.of(calendar.getCalendarId(), toCalendarResponse(calendar));
-    // Return the response
+    final CalendarResponse calendarResponse = calendarMapper.toCalendarResponse(calendar);
+    final ReactivateCalendarResponse reactivateCalendarResponse = ReactivateCalendarResponse.of(calendar.getCalendarId(), calendarResponse);
     return localizer.of(reactivateCalendarResponse);
   }
 
@@ -327,8 +333,7 @@ public class CalendarServiceImpl implements CalendarService {
   @Override
   @Transactional
   public DeletedCalendarResponse deleteCalendar(final Long calendarId, final RegisteredUser user) {
-    final Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(CalendarNotFoundException.of(calendarId));
+    final Calendar calendar = findCalendar(calendarId);
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     // Validate access token expiry time and refresh if expired
@@ -363,13 +368,10 @@ public class CalendarServiceImpl implements CalendarService {
   */
   @Override
   public ShareCalendarWithUserResponse shareCalendarWithUser(final Long calendarId, final ShareCalendarWithUserDto shareCalendarWithUserDto, final RegisteredUser user) {
-    final Calendar calendar = calendarRepository.findById(calendarId)
-      .orElseThrow(CalendarNotFoundException.of(calendarId));
+    final Calendar calendar = findCalendar(calendarId);
 
     // Retrieve user oauth2 authorization details associated with Google Calendar
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.googleCalendar(), user);
-
-    // Construct the request for sharing the calendar
     final ShareCalendarWithUserRequest shareCalendarWithUserRequest = ShareCalendarWithUserRequest.of(
       calendar.getExternalId(),
       shareCalendarWithUserDto.getEmailAddress(),
@@ -382,12 +384,10 @@ public class CalendarServiceImpl implements CalendarService {
     final GoogleShareCalendarWithUserResponse googleShareCalendarWithUserResponse = googleCalendarUpdateService.shareCalendarWithUser(shareCalendarWithUserRequest);
     logIfEnabled(log::isInfoEnabled, () -> log.info("Shared calendar: {} with user {}", googleShareCalendarWithUserResponse, shareCalendarWithUserDto.getEmailAddress()));
 
-    // Return share calendar response
-    final ShareCalendarWithUserResponse shareCalendarWithUserResponse = ShareCalendarWithUserResponse
-      .of(calendarId,
-        shareCalendarWithUserDto.getEmailAddress(),
-        toCalendarResponse(calendar)
-      );
+    final String userEmailAddress = shareCalendarWithUserDto.getEmailAddress();
+    final CalendarResponse calendarResponse = calendarMapper.toCalendarResponse(calendar);
+    final ShareCalendarWithUserResponse shareCalendarWithUserResponse = ShareCalendarWithUserResponse.of(calendarId, userEmailAddress, calendarResponse);
+
     return localizer.of(shareCalendarWithUserResponse);
   }
 
@@ -403,16 +403,4 @@ public class CalendarServiceImpl implements CalendarService {
     return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
   }
 
-  /**
-   * Verifies that the given calendar is not already active. If the calendar is active, an exception is thrown.
-   *
-   * @param calendar The calendar to be checked for active status. If the calendar is {@code null} or the active
-   *                 status is not set, the method does nothing.
-   * @throws CalendarAlreadyActiveException if the calendar is already active.
-   */
-  public void verifyCalendarIsNotAlreadyActive(final Calendar calendar) {
-    if (nonNull(calendar) && nonNull(calendar.getIsActive()) && calendar.getIsActive()) {
-      throw new CalendarAlreadyActiveException();
-    }
-  }
 }

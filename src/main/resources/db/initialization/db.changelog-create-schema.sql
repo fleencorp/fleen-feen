@@ -155,8 +155,11 @@ CREATE TABLE chat_space (
 
   is_active BOOLEAN DEFAULT TRUE NOT NULL,
   is_deleted BOOLEAN DEFAULT FALSE NOT NULL,
-  total_members BIGINT DEFAULT 0 NOT NULL,
-  like_count INT DEFAULT 0 NOT NULL,
+  total_members INTEGER DEFAULT 0 NOT NULL,
+
+  bookmark_count INTEGER DEFAULT 0 NOT NULL,
+  like_count INTEGER DEFAULT 0 NOT NULL,
+  share_count INTEGER DEFAULT 0 NOT NULL,
 
   space_visibility VARCHAR(255) DEFAULT 'PUBLIC'
     NOT NULL CHECK (space_visibility IN ('PUBLIC', 'PRIVATE')),
@@ -242,8 +245,13 @@ CREATE TABLE stream (
 
   made_for_kids BOOLEAN NOT NULL DEFAULT false,
   is_deleted BOOLEAN NOT NULL DEFAULT false,
-  total_attendees BIGINT DEFAULT 0 NOT NULL,
-  like_count INT DEFAULT 0 NOT NULL,
+
+  total_attendees INTEGER DEFAULT 0 NOT NULL,
+  total_speakers INTEGER DEFAULT 0 NOT NULL,
+
+  bookmark_count INTEGER DEFAULT 0 NOT NULL,
+  like_count INTEGER DEFAULT 0 NOT NULL,
+  share_count INTEGER DEFAULT 0 NOT NULL,
 
   other_details VARCHAR(3000) NULL,
   other_link VARCHAR(1000) NULL,
@@ -292,8 +300,10 @@ CREATE TABLE calendar (
   title VARCHAR(300) NOT NULL,
   description VARCHAR(1000) NOT NULL,
   timezone VARCHAR(30) NOT NULL,
-  is_active BOOLEAN NOT NULL,
   code VARCHAR(100) NOT NULL,
+
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ACTIVE', 'INACTIVE')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -346,14 +356,16 @@ CREATE TABLE stream_attendee (
 CREATE TABLE review (
   review_id BIGSERIAL PRIMARY KEY,
   parent_id BIGINT NOT NULL,
-  rating INT NOT NULL,
+  rating INTEGER NOT NULL,
   review VARCHAR(1000) NULL,
   parent_title varchar(1000) NULL,
 
   stream_id BIGINT NULL,
   chat_space_id BIGINT NULL,
   author_id BIGINT NOT NULL,
-  like_count INT DEFAULT 0 NOT NULL,
+
+  bookmark_count INTEGER DEFAULT 0 NOT NULL,
+  like_count INTEGER DEFAULT 0 NOT NULL,
 
   parent_type VARCHAR(255)
     NOT NULL CHECK (parent_type IN ('STREAM', 'CHAT_SPACE')),
@@ -699,7 +711,7 @@ CREATE TABLE link (
   chat_space_id BIGINT,
 
   link_parent_type VARCHAR(255)
-    NOT NULL CHECK (link_parent_type IN ('CHAT_SPACE', 'STREAM', 'USER')),
+    NOT NULL CHECK (link_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'STREAM', 'USER')),
 
   link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
     'EMAIL',
@@ -883,16 +895,27 @@ CREATE TABLE soft_ask (
   soft_ask_id BIGSERIAL PRIMARY KEY,
   title VARCHAR(500) NOT NULL,
   description VARCHAR(4000) NOT NULL,
-  summary VARCHAR(4000),
   tags VARCHAR(500),
-  other_text VARCHAR(2000) NOT NULL,
   link VARCHAR(1000),
+
   parent_id BIGINT,
   parent_title VARCHAR(1000),
-  user_other_name VARCHAR(255) NOT NULL,
+
+  summary VARCHAR(4000),
+  other_text VARCHAR(2000) NOT NULL,
+
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  answer_count INTEGER NOT NULL DEFAULT 0,
+
+  bookmark_count INTEGER DEFAULT 0 NOT NULL,
+  reply_count INTEGER NOT NULL DEFAULT 0,
+  share_count INTEGER NOT NULL DEFAULT 0,
   vote_count INTEGER NOT NULL DEFAULT 0,
+
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+
+  geohash VARCHAR(9) NULL,
+  geohash_prefix VARCHAR(5) NULL,
 
   chat_space_id BIGINT NOT NULL,
   stream_id BIGINT,
@@ -900,10 +923,16 @@ CREATE TABLE soft_ask (
 
   parent_type VARCHAR(255) NOT NULL
     CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
-  soft_ask_status VARCHAR(255) NOT NULL
-    CHECK (soft_ask_status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
-  soft_ask_visibility VARCHAR(255) NOT NULL
-    CHECK (soft_ask_visibility IN ('PUBLIC', 'PRIVATE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
+  visibility VARCHAR(255) NOT NULL
+    CHECK (visibility IN ('PUBLIC', 'PRIVATE')),
+  location_visibility VARCHAR(255) NOT NULL
+    CHECK (location_visibility IN ('COUNTRY', 'GLOBAL', 'LOCAL', 'NEARBY', 'PRIVATE', 'REGION')),
+  moderation_status VARCHAR(255) NOT NULL
+    CHECK (moderation_status IN ('ABUSE', 'CLEAN', 'FLAGGED', 'HIDDEN', 'SPAM')),
+  mood_tag VARCHAR(255) NULL
+    CHECK (mood_tag IN ('HAPPY','SAD','EXCITED','ANGRY','THOUGHTFUL','CURIOUS','BORED','GRATEFUL','HOPEFUL','CONFUSED','RELAXED','INSPIRED')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -928,40 +957,6 @@ CREATE TABLE soft_ask (
 
 
 
---changeset alamu:create_table_soft_ask_answer
-
---preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_answer';
-
-CREATE TABLE soft_ask_answer (
-  soft_ask_answer_id BIGSERIAL PRIMARY KEY,
-  content VARCHAR(4000) NOT NULL,
-  user_other_name VARCHAR(255) NOT NULL,
-  is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  reply_count INTEGER NOT NULL DEFAULT 0,
-  vote_count INTEGER NOT NULL DEFAULT 0,
-
-  soft_ask_id BIGINT NOT NULL,
-  author_id BIGINT NOT NULL,
-
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-  CONSTRAINT soft_ask_answer_fk_soft_ask_id
-    FOREIGN KEY (soft_ask_id)
-      REFERENCES soft_ask (soft_ask_id)
-        ON DELETE CASCADE,
-
-  CONSTRAINT soft_ask_answer_fk_author_id
-    FOREIGN KEY (author_id)
-      REFERENCES member (member_id)
-        ON DELETE SET NULL
-);
-
---rollback DROP TABLE IF EXISTS `soft_ask_answer`;
-
-
-
 --changeset alamu:create_table_soft_ask_reply
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
@@ -969,32 +964,48 @@ CREATE TABLE soft_ask_answer (
 
 CREATE TABLE soft_ask_reply (
   soft_ask_reply_id BIGSERIAL PRIMARY KEY,
-  description VARCHAR(2000) NOT NULL,
-  user_other_name VARCHAR(255) NOT NULL,
+  content VARCHAR(3000) NOT NULL,
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+
+  bookmark_count INTEGER NOT NULL DEFAULT 0,
+  child_reply_count INTEGER NOT NULL DEFAULT 0,
+  share_count INTEGER NOT NULL DEFAULT 0,
   vote_count INTEGER NOT NULL DEFAULT 0,
+
+  latitude DECIMAL(10, 8),
+  longitude DECIMAL(11, 8),
+
+  geohash VARCHAR(9) NULL,
+  geohash_prefix VARCHAR(5) NULL,
 
   author_id BIGINT NOT NULL,
   parent_reply_id BIGINT,
-  soft_answer_id BIGINT NOT NULL,
+  soft_ask_id BIGINT NOT NULL,
+
+  location_visibility VARCHAR(255) NOT NULL
+    CHECK (location_visibility IN ('COUNTRY', 'GLOBAL', 'LOCAL', 'NEARBY', 'PRIVATE', 'REGION')),
+  moderation_status VARCHAR(255) NOT NULL
+    CHECK (moderation_status IN ('ABUSE', 'CLEAN', 'FLAGGED', 'HIDDEN', 'SPAM')),
+  mood_tag VARCHAR(255) NULL
+    CHECK (mood_tag IN ('HAPPY','SAD','EXCITED','ANGRY','THOUGHTFUL','CURIOUS','BORED','GRATEFUL','HOPEFUL','CONFUSED','RELAXED','INSPIRED')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
-  CONSTRAINT soft_ask_reply_fk_answer_id
-    FOREIGN KEY (soft_answer_id)
-      REFERENCES soft_ask_answer (soft_ask_answer_id)
+  CONSTRAINT soft_ask_reply_fk_soft_ask
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
         ON DELETE CASCADE,
 
-  CONSTRAINT soft_ask_reply_fk_author_id
+  CONSTRAINT soft_ask_reply_fk_author
     FOREIGN KEY (author_id)
       REFERENCES member (member_id)
-        ON DELETE SET NULL,
+        ON DELETE CASCADE,
 
   CONSTRAINT soft_ask_reply_fk_parent_reply
     FOREIGN KEY (parent_reply_id)
       REFERENCES soft_ask_reply (soft_ask_reply_id)
-      ON DELETE CASCADE
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `soft_ask_reply`;
@@ -1029,11 +1040,6 @@ CREATE TABLE soft_ask_votes (
       REFERENCES soft_ask (soft_ask_id)
         ON DELETE CASCADE,
 
-  CONSTRAINT soft_ask_vote_fk_answer_id
-    FOREIGN KEY (soft_ask_answer_id)
-      REFERENCES soft_ask_answer (soft_ask_answer_id)
-        ON DELETE CASCADE,
-
   CONSTRAINT soft_ask_vote_fk_reply_id
     FOREIGN KEY (soft_ask_reply_id)
       REFERENCES soft_ask_reply (soft_ask_reply_id)
@@ -1047,3 +1053,131 @@ CREATE TABLE soft_ask_votes (
 
 --rollback DROP TABLE IF EXISTS `soft_ask_votes`;
 
+
+
+--changeset alamu:create_table_soft_ask_username
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_username';
+
+CREATE TABLE soft_ask_username (
+  id BIGSERIAL PRIMARY KEY,
+
+  soft_ask_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+
+  username VARCHAR(100) NOT NULL,
+
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_soft_ask_username_soft_ask
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT fk_soft_ask_username_author
+    FOREIGN KEY (user_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `soft_ask_username`;
+
+
+
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'bookmarks';
+
+CREATE TABLE bookmarks (
+  bookmark_id BIGSERIAL PRIMARY KEY,
+  parent_id BIGINT,
+  parent_summary VARCHAR(255),
+
+  bookmark_type VARCHAR(255) NOT NULL
+    CHECK (bookmark_type IN ('BOOKMARK', 'UNBOOKMARK')),
+
+  bookmark_parent_type VARCHAR(255) NOT NULL
+    CHECK (bookmark_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
+
+  chat_space_id BIGINT,
+  review_id BIGINT,
+  stream_id BIGINT,
+  soft_ask_id BIGINT,
+  soft_ask_reply_id BIGINT,
+  other_id BIGINT,
+  member_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT bookmarks_fk_chat_space
+   FOREIGN KEY (chat_space_id)
+     REFERENCES chat_space (chat_space_id)
+     ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_stream
+   FOREIGN KEY (stream_id)
+     REFERENCES stream (stream_id)
+     ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_review
+   FOREIGN KEY (review_id)
+     REFERENCES review (review_id)
+     ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_soft_ask
+   FOREIGN KEY (soft_ask_id)
+     REFERENCES soft_ask (soft_ask_id)
+     ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_soft_ask_reply
+   FOREIGN KEY (soft_ask_reply_id)
+     REFERENCES soft_ask_reply (soft_ask_reply_id)
+     ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_member
+   FOREIGN KEY (member_id)
+     REFERENCES member (member_id)
+     ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `bookmarks`;
+
+
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'business';
+
+CREATE TABLE business (
+  business_id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(300) NOT NULL,
+  description VARCHAR(3000) NOT NULL,
+
+  motto VARCHAR(500),
+  other_details VARCHAR(3000),
+  address VARCHAR(500),
+  country VARCHAR(300),
+  logo_url VARCHAR(2000),
+  founding_year INTEGER,
+
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  share_count INT NOT NULL DEFAULT 0,
+
+  channel_type VARCHAR(255) NOT NULL
+    CHECK (channel_type IN ('OFFLINE', 'ONLINE', 'OFFLINE_AND_ONLINE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ACTIVE', 'INACTIVE')),
+
+  owner_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT business_fk_owner
+    FOREIGN KEY (owner_id)
+      REFERENCES member (member_id)
+      ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `business`;

@@ -5,26 +5,30 @@ import com.fleencorp.feen.verification.constant.VerificationType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import static com.fleencorp.feen.common.constant.message.CommonMessageDetails.FORGOT_PASSWORD;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
 public class ForgotPasswordRequest extends SendVerificationCodeRequest {
 
-  public static ForgotPasswordRequest of(final String verificationCode, final String firstName, final String lastName, final String emailAddress,
-    final String phoneNumber, final VerificationType verificationType) {
-    return ForgotPasswordRequest.builder()
-        .verificationCode(verificationCode)
-        .firstName(firstName)
-        .lastName(lastName)
-        .emailAddress(emailAddress)
-        .phoneNumber(phoneNumber)
-        .verificationType(verificationType)
-        .build();
+  public static ForgotPasswordRequest of(
+      final String verificationCode,
+      final String firstName,
+      final String lastName,
+      final String emailAddress,
+      final String phoneNumber,
+      final VerificationType verificationType) {
+    final ForgotPasswordRequest request = new ForgotPasswordRequest();
+    request.setVerificationCode(verificationCode);
+    request.setFirstName(firstName);
+    request.setLastName(lastName);
+    request.setEmailAddress(emailAddress);
+    request.setPhoneNumber(phoneNumber);
+    request.setVerificationType(verificationType);
+
+    return request;
   }
 
   @Override

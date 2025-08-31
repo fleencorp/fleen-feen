@@ -1,8 +1,8 @@
 package com.fleencorp.feen.common.event.publisher;
 
-import com.fleencorp.feen.configuration.external.aws.sqs.SqsQueueNames;
 import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.common.event.service.PublisherService;
+import com.fleencorp.feen.configuration.external.aws.sqs.SqsQueueNames;
 import com.fleencorp.feen.mfa.model.request.MfaSetupVerificationRequest;
 import com.fleencorp.feen.mfa.model.request.MfaVerificationRequest;
 import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;

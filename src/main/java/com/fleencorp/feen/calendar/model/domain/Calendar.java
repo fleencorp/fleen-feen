@@ -1,5 +1,7 @@
 package com.fleencorp.feen.calendar.model.domain;
 
+import com.fleencorp.feen.calendar.constant.CalendarStatus;
+import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyActiveException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -42,6 +46,18 @@ public class Calendar extends FleenFeenEntity {
   @Column(name = "is_active", nullable = false)
   private Boolean isActive = true;
 
+  @Enumerated(STRING)
+  @Column(name = "status", nullable = false)
+  private CalendarStatus status;
+
+  public void markAsActive() {
+    status = CalendarStatus.ACTIVE;
+  }
+
+  public void markAsInactive() {
+    status = CalendarStatus.INACTIVE;
+  }
+
   /**
    * Updates the title, description, and timezone of the object.
    *
@@ -56,16 +72,16 @@ public class Calendar extends FleenFeenEntity {
   }
 
   /**
-   * Marks the calendar as active.
+   * Verifies that the calendar is not already active.
+   *
+   * <p>If the calendar has a non-null status and the status indicates it is active,
+   * a {@link CalendarAlreadyActiveException} is thrown.</p>
+   *
+   * @throws CalendarAlreadyActiveException if the calendar is already active
    */
-  public void markAsActive() {
-    isActive = true;
-  }
-
-  /**
-   * Marks the calendar as inactive.
-   */
-  public void markAsInactive() {
-    isActive = false;
+  public void verifyCalendarIsNotAlreadyActive() {
+    if (nonNull(status) && CalendarStatus.isActive(status)) {
+      throw new CalendarAlreadyActiveException();
+    }
   }
 }

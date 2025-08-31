@@ -4,5 +4,6 @@ import com.fleencorp.feen.softask.model.response.user.SoftAskUserProfileRetrieve
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 
 public interface SoftAskParticipantService {
+
   SoftAskUserProfileRetrieveResponse findUserProfile(RegisteredUser user);
 }

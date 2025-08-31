@@ -7,10 +7,10 @@ import com.fleencorp.base.converter.common.ToSentenceCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
-import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.common.validator.StreamDuration;
 import com.fleencorp.feen.common.validator.TimezoneValid;
+import com.fleencorp.feen.stream.constant.core.StreamVisibility;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -90,6 +90,11 @@ public class CreateStreamDto {
   @Size(min = 3, max = 100, message = "{stream.organizerAliasOrDisplayName.Size}")
   @JsonProperty("organizer_alias_or_display_name")
   private String organizerAliasOrDisplayName;
+
+  @JsonIgnore
+  public boolean getForKids() {
+    return parseBoolean(forKids);
+  }
 
   /**
    * Retrieves the organizer's alias or display name. If it is not set or is blank, returns a default value.

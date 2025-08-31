@@ -1,7 +1,7 @@
 package com.fleencorp.feen.stream.repository.core;
 
-import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
+import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

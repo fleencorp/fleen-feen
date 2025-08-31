@@ -1,20 +1,18 @@
 package com.fleencorp.feen.user.model.request.authentication;
 
-import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
+import com.fleencorp.feen.common.constant.message.MessageRequestType;
 import com.fleencorp.feen.verification.constant.VerificationType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.fleencorp.feen.common.constant.message.MessageTemplateField.VERIFICATION_CODE;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

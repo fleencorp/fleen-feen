@@ -6,11 +6,11 @@ import com.fleencorp.base.validator.EnumOrdinalValid;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.constant.ReviewRating;
 import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -71,14 +71,17 @@ public class AddReviewDto {
     final Review newReview = new Review();
     newReview.setReviewText(review);
     newReview.setRating(getRating());
+
     newReview.setParentId(getParentId());
     newReview.setParentTitle(parentTitle);
     newReview.setReviewParentType(parentType);
+
     newReview.setAuthorId(author.getMemberId());
     newReview.setAuthor(author);
 
     newReview.setChatSpaceId(parentId);
     newReview.setChatSpace(chatSpace);
+
     newReview.setStreamId(parentId);
     newReview.setStream(stream);
 

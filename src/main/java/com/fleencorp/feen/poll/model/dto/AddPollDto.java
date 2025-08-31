@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.*;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.poll.constant.core.PollParentType;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static java.lang.Boolean.parseBoolean;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -92,10 +91,6 @@ public class AddPollDto {
     return nonNull(parent) && nonNull(parent.getParentId()) && nonNull(parent.getParentType());
   }
 
-  public boolean hasNoParent() {
-    return isNull(parent);
-  }
-
   public Long getParentId() {
     return nonNull(parent) ? parent.getParentId() : null;
   }
@@ -104,37 +99,31 @@ public class AddPollDto {
     return hasParent() ? parent.getParentType() : null;
   }
 
-  public boolean isChatSpaceParent() {
-    return hasParent() && parent.isChatSpaceParent();
-  }
-
-  public boolean isStreamParent() {
-    return hasParent() && parent.isStreamParent();
-  }
-
   public Poll toPoll(final Member author, final String parentTitle, final ChatSpace chatSpace, final FleenStream stream) {
-    final Long parentId = hasParent() ? getParentId() : null;
-    final PollParentType parentType = hasParent() ? getParentType() : null;
+    final Long parentId = getParentId();
+    final PollParentType parentType = getParentType();
 
     final Poll poll = new Poll();
     poll.setQuestion(question);
     poll.setDescription(description);
     poll.setExpiresAt(getExpiresAt());
+
     poll.setMultipleChoice(isMultipleChoice());
     poll.setAnonymous(isAnonymous());
     poll.setVisibility(getVisibility());
+
     poll.setAuthorId(author.getMemberId());
     poll.setAuthor(author);
+
     poll.setParentId(parentId);
-    poll.setPollParentType(parentType);
     poll.setParentTitle(parentTitle);
+    poll.setPollParentType(parentType);
 
-    poll.setChatSpace(chatSpace);
     poll.setChatSpaceId(parentId);
+    poll.setChatSpace(chatSpace);
 
-    poll.setStream(stream);
     poll.setStreamId(parentId);
-
+    poll.setStream(stream);
 
     final Collection<PollOption> pollOptions = toPollOptions();
     poll.addOptions(pollOptions);
@@ -202,14 +191,6 @@ public class AddPollDto {
 
     public PollParentType getParentType() {
       return PollParentType.of(parentType);
-    }
-
-    public boolean isStreamParent() {
-      return PollParentType.isStream(getParentType());
-    }
-
-    public boolean isChatSpaceParent() {
-      return PollParentType.isChatSpace(getParentType());
     }
   }
 }

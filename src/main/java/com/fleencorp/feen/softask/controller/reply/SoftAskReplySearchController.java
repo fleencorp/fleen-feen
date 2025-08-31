@@ -3,8 +3,8 @@ package com.fleencorp.feen.softask.controller.reply;
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
-import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
+import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyRetrieveResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -34,17 +34,21 @@ public class SoftAskReplySearchController {
     description = "Fetches the details of a soft ask reply by its ID.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully retrieved the reply",
-      content = @Content(schema = @Schema(implementation = SoftAskReply.class))),
+      content = @Content(schema = @Schema(implementation = SoftAskReplyRetrieveResponse.class))),
     @ApiResponse(responseCode = "404", description = "Reply not found",
       content = @Content(schema = @Schema(implementation = SoftAskReplyNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @GetMapping(value = "/detail/{replyId}")
-  public SoftAskReply findSoftAskReply(
+  @GetMapping(value = "/detail/{softAskId}/{replyId}")
+  public SoftAskReplyRetrieveResponse findSoftAskReply(
+    @Parameter(description = "Search criteria for soft asks", required = true)
+      @SearchParam final SoftAskSearchRequest searchRequest,
+    @Parameter(description = "ID of the soft ask parent", required = true)
+      @PathVariable(name = "softAskId") final Long softAskId,
     @Parameter(description = "ID of the reply to retrieve", required = true)
       @PathVariable(name = "replyId") final Long replyId) {
-    return softAskReplySearchService.findSoftAskReply(replyId);
+    return softAskReplySearchService.retrieveSoftAskReply(searchRequest, softAskId, replyId);
   }
 
   @Operation(summary = "Search for soft ask replies",

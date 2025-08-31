@@ -1,12 +1,13 @@
 package com.fleencorp.feen.service.impl.auth;
 
+import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
+import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.country.model.domain.Country;
 import com.fleencorp.feen.country.model.response.CountryResponse;
 import com.fleencorp.feen.country.model.search.CountrySearchResult;
 import com.fleencorp.feen.country.service.CountryService;
-import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
-import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mfa.constant.MfaType;
 import com.fleencorp.feen.mfa.model.request.MfaVerificationRequest;
@@ -20,7 +21,6 @@ import com.fleencorp.feen.role.constant.RoleType;
 import com.fleencorp.feen.role.exception.core.NoRoleAvailableToAssignException;
 import com.fleencorp.feen.role.model.domain.Role;
 import com.fleencorp.feen.role.service.RoleService;
-import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.user.constant.authentication.AuthenticationStage;
 import com.fleencorp.feen.user.constant.authentication.AuthenticationStatus;

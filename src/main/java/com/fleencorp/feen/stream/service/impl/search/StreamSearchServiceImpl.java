@@ -2,6 +2,9 @@ package com.fleencorp.feen.stream.service.impl.search;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.review.model.response.base.ReviewResponse;
+import com.fleencorp.feen.review.service.ReviewSearchService;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamTimeType;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -21,11 +24,9 @@ import com.fleencorp.feen.stream.model.response.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.stream.model.search.common.StreamSearchResult;
 import com.fleencorp.feen.stream.model.search.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.stream.model.search.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.review.constant.ReviewParentType;
-import com.fleencorp.feen.review.model.response.base.ReviewResponse;
-import com.fleencorp.feen.review.service.ReviewSearchService;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
+import com.fleencorp.feen.stream.service.common.StreamOperationsService;
+import com.fleencorp.feen.stream.service.common.StreamQueryService;
 import com.fleencorp.feen.stream.service.search.StreamSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
@@ -43,9 +44,9 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.stream.constant.core.StreamVisibility.PUBLIC;
+import static com.fleencorp.feen.common.util.common.CommonUtil.allNonNull;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
-import static com.fleencorp.feen.common.util.CommonUtil.allNonNull;
+import static com.fleencorp.feen.stream.constant.core.StreamVisibility.PUBLIC;
 import static java.util.Objects.nonNull;
 
 /**
@@ -73,6 +74,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   private final ReviewSearchService reviewSearchService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
+  private final StreamQueryService streamQueryService;
   private final StreamMapper streamMapper;
   private final Localizer localizer;
 
@@ -81,12 +83,14 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final ReviewSearchService reviewSearchService,
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
+      final StreamQueryService streamQueryService,
       final StreamMapper streamMapper,
       final Localizer localizer) {
     this.memberService = memberService;
     this.reviewSearchService = reviewSearchService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
+    this.streamQueryService = streamQueryService;
     this.streamMapper = streamMapper;
     this.localizer = localizer;
   }
@@ -249,20 +253,15 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final boolean isDateSet = searchRequest.areAllDatesSet();
 
     if (isDateSet && nonNull(streamVisibility)) {
-      // Filter by date range and visibility, if both are set
-      page = streamOperationsService.findByDateBetweenAndUser(startDateTime, endDateTime, streamVisibility, member, pageable);
+      page = streamQueryService.findByDateBetweenAndUser(startDateTime, endDateTime, streamVisibility, member, pageable);
     } else if (isDateSet) {
-      // Filter by date range, if only dates are set
-      page = streamOperationsService.findByDateBetweenAndUser(startDateTime, endDateTime, member, pageable);
+      page = streamQueryService.findByDateBetweenAndUser(startDateTime, endDateTime, member, pageable);
     } else if (allNonNull(title, streamVisibility)) {
-      // Filter by title and visibility, if both are set
-      page = streamOperationsService.findByTitleAndUser(title, streamVisibility, member, pageable);
+      page = streamQueryService.findByTitleAndUser(title, streamVisibility, member, pageable);
     } else if (nonNull(title)) {
-      // Filter by title, if only the title is set
-      page = streamOperationsService.findByTitleAndUser(title, member, pageable);
+      page = streamQueryService.findByTitleAndUser(title, member, pageable);
     } else {
-      // Retrieve all streams for the user, if no other filters apply
-      page = streamOperationsService.findManyByMe(member, pageable);
+      page = streamQueryService.findManyByMe(member, pageable);
     }
 
     return page;
@@ -317,14 +316,11 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final LocalDateTime endDateTime = searchRequest.getEndDateTime();
 
     if (searchRequest.areAllDatesSet()) {
-      // Filter by date range if both start and end dates are set
-      page = streamOperationsService.findAttendedByDateBetweenAndUser(startDateTime, endDateTime, member, pageable);
+      page = streamQueryService.findAttendedByDateBetweenAndUser(startDateTime, endDateTime, member, pageable);
     } else if (nonNull(title)) {
-      // Filter by title if the title is provided
-      page = streamOperationsService.findAttendedByTitleAndUser(title, member, pageable);
+      page = streamQueryService.findAttendedByTitleAndUser(title, member, pageable);
     } else {
-      // Retrieve all attended streams if no other filters are applied
-      page = streamOperationsService.findAttendedByUser(member, pageable);
+      page = streamQueryService.findAttendedByUser(member, pageable);
     }
 
     return page;
@@ -355,16 +351,13 @@ public class StreamSearchServiceImpl implements StreamSearchService {
 
     if (searchRequest.hasAnotherUser()) {
       // Retrieve streams attended together by the current user and another user
-      page = streamOperationsService.findStreamsAttendedTogether(member, anotherMember, pageable);
+      page = streamQueryService.findStreamsAttendedTogether(member, anotherMember, pageable);
     }
 
-    // Convert the streams to response views
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Create and return the search result
     final StreamSearchResult streamSearchResult = processStreamsAndReturn(streamResponses, searchRequest, member, page);
-    // Create user search result
     final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(streamSearchResult.getResult(), member.getFullName());
-    // Return the localized response
+
     return localizer.of(mutualStreamAttendanceSearchResult);
   }
 
@@ -385,15 +378,12 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a localized {@link StreamSearchResult} containing the processed stream results
    */
   private StreamSearchResult processStreamsAndReturn(final Collection<StreamResponse> streamResponses, final StreamSearchRequest searchRequest, final Member member, final Page<FleenStream> page) {
-    // Process other details of the streams
     streamOperationsService.processOtherStreamDetails(streamResponses, member);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Create a search result
+
     final SearchResult searchResult = toSearchResult(streamResponses, page);
-    // Create a search result with the streams responses and pagination details
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(searchResult, streamTypeInfo);
-    // Return a search result
+
     return localizer.of(streamSearchResult);
   }
 
@@ -423,11 +413,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
           streamOperationsService.setFirst10AttendeesAttendingInAnyOrderOnStreams(streamResponse);
       });
     }
-    // Retrieve the stream type info
+
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Create the search result
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
-    // Return a search result with the responses and pagination details
     return localizer.of(streamSearchResult);
   }
 
@@ -448,27 +436,18 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   @Override
   public RetrieveStreamResponse retrieveStream(final Long streamId, final RegisteredUser user) throws StreamNotFoundException {
-    // Retrieve the stream by its ID
-    final FleenStream stream = streamOperationsService.findStream(streamId);
-    // The Stream converted to a response
+    final FleenStream stream = streamQueryService.findStream(streamId);
     final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
-    // Add the single response to a List
     final List<StreamResponse> streamResponses = List.of(streamResponse);
-    // Get most recent review of the stream
+
     final ReviewResponse mostRecentReview = reviewSearchService.findMostRecentReview(ReviewParentType.STREAM, streamId, user);
-    // Set the reviews
     streamResponse.setReviews(mostRecentReview);
-    // Get all stream or stream attendees
     final Collection<StreamAttendeeResponse> attendeesGoingToStream = streamAttendeeOperationsService.getAttendeesGoingToStream(streamResponse);
-    // Process other details of the streams
+
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
-    // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
     final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
     final RetrieveStreamResponse retrieveStreamResponse = RetrieveStreamResponse.of(streamId, streamResponse, attendeesGoingToStream, totalAttendees, streamTypeInfo);
-    // Return the localized response
     return localizer.of(retrieveStreamResponse);
   }
 
@@ -546,20 +525,15 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final LocalDateTime startDateTime = searchRequest.getStartDateTime();
     final LocalDateTime endDateTime = searchRequest.getEndDateTime();
 
-    // If both start and end dates are set, search by date range
     if (searchRequest.areAllDatesSet()) {
-      page = streamOperationsService.findByDateBetween(startDateTime, endDateTime, StreamStatus.ACTIVE, pageable);
+      page = streamQueryService.findByDateBetween(startDateTime, endDateTime, StreamStatus.ACTIVE, pageable);
     } else if (nonNull(title)) {
-      // If title is set, search by stream title
-      page = streamOperationsService.findByTitle(title, StreamStatus.ACTIVE, pageable);
+      page = streamQueryService.findByTitle(title, StreamStatus.ACTIVE, pageable);
     } else {
-      // Default to searching for active streams without specific filters
-      page = streamOperationsService.findMany(StreamStatus.ACTIVE, pageable);
+      page = streamQueryService.findMany(StreamStatus.ACTIVE, pageable);
     }
 
-    // Create the responses
     final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Return the response with a list of FleenStreams and pagination info
     return StreamResponsesAndPage.of(streamResponses, page);
   }
 
@@ -575,9 +549,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   protected Page<FleenStream> getUpcomingStreams(final StreamSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
-      return streamOperationsService.findUpcomingStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+      return streamQueryService.findUpcomingStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
     }
-    return streamOperationsService.findUpcomingStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+    return streamQueryService.findUpcomingStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
   }
 
   /**
@@ -592,9 +566,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   protected Page<FleenStream> getPastStreams(final StreamSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
-      return streamOperationsService.findPastStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+      return streamQueryService.findPastStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
     }
-    return streamOperationsService.findPastStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+    return streamQueryService.findPastStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
   }
 
   /**
@@ -609,9 +583,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   protected Page<FleenStream> getLiveStreams(final StreamSearchRequest searchRequest) {
     if (nonNull(searchRequest.getQ())) {
-      return streamOperationsService.findLiveStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+      return streamQueryService.findLiveStreamsByTitle(searchRequest.getQ(), LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
     }
-    return streamOperationsService.findLiveStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
+    return streamQueryService.findLiveStreams(LocalDateTime.now(), searchRequest.getStreamType(), searchRequest.getPage());
   }
 
 }

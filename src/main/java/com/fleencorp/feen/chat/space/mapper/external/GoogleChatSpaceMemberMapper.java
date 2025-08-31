@@ -1,7 +1,7 @@
 package com.fleencorp.feen.chat.space.mapper.external;
 
-import com.fleencorp.feen.model.response.external.google.chat.membership.base.GoogleChatSpaceMemberResponse;
 import com.fleencorp.feen.common.util.external.google.GoogleApiUtil;
+import com.fleencorp.feen.model.response.external.google.chat.membership.base.GoogleChatSpaceMemberResponse;
 import com.google.chat.v1.Membership;
 
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.convertToLocalDateTime;

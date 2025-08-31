@@ -22,18 +22,18 @@ import java.util.Set;
 public class ChatSpaceMemberOperationsServiceImpl implements ChatSpaceMemberOperationsService {
 
   private final ChatSpaceMemberLookupRepository chatSpaceMemberLookupRepository;
-  private final ChatSpaceMemberQueryRepository chatSpaceMemberQueryRepository;
+  private final ChatSpaceMemberSearchRepository chatSpaceMemberSearchRepository;
   private final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository;
   private final ChatSpaceMemberProjectionRepository chatSpaceMemberProjectionRepository;
   private final ChatSpaceMemberRepository chatSpaceMemberRepository;
 
   public ChatSpaceMemberOperationsServiceImpl(
       final ChatSpaceMemberLookupRepository chatSpaceMemberLookupRepository,
-      final ChatSpaceMemberQueryRepository chatSpaceMemberQueryRepository,
+      final ChatSpaceMemberSearchRepository chatSpaceMemberSearchRepository,
       final ChatSpaceMemberParticipationRepository chatSpaceMemberParticipationRepository,
       final ChatSpaceMemberProjectionRepository chatSpaceMemberProjectionRepository,
       final ChatSpaceMemberRepository chatSpaceMemberRepository) {
-    this.chatSpaceMemberQueryRepository = chatSpaceMemberQueryRepository;
+    this.chatSpaceMemberSearchRepository = chatSpaceMemberSearchRepository;
     this.chatSpaceMemberLookupRepository = chatSpaceMemberLookupRepository;
     this.chatSpaceMemberParticipationRepository = chatSpaceMemberParticipationRepository;
     this.chatSpaceMemberProjectionRepository = chatSpaceMemberProjectionRepository;
@@ -42,47 +42,47 @@ public class ChatSpaceMemberOperationsServiceImpl implements ChatSpaceMemberOper
 
   @Override
   public Page<ChatSpaceMember> findByChatSpaceAndMemberName(final ChatSpace chatSpace, final String memberName, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpaceAndMemberName(chatSpace, memberName, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpaceAndMemberName(chatSpace, memberName, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findByChatSpace(final ChatSpace chatSpace, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpace(chatSpace, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpace(chatSpace, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findAdminByChatSpaceAndMemberName(final ChatSpace chatSpace, final String memberName, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findAdminByChatSpaceAndMemberName(chatSpace, memberName, pageable);
+    return chatSpaceMemberSearchRepository.findAdminByChatSpaceAndMemberName(chatSpace, memberName, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findAdminByChatSpace(final ChatSpace chatSpace, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findAdminByChatSpace(chatSpace, pageable);
+    return chatSpaceMemberSearchRepository.findAdminByChatSpace(chatSpace, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findByChatSpaceAndRequestToJoinStatus(final ChatSpace chatSpace, final Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpaceAndRequestToJoinStatus(chatSpace, requestToJoinStatus, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpaceAndRequestToJoinStatus(chatSpace, requestToJoinStatus, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findByChatSpaceAndMemberNameAndRequestToJoinStatus(final ChatSpace chatSpace, final String memberName, final Set<ChatSpaceRequestToJoinStatus> requestToJoinStatus, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpaceAndMemberNameAndRequestToJoinStatus(chatSpace, memberName, requestToJoinStatus, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpaceAndMemberNameAndRequestToJoinStatus(chatSpace, memberName, requestToJoinStatus, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findActiveChatSpaceMembers(final ChatSpace chatSpace, final ChatSpaceRequestToJoinStatus requestToJoinStatus, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findActiveChatSpaceMembers(chatSpace, requestToJoinStatus, pageable);
+    return chatSpaceMemberSearchRepository.findActiveChatSpaceMembers(chatSpace, requestToJoinStatus, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findByChatSpaceAndMemberNameAndRemoved(final ChatSpace chatSpace, final String memberName, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpaceAndMemberNameAndRemoved(chatSpace, memberName, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpaceAndMemberNameAndRemoved(chatSpace, memberName, pageable);
   }
 
   @Override
   public Page<ChatSpaceMember> findByChatSpaceAndRemoved(final ChatSpace chatSpace, final Pageable pageable) {
-    return chatSpaceMemberQueryRepository.findByChatSpaceAndRemoved(chatSpace, pageable);
+    return chatSpaceMemberSearchRepository.findByChatSpaceAndRemoved(chatSpace, pageable);
   }
 
   // ChatSpaceMemberProjectionRepository Methods

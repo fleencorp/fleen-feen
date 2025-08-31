@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 public class ChatSpaceRequest {
 
   protected String accessToken;
-
 
   /**
    * The name of the chat app or bot user

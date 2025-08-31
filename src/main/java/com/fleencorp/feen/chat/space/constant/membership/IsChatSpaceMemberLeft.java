@@ -1,22 +1,21 @@
 package com.fleencorp.feen.chat.space.constant.membership;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum IsChatSpaceMemberLeft implements ApiParameter {
+public enum IsChatSpaceMemberLeft {
 
 
   NO("No", "is.a.chat.space.member.left.no"),
   YES("Yes", "is.a.chat.space.member.left.yes");
 
-  private final String value;
+  private final String label;
   private final String messageCode;
 
   IsChatSpaceMemberLeft(
-      final String value,
+      final String label,
       final String messageCode) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
   }
 

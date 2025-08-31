@@ -5,14 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.fleencorp.feen.common.constant.message.MessageTemplateField.*;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,7 +27,7 @@ public abstract class MessageRequest {
   protected Map<String, Object> payload;
 
   public Map<String, Object> toMessagePayload() {
-    this.payload = new HashMap<>();
+    payload = new HashMap<>();
     payload.put(FIRST_NAME.getValue(), firstName);
     payload.put(LAST_NAME.getValue(), lastName);
     payload.put(EMAIL_ADDRESS.getValue(), emailAddress);

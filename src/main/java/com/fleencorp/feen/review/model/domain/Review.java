@@ -1,16 +1,14 @@
 package com.fleencorp.feen.review.model.domain;
 
-import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.model.contract.HasTitle;
+import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.constant.ReviewRating;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.ORDINAL;
@@ -31,7 +29,8 @@ import static java.util.Objects.nonNull;
 @NoArgsConstructor
 @Entity
 @Table(name = "review")
-public class Review extends FleenFeenEntity {
+public class Review extends FleenFeenEntity
+  implements HasTitle {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -54,6 +53,7 @@ public class Review extends FleenFeenEntity {
   @Column(name = "stream_id", updatable = false, insertable = false)
   private Long streamId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", updatable = false)
   private FleenStream stream;
@@ -61,6 +61,7 @@ public class Review extends FleenFeenEntity {
   @Column(name = "chat_space_id", updatable = false, insertable = false)
   private Long chatSpaceId;
 
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
@@ -68,6 +69,7 @@ public class Review extends FleenFeenEntity {
   @Column(name = "author_id", insertable = false, updatable = false)
   private Long authorId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "author_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -78,7 +80,15 @@ public class Review extends FleenFeenEntity {
   private ReviewRating rating;
 
   @Column(name = "like_count", nullable = false)
-  private Long likeCount = 0L;
+  private Integer likeCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Override
+  public String getTitle() {
+    return reviewText;
+  }
 
   /**
    * Retrieves the rating number.

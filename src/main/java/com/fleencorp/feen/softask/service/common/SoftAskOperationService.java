@@ -1,30 +1,35 @@
 package com.fleencorp.feen.softask.service.common;
 
+import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 
 public interface SoftAskOperationService {
-
-  SoftAskAnswer save(SoftAskAnswer softAskAnswer);
 
   SoftAskReply save(SoftAskReply softAskReply);
 
   SoftAsk save(SoftAsk softAsk);
 
-  Integer incrementSoftAskVoteAndGetVoteCount(Long softAskId);
-  
-  Integer decrementSoftAskVoteAndGetVoteCount(Long softAskId);
+  SoftAsk findSoftAsk(Long softAskId);
 
-  Integer incrementSoftAskAnswerVoteAndGetVoteCount(Long softAskAnswerId);
+  SoftAskReply findSoftAskReply(Long softAskId, Long softAskReplyId);
 
-  Integer decrementSoftAskAnswerVoteAndGetVoteCount(Long softAskAnswerId);
+  Integer updateVoteCount(Long softAskId, boolean isVoted);
 
-  Integer incrementSoftAskReplyVoteAndGetVoteCount(Long softAskReplyId);
+  Integer updateVoteCount(Long softAskId, Long softAskReplyId, boolean isVoted);
 
-  Integer decrementSoftAskReplyVoteAndGetVoteCount(Long softAskReplyId);
+  Integer incrementSoftAskReplyCountAndGetReplyCount(Long softAskId);
 
-  Integer incrementSoftAskAnswerCountAndGetAnswerCount(Long softAskId);
+  Integer incrementSoftAskReplyChildReplyCountAndGetReplyCount(Long softAskId, Long softAskReplyParentId);
 
-  Integer incrementSoftAskAnswerReplyCountAndGetReplyCount(Long softAskAnswerId);
+  Integer updateBookmarkCount(Long softAskId, boolean increment);
+
+  Integer updateBookmarkCount(Long softAskId, Long softAskReplyId, boolean increment);
+
+  SoftAskUsername generateUsername(Long softAskId, Long userId);
+
+  SoftAskUsername getOrAssignUsername(Long softAskId, Long userId);
+
+  void setGeoHashAndGeoPrefix(SoftAskCommonData softAskCommonData);
 }

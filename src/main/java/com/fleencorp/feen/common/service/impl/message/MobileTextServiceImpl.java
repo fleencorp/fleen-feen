@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.sqs.model.SqsException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static java.util.Objects.nonNull;
 
 /**

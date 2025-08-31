@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import static com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoin
 import static com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus.PENDING;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

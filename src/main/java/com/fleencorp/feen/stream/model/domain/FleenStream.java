@@ -1,20 +1,18 @@
 package com.fleencorp.feen.stream.model.domain;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
+import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.*;
-import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;
+import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
 import com.fleencorp.feen.stream.constant.core.*;
+import com.fleencorp.feen.stream.exception.core.*;
+import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
@@ -22,7 +20,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.fleencorp.feen.stream.constant.core.StreamVisibility.PRIVATE;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
@@ -37,7 +34,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "stream")
-public class FleenStream extends FleenFeenEntity {
+public class FleenStream extends FleenFeenEntity
+  implements HasTitle {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -126,18 +124,20 @@ public class FleenStream extends FleenFeenEntity {
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member member;
 
+  @ToString.Exclude
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
   @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
   private Long chatSpaceId;
 
-  @CreatedBy
+  @ToString.Exclude
   @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
   private ChatSpace chatSpace;
@@ -156,6 +156,12 @@ public class FleenStream extends FleenFeenEntity {
 
   @Column(name = "like_count", nullable = false)
   private Integer likeCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
 
   public boolean isForKids() {
     return nonNull(forKids) && forKids;
@@ -254,66 +260,30 @@ public class FleenStream extends FleenFeenEntity {
     this.timezone = timezone;
   }
 
-  /**
-   * Marks the entity as deleted by setting the {@code deleted} flag to {@code true}.
-   */
   public void delete() {
     this.deleted = true;
   }
 
-  /**
-   * Cancels the stream by setting its status to {@link StreamStatus#CANCELED}.
-   */
   public void cancel() {
     this.streamStatus = StreamStatus.CANCELED;
   }
 
-  /**
-   * Checks if the stream has restricted visibility.
-   *
-   * @return {@code true} if the stream's visibility is either {@link StreamVisibility#PRIVATE}
-   *         or {@link StreamVisibility#PROTECTED}; {@code false} otherwise.
-   */
   public boolean isPrivateOrProtected() {
     return StreamVisibility.isPrivateOrProtected(streamVisibility);
   }
 
-  /**
-   * Checks if the stream visibility is set to public.
-   *
-   * @return {@code true} if the stream visibility is {@link StreamVisibility#PUBLIC}, {@code false} otherwise.
-   */
   public boolean isPublic() {
     return StreamVisibility.isPublic(streamVisibility);
   }
 
-  /**
-   * Checks if the stream visibility is exactly PRIVATE.
-   *
-   * @return {@code true} if the {@code streamVisibility} is PRIVATE; {@code false} otherwise
-   */
   public boolean isPrivate() {
-    return streamVisibility == PRIVATE;
+    return StreamVisibility.isPrivate(streamVisibility);
   }
 
-  /**
-   * Checks if the stream is canceled.
-   * This method returns {@code true} if the stream's status is set to
-   * {@link StreamStatus#CANCELED}; otherwise, it returns {@code false}.
-   *
-   * @return {@code true} if the stream is canceled; {@code false} otherwise
-   */
   public boolean isCanceled() {
-    return streamStatus == StreamStatus.CANCELED;
+    return StreamStatus.isCanceled(streamStatus);
   }
 
-  /**
-   * Checks if the stream is deleted.
-   * This method returns {@code true} if the stream's deleted is set to
-   * true; otherwise, it returns {@code false}.
-   *
-   * @return {@code true} if the stream is deleted; {@code false} otherwise
-   */
   public boolean isDeleted() {
     return deleted;
   }
@@ -353,53 +323,16 @@ public class FleenStream extends FleenFeenEntity {
     return now.isAfter(scheduledEndDate);
   }
 
-  /**
-   * Checks if the stream source is an event hosted via Google Meet.
-   *
-   * @return true if the stream source is Google Meet, false otherwise.
-   */
   public boolean isAnEvent() {
-    return streamType == StreamType.EVENT;
+    return StreamType.isEvent(streamType);
   }
 
-  /**
-   * Determines if the current stream is a live stream.
-   *
-   * <p>This method checks whether the stream source is associated with a live broadcast.
-   * Specifically, it returns true if the stream is sourced from YouTube Live, indicating
-   * that the stream is a live broadcast.</p>
-   *
-   * @return {@code true} if the stream source is YouTube Live, otherwise {@code false}.
-   */
   public boolean isALiveStream() {
-    return streamType == StreamType.LIVE_STREAM;
+    return StreamType.isLiveStream(streamType);
   }
 
-  /**
-   * Checks whether the chat space and its ID are present.
-   *
-   * @return {@code true} if the {@code chatSpace} object is not null
-   *         and the chat space ID obtained from {@link #getChatSpaceId()}
-   *         is not null; {@code false} otherwise.
-   */
   public boolean hasChatSpaceId() {
     return nonNull(getChatSpaceId());
-  }
-
-  /**
-   * Increments the total number of members in the event or stream by one.
-   */
-  public void increaseTotalAttendees() {
-    totalAttendees++;
-  }
-
-  /**
-   * Decrements the total number of attendees in the event or stream by one.
-   */
-  public void decreaseTotalAttendees() {
-    if (totalAttendees >= 1) {
-      totalAttendees--;
-    }
   }
 
   /**
@@ -456,28 +389,14 @@ public class FleenStream extends FleenFeenEntity {
     }
   }
 
-  /**
-   * Validates if the current user is the organizer of the stream.
-   *
-   * @param memberOrUserId the ID of the user or member to check
-   * @throws StreamNotCreatedByUserException if the user is not the organizer of the stream
-   */
   public void checkIsOrganizer(final Long memberOrUserId) {
-    // Check if the stream organizer's ID matches the user's ID
     final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
     if (!isSame) {
       throw StreamNotCreatedByUserException.of(memberOrUserId);
     }
   }
 
-  /**
-   * Validates that the user is not the organizer of the stream.
-   *
-   * @param memberOrUserId the ID of the user or member to check
-   * @throws FailedOperationException if the user is the organizer of the stream
-   */
   public void checkIsNotOrganizer(final Long memberOrUserId) {
-    // Check if the stream organizer's ID matches the user's ID
     final boolean isSame = Objects.equals(getOrganizerId(), memberOrUserId);
     if (isSame) {
       throw FailedOperationException.of();
@@ -495,55 +414,30 @@ public class FleenStream extends FleenFeenEntity {
     }
   }
 
-  /**
-   * Ensures the stream has not already ended.
-   *
-   * @throws StreamAlreadyHappenedException if the stream has already ended
-   */
   public void checkNotEnded() {
     if (hasEnded()) {
       throw new StreamAlreadyHappenedException(streamId, scheduledEndDate);
     }
   }
 
-  /**
-   * Ensures the stream is not private for joining without approval.
-   *
-   * @throws CannotJoinPrivateStreamWithoutApprovalException if the stream is private and cannot be joined without approval
-   */
   public void checkNotPrivateForJoining() {
     if (isPrivate()) {
       throw CannotJoinPrivateStreamWithoutApprovalException.of(streamId);
     }
   }
 
-  /**
-   * Ensures the stream is not ongoing for cancellation, deletion, or update.
-   *
-   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be canceled, deleted, or updated
-   */
   public void checkNotOngoingForCancelOrDeleteOrUpdate() {
     if (isOngoing()) {
       throw CannotCancelOrDeleteOngoingStreamException.of(streamId);
     }
   }
 
-  /**
-   * Ensures the stream is not ongoing before allowing updates.
-   *
-   * @throws CannotCancelOrDeleteOngoingStreamException if the stream is ongoing and cannot be updated
-   */
   public void checkNotOngoingForUpdate() {
     if (isOngoing()) {
       throw CannotUpdateOngoingStreamException.of(streamId);
     }
   }
 
-  /**
-   * Ensures the stream is not public for requesting to join.
-   *
-   * @throws FailedOperationException if the stream is public and cannot accept join requests
-   */
   public void checkIsPublicForRequestToJoin() {
     if (isPublic()) {
       throw FailedOperationException.of();
@@ -565,16 +459,8 @@ public class FleenStream extends FleenFeenEntity {
     }
   }
 
-  /**
-   * Gets the masked stream link URI.
-   *
-   * @return The masked stream link URI if the stream link is not null, otherwise null.
-   */
   public MaskedStreamLinkUri getMaskedStreamLink() {
-    // Return masked stream link if streamLink is not null
-    return nonNull(streamLink)
-      ? MaskedStreamLinkUri.of(streamLink, streamSource) // Create and return masked stream link URI
-      : null; // Return null if streamLink is null
+    return MaskedStreamLinkUri.of(streamLink, streamSource);
   }
 
   public static FleenStream of(final Long streamId) {

@@ -2,8 +2,8 @@ package com.fleencorp.feen.common.controller;
 
 import com.fleencorp.feen.common.model.response.EmailAddressExistsResponse;
 import com.fleencorp.feen.common.model.response.PhoneNumberExistsResponse;
-import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
 import com.fleencorp.feen.user.service.member.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,8 +39,8 @@ public class MiscController {
   })
   @GetMapping(value = "/email-address/exists/{emailAddress}")
   public EmailAddressExistsResponse emailExists(
-      @Parameter(description = "Email address to check for existence", required = true)
-        @PathVariable(name = "emailAddress") final String emailAddress) {
+    @Parameter(description = "Email address to check for existence", required = true)
+      @PathVariable(name = "emailAddress") final String emailAddress) {
     return memberService.verifyMemberEmailAddressExists(emailAddress);
   }
 
@@ -53,8 +53,8 @@ public class MiscController {
   })
   @GetMapping(value = "/phone-number/exists/{phoneNumber}")
   public PhoneNumberExistsResponse phoneExists(
-      @Parameter(description = "Phone number to check for existence", required = true)
-        @PathVariable(name = "phoneNumber") final String phoneNumber) {
+    @Parameter(description = "Phone number to check for existence", required = true)
+      @PathVariable(name = "phoneNumber") final String phoneNumber) {
     return memberService.verifyMemberPhoneNumberExists(phoneNumber);
   }
 
@@ -67,8 +67,8 @@ public class MiscController {
   })
   @GetMapping(value = "/get-encoded-password/{password}")
   public GetEncodedPasswordResponse getEncodedPasswordResponse(
-      @Parameter(description = "Plain text password to be encoded", required = true)
-        @PathVariable(name = "password") final String password) {
+    @Parameter(description = "Plain text password to be encoded", required = true)
+      @PathVariable(name = "password") final String password) {
     return miscService.getEncodedPassword(password);
   }
 

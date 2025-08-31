@@ -1,6 +1,6 @@
 package com.fleencorp.feen.poll.service.impl;
 
-import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.mapper.PollMapper;
@@ -61,14 +61,14 @@ public class PollUpdateServiceImpl implements PollUpdateService {
    * @throws PollUpdateCantChangeVisibilityException if visibility cannot be changed
    * @throws PollUpdateCantChangeAnonymityException if anonymity cannot be changed after votes exist
    * @throws PollUpdateCantChangeOptionsException if poll options cannot be changed due to votes
-   * @throws NotAnAdminOfChatSpaceException if the user lacks admin privileges in the related chat space
+   * @throws ChatSpaceNotAnAdminException if the user lacks admin privileges in the related chat space
    */
   @Override
   @Transactional
   public PollUpdateResponse updatePoll(final Long pollId, final UpdatePollDto updatePollDto, final RegisteredUser user)
     throws PollNotFoundException, PollUpdateUnauthorizedException, PollUpdateCantChangeQuestionException,
       PollUpdateCantChangeMultipleChoiceException, PollUpdateCantChangeVisibilityException, PollUpdateCantChangeAnonymityException,
-      PollUpdateCantChangeOptionsException, NotAnAdminOfChatSpaceException {
+      PollUpdateCantChangeOptionsException, ChatSpaceNotAnAdminException {
     final Poll poll = pollCommonService.findPollById(pollId);
     final PollVoteAggregateHolder pollVoteAggregateHolder = pollOperationsService.findPollVoteAggregate(pollId);
 

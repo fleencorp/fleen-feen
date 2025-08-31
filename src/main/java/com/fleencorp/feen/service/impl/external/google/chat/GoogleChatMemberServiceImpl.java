@@ -1,23 +1,23 @@
 package com.fleencorp.feen.service.impl.external.google.chat;
 
-import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
-import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
 import com.fleencorp.feen.chat.space.model.request.external.membership.AddChatSpaceMemberRequest;
 import com.fleencorp.feen.chat.space.model.request.external.membership.RemoveChatSpaceMemberRequest;
 import com.fleencorp.feen.chat.space.model.request.external.membership.RetrieveChatSpaceMemberRequest;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
+import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
+import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleAddChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.GoogleRemoveChatSpaceMemberResponse;
 import com.fleencorp.feen.model.response.external.google.chat.membership.base.GoogleChatSpaceMemberResponse;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatMemberService;
-import com.fleencorp.feen.common.service.report.ReporterService;
 import com.google.chat.v1.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
 import static com.fleencorp.feen.chat.space.mapper.external.GoogleChatSpaceMemberMapper.toGoogleChatSpaceMemberResponse;
-import static com.fleencorp.feen.service.impl.external.google.chat.GoogleChatServiceImpl.getCreateMembershipRequest;
+import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CHAT;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.convertToProtobufTimestamp;
+import static com.fleencorp.feen.service.impl.external.google.chat.GoogleChatServiceImpl.getCreateMembershipRequest;
 import static java.util.Objects.nonNull;
 
 /**

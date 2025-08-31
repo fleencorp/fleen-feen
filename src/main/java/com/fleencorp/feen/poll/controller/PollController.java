@@ -1,10 +1,8 @@
 package com.fleencorp.feen.poll.controller;
 
-import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.poll.model.dto.DeletePollDto;
@@ -13,6 +11,8 @@ import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
 import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.poll.service.PollService;
+import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,7 +64,7 @@ public class PollController {
     @ApiResponse(responseCode = "404", description = "Chat Space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "403", description = "User is not an admin of the chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Stream not found",
       content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
     @ApiResponse(responseCode = "403", description = "Stream not created by user",

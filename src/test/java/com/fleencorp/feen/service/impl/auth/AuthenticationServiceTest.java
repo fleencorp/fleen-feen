@@ -1,10 +1,10 @@
 package com.fleencorp.feen.service.impl.auth;
 
-import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
+import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.role.service.RoleService;
-import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
@@ -71,10 +71,10 @@ class AuthenticationServiceTest {
   @Test
   void ensure_credentials_invalid() {
     // given
-    String emailAddress = "connor@example.com";
-    String password = "#2#2C--r#2#2";
+    final String emailAddress = "connor@example.com";
+    final String password = "#2#2C--r#2#2";
 
-    SignInDto signInDto = new SignInDto();
+    final SignInDto signInDto = new SignInDto();
     signInDto.setEmailAddress(emailAddress);
     signInDto.setPassword(password);
 
@@ -89,17 +89,17 @@ class AuthenticationServiceTest {
   @Test
   void ensure_credentials_valid() {
     // given
-    String emailAddress = "connor@example.com";
-    String password = "#2#2C--r#2#2";
+    final String emailAddress = "connor@example.com";
+    final String password = "#2#2C--r#2#2";
 
-    SignInDto signInDto = new SignInDto();
+    final SignInDto signInDto = new SignInDto();
     signInDto.setEmailAddress(emailAddress);
     signInDto.setPassword(password);
 
-    RegisteredUser user = new RegisteredUser();
+    final RegisteredUser user = new RegisteredUser();
     user.setEmailAddress(emailAddress);
 
-    Authentication authenticatedUser = new UsernamePasswordAuthenticationToken(user, null, List.of());
+    final Authentication authenticatedUser = new UsernamePasswordAuthenticationToken(user, null, List.of());
 
     // when
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))

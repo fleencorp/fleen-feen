@@ -8,20 +8,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "username"
+  "username",
+  "avatar_urls"
 })
 public class SoftAskParticipantResponse {
 
   @JsonProperty("username")
   private String username;
 
-  public static SoftAskParticipantResponse of(final String username) {
-    return new SoftAskParticipantResponse(username);
+  @JsonProperty("avatar_urls")
+  private Map<String, String> avatarUrls;
+
+  public static SoftAskParticipantResponse of(final String username, final Map<String, String> avatarUrls) {
+    return new SoftAskParticipantResponse(username, avatarUrls);
   }
 }

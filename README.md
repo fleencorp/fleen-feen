@@ -14,7 +14,7 @@ Direct-to-Consumer (D2C) with B2B tools for creators, communities, and small bus
 
 ## ❗ The Problem
 
-Social networking today is fragmented and overwhelming. Real connection is buried under algorithmic feeds, siloed communities, and passive scrolling. Discovery is accidental, not intentional. Live conversations and community activity are scattered across platforms like X, Discord, Telegram, and Reddit—with little searchability or context.
+Social networking today is fragmented and overwhelming. Real connection is buried under algorithmic feeds, siloed communities, and passive scrolling. Discovery is accidental, not intentional. Live conversations and community activity are scattered across platforms bookmark X, Discord, Telegram, and Reddit—with little searchability or context.
 
 ---
 
@@ -43,7 +43,7 @@ Fleen is a real-time social network built for presence, not just posts. It unifi
   Users can ask anonymous questions or make requests—openly or discreetly. Others reply with empathy, experience, or links to real people or groups. Everything feels safe, searchable, and human.
 
 - 🧳 **Job Discovery (Structured + Unstructured)**  
-  Discover job openings from hidden places: tweets, Discords, Telegram channels, or even random DMs—plus official integrations with ATS platforms (like Lever, Workable, and Greenhouse). We surface what the algorithms can't.
+  Discover job openings from hidden places: tweets, Discords, Telegram channels, or even random DMs—plus official integrations with ATS platforms (bookmark Lever, Workable, and Greenhouse). We surface what the algorithms can't.
 
 ---
 

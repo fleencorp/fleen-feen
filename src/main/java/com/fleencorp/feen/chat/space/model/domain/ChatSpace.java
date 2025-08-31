@@ -3,19 +3,17 @@ package com.fleencorp.feen.chat.space.model.domain;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceStatus;
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceVisibility;
-import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
-import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotActiveException;
 import com.fleencorp.feen.chat.space.exception.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
+import com.fleencorp.feen.common.constant.mask.MaskedChatSpaceUri;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.model.domain.Link;
+import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 
 import java.util.*;
@@ -32,7 +30,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "chat_space")
-public class ChatSpace extends FleenFeenEntity {
+public class ChatSpace extends FleenFeenEntity
+  implements HasTitle {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -61,6 +60,7 @@ public class ChatSpace extends FleenFeenEntity {
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
+  @ToString.Exclude
   @CreatedBy
   @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
   @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
@@ -75,19 +75,27 @@ public class ChatSpace extends FleenFeenEntity {
   private ChatSpaceStatus status = ChatSpaceStatus.ACTIVE;
 
   @Column(name = "total_members", nullable = false)
-  private Long totalMembers = 0L;
+  private Integer totalMembers = 0;
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
 
+  @ToString.Exclude
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = ChatSpaceMember.class, cascade = CascadeType.PERSIST)
   private Set<ChatSpaceMember> members = new HashSet<>();
 
+  @ToString.Exclude
   @OneToMany(fetch = LAZY, mappedBy = "chatSpace", targetEntity = Link.class, cascade = CascadeType.PERSIST)
   private Set<Link> links = new HashSet<>();
 
   @Column(name = "like_count", nullable = false)
   private Integer likeCount = 0;
+
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "share_count", nullable = false)
+  private Integer shareCount = 0;
 
   public Member getOrganizer() {
     return member;

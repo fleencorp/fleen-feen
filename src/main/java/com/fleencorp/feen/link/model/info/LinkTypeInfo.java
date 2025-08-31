@@ -17,7 +17,8 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "type",
   "label",
-  "format"
+  "business_format",
+  "community_format"
 })
 public class LinkTypeInfo {
 
@@ -27,10 +28,13 @@ public class LinkTypeInfo {
   @JsonProperty("label")
   private String label;
 
-  @JsonProperty("format")
-  private String format;
+  @JsonProperty("business_format")
+  private String businessFormat;
 
-  public static LinkTypeInfo of(final LinkType type, final String label, final String format) {
-    return new LinkTypeInfo(type, label, format);
+  @JsonProperty("community_format")
+  private String communityFormat;
+
+  public static LinkTypeInfo of(final LinkType type, final String label, final String businessFormat, final String communityFormat) {
+    return new LinkTypeInfo(type, label, businessFormat, communityFormat);
   }
 }

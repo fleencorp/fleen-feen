@@ -6,7 +6,10 @@ import com.fleencorp.feen.role.model.domain.Role;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.constant.profile.ProfileVerificationStatus;
 import com.fleencorp.feen.user.model.domain.Member;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -19,7 +22,6 @@ import static com.fleencorp.feen.user.util.UserAuthoritiesUtil.buildAuthorities;
 import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 
-@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -77,16 +79,15 @@ public class RegisteredUser implements UserDetails {
     final List<GrantedAuthority> authorities = buildAuthorities(roles);
 
     // Build a FleenUser object from the Member entity data
-    final RegisteredUser user = builder()
-      .id(member.getMemberId())
-      .authorities(authorities)
-      .country(member.getCountry())
-      .displayName(member.getUsername())
-      .password(member.getPassword())
-      .phoneNumber(member.getPhoneNumber())
-      .emailAddress(member.getEmailAddress())
-      .profileStatus(member.getProfileStatus())
-      .build();
+    final RegisteredUser user = new RegisteredUser();
+    user.setId(member.getMemberId());
+    user.setAuthorities(authorities);
+    user.setCountry(member.getCountry());
+    user.setDisplayName(member.getFullName());
+    user.setPassword(member.getPassword());
+    user.setPhoneNumber(member.getPhoneNumber());
+    user.setEmailAddress(member.getEmailAddress());
+    user.setProfileStatus(member.getProfileStatus());
 
     // Set additional properties on the FleenUser object
     user.setFirstName(member.getFirstName());

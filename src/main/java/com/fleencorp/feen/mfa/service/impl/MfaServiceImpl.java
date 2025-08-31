@@ -1,9 +1,10 @@
 package com.fleencorp.feen.mfa.service.impl;
 
-import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
+import com.fleencorp.feen.configuration.security.properties.MfaProperties;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mfa.constant.MfaSetupStatus;
 import com.fleencorp.feen.mfa.constant.MfaType;
@@ -21,7 +22,6 @@ import com.fleencorp.feen.mfa.model.response.MfaStatusResponse;
 import com.fleencorp.feen.mfa.model.response.SetupMfaResponse;
 import com.fleencorp.feen.mfa.repository.MfaRepository;
 import com.fleencorp.feen.mfa.service.MfaService;
-import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;

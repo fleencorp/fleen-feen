@@ -1,12 +1,12 @@
 package com.fleencorp.feen.review.mapper.impl;
 
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
-import com.fleencorp.feen.stream.model.info.rating.RatingInfo;
 import com.fleencorp.feen.review.mapper.ReviewMapper;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
+import com.fleencorp.feen.stream.model.info.rating.RatingInfo;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
@@ -60,23 +60,28 @@ public final class ReviewMapperImpl extends BaseMapper implements ReviewMapper {
       );
 
       final ReviewResponse response = new ReviewResponse();
+
       response.setId(entry.getReviewId());
       response.setReview(entry.getReviewText());
       response.setReviewParentType(entry.getReviewParentType());
       response.setRatingInfo(ratingInfo);
       response.setReviewerName(entry.getReviewerName());
       response.setReviewerPhoto(entry.getReviewerPhoto());
-      response.setMemberId(entry.getAuthorId());
-      response.setTotalLikeCount(entry.getLikeCount());
 
-      response.setParentId(entry.getParentId());
-      response.setParentTitle(entry.getParentTitle());
+      response.setMemberId(entry.getAuthorId());
+
+      response.setAuthorId(entry.getAuthorId());
+      response.setOrganizerId(entry.getAuthorId());
+      response.setIsUpdatable(false);
 
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
-      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
-      response.setUserLikeInfo(userLikeInfo);
+      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentTitle());
+      response.setParentInfo(parentInfo);
+
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
+      toInfoMapper.setLikeInfo(response, false, entry.getLikeCount());
 
       return response;
     }

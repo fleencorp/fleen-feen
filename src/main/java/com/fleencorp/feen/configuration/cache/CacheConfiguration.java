@@ -19,6 +19,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
@@ -89,6 +90,8 @@ public class CacheConfiguration {
     configuration.disableCachingNullValues();
     configuration.usePrefix();
     configuration.prefixCacheNameWith(credentials.getPrefix());
+    configuration.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(stringSerializer()));
+    configuration.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(stringSerializer()));
 
     return configuration;
   }

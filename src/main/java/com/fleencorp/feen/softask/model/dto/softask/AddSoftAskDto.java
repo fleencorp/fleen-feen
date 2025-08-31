@@ -5,20 +5,26 @@ import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.common.constant.location.LocationVisibility;
+import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
+import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
+import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
+
+import java.math.BigDecimal;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -26,7 +32,8 @@ import static java.util.Objects.nonNull;
 @Getter
 @Setter
 @NoArgsConstructor
-public class AddSoftAskDto {
+@AllArgsConstructor
+public class AddSoftAskDto extends UserOtherDetailDto {
 
   @NotBlank(message = "{softAsk.title.NotBlank}")
   @Size(min = 1, max = 500, message = "{softAsk.title.Size}")
@@ -105,9 +112,11 @@ public class AddSoftAskDto {
     softAsk.setLink(link);
     softAsk.setSoftAskVisibility(softAskVisibility);
     softAsk.setSoftAskStatus(softAskStatus);
+    softAsk.setVisible(true);
+
     softAsk.setAuthorId(author.getMemberId());
     softAsk.setAuthor(author);
-    softAsk.setUserOtherName(author.getUsername());
+
     softAsk.setParentId(getParentId());
     softAsk.setParentTitle(parentTitle);
     softAsk.setSoftAskParentType(parentType);
@@ -117,6 +126,13 @@ public class AddSoftAskDto {
 
     softAsk.setStreamId(getParentId());
     softAsk.setStream(stream);
+
+    softAsk.setLatitude(BigDecimal.valueOf(latitude));
+    softAsk.setLongitude(BigDecimal.valueOf(longitude));
+
+    softAsk.setModerationStatus(ModerationStatus.CLEAN);
+    softAsk.setLocationVisibility(LocationVisibility.GLOBAL);
+    softAsk.setMoodTag(getMood());
 
     return softAsk;
   }

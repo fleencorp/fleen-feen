@@ -1,8 +1,8 @@
 package com.fleencorp.feen.common.util.external.google;
 
 import com.fleencorp.feen.common.constant.external.google.chat.base.GoogleChatParameter;
-import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
+import com.fleencorp.feen.stream.model.other.Schedule;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.JsonObjectParser;
@@ -19,7 +19,7 @@ import java.util.Locale;
 
 import static com.fleencorp.feen.common.constant.base.SimpleConstant.FORWARD_SLASH;
 import static com.fleencorp.feen.common.constant.external.google.youtube.base.YouTubeParameter.LIVE_STREAMING_BASE_LINK;
-import static com.fleencorp.feen.common.util.DateTimeUtil.toDate;
+import static com.fleencorp.feen.common.util.common.DateTimeUtil.toDate;
 import static com.google.auth.http.AuthHttpConstants.AUTHORIZATION;
 import static com.google.auth.http.AuthHttpConstants.BEARER;
 import static java.util.Objects.isNull;

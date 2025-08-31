@@ -13,5 +13,4 @@ class FleenFeenApplicationTests {
 		final String testText = "Test Feen App";
 		assertNotNull(testText);
 	}
-
 }

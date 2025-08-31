@@ -1,14 +1,20 @@
 package com.fleencorp.feen.like.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.like.constant.LikeParentType;
+import com.fleencorp.feen.like.constant.LikeType;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 @Getter
 @Setter
@@ -16,11 +22,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "parent_info",
   "parent_total_likes",
-  "user_like_info"
+  "user_like_info",
+  "like_parent_type",
+  "like_type",
+  "is_liked",
+  "created_on",
+  "updated_on",
 })
-public class LikeResponse {
+public class LikeResponse extends FleenFeenResponse {
 
   @JsonProperty("parent_info")
   private ParentInfo parentInfo;
@@ -31,8 +43,16 @@ public class LikeResponse {
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
-  public static LikeResponse of(final Long parentId, final String parentTitle, final Long parentTotalLikes, final UserLikeInfo userLikeInfo) {
-    final ParentInfo parentInfo = ParentInfo.of(parentId, parentTitle);
-    return new LikeResponse(parentInfo, parentTotalLikes, userLikeInfo);
+  @JsonFormat(shape = STRING)
+  @JsonProperty("like_parent_type")
+  private LikeParentType likeParentType;
+
+  @JsonFormat(shape = STRING)
+  @JsonProperty("like_type")
+  private LikeType type;
+
+  @JsonProperty("is_liked")
+  public boolean isLiked() {
+    return LikeType.isLiked(type);
   }
 }

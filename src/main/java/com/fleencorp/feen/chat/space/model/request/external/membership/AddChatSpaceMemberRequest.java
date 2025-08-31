@@ -4,7 +4,6 @@ import com.fleencorp.feen.common.constant.external.google.chat.space.membership.
 import com.fleencorp.feen.common.constant.external.google.chat.space.membership.MembershipRole;
 import com.fleencorp.feen.common.constant.external.google.chat.space.membership.MembershipState;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +11,6 @@ import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getCh
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getChatSpaceUserIdOrNameRequiredPattern;
 import static java.util.Objects.nonNull;
 
-@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor

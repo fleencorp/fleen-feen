@@ -1,31 +1,30 @@
 package com.fleencorp.feen.poll.constant.core;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 @Getter
-public enum PollVisibility implements ApiParameter {
+public enum PollVisibility {
 
-  CHAT_SPACE_MEMBERS_ONLY("poll.visibility.chat.space.member.label", "poll.visibility.chat.space.members.only"),
-  FOLLOWERS_ONLY("poll.visibility.followers.label", "poll.visibility.followers.only"),
-  PRIVATE("poll.visibility.private.label", "poll.visibility.private.only"),
-  PUBLIC("poll.visibility.public.label", "poll.visibility.public.only"),
-  STREAM_ATTENDEES_ONLY("poll.visibility.stream.attendees.label", "poll.visibility.stream.attendees.only");
+  CHAT_SPACE_MEMBERS_ONLY("poll.visibility.chat.space.members.only", "poll.visibility.chat.space.members.only.2"),
+  FOLLOWERS_ONLY("poll.visibility.followers.only", "poll.visibility.followers.only.2"),
+  PRIVATE("poll.visibility.private", "poll.visibility.private.2"),
+  PUBLIC("poll.visibility.public", "poll.visibility.public.2"),
+  STREAM_ATTENDEES_ONLY("poll.visibility.stream.attendees", "poll.visibility.stream.attendees.2");
 
-  private final String value;
   private final String messageCode;
+  private final String messageCode2;
 
   PollVisibility(
-      final String value,
-      final String messageCode) {
-    this.value = value;
+      final String messageCode,
+      final String messageCode2) {
     this.messageCode = messageCode;
+    this.messageCode2 = messageCode2;
   }
 
   public String getLabelCode() {
-    return this.value;
+    return this.messageCode;
   }
 
   public static PollVisibility of(final String value) {

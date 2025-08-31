@@ -1,9 +1,9 @@
 package com.fleencorp.feen.user.service.impl;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.word.bank.WordBankService;
 import com.fleencorp.feen.model.domain.word.bank.Adjective;
 import com.fleencorp.feen.model.domain.word.bank.Noun;
-import com.fleencorp.feen.common.service.word.bank.WordBankService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.service.UsernameService;
 import com.fleencorp.feen.user.service.member.MemberService;
@@ -37,7 +37,8 @@ public class UsernameServiceImpl implements UsernameService {
    *
    * @return a randomly selected {@code Adjective} from the adjective repository
    */
-  private String generateRandomUsername() {
+  @Override
+  public String generateRandomUsername() {
     final Random random = new SecureRandom();
     final Adjective adjective = wordBankService.findRandomAdjective();
     final Noun noun = wordBankService.findRandomNoun();

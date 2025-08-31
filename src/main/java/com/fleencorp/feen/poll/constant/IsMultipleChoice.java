@@ -1,23 +1,22 @@
 package com.fleencorp.feen.poll.constant;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum IsMultipleChoice implements ApiParameter {
+public enum IsMultipleChoice {
 
   NO("No", "is.multipleChoice.no", "is.multipleChoice.no.2"),
   YES("Yes", "is.multipleChoice.yes", "is.multipleChoice.yes.2");
 
-  private final String value;
+  private final String label;
   private final String messageCode;
   private final String messageCode2;
 
   IsMultipleChoice(
-      final String value,
+      final String label,
       final String messageCode,
       final String messageCode2) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
   }

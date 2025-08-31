@@ -1,20 +1,18 @@
 package com.fleencorp.feen.chat.space.controller;
 
-import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceAlreadyDeletedException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotActiveException;
-import com.fleencorp.feen.chat.space.exception.core.NotAnAdminOfChatSpaceException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
+import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
+import com.fleencorp.feen.chat.space.exception.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.chat.space.exception.request.AlreadyJoinedChatSpaceException;
 import com.fleencorp.feen.chat.space.exception.request.CannotJoinPrivateChatSpaceWithoutApprovalException;
 import com.fleencorp.feen.chat.space.exception.request.RequestToJoinChatSpacePendingException;
-import com.fleencorp.feen.chat.space.exception.member.ChatSpaceMemberNotFoundException;
 import com.fleencorp.feen.chat.space.model.dto.core.CreateChatSpaceDto;
 import com.fleencorp.feen.chat.space.model.dto.core.UpdateChatSpaceDto;
 import com.fleencorp.feen.chat.space.model.dto.core.UpdateChatSpaceStatusDto;
 import com.fleencorp.feen.chat.space.model.dto.join.request.JoinChatSpaceDto;
 import com.fleencorp.feen.chat.space.model.dto.join.request.RequestToJoinChatSpaceDto;
-import com.fleencorp.feen.stream.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.chat.space.model.response.CreateChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.DeleteChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.member.LeaveChatSpaceResponse;
@@ -22,10 +20,12 @@ import com.fleencorp.feen.chat.space.model.response.membership.JoinChatSpaceResp
 import com.fleencorp.feen.chat.space.model.response.membership.RequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceStatusResponse;
-import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.chat.space.service.event.ChatSpaceEventService;
 import com.fleencorp.feen.chat.space.service.join.ChatSpaceJoinService;
+import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.stream.model.dto.event.CreateChatSpaceEventDto;
+import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,7 +68,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to create chat spaces",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class)))
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class)))
   })
   @PostMapping(value = "/create")
   public CreateChatSpaceResponse create(
@@ -92,7 +92,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to create events in this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
@@ -120,7 +120,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to update this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
@@ -145,7 +145,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to delete this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
@@ -169,7 +169,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized as system administrator",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class)))
   })
@@ -194,7 +194,7 @@ public class ChatSpaceController {
     @ApiResponse(responseCode = "401", description = "User not authenticated",
       content = @Content(schema = @Schema(implementation = InvalidAuthenticationException.class))),
     @ApiResponse(responseCode = "403", description = "User not authorized to enable this chat space",
-      content = @Content(schema = @Schema(implementation = NotAnAdminOfChatSpaceException.class))),
+      content = @Content(schema = @Schema(implementation = ChatSpaceNotAnAdminException.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Chat space is already deleted",

@@ -7,6 +7,7 @@ import com.fleencorp.feen.link.model.info.LinkTypeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,14 +17,15 @@ import static java.util.Objects.nonNull;
 public class LinkMapperImpl implements LinkMapper {
 
   /**
-   * Converts a {@code Link} object to a {@code LinkResponse}.
+   * Converts a {@link Link} entity into a {@link LinkResponse}.
    *
-   * <p>This method creates a {@code LinkResponse} from the given {@code Link} entry. If the {@code Link} entry is non-null,
-   * it creates a {@code LinkTypeResponse} based on the link type information and sets the URL in the resulting
-   * {@code LinkResponse}. If the {@code Link} entry is null, the method returns null.
+   * <p>If the provided link is not {@code null}, a new {@link LinkResponse} is created with
+   * its type information mapped into a {@link LinkTypeInfo}, and its URL preserved.
+   * If the provided link is {@code null}, this method returns {@code null}.</p>
    *
-   * @param entry the {@code Link} object to be converted
-   * @return a {@code LinkResponse} representing the {@code Link} object, or null if the entry is null
+   * @param entry the {@link Link} entity to convert
+   * @return a {@link LinkResponse} containing the mapped link type and URL,
+   *         or {@code null} if the given entry is {@code null}
    */
   private LinkResponse toLinkResponse(final Link entry) {
     if (nonNull(entry)) {
@@ -31,7 +33,8 @@ public class LinkMapperImpl implements LinkMapper {
       final LinkTypeInfo linkTypeInfo = LinkTypeInfo.of(
         linkType,
         linkType.getValue(),
-        linkType.getFormat()
+        linkType.getBusinessFormat(),
+        linkType.getCommunityFormat()
       );
 
       final LinkResponse linkResponse = new LinkResponse();
@@ -55,7 +58,7 @@ public class LinkMapperImpl implements LinkMapper {
    * @return a list of {@code LinkResponse} objects corresponding to the provided {@code Link} entries, or an empty list if the input is null or empty
    */
   @Override
-  public List<LinkResponse> toLinkResponses(final List<Link> entries) {
+  public Collection<LinkResponse> toLinkResponses(final Collection<Link> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)

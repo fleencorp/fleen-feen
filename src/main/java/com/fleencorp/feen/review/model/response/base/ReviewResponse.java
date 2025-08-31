@@ -1,13 +1,18 @@
 package com.fleencorp.feen.review.model.response.base;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
+import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.stream.model.info.rating.RatingInfo;
-import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.review.constant.ReviewParentType;
+import com.fleencorp.feen.stream.model.info.rating.RatingInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,19 +24,23 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "id",
   "review",
   "review_parent_type",
   "reviewer_name",
   "reviewer_photo",
   "rating_info",
-  "parent_id",
-  "parent_title",
+  "parent_info",
+  "bookmark_count_info",
+  "user_bookmark_info",
   "user_like_info",
-  "total_like_count",
-  "is_updatable"
+  "like_count_info",
+  "is_updatable",
+  "created_on",
+  "updated_on",
 })
 public class ReviewResponse extends FleenFeenResponse
-    implements HasId, Updatable, Likeable {
+  implements Bookmarkable, HasId, Likeable, Updatable {
 
   @JsonProperty("review")
   private String review;
@@ -52,22 +61,32 @@ public class ReviewResponse extends FleenFeenResponse
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
 
-  @JsonProperty("parent_id")
-  private Long parentId;
+  @JsonProperty("parent_info")
+  private ParentInfo parentInfo;
 
-  @JsonProperty("parent_title")
-  private String parentTitle;
+  @JsonProperty("bookmark_count_info")
+  private BookmarkCountInfo bookmarkCountInfo;
+
+  @JsonProperty("user_bookmark_info")
+  private UserBookmarkInfo userBookmarkInfo;
 
   @JsonProperty("user_like_info")
   private UserLikeInfo userLikeInfo;
 
-  @JsonProperty("total_like_count")
-  private Long totalLikeCount;
+  @JsonProperty("like_count_info")
+  private LikeCountInfo likeCountInfo;
+
+  @JsonIgnore
+  private Long authorId;
+
+  @JsonIgnore
+  private Long organizerId;
 
   @JsonIgnore
   private Long memberId;
 
   @Override
+  @JsonIgnore
   public Long getAuthorId() {
     return getMemberId();
   }

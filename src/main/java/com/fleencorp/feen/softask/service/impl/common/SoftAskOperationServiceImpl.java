@@ -1,35 +1,44 @@
 package com.fleencorp.feen.softask.service.impl.common;
 
+import com.fleencorp.feen.common.service.location.GeoService;
+import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskAnswer;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.repository.answer.SoftAskAnswerRepository;
+import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplyRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.participant.SoftAskUsernameService;
+import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
+import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
-  private final SoftAskAnswerRepository softAskAnswerRepository;
+  private final GeoService geoService;
+  private final SoftAskReplySearchService softAskReplySearchService;
+  private final SoftAskSearchService softAskSearchService;
+  private final SoftAskUsernameService softAskUsernameService;
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskRepository softAskRepository;
 
   public SoftAskOperationServiceImpl(
-      final SoftAskAnswerRepository softAskAnswerRepository,
+      final GeoService geoService,
+      final SoftAskReplySearchService softAskReplySearchService,
+      final SoftAskSearchService softAskSearchService,
+      final SoftAskUsernameService softAskUsernameService,
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskRepository softAskRepository) {
-    this.softAskAnswerRepository = softAskAnswerRepository;
+    this.geoService = geoService;
+    this.softAskReplySearchService = softAskReplySearchService;
+    this.softAskSearchService = softAskSearchService;
+    this.softAskUsernameService = softAskUsernameService;
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskRepository = softAskRepository;
-  }
-
-  @Override
-  @Transactional
-  public SoftAskAnswer save(final SoftAskAnswer softAskAnswer) {
-    return softAskAnswerRepository.save(softAskAnswer);
   }
 
   @Override
@@ -45,59 +54,133 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
   }
 
   @Override
-  @Transactional
-  public Integer incrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
+  public SoftAsk findSoftAsk(final Long softAskId) {
+    return softAskSearchService.findSoftAsk(softAskId);
+  }
+
+  @Override
+  public SoftAskReply findSoftAskReply(final Long softAskId, final Long softAskReplyId) {
+    return softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId);
+  }
+
+  private Integer incrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
     softAskRepository.incrementVoteCount(softAskId);
     return softAskRepository.getVoteCount(softAskId);
   }
 
-  @Override
-  @Transactional
-  public Integer decrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
+  private Integer decrementSoftAskVoteAndGetVoteCount(final Long softAskId) {
     softAskRepository.decrementVoteCount(softAskId);
     return softAskRepository.getVoteCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerVoteAndGetVoteCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.incrementVoteCount(softAskAnswerId);
-    return softAskAnswerRepository.getVoteCount(softAskAnswerId);
+  public Integer updateVoteCount(final Long softAskId, final boolean isVoted) {
+    return isVoted
+      ? incrementSoftAskVoteAndGetVoteCount(softAskId)
+      : decrementSoftAskVoteAndGetVoteCount(softAskId);
+  }
+
+  private Integer incrementSoftAskReplyVoteAndGetVoteCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.incrementVoteCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getVoteCount(softAskId, softAskReplyId);
+  }
+
+  private Integer decrementSoftAskReplyVoteAndGetVoteCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.decrementVoteCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getVoteCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer decrementSoftAskAnswerVoteAndGetVoteCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.decrementVoteCount(softAskAnswerId);
-    return softAskAnswerRepository.getVoteCount(softAskAnswerId);
+  public Integer updateVoteCount(final Long softAskId, final Long softAskReplyId, final boolean isVoted) {
+    return isVoted
+      ? incrementSoftAskReplyVoteAndGetVoteCount(softAskId, softAskReplyId)
+      : decrementSoftAskReplyVoteAndGetVoteCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskReplyVoteAndGetVoteCount(final Long softAskReplyId) {
-    softAskReplyRepository.incrementVoteCount(softAskReplyId);
-    return softAskReplyRepository.getVoteCount(softAskReplyId);
+  public Integer incrementSoftAskReplyCountAndGetReplyCount(final Long softAskId) {
+    softAskRepository.incrementReplyCount(softAskId);
+    return softAskRepository.getReplyCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer decrementSoftAskReplyVoteAndGetVoteCount(final Long softAskReplyId) {
-    softAskReplyRepository.decrementVoteCount(softAskReplyId);
-    return softAskReplyRepository.getVoteCount(softAskReplyId);
+  public Integer incrementSoftAskReplyChildReplyCountAndGetReplyCount(final Long softAskId, final Long softAskReplyParentId) {
+    softAskReplyRepository.incrementReplyChildReplyCount(softAskId, softAskReplyParentId);
+    return softAskReplyRepository.getReplyChildReplyCount(softAskId, softAskReplyParentId);
+  }
+
+  private Integer incrementBookmarkCount(final Long softAskId) {
+    softAskRepository.incrementAndBookmarkCount(softAskId);
+    return softAskRepository.getBookmarkCount(softAskId);
+  }
+
+  private Integer decrementBookmarkCount(final Long softAskId) {
+    softAskRepository.decrementAndGetBookmarkCount(softAskId);
+    return softAskRepository.getBookmarkCount(softAskId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerCountAndGetAnswerCount(final Long softAskId) {
-    softAskRepository.incrementAnswerCount(softAskId);
-    return softAskRepository.getAnswerCount(softAskId);
+  public Integer updateBookmarkCount(final Long softAskId, final boolean isBookmarked) {
+    return isBookmarked
+      ? incrementBookmarkCount(softAskId)
+      : decrementBookmarkCount(softAskId);
+  }
+
+  private Integer incrementSoftAskReplyBookmarkCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.incrementAndBookmarkCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getBookmarkCount(softAskId, softAskReplyId);
+  }
+
+  private Integer decrementSoftAskReplyBookmarkCount(final Long softAskId, final Long softAskReplyId) {
+    softAskReplyRepository.decrementAndGetBookmarkCount(softAskId, softAskReplyId);
+    return softAskReplyRepository.getBookmarkCount(softAskId, softAskReplyId);
   }
 
   @Override
   @Transactional
-  public Integer incrementSoftAskAnswerReplyCountAndGetReplyCount(final Long softAskAnswerId) {
-    softAskAnswerRepository.incrementReplyCount(softAskAnswerId);
-    return softAskAnswerRepository.getReplyCount(softAskAnswerId);
+  public Integer updateBookmarkCount(final Long softAskId, final Long softAskReplyId, final boolean isBookmarked) {
+    return isBookmarked
+      ? incrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId)
+      : decrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId);
+  }
+
+  @Override
+  public SoftAskUsername generateUsername(final Long softAskId, final Long userId) {
+    return softAskUsernameService.generateUsername(softAskId, userId);
+  }
+
+  @Override
+  public SoftAskUsername getOrAssignUsername(final Long softAskId, final Long userId) {
+    final String username = softAskUsernameService.getOrAssignUsername(softAskId, userId);
+    return SoftAskUsername.of(softAskId, userId, username);
+  }
+
+  /**
+   * Sets the geohash and geohash prefix for the given soft ask data.
+   *
+   * <p>This method encodes the latitude and longitude of the provided
+   * {@link SoftAskCommonData} into a geohash with precision 9 and derives
+   * a geohash prefix of length 5. Both values are then stored in the
+   * corresponding fields of the provided object. If the input is null,
+   * the method performs no action.</p>
+   *
+   * @param softAskCommonData the soft ask data containing latitude and longitude,
+   *                          may be {@code null}
+   */
+  @Override
+  public void setGeoHashAndGeoPrefix(final SoftAskCommonData softAskCommonData) {
+    if (nonNull(softAskCommonData)) {
+      final String geoHash = geoService.encodeAndGetGeohash(softAskCommonData.getLatitude(), softAskCommonData.getLongitude(), 9);
+      final String geohashPrefix = geoService.getGeohashPrefix(geoHash, 5);
+
+      softAskCommonData.setGeoHash(geoHash);
+      softAskCommonData.setGeoHashPrefix(geohashPrefix);
+    }
   }
 
 }

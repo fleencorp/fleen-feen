@@ -1,8 +1,9 @@
 package com.fleencorp.feen.poll.model.response.base;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fleencorp.feen.model.contract.Updatable;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.poll.model.info.*;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;
@@ -33,13 +34,16 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "is_multiple_choice_info",
   "is_anonymous_info",
   "is_ended_info",
+  "share_count_info",
   "is_updatable",
   "poll_options",
   "poll_vote",
   "author",
+  "created_on",
+  "updated_on",
 })
 public class PollResponse extends FleenFeenResponse
-    implements Updatable {
+  implements Updatable {
 
   @JsonProperty("question")
   private String question;
@@ -63,6 +67,9 @@ public class PollResponse extends FleenFeenResponse
   @JsonProperty("is_ended_info")
   private IsEndedInfo isEndedInfo;
 
+  @JsonProperty("share_count_info")
+  private ShareCountInfo shareCountInfo;
+
   @JsonProperty("total_vote_entries_info")
   private TotalPollVoteEntriesInfo totalPollVoteEntriesInfo;
 
@@ -77,6 +84,9 @@ public class PollResponse extends FleenFeenResponse
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
+
+  @JsonIgnore
+  private Long authorId;
 
   @JsonIgnore
   private Long organizerId;

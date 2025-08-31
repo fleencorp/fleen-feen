@@ -1,6 +1,7 @@
 package com.fleencorp.feen.verification.service;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.mfa.model.dto.ConfirmMfaVerificationCodeDto;
 import com.fleencorp.feen.mfa.model.dto.ResendMfaVerificationCodeDto;
 import com.fleencorp.feen.mfa.model.response.ResendMfaVerificationCodeResponse;
@@ -10,7 +11,6 @@ import com.fleencorp.feen.model.response.authentication.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.ForgotPasswordResponse;
 import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse;
-import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.dto.authentication.*;

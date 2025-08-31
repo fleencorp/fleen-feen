@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j

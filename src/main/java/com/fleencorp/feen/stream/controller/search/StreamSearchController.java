@@ -2,15 +2,15 @@ package com.fleencorp.feen.stream.controller.search;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.calendar.model.request.search.EventSearchRequest;
+import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.stream.constant.core.StreamTimeType;
 import com.fleencorp.feen.stream.constant.core.StreamType;
-import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.stream.model.request.search.StreamSearchRequest;
 import com.fleencorp.feen.stream.model.response.base.RetrieveStreamResponse;
-import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.stream.model.search.common.StreamSearchResult;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;

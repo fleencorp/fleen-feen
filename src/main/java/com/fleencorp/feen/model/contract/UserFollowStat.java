@@ -8,5 +8,4 @@ public interface UserFollowStat {
   void setTotalFollowedInfo(TotalFollowedInfo totalFollowedInfo);
 
   void setTotalFollowingInfo(TotalFollowingInfo totalFollowingInfo);
-
 }

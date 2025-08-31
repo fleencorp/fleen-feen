@@ -1,12 +1,12 @@
 package com.fleencorp.feen.service.impl.external.google.calendar.update;
 
-import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.calendar.model.request.calendar.ShareCalendarWithUserRequest;
+import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
+import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
-import com.fleencorp.feen.common.service.report.ReporterService;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.AclRule;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static com.fleencorp.feen.calendar.mapper.external.GoogleCalendarMapper.mapToCalendarResponse;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getHttpRequestInitializer;
 import static java.util.Objects.nonNull;
 

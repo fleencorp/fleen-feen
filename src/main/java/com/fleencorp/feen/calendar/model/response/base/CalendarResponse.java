@@ -3,6 +3,7 @@ package com.fleencorp.feen.calendar.model.response.base;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fleencorp.feen.calendar.model.info.CalendarStatusInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import lombok.Setter;
   "title",
   "timezone",
   "code",
-  "is_active",
+  "status_info",
   "description",
   "created_on",
   "updated_on"
@@ -38,6 +39,6 @@ public class CalendarResponse extends FleenFeenResponse {
   @JsonProperty("code")
   private String code;
 
-  @JsonProperty("is_active")
-  private Boolean isActive;
+  @JsonProperty("status_info")
+  private CalendarStatusInfo statusInfo;
 }

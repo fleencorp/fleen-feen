@@ -1,8 +1,9 @@
 package com.fleencorp.feen.service.impl.external.aws.s3;
 
-import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import com.fleencorp.feen.common.exception.ObjectNotFoundException;
 import com.fleencorp.feen.common.exception.file.FileUploadException;
+import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.configuration.external.aws.AwsConfig;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +32,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static com.fleencorp.base.util.datetime.DateTimeUtil.getTimeInMillis;
-import static com.fleencorp.feen.common.util.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static java.time.Duration.ofHours;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -53,22 +54,19 @@ import static software.amazon.awssdk.http.SdkHttpMethod.PUT;
 @Slf4j
 public class StorageService {
 
+  private final AwsConfig awsConfig;
   private final S3Client amazonS3;
   private final S3Presigner s3Presigner;
   private final S3Presigner s3PresignerForRead;
   private static final String FILE_NAME_BLACKLISTED_REGEX = "\\W";
   private static final String FILE_NAME_SEPARATOR = "_";
 
-  /**
-   * Constructs a new S3Service with the specified Amazon S3 client and S3 presigner.
-   *
-   * @param amazonS3 the Amazon S3 client used for accessing Amazon S3 services
-   * @param s3Presigner the S3 presigner used for generating pre-signed URLs
-   */
   public StorageService(
+      final AwsConfig awsConfig,
       final S3Client amazonS3,
       final S3Presigner s3Presigner,
       @Qualifier("presignerForRead") final S3Presigner s3PresignerForRead) {
+    this.awsConfig = awsConfig;
     this.amazonS3 = amazonS3;
     this.s3Presigner = s3Presigner;
     this.s3PresignerForRead = s3PresignerForRead;
@@ -701,6 +699,23 @@ public class StorageService {
       newExpirationDate.setTime(expirationTimeInMillis);
     }
     return newExpirationDate.toInstant();
+  }
+
+  /**
+   * Builds avatar URLs for both PNG and JPG formats.
+   *
+   * @param bucketName the S3 bucket containing the avatar
+   * @param avatarId   the avatar identifier (without extension)
+   * @return a map of file extension to full S3 URL
+   */
+  public Map<String, String> getAvatarUrls(final String bucketName, final String avatarId) {
+    final String region = awsConfig.getRegionName();
+
+    final Map<String, String> urls = new HashMap<>();
+    urls.put("png", String.format("https://%s.s3.%s.amazonaws.com/%s.png", bucketName, region, avatarId));
+    urls.put("jpg", String.format("https://%s.s3.%s.amazonaws.com/%s.jpg", bucketName, region, avatarId));
+
+    return urls;
   }
 
 }

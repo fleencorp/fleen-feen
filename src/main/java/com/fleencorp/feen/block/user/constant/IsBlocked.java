@@ -1,25 +1,24 @@
 package com.fleencorp.feen.block.user.constant;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum IsBlocked implements ApiParameter {
+public enum IsBlocked {
 
   NO("No", "is.blocked.no", "is.blocked.no.2", "is.blocked.no.otherText"),
   YES("Yes", "is.blocked.yes", "is.blocked.yes.2", "is.blocked.yes.otherText");
 
-  private final String value;
+  private final String label;
   private final String messageCode;
   private final String messageCode2;
   private final String messageCode3;
 
   IsBlocked(
-      final String value,
+      final String label,
       final String messageCode,
       final String messageCode2,
       final String messageCode3) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
     this.messageCode3 = messageCode3;

@@ -1,34 +1,24 @@
 package com.fleencorp.feen.mfa.constant;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
-/**
-* Enumeration for Multi-Factor Authentication (MFA) types.
-*
-* <p>This enum defines the various types of MFA methods available.
-* Each enum constant is associated with a string value that represents the MFA type.</p>
-*
-* @author Yusuf Alamu Musa
-* @version 1.0
-*/
 @Getter
-public enum MfaType implements ApiParameter {
+public enum MfaType {
 
-  PHONE("PHONE", "mfa.type.phone"),
+  PHONE("Phone", "mfa.type.phone"),
   EMAIL("Email", "mfa.type.email"),
   AUTHENTICATOR("Authenticator", "mfa.type.authenticator"),
   NONE("None", "mfa.type.none"),;
 
-  private final String value;
+  private final String label;
   private final String messageCode;
 
   MfaType(
-      final String value,
+      final String label,
       final String messageCode) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
   }
 

@@ -1,14 +1,14 @@
 package com.fleencorp.feen.common.event.handler;
 
-import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
-import com.fleencorp.feen.mfa.model.request.MfaSetupVerificationRequest;
-import com.fleencorp.feen.mfa.model.request.MfaVerificationRequest;
-import com.fleencorp.feen.common.model.message.SmsMessage;
 import com.fleencorp.feen.chat.space.model.request.external.message.MessageRequest;
+import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
+import com.fleencorp.feen.common.model.message.SmsMessage;
 import com.fleencorp.feen.common.repository.message.SmsMessageRepository;
 import com.fleencorp.feen.common.service.impl.message.TemplateProcessor;
 import com.fleencorp.feen.common.service.message.EmailMessageService;
 import com.fleencorp.feen.common.service.message.MobileTextService;
+import com.fleencorp.feen.mfa.model.request.MfaSetupVerificationRequest;
+import com.fleencorp.feen.mfa.model.request.MfaVerificationRequest;
 import com.fleencorp.feen.user.model.request.authentication.CompletedUserSignUpRequest;
 import com.fleencorp.feen.user.model.request.authentication.ForgotPasswordRequest;
 import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;

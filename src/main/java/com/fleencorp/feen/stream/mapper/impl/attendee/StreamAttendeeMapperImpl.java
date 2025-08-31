@@ -1,10 +1,10 @@
 package com.fleencorp.feen.stream.mapper.impl.attendee;
 
+import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.stream.mapper.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
