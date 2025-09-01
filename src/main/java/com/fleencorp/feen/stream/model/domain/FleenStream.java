@@ -7,7 +7,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
-import com.fleencorp.feen.shared.stream.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.core.*;
 import com.fleencorp.feen.stream.exception.core.*;
 import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;

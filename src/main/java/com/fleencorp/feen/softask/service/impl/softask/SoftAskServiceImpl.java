@@ -4,7 +4,7 @@ import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
-import com.fleencorp.feen.shared.stream.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;

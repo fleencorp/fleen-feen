@@ -1,6 +1,6 @@
 package com.fleencorp.feen.shared.stream.service;
 
-import com.fleencorp.feen.shared.stream.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 
 import java.util.Optional;
 

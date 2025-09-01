@@ -4,11 +4,12 @@ import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.chat.space.service.ChatSpaceQueryService;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.member.service.MemberQueryService;
-import com.fleencorp.feen.shared.stream.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.shared.stream.service.StreamQueryService;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskParentNotFoundException;
 import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +22,7 @@ public class SoftAskQueryServiceImpl implements SoftAskQueryService {
   public SoftAskQueryServiceImpl(
       final ChatSpaceQueryService chatSpaceQueryService,
       final MemberQueryService memberQueryService,
-      final StreamQueryService streamQueryService) {
+      @Qualifier("sharedStreamQueryService") final StreamQueryService streamQueryService) {
     this.chatSpaceQueryService = chatSpaceQueryService;
     this.memberQueryService = memberQueryService;
     this.streamQueryService = streamQueryService;

@@ -2,7 +2,7 @@ package com.fleencorp.feen.softask.model.holder;
 
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
-import com.fleencorp.feen.shared.stream.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 
 public record SoftAskParentDetailHolder(IsAChatSpace chatSpace, IsAStream stream, SoftAskParentType parentType) {
