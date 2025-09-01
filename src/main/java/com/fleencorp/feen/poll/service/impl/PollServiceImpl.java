@@ -8,7 +8,8 @@ import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.poll.constant.core.PollParentType;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
-import com.fleencorp.feen.poll.mapper.PollMapper;
+import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
+import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.poll.model.dto.DeletePollDto;
@@ -19,13 +20,13 @@ import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class PollServiceImpl implements PollService {
   private final PollOperationsService pollOperationsService;
   private final PollMapper pollMapper;
   private final UnifiedMapper unifiedMapper;
+  private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
   public PollServiceImpl(
@@ -51,6 +53,7 @@ public class PollServiceImpl implements PollService {
       final StreamOperationsService streamOperationsService,
       final PollMapper pollMapper,
       final UnifiedMapper unifiedMapper,
+      final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
     this.chatSpaceOperationsService = chatSpaceOperationsService;
     this.memberService = memberService;
@@ -59,6 +62,7 @@ public class PollServiceImpl implements PollService {
     this.streamOperationsService = streamOperationsService;
     this.pollMapper = pollMapper;
     this.unifiedMapper = unifiedMapper;
+    this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -93,7 +97,7 @@ public class PollServiceImpl implements PollService {
     final Poll poll = addPollDto.toPoll(member, parentTitle, chatSpace, stream);
     pollOperationsService.save(poll);
 
-    final PollResponse response = pollMapper.toPollResponse(poll);
+    final PollResponse response = pollUnifiedMapper.toPollResponse(poll);
     final PollCreateResponse createResponse = PollCreateResponse.of(poll.getPollId(), response);
 
     return localizer.of(createResponse);

@@ -5,7 +5,9 @@ import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
+import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
+import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
@@ -19,7 +21,6 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
 import com.fleencorp.feen.stream.service.external.YouTubeChannelService;
 import com.fleencorp.feen.stream.service.impl.update.LiveBroadcastUpdateService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -30,20 +31,6 @@ import java.util.Set;
 
 import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 
-/**
- * Implementation of LiveBroadcastService that handles creating live broadcasts and searching for them.
- *
- * <p>This class interacts with YouTubeLiveBroadcastService to create live broadcasts,
- * FleenStreamRepository to store and retrieve live broadcast data, and GoogleOauth2AuthorizationRepository
- * to handle OAuth2 authorization.</p>
- *
- * <p>It is responsible for creating live broadcasts using details from CreateLiveBroadcastDto,
- * verifying OAuth2 authorization, and saving the broadcast data. Additionally, it supports
- * finding live broadcasts based on search criteria such as date range, title, or general pagination.</p>
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
 @Slf4j
 @Service
 public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamRequestService {
@@ -52,7 +39,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   private final StreamOperationsService streamOperationsService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
   private final YouTubeChannelService youTubeChannelService;
-  private final StreamMapper streamMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public LiveBroadcastServiceImpl(
@@ -61,12 +48,12 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
       @Lazy final LiveBroadcastUpdateService liveBroadcastUpdateService,
       final YouTubeChannelService youTubeChannelService,
       final Localizer localizer,
-      final StreamMapper streamMapper) {
+      final StreamUnifiedMapper streamUnifiedMapper) {
     this.googleOauth2Service = googleOauth2Service;
     this.streamOperationsService = streamOperationsService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
-    this.streamMapper = streamMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -132,9 +119,9 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
     // Get the stream response
-    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     // Return the localized response of the created stream
     return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }

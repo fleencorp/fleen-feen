@@ -1,11 +1,11 @@
 package com.fleencorp.feen.stream.service.common;
 
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -32,23 +32,23 @@ public interface StreamQueryService {
 
   Page<FleenStream> findLiveStreamsByTitle(String title, LocalDateTime dateTime, StreamType streamType, Pageable pageable);
 
-  Page<FleenStream> findManyByMe(Member member, Pageable pageable);
+  Page<FleenStream> findManyByMe(IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findByTitleAndUser(String title, Member member, Pageable pageable);
+  Page<FleenStream> findByTitleAndUser(String title, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findByTitleAndUser(String title, StreamVisibility streamVisibility, Member member, Pageable pageable);
+  Page<FleenStream> findByTitleAndUser(String title, StreamVisibility streamVisibility, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, Member member, Pageable pageable);
+  Page<FleenStream> findByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, StreamVisibility streamVisibility, Member member, Pageable pageable);
+  Page<FleenStream> findByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, StreamVisibility streamVisibility, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findAttendedByUser(Member member, Pageable pageable);
+  Page<FleenStream> findAttendedByUser(IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findAttendedByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, Member member, Pageable pageable);
+  Page<FleenStream> findAttendedByDateBetweenAndUser(LocalDateTime startDate, LocalDateTime endDate, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findAttendedByTitleAndUser(String title, Member member, Pageable pageable);
+  Page<FleenStream> findAttendedByTitleAndUser(String title, IsAMember member, Pageable pageable);
 
-  Page<FleenStream> findStreamsAttendedTogether(Member you, Member friend, Pageable pageable);
+  Page<FleenStream> findStreamsAttendedTogether(IsAMember you, IsAMember friend, Pageable pageable);
 
   FleenStream findStream(Long streamId) throws StreamNotFoundException;
 

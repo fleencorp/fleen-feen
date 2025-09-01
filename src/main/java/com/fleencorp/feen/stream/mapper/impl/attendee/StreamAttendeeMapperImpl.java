@@ -2,8 +2,8 @@ package com.fleencorp.feen.stream.mapper.impl.attendee;
 
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.stream.mapper.attendee.StreamAttendeeMapper;
+import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
@@ -21,24 +21,16 @@ import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 
-/**
- * A mapper class responsible for converting {@link StreamAttendee} and related entities
- * into their corresponding response objects or DTOs.
- * It also handles translation of message codes for localization.
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
 @Component
 public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttendeeMapper {
 
-  private final ToInfoMapper toInfoMapper;
+  private final StreamInfoMapper streamInfoMapper;
 
   public StreamAttendeeMapperImpl(
-      final ToInfoMapper toInfoMapper,
+      final StreamInfoMapper streamInfoMapper,
       final MessageSource messageSource) {
     super(messageSource);
-    this.toInfoMapper = toInfoMapper;
+    this.streamInfoMapper = streamInfoMapper;
   }
 
   /**
@@ -107,14 +99,10 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
-      // Determine the is organizer information based on the user's speaker status
-      final IsOrganizerInfo isOrganizerInfo = toInfoMapper.toIsOrganizerInfo(entry.isOrganizer());
+      final IsOrganizerInfo isOrganizerInfo = streamInfoMapper.toIsOrganizerInfo(entry.isOrganizer());
 
-      // Convert to a stream attendee response
       final StreamAttendeeResponse response = toStreamAttendeeResponse(entry);
-      // Add the attendance info on the attendee response
       response.setAttendanceInfo(attendanceInfo);
-      // Add the is organizer info
       response.setIsOrganizerInfo(isOrganizerInfo);
 
       return response;
@@ -141,14 +129,10 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
-      // Determine the is organizer information based on the user's speaker status
-      final IsOrganizerInfo isOrganizerInfo = toInfoMapper.toIsOrganizerInfo(entry.isOrganizer());
+      final IsOrganizerInfo isOrganizerInfo = streamInfoMapper.toIsOrganizerInfo(entry.isOrganizer());
 
-      // Convert to a stream attendee response
       final StreamAttendeeResponse response = toStreamAttendeeResponsePublic(entry);
-      // Add the attendance info on the attendee response
       response.setAttendanceInfo(attendanceInfo);
-      // Add the is organizer info
       response.setIsOrganizerInfo(isOrganizerInfo);
 
       return response;
@@ -175,6 +159,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
         .map(streamAttendee -> toStreamAttendeeResponsePublic(streamAttendee, streamResponse))
         .toList();
     }
+
     return List.of();
   }
 
@@ -190,17 +175,15 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    * @return the complete attendance information for the stream attendee
    */
   private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final StreamResponse streamResponse) {
-    // Convert the attendee's request to join status to a response-friendly format
-    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toInfoMapper.toRequestToJoinStatus(entry.getRequestToJoinStatus());
-    // Determine the join status info based on the stream and attendee details
-    final JoinStatusInfo joinStatusInfo = toInfoMapper.toJoinStatus(streamResponse, entry.getRequestToJoinStatus(), entry.isAttending());
-    // Determine the is attending information based on the user's status attendee status
-    final IsAttendingInfo attendingInfo = toInfoMapper.toIsAttendingInfo(entry.isAttending());
-    // Determine the is a speaker information based on the user's speaker status
-    final IsASpeakerInfo isASpeakerInfo = toInfoMapper.toIsASpeakerInfo(entry.isASpeaker());
+    if (nonNull(entry) && nonNull(streamResponse) ) {
+      final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = streamInfoMapper.toRequestToJoinStatusInfo(entry.getRequestToJoinStatus());
+      final JoinStatusInfo joinStatusInfo = streamInfoMapper.toJoinStatus(streamResponse, entry.getRequestToJoinStatus(), entry.isAttending());
+      final IsAttendingInfo attendingInfo = streamInfoMapper.toIsAttendingInfo(entry.isAttending());
+      final IsASpeakerInfo isASpeakerInfo = streamInfoMapper.toIsASpeakerInfo(entry.isASpeaker());
 
+      return AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo, isASpeakerInfo);
+    }
 
-    // Return the attendance info
-    return AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, attendingInfo, isASpeakerInfo);
+    return AttendanceInfo.of();
   }
 }

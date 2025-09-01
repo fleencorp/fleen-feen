@@ -7,9 +7,11 @@ import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.*;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.core.*;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
@@ -23,7 +25,6 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamService;
 import com.fleencorp.feen.stream.service.core.ExternalStreamRequestService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +37,19 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
   private final ExternalStreamRequestService externalStreamRequestService;
   private final StreamOperationsService streamOperationsService;
   private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public CommonStreamServiceImpl(
       final ExternalStreamRequestService externalStreamRequestService,
       final StreamOperationsService streamOperationsService,
       final UnifiedMapper unifiedMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.externalStreamRequestService = externalStreamRequestService;
     this.streamOperationsService = streamOperationsService;
     this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -96,7 +100,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     externalStreamRequestService.deleteStreamExternally(deleteStreamRequest);
 
     final IsDeletedInfo deletedInfo = unifiedMapper.toIsDeletedInfo(stream.isDeleted());
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
 
     final DeleteStreamResponse deleteStreamResponse = DeleteStreamResponse.of(streamId, streamTypeInfo, deletedInfo);
     return localizer.of(deleteStreamResponse);
@@ -153,8 +157,8 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
 
     streamOperationsService.save(stream);
 
-    final StreamStatusInfo statusInfo = unifiedMapper.toStreamStatusInfo(stream.getStreamStatus());
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamStatusInfo statusInfo = streamUnifiedMapper.toStreamStatusInfo(stream.getStreamStatus());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
 
     final ExternalStreamRequest cancelStreamRequest = ExternalStreamRequest.ofCancel(calendar, oauth2Authorization, stream, streamType);
     externalStreamRequestService.cancelStreamExternally(cancelStreamRequest);
@@ -218,8 +222,8 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     final ExternalStreamRequest rescheduleStreamRequest = createRescheduleStreamRequest(calendar, oauth2Authorization, stream, rescheduleStreamDto);
     externalStreamRequestService.rescheduleStreamExternally(rescheduleStreamRequest);
 
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final RescheduleStreamResponse rescheduleStreamResponse = RescheduleStreamResponse.of(streamId, streamResponse, streamTypeInfo);
 
     return localizer.of(rescheduleStreamResponse);
@@ -276,8 +280,8 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     final ExternalStreamRequest patchStreamRequest = createPatchStreamRequest(calendar, oauth2Authorization, stream, updateStreamDto);
     externalStreamRequestService.patchStreamExternally(patchStreamRequest);
 
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
 
     return localizer.of(updateStreamResponse);
@@ -317,9 +321,8 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
 
     stream = streamOperationsService.save(stream);
 
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponseNoJoinStatus(stream);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
     final UpdateStreamResponse updateStreamResponse = UpdateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
 
     return localizer.of(updateStreamResponse);
@@ -380,8 +383,8 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     final ExternalStreamRequest updateStreamVisibilityRequest = createUpdateStreamVisibilityRequest(calendar, oauth2Authorization, stream, updateStreamVisibilityDto.getVisibility());
     externalStreamRequestService.updateStreamVisibilityExternally(updateStreamVisibilityRequest, currentStreamVisibility);
 
-    final StreamVisibilityInfo streamVisibility = unifiedMapper.toStreamVisibilityInfo(stream.getStreamVisibility());
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamVisibilityInfo streamVisibility = streamUnifiedMapper.toStreamVisibilityInfo(stream.getStreamVisibility());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final UpdateStreamVisibilityResponse updateStreamVisibilityResponse = UpdateStreamVisibilityResponse.of(stream.getStreamId(), streamVisibility, streamTypeInfo);
 
     return localizer.of(updateStreamVisibilityResponse);

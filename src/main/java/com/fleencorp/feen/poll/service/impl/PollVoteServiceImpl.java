@@ -4,7 +4,8 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.poll.exception.option.PollOptionNotFoundException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.exception.vote.*;
-import com.fleencorp.feen.poll.mapper.PollMapper;
+import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
+import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollVote;
 import com.fleencorp.feen.poll.model.dto.VotePollDto;
@@ -20,10 +21,10 @@ import com.fleencorp.feen.poll.model.search.PollVoteSearchResult;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollVoteService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserResponse;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +47,7 @@ public class PollVoteServiceImpl implements PollVoteService {
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
   private final PollMapper pollMapper;
+  private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
   public PollVoteServiceImpl(
@@ -53,11 +55,13 @@ public class PollVoteServiceImpl implements PollVoteService {
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
       final PollMapper pollMapper,
+      final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
     this.memberService = memberService;
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
     this.pollMapper = pollMapper;
+    this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -73,7 +77,7 @@ public class PollVoteServiceImpl implements PollVoteService {
       : pollOperationsService.findVoters(pollId, pageable);
 
     final Collection<UserResponse> voteResponses = poll.isAnonymous()
-      ? pollMapper.toPollVoteResponses(page.getContent())
+      ? pollUnifiedMapper.toPollVoteResponses(page.getContent())
       : List.of();
 
     final SearchResult searchResult = toSearchResult(voteResponses, page);
@@ -122,15 +126,15 @@ public class PollVoteServiceImpl implements PollVoteService {
     pollOperationsService.incrementPollOptionTotalEntries(pollId, votePollOptionIds);
 
     final PollOptionEntriesHolder pollOptionEntriesHolder = pollOperationsService.findOptionEntries(pollId, poll.getPollOptionIds());
-    final Collection<PollOptionResponse> pollOptionResponses = pollMapper.toPollOptionResponses(poll.getOptions(), pollOptionEntriesHolder, votePollOptionIds);
+    final Collection<PollOptionResponse> pollOptionResponses = pollUnifiedMapper.toPollOptionResponses(poll.getOptions(), pollOptionEntriesHolder, votePollOptionIds);
 
     final PollVoteAggregateHolder pollVoteAggregateHolder = pollOperationsService.findPollVoteAggregate(pollId);
     poll.setTotalEntries(pollVoteAggregateHolder.totalVotes());
     pollOperationsService.save(poll);
 
-    final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = pollMapper.toTotalPollVoteEntriesInfo(poll.getTotalEntries());
+    final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = pollUnifiedMapper.toTotalPollVoteEntriesInfo(poll.getTotalEntries());
 
-    final IsVotedInfo isVotedInfo = pollMapper.toIsVotedInfo(true);
+    final IsVotedInfo isVotedInfo = pollUnifiedMapper.toIsVotedInfo(true);
     final PollVoteResponse voteResponse = PollVoteResponse.of(poll.getPollId(), totalPollVoteEntriesInfo, isVotedInfo, pollOptionResponses);
     return localizer.of(voteResponse);
   }

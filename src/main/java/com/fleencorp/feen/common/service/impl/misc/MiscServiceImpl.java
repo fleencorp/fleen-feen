@@ -8,8 +8,8 @@ import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.model.contract.HasOrganizer;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.response.security.GetEncodedPasswordResponse;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.constant.core.StreamType;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.service.authentication.PasswordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -132,7 +132,7 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    * @param entries the list of {@code SetIsOrganizer} objects to process
    * @param member    the user whose organizer status is to be determined
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends HasOrganizer> entries, final Member member) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final Collection<? extends HasOrganizer> entries, final IsAMember member) {
     if (nonNull(entries) && !entries.isEmpty() && nonNull(member) && nonNull(member.getMemberId())) {
       entries.stream()
         .filter(Objects::nonNull)
@@ -150,7 +150,7 @@ public class MiscServiceImpl implements MiscService, PasswordService {
    * @param entry the object representing the entity whose organizer is being checked
    * @param member the user whose role is being verified as the organizer of the entity
    */
-  public static void determineIfUserIsTheOrganizerOfEntity(final HasOrganizer entry, final Member member) {
+  public static void determineIfUserIsTheOrganizerOfEntity(final HasOrganizer entry, final IsAMember member) {
     if (nonNull(entry) && nonNull(member) && nonNull(member.getMemberId())) {
       final boolean isOrganizer = entry.getOrganizerId().equals(member.getMemberId());
       entry.setIsOrganizer(isOrganizer);

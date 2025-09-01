@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.service.common;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -24,13 +25,13 @@ public interface StreamOperationsService {
 
   void updateTotalAttendeeCount(Long streamId, boolean increment);
 
-  Long countTotalStreamsAttended(Member member);
+  Long countTotalStreamsAttended(IsAMember member);
 
-  Long countTotalStreamsAttended(StreamType streamType, Member member);
+  Long countTotalStreamsAttended(StreamType streamType, IsAMember member);
 
-  Long countTotalStreamsByUser(Member member);
+  Long countTotalStreamsByUser(IsAMember member);
 
-  Long countTotalStreamsByUser(StreamType streamType, Member member);
+  Long countTotalStreamsByUser(StreamType streamType, IsAMember member);
 
   FleenStream findStream(Long streamId) throws StreamNotFoundException;
 
@@ -44,7 +45,7 @@ public interface StreamOperationsService {
 
   StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
-  boolean existsByAttendees(Member viewer, Member target);
+  boolean existsByAttendees(IsAMember viewer, IsAMember target);
 
   Integer updateLikeCount(Long streamId, boolean isLiked);
 
@@ -56,7 +57,7 @@ public interface StreamOperationsService {
 
   boolean existsByAttendees(Long memberId, Long targetMemberId);
 
-  void processOtherStreamDetails(Collection<StreamResponse> streamResponses, Member member);
+  void processOtherStreamDetails(Collection<StreamResponse> streamResponses, IsAMember member);
 
   void setStreamAttendeesAndTotalAttendeesAttending(StreamResponse streamResponse);
 

@@ -2,6 +2,8 @@ package com.fleencorp.feen.stream.service.impl.attendee;
 
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
@@ -21,7 +23,6 @@ import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsServic
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.update.StreamAttendeeUpdateService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -149,8 +150,8 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public List<StreamAttendeeSelect> findByMemberAndStreamIds(final Member member, final List<Long> streamIds) {
-    return streamAttendeeProjectionRepository.findByMemberAndStreamIds(member, streamIds);
+  public List<StreamAttendeeSelect> findByMemberAndStreamIds(final IsAMember member, final List<Long> streamIds) {
+    return streamAttendeeProjectionRepository.findByMemberAndStreamIds(member.getMemberId(), streamIds);
   }
 
   @Override

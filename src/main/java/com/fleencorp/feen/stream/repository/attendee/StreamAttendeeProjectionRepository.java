@@ -3,7 +3,6 @@ package com.fleencorp.feen.stream.repository.attendee;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -49,7 +48,7 @@ public interface StreamAttendeeProjectionRepository extends JpaRepository<Stream
    * <p>The result is returned as {@link StreamAttendeeSelect} projections using a JPQL query
    * with a conditional aggregate to determine if a "LIKE" exists by the member on each stream.</p>
    *
-   * @param member the {@link Member} whose attendance data is to be fetched
+   * @param memberId the {@link Long} whose attendance data is to be fetched
    * @param streamIds the list of stream IDs to filter the attendance records
    * @return a list of {@link StreamAttendeeSelect} projections containing attendance and bookmark info for the member
    */
@@ -72,10 +71,10 @@ public interface StreamAttendeeProjectionRepository extends JpaRepository<Stream
         AND l.parentId = fs.streamId
         AND l.likeParentType = 'STREAM'
         AND l.likeType = 'LIKE'
-      WHERE m = :member
+      WHERE m.memberId = :memberId
       AND fs.streamId IN (:streamIds)
       GROUP BY fs.streamId, sa.requestToJoinStatus, sa.attending, sa.aSpeaker, sa.stream.streamVisibility, sa.stream.scheduledEndDate
     """)
-  List<StreamAttendeeSelect> findByMemberAndStreamIds(Member member, @Param("streamIds") List<Long> streamIds);
+  List<StreamAttendeeSelect> findByMemberAndStreamIds(@Param("memberId") Long memberId, @Param("streamIds") List<Long> streamIds);
 
 }

@@ -5,12 +5,15 @@ import com.fleencorp.feen.common.aspect.MeasureExecutionTime;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.review.service.ReviewSearchService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.member.service.MemberQueryService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamTimeType;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.request.search.StreamSearchRequest;
@@ -29,8 +32,6 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.common.StreamQueryService;
 import com.fleencorp.feen.stream.service.search.StreamSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
-import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,49 +51,33 @@ import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestT
 import static com.fleencorp.feen.stream.constant.core.StreamVisibility.PUBLIC;
 import static java.util.Objects.nonNull;
 
-/**
- * Implementation of the `StreamSearchService` interface that provides functionality for searching and managing streams.
- *
- * <p>This service handles retrieving streams based on different criteria such as date, title, and user attendance.</p>
- *
- * <p>The service relies on various repositories and services to fetch and process stream data, manage stream attendees,
- * and handle user-specific details like join status and visibility.</p>
- *
- * <p>The service provides the ability to handle different types of stream searches, including streams attended by the
- * current user, streams attended with another user, and streams filtered by time (upcoming, past, or live).</p>
- *
- * <p>Localization of the search result responses is handled as well, ensuring that the response is appropriate based on
- * the user’s locale.</p>
- *
- * @author Yusuf Àlàmù Musa
- * @version 1.0
- */
+
 @Slf4j
 @Service
 public class StreamSearchServiceImpl implements StreamSearchService {
 
-  private final MemberService memberService;
+  private final MemberQueryService memberQueryService;
   private final ReviewSearchService reviewSearchService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
   private final StreamQueryService streamQueryService;
-  private final StreamMapper streamMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public StreamSearchServiceImpl(
-      final MemberService memberService,
+      final MemberQueryService memberQueryService,
       final ReviewSearchService reviewSearchService,
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
       @Qualifier("streamQueryService") final StreamQueryService streamQueryService,
-      final StreamMapper streamMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
-    this.memberService = memberService;
+    this.memberQueryService = memberQueryService;
     this.reviewSearchService = reviewSearchService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
     this.streamQueryService = streamQueryService;
-    this.streamMapper = streamMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -112,17 +97,14 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   @MeasureExecutionTime
   public StreamSearchResult findStreams(final StreamSearchRequest searchRequest, final RegisteredUser user) {
-    // Find streams based on the search request
     final StreamResponsesAndPage streamResponsesAndPage = findStreams(searchRequest);
-    // Get the list of stream views from the search result
     final List<StreamResponse> streamResponses = streamResponsesAndPage.getResponses();
-    // Process other details of the streams
+
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
-    // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
-    // Create the search result
+
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(searchRequest.getStreamType());
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, streamResponsesAndPage.getPage()), streamTypeInfo);
-    // Return a search result with the responses and pagination details
+
     return localizer.of(streamSearchResult);
   }
 
@@ -141,11 +123,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   @Override
   public StreamSearchResult findStreamsPublic(final StreamSearchRequest searchRequest, final StreamTimeType streamTimeType) {
-    // Determine the appropriate page of streams based on the stream time type
     final Page<FleenStream> page = findByStreamTimeType(searchRequest, streamTimeType);
-    // Convert the page content to FleenStreamResponse objects
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Return the processed and localized response
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
 
@@ -197,17 +177,16 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     final Page<FleenStream> page = findMyStreams(searchRequest, user.toMember());
-    // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Create and return the search result
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+
     return processStreamsAndReturn(streamResponses, searchRequest, user.toMember(), page);
   }
 
   /**
    * Finds streams created by a specific user based on the given search criteria.
    *
-   * <p>This method retrieves the {@link Member} specified in the {@code searchRequest},
-   * fetches the streams created by this member using {@link #findMyStreams(StreamSearchRequest, Member)},
+   * <p>This method retrieves the {@link IsAMember} specified in the {@code searchRequest},
+   * fetches the streams created by this member using {@link #findMyStreams(StreamSearchRequest, IsAMember)},
    * and processes them to return a {@link StreamSearchResult}.</p>
    *
    * @param searchRequest the search request containing filters and the target user whose streams are to be found
@@ -215,18 +194,14 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    */
   @Override
   public UserCreatedStreamsSearchResult findStreamsCreatedByUser(final StreamSearchRequest searchRequest) {
-    Member member = searchRequest.getAnotherUser();
-    // Get the member
-    member = memberService.findMember(member.getMemberId());
+    IsAMember member = searchRequest.getAnotherUser();
+    member = memberQueryService.findMemberOrThrow(member.getMemberId());
 
     final Page<FleenStream> page = findMyStreams(searchRequest, member);
-    // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
-    // Create and return the search result
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
     final StreamSearchResult streamSearchResult = processStreamsAndReturn(streamResponses, searchRequest, member, page);
-    // Create user search result
     final UserCreatedStreamsSearchResult userCreatedStreamsSearchResult = UserCreatedStreamsSearchResult.of(streamSearchResult.getResult(), member.getFullName());
-    // Return the localized response
+
     return localizer.of(userCreatedStreamsSearchResult);
   }
 
@@ -244,7 +219,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @param member the member whose owned streams are to be retrieved
    * @return a paginated list of {@link FleenStream} entities owned by the member
    */
-  protected Page<FleenStream> findMyStreams(final StreamSearchRequest searchRequest, final Member member) {
+  protected Page<FleenStream> findMyStreams(final StreamSearchRequest searchRequest, final IsAMember member) {
     final Page<FleenStream> page;
     final Pageable pageable = searchRequest.getPage();
     final String title = searchRequest.getTitle();
@@ -291,7 +266,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final Member member = user.toMember();
     final Page<FleenStream> page = findStreamsAttendedByUser(searchRequest, member);
     // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
     // Create and return the search result
     return processStreamsAndReturn(streamResponses, searchRequest, user.toMember(), page);
   }
@@ -355,7 +330,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       page = streamQueryService.findStreamsAttendedTogether(member, anotherMember, pageable);
     }
 
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
     final StreamSearchResult streamSearchResult = processStreamsAndReturn(streamResponses, searchRequest, member, page);
     final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(streamSearchResult.getResult(), member.getFullName());
 
@@ -378,9 +353,9 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @param page the paginated result of {@link FleenStream} entities to be processed
    * @return a localized {@link StreamSearchResult} containing the processed stream results
    */
-  private StreamSearchResult processStreamsAndReturn(final Collection<StreamResponse> streamResponses, final StreamSearchRequest searchRequest, final Member member, final Page<FleenStream> page) {
+  private StreamSearchResult processStreamsAndReturn(final Collection<StreamResponse> streamResponses, final StreamSearchRequest searchRequest, final IsAMember member, final Page<FleenStream> page) {
     streamOperationsService.processOtherStreamDetails(streamResponses, member);
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(searchRequest.getStreamType());
 
     final SearchResult searchResult = toSearchResult(streamResponses, page);
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(searchResult, streamTypeInfo);
@@ -415,7 +390,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       });
     }
 
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(searchRequest.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(searchRequest.getStreamType());
     final StreamSearchResult streamSearchResult = StreamSearchResult.of(toSearchResult(streamResponses, page), streamTypeInfo);
     return localizer.of(streamSearchResult);
   }
@@ -438,7 +413,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   public RetrieveStreamResponse retrieveStream(final Long streamId, final RegisteredUser user) throws StreamNotFoundException {
     final FleenStream stream = streamQueryService.findStream(streamId);
-    final StreamResponse streamResponse = streamMapper.toStreamResponseNoJoinStatus(stream);
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
     final List<StreamResponse> streamResponses = List.of(streamResponse);
 
     final ReviewResponse mostRecentReview = reviewSearchService.findMostRecentReview(ReviewParentType.STREAM, streamId, user);
@@ -447,7 +422,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
 
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
     final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final RetrieveStreamResponse retrieveStreamResponse = RetrieveStreamResponse.of(streamId, streamResponse, attendeesGoingToStream, totalAttendees, streamTypeInfo);
     return localizer.of(retrieveStreamResponse);
   }
@@ -475,7 +450,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       : streamOperationsService.countTotalStreamsByUser(member);
 
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(streamType);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(streamType);
     // Return the localized response
     return TotalStreamsCreatedByUserResponse.of(totalCount, streamTypeInfo);
   }
@@ -503,7 +478,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       : streamOperationsService.countTotalStreamsAttended(member);
 
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(streamType);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(streamType);
     // Return the localized response
     return TotalStreamsAttendedByUserResponse.of(totalCount, streamTypeInfo);
   }
@@ -534,7 +509,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       page = streamQueryService.findMany(StreamStatus.ACTIVE, pageable);
     }
 
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
     return StreamResponsesAndPage.of(streamResponses, page);
   }
 

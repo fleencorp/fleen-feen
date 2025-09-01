@@ -1,5 +1,6 @@
 package com.fleencorp.feen.stream.service.impl.common;
 
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
@@ -10,7 +11,6 @@ import com.fleencorp.feen.stream.repository.core.StreamSearchRepository;
 import com.fleencorp.feen.stream.repository.user.UserStreamSearchRepository;
 import com.fleencorp.feen.stream.service.common.StreamQueryService;
 import com.fleencorp.feen.stream.service.core.StreamService;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -83,49 +83,49 @@ public class StreamQueryServiceImpl implements StreamQueryService {
   }
 
   @Override
-  public Page<FleenStream> findManyByMe(final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findManyByMe(member, pageable);
+  public Page<FleenStream> findManyByMe(final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findManyByMe(member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findByTitleAndUser(final String title, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findByTitleAndUser(title, member, pageable);
+  public Page<FleenStream> findByTitleAndUser(final String title, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findByTitleAndUser(title, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findByTitleAndUser(final String title, final StreamVisibility streamVisibility, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findByTitleAndUser(title, streamVisibility, member, pageable);
+  public Page<FleenStream> findByTitleAndUser(final String title, final StreamVisibility streamVisibility, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findByTitleAndUser(title, streamVisibility, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findByDateBetweenAndUser(startDate, endDate, member, pageable);
+  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findByDateBetweenAndUser(startDate, endDate, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final StreamVisibility streamVisibility, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findByDateBetweenAndUser(startDate, endDate, streamVisibility, member, pageable);
+  public Page<FleenStream> findByDateBetweenAndUser(final LocalDateTime startDate, final LocalDateTime endDate, final StreamVisibility streamVisibility, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findByDateBetweenAndUser(startDate, endDate, streamVisibility, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findAttendedByUser(final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findAttendedByUser(member, pageable);
+  public Page<FleenStream> findAttendedByUser(final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findAttendedByUser(member.getMemberId(), pageable);
   }
 
   @Override
   public Page<FleenStream> findAttendedByDateBetweenAndUser(
-    final LocalDateTime startDate, final LocalDateTime endDate, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findAttendedByDateBetweenAndUser(startDate, endDate, member, pageable);
+    final LocalDateTime startDate, final LocalDateTime endDate, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findAttendedByDateBetweenAndUser(startDate, endDate, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findAttendedByTitleAndUser(final String title, final Member member, final Pageable pageable) {
-    return userStreamSearchRepository.findAttendedByTitleAndUser(title, member, pageable);
+  public Page<FleenStream> findAttendedByTitleAndUser(final String title, final IsAMember member, final Pageable pageable) {
+    return userStreamSearchRepository.findAttendedByTitleAndUser(title, member.getMemberId(), pageable);
   }
 
   @Override
-  public Page<FleenStream> findStreamsAttendedTogether(final Member you, final Member friend, final Pageable pageable) {
-    return userStreamSearchRepository.findStreamsAttendedTogether(you, friend, pageable);
+  public Page<FleenStream> findStreamsAttendedTogether(final IsAMember you, final IsAMember friend, final Pageable pageable) {
+    return userStreamSearchRepository.findStreamsAttendedTogether(you.getMemberId(), friend.getMemberId(), pageable);
   }
 
   @Override

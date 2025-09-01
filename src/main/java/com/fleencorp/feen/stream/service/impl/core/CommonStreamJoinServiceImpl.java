@@ -11,6 +11,7 @@ import com.fleencorp.feen.notification.service.NotificationService;
 import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.attendee.StreamAttendeeNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
@@ -20,6 +21,7 @@ import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.request.AlreadyApprovedRequestToJoinException;
 import com.fleencorp.feen.stream.exception.request.AlreadyRequestedToJoinStreamException;
 import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.attendee.JoinStreamDto;
@@ -40,7 +42,6 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamJoinService;
 import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,22 +59,9 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   private final StreamOperationsService streamOperationsService;
   private final NotificationService notificationService;
   private final NotificationMessageService notificationMessageService;
-  private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new {@code CommonStreamJoinServiceImpl}, which handles the logic for attendees joining a stream
-   * and coordinating related operations such as notifications and event processing.
-   *
-   * @param eventOperationsService the service for managing event-related actions tied to streams
-   * @param notificationService the service for dispatching notifications to users
-   * @param notificationMessageService the service responsible for generating notification message content
-   * @param streamAttendeeOperationsService the service for managing operations related to stream attendees
-   * @param streamOperationsService the service for stream-specific operational logic
-   * @param streamService the core service for handling stream entities
-   * @param unifiedMapper the utility for mapping between domain entities and DTOs
-   * @param localizer the utility for resolving localized messages
-   */
   public CommonStreamJoinServiceImpl(
       final EventOperationsService eventOperationsService,
       final NotificationService notificationService,
@@ -81,7 +69,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
       final StreamService streamService,
-      final UnifiedMapper unifiedMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.eventOperationsService = eventOperationsService;
     this.notificationService = notificationService;
@@ -89,7 +77,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
     this.streamService = streamService;
-    this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -139,8 +127,8 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
 
     final ExternalStreamRequest attendeeProcessedJoinRequest = ExternalStreamRequest.ofProcessAttendeeJoinRequest(calendar, oauth2Authorization, stream, attendee, streamType, processRequestToJoinDto);
     addAttendeeToStreamExternally(attendeeProcessedJoinRequest);
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
-    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = unifiedMapper.processAttendeeRequestToJoinStream(streamResponse, attendee);
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+    final ProcessAttendeeRequestToJoinStreamResponse processedRequestToJoin = streamUnifiedMapper.processAttendeeRequestToJoinStream(streamResponse, attendee);
 
     return localizer.of(processedRequestToJoin);
   }
@@ -284,9 +272,9 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
-    final AttendanceInfo attendanceInfo = unifiedMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+    final AttendanceInfo attendanceInfo = streamUnifiedMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
 
     final ExternalStreamRequest externalStreamRequest = ExternalStreamRequest.ofJoinStream(calendar, oauth2Authorization, stream, streamType, user.getEmailAddress(), joinStreamDto);
     joinStreamExternally(externalStreamRequest);
@@ -394,9 +382,9 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     setAttendeeRequestToJoinPendingIfStreamIsPrivate(attendee, stream);
     saveStreamAndAttendee(stream, attendee);
 
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
-    final AttendanceInfo attendanceInfo = unifiedMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+    final AttendanceInfo attendanceInfo = streamUnifiedMapper.toAttendanceInfo(streamResponse, attendee.getRequestToJoinStatus(), attendee.isAttending(), attendee.isASpeaker());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
 
     sendJoinRequestNotificationForPrivateStream(stream, attendee, user);
     handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, attendee, requestToJoinStreamDto.getComment(), user);
@@ -497,8 +485,8 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final ExternalStreamRequest notAttendingStreamRequest = ExternalStreamRequest.ofNotAttending(calendar, stream, user.getEmailAddress(), streamType);
     notAttendingStreamExternally(notAttendingStreamRequest);
 
-    final NotAttendingStreamResponse notAttendingStreamResponse = unifiedMapper.notAttendingStream();
-    final StreamTypeInfo streamTypeInfo = unifiedMapper.toStreamTypeInfo(streamType);
+    final NotAttendingStreamResponse notAttendingStreamResponse = streamUnifiedMapper.notAttendingStream();
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(streamType);
     notAttendingStreamResponse.setStreamTypeInfo(streamTypeInfo);
 
     return localizer.of(notAttendingStreamResponse);

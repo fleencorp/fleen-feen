@@ -9,15 +9,15 @@ import org.springframework.data.repository.query.Param;
 
 public interface UserStreamCountRepository extends JpaRepository<FleenStream, Long> {
 
-  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE m = :member")
-  Long countTotalStreamsAttended(@Param("member") Member member);
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.memberId m WHERE m = :memberId")
+  Long countTotalStreamsAttended(@Param("memberId") Long memberId);
 
-  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.stream.streamType = :streamType AND m = :member")
-  Long countTotalStreamsAttended(@Param("streamType") StreamType streamType, @Param("member") Member member);
+  @Query("SELECT COUNT(sa) FROM StreamAttendee sa JOIN sa.member m WHERE sa.stream.streamType = :streamType AND m.memberId = :memberId")
+  Long countTotalStreamsAttended(@Param("streamType") StreamType streamType, @Param("memberId") Long memberId);
 
-  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.member = :member")
-  Long countTotalStreamsByUser(@Param("member") Member member);
+  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.memberId = :memberId")
+  Long countTotalStreamsByUser(@Param("memberId") Long memberId);
 
-  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.member = :member")
-  Long countTotalStreamsByUser(@Param("streamType") StreamType streamType, @Param("member") Member member);
+  @Query("SELECT COUNT(fs) FROM FleenStream fs WHERE fs.streamType = :streamType AND fs.memberId = :memberId")
+  Long countTotalStreamsByUser(@Param("streamType") StreamType streamType, @Param("memberId") Long memberId);
 }

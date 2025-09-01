@@ -3,7 +3,8 @@ package com.fleencorp.feen.poll.service.impl;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
-import com.fleencorp.feen.poll.mapper.PollMapper;
+import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
+import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
@@ -29,16 +30,19 @@ public class PollUpdateServiceImpl implements PollUpdateService {
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
   private final PollMapper pollMapper;
+  private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
   public PollUpdateServiceImpl(
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
       final PollMapper pollMapper,
+      final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
     this.pollMapper = pollMapper;
+    this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -83,7 +87,7 @@ public class PollUpdateServiceImpl implements PollUpdateService {
     updatePollOptions(poll, updatePollDto.getPollOptions(), pollVoteAggregateHolder.hasVotes());
     pollOperationsService.save(poll);
 
-    final PollResponse pollResponse = pollMapper.toPollResponse(poll);
+    final PollResponse pollResponse = pollUnifiedMapper.toPollResponse(poll);
     final PollUpdateResponse pollUpdateResponse = PollUpdateResponse.of(pollId, pollResponse);
 
     return localizer.of(pollUpdateResponse);

@@ -3,7 +3,8 @@ package com.fleencorp.feen.poll.service.impl;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
-import com.fleencorp.feen.poll.mapper.PollMapper;
+import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
+import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.domain.PollVote;
@@ -25,8 +26,8 @@ import com.fleencorp.feen.poll.model.search.StreamPollSearchResult;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollSearchService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import lombok.extern.slf4j.Slf4j;
@@ -52,19 +53,19 @@ public class PollSearchServiceImpl implements PollSearchService {
 
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
-  private final PollMapper pollMapper;
+  private final PollUnifiedMapper pollUnifiedMapper;
   private final DefaultLocalizer defaultLocalizer;
   private final Localizer localizer;
 
   public PollSearchServiceImpl(
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
-      final PollMapper pollMapper,
+      final PollUnifiedMapper pollUnifiedMapper,
       final DefaultLocalizer defaultLocalizer,
       final Localizer localizer) {
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
-    this.pollMapper = pollMapper;
+    this.pollUnifiedMapper = pollUnifiedMapper;
     this.defaultLocalizer = defaultLocalizer;
     this.localizer = localizer;
   }
@@ -137,7 +138,7 @@ public class PollSearchServiceImpl implements PollSearchService {
   public PollRetrieveResponse findPoll(final Long pollId, final RegisteredUser user) throws PollNotFoundException {
     final Poll poll = pollCommonService.findPollById(pollId);
 
-    final PollResponse pollResponse = pollMapper.toPollResponse(poll);
+    final PollResponse pollResponse = pollUnifiedMapper.toPollResponse(poll);
     final PollResponseEntriesHolder pollResponseEntriesHolder = PollResponseEntriesHolder.of(pollResponse);
     processPollOtherDetails(pollResponseEntriesHolder, user.toMember());
 
@@ -231,7 +232,7 @@ public class PollSearchServiceImpl implements PollSearchService {
    */
   protected  <T> T findPollsWithResult(final PollSearchRequest searchRequest, final Member member, final Function<SearchResult, T> resultWrapper) {
     final Page<Poll> page = findPolls(searchRequest);
-    final PollResponseEntriesHolder pollResponseEntriesHolder = pollMapper.toPollResponses(page.getContent());
+    final PollResponseEntriesHolder pollResponseEntriesHolder = pollUnifiedMapper.toPollResponses(page.getContent());
     final Collection<PollResponse> pollResponses = pollResponseEntriesHolder.pollResponses();
     final SearchResult searchResult = toSearchResult(pollResponses, page);
 
@@ -331,10 +332,10 @@ public class PollSearchServiceImpl implements PollSearchService {
       .map(PollVote::getPollOption)
       .toList();
 
-    final Collection<PollOptionResponse> optionResponses = pollMapper.toVotedPollOptionResponses(pollOptions);
+    final Collection<PollOptionResponse> optionResponses = pollUnifiedMapper.toVotedPollOptionResponses(pollOptions);
 
     final boolean isVoted = !votes.isEmpty();
-    final IsVotedInfo isVotedInfo = pollMapper.toIsVotedInfo(isVoted);
+    final IsVotedInfo isVotedInfo = pollUnifiedMapper.toIsVotedInfo(isVoted);
 
     final PollVoteResponse pollVoteResponse = PollVoteResponse.of(optionResponses, isVotedInfo);
     pollResponse.setPollVote(pollVoteResponse);

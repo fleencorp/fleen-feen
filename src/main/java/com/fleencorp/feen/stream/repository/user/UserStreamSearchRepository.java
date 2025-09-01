@@ -2,7 +2,6 @@ package com.fleencorp.feen.stream.repository.user;
 
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,42 +12,60 @@ import java.time.LocalDateTime;
 
 public interface UserStreamSearchRepository extends JpaRepository<FleenStream, Long> {
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL AND fs.member = :member ORDER BY fs.updatedOn DESC")
-  Page<FleenStream> findManyByMe(@Param("member") Member member, Pageable pageable);
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.streamId IS NOT NULL AND fs.memberId = :memberId ORDER BY fs.updatedOn DESC")
+  Page<FleenStream> findManyByMe(@Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.member = :member ORDER BY fs.updatedOn DESC")
-  Page<FleenStream> findByTitleAndUser(@Param("title") String title, @Param("member") Member member, Pageable pageable);
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.memberId = :memberId ORDER BY fs.updatedOn DESC")
+  Page<FleenStream> findByTitleAndUser(@Param("title") String title, @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.streamVisibility = :visibility AND fs.member = :member ORDER BY fs.updatedOn DESC")
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.title = :title AND fs.streamVisibility = :visibility AND fs.memberId = :memberId ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByTitleAndUser(
-    @Param("title") String title, @Param("visibility") StreamVisibility streamVisibility, @Param("member") Member member, Pageable pageable);
+    @Param("title") String title, @Param("visibility") StreamVisibility streamVisibility, @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT fs FROM FleenStream fs WHERE fs.createdOn BETWEEN :startDate AND :endDate AND fs.member = :member ORDER BY fs.updatedOn DESC")
+  @Query("SELECT fs FROM FleenStream fs WHERE fs.createdOn BETWEEN :startDate AND :endDate AND fs.memberId = :memberId ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByDateBetweenAndUser(
-    @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("member") Member member, Pageable pageable);
+    @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("memberId") Long memberId, Pageable pageable);
 
   @Query("SELECT fs FROM FleenStream fs WHERE fs.createdOn BETWEEN :startDate AND :endDate AND fs.streamVisibility = :visibility " +
-    "AND fs.member = :member ORDER BY fs.updatedOn DESC")
+    "AND fs.memberId = :memberId ORDER BY fs.updatedOn DESC")
   Page<FleenStream> findByDateBetweenAndUser(
     @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("visibility") StreamVisibility streamVisibility,
-    @Param("member") Member member, Pageable pageable);
+    @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa JOIN sa.member m WHERE m = :member")
-  Page<FleenStream> findAttendedByUser(@Param("member") Member member, Pageable pageable);
+  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa JOIN sa.member m WHERE m.memberId = :memberId")
+  Page<FleenStream> findAttendedByUser(@Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa JOIN sa.member m WHERE fs.scheduledStartDate BETWEEN :startDate AND :endDate " +
-    "AND m = :member ORDER BY fs.scheduledStartDate DESC")
+  @Query(value = """
+    SELECT DISTINCT fs FROM FleenStream fs
+    JOIN fs.attendees sa
+    JOIN sa.member m
+    WHERE
+      fs.scheduledStartDate BETWEEN :startDate AND :endDate AND
+      m.memberId = :memberId ORDER
+    BY fs.scheduledStartDate DESC
+  """)
   Page<FleenStream> findAttendedByDateBetweenAndUser(
-    @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("member") Member member, Pageable pageable);
+    @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa JOIN sa.member m WHERE LOWER(fs.title) " +
-    "LIKE LOWER(CONCAT('%', :title, '%')) AND m = :member ORDER BY fs.scheduledStartDate DESC")
+  @Query(value = """
+    SELECT DISTINCT fs FROM FleenStream fs
+    JOIN fs.attendees sa
+    JOIN sa.member m WHERE LOWER(fs.title)
+    LIKE LOWER(CONCAT('%', :title, '%')) AND
+      m.memberId = :memberId
+    ORDER BY fs.scheduledStartDate DESC
+  """)
   Page<FleenStream> findAttendedByTitleAndUser(
-    @Param("title") String title, @Param("member") Member member, Pageable pageable);
+    @Param("title") String title, @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT DISTINCT fs FROM FleenStream fs " +
-    "JOIN fs.attendees sa " +
-    "WHERE sa.member = :you AND fs IN " +
-    "(SELECT fs2 FROM FleenStream fs2 JOIN fs2.attendees sa2 WHERE sa2.member = :friend)")
-  Page<FleenStream> findStreamsAttendedTogether(@Param("you") Member you, @Param("friend") Member friend, Pageable pageable);
+  @Query(value = """
+    SELECT DISTINCT fs FROM FleenStream fs
+    JOIN fs.attendees sa
+    WHERE sa.memberId = :youId AND fs IN
+      (SELECT fs2 FROM FleenStream fs2
+       JOIN fs2.attendees sa2
+       WHERE sa2.memberId = :friendId)
+  """)
+  Page<FleenStream> findStreamsAttendedTogether(@Param("youId") Long youId, @Param("friendId") Long friendId, Pageable pageable);
 }
+

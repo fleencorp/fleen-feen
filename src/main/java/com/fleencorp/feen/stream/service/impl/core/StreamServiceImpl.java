@@ -8,6 +8,8 @@ import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.request.AlreadyApprovedRequestToJoinException;
@@ -19,8 +21,6 @@ import com.fleencorp.feen.stream.model.response.common.DataForRescheduleStreamRe
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamService;
-import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -352,7 +352,7 @@ public class StreamServiceImpl implements StreamService {
    * @return {@code true} if both members have attended at least one shared stream, {@code false} otherwise
    */
   @Override
-  public boolean existsByAttendees(final Member viewer, final Member target) {
+  public boolean existsByAttendees(final IsAMember viewer, final IsAMember target) {
     return streamOperationsService.existsByAttendees(viewer.getMemberId(), target.getMemberId());
   }
 }

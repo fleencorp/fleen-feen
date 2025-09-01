@@ -4,12 +4,13 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEven
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.chat.space.model.request.external.message.GoogleChatSpaceMessageRequest;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.event.EventUpdateService;
@@ -41,32 +42,21 @@ public class EventUpdateServiceImpl implements EventUpdateService {
   private final GoogleCalendarEventService googleCalendarEventService;
   private final GoogleChatService googleChatService;
   private final StreamOperationsService streamOperationsService;
-  private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
 
-  /**
-   * Constructs a new {@code EventUpdateServiceImpl}, which manages the synchronization and updating of event data,
-   * including Google Calendar integration and stream-related updates.
-   *
-   * @param eventOperationsService the core service for handling event-related operations (injected lazily to prevent circular dependencies)
-   * @param googleCalendarAttendeeService the service responsible for managing Google Calendar event attendees
-   * @param googleCalendarEventService the service for creating, updating, and deleting events in Google Calendar
-   * @param googleChatService the service for integrating and communicating with Google Chat
-   * @param streamOperationsService the service for handling low-level stream operations (injected lazily)
-   * @param unifiedMapper the utility for mapping between domain entities and data transfer objects (DTOs)
-   */
   public EventUpdateServiceImpl(
       @Lazy final EventOperationsService eventOperationsService,
       final GoogleCalendarAttendeeServiceImpl googleCalendarAttendeeService,
       final GoogleCalendarEventService googleCalendarEventService,
       final GoogleChatService googleChatService,
       @Lazy final StreamOperationsService streamOperationsService,
-      final UnifiedMapper unifiedMapper) {
+      final StreamUnifiedMapper streamUnifiedMapper) {
     this.eventOperationsService = requireNonNull(eventOperationsService);
     this.googleCalendarEventService = googleCalendarEventService;
     this.googleCalendarAttendeeService = googleCalendarAttendeeService;
     this.googleChatService = googleChatService;
     this.streamOperationsService = streamOperationsService;
-    this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
   }
 
   /**
@@ -86,9 +76,10 @@ public class EventUpdateServiceImpl implements EventUpdateService {
     eventOperationsService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
     // Prepare the request to send a calendar event message to the chat space
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
     final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
       stream.getExternalSpaceIdOrName(),
-      requireNonNull(unifiedMapper.toStreamResponseNoJoinStatus(stream))
+      requireNonNull(streamResponse)
     );
 
     // Send the event message to the chat space

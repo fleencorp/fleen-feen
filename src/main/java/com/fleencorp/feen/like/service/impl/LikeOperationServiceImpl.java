@@ -9,6 +9,7 @@ import com.fleencorp.feen.like.repository.LikeRepository;
 import com.fleencorp.feen.like.service.LikeOperationService;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.Likeable;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.stereotype.Service;
 
@@ -30,17 +31,17 @@ public class LikeOperationServiceImpl implements LikeOperationService {
   }
 
   @Override
-  public <T extends Likeable> void populateChatSpaceLikesFor(final Collection<T> responses, final Member member) {
+  public <T extends Likeable> void populateChatSpaceLikesFor(final Collection<T> responses, final IsAMember member) {
     populateLikeFor(responses, member, LikeParentType.CHAT_SPACE);
   }
 
   @Override
-  public <T extends Likeable> void populateStreamLikesFor(final Collection<T> responses, final Member member) {
+  public <T extends Likeable> void populateStreamLikesFor(final Collection<T> responses, final IsAMember member) {
     populateLikeFor(responses, member, LikeParentType.STREAM);
   }
 
   @Override
-  public <T extends Likeable> void populateLikesForReviews(final Collection<T> reviewResponses, final Member member) {
+  public <T extends Likeable> void populateLikesForReviews(final Collection<T> reviewResponses, final IsAMember member) {
     populateLikeFor(reviewResponses, member, LikeParentType.REVIEW);
   }
 
@@ -55,10 +56,10 @@ public class LikeOperationServiceImpl implements LikeOperationService {
    * @param <T> the type of response, which must implement {@link Likeable}
    * @param responses the collection of {@link Likeable} responses for which like information
    *                  should be populated; may be empty but not {@code null}
-   * @param member the {@link Member} whose like information will be applied to the responses
+   * @param member the {@link IsAMember} whose like information will be applied to the responses
    * @param likeParentType the parent entity type (e.g., chat space, review, or stream)
    */
-  protected <T extends Likeable> void populateLikeFor(final Collection<T> responses, final Member member, final LikeParentType likeParentType) {
+  protected <T extends Likeable> void populateLikeFor(final Collection<T> responses, final IsAMember member, final LikeParentType likeParentType) {
     final List<Long> entitiesIds = HasId.getIds(responses);
 
     if (!entitiesIds.isEmpty()) {
@@ -108,12 +109,12 @@ public class LikeOperationServiceImpl implements LikeOperationService {
    *
    * @param parentIds the list of parent entity IDs for which like information should be retrieved;
    *                  may be {@code null} or empty
-   * @param member the {@link Member} for whom like information is being retrieved
+   * @param member the {@link IsAMember} for whom like information is being retrieved
    * @param likeParentType the type of parent entity (e.g., chat space, review, or stream)
    * @return a map where the key is the parent ID and the value is the corresponding
    *         {@link UserLikeInfoSelect}; an empty map if no parent IDs are provided
    */
-  protected Map<Long, UserLikeInfoSelect> findLikesByParentIdsAndMember(final List<Long> parentIds, final Member member, final LikeParentType likeParentType) {
+  protected Map<Long, UserLikeInfoSelect> findLikesByParentIdsAndMember(final List<Long> parentIds, final IsAMember member, final LikeParentType likeParentType) {
     // Return empty map if no parent IDs are provided
     if (parentIds == null || parentIds.isEmpty()) {
       return Collections.emptyMap();

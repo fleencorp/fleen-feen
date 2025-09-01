@@ -4,16 +4,16 @@ import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
 @Getter
-public enum IsAnonymous implements ApiParameter {
+public enum IsPollAnonymous implements ApiParameter {
 
-  NO("No", "is.anonymous.no", "is.anonymous.no.2"),
-  YES("Yes", "is.anonymous.yes", "is.anonymous.yes.2");
+  NO("No", "is.poll.anonymous.no", "is.poll.anonymous.no.2"),
+  YES("Yes", "is.poll.anonymous.yes", "is.poll.anonymous.yes.2");
 
   private final String value;
   private final String messageCode;
   private final String messageCode2;
 
-  IsAnonymous(
+  IsPollAnonymous(
       final String value,
       final String messageCode,
       final String messageCode2) {
@@ -22,7 +22,7 @@ public enum IsAnonymous implements ApiParameter {
     this.messageCode2 = messageCode2;
   }
 
-  public static IsAnonymous by(final boolean isAnonymous) {
+  public static IsPollAnonymous by(final boolean isAnonymous) {
     return isAnonymous ? YES : NO;
   }
 }

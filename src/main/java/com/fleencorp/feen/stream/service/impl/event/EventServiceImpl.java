@@ -8,8 +8,10 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalen
 import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
+import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
@@ -25,7 +27,6 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.event.EventService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +62,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   private final MiscService miscService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
-  private final StreamMapper streamMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final StreamEventPublisher streamEventPublisher;
   private final Localizer localizer;
 
@@ -73,13 +74,13 @@ public class EventServiceImpl implements EventService, StreamRequestService {
       @Lazy final StreamOperationsService streamOperationsService,
       final Localizer localizer,
       final StreamEventPublisher streamEventPublisher,
-      final StreamMapper streamMapper) {
+      final StreamUnifiedMapper streamUnifiedMapper) {
     this.eventOperationsService = eventOperationsService;
     this.miscService = miscService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
-    this.streamMapper = streamMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.streamEventPublisher = streamEventPublisher;
     this.localizer = localizer;
   }
@@ -146,9 +147,9 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createEventExternally(createStreamRequest);
     // Increment attendee count because of creator or organizer of event
-    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     // Return a localized response of the created event
     return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
@@ -244,9 +245,9 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Create and add event in Calendar through external service
     createInstantEventExternally(createInstantStreamRequest);
     // Get the stream response
-    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
     // Retrieve the stream type info
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     // Create the response
     final CreateStreamResponse createStreamResponse = CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
     // Return a localized response of the created event

@@ -2,6 +2,8 @@ package com.fleencorp.feen.stream.service.attendee;
 
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
@@ -14,7 +16,6 @@ import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -59,7 +60,7 @@ public interface StreamAttendeeOperationsService {
 
   Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(Long streamId, Long organizerId, String userIdOrName, Pageable pageable);
 
-  List<StreamAttendeeSelect> findByMemberAndStreamIds(Member member, List<Long> streamIds);
+  List<StreamAttendeeSelect> findByMemberAndStreamIds(IsAMember member, List<Long> streamIds);
 
   void saveAll(Collection<StreamAttendee> attendees);
 

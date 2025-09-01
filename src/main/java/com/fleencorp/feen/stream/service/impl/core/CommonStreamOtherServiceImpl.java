@@ -2,12 +2,13 @@ package com.fleencorp.feen.stream.service.impl.core;
 
 import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.like.service.LikeOperationService;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
 import com.fleencorp.feen.review.service.ReviewCommonService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamOtherService;
 import com.fleencorp.feen.stream.util.StreamServiceUtil;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,19 +40,19 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
   private final LikeOperationService likeOperationService;
   private final ReviewCommonService reviewCommonService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
-  private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
 
   public CommonStreamOtherServiceImpl(
       final BookmarkOperationService bookmarkOperationService,
       final LikeOperationService likeOperationService,
       final ReviewCommonService reviewCommonService,
       @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
-      final UnifiedMapper unifiedMapper) {
+      final StreamUnifiedMapper streamUnifiedMapper) {
     this.bookmarkOperationService = bookmarkOperationService;
     this.likeOperationService = likeOperationService;
     this.reviewCommonService = reviewCommonService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
-    this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
   }
 
   /**
@@ -65,7 +65,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * @param member a member or user in the system
    */
   @Override
-  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final Member member) {
+  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final IsAMember member) {
     if (allNonNull(streamResponses, member) && !streamResponses.isEmpty()) {
       final Map<Long, StreamAttendeeSelect> attendanceDetailsMap = getUserAttendanceDetailsMap(streamResponses, member);
 
@@ -94,7 +94,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * @param reviewParentCountHolder a holder containing review counts grouped by parent ID
    * @param member                the currently authenticated user or member
    */
-  protected void processStreamResponse(final StreamResponse streamResponse, final Map<Long, StreamAttendeeSelect> attendanceDetailMap, final ReviewParentCountHolder reviewParentCountHolder, final Member member) {
+  protected void processStreamResponse(final StreamResponse streamResponse, final Map<Long, StreamAttendeeSelect> attendanceDetailMap, final ReviewParentCountHolder reviewParentCountHolder, final IsAMember member) {
     // Update join status, attendance, and speaker info
     updateJoinStatusInResponses(streamResponse, attendanceDetailMap);
     // Adjust schedule to user's timezone
@@ -121,7 +121,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * @param member the user whose attendance details are to be fetched
    * @return a map of stream IDs to the user's corresponding attendance records
    */
-  protected Map<Long, StreamAttendeeSelect> getUserAttendanceDetailsMap(final Collection<StreamResponse> streamResponses, final Member member) {
+  protected Map<Long, StreamAttendeeSelect> getUserAttendanceDetailsMap(final Collection<StreamResponse> streamResponses, final IsAMember member) {
     // Extract the stream IDs from the search result views
     final List<Long> streamIds = HasId.getIds(streamResponses);
     // Retrieve the user's attendance records for the provided stream IDs
@@ -147,7 +147,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
       // If member is an attendee, retrieve the status and set view label
       existingAttendance.ifPresent(attendee -> {
         // Update the request to join status, join status and is attending info
-        unifiedMapper.update(
+        streamUnifiedMapper.update(
           streamResponse,
           attendee.getRequestToJoinStatus(),
           attendee.getJoinStatus(),
@@ -172,7 +172,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
       final Long streamId = streamResponse.getNumberId();
       // Count total attendees whose request to join stream is approved and are attending the stream because they are interested
       final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true);
-      final AttendeeCountInfo attendeeCountInfo = unifiedMapper.toAttendeeCountInfo(totalAttendees);
+      final AttendeeCountInfo attendeeCountInfo = streamUnifiedMapper.toAttendeeCountInfo(totalAttendees);
       streamResponse.setAttendeeCountInfo(attendeeCountInfo);
     }
   }
@@ -195,7 +195,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
       final Page<StreamAttendee> page = streamAttendeeOperationsService
         .findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true, pageable);
       // Convert the list of stream attendees to list of stream attendee responses
-      final Collection<StreamAttendeeResponse> streamAttendees = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
+      final Collection<StreamAttendeeResponse> streamAttendees = streamUnifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
       // Set the attendees on the response
       streamResponse.setSomeAttendees(streamAttendees);
     }
@@ -211,7 +211,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
    * @param reviewCount    the number of reviews associated with the stream
    */
   protected void setReviewCount(final StreamResponse streamResponse, final Integer reviewCount) {
-    final ReviewCountInfo reviewCountInfo = unifiedMapper.toReviewCountInfo(reviewCount);
+    final ReviewCountInfo reviewCountInfo = streamUnifiedMapper.toReviewCountInfo(reviewCount);
     streamResponse.setReviewCountInfo(reviewCountInfo);
   }
 

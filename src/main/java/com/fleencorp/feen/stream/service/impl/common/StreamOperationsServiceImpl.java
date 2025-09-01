@@ -2,6 +2,8 @@ package com.fleencorp.feen.stream.service.impl.common;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -17,8 +19,6 @@ import com.fleencorp.feen.stream.repository.user.UserStreamCountRepository;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamOtherService;
 import com.fleencorp.feen.stream.service.core.StreamService;
-import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -89,23 +89,23 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
 
 
   @Override
-  public Long countTotalStreamsAttended(final Member member) {
-    return userStreamCountRepository.countTotalStreamsAttended(member);
+  public Long countTotalStreamsAttended(final IsAMember member) {
+    return userStreamCountRepository.countTotalStreamsAttended(member.getMemberId());
   }
 
   @Override
-  public Long countTotalStreamsAttended(final StreamType streamType, final Member member) {
-    return userStreamCountRepository.countTotalStreamsAttended(streamType, member);
+  public Long countTotalStreamsAttended(final StreamType streamType, final IsAMember member) {
+    return userStreamCountRepository.countTotalStreamsAttended(streamType, member.getMemberId());
   }
 
   @Override
-  public Long countTotalStreamsByUser(final Member member) {
-    return userStreamCountRepository.countTotalStreamsByUser(member);
+  public Long countTotalStreamsByUser(final IsAMember member) {
+    return userStreamCountRepository.countTotalStreamsByUser(member.getMemberId());
   }
 
   @Override
-  public Long countTotalStreamsByUser(final StreamType streamType, final Member member) {
-    return userStreamCountRepository.countTotalStreamsByUser(streamType, member);
+  public Long countTotalStreamsByUser(final StreamType streamType, final IsAMember member) {
+    return userStreamCountRepository.countTotalStreamsByUser(streamType, member.getMemberId());
   }
 
   @Override
@@ -139,7 +139,7 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public boolean existsByAttendees(final Member viewer, final Member target) {
+  public boolean existsByAttendees(final IsAMember viewer, final IsAMember target) {
     return streamService.existsByAttendees(viewer, target);
   }
 
@@ -175,7 +175,7 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final Member member) {
+  public void processOtherStreamDetails(final Collection<StreamResponse> streamResponses, final IsAMember member) {
     commonStreamOtherService.processOtherStreamDetails(streamResponses, member);
   }
 

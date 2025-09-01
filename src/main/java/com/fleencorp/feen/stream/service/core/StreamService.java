@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.service.core;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
@@ -28,5 +29,5 @@ public interface StreamService {
 
   StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
-  boolean existsByAttendees(Member viewer, Member target);
+  boolean existsByAttendees(IsAMember viewer, IsAMember target);
 }

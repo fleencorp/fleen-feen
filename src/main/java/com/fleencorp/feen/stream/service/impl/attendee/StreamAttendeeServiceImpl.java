@@ -5,10 +5,11 @@ import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
@@ -19,7 +20,6 @@ import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsServic
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -51,7 +51,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   private final MiscService miscService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
-  private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public static final int DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM = 10;
@@ -60,12 +60,12 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
       final MiscService miscService,
       @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
-      final UnifiedMapper unifiedMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.miscService = miscService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
-    this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -88,7 +88,9 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
 
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findAttendeesGoingToStream(FleenStream.of(streamId), searchRequest.getPage());
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    final Collection<StreamAttendeeResponse> attendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), unifiedMapper.toStreamResponse(stream));
+
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+    final Collection<StreamAttendeeResponse> attendeeResponses = streamUnifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
     final SearchResult searchResult = toSearchResult(attendeeResponses, page);
     final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
 
@@ -132,8 +134,9 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   public Collection<StreamAttendeeResponse> getAttendeesGoingToStream(final StreamResponse streamResponse) {
     if (nonNull(streamResponse)) {
       final List<StreamAttendee> streamAttendees = streamAttendeeOperationsService.findAttendeesGoingToStream(streamResponse.getNumberId());
-      return unifiedMapper.toStreamAttendeeResponsesPublic(streamAttendees, streamResponse);
+      return streamUnifiedMapper.toStreamAttendeeResponsesPublic(streamAttendees, streamResponse);
     }
+
     return new ArrayList<>();
   }
 
@@ -179,7 +182,10 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     if (nonNull(attendees) && !attendees.isEmpty()) {
       return attendees.stream()
         .filter(Objects::nonNull)
-        .map(attendee -> unifiedMapper.toStreamAttendeeResponse(attendee, unifiedMapper.toStreamResponse(stream)))
+        .map(attendee -> {
+          final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+          return streamUnifiedMapper.toStreamAttendeeResponse(attendee, streamResponse);
+        })
         .collect(Collectors.toSet());
     }
     return Set.of();
@@ -249,8 +255,10 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
 
     final Set<StreamAttendeeRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
     final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndRequestToJoinStatus(stream, joinStatusesForSearch, searchRequest.getPage());
-    final StreamResponse streamResponse = unifiedMapper.toStreamResponse(stream);
-    final Collection<StreamAttendeeResponse> streamAttendeeResponses = unifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
+
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
+    final Collection<StreamAttendeeResponse> streamAttendeeResponses = streamUnifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
+
     final SearchResult searchResult = toSearchResult(streamAttendeeResponses, page);
     final RequestToJoinSearchResult requestToJoinSearchResult = RequestToJoinSearchResult.of(searchResult);
 

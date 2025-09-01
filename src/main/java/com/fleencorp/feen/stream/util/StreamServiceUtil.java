@@ -1,8 +1,8 @@
 package com.fleencorp.feen.stream.util;
 
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
-import com.fleencorp.feen.user.model.domain.Member;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -27,7 +27,7 @@ public final class StreamServiceUtil {
    * @param streamResponse the stream response containing the original schedule
    * @param member the user whose timezone is used for conversion
    */
-  public static void setOtherScheduleBasedOnUserTimezone(final StreamResponse streamResponse, final Member member) {
+  public static void setOtherScheduleBasedOnUserTimezone(final StreamResponse streamResponse, final IsAMember member) {
     if (allNonNull(streamResponse, member)) {
       // Get the stream's original timezone
       final String streamTimezone = streamResponse.getSchedule().getTimezone();
@@ -89,10 +89,14 @@ public final class StreamServiceUtil {
    * @return a list of stream number IDs
    */
   public static List<Long> getStreamsIds(final Collection<StreamResponse> streamResponses) {
-    return streamResponses.stream()
-      .filter(Objects::nonNull)
-      .map(StreamResponse::getNumberId)
-      .toList();
+    if (nonNull(streamResponses)) {
+      return streamResponses.stream()
+        .filter(Objects::nonNull)
+        .map(StreamResponse::getNumberId)
+        .toList();
+    }
+
+    return List.of();
   }
 
 }
