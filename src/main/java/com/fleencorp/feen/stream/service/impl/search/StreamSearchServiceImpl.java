@@ -33,6 +33,7 @@ import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -83,7 +84,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       final ReviewSearchService reviewSearchService,
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamOperationsService streamOperationsService,
-      final StreamQueryService streamQueryService,
+      @Qualifier("streamQueryService") final StreamQueryService streamQueryService,
       final StreamMapper streamMapper,
       final Localizer localizer) {
     this.memberService = memberService;

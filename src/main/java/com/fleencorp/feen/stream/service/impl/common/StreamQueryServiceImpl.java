@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-@Service
+@Service("streamQueryService")
 public class StreamQueryServiceImpl implements StreamQueryService {
 
   private final StreamService streamService;

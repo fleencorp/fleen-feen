@@ -3,14 +3,12 @@ package com.fleencorp.feen.shared.stream.service.impl;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.shared.stream.service.StreamQueryService;
 import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-@Qualifier("sharedStreamQueryService")
+@Service("sharedStreamQueryService")
 public class StreamQueryServiceImpl implements StreamQueryService {
 
   private final EntityManager entityManager;
