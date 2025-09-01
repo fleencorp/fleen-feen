@@ -1,10 +1,7 @@
 package com.fleencorp.feen.mapper.impl;
 
-import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.constant.social.ShareContactRequestStatus;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.CommonMapper;
-import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.mfa.constant.IsMfaEnabled;
 import com.fleencorp.feen.mfa.constant.MfaType;
 import com.fleencorp.feen.mfa.model.info.IsMfaEnabledInfo;
@@ -12,16 +9,7 @@ import com.fleencorp.feen.mfa.model.info.MfaTypeInfo;
 import com.fleencorp.feen.model.info.share.contact.request.ShareContactRequestStatusInfo;
 import com.fleencorp.feen.model.response.authentication.SignInResponse;
 import com.fleencorp.feen.model.response.authentication.SignUpResponse;
-import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
-import com.fleencorp.feen.stream.mapper.impl.StreamMapperImpl;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
-import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
-import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
-import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
-import com.fleencorp.feen.stream.model.response.StreamResponse;
-import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
-import com.fleencorp.feen.stream.model.response.attendance.ProcessAttendeeRequestToJoinStreamResponse;
+import com.fleencorp.feen.stream.mapper.impl.stream.StreamMapperImpl;
 import com.fleencorp.feen.verification.constant.VerificationType;
 import com.fleencorp.feen.verification.model.info.VerificationTypeInfo;
 import org.springframework.context.MessageSource;
@@ -43,16 +31,8 @@ import static java.util.Objects.nonNull;
 @Component
 public class CommonMapperImpl extends BaseMapper implements CommonMapper {
 
-  private final StreamMapper streamMapper;
-  private final ToInfoMapper toInfoMapper;
-
-  public CommonMapperImpl(
-      final ToInfoMapper toInfoMapper,
-      final StreamMapper streamMapper,
-      final MessageSource messageSource) {
+  public CommonMapperImpl(final MessageSource messageSource) {
     super(messageSource);
-    this.toInfoMapper = toInfoMapper;
-    this.streamMapper = streamMapper;
   }
 
   /**
@@ -177,72 +157,4 @@ public class CommonMapperImpl extends BaseMapper implements CommonMapper {
       signUpResponse.setVerificationTypeInfo(VerificationTypeInfo.of(verificationType, translate(verificationType.getMessageCode())));
     }
   }
-
-  /**
-   * Processes an attendee's request to join an event stream.
-   *
-   * <p>This method handles the logic for processing the request of an attendee
-   * who is seeking to join a stream. It checks if the attendee already exists
-   * and retrieves their current request status. A response is generated
-   * containing the stream information and the current request status.</p>
-   *
-   * If the attendee does not exist, the method returns null.
-   *
-   * @param stream The {@link StreamResponse} containing the stream details.
-   * @param attendee the {@link StreamAttendee} of the stream
-   *
-   * @return A {@link ProcessAttendeeRequestToJoinStreamResponse} populated with stream details
-   *         and the request to join status if the attendee exists, or null if no attendee is found.
-   */
-  @Override
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final StreamResponse stream, final StreamAttendee attendee) {
-    if (nonNull(stream) && nonNull(attendee)) {
-      // Get the request-to-join status of the attendee
-      final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();
-      // Retrieve the stream type info
-      final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
-      // Get the attendance information for the stream attendee
-      final AttendanceInfo attendanceInfo = toInfoMapper.toAttendanceInfo(stream, requestToJoinStatus, attendee.isAttending(), attendee.isASpeaker());
-      // Create and return a response object with the processed to join details
-      return ProcessAttendeeRequestToJoinStreamResponse.of(
-        stream.getNumberId(),
-        attendanceInfo,
-        streamTypeInfo,
-        stream.getAttendeeCountInfo()
-      );
-    }
-
-    // Return null if no existing attendee is found
-    return null;
-  }
-
-  /**
-   * Generates a response for a stream where the user is not attending.
-   *
-   * <p>This method creates a {@link NotAttendingStreamResponse} object, sets its
-   * attendance status to "not attending", and populates the join status
-   * information using the provided {@link JoinStatus}.</p>
-   *
-   * @return A {@link NotAttendingStreamResponse} indicating that the user
-   *         is not attending the stream.
-   */
-  @Override
-  public NotAttendingStreamResponse notAttendingStream() {
-    // Set the join status to 'not attending'
-    final JoinStatus joinStatus = JoinStatus.notAttendingStream();
-    // Create the join status info
-    final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
-    // Not attending info
-    final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(false);
-    // Create a new NotAttendingStreamResponse instance
-    final NotAttendingStreamResponse notAttendingStreamResponse = NotAttendingStreamResponse.of();
-
-    // Set the 'is attending' info to false, using the translated message
-    notAttendingStreamResponse.setAttendingInfo(isAttendingInfo);
-    // Set the join status info with translated messages for the join status
-    notAttendingStreamResponse.setJoinStatusInfo(joinStatusInfo);
-    // Return the fully populated NotAttendingStreamResponse
-    return notAttendingStreamResponse;
-  }
-
 }

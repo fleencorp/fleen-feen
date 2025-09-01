@@ -13,8 +13,10 @@ import com.fleencorp.feen.chat.space.service.event.ChatSpaceEventService;
 import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
+import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
@@ -22,7 +24,6 @@ import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   private final MiscService miscService;
   private final StreamOperationsService streamOperationsService;
   private final StreamMapper streamMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public ChatSpaceEventServiceImpl(
@@ -53,6 +55,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
       final MiscService miscService,
       final StreamOperationsService streamOperationsService,
       final StreamMapper streamMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
     this.chatSpaceMemberService = chatSpaceMemberService;
@@ -61,6 +64,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     this.streamOperationsService = streamOperationsService;
     this.eventOperationsService = eventOperationsService;
     this.streamMapper = streamMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -79,11 +83,11 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   @Override
   public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final RegisteredUser user) {
     final Page<FleenStream> page = streamOperationsService.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
-    final List<StreamResponse> streamResponses = streamMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
 
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
 
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(StreamType.EVENT);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(StreamType.EVENT);
     final SearchResult searchResult = toSearchResult(streamResponses, page);
     final ChatSpaceEventSearchResult chatSpaceEventSearchResult = ChatSpaceEventSearchResult.of(searchResult, streamTypeInfo);
     return localizer.of(chatSpaceEventSearchResult);
@@ -124,8 +128,8 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
     createEventExternally(stream, createCalendarEventRequest);
 
-    final StreamResponse streamResponse = streamMapper.toStreamResponseByAdminUpdate(stream);
-    final StreamTypeInfo streamTypeInfo = streamMapper.toStreamTypeInfo(stream.getStreamType());
+    final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
+    final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final CreateStreamResponse createStreamResponse = CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
     return localizer.of(createStreamResponse);
   }
