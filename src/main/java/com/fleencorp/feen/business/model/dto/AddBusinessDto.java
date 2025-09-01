@@ -107,7 +107,6 @@ public class AddBusinessDto {
     business.setCountry(country);
 
     business.setOwnerId(member.getMemberId());
-    business.setOwner(member);
 
     return business;
   }

@@ -5,11 +5,10 @@ import com.fleencorp.feen.business.constant.BusinessStatus;
 import com.fleencorp.feen.business.exception.BusinessNotOwnerException;
 import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.business.contract.IsABusiness;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,7 +24,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "business")
-public class Business extends FleenFeenEntity {
+public class Business extends FleenFeenEntity
+  implements IsABusiness {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,12 +73,6 @@ public class Business extends FleenFeenEntity {
 
   @Column(name = "owner_id", updatable = false, insertable = false)
   private Long ownerId;
-
-  @ToString.Exclude
-  @CreatedBy
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "owner_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member owner;
 
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
