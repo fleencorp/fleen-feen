@@ -4,6 +4,7 @@ import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -23,7 +24,6 @@ import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
@@ -76,7 +76,7 @@ public class SoftAskServiceImpl implements SoftAskService {
   @Transactional
   public SoftAskAddResponse addSoftAsk(final AddSoftAskDto addSoftAskDto, final RegisteredUser user)
       throws MemberNotFoundException, StreamNotFoundException, ChatSpaceNotFoundException {
-    final Member member = memberService.findMember(user.getId());
+    final IsAMember member = memberService.findMember(user.getId());
 
     final SoftAskParentDetailHolder softAskParentDetailHolder = findAndValidateParent(addSoftAskDto);
     final SoftAskParentType parentType = softAskParentDetailHolder.parentType();

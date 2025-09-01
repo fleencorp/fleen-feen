@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -19,7 +20,6 @@ import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
@@ -78,7 +78,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
   @Override
   @Transactional
   public SoftAskReplyAddResponse addSoftAskReply(final AddSoftAskReplyDto addSoftAskReplyDto, final RegisteredUser user) {
-    final Member author = memberService.findMember(user.getId());
+    final IsAMember author = memberService.findMember(user.getId());
     final Long softAskId = addSoftAskReplyDto.getSoftAskId();
     final Long softAskParentReplyId = addSoftAskReplyDto.getSoftAskParentReplyId();
 

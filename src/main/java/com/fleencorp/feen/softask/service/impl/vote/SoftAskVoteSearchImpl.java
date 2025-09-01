@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.vote;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
@@ -59,7 +60,7 @@ public class SoftAskVoteSearchImpl implements SoftAskVoteSearchService {
    * @param <T> the type of response, extending {@link SoftAskCommonResponse}.
    */
   @Override
-  public <T extends SoftAskCommonResponse> void processVotesForResponses(final Collection<T> softAskCommonResponses, final Member member) {
+  public <T extends SoftAskCommonResponse> void processVotesForResponses(final Collection<T> softAskCommonResponses, final IsAMember member) {
     if (nonNull(softAskCommonResponses) && !softAskCommonResponses.isEmpty() && nonNull(member)) {
 
       final Collection<Long> parentIds = SoftAskUserVoteHolder.getParentIdsToScanForVotes(softAskCommonResponses);

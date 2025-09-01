@@ -7,10 +7,8 @@ import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -59,19 +57,13 @@ public class SoftAskReply extends FleenFeenEntity
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id", nullable = false, updatable = false)
   private SoftAsk softAsk;
 
-  @Column(name = "author_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "author_id", nullable = false, updatable = false)
   private Long authorId;
 
-  @ToString.Exclude
-  @CreatedBy
-  @ManyToOne(fetch = LAZY, optional = false)
-  @JoinColumn(name = "author_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member author;
-
-  @Column(name = "geohash", length = 9, nullable = false, updatable = false)
+  @Column(name = "geohash", length = 9, updatable = false)
   private String geoHash;
 
-  @Column(name = "geohash_prefix", length = 5, nullable = false, updatable = false)
+  @Column(name = "geohash_prefix", length = 5, updatable = false)
   private String geoHashPrefix;
 
   @ToString.Exclude
@@ -104,13 +96,13 @@ public class SoftAskReply extends FleenFeenEntity
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 
-  @Column(name = "latitude", precision = 3, scale = 1)
+  @Column(name = "latitude", precision = 3, scale = 1, updatable = false)
   private BigDecimal latitude;
 
-  @Column(name = "longitude", precision = 4, scale = 1)
+  @Column(name = "longitude", precision = 4, scale = 1, updatable = false)
   private BigDecimal longitude;
 
-  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  @Column(name = "slug", nullable = false, unique = true, updatable = false)
   private String slug;
 
   @Transient

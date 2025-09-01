@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
-import com.fleencorp.feen.user.model.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +33,7 @@ public class SoftAskSearchRequest extends SearchRequest {
   private UserOtherDetailDto userOtherDetailDto;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  private Member author;
+  private IsAMember author;
 
   public Long getParentId() {
     return nonNull(parentId) ? Long.parseLong(parentId) : null;

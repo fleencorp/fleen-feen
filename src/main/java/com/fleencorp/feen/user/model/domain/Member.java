@@ -3,7 +3,7 @@ package com.fleencorp.feen.user.model.domain;
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.mfa.constant.MfaType;
-import com.fleencorp.feen.model.contract.IsAMember;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.role.model.domain.Role;

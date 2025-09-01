@@ -1,6 +1,5 @@
 package com.fleencorp.feen.softask.model.domain;
 
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,13 +33,8 @@ public class SoftAskUsername {
   @JoinColumn(name = "soft_ask_id", nullable = false, updatable = false)
   private SoftAsk softAsk;
 
-  @Column(name = "user_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "user_id", nullable = false, updatable = false)
   private Long userId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false, updatable = false)
-  private Member user;
 
   @Column(name = "username", nullable = false, length = 100)
   private String username;
@@ -50,14 +44,12 @@ public class SoftAskUsername {
   private LocalDateTime createdAt;
 
   public static SoftAskUsername of(final Long softAskId, final Long userId, final String username) {
-    final Member member = Member.of(userId);
     final SoftAsk softAsk = SoftAsk.of(softAskId);
 
     final SoftAskUsername softAskUsername = new SoftAskUsername();
     softAskUsername.setSoftAskId(softAskId);
     softAskUsername.setSoftAsk(softAsk);
     softAskUsername.setUserId(userId);
-    softAskUsername.setUser(member);
     softAskUsername.setUsername(username);
 
     return softAskUsername;

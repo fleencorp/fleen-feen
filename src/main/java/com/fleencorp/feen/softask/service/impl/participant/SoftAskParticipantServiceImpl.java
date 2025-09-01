@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.service.impl.participant;
 
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskConversationVotedInfo;
 import com.fleencorp.feen.softask.model.info.vote.total.TotalSoftAskReplyVotedInfo;
@@ -14,7 +15,6 @@ import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
@@ -58,7 +58,7 @@ public class SoftAskParticipantServiceImpl implements SoftAskParticipantService 
    */
   @Override
   public SoftAskUserProfileRetrieveResponse findUserProfile(final RegisteredUser user) {
-    final Member member = user.toMember();
+    final IsAMember member = user.toMember();
     final SoftAskSearchRequest searchRequest = new SoftAskSearchRequest();
     searchRequest.setPageSize(2);
 

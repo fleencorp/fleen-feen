@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
@@ -16,7 +17,6 @@ import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskSearchRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
@@ -84,7 +84,7 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
    */
   @Override
   public SoftAskRetrieveResponse retrieveSoftAsk(final Long softAskId, final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
-    final Member member = user.toMember();
+    final IsAMember member = user.toMember();
     final SoftAsk softAsk = findSoftAsk(softAskId);
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
     final Collection<SoftAskResponse> softAskResponses = List.of(softAskResponse);
@@ -112,14 +112,14 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
    */
   @Override
   public SoftAskSearchResult findSoftAsks(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
-    final Member member = user.toMember();
+    final IsAMember member = user.toMember();
     final Pageable pageable = searchRequest.getPage();
 
     final Page<SoftAskWithDetail> page = searchRequest.isByAuthor()
       ? softAskSearchRepository.findByAuthor(member.getMemberId(), pageable)
       : softAskSearchRepository.findMany(searchRequest.getPage());
 
-    return processAndReturnSoftAsks(page, user.toMember(), searchRequest.getUserOtherDetail());
+    return processAndReturnSoftAsks(page, member, searchRequest.getUserOtherDetail());
   }
 
   /**
@@ -138,7 +138,7 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
    * @return a localized {@link SoftAskSearchResult} containing the processed soft asks,
    *         or an empty result if the input page is {@code null}
    */
-  private SoftAskSearchResult processAndReturnSoftAsks(final Page<SoftAskWithDetail> page, final Member member, final UserHaveOtherDetail userHaveOtherDetail) {
+  private SoftAskSearchResult processAndReturnSoftAsks(final Page<SoftAskWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
     if (nonNull(page)) {
       final Collection<SoftAskResponse> softAskResponses = softAskMapper.toSoftAskResponses(page.getContent());
       softAskCommonService.processSoftAskResponses(softAskResponses, member, userHaveOtherDetail);

@@ -37,10 +37,10 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
   private final ToInfoMapper toInfoMapper;
 
   public SoftAskMapperImpl(
-    final SoftAskCommonMapper softAskCommonMapper,
-    final SoftAskInfoMapper softAskInfoMapper,
-    final ToInfoMapper toInfoMapper,
-    final MessageSource messageSource) {
+      final SoftAskCommonMapper softAskCommonMapper,
+      final SoftAskInfoMapper softAskInfoMapper,
+      final ToInfoMapper toInfoMapper,
+      final MessageSource messageSource) {
     super(messageSource);
     this.softAskCommonMapper = softAskCommonMapper;
     this.softAskInfoMapper = softAskInfoMapper;

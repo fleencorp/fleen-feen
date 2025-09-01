@@ -9,7 +9,7 @@ import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.HasId;
-import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -31,27 +31,27 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
     this.unifiedMapper = unifiedMapper;
   }
 
-  public <T extends Bookmarkable> void populateChatSpaceBookmarksFor(final Collection<T> responses, final Member member) {
+  public <T extends Bookmarkable> void populateChatSpaceBookmarksFor(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, BookmarkParentType.CHAT_SPACE);
   }
 
-  public <T extends Bookmarkable> void populateStreamBookmarksFor(final Collection<T> responses, final Member member) {
+  public <T extends Bookmarkable> void populateStreamBookmarksFor(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, STREAM);
   }
 
-  public <T extends Bookmarkable> void populateBookmarkForReviews(final Collection<T> responses, final Member member) {
+  public <T extends Bookmarkable> void populateBookmarkForReviews(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, REVIEW);
   }
 
-  public <T extends Bookmarkable> void populateSoftAskBookmarksFor(final Collection<T> responses, final Member member) {
+  public <T extends Bookmarkable> void populateSoftAskBookmarksFor(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, SOFT_ASK);
   }
 
-  public <T extends Bookmarkable> void populateSoftAskReplyBookmarksFor(final Collection<T> responses, final Member member) {
+  public <T extends Bookmarkable> void populateSoftAskReplyBookmarksFor(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, SOFT_ASK_REPLY);
   }
 
-  public <T extends Bookmarkable> void populateBookmarkFor(final Collection<T> responses, final Member member, final BookmarkParentType bookmarkParentType) {
+  public <T extends Bookmarkable> void populateBookmarkFor(final Collection<T> responses, final IsAMember member, final BookmarkParentType bookmarkParentType) {
     final List<Long> entitiesIds = HasId.getIds(responses);
     final Long otherId = Bookmarkable.getOtherId(responses);
 
@@ -76,7 +76,7 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
     });
   }
   
-  protected Map<Long, UserBookmarkInfoSelect> findBookmarkByParentIdsAndMember(final List<Long> parentIds, final Long otherId, final Member member, final BookmarkParentType bookmarkParentType) {
+  protected Map<Long, UserBookmarkInfoSelect> findBookmarkByParentIdsAndMember(final List<Long> parentIds, final Long otherId, final IsAMember member, final BookmarkParentType bookmarkParentType) {
     // Return empty map if no parent IDs are provided
     if (parentIds == null || parentIds.isEmpty()) {
       return Collections.emptyMap();

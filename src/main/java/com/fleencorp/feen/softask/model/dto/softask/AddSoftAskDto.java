@@ -7,13 +7,13 @@ import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -100,7 +100,7 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     return hasParent() && parent.isStreamParent();
   }
 
-  public SoftAsk toSoftAsk(final Member author, final String parentTitle, final SoftAskParentType parentType, final ChatSpace chatSpace, final FleenStream stream) {
+  public SoftAsk toSoftAsk(final IsAMember author, final String parentTitle, final SoftAskParentType parentType, final ChatSpace chatSpace, final FleenStream stream) {
     final SoftAskVisibility softAskVisibility = SoftAskVisibility.of(visibility);
     final SoftAskStatus softAskStatus = SoftAskStatus.of(status);
 
@@ -115,17 +115,13 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     softAsk.setVisible(true);
 
     softAsk.setAuthorId(author.getMemberId());
-    softAsk.setAuthor(author);
 
     softAsk.setParentId(getParentId());
     softAsk.setParentTitle(parentTitle);
     softAsk.setSoftAskParentType(parentType);
 
     softAsk.setChatSpaceId(getParentId());
-    softAsk.setChatSpace(chatSpace);
-
     softAsk.setStreamId(getParentId());
-    softAsk.setStream(stream);
 
     softAsk.setLatitude(BigDecimal.valueOf(latitude));
     softAsk.setLongitude(BigDecimal.valueOf(longitude));

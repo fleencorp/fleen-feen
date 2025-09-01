@@ -3,10 +3,8 @@ package com.fleencorp.feen.softask.model.domain;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -56,14 +54,8 @@ public class SoftAskVote extends FleenFeenEntity {
   @JoinColumn(name = "soft_ask_reply_id", referencedColumnName = "soft_ask_reply_id")
   private SoftAskReply softAskReply;
 
-  @Column(name = "member_id", insertable = false, updatable = false)
+  @Column(name = "member_id", nullable = false, updatable = false)
   private Long memberId;
-
-  @ToString.Exclude
-  @CreatedBy
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member member;
 
   public String getParentContent() {
     return switch (parentType) {

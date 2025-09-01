@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
@@ -45,6 +46,19 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     this.localizer = localizer;
   }
 
+  /**
+   * Retrieves a specific reply for a given Soft Ask.
+   *
+   * <p>This method finds the Soft Ask reply identified by the provided {@code softAskId}
+   * and {@code softAskReplyId}, maps it to a {@link SoftAskReplyResponse},
+   * wraps it into a {@link SoftAskReplyRetrieveResponse}, and then localizes the response.</p>
+   *
+   * @param searchRequest the search criteria used to filter or validate Soft Ask replies
+   * @param softAskId the unique identifier of the Soft Ask
+   * @param softAskReplyId the unique identifier of the Soft Ask reply to retrieve
+   * @return a localized {@link SoftAskReplyRetrieveResponse} containing the requested reply
+   * @throws SoftAskReplyNotFoundException if the specified Soft Ask reply does not exist
+   */
   @Override
   public SoftAskReplyRetrieveResponse retrieveSoftAskReply(final SoftAskSearchRequest searchRequest, final Long softAskId, final Long softAskReplyId) throws SoftAskReplyNotFoundException {
     final SoftAskReply softAskReply = findSoftAskReply(softAskId, softAskReplyId);
@@ -78,11 +92,11 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
    * <p>Wraps the member in a {@link RegisteredUser} and forwards the request.</p>
    *
    * @param searchRequest the request containing filter and pagination parameters.
-   * @param member the {@link Member} performing the request.
+   * @param member the {@link IsAMember} performing the request.
    * @return a localized {@link SoftAskReplySearchResult} containing the paginated and enriched replies.
    */
   @Override
-  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final Member member) {
+  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final IsAMember member) {
     final Long memberId = member.getMemberId();
     final RegisteredUser user = RegisteredUser.of(memberId);
     return findSoftAskReplies(searchRequest, user);
@@ -129,11 +143,11 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
    *
    * @param parentId the ID of the SoftAsk parent entry associated with the replies.
    * @param page the paginated replies to process; can be {@code null}.
-   * @param member the {@link Member} whose context is used for vote enrichment.
+   * @param member the {@link IsAMember} whose context is used for vote enrichment.
    * @return a localized {@link SoftAskReplySearchResult} containing the processed replies,
    *         or an empty result if the page is {@code null}.
    */
-  protected SoftAskReplySearchResult processAndReturnSoftAskReplies(final Long parentId, final Page<SoftAskReplyWithDetail> page, final Member member, final UserHaveOtherDetail userHaveOtherDetail) {
+  protected SoftAskReplySearchResult processAndReturnSoftAskReplies(final Long parentId, final Page<SoftAskReplyWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
     if (nonNull(page)) {
       final Collection<SoftAskReplyResponse> softAskReplyResponses = softAskMapper.toSoftAskReplyResponses(page.getContent());
       softAskCommonService.processSoftAskResponses(softAskReplyResponses, member, userHaveOtherDetail);

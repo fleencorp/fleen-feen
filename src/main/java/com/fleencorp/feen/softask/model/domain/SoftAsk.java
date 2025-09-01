@@ -1,6 +1,5 @@
 package com.fleencorp.feen.softask.model.domain;
 
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
@@ -11,11 +10,8 @@ import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -89,35 +85,19 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "mood_tag")
   private MoodTag moodTag;
 
-  @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "chat_space_id", updatable = false)
   private Long chatSpaceId;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
-  @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
-  private ChatSpace chatSpace;
-
-  @Column(name = "stream_id", updatable = false, insertable = false)
+  @Column(name = "stream_id", updatable = false)
   private Long streamId;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
-  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", updatable = false)
-  private FleenStream stream;
-
-  @Column(name = "author_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "author_id", nullable = false, updatable = false)
   private Long authorId;
 
-  @ToString.Exclude
-  @CreatedBy
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "author_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member author;
-
-  @Column(name = "geohash", length = 9, nullable = false, updatable = false)
+  @Column(name = "geohash", length = 9, updatable = false)
   private String geoHash;
 
-  @Column(name = "geohash_prefix", length = 5, nullable = false, updatable = false)
+  @Column(name = "geohash_prefix", length = 5, updatable = false)
   private String geoHashPrefix;
 
   @Column(name = "is_deleted", nullable = false)
@@ -144,7 +124,7 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "longitude", precision = 4, scale = 1, updatable = false)
   private BigDecimal longitude;
 
-  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  @Column(name = "slug", nullable = false, unique = true, updatable = false)
   private String slug;
 
   @ToString.Exclude

@@ -164,7 +164,7 @@ public class FleenStream extends FleenFeenEntity
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 
-  @Column(name = "slug", nullable = false, unique = true, length = 255)
+  @Column(name = "slug", nullable = false, unique = true, updatable = false)
   private String slug;
 
   public boolean isForKids() {

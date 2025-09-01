@@ -3,6 +3,7 @@ package com.fleencorp.feen.softask.service.impl.common;
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.Updatable;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
@@ -24,7 +25,6 @@ import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
@@ -78,7 +78,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @param userHaveOtherDetail    the user detail object used to set location information
    */
   @Override
-  public <T extends SoftAskCommonResponse> void processSoftAskResponses(final Collection<T> softAskCommonResponses, final Member member, final UserHaveOtherDetail userHaveOtherDetail) {
+  public <T extends SoftAskCommonResponse> void processSoftAskResponses(final Collection<T> softAskCommonResponses, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
     if (nonNull(softAskCommonResponses)) {
       processBookmarkForResponses(softAskCommonResponses, member);
       softAskVoteSearchService.processVotesForResponses(softAskCommonResponses, member);
@@ -98,14 +98,14 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    *
    * <p>The method checks if the given responses are non-null and inspects the type
    * of the first response in the collection. If the response type is a soft ask,
-   * it delegates to {@link BookmarkOperationService#populateSoftAskBookmarksFor(Collection, Member)}.
+   * it delegates to {@link BookmarkOperationService#populateSoftAskBookmarksFor(Collection, IsAMember)}.
    * Otherwise, it delegates to
-   * {@link BookmarkOperationService#populateSoftAskReplyBookmarksFor(Collection, Member)}.</p>
+   * {@link BookmarkOperationService#populateSoftAskReplyBookmarksFor(Collection, IsAMember)}.</p>
    *
    * @param responses the collection of responses to process
    * @param member the member for whom the bookmarks are being populated
    */
-  private <T extends SoftAskCommonResponse> void processBookmarkForResponses(final Collection<T> responses, final Member member) {
+  private <T extends SoftAskCommonResponse> void processBookmarkForResponses(final Collection<T> responses, final IsAMember member) {
     if (nonNull(responses) && nonNull(member)) {
       final Optional<T> anyResponse = responses.stream().findFirst();
 
@@ -136,7 +136,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    */
   @Override
   @Transactional(readOnly = true)
-  public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskSearchRequest searchRequest, final SoftAskResponse softAskResponse, final Member member) {
+  public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskSearchRequest searchRequest, final SoftAskResponse softAskResponse, final IsAMember member) {
     searchRequest.updateParentId(softAskResponse.getParentId());
     searchRequest.setPageSize(10);
 
@@ -163,7 +163,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @param member the member performing the search
    * @return a search result containing soft ask replies matching the criteria
    */
-  private SoftAskReplySearchResult findSomeSoftAskChildReplyForReply(final SoftAskReplyResponse softAskReplyResponse, final Member member) {
+  private SoftAskReplySearchResult findSomeSoftAskChildReplyForReply(final SoftAskReplyResponse softAskReplyResponse, final IsAMember member) {
     final SoftAskSearchRequest searchRequest = SoftAskSearchRequest.of(softAskReplyResponse.getParentId(), softAskReplyResponse.getNumberId());
     searchRequest.setPageSize(10);
 

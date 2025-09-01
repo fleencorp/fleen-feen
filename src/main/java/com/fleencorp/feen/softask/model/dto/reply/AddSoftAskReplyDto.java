@@ -2,11 +2,11 @@ package com.fleencorp.feen.softask.model.dto.reply;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.dto.common.SoftAskWithParentDto;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -27,13 +27,12 @@ public class AddSoftAskReplyDto extends SoftAskWithParentDto {
   @JsonProperty("reply")
   private String content;
 
-  public SoftAskReply toSoftAskReply(final Member author, final SoftAsk softAsk, final SoftAskReply parentReply) {
+  public SoftAskReply toSoftAskReply(final IsAMember author, final SoftAsk softAsk, final SoftAskReply parentReply) {
     final SoftAskReply reply = new SoftAskReply();
     reply.setContent(content);
     reply.setVisible(true);
 
     reply.setAuthorId(author.getMemberId());
-    reply.setAuthor(author);
 
     reply.setSoftAskId(softAsk.getSoftAskId());
     reply.setSoftAsk(softAsk);

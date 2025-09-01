@@ -809,7 +809,9 @@ CREATE TABLE poll (
   is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
   is_multiple_choice BOOLEAN NOT NULL DEFAULT FALSE,
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
+
   total_entries INTEGER NOT NULL DEFAULT 0,
+  share_count INTEGER NOT NULL DEFAULT 0,
 
   parent_type VARCHAR(255) NOT NULL
     CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
