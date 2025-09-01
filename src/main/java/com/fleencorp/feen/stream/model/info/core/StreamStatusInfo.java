@@ -41,5 +41,9 @@ public class StreamStatusInfo {
   public static StreamStatusInfo of(final StreamStatus streamStatus, final String streamStatusText, final String streamStatusText2, final String streamStatusText3) {
     return new StreamStatusInfo(streamStatus, streamStatusText, streamStatusText2, streamStatusText3);
   }
+
+  public static StreamStatusInfo of() {
+    return new StreamStatusInfo();
+  }
 }
 

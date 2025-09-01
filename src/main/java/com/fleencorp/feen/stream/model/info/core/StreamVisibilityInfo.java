@@ -33,5 +33,9 @@ public class StreamVisibilityInfo {
   public static StreamVisibilityInfo of(final StreamVisibility visibility, final String visibilityText) {
     return new StreamVisibilityInfo(visibility, visibilityText);
   }
+
+  public static StreamVisibilityInfo of() {
+    return new StreamVisibilityInfo();
+  }
 }
 

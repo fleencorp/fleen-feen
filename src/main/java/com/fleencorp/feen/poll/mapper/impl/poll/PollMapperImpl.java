@@ -1,8 +1,10 @@
-package com.fleencorp.feen.poll.mapper.impl;
+package com.fleencorp.feen.poll.mapper.impl.poll;
 
 import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
-import com.fleencorp.feen.poll.mapper.PollMapper;
+import com.fleencorp.feen.poll.mapper.common.PollInfoMapper;
+import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
@@ -14,6 +16,7 @@ import com.fleencorp.feen.poll.model.response.core.PollStatResponse;
 import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserResponse;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -21,16 +24,22 @@ import java.util.*;
 import static java.util.Objects.nonNull;
 
 @Component
-public final class PollMapperImpl implements PollMapper {
+public final class PollMapperImpl extends BaseMapper implements PollMapper {
 
   private static final List<String> COLOR_PALETTE = List.of(
     "#FF5733", "#33FF57", "#3357FF", "#F1C40F", "#9B59B6", "#1ABC9C", "#E74C3C", "#34495E", "#2ECC71", "#E67E22"
   );
 
   private final ToInfoMapper toInfoMapper;
+  private final PollInfoMapper pollInfoMapper;
 
-  public PollMapperImpl(final ToInfoMapper toInfoMapper) {
+  public PollMapperImpl(
+      final ToInfoMapper toInfoMapper,
+      final PollInfoMapper pollInfoMapper,
+      final MessageSource messageSource) {
+    super(messageSource);
     this.toInfoMapper = toInfoMapper;
+    this.pollInfoMapper = pollInfoMapper;
   }
 
   /**
@@ -62,26 +71,26 @@ public final class PollMapperImpl implements PollMapper {
       final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
       response.setShareCountInfo(shareCountInfo);
 
-      final PollVisibilityInfo pollVisibilityInfo = toInfoMapper.toPollVisibilityInfo(entry.getVisibility());
+      final PollVisibilityInfo pollVisibilityInfo = pollInfoMapper.toPollVisibilityInfo(entry.getVisibility());
       response.setPollVisibilityInfo(pollVisibilityInfo);
 
-      final IsAnonymousInfo isAnonymousInfo = toInfoMapper.toIsAnonymousInfo(entry.isAnonymous());
-      response.setIsAnonymousInfo(isAnonymousInfo);
+      final IsPollAnonymousInfo isPollAnonymousInfo = pollInfoMapper.toIsAnonymousInfo(entry.isAnonymous());
+      response.setIsPollAnonymousInfo(isPollAnonymousInfo);
 
-      final IsMultipleChoiceInfo isMultipleChoiceInfo = toInfoMapper.toIsMultipleChoiceInfo(entry.isMultipleChoice());
-      response.setIsMultipleChoiceInfo(isMultipleChoiceInfo);
+      final IsPollMultipleChoiceInfo isPollMultipleChoiceInfo = pollInfoMapper.toIsMultipleChoiceInfo(entry.isMultipleChoice());
+      response.setIsPollMultipleChoiceInfo(isPollMultipleChoiceInfo);
 
-      final IsEndedInfo isEndedInfo = toInfoMapper.toIsEnded(entry.hasEnded());
-      response.setIsEndedInfo(isEndedInfo);
+      final PollIsEndedInfo pollIsEndedInfo = pollInfoMapper.toIsEnded(entry.hasEnded());
+      response.setPollIsEndedInfo(pollIsEndedInfo);
 
-      final IsVotedInfo isVotedInfo = toInfoMapper.toIsVotedInfo(false);
+      final IsVotedInfo isVotedInfo = pollInfoMapper.toIsVotedInfo(false);
 
       final Collection<PollOption> pollOptions = entry.getOptions();
       final PollOptionEntriesHolder pollOptionEntriesHolder = PollOptionEntriesHolder.from(pollOptions);
       final Collection<PollOptionResponse> options = toPollOptionResponses(pollOptions, pollOptionEntriesHolder, new ArrayList<>());
       response.setPollOptions(options);
 
-      final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = toInfoMapper.toTotalPollVoteEntriesInfo(pollOptionEntriesHolder.totalVotes());
+      final TotalPollVoteEntriesInfo totalPollVoteEntriesInfo = pollInfoMapper.toTotalPollVoteEntriesInfo(pollOptionEntriesHolder.totalVotes());
       response.setTotalPollVoteEntriesInfo(totalPollVoteEntriesInfo);
 
       final PollVoteResponse pollVoteResponse = PollVoteResponse.of(isVotedInfo, totalPollVoteEntriesInfo);
@@ -131,7 +140,6 @@ public final class PollMapperImpl implements PollMapper {
    * @param option the {@link PollOption} to convert
    * @return the corresponding {@link PollOptionResponse}
    */
-  @Override
   public PollOptionResponse toPollOptionResponse(final PollOption option) {
     final PollOptionResponse response = new PollOptionResponse();
     response.setId(option.getPollOptionId());
@@ -251,20 +259,6 @@ public final class PollMapperImpl implements PollMapper {
   }
 
   /**
-   * Maps a boolean vote status to an {@link IsVotedInfo} representation.
-   *
-   * <p>Delegates to {@code toInfoMapper} to convert the given boolean indicating whether
-   * a poll has been voted on into an {@link IsVotedInfo} object.</p>
-   *
-   * @param isVoted {@code true} if the user has voted on the poll, {@code false} otherwise
-   * @return an {@link IsVotedInfo} representing the vote status
-   */
-  @Override
-  public IsVotedInfo toIsVotedInfo(final boolean isVoted) {
-    return toInfoMapper.toIsVotedInfo(isVoted);
-  }
-
-  /**
    * Delegates the creation of a {@link TotalPollVoteEntriesInfo} object to {@code toInfoMapper}.
    *
    * <p>This method simply forwards the total vote count to the {@code toInfoMapper.toTotalPollVoteEntriesInfo}
@@ -275,7 +269,7 @@ public final class PollMapperImpl implements PollMapper {
    */
   @Override
   public TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(final Integer pollVoteEntries) {
-    return toInfoMapper.toTotalPollVoteEntriesInfo(pollVoteEntries);
+    return pollInfoMapper.toTotalPollVoteEntriesInfo(pollVoteEntries);
   }
 
   /**

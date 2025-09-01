@@ -3,16 +3,16 @@ package com.fleencorp.feen.poll.constant;
 import lombok.Getter;
 
 @Getter
-public enum IsMultipleChoice {
+public enum PollIsEnded {
 
-  NO("No", "is.multipleChoice.no", "is.multipleChoice.no.2"),
-  YES("Yes", "is.multipleChoice.yes", "is.multipleChoice.yes.2");
+  NO("No", "is.poll.ended.no", "is.poll.ended.no.2"),
+  YES("Yes", "is.poll.ended.yes", "is.poll.ended.yes.2");
 
   private final String label;
   private final String messageCode;
   private final String messageCode2;
 
-  IsMultipleChoice(
+  PollIsEnded(
       final String label,
       final String messageCode,
       final String messageCode2) {
@@ -21,7 +21,7 @@ public enum IsMultipleChoice {
     this.messageCode2 = messageCode2;
   }
 
-  public static IsMultipleChoice by(final boolean isAnonymous) {
-    return isAnonymous ? YES : NO;
+  public static PollIsEnded by(final boolean ended) {
+    return ended ? YES : NO;
   }
 }

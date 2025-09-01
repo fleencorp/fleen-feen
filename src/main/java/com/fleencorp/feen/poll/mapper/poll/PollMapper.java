@@ -1,4 +1,4 @@
-package com.fleencorp.feen.poll.mapper;
+package com.fleencorp.feen.poll.mapper.poll;
 
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
@@ -20,15 +20,11 @@ public interface PollMapper {
 
   PollResponseEntriesHolder toPollResponses(List<Poll> entries);
 
-  PollOptionResponse toPollOptionResponse(PollOption option);
-
   Collection<PollOptionResponse> toVotedPollOptionResponses(Collection<PollOption> entries);
 
   Collection<PollOptionResponse> toPollOptionResponses(Collection<PollOption> entries, PollOptionEntriesHolder pollOptionEntriesHolder, Collection<Long> votedPollOptionIds);
 
   Collection<UserResponse> toPollVoteResponses(Collection<Member> entries);
-
-  IsVotedInfo toIsVotedInfo(boolean isVoted);
 
   TotalPollVoteEntriesInfo toTotalPollVoteEntriesInfo(Integer pollVoteEntries);
 }

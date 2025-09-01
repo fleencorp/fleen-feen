@@ -6,10 +6,11 @@ import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.mapper.impl.speaker.StreamSpeakerMapperImpl;
 import com.fleencorp.feen.stream.mapper.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
@@ -32,7 +33,6 @@ import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsServic
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.speaker.StreamSpeakerService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -68,22 +68,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   private final StreamSpeakerRepository streamSpeakerRepository;
   private final StreamEventPublisher streamEventPublisher;
   private final StreamSpeakerMapper streamSpeakerMapper;
-  private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new {@code StreamSpeakerServiceImpl}, which manages operations related to
-   * stream speakers including assignment, removal, and retrieval of speaker data.
-   *
-   * @param miscService utility service for miscellaneous helper operations
-   * @param streamOperationsService the service responsible for core stream lifecycle operations
-   * @param streamAttendeeOperationsService service managing attendees within streams
-   * @param streamSpeakerRepository the repository for accessing and managing stream speaker data
-   * @param streamEventPublisher event publisher for emitting stream-related events
-   * @param streamSpeakerMapper mapper used to convert between stream speaker entities and DTOs
-   * @param unifiedMapper general-purpose mapper for consistent DTO transformation
-   * @param localizer utility for resolving localized messages and responses
-   */
   public StreamSpeakerServiceImpl(
       final MiscService miscService,
       final StreamOperationsService streamOperationsService,
@@ -91,7 +78,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       final StreamSpeakerRepository streamSpeakerRepository,
       final StreamEventPublisher streamEventPublisher,
       final StreamSpeakerMapperImpl streamSpeakerMapper,
-      final UnifiedMapper unifiedMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.miscService = miscService;
     this.streamOperationsService = streamOperationsService;
@@ -99,7 +86,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     this.streamSpeakerRepository = streamSpeakerRepository;
     this.streamEventPublisher = streamEventPublisher;
     this.streamSpeakerMapper = streamSpeakerMapper;
-    this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -112,21 +99,15 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   @Override
   public StreamSpeakerSearchResult findSpeakers(final Long streamId, final StreamSpeakerSearchRequest searchRequest, final RegisteredUser user) {
-    // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
-    // Extract the name, full name, username, or email address from the search request
+
     final String fullNameOrUsername = searchRequest.getUserIdOrName();
-    // Retrieve a paginated list of Member entities matching the search criteria
     final Page<StreamAttendeeInfoSelect> page = streamAttendeeOperationsService.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
-    // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponsesByProjection(page.getContent());
-    // Create the search result
+    final List<StreamSpeakerResponse> speakerResponses = streamUnifiedMapper.toStreamSpeakerResponsesByProjection(page.getContent());
+
     final SearchResult searchResult = toSearchResult(speakerResponses, page);
-    // Create the search result
     final StreamSpeakerSearchResult streamSpeakerSearchResult = StreamSpeakerSearchResult.of(searchResult);
-    // Return a search result with the responses and pagination details
     return localizer.of(streamSpeakerSearchResult);
   }
 
@@ -156,7 +137,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Filter out the organizer using a separate method
     final List<StreamSpeaker> filteredSpeakers = filterOutOrganizer(page.getContent(), stream.getOrganizerId());
     // Convert the retrieved StreamSpeaker entities to a set of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> speakerResponses = streamSpeakerMapper.toStreamSpeakerResponses(filteredSpeakers);
+    final List<StreamSpeakerResponse> speakerResponses = streamUnifiedMapper.toStreamSpeakerResponses(filteredSpeakers);
     // Create the search result
     final SearchResult searchResult = toSearchResult(speakerResponses, page);
     // Create the search result
@@ -188,11 +169,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   @Transactional
   public MarkAsStreamSpeakerResponse markAsSpeaker(final Long streamId, final MarkAsStreamSpeakerDto dto, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
-    // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Validate if the user is the creator of the stream
     stream.checkIsOrganizer(user.getId());
-    // Convert the DTO to a set of StreamSpeaker objects linked to the specified stream
+
     final Set<StreamSpeaker> speakers = dto.toStreamSpeakers(stream);
 
     // Validate that all attendee IDs associated with the speakers exist
@@ -211,11 +190,9 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Check if speakers are not already attendees and send invitations if needed
     checkIfSpeakerIsNotAnAttendeeAndSendInvitation(stream, speakers);
-    // Create the is a speaker information
-    final IsASpeakerInfo isASpeakerInfo = unifiedMapper.toIsASpeakerInfo(true);
-    // Create the response
+
+    final IsASpeakerInfo isASpeakerInfo = streamUnifiedMapper.toIsASpeakerInfo(true);
     final MarkAsStreamSpeakerResponse markResponse = MarkAsStreamSpeakerResponse.of(isASpeakerInfo);
-    // Create and return the response
     return localizer.of(markResponse);
   }
 
@@ -239,12 +216,10 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   @Transactional
   public UpdateStreamSpeakerResponse updateSpeakers(final Long streamId, final UpdateStreamSpeakerDto dto, final RegisteredUser user)
       throws StreamNotFoundException, StreamNotCreatedByUserException, FailedOperationException {
-    // Retrieve the stream with the given ID
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    // Validate if the user is the organizer of the stream
     stream.checkIsOrganizer(user.getId());
-    // Convert the DTOs to a set of StreamSpeakers, associating them with the specified stream
     final Set<StreamSpeaker> newSpeakers = dto.toStreamSpeakers(FleenStream.of(streamId));
+
     // Ensure all attendee IDs in the speakers are valid and exist
     checkIfNonNullAttendeeIdsExists(newSpeakers);
     // Process the speakers by checking for existing entries in the database
@@ -256,19 +231,15 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
     // Set the member id for each speaker
     setMemberIdsForSpeakers(updatedSpeakers);
-    // Check if the list or set of speakers is not empty
     if (!updatedSpeakers.isEmpty()) {
-      // Save the updated speakers to the repository
       streamSpeakerRepository.saveAll(updatedSpeakers);
     }
-    // Mark the speakers as attendees
+
     markAttendeesAsSpeaker(updatedSpeakers);
 
-    // Convert the retrieved Member entities to a list of StreamSpeakerResponse DTOs
-    final List<StreamSpeakerResponse> views = streamSpeakerMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
-    // Create the response
+    final List<StreamSpeakerResponse> views = streamUnifiedMapper.toStreamSpeakerResponses(new ArrayList<>(newSpeakers));
     final UpdateStreamSpeakerResponse updateStreamSpeakerResponse = UpdateStreamSpeakerResponse.of(views);
-    // Return a response indicating that the speakers have been successfully updated
+
     return localizer.of(updateStreamSpeakerResponse);
   }
 

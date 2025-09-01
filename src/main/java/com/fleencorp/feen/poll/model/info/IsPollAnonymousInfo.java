@@ -18,7 +18,7 @@ import lombok.Setter;
   "anonymous_text",
   "anonymous_other_text"
 })
-public class IsAnonymousInfo {
+public class IsPollAnonymousInfo {
 
   @JsonProperty("is_anonymous")
   private Boolean anonymous;
@@ -29,7 +29,7 @@ public class IsAnonymousInfo {
   @JsonProperty("anonymous_other_text")
   private String anonymousOtherText;
 
-  public static IsAnonymousInfo of(final Boolean anonymous, final String anonymousText, final String anonymousOtherText) {
-    return new IsAnonymousInfo(anonymous, anonymousText, anonymousOtherText);
+  public static IsPollAnonymousInfo of(final Boolean anonymous, final String anonymousText, final String anonymousOtherText) {
+    return new IsPollAnonymousInfo(anonymous, anonymousText, anonymousOtherText);
   }
 }

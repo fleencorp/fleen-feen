@@ -1,4 +1,4 @@
-package com.fleencorp.feen.stream.mapper.impl;
+package com.fleencorp.feen.stream.mapper.impl.stream;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
@@ -12,8 +12,10 @@ import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.stream.constant.IsForKids;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.common.MusicLinkType;
-import com.fleencorp.feen.stream.constant.core.*;
-import com.fleencorp.feen.stream.mapper.StreamMapper;
+import com.fleencorp.feen.stream.constant.core.StreamSource;
+import com.fleencorp.feen.stream.constant.core.StreamTimeType;
+import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
+import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
@@ -37,12 +39,15 @@ import static java.util.Objects.nonNull;
 public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
   private final ToInfoMapper toInfoMapper;
+  private final StreamInfoMapper streamInfoMapper;
 
   public StreamMapperImpl(
       final ToInfoMapper toInfoMapper,
+      final StreamInfoMapper streamInfoMapper,
       final MessageSource messageSource) {
     super(messageSource);
     this.toInfoMapper = toInfoMapper;
+    this.streamInfoMapper = streamInfoMapper;
   }
 
   /**
@@ -87,13 +92,13 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final Schedule schedule = Schedule.of(entry.getScheduledStartDate(), entry.getScheduledEndDate(), entry.getTimezone());
       response.setSchedule(schedule);
 
-      final AttendeeCountInfo attendeeCountInfo = toInfoMapper.toAttendeeCountInfo(entry.getTotalAttendees());
+      final AttendeeCountInfo attendeeCountInfo = streamInfoMapper.toAttendeeCountInfo(entry.getTotalAttendees());
       response.setAttendeeCountInfo(attendeeCountInfo);
 
-      final StreamStatusInfo streamStatusInfo = toStreamStatusInfo(entry.getStreamStatus());
+      final StreamStatusInfo streamStatusInfo = streamInfoMapper.toStreamStatusInfo(entry.getStreamStatus());
       response.setStreamStatusInfo(streamStatusInfo);
 
-      final StreamVisibilityInfo visibilityInfo = toStreamVisibilityInfo(entry.getStreamVisibility());
+      final StreamVisibilityInfo visibilityInfo = streamInfoMapper.toStreamVisibilityInfo(entry.getStreamVisibility());
       response.setStreamVisibilityInfo(visibilityInfo);
 
       final IsDeletedInfo deletedInfo = toInfoMapper.toIsDeletedInfo(entry.getDeleted());
@@ -112,7 +117,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final LinkMusicResponse linkMusicResponse = LinkMusicResponse.of(musicLink, musicLinkTypeInfo);
       response.setMusicLink(linkMusicResponse);
 
-      final StreamTypeInfo streamTypeInfo = toStreamTypeInfo(entry.getStreamType());
+      final StreamTypeInfo streamTypeInfo = streamInfoMapper.toStreamTypeInfo(entry.getStreamType());
       response.setStreamTypeInfo(streamTypeInfo);
 
       final StreamSource streamSource = entry.getStreamSource();
@@ -133,8 +138,8 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final JoinStatus joinStatus = JoinStatus.byStreamStatus(entry.isPrivateOrProtected());
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
 
-      final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(false);
-      final IsASpeakerInfo isASpeakerInfo = toInfoMapper.toIsASpeakerInfo(false);
+      final IsAttendingInfo isAttendingInfo = streamInfoMapper.toIsAttendingInfo(false);
+      final IsASpeakerInfo isASpeakerInfo = streamInfoMapper.toIsASpeakerInfo(false);
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = StreamAttendeeRequestToJoinStatusInfo.of();
 
       final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
@@ -158,8 +163,8 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
     if (nonNull(entry)) {
       final StreamResponse stream = toStreamResponse(entry);
 
-      final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(true);
-      final IsASpeakerInfo isASpeakerInfo = toInfoMapper.toIsASpeakerInfo(true);
+      final IsAttendingInfo isAttendingInfo = streamInfoMapper.toIsAttendingInfo(true);
+      final IsASpeakerInfo isASpeakerInfo = streamInfoMapper.toIsASpeakerInfo(true);
 
       final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
@@ -213,67 +218,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
   }
 
   /**
-   * Converts the given stream to its corresponding stream status information.
-   *
-   * @param streamStatus the status of the stream
-   * @return the stream status information, or {@code null} if the stream is {@code null}
-   */
-  @Override
-  public StreamStatusInfo toStreamStatusInfo(final StreamStatus streamStatus) {
-    if (nonNull(streamStatus)) {
-      return StreamStatusInfo.of(streamStatus, translate(streamStatus.getMessageCode()), translate(streamStatus.getMessageCode2()), translate(streamStatus.getMessageCode3()));
-    }
-    return null;
-  }
-
-  /**
-   * Converts a {@link FleenStream} to a {@link StreamVisibilityInfo}.
-   *
-   * <p>This method checks if the provided {@link FleenStream} is not null. If it is not, it retrieves
-   * the {@link StreamVisibility} associated with the stream and constructs a {@link StreamVisibilityInfo}
-   * by translating the message code from the {@link StreamVisibility}. If the stream is null, it returns null.</p>
-   *
-   * @param streamVisibility the visibility of the stream to be converted into a {@link StreamVisibilityInfo}
-   * @return a {@link StreamVisibilityInfo} containing the stream's visibility and translated message, or null if the stream is null
-   */
-  @Override
-  public StreamVisibilityInfo toStreamVisibilityInfo(final StreamVisibility streamVisibility) {
-    if (nonNull(streamVisibility)) {
-      return StreamVisibilityInfo.of(streamVisibility, translate(streamVisibility.getMessageCode()));
-    }
-    return null;
-  }
-
-  /**
-   * Converts the given FleenStreamResponse and StreamAttendeeRequestToJoinStatus
-   * to StreamAttendeeRequestToJoinStatusInfo.
-   *
-   * @param requestToJoinStatus the StreamAttendeeRequestToJoinStatus to be translated.
-   * @return the StreamAttendeeRequestToJoinStatusInfo object with translated message
-   * if both stream and requestToJoinStatus are non-null, otherwise null.
-   */
-  @Override
-  public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    if (nonNull(requestToJoinStatus)) {
-      return StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
-    }
-    return null;
-  }
-
-  /**
-   * Converts the given attendance status into an {@link IsAttendingInfo} object.
-   *
-   * <p>This method determines the appropriate message code based on the attendance status
-   * and translates it to a localized message.</p>
-   *
-   * @return an {@link IsAttendingInfo} object containing the attendance status and its corresponding localized message
-   */
-  @Override
-  public StreamTypeInfo toStreamTypeInfo(final StreamType streamType) {
-    return StreamTypeInfo.of(streamType, translate(streamType.getMessageCode()));
-  }
-
-  /**
    * Updates the stream response with the provided request-to-join status, join status, and attending status.
    *
    * @param stream the stream response object to be updated
@@ -284,10 +228,10 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
    */
   @Override
   public void update(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final JoinStatus joinStatus, final boolean isAttending, final boolean isASpeaker) {
-    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = toRequestToJoinStatusInfo(requestToJoinStatus);
-    final JoinStatusInfo joinStatusInfo = toInfoMapper.toJoinStatusInfo(joinStatus);
-    final IsAttendingInfo isAttendingInfo = toInfoMapper.toIsAttendingInfo(isAttending);
-    final IsASpeakerInfo isASpeakerInfo = toInfoMapper.toIsASpeakerInfo(isASpeaker);
+    final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = streamInfoMapper.toRequestToJoinStatusInfo(requestToJoinStatus);
+    final JoinStatusInfo joinStatusInfo = streamInfoMapper.toJoinStatusInfo(joinStatus);
+    final IsAttendingInfo isAttendingInfo = streamInfoMapper.toIsAttendingInfo(isAttending);
+    final IsASpeakerInfo isASpeakerInfo = streamInfoMapper.toIsASpeakerInfo(isASpeaker);
 
     final AttendanceInfo attendanceInfo = AttendanceInfo.of(requestToJoinStatusInfo, joinStatusInfo, isAttendingInfo, isASpeakerInfo);
     stream.setAttendanceInfo(attendanceInfo);

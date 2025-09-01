@@ -18,7 +18,7 @@ import lombok.Setter;
   "ended_text",
   "ended_text_2"
 })
-public class IsEndedInfo {
+public class PollIsEndedInfo {
 
   @JsonProperty("ended")
   private Boolean ended;
@@ -29,7 +29,7 @@ public class IsEndedInfo {
   @JsonProperty("ended_text_2")
   private String endedText2;
 
-  public static IsEndedInfo of(final Boolean ended, final String endedText, final String endedText2) {
-    return new IsEndedInfo(ended, endedText, endedText2);
+  public static PollIsEndedInfo of(final Boolean ended, final String endedText, final String endedText2) {
+    return new PollIsEndedInfo(ended, endedText, endedText2);
   }
 }

@@ -61,13 +61,13 @@ public class PollResponse extends FleenFeenResponse
   private LocalDateTime expiresAt;
 
   @JsonProperty("is_multiple_choice_info")
-  private IsMultipleChoiceInfo isMultipleChoiceInfo;
+  private IsPollMultipleChoiceInfo isPollMultipleChoiceInfo;
 
   @JsonProperty("is_anonymous_info")
-  private IsAnonymousInfo isAnonymousInfo;
+  private IsPollAnonymousInfo isPollAnonymousInfo;
 
   @JsonProperty("is_ended_info")
-  private IsEndedInfo isEndedInfo;
+  private PollIsEndedInfo pollIsEndedInfo;
 
   @JsonProperty("share_count_info")
   private ShareCountInfo shareCountInfo;

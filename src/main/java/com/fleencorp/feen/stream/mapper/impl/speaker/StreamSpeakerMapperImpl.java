@@ -13,18 +13,6 @@ import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
-/**
- * Utility class for mapping {@link StreamSpeaker} entities to {@link StreamSpeakerResponse} DTOs.
- *
- * <p>This class provides static methods to facilitate the conversion of {@code StreamSpeaker} entities into
- * their corresponding {@code StreamSpeakerResponse} representations. It is designed to be used as a helper
- * for transforming data between different layers of the application.</p>
- *
- * <p>All methods in this class are static and intended to be used in a stateless manner.</p>
- *
- * @author Yusuf Alamu Musa
- * @version 1.0
- */
 @Component
 public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
 

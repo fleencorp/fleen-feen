@@ -18,7 +18,7 @@ import lombok.Setter;
   "multiple_choice_text",
   "multiple_choice_other_text"
 })
-public class IsMultipleChoiceInfo {
+public class IsPollMultipleChoiceInfo {
 
   @JsonProperty("multiple_choice")
   private Boolean multipleChoice;
@@ -29,7 +29,7 @@ public class IsMultipleChoiceInfo {
   @JsonProperty("multiple_choice_other_text")
   private String multipleChoiceOtherText;
 
-  public static IsMultipleChoiceInfo of(final Boolean multipleChoice, final String multipleChoiceText, final String multipleChoiceOtherText) {
-    return new IsMultipleChoiceInfo(multipleChoice, multipleChoiceText, multipleChoiceOtherText);
+  public static IsPollMultipleChoiceInfo of(final Boolean multipleChoice, final String multipleChoiceText, final String multipleChoiceOtherText) {
+    return new IsPollMultipleChoiceInfo(multipleChoice, multipleChoiceText, multipleChoiceOtherText);
   }
 }

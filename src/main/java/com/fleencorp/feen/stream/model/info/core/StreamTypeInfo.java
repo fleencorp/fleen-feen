@@ -33,5 +33,9 @@ public class StreamTypeInfo {
   public static StreamTypeInfo of(final StreamType streamType, final String streamTypeText) {
     return new StreamTypeInfo(streamType, streamTypeText);
   }
+
+  public static StreamTypeInfo of() {
+    return new StreamTypeInfo();
+  }
 }
 
