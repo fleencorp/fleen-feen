@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
@@ -13,7 +12,6 @@ import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -100,7 +98,7 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     return hasParent() && parent.isStreamParent();
   }
 
-  public SoftAsk toSoftAsk(final IsAMember author, final String parentTitle, final SoftAskParentType parentType, final ChatSpace chatSpace, final FleenStream stream) {
+  public SoftAsk toSoftAsk(final IsAMember author, final String parentTitle, final SoftAskParentType parentType) {
     final SoftAskVisibility softAskVisibility = SoftAskVisibility.of(visibility);
     final SoftAskStatus softAskStatus = SoftAskStatus.of(status);
 
@@ -120,8 +118,11 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     softAsk.setParentTitle(parentTitle);
     softAsk.setSoftAskParentType(parentType);
 
-    softAsk.setChatSpaceId(getParentId());
-    softAsk.setStreamId(getParentId());
+    if (SoftAskParentType.isChatSpace(parentType)) {
+      softAsk.setChatSpaceId(getParentId());
+    } else if (SoftAskParentType.isStream(parentType)) {
+      softAsk.setStreamId(getParentId());
+    }
 
     softAsk.setLatitude(BigDecimal.valueOf(latitude));
     softAsk.setLongitude(BigDecimal.valueOf(longitude));
