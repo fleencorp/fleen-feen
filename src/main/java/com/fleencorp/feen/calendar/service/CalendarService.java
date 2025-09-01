@@ -6,7 +6,7 @@ import com.fleencorp.feen.calendar.model.dto.UpdateCalendarDto;
 import com.fleencorp.feen.calendar.model.request.search.CalendarSearchRequest;
 import com.fleencorp.feen.calendar.model.response.*;
 import com.fleencorp.feen.calendar.model.search.CalendarSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface CalendarService {
 

@@ -5,7 +5,7 @@ import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsExcep
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
 import com.fleencorp.feen.poll.model.response.PollUpdateResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface PollUpdateService {
 

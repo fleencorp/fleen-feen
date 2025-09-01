@@ -7,7 +7,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface BookmarkService {
 

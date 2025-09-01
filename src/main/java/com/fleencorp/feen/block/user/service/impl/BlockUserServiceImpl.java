@@ -14,7 +14,7 @@ import com.fleencorp.feen.common.constant.social.BlockStatus;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;

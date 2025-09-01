@@ -12,7 +12,7 @@ import com.fleencorp.feen.like.model.search.LikeSearchResult;
 import com.fleencorp.feen.like.repository.LikeSearchRepository;
 import com.fleencorp.feen.like.service.LikeSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

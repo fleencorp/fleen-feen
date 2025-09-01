@@ -10,7 +10,7 @@ import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface PollService {
 

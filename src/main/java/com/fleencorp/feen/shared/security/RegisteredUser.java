@@ -1,4 +1,4 @@
-package com.fleencorp.feen.user.model.security;
+package com.fleencorp.feen.shared.security;
 
 import com.fleencorp.base.util.StringUtil;
 import com.fleencorp.feen.mfa.constant.MfaType;

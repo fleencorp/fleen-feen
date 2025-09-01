@@ -25,7 +25,7 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.event.EventService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

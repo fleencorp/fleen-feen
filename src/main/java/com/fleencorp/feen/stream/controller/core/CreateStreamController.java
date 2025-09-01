@@ -13,7 +13,7 @@ import com.fleencorp.feen.stream.model.response.common.live.broadcast.DataForCre
 import com.fleencorp.feen.stream.service.common.LiveBroadcastService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

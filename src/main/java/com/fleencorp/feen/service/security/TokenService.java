@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.security;
 
 import com.fleencorp.feen.user.constant.authentication.AuthenticationStatus;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface TokenService {
 

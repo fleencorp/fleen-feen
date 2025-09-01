@@ -17,7 +17,7 @@ import com.fleencorp.feen.link.service.LinkSearchService;
 import com.fleencorp.feen.link.service.LinkService;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

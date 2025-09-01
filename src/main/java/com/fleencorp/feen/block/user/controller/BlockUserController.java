@@ -6,7 +6,7 @@ import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest
 import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
 import com.fleencorp.feen.block.user.model.search.BlockUserSearchResult;
 import com.fleencorp.feen.block.user.service.BlockUserService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

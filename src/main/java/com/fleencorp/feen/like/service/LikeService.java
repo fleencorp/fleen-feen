@@ -5,7 +5,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.like.model.dto.LikeDto;
 import com.fleencorp.feen.like.model.response.LikeCreateResponse;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface LikeService {
 

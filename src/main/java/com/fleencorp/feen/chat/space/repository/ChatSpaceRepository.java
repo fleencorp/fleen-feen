@@ -2,6 +2,7 @@ package com.fleencorp.feen.chat.space.repository;
 
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceStatus;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 
 public interface ChatSpaceRepository extends JpaRepository<ChatSpace, Long> {
+
+  IsAChatSpace findByChatSpaceId(Long chatSpaceId);
 
   @Query(value = "SELECT cs FROM ChatSpace cs WHERE cs.createdOn BETWEEN :startDate AND :endDate AND cs.status = :status ORDER BY cs.updatedOn DESC")
   Page<ChatSpace> findByDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("status") ChatSpaceStatus status,

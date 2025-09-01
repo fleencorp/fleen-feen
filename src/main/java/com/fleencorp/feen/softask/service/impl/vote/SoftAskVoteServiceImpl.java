@@ -19,7 +19,7 @@ import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

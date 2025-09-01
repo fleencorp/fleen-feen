@@ -20,7 +20,7 @@ import com.fleencorp.feen.user.model.request.profile.ProfileUpdateVerificationRe
 import com.fleencorp.feen.user.model.response.RemoveProfilePhotoResponse;
 import com.fleencorp.feen.user.model.response.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.repository.UserProfileRepository;
 import com.fleencorp.feen.user.service.authentication.PasswordService;

@@ -15,7 +15,7 @@ import com.fleencorp.feen.stream.model.response.attendance.JoinStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.RequestToJoinStreamResponse;
 import com.fleencorp.feen.stream.service.core.CommonStreamJoinService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

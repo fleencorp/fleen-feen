@@ -13,7 +13,7 @@ import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollUpdateService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -23,7 +23,7 @@ import com.fleencorp.feen.link.service.LinkSearchService;
 import com.fleencorp.feen.model.contract.HasLinks;
 import com.fleencorp.feen.stream.constant.common.MusicLinkType;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;

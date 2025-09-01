@@ -4,7 +4,7 @@ import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationExcept
 import com.fleencorp.feen.stream.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.stream.model.response.common.live.broadcast.DataForCreateLiveBroadcastResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface LiveBroadcastService {
 

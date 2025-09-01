@@ -4,7 +4,7 @@ import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.notification.model.response.ReadNotificationResponse;
 import com.fleencorp.feen.notification.model.search.NotificationSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface NotificationService {
 

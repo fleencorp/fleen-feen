@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.social.share.ExpectShareContactRequestR
 import com.fleencorp.feen.model.response.social.share.ProcessShareContactRequestResponse;
 import com.fleencorp.feen.model.response.social.share.SendShareContactRequestResponse;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ShareContactRequestService {
 

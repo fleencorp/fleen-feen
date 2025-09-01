@@ -10,7 +10,7 @@ import com.fleencorp.feen.business.model.search.BusinessSearchResult;
 import com.fleencorp.feen.business.repository.BusinessRepository;
 import com.fleencorp.feen.business.service.BusinessSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

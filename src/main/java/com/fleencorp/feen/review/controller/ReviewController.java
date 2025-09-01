@@ -10,7 +10,7 @@ import com.fleencorp.feen.review.model.response.ReviewDeleteResponse;
 import com.fleencorp.feen.review.model.response.ReviewUpdateResponse;
 import com.fleencorp.feen.review.service.ReviewService;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -14,7 +14,7 @@ import com.fleencorp.feen.model.response.security.InitiatePasswordChangeResponse
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.dto.authentication.*;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.verification.exception.core.*;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;

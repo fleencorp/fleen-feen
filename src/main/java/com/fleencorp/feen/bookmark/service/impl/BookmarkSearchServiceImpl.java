@@ -11,7 +11,7 @@ import com.fleencorp.feen.bookmark.model.search.BookmarkSearchResult;
 import com.fleencorp.feen.bookmark.repository.BookmarkSearchRepository;
 import com.fleencorp.feen.bookmark.service.BookmarkSearchService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

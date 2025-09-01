@@ -9,7 +9,7 @@ import com.fleencorp.feen.poll.model.search.ChatSpacePollSearchResult;
 import com.fleencorp.feen.poll.model.search.PollSearchResult;
 import com.fleencorp.feen.poll.model.search.StreamPollSearchResult;
 import com.fleencorp.feen.poll.service.PollSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

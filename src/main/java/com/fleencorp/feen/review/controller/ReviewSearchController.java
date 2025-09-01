@@ -6,7 +6,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.review.model.request.ReviewSearchRequest;
 import com.fleencorp.feen.review.model.search.ReviewSearchResult;
 import com.fleencorp.feen.review.service.ReviewSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

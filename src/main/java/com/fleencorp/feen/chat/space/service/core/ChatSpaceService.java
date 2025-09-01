@@ -13,7 +13,7 @@ import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceRespon
 import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ChatSpaceService {
 

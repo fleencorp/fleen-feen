@@ -11,7 +11,7 @@ import com.fleencorp.feen.notification.model.response.ReadNotificationResponse;
 import com.fleencorp.feen.notification.model.search.NotificationSearchResult;
 import com.fleencorp.feen.notification.repository.NotificationRepository;
 import com.fleencorp.feen.notification.service.NotificationService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Async;

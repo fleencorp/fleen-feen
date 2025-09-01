@@ -14,7 +14,7 @@ import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.poll.model.search.PollVoteSearchResult;
 import com.fleencorp.feen.poll.service.PollVoteService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

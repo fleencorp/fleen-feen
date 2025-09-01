@@ -1,7 +1,7 @@
 package com.fleencorp.feen.chat.space.service.core;
 
 import com.fleencorp.feen.chat.space.model.response.core.ChatSpaceResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 import java.util.List;
 

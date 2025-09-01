@@ -1,11 +1,11 @@
 package com.fleencorp.feen.softask.model.holder;
 
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.model.contract.HasTitle;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
+import com.fleencorp.feen.shared.stream.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 
-public record SoftAskParentDetailHolder(ChatSpace chatSpace, FleenStream stream, SoftAskParentType parentType) {
+public record SoftAskParentDetailHolder(IsAChatSpace chatSpace, IsAStream stream, SoftAskParentType parentType) {
 
   public String parentTitle() {
     return switch (parentType) {
@@ -15,11 +15,11 @@ public record SoftAskParentDetailHolder(ChatSpace chatSpace, FleenStream stream,
     };
   }
 
-  public static SoftAskParentDetailHolder of(final ChatSpace chatSpace, final FleenStream stream, final SoftAskParentType parentType) {
+  public static SoftAskParentDetailHolder of(final IsAChatSpace chatSpace, final IsAStream stream, final SoftAskParentType parentType) {
     return new SoftAskParentDetailHolder(chatSpace, stream, parentType);
   }
 
-  public static SoftAskParentDetailHolder of() {
+  public static SoftAskParentDetailHolder empty() {
     return new SoftAskParentDetailHolder(null, null, null);
   }
 }

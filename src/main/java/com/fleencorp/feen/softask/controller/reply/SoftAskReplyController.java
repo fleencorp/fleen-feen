@@ -9,7 +9,7 @@ import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyAddResponse;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyDeleteResponse;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

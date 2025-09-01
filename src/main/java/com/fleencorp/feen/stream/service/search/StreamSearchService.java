@@ -9,7 +9,7 @@ import com.fleencorp.feen.stream.model.response.statistic.TotalStreamsCreatedByU
 import com.fleencorp.feen.stream.model.search.common.StreamSearchResult;
 import com.fleencorp.feen.stream.model.search.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.stream.model.search.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface StreamSearchService {
 

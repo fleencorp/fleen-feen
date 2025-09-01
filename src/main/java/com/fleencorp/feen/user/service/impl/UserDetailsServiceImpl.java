@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.fleencorp.feen.user.model.security.RegisteredUser.fromMember;
+import static com.fleencorp.feen.shared.security.RegisteredUser.fromMember;
 
 /**
  * Implementation of the Spring Security UserDetailsService interface for loading user details by username.

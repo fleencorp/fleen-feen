@@ -25,7 +25,7 @@ import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;

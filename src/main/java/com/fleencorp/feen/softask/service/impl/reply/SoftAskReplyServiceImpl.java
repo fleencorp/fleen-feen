@@ -18,10 +18,10 @@ import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplyRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.user.service.member.MemberService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -33,25 +33,25 @@ import java.util.List;
 @Service
 public class SoftAskReplyServiceImpl implements SoftAskReplyService {
 
-  private final MemberService memberService;
   private final SoftAskCommonService softAskCommonService;
   private final SoftAskOperationService softAskOperationService;
+  private final SoftAskQueryService softAskQueryService;
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
 
   public SoftAskReplyServiceImpl(
-      final MemberService memberService,
       @Lazy final SoftAskCommonService softAskCommonService,
       final SoftAskOperationService softAskOperationService,
+      final SoftAskQueryService softAskQueryService,
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskSearchService softAskSearchService,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
-    this.memberService = memberService;
     this.softAskCommonService = softAskCommonService;
     this.softAskOperationService = softAskOperationService;
+    this.softAskQueryService = softAskQueryService;
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskSearchService = softAskSearchService;
     this.softAskMapper = softAskMapper;
@@ -78,7 +78,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
   @Override
   @Transactional
   public SoftAskReplyAddResponse addSoftAskReply(final AddSoftAskReplyDto addSoftAskReplyDto, final RegisteredUser user) {
-    final IsAMember author = memberService.findMember(user.getId());
+    final IsAMember author = softAskQueryService.findMemberOrThrow(user.getId());
     final Long softAskId = addSoftAskReplyDto.getSoftAskId();
     final Long softAskParentReplyId = addSoftAskReplyDto.getSoftAskParentReplyId();
 

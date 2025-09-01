@@ -11,7 +11,7 @@ import com.fleencorp.feen.poll.model.request.PollVoteSearchRequest;
 import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.poll.model.search.PollVoteSearchResult;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface PollVoteService {
 

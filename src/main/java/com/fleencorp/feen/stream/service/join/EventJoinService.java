@@ -10,7 +10,7 @@ import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.stream.model.response.common.AddNewStreamAttendeeResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface EventJoinService {
 

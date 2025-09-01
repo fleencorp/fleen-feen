@@ -26,7 +26,7 @@ import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import lombok.extern.slf4j.Slf4j;

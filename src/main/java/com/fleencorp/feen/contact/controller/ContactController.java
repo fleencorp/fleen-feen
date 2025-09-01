@@ -10,7 +10,7 @@ import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.contact.service.ContactService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

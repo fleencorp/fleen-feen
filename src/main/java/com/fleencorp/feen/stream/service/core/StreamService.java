@@ -8,7 +8,7 @@ import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.stream.model.response.common.DataForRescheduleStreamResponse;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface StreamService {
 

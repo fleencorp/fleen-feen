@@ -5,7 +5,7 @@ import com.fleencorp.feen.block.user.model.request.search.BlockUserSearchRequest
 import com.fleencorp.feen.block.user.model.response.BlockUserStatusResponse;
 import com.fleencorp.feen.block.user.model.search.BlockUserSearchResult;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface BlockUserService {
 

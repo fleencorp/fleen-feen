@@ -7,7 +7,7 @@ import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskRetrieveResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

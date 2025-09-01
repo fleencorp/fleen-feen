@@ -1,10 +1,10 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.stream.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -18,42 +18,34 @@ import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
-import com.fleencorp.feen.user.service.member.MemberService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SoftAskServiceImpl implements SoftAskService {
-  
-  private final ChatSpaceOperationsService chatSpaceOperationsService;
-  private final MemberService memberService;
-  private final StreamOperationsService streamOperationsService;
+
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskOperationService softAskOperationService;
+  private final SoftAskQueryService softAskQueryService;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
   
   public SoftAskServiceImpl(
-      final ChatSpaceOperationsService chatSpaceOperationsService,
-      final MemberService memberService,
       final SoftAskOperationService softAskOperationService,
-      final StreamOperationsService streamOperationsService,
       final SoftAskSearchService softAskSearchService,
+      final SoftAskQueryService softAskQueryService,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
-    this.chatSpaceOperationsService = chatSpaceOperationsService;
-    this.memberService = memberService;
     this.softAskOperationService = softAskOperationService;
     this.softAskSearchService = softAskSearchService;
-    this.streamOperationsService = streamOperationsService;
+    this.softAskQueryService = softAskQueryService;
     this.softAskMapper = softAskMapper;
     this.localizer = localizer;
   }
@@ -76,15 +68,13 @@ public class SoftAskServiceImpl implements SoftAskService {
   @Transactional
   public SoftAskAddResponse addSoftAsk(final AddSoftAskDto addSoftAskDto, final RegisteredUser user)
       throws MemberNotFoundException, StreamNotFoundException, ChatSpaceNotFoundException {
-    final IsAMember member = memberService.findMember(user.getId());
+    final IsAMember member = softAskQueryService.findMemberOrThrow(user.getId());
 
     final SoftAskParentDetailHolder softAskParentDetailHolder = findAndValidateParent(addSoftAskDto);
     final SoftAskParentType parentType = softAskParentDetailHolder.parentType();
     final String parentTitle = softAskParentDetailHolder.parentTitle();
-    final ChatSpace chatSpace = softAskParentDetailHolder.chatSpace();
-    final FleenStream stream = softAskParentDetailHolder.stream();
 
-    final SoftAsk softAsk = addSoftAskDto.toSoftAsk(member, parentTitle, parentType, chatSpace, stream);
+    final SoftAsk softAsk = addSoftAskDto.toSoftAsk(member, parentTitle, parentType);
     softAskOperationService.save(softAsk);
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
 
@@ -101,7 +91,7 @@ public class SoftAskServiceImpl implements SoftAskService {
    *
    * <p>The method checks whether the given {@link AddSoftAskDto} specifies a parent. If no parent is provided,
    * an empty {@link SoftAskParentDetailHolder} is returned. If a parent is specified, the method retrieves the
-   * parent {@link ChatSpace} or {@link FleenStream} based on the parent type, and returns a detail holder
+   * parent {@link IsAChatSpace} or {@link IsAStream} based on the parent type, and returns a detail holder
    * containing the resolved entities and type information.</p>
    *
    * @param addSoftAskDto the DTO containing details of the soft ask and its potential parent
@@ -114,12 +104,13 @@ public class SoftAskServiceImpl implements SoftAskService {
       throws MemberNotFoundException, ChatSpaceNotFoundException, StreamNotFoundException {
 
     if (addSoftAskDto.hasNoParent()) {
-      return SoftAskParentDetailHolder.of();
+      return SoftAskParentDetailHolder.empty();
     }
 
     final Long parentId = addSoftAskDto.getParentId();
-    final ChatSpace chatSpace = addSoftAskDto.isChatSpaceParent() ? chatSpaceOperationsService.findChatSpace(parentId) : null;
-    final FleenStream stream = addSoftAskDto.isStreamParent() ? streamOperationsService.findStream(parentId) : null;
+
+    IsAChatSpace chatSpace = addSoftAskDto.isChatSpaceParent() ? softAskQueryService.findChatSpaceOrThrow(parentId) : null;
+    IsAStream stream = addSoftAskDto.isStreamParent() ? softAskQueryService.findStreamOrThrow(parentId) : null;
 
     return SoftAskParentDetailHolder.of(chatSpace, stream, addSoftAskDto.getParentType());
   }

@@ -7,7 +7,7 @@ import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
 import com.fleencorp.feen.poll.model.response.PollUpdateResponse;
 import com.fleencorp.feen.poll.service.PollUpdateService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

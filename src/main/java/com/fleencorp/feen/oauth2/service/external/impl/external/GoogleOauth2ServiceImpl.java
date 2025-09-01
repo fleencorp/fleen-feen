@@ -20,7 +20,7 @@ import com.fleencorp.feen.oauth2.model.response.base.Oauth2AuthorizationResponse
 import com.fleencorp.feen.oauth2.repository.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;

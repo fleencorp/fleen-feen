@@ -16,7 +16,7 @@ import com.fleencorp.feen.chat.space.model.response.membership.ProcessRequestToJ
 import com.fleencorp.feen.chat.space.model.response.membership.RequestToJoinChatSpaceResponse;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ChatSpaceJoinService {
 

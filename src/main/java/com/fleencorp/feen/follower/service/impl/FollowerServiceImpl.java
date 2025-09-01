@@ -25,7 +25,7 @@ import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.user.model.response.UserResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

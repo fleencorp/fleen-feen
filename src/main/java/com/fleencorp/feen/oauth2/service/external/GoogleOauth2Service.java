@@ -5,7 +5,7 @@ import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.model.request.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.oauth2.model.response.CompletedOauth2AuthorizationResponse;
 import com.fleencorp.feen.oauth2.model.response.StartOauth2AuthorizationResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface GoogleOauth2Service {
 

@@ -40,7 +40,7 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.CommonStreamJoinService;
 import com.fleencorp.feen.stream.service.core.StreamService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

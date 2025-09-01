@@ -7,7 +7,7 @@ import com.fleencorp.feen.mfa.model.dto.SetupMfaDto;
 import com.fleencorp.feen.mfa.model.response.*;
 import com.fleencorp.feen.mfa.service.MfaService;
 import com.fleencorp.feen.model.response.authentication.SignInResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.verification.service.VerificationService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;

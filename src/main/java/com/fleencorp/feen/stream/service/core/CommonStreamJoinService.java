@@ -18,7 +18,7 @@ import com.fleencorp.feen.stream.model.response.attendance.JoinStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.ProcessAttendeeRequestToJoinStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.RequestToJoinStreamResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface CommonStreamJoinService {
 

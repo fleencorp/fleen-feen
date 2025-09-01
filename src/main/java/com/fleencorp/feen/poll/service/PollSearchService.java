@@ -7,7 +7,7 @@ import com.fleencorp.feen.poll.model.response.PollRetrieveResponse;
 import com.fleencorp.feen.poll.model.search.ChatSpacePollSearchResult;
 import com.fleencorp.feen.poll.model.search.PollSearchResult;
 import com.fleencorp.feen.poll.model.search.StreamPollSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface PollSearchService {
 

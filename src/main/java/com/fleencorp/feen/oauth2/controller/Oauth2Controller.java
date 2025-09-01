@@ -5,7 +5,7 @@ import com.fleencorp.feen.oauth2.model.request.Oauth2AuthenticationRequest;
 import com.fleencorp.feen.oauth2.model.response.CompletedOauth2AuthorizationResponse;
 import com.fleencorp.feen.oauth2.model.response.StartOauth2AuthorizationResponse;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

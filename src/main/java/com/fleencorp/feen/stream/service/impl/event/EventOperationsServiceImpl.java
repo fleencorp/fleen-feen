@@ -24,7 +24,7 @@ import com.fleencorp.feen.stream.service.event.EventService;
 import com.fleencorp.feen.stream.service.event.EventUpdateService;
 import com.fleencorp.feen.stream.service.event.OtherEventUpdateService;
 import com.fleencorp.feen.stream.service.join.EventJoinService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.stereotype.Service;
 
 @Service

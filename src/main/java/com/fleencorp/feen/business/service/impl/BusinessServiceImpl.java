@@ -14,7 +14,7 @@ import com.fleencorp.feen.business.model.response.core.BusinessResponse;
 import com.fleencorp.feen.business.repository.BusinessRepository;
 import com.fleencorp.feen.business.service.BusinessSearchService;
 import com.fleencorp.feen.business.service.BusinessService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

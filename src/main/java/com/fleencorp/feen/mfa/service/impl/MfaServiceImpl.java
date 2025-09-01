@@ -23,7 +23,7 @@ import com.fleencorp.feen.mfa.model.response.SetupMfaResponse;
 import com.fleencorp.feen.mfa.repository.MfaRepository;
 import com.fleencorp.feen.mfa.service.MfaService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.verification.constant.VerificationType;
 import com.fleencorp.feen.verification.exception.core.ExpiredVerificationCodeException;

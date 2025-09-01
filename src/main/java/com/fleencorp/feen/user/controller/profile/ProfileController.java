@@ -7,7 +7,7 @@ import com.fleencorp.feen.user.model.response.read.RetrieveMemberInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveMemberUpdateInfoResponse;
 import com.fleencorp.feen.user.model.response.read.RetrieveProfileStatusResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.feen.user.service.member.MemberUpdateService;
 import jakarta.validation.Valid;

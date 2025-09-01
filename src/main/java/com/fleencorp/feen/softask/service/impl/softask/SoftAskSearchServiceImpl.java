@@ -17,7 +17,7 @@ import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskSearchRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;

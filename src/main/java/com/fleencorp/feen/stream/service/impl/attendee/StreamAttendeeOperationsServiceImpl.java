@@ -21,7 +21,7 @@ import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsServic
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.update.StreamAttendeeUpdateService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

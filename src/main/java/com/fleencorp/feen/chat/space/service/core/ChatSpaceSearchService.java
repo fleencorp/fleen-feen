@@ -8,7 +8,7 @@ import com.fleencorp.feen.chat.space.model.search.core.ChatSpaceSearchResult;
 import com.fleencorp.feen.chat.space.model.search.core.RemovedMemberSearchResult;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.chat.space.model.search.mutual.MutualChatSpaceMembershipSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ChatSpaceSearchService {
 

@@ -15,7 +15,7 @@ import com.fleencorp.feen.softask.model.search.SoftAskVoteSearchResult;
 import com.fleencorp.feen.softask.repository.vote.SoftAskVoteSearchRepository;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -8,7 +8,7 @@ import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.stream.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.stream.model.response.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface EventService {
 

@@ -8,57 +8,31 @@ public interface IsAMember {
 
   Long getMemberId();
 
-  default String getUsername() {
-    return null;
-  }
+  String getUsername();
 
-  default String getEmailAddress() {
-    return null;
-  }
+  String getEmailAddress();
 
-  default String getFirstName() {
-    return null;
-  }
+  String getFirstName();
 
-  default String getLastName() {
-    return null;
-  }
+  String getLastName();
 
-  default String getFullName() {
-    return null;
-  }
+  String getFullName();
 
-  default String getPhoneNumber() {
-    return null;
-  }
+  String getPhoneNumber();
 
-  default ProfileStatus getProfileStatus() {
-    return null;
-  }
+  ProfileStatus getProfileStatus();
 
-  default ProfileVerificationStatus getVerificationStatus() {
-    return null;
-  }
+  ProfileVerificationStatus getVerificationStatus();
 
-  default String getTimezone() {
-    return null;
-  }
+  String getTimezone();
 
-  default boolean isMfaEnabled() {
-    return false;
-  }
+  boolean isMfaEnabled();
 
-  default MfaType getMfaType() {
-    return null;
-  }
+  MfaType getMfaType();
 
-  default String getCountry() {
-    return null;
-  }
+  String getCountry();
 
-  default String getPassword() {
-    return null;
-  }
+  String getPassword();
 
   void setMemberId(Long memberId);
 

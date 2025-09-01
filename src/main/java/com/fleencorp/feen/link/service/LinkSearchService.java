@@ -6,7 +6,7 @@ import com.fleencorp.feen.link.model.response.availability.GetAvailableLinkTypeR
 import com.fleencorp.feen.link.model.response.availability.GetAvailableMusicLinkTypeResponse;
 import com.fleencorp.feen.link.model.search.LinkSearchResult;
 import com.fleencorp.feen.model.contract.HasLinks;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface LinkSearchService {
 

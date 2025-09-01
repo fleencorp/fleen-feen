@@ -7,7 +7,7 @@ import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.common.UpdateSoftAskContentDto;
 import com.fleencorp.feen.softask.model.response.common.SoftAskContentUpdateResponse;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

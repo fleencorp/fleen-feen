@@ -9,7 +9,7 @@ import com.fleencorp.feen.business.model.dto.UpdateBusinessDto;
 import com.fleencorp.feen.business.model.response.BusinessAddResponse;
 import com.fleencorp.feen.business.model.response.BusinessDeleteResponse;
 import com.fleencorp.feen.business.model.response.BusinessUpdateResponse;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface BusinessService {
 

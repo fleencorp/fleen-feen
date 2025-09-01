@@ -10,7 +10,7 @@ import com.fleencorp.feen.business.model.response.BusinessDeleteResponse;
 import com.fleencorp.feen.business.model.response.BusinessUpdateResponse;
 import com.fleencorp.feen.business.service.BusinessService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

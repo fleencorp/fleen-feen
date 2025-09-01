@@ -30,7 +30,7 @@ import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

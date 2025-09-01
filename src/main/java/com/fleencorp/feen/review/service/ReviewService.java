@@ -9,7 +9,7 @@ import com.fleencorp.feen.review.model.response.ReviewAddResponse;
 import com.fleencorp.feen.review.model.response.ReviewDeleteResponse;
 import com.fleencorp.feen.review.model.response.ReviewUpdateResponse;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ReviewService {
 

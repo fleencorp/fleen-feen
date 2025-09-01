@@ -4,7 +4,7 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.business.model.request.search.BusinessSearchRequest;
 import com.fleencorp.feen.business.model.search.BusinessSearchResult;
 import com.fleencorp.feen.business.service.BusinessSearchService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

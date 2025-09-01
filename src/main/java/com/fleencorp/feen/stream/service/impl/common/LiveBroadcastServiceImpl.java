@@ -19,7 +19,7 @@ import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.core.StreamRequestService;
 import com.fleencorp.feen.stream.service.external.YouTubeChannelService;
 import com.fleencorp.feen.stream.service.impl.update.LiveBroadcastUpdateService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;

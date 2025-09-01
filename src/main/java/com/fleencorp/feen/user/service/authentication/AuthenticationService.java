@@ -12,7 +12,7 @@ import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
 import com.fleencorp.feen.user.model.dto.authentication.SignUpDto;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.verification.constant.VerificationType;
 
 public interface AuthenticationService {

@@ -10,7 +10,7 @@ import com.fleencorp.feen.contact.model.response.ContactUpdateResponse;
 import com.fleencorp.feen.contact.model.response.GetAvailableContactTypeResponse;
 import com.fleencorp.feen.contact.model.search.ContactSearchResult;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface ContactService {
 

@@ -34,7 +34,7 @@ import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
 import com.fleencorp.feen.user.model.dto.authentication.SignUpDto;
 import com.fleencorp.feen.user.model.request.authentication.SignUpVerificationRequest;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.service.authentication.AuthenticationService;
 import com.fleencorp.feen.user.service.authentication.PasswordService;

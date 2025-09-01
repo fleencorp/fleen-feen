@@ -14,14 +14,14 @@ import java.util.Collection;
 
 public interface ChatSpaceOperationsService {
 
-  ChatSpace findChatSpace(Long chatSpaceId);
-
-  ChatSpace findChatSpaceAndVerifyAdmin(Long chatSpaceId, Member member);
-
   boolean checkIsAdmin(ChatSpace chatSpace, Member member);
 
   void verifyCreatorOrAdminOfChatSpace(ChatSpace chatSpace, Member member)
     throws FailedOperationException, ChatSpaceNotAnAdminException;
+
+  ChatSpace findChatSpace(Long chatSpaceId);
+
+  ChatSpace findChatSpaceAndVerifyAdmin(Long chatSpaceId, Member member);
 
   Page<ChatSpace> findCommonChatSpaces(
     Long memberAId,

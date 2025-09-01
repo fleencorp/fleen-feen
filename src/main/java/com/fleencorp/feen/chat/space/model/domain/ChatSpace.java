@@ -11,6 +11,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.link.model.domain.Link;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,7 +33,7 @@ import static java.util.Objects.nonNull;
 @Entity
 @Table(name = "chat_space")
 public class ChatSpace extends FleenFeenEntity
-  implements HasTitle {
+  implements HasTitle, IsAChatSpace {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)

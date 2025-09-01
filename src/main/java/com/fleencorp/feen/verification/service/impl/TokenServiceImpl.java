@@ -4,7 +4,7 @@ import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.configuration.security.properties.TokenDurationProperties;
 import com.fleencorp.feen.service.security.TokenService;
 import com.fleencorp.feen.user.constant.authentication.AuthenticationStatus;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.util.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

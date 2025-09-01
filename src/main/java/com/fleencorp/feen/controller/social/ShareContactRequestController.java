@@ -11,7 +11,7 @@ import com.fleencorp.feen.model.response.social.share.ProcessShareContactRequest
 import com.fleencorp.feen.model.response.social.share.SendShareContactRequestResponse;
 import com.fleencorp.feen.model.search.social.share.contact.ShareContactRequestSearchResult;
 import com.fleencorp.feen.service.social.ShareContactRequestService;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

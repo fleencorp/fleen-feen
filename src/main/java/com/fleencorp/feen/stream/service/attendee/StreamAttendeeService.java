@@ -9,7 +9,7 @@ import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchReques
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.user.model.security.RegisteredUser;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 
 import java.util.Collection;
 import java.util.Optional;
