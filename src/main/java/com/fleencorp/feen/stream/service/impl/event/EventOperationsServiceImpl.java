@@ -6,6 +6,8 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEven
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
@@ -24,7 +26,6 @@ import com.fleencorp.feen.stream.service.event.EventService;
 import com.fleencorp.feen.stream.service.event.EventUpdateService;
 import com.fleencorp.feen.stream.service.event.OtherEventUpdateService;
 import com.fleencorp.feen.stream.service.join.EventJoinService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,12 +63,12 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(final String calendarExternalId, final FleenStream stream, final StreamVisibility previousStreamVisibility) throws FailedOperationException {
+  public void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(final String calendarExternalId, final IsAStream stream, final StreamVisibility previousStreamVisibility) throws FailedOperationException {
     eventService.sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(calendarExternalId, stream, previousStreamVisibility);
   }
 
   @Override
-  public void createEventInGoogleCalendar(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+  public void createEventInGoogleCalendar(final IsAStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     otherEventUpdateService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
   }
 
@@ -87,17 +88,17 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public void createEventInGoogleCalendarAndAnnounceInSpace(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+  public void createEventInGoogleCalendarAndAnnounceInSpace(final IsAStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     eventUpdateService.createEventInGoogleCalendarAndAnnounceInSpace(stream, createCalendarEventRequest);
   }
 
   @Override
-  public void createInstantEventInGoogleCalendar(final FleenStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
+  public void createInstantEventInGoogleCalendar(final IsAStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     eventUpdateService.createInstantEventInGoogleCalendar(stream, createInstantCalendarEventRequest);
   }
 
   @Override
-  public void updateEventInGoogleCalendar(final FleenStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
+  public void updateEventInGoogleCalendar(final IsAStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
     eventUpdateService.updateEventInGoogleCalendar(stream, patchCalendarEventRequest);
   }
 

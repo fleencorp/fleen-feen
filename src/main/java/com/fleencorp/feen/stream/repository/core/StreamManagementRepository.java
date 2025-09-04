@@ -37,4 +37,16 @@ public interface StreamManagementRepository extends JpaRepository<FleenStream, L
 
   @Query(value = "SELECT bookmark_count FROM stream WHERE stream_id = :streamId", nativeQuery = true)
   Integer getBookmarkCount(@Param("streamId") Long streamId);
+
+  @Modifying
+  @Query(value = "UPDATE stream SET external_id = :externalId WHERE stream_id = :streamId", nativeQuery = true)
+  void updateExternalId(@Param("streamId") Long streamId, @Param("externalId") String externalId);
+
+  @Modifying
+  @Query(value = "UPDATE stream SET external_id = :externalId, stream_link = :streamLink WHERE stream_id = :streamId", nativeQuery = true)
+  void updateExternalIdAndLink(
+    @Param("streamId") Long streamId,
+    @Param("externalId") String externalId,
+    @Param("streamLink") String streamLink
+  );
 }

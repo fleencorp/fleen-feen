@@ -9,11 +9,11 @@ import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
-import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.event.CreateEventDto;
 import com.fleencorp.feen.stream.model.dto.event.CreateEventDto.EventAttendeeOrGuest;
 import com.fleencorp.feen.stream.model.dto.event.CreateInstantEventDto;
@@ -43,8 +43,6 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.getAvailableTimezones;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.APPROVED;
 import static com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus.PENDING;
-import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.getAttendeeIds;
-import static com.fleencorp.feen.stream.service.impl.attendee.StreamAttendeeServiceImpl.getAttendeesEmailAddresses;
 
 /**
  * Implementation of the EventService interface.
@@ -141,7 +139,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Increase attendees count, save the event
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
     // Create and build the request to create an event
     final ExternalStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, user.getEmailAddress(), createEventDto);
     // Create and add event in Calendar through external service
@@ -237,7 +235,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
     // Increase attendees count, save the event and and add the event in Google Calendar
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the event as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
     // Save stream and create event in Google Calendar Event Service externally
     stream = streamOperationsService.save(stream);
     // Create and build the create stream request to be use for external purpose
@@ -290,7 +288,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    */
   @Override
   @Async
-  public void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(final String calendarExternalId, final FleenStream stream, final StreamVisibility previousStreamVisibility)
+  public void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(final String calendarExternalId, final IsAStream stream, final StreamVisibility previousStreamVisibility)
     throws FailedOperationException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, previousStreamVisibility), FailedOperationException::new);
@@ -314,14 +312,13 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param calendarExternalId the external ID of the calendar associated with the stream
    * @param stream the stream for which the pending attendees are being processed
    */
-  protected void processPendingAttendees(final String calendarExternalId, final FleenStream stream) {
+  protected void processPendingAttendees(final String calendarExternalId, final IsAStream stream) {
     // Retrieve all pending attendees for the specified stream
-    final List<StreamAttendee> pendingAttendees = streamAttendeeOperationsService.findAllByStreamAndRequestToJoinStatus(stream, PENDING);
+    final List<IsAttendee> pendingAttendees = streamAttendeeOperationsService.findAllByStreamAndRequestToJoinStatus(stream, PENDING);
     // Extract email addresses and IDs of the pending attendees or guests
-    final Set<String> attendeesOrGuestsEmailAddresses = getAttendeesEmailAddresses(pendingAttendees);
+    final Set<String> attendeesOrGuestsEmailAddresses = IsAttendee.getAttendeesEmailAddresses(pendingAttendees);
     // Extract the attendee IDS from pending attendees
-    final Set<Long> attendeeIds = getAttendeeIds(pendingAttendees);
-
+    final Set<Long> attendeeIds = IsAttendee.getAttendeeIds(pendingAttendees);
     // Approve all pending requests
     streamAttendeeOperationsService.approveAllAttendeeRequestInvitation(APPROVED, new ArrayList<>(attendeeIds));
     // Add attendees to the calendar event
@@ -339,7 +336,7 @@ public class EventServiceImpl implements EventService, StreamRequestService {
    * @param stream the stream to which the new attendees are being added
    * @param attendeesOrGuestsEmailAddresses the email addresses of the attendees or guests to be added
    */
-  protected void addNewAttendeesToCalendar(final String calendarExternalId, final FleenStream stream, final Set<String> attendeesOrGuestsEmailAddresses) {
+  protected void addNewAttendeesToCalendar(final String calendarExternalId, final IsAStream stream, final Set<String> attendeesOrGuestsEmailAddresses) {
     // Create an event object containing the details of the attendees to be added
     final AddCalendarEventAttendeesEvent addAttendeesEvent = AddCalendarEventAttendeesEvent.of(
       calendarExternalId,

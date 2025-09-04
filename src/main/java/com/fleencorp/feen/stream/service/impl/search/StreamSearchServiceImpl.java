@@ -124,7 +124,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   public StreamSearchResult findStreamsPublic(final StreamSearchRequest searchRequest, final StreamTimeType streamTimeType) {
     final Page<FleenStream> page = findByStreamTimeType(searchRequest, streamTimeType);
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
 
     return processStreamsCreatedByUserOrAttendedByUserOrAttendedWithAnotherUser(streamResponses, page, searchRequest);
   }
@@ -177,7 +177,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
   @Override
   public StreamSearchResult findMyStreams(final StreamSearchRequest searchRequest, final RegisteredUser user) {
     final Page<FleenStream> page = findMyStreams(searchRequest, user.toMember());
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
 
     return processStreamsAndReturn(streamResponses, searchRequest, user.toMember(), page);
   }
@@ -198,7 +198,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     member = memberQueryService.findMemberOrThrow(member.getMemberId());
 
     final Page<FleenStream> page = findMyStreams(searchRequest, member);
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
     final StreamSearchResult streamSearchResult = processStreamsAndReturn(streamResponses, searchRequest, member, page);
     final UserCreatedStreamsSearchResult userCreatedStreamsSearchResult = UserCreatedStreamsSearchResult.of(streamSearchResult.getResult(), member.getFullName());
 
@@ -266,7 +266,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final Member member = user.toMember();
     final Page<FleenStream> page = findStreamsAttendedByUser(searchRequest, member);
     // Convert the streams to response views
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
     // Create and return the search result
     return processStreamsAndReturn(streamResponses, searchRequest, user.toMember(), page);
   }
@@ -330,7 +330,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       page = streamQueryService.findStreamsAttendedTogether(member, anotherMember, pageable);
     }
 
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
     final StreamSearchResult streamSearchResult = processStreamsAndReturn(streamResponses, searchRequest, member, page);
     final MutualStreamAttendanceSearchResult mutualStreamAttendanceSearchResult = MutualStreamAttendanceSearchResult.of(streamSearchResult.getResult(), member.getFullName());
 
@@ -421,6 +421,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
     final Collection<StreamAttendeeResponse> attendeesGoingToStream = streamAttendeeOperationsService.getAttendeesGoingToStream(streamResponse);
 
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
+
     final int totalAttendees = streamAttendeeOperationsService.countByStreamAndRequestToJoinStatusAndAttending(stream, APPROVED, true);
     final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
     final RetrieveStreamResponse retrieveStreamResponse = RetrieveStreamResponse.of(streamId, streamResponse, attendeesGoingToStream, totalAttendees, streamTypeInfo);
@@ -441,7 +442,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a response containing the total number of streams created by the user, along with stream type information
    */
   public TotalStreamsCreatedByUserResponse countTotalStreamsByUser(final StreamTypeSearchRequest searchRequest, final RegisteredUser user) {
-    final Member member = user.toMember();
+    final IsAMember member = user.toMember();
     final StreamType streamType = searchRequest.getStreamType();
 
     // Count the attendance by the user
@@ -469,7 +470,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
    * @return a response containing the total number of streams attended by the user, along with stream type information
    */
   public TotalStreamsAttendedByUserResponse countTotalStreamsAttendedByUser(final StreamTypeSearchRequest searchRequest, final RegisteredUser user) {
-    final Member member = user.toMember();
+    final IsAMember member = user.toMember();
     final StreamType streamType = searchRequest.getStreamType();
 
     // Count the attendance by the user
@@ -509,7 +510,7 @@ public class StreamSearchServiceImpl implements StreamSearchService {
       page = streamQueryService.findMany(StreamStatus.ACTIVE, pageable);
     }
 
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
     return StreamResponsesAndPage.of(streamResponses, page);
   }
 

@@ -3,10 +3,10 @@ package com.fleencorp.feen.stream.mapper.impl.common;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.mapper.common.StreamCommonMapper;
 import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
@@ -65,13 +65,13 @@ public class StreamCommonMapperImpl extends BaseMapper implements StreamCommonMa
    * If the attendee does not exist, the method returns null.
    *
    * @param stream The {@link StreamResponse} containing the stream details.
-   * @param attendee the {@link StreamAttendee} of the stream
+   * @param attendee the {@link IsAttendee} of the stream
    *
    * @return A {@link ProcessAttendeeRequestToJoinStreamResponse} populated with stream details
    *         and the request to join status if the attendee exists, or null if no attendee is found.
    */
   @Override
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final StreamResponse stream, final StreamAttendee attendee) {
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(final StreamResponse stream, final IsAttendee attendee) {
     if (nonNull(stream) && nonNull(attendee)) {
       final StreamAttendeeRequestToJoinStatus requestToJoinStatus = attendee.getRequestToJoinStatus();
       final StreamTypeInfo streamTypeInfo = streamInfoMapper.toStreamTypeInfo(stream.getStreamType());

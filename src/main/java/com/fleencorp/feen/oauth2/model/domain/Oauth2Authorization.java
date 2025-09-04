@@ -4,12 +4,13 @@ import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.constant.Oauth2Source;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.isNull;
 
@@ -51,14 +52,12 @@ public class Oauth2Authorization extends FleenFeenEntity {
   @Column(name = "oauth2_source", updatable = false, nullable = false)
   private Oauth2Source oauth2Source;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member member;
+  @Column(name = "member_id", updatable = false)
+  private Long memberId;
 
-  public static Oauth2Authorization of(final Member member) {
+  public static Oauth2Authorization of(final Long memberId) {
     final Oauth2Authorization oauth2Authorization = new Oauth2Authorization();
-    oauth2Authorization.setMember(member);
+    oauth2Authorization.setMemberId(memberId);
 
     return oauth2Authorization;
   }

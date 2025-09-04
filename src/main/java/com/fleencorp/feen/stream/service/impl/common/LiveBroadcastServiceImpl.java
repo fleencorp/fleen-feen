@@ -7,7 +7,6 @@ import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
-import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.livebroadcast.CreateLiveBroadcastDto;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
@@ -113,7 +112,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
     // Increase attendees count, save the live broadcast and and add the stream in YouTube Live Stream
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
     // Register the organizer of the live broadcast as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
     // Create and build the request to create a live broadcast
     final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(oauth2Authorization, stream, stream.getStreamType(), createLiveBroadcastDto);
     // Create and add live broadcast or stream in external service
@@ -157,7 +156,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
-    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
+    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
   }
 
 }

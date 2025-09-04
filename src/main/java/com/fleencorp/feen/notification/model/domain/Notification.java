@@ -1,15 +1,11 @@
 package com.fleencorp.feen.notification.model.domain;
 
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
 import com.fleencorp.feen.contact.constant.ContactType;
 import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.notification.constant.NotificationStatus;
 import com.fleencorp.feen.notification.constant.NotificationType;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +15,6 @@ import java.time.LocalDateTime;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -38,18 +33,11 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "notification_type", updatable = false, nullable = false)
   private NotificationType notificationType;
 
-  @Column(name = "receiver_id", insertable = false, updatable = false)
+  @Column(name = "receiver_id", updatable = false)
   private Long receiverId;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "receiver_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member receiver;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = Member.class)
-  @JoinColumn(name = "initiator_or_requester_id", referencedColumnName = "member_id")
-  private Member initiatorOrRequester;
+  @Column(name = "initiator_or_requester_id", updatable = false)
+  private Long initiatorOrRequesterId;
 
   @Column(name = "initiator_or_requester_name")
   private String initiatorOrRequesterName;
@@ -89,33 +77,26 @@ public class Notification extends FleenFeenEntity {
   @Column(name = "contact_type")
   private ContactType contactType;
 
-  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
-  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
-  private FleenStream stream;
+  @Column(name = "stream_id", updatable = false)
+  private Long streamId;
 
   @Column(name = "stream_title")
   private String streamTitle;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = StreamAttendee.class)
-  @JoinColumn(name = "stream_attendee_id", referencedColumnName = "stream_attendee_id")
-  private StreamAttendee streamAttendee;
+  @Column(name = "stream_attendee_id", updatable = false)
+  private Long streamAttendeeId;
 
   @Column(name = "stream_attendee_name")
   private String streamAttendeeName;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = ChatSpace.class)
-  @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id")
-  private ChatSpace chatSpace;
+  @Column(name = "chat_space_id", updatable = false)
+  private Long chatSpaceId;
 
   @Column(name = "chat_space_title")
   private String chatSpaceTitle;
 
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = ChatSpaceMember.class)
-  @JoinColumn(name = "chat_space_member_id", referencedColumnName = "chat_space_member_id")
-  private ChatSpaceMember chatSpaceMember;
+  @Column(name = "chat_space_member_id", updatable = false)
+  private Long chatSpaceMemberId;
 
   @Column(name = "chat_space_member_name")
   private String chatSpaceMemberName;
@@ -156,25 +137,6 @@ public class Notification extends FleenFeenEntity {
     return receiverId.equals(userId);
   }
 
-
-  /**
-   * Retrieves the stream title if this notification is related to a stream.
-   *
-   * @return the stream title if available; otherwise, null
-   */
-  public String getStreamTitle() {
-    return nonNull(stream) ? stream.getTitle() : streamTitle;
-  }
-
-  /**
-   * Retrieves the chat space title if this notification is related to a chat space.
-   *
-   * @return the chat space title if available; otherwise, null
-   */
-  public String getChatSpaceTitle() {
-    return nonNull(chatSpace) ? chatSpace.getTitle() : chatSpaceTitle;
-  }
-
   /**
    * Creates a new Notification instance with the specified receiver.
    *
@@ -183,7 +145,6 @@ public class Notification extends FleenFeenEntity {
    */
   public static Notification of(final Member receiver) {
     final Notification notification = new Notification();
-    notification.setReceiver(receiver);
     notification.setReceiverId(receiver.getMemberId());
     return notification;
   }

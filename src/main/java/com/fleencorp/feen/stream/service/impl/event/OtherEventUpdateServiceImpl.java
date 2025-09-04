@@ -9,7 +9,7 @@ import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleAd
 import com.fleencorp.feen.model.response.external.google.calendar.event.GoogleCreateCalendarEventResponse;
 import com.fleencorp.feen.service.external.google.calendar.attendee.GoogleCalendarAttendeeService;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.event.OtherEventUpdateService;
 import lombok.extern.slf4j.Slf4j;
@@ -62,13 +62,16 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
   @Async
   @Override
   @Transactional
-  public void createEventInGoogleCalendar(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+  public void createEventInGoogleCalendar(final IsAStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     // Create an event using an external service (Google Calendar)
     final GoogleCreateCalendarEventResponse googleCreateCalendarEventResponse = googleCalendarEventService.createEvent(createCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
-    // Save it
-    streamOperationsService.save(stream);
+    streamOperationsService.updateExternalIdAndLink(
+      stream.getStreamId(),
+      googleCreateCalendarEventResponse.eventId(),
+      googleCreateCalendarEventResponse.eventLinkOrUri()
+    );
+
     // Set the event ID from the created event to to be reused
     createCalendarEventRequest.update(googleCreateCalendarEventResponse.eventId(), googleCreateCalendarEventResponse.eventLinkOrUri());
 
@@ -114,7 +117,7 @@ public class OtherEventUpdateServiceImpl implements OtherEventUpdateService {
    * @param stream the event or stream object that has been created and will be broadcast
    */
   @Override
-  public void broadcastEventOrStreamCreated(final FleenStream stream) {
+  public void broadcastEventOrStreamCreated(final IsAStream stream) {
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult.of(
         stream.getOrganizerId(),

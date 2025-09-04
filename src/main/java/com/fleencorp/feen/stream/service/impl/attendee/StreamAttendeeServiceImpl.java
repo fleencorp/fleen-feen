@@ -5,7 +5,9 @@ import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
@@ -19,7 +21,6 @@ import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResul
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -86,7 +87,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   public StreamAttendeeSearchResult findStreamAttendees(final Long streamId, final StreamAttendeeSearchRequest searchRequest) {
     searchRequest.setDefaultPageSize();
 
-    final Page<StreamAttendee> page = streamAttendeeOperationsService.findAttendeesGoingToStream(FleenStream.of(streamId), searchRequest.getPage());
+    final Page<IsAttendee> page = streamAttendeeOperationsService.findAttendeesGoingToStream(FleenStream.of(streamId), searchRequest.getPage());
     final FleenStream stream = streamOperationsService.findStream(streamId);
 
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
@@ -107,11 +108,11 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param isMemberOfChatSpace a boolean indicating whether the user is a member of the chat space associated with the stream
    * @param streamExternalId the external ID of the stream the user is trying to join
    * @param comment the comment provided by the user when requesting to join the stream
-   * @param user the {@link RegisteredUser} attempting to join the stream
+   * @param user the {@link IsAMember} attempting to join the stream
    */
   @Override
   @Transactional
-  public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(final boolean isMemberOfChatSpace, final String streamExternalId, final String comment, final RegisteredUser user) {
+  public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(final boolean isMemberOfChatSpace, final String streamExternalId, final String comment, final IsAMember user) {
     if (isMemberOfChatSpace) {
       // Find calendar associated with user's country
       final Calendar calendar = miscService.findCalendar(user.getCountry());
@@ -133,7 +134,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   @Override
   public Collection<StreamAttendeeResponse> getAttendeesGoingToStream(final StreamResponse streamResponse) {
     if (nonNull(streamResponse)) {
-      final List<StreamAttendee> streamAttendees = streamAttendeeOperationsService.findAttendeesGoingToStream(streamResponse.getNumberId());
+      final List<IsAttendee> streamAttendees = streamAttendeeOperationsService.findAttendeesGoingToStream(streamResponse.getNumberId());
       return streamUnifiedMapper.toStreamAttendeeResponsesPublic(streamAttendees, streamResponse);
     }
 
@@ -157,7 +158,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     searchRequest.setDefaultPageSize();
 
     final FleenStream stream = streamOperationsService.findStream(streamId);
-    final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
+    final Page<IsAttendee> page = streamAttendeeOperationsService.findByStreamAndStreamType(stream, searchRequest.getStreamType(), searchRequest.getPage());
     final Collection<StreamAttendeeResponse> attendeeResponses = getAttendees(stream, page.getContent());
     final SearchResult searchResult = toSearchResult(attendeeResponses, page);
     final StreamAttendeeSearchResult streamAttendeeSearchResult = StreamAttendeeSearchResult.of(searchResult);
@@ -177,7 +178,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @param attendees the set of StreamAttendee entities representing the attendees of the stream
    * @return an {@link StreamAttendeeResponse} DTO containing the list of attendees, or an empty StreamAttendeeResponse if there are no attendees
    */
-  protected Collection<StreamAttendeeResponse> getAttendees(final FleenStream stream, final Collection<StreamAttendee> attendees) {
+  protected Collection<StreamAttendeeResponse> getAttendees(final FleenStream stream, final Collection<IsAttendee> attendees) {
     // Check if the attendees list is not empty and set it to the list of attendees in the response
     if (nonNull(attendees) && !attendees.isEmpty()) {
       return attendees.stream()
@@ -194,21 +195,19 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
   /**
    * Finds an attendee of the given stream based on the provided user ID.
    *
-   * <p>This method first checks if the {@link FleenStream} or user ID is null, throwing a {@link FailedOperationException}
+   * <p>This method first checks if the {@link IsAStream} or user ID is null, throwing a {@link FailedOperationException}
    * if any of the values are null. It then attempts to find the attendee in the repository using the stream and the user ID.
    * If the attendee exists, it is returned wrapped in an {@link Optional}; otherwise, an empty {@link Optional} is returned.</p>
    *
-   * @param stream the stream to check for the attendee; must not be null
+   * @param streamId the stream to check for the attendee; must not be null
    * @param userId the ID of the user to find as an attendee; must not be null
    * @return an {@link Optional} containing the attendee if found, or an empty {@link Optional} if not
    * @throws FailedOperationException if either the stream or user ID is null
    */
   @Override
-  public Optional<StreamAttendee> findAttendeeByMemberId(final FleenStream stream, final Long userId) throws FailedOperationException {
-    // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
-    // Find if the user is already an attendee of the stream
-    return streamAttendeeOperationsService.findAttendeeByStreamAndUser(stream, Member.of(userId));
+  public Optional<StreamAttendee> findAttendeeByMemberId(final Long streamId, final Long userId) throws FailedOperationException {
+    checkIsNullAny(Set.of(streamId, userId), FailedOperationException::new);
+    return streamAttendeeOperationsService.findAttendeeByStreamAndUser(streamId, userId);
   }
 
   /**
@@ -219,17 +218,16 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * {@link StreamAttendeeOperationsService} to find the attendee with the specified ID within the
    * given stream.</p>
    *
-   * @param stream The {@link FleenStream} instance representing the stream where the attendee is expected.
+   * @param streamId The {@link IsAStream} instance representing the stream where the attendee is expected.
    * @param attendeeId The unique ID of the attendee to find.
    * @return An {@link Optional} containing the {@link StreamAttendee} if found, or an empty Optional if not found.
    * @throws FailedOperationException If either the stream or attendeeId is null.
    */
   @Override
-  public Optional<StreamAttendee> findAttendee(final FleenStream stream, final Long attendeeId) throws FailedOperationException {
-    // Throw an exception if the any of the provided values is null
-    checkIsNullAny(Set.of(stream, attendeeId), FailedOperationException::new);
-    // Find if the user is already an attendee of the stream
-    return streamAttendeeOperationsService.findAttendeeByIdAndStream(attendeeId, stream);
+  public Optional<StreamAttendee> findAttendee(final Long streamId, final Long attendeeId) throws FailedOperationException {
+    checkIsNullAny(Set.of(streamId, attendeeId), FailedOperationException::new);
+
+    return streamAttendeeOperationsService.findAttendeeByIdAndStream(attendeeId, streamId);
   }
 
   /**
@@ -248,13 +246,13 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @throws StreamNotCreatedByUserException If the user is not the creator of the stream.
    */
   @Override
-  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final RegisteredUser user)
+  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final IsAMember user)
       throws StreamNotFoundException, StreamNotCreatedByUserException {
-    final FleenStream stream = streamOperationsService.findStream(streamId);
-    stream.checkIsOrganizer(user.getId());
+    final IsAStream stream = streamOperationsService.findStream(streamId);
+    stream.checkIsOrganizer(user.getMemberId());
 
     final Set<StreamAttendeeRequestToJoinStatus> joinStatusesForSearch = searchRequest.forPendingOrDisapprovedRequestToJoinStatus();
-    final Page<StreamAttendee> page = streamAttendeeOperationsService.findByStreamAndRequestToJoinStatus(stream, joinStatusesForSearch, searchRequest.getPage());
+    final Page<IsAttendee> page = streamAttendeeOperationsService.findByStreamAndRequestToJoinStatus(stream, joinStatusesForSearch, searchRequest.getPage());
 
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponse(stream);
     final Collection<StreamAttendeeResponse> streamAttendeeResponses = streamUnifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);
@@ -265,41 +263,7 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
     return localizer.of(requestToJoinSearchResult);
   }
 
-  /**
-   * Retrieves the set of attendee IDs from a list of StreamAttendee objects.
-   *
-   * @param attendees List of StreamAttendees from which the IDs will be extracted.
-   * @return A set of attendee IDs.
-   */
-  public static Set<Long> getAttendeeIds(final List<StreamAttendee> attendees) {
-    // Stream over the list of StreamAttendees
-    if (nonNull(attendees)) {
-      // Map each StreamAttendee to its StreamAttendeeId and collect the IDs into a set
-      return attendees.stream()
-        .map(StreamAttendee::getAttendeeId)
-        .collect(Collectors.toSet());
-    }
-    return Set.of();
-  }
 
-  /**
-   * Retrieves email addresses of attendees from a list of StreamAttendee objects.
-   *
-   * <p>This method filters out null {@link StreamAttendee} objects, retrieves the email addresses of the
-   * associated attendees or members, and collects them into a set of strings.</p>
-   *
-   * @param streamAttendees the list of StreamAttendee objects
-   * @return a set of email addresses of attendees, or an empty set if streamAttendees is null
-   */
-  public static Set<String> getAttendeesEmailAddresses(final List<StreamAttendee> streamAttendees) {
-    if (nonNull(streamAttendees)) {
-      return streamAttendees.stream()
-        .filter(Objects::nonNull)
-        .map(StreamAttendee::getEmailAddress)
-        .collect(Collectors.toSet());
-    }
-    return Collections.emptySet();
-  }
 
   /**
    * Retrieves an existing attendee for the given stream and user, or creates a new one if none exists.
@@ -316,13 +280,13 @@ public class StreamAttendeeServiceImpl implements StreamAttendeeService {
    * @throws FailedOperationException if either the stream or user is null
    */
   @Override
-  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final RegisteredUser user) throws FailedOperationException {
+  public StreamAttendee getExistingOrCreateNewStreamAttendee(final IsAStream stream, final String comment, final IsAMember user) throws FailedOperationException {
     // Throw an exception if the any of the provided values is null
     checkIsNullAny(Set.of(stream, user), FailedOperationException::new);
 
     // Search for the member as an attendee and if it doesn't exist, create a new one
-    return streamAttendeeOperationsService.findAttendeeByStreamAndUser(stream, user.toMember())
-      .orElseGet(() -> StreamAttendee.of(user.toMember(), stream, comment));
+    return streamAttendeeOperationsService.findAttendeeByStreamAndUser(stream.getStreamId(), user.getMemberId())
+      .orElseGet(() -> StreamAttendee.of(user, stream, comment));
   }
 
 }

@@ -8,8 +8,8 @@ import com.fleencorp.feen.model.response.external.google.calendar.event.*;
 import com.fleencorp.feen.service.external.google.calendar.event.GoogleCalendarEventService;
 import com.fleencorp.feen.service.external.google.chat.GoogleChatService;
 import com.fleencorp.feen.service.impl.external.google.calendar.attendee.GoogleCalendarAttendeeServiceImpl;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
@@ -71,14 +71,14 @@ public class EventUpdateServiceImpl implements EventUpdateService {
   @Async
   @Override
   @Transactional
-  public void createEventInGoogleCalendarAndAnnounceInSpace(final FleenStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
+  public void createEventInGoogleCalendarAndAnnounceInSpace(final IsAStream stream, final CreateCalendarEventRequest createCalendarEventRequest) {
     // Create event in Google Calendar
     eventOperationsService.createEventInGoogleCalendar(stream, createCalendarEventRequest);
 
     // Prepare the request to send a calendar event message to the chat space
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseNoJoinStatus(stream);
     final GoogleChatSpaceMessageRequest googleChatSpaceMessageRequest = GoogleChatSpaceMessageRequest.ofEventOrStream(
-      stream.getExternalSpaceIdOrName(),
+      createCalendarEventRequest.getChatSpaceExternalIdOrName(),
       requireNonNull(streamResponse)
     );
 
@@ -103,12 +103,15 @@ public class EventUpdateServiceImpl implements EventUpdateService {
   @Async
   @Override
   @Transactional
-  public void createInstantEventInGoogleCalendar(final FleenStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
+  public void createInstantEventInGoogleCalendar(final IsAStream stream, final CreateInstantCalendarEventRequest createInstantCalendarEventRequest) {
     // Create an instant event using an external service (Google Calendar)
     final GoogleCreateInstantCalendarEventResponse googleCreateInstantCalendarEventResponse = googleCalendarEventService.createInstantEvent(createInstantCalendarEventRequest);
     // Update the stream with the event ID and HTML link
-    stream.update(googleCreateInstantCalendarEventResponse.eventId(), googleCreateInstantCalendarEventResponse.getHangoutLink());
-    streamOperationsService.save(stream);
+    streamOperationsService.updateExternalIdAndLink(
+      stream.getStreamId(),
+      googleCreateInstantCalendarEventResponse.eventId(),
+      googleCreateInstantCalendarEventResponse.getHangoutLink()
+    );
   }
 
   /**
@@ -120,14 +123,16 @@ public class EventUpdateServiceImpl implements EventUpdateService {
   @Async
   @Override
   @Transactional
-  public void updateEventInGoogleCalendar(final FleenStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
+  public void updateEventInGoogleCalendar(final IsAStream stream, final PatchCalendarEventRequest patchCalendarEventRequest) {
     // Update the event details using an external service (Google Calendar)
     final GooglePatchCalendarEventResponse googlePatchCalendarEventResponse = googleCalendarEventService.patchEvent(patchCalendarEventRequest);
-    // Update the stream with the event ID and HTML link
-    stream.setExternalId(googlePatchCalendarEventResponse.eventId());
-    stream.setStreamLink(googlePatchCalendarEventResponse.getHangoutLink());
 
-    streamOperationsService.save(stream);
+    // Update the stream with the event ID and HTML link
+    streamOperationsService.updateExternalIdAndLink(
+      stream.getStreamId(),
+      googlePatchCalendarEventResponse.eventId(),
+      googlePatchCalendarEventResponse.getHangoutLink()
+    );
   }
 
   /**

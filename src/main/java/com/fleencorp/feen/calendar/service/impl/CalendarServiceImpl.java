@@ -400,7 +400,7 @@ public class CalendarServiceImpl implements CalendarService {
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
-    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user);
+    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
   }
 
 }

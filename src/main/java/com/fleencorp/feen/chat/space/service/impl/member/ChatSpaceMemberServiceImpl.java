@@ -1,6 +1,5 @@
 package com.fleencorp.feen.chat.space.service.impl.member;
 
-import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.chat.space.exception.member.ChatSpaceMemberNotFoundException;
@@ -26,11 +25,9 @@ import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
 import com.fleencorp.feen.chat.space.service.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
@@ -39,7 +36,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
@@ -693,30 +693,6 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
   protected void decreaseTotalMembersAndSave(final ChatSpace chatSpace) {
     // Decrease total members in chat space
     chatSpaceRepository.decrementTotalMembers(chatSpace.getChatSpaceId());
-  }
-
-  /**
-   * Approves the attendee's request to join a stream if the stream is linked to a chat space and the attendee is a member of the chat space.
-   *
-   * <p>This method checks whether the provided stream has an associated chat space. If so, it verifies if the attendee is a member
-   * of the chat space by searching for an existing chat space member. If the attendee is found to be a member, the method returns {@code true};
-   * otherwise, it returns {@code false}.</p>
-   *
-   * @param stream The stream entity which may be associated with a chat space.
-   * @param streamAttendee The attendee whose membership in the chat space is being evaluated.
-   * @return {@code true} if the stream has a chat space and the attendee is a member of that chat space; {@code false} otherwise.
-   */
-  @Override
-  public boolean checkIfStreamHasChatSpaceAndAttendeeIsAMemberOfChatSpace(final FleenStream stream, final StreamAttendee streamAttendee) {
-    // Check if the stream has an associated chat space with a valid ID
-    if (stream.hasChatSpaceId()) {
-      // Find if the attendee is a member of the chat space
-      final Optional<ChatSpaceMember> existingChatSpaceMember = chatSpaceMemberOperationsService.findByChatSpaceAndMemberAndStatus(stream.getChatSpace(), streamAttendee.getMember(), ChatSpaceRequestToJoinStatus.approved());
-      // Return true if a member exists, otherwise false
-      return existingChatSpaceMember.isPresent();
-    }
-    // Return false if there's no chat space or no valid chat space ID
-    return false;
   }
 
   /**

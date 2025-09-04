@@ -3,8 +3,8 @@ package com.fleencorp.feen.stream.model.dto.event;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToLowerCase;
 import com.fleencorp.base.converter.common.ToTitleCase;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -48,14 +48,14 @@ public class CreateInstantEventDto {
   @JsonProperty("location")
   protected String location;
 
-  public FleenStream toFleenStream(final Member member) {
+  public FleenStream toFleenStream(final IsAMember member) {
     final FleenStream stream = new FleenStream();
     stream.setTitle(title);
     stream.setDescription(description);
     stream.setTags(tags);
     stream.setLocation(location);
     stream.setTimezone(NOT_AVAILABLE);
-    stream.setMember(member);
+    stream.setMemberId(member.getMemberId());
     stream.setScheduledStartDate(LocalDateTime.now());
     stream.setScheduledEndDate(LocalDateTime.now());
     stream.setStreamSource(GOOGLE_MEET);

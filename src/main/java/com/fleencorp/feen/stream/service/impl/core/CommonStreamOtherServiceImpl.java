@@ -8,9 +8,9 @@ import com.fleencorp.feen.review.model.holder.ReviewParentCountHolder;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
 import com.fleencorp.feen.review.service.ReviewCommonService;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
@@ -192,7 +192,7 @@ public class CommonStreamOtherServiceImpl implements CommonStreamOtherService {
       // Create a pageable request to get the first 10 attendees
       final Pageable pageable = PageRequest.of(1, DEFAULT_NUMBER_OF_ATTENDEES_TO_GET_FOR_STREAM);
       // Fetch attendees who are approved and attending the stream
-      final Page<StreamAttendee> page = streamAttendeeOperationsService
+      final Page<IsAttendee> page = streamAttendeeOperationsService
         .findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream.of(streamId), APPROVED, true, pageable);
       // Convert the list of stream attendees to list of stream attendee responses
       final Collection<StreamAttendeeResponse> streamAttendees = streamUnifiedMapper.toStreamAttendeeResponsesPublic(page.getContent(), streamResponse);

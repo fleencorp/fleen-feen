@@ -11,8 +11,6 @@ import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.holder.StreamOtherDetailsHolder;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.common.DataForRescheduleStreamResponse;
-import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -39,11 +37,11 @@ public interface StreamOperationsService {
 
   void increaseTotalAttendeesOrGuests(FleenStream stream);
 
-  void validateStreamAndUserForProtectedStream(FleenStream stream, RegisteredUser user);
+  void validateStreamAndUserForProtectedStream(FleenStream stream, Long userId);
 
-  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, RegisteredUser user);
+  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, Long userId);
 
-  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
+  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, IsAMember user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
   boolean existsByAttendees(IsAMember viewer, IsAMember target);
 
@@ -52,6 +50,10 @@ public interface StreamOperationsService {
   Integer updateBookmarkCount(Long streamId, boolean increment);
 
   FleenStream save(FleenStream stream);
+
+  void updateExternalId(Long streamId, String externalId);
+
+  void updateExternalIdAndLink(Long streamId, String externalId, String link);
 
   Optional<FleenStream> findById(Long streamId);
 

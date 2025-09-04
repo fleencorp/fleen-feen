@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.mapper.impl.attendee;
 
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.mapper.attendee.StreamAttendeeMapper;
 import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
@@ -34,7 +35,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
   }
 
   /**
-   * Converts a {@link StreamAttendee} entry to a {@link StreamAttendeeResponse}.
+   * Converts a {@link IsAttendee} entry to a {@link StreamAttendeeResponse}.
    *
    * <p>This method takes a {@code StreamAttendee} object and maps its fields to a new {@code StreamAttendeeResponse} object.
    * If the provided {@code StreamAttendee} is {@code null}, it returns {@code null}.</p>
@@ -42,7 +43,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    * @param entry the {@code StreamAttendee} object to convert
    * @return the populated {@code StreamAttendeeResponse} object, or {@code null} if the input is {@code null}
    */
-  protected StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry) {
+  protected StreamAttendeeResponse toStreamAttendeeResponse(final IsAttendee entry) {
     if (nonNull(entry)) {
       final StreamAttendeeResponse response = new StreamAttendeeResponse();
 
@@ -55,6 +56,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
 
       return response;
     }
+
     return null;
   }
 
@@ -68,7 +70,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    * @param entry the stream attendee entity to convert
    * @return a {@link StreamAttendeeResponse} containing public attendee information, or {@code null} if the entry is null
    */
-  protected StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry) {
+  protected StreamAttendeeResponse toStreamAttendeeResponsePublic(final IsAttendee entry) {
     if (nonNull(entry)) {
       final StreamAttendeeResponse response = new StreamAttendeeResponse();
 
@@ -95,7 +97,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    * @return the populated {@code StreamAttendeeResponse} with attendance information, or {@code null} if the input {@code StreamAttendee} is {@code null}
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final StreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponse(final IsAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -125,7 +127,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    *         attendance and organizer info, or {@code null} if the entry is null
    */
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final StreamAttendee entry, final StreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponsePublic(final IsAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry)) {
       // Get the attendance info
       final AttendanceInfo attendanceInfo = getAttendanceInfo(entry, streamResponse);
@@ -141,18 +143,18 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
   }
 
   /**
-   * Converts a list of {@link StreamAttendee} entities to their corresponding
+   * Converts a list of {@link IsAttendee} entities to their corresponding
    * public {@link StreamAttendeeResponse} representations for a given stream.
    *
    * <p>Null and empty input lists are safely handled by returning an empty collection.
    * Any null elements within the list are also filtered out during the conversion.</p>
    *
-   * @param entries the list of {@link StreamAttendee} entities to convert
+   * @param entries the list of {@link IsAttendee} entities to convert
    * @param streamResponse the {@link StreamResponse} associated with the attendees
    * @return a collection of {@link StreamAttendeeResponse} representing the public view of each attendee
    */
   @Override
-  public Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(final List<StreamAttendee> entries, final StreamResponse streamResponse) {
+  public Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(final List<IsAttendee> entries, final StreamResponse streamResponse) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
         .filter(Objects::nonNull)
@@ -174,7 +176,7 @@ public class StreamAttendeeMapperImpl extends BaseMapper implements StreamAttend
    * @param streamResponse the response details for the stream
    * @return the complete attendance information for the stream attendee
    */
-  private AttendanceInfo getAttendanceInfo(final StreamAttendee entry, final StreamResponse streamResponse) {
+  private AttendanceInfo getAttendanceInfo(final IsAttendee entry, final StreamResponse streamResponse) {
     if (nonNull(entry) && nonNull(streamResponse) ) {
       final StreamAttendeeRequestToJoinStatusInfo requestToJoinStatusInfo = streamInfoMapper.toRequestToJoinStatusInfo(entry.getRequestToJoinStatus());
       final JoinStatusInfo joinStatusInfo = streamInfoMapper.toJoinStatus(streamResponse, entry.getRequestToJoinStatus(), entry.isAttending());

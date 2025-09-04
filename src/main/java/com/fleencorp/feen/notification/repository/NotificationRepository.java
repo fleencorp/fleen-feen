@@ -12,10 +12,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-  @Query("SELECT n FROM Notification n WHERE n.notificationId IS NOT NULL AND n.receiver = :member ORDER BY n.createdOn DESC")
-  Page<Notification> findMany(@Param("member") Member member, Pageable pageable);
+  @Query("SELECT n FROM Notification n WHERE n.notificationId IS NOT NULL AND n.receiverId = :receiverId ORDER BY n.createdOn DESC")
+  Page<Notification> findMany(@Param("receiverId") Long receiverId, Pageable pageable);
 
   @Modifying
-  @Query("UPDATE Notification n SET n.notificationStatus = :status WHERE n.receiver = :receiver AND n.notificationStatus = :unreadStatus")
-  void markAllAsRead(@Param("status")NotificationStatus notificationStatus, @Param("unreadStatus") NotificationStatus unreadStatus, @Param("receiver") Member member);
+  @Query("UPDATE Notification n SET n.notificationStatus = :status WHERE n.receiverId = :receiverId AND n.notificationStatus = :unreadStatus")
+  void markAllAsRead(@Param("status")NotificationStatus notificationStatus, @Param("unreadStatus") NotificationStatus unreadStatus, @Param("receiverId") Long receiverId);
 }

@@ -17,17 +17,17 @@ public interface StreamService {
 
   DataForRescheduleStreamResponse getDataForRescheduleStream();
 
-  void verifyStreamDetailAllDetails(FleenStream stream, RegisteredUser user);
+  void verifyStreamDetailAllDetails(FleenStream stream, Long userId);
 
   void processNotAttendingStream(FleenStream stream, StreamAttendee attendee);
 
   void increaseTotalAttendeesOrGuests(FleenStream stream);
 
-  void validateStreamAndUserForProtectedStream(FleenStream stream, RegisteredUser user);
+  void validateStreamAndUserForProtectedStream(FleenStream stream, Long userId);
 
-  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, RegisteredUser user);
+  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, Long userId);
 
-  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
+  StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, IsAMember user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 
   boolean existsByAttendees(IsAMember viewer, IsAMember target);
 }

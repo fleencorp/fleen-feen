@@ -3,6 +3,8 @@ package com.fleencorp.feen.stream.model.request.external;
 import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.common.constant.external.request.ExternalStreamRequestType;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
@@ -64,8 +66,8 @@ import static com.fleencorp.feen.stream.model.dto.event.CreateEventDto.EventAtte
 public class ExternalStreamRequest {
 
   private Calendar calendar;
-  private FleenStream stream;
-  private StreamAttendee attendee;
+  private IsAStream stream;
+  private IsAttendee attendee;
   private StreamType streamType;
   private Oauth2Authorization oauth2Authorization;
   private String visibility;

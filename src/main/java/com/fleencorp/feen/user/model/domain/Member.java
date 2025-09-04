@@ -117,6 +117,11 @@ public class Member extends FleenFeenEntity
     return StringUtil.getFullName(firstName, lastName);
   }
 
+  @Override
+  public String getProfilePhoto() {
+    return "";
+  }
+
   /**
    * Checks if multi-factor authentication (MFA) is disabled.
    *

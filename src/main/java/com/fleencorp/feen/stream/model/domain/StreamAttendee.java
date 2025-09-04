@@ -1,6 +1,9 @@
 package com.fleencorp.feen.stream.model.domain;
 
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
@@ -18,7 +21,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "stream_attendee")
-public class StreamAttendee extends FleenFeenEntity {
+public class StreamAttendee extends FleenFeenEntity
+  implements IsAttendee {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -60,20 +64,32 @@ public class StreamAttendee extends FleenFeenEntity {
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
 
-  public String getEmailAddress() {
-    return nonNull(member) ? member.getEmailAddress() : null;
-  }
+  @Column(name = "email", length = 1000)
+  private String emailAddress;
 
+  @Override
   public String getFullName() {
-    return nonNull(member) ? member.getFullName() : null;
+    return "";
   }
 
+  @Override
   public String getUsername() {
-    return nonNull(member) ? member.getUsername() : null;
+    return "";
   }
 
+  @Override
   public String getProfilePhoto() {
-    return nonNull(member) ? member.getProfilePhotoUrl() : null;
+    return "";
+  }
+
+  @Override
+  public String getFirstName() {
+    return "";
+  }
+
+  @Override
+  public String getLastName() {
+    return "";
   }
 
   public void approveUserAttendance() {
@@ -123,9 +139,7 @@ public class StreamAttendee extends FleenFeenEntity {
   }
 
   public void markRequestAsPending() {
-    if (stream.isPrivateOrProtected()) {
-      requestToJoinStatus = StreamAttendeeRequestToJoinStatus.PENDING;
-    }
+    requestToJoinStatus = StreamAttendeeRequestToJoinStatus.PENDING;
   }
 
   public void markAsOrganizer() {
@@ -156,16 +170,16 @@ public class StreamAttendee extends FleenFeenEntity {
     return attendee;
   }
 
-  public static StreamAttendee of(final Member member, final FleenStream stream) {
+  public static StreamAttendee of(final Long userId, final Long streamId) {
     final StreamAttendee attendee = new StreamAttendee();
-    attendee.setMember(member);
-    attendee.setStream(stream);
+    attendee.setMemberId(userId);
+    attendee.setStreamId(streamId);
 
     return attendee;
   }
 
-  public static StreamAttendee of(final Member member, final FleenStream stream, final String comment) {
-    final StreamAttendee streamAttendee = of(member, stream);
+  public static StreamAttendee of(final IsAMember member, final IsAStream stream, final String comment) {
+    final StreamAttendee streamAttendee = of(member.getMemberId(), stream.getStreamId());
     streamAttendee.setAttendeeComment(comment);
 
     return streamAttendee;

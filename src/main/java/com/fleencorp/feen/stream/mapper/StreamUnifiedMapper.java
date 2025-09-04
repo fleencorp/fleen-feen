@@ -1,25 +1,21 @@
 package com.fleencorp.feen.stream.mapper;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamSpeaker;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
-import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
-import com.fleencorp.feen.stream.model.info.attendee.IsOrganizerInfo;
-import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.ProcessAttendeeRequestToJoinStreamResponse;
@@ -31,33 +27,23 @@ import java.util.List;
 
 public interface StreamUnifiedMapper {
 
-  StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatus(StreamAttendeeRequestToJoinStatus requestToJoinStatus);
-
-  StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatus requestToJoinStatus);
-
-  IsOrganizerInfo toIsOrganizerInfo(boolean organizer);
-
-  JoinStatusInfo toJoinStatusInfo(JoinStatus joinStatus);
-
-  JoinStatusInfo toJoinStatus(StreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending);
-
   AttendanceInfo toAttendanceInfo(StreamResponse stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, boolean isAttending, boolean isASpeaker);
-
-  IsAttendingInfo toIsAttendingInfo(boolean isAttending);
 
   IsASpeakerInfo toIsASpeakerInfo(boolean aSpeaker);
 
   AttendeeCountInfo toAttendeeCountInfo(Integer attendeeCount);
 
-  StreamAttendeeResponse toStreamAttendeeResponse(StreamAttendee entry, StreamResponse streamResponse);
+  StreamAttendeeResponse toStreamAttendeeResponse(IsAttendee entry, StreamResponse streamResponse);
 
-  Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(List<StreamAttendee> entries, StreamResponse streamResponse);
+  Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(List<IsAttendee> entries, StreamResponse streamResponse);
 
-  StreamResponse toStreamResponse(FleenStream entry);
+  StreamResponse toStreamResponse(IsAStream entry);
 
-  StreamResponse toStreamResponseNoJoinStatus(FleenStream entry);
+  StreamResponse toStreamResponseNoJoinStatus(IsAStream entry);
 
-  List<StreamResponse> toStreamResponses(List<FleenStream> entries);
+  List<StreamResponse> toStreamResponses(List<IsAStream> entries);
+
+  List<StreamResponse> toStreamResponsesActual(List<FleenStream> entries);
 
   StreamStatusInfo toStreamStatusInfo(StreamStatus streamStatus);
 
@@ -71,11 +57,11 @@ public interface StreamUnifiedMapper {
 
   List<StreamSpeakerResponse> toStreamSpeakerResponses(List<StreamSpeaker> entries);
 
-  List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(List<StreamAttendeeInfoSelect> entries);
+  List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(List<IsAttendee> entries);
 
   ReviewCountInfo toReviewCountInfo(Integer reviewCount);
 
-  StreamResponse toStreamResponseByAdminUpdate(FleenStream entry);
+  StreamResponse toStreamResponseByAdminUpdate(IsAStream entry);
 
-  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, StreamAttendee attendee);
+  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, IsAttendee attendee);
 }

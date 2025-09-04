@@ -6,13 +6,13 @@ import com.fleencorp.feen.calendar.model.event.AddCalendarEventAttendeesEvent;
 import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
-import com.fleencorp.feen.stream.mapper.impl.speaker.StreamSpeakerMapperImpl;
-import com.fleencorp.feen.stream.mapper.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamSpeaker;
@@ -21,7 +21,6 @@ import com.fleencorp.feen.stream.model.dto.event.CreateEventDto.EventAttendeeOrG
 import com.fleencorp.feen.stream.model.dto.speaker.MarkAsStreamSpeakerDto;
 import com.fleencorp.feen.stream.model.dto.speaker.UpdateStreamSpeakerDto;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.request.search.StreamSpeakerSearchRequest;
 import com.fleencorp.feen.stream.model.response.speaker.MarkAsStreamSpeakerResponse;
 import com.fleencorp.feen.stream.model.response.speaker.RemoveStreamSpeakerResponse;
@@ -31,6 +30,7 @@ import com.fleencorp.feen.stream.model.search.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.stream.repository.speaker.StreamSpeakerRepository;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
+import com.fleencorp.feen.stream.service.external.StreamExternalQueryService;
 import com.fleencorp.feen.stream.service.speaker.StreamSpeakerService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
@@ -63,29 +63,29 @@ import static java.util.Objects.nonNull;
 public class StreamSpeakerServiceImpl implements StreamSpeakerService {
 
   private final MiscService miscService;
+  private final StreamExternalQueryService streamExternalQueryService;
   private final StreamOperationsService streamOperationsService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamSpeakerRepository streamSpeakerRepository;
   private final StreamEventPublisher streamEventPublisher;
-  private final StreamSpeakerMapper streamSpeakerMapper;
   private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
   public StreamSpeakerServiceImpl(
       final MiscService miscService,
+      final StreamExternalQueryService streamExternalQueryService,
       final StreamOperationsService streamOperationsService,
       final StreamAttendeeOperationsService streamAttendeeOperationsService,
       final StreamSpeakerRepository streamSpeakerRepository,
       final StreamEventPublisher streamEventPublisher,
-      final StreamSpeakerMapperImpl streamSpeakerMapper,
       final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.miscService = miscService;
+    this.streamExternalQueryService = streamExternalQueryService;
     this.streamOperationsService = streamOperationsService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamSpeakerRepository = streamSpeakerRepository;
     this.streamEventPublisher = streamEventPublisher;
-    this.streamSpeakerMapper = streamSpeakerMapper;
     this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
@@ -103,7 +103,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     stream.checkIsOrganizer(user.getId());
 
     final String fullNameOrUsername = searchRequest.getUserIdOrName();
-    final Page<StreamAttendeeInfoSelect> page = streamAttendeeOperationsService.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
+    final Page<IsAttendee> page = streamAttendeeOperationsService.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(streamId, user.getId(), fullNameOrUsername, searchRequest.getPage());
     final List<StreamSpeakerResponse> speakerResponses = streamUnifiedMapper.toStreamSpeakerResponsesByProjection(page.getContent());
 
     final SearchResult searchResult = toSearchResult(speakerResponses, page);
@@ -405,16 +405,20 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
     // Find attendees associated with the stream by matching speaker attendee IDs
     final Set<StreamAttendee> allAttendees = findAttendees(streamId, speakerAttendeeIds);
     // Extract disapproved or pending attendee from all the attendees
-    final Set<StreamAttendee> disapprovedOrPendingAttendees = getDisapprovedOrPendingAttendees(allAttendees);
+    final Set<IsAttendee> disapprovedOrPendingAttendees = IsAttendee.getDisapprovedOrPendingAttendees(allAttendees);
     // Get the IDs of attendees who are either pending or disapproved
-    final Set<Long> disapprovedOrPendingAttendeeIds = getDisapprovedOrPendingAttendeeIds(disapprovedOrPendingAttendees);
+    final Set<Long> disapprovedOrPendingAttendeeIds = IsAttendee.getDisapprovedOrPendingAttendeeIds(disapprovedOrPendingAttendees);
 
     // Process attendees who are pending or disapproved
     processPendingOrDisapprovedAttendeesAndAddToGuestsList(disapprovedOrPendingAttendeeIds, disapprovedOrPendingAttendees, speakers, guests);
-    // Save all attendees
+
     streamAttendeeOperationsService.saveAll(allAttendees);
-    // Send invitations to the new attendees or guests
-    sendInvitationToNewAttendeesOrGuests(stream, stream.getMember(), guests);
+    streamSpeakerRepository.saveAll(speakers);
+
+    final IsAMember member = streamExternalQueryService.findMemberById(stream.getMemberId())
+      .orElseThrow(FailedOperationException::new);
+
+    sendInvitationToNewAttendeesOrGuests(stream, member, guests);
   }
 
   /**
@@ -449,37 +453,6 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
   }
 
   /**
-   * Retrieves the set of attendees who are either in a DISAPPROVED or PENDING status
-   * from the provided set of {@link StreamAttendee} objects.
-   *
-   * @param streamAttendees the set of {@link StreamAttendee} objects to filter.
-   * @return a set of {@link StreamAttendee} objects where the status is either DISAPPROVED or PENDING.
-   */
-  private static Set<StreamAttendee> getDisapprovedOrPendingAttendees(final Set<StreamAttendee> streamAttendees) {
-    // Retrieve attendees with DISAPPROVED or PENDING statuses for the given stream ID
-    return streamAttendees.stream()
-      .filter(Objects::nonNull)
-      .filter(StreamAttendee::isRequestToJoinDisapprovedOrPending)
-      .collect(Collectors.toSet());
-  }
-
-  /**
-   * Retrieves the IDs of attendees with disapproved or pending statuses.
-   *
-   * @param attendees the set of attendees to filter
-   * @return a set of attendee attendee IDs with disapproved or pending statuses
-   */
-  private static Set<Long> getDisapprovedOrPendingAttendeeIds(final Set<StreamAttendee> attendees) {
-    // Filter attendees with DISAPPROVED or PENDING status and collect their attendee IDs
-    return attendees.stream()
-      .filter(Objects::nonNull)
-      .filter(StreamAttendee::isRequestToJoinDisapprovedOrPending)
-      .map(StreamAttendee::getAttendeeId)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toSet());
-  }
-
-  /**
    * Processes pending or disapproved attendees and adds them to the guests list.
    *
    * <p>This method iterates over the provided {@code pendingOrDisapprovedAttendeeIds}, finds the corresponding attendee and speaker
@@ -493,38 +466,20 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    */
   private static void processPendingOrDisapprovedAttendeesAndAddToGuestsList(
     final Set<Long> pendingOrDisapprovedAttendeeIds,
-    final Set<StreamAttendee> pendingOrDisapprovedAttendees,
+    final Set<IsAttendee> pendingOrDisapprovedAttendees,
     final Set<StreamSpeaker> speakers,
     final Set<EventAttendeeOrGuest> guests) {
 
     pendingOrDisapprovedAttendeeIds.stream()
       .filter(Objects::nonNull)
       .forEach(attendeeId -> {
-        final StreamAttendee attendee = findAttendeeById(attendeeId, pendingOrDisapprovedAttendees);
+        final IsAttendee attendee = IsAttendee.findAttendeeById(attendeeId, pendingOrDisapprovedAttendees);
         final StreamSpeaker speaker = findSpeakerById(attendeeId, speakers);
 
         if (nonNull(attendee) && nonNull(speaker)) {
           processAttendeeAndSpeaker(attendee, speaker, guests);
         }
     });
-  }
-
-  /**
-   * Finds an attendee by their attendee ID from a set of attendees.
-   *
-   * <p>This method searches the provided {@code attendees} set for an attendee whose attendee ID matches the given {@code attendeeId}.
-   * If a matching attendee is found, they are returned. If no match is found, {@code null} is returned.</p>
-   *
-   * @param attendeeId the ID of the attendee to be found
-   * @param attendees  the set of attendees to search through
-   * @return the attendee whose attendee ID matches the given {@code attendeeId}, or {@code null} if no match is found
-   */
-  private static StreamAttendee findAttendeeById(final Long attendeeId, final Set<StreamAttendee> attendees) {
-    return attendees.stream()
-      .filter(Objects::nonNull)
-      .filter(attendee -> attendee.getAttendeeId().equals(attendeeId))
-      .findFirst()
-      .orElse(null);
   }
 
   /**
@@ -555,7 +510,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param speaker  the speaker associated with the attendee, whose full name will be updated
    * @param guests   the set of guests or attendees to which the processed attendee will be added
    */
-  private static void processAttendeeAndSpeaker(final StreamAttendee attendee, final StreamSpeaker speaker, final Set<EventAttendeeOrGuest> guests) {
+  private static void processAttendeeAndSpeaker(final IsAttendee attendee, final StreamSpeaker speaker, final Set<EventAttendeeOrGuest> guests) {
     final String fullName = speaker.getName(attendee.getFullName());
     speaker.setFullName(fullName);
     attendee.approveUserAttendance();
@@ -575,7 +530,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @param organizerOfStream the organizer of the stream
    * @param guests a set of attendees or guests that require invitations
    */
-  private void sendInvitationToNewAttendeesOrGuests(final FleenStream stream, final Member organizerOfStream, final Set<EventAttendeeOrGuest> guests) {
+  private void sendInvitationToNewAttendeesOrGuests(final FleenStream stream, final IsAMember organizerOfStream, final Set<EventAttendeeOrGuest> guests) {
     if (nonNull(stream) && stream.isAnEvent() && nonNull(guests) && !guests.isEmpty()) {
       // Find the calendar based on the stream organizer's country
       final Calendar calendar = miscService.findCalendar(organizerOfStream.getCountry());
@@ -625,7 +580,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
    * @throws FailedOperationException if any of the parameters are null or the set of speakers is empty
    * @throws OrganizerOfStreamCannotBeRemovedAsSpeakerException if the organizer is found in the list of speakers
    */
-  private void checkOrganizerOfStreamCannotBeRemovedAsSpeaker(final FleenStream stream, final Member organizerOfStream, final Set<StreamSpeaker> speakers) {
+  private void checkOrganizerOfStreamCannotBeRemovedAsSpeaker(final FleenStream stream, final IsAMember organizerOfStream, final Set<StreamSpeaker> speakers) {
     // Check if any of the input parameters (stream, organizerOfStream, speakers) are null
     checkIsNullAny(List.of(stream, organizerOfStream, speakers), FailedOperationException::new);
 
@@ -685,7 +640,7 @@ public class StreamSpeakerServiceImpl implements StreamSpeakerService {
       if (speaker.hasNoMember()) {
         final StreamAttendee attendee = attendeeMap.get(speaker.getAttendeeId());
         if (nonNull(attendee)) {
-          speaker.setMember(attendee.getMember());
+          speaker.setMemberId(attendee.getMemberId());
         }
       }
     }

@@ -1,8 +1,8 @@
 package com.fleencorp.feen.stream.mapper.impl.speaker;
 
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.mapper.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.stream.model.domain.StreamSpeaker;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.response.speaker.StreamSpeakerResponse;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.stereotype.Component;
@@ -44,18 +44,18 @@ public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
   }
 
   /**
-   * Converts a {@link StreamAttendeeInfoSelect} entry into a {@link StreamSpeakerResponse}.
+   * Converts a {@link IsAttendee} entry into a {@link StreamSpeakerResponse}.
    *
    * <p>
-   * This method takes a non-null {@code StreamAttendeeInfoSelect} entry and maps its relevant fields
+   * This method takes a non-null {@code IsAttendee} entry and maps its relevant fields
    * (attendee ID and full name) to a new {@code StreamSpeakerResponse}. If the entry is {@code null},
    * the method returns {@code null}.
    * </p>
    *
-   * @param entry the {@code StreamAttendeeInfoSelect} object containing attendee information
+   * @param entry the {@code IsAttendee} object containing attendee information
    * @return a {@code StreamSpeakerResponse} populated with the attendee's ID and full name, or {@code null} if the entry is {@code null}
    */
-  private static StreamSpeakerResponse toStreamSpeakerResponse(final StreamAttendeeInfoSelect entry) {
+  private static StreamSpeakerResponse toStreamSpeakerResponse(final IsAttendee entry) {
     if (nonNull(entry)) {
       final StreamSpeakerResponse speakerResponse = new StreamSpeakerResponse();
       speakerResponse.setAttendeeId(entry.getAttendeeId());
@@ -93,13 +93,13 @@ public final class StreamSpeakerMapperImpl implements StreamSpeakerMapper {
    *
    * <p>This method processes a list of {@link Member} objects, filtering out any null entries,
    * and maps each non-null {@link Member} to a {@link StreamSpeakerResponse} using the
-   * {@link StreamSpeakerMapperImpl#toStreamSpeakerResponse(StreamAttendeeInfoSelect)} (Member)} method.</p>
+   * {@link StreamSpeakerMapperImpl#toStreamSpeakerResponse(IsAttendee)} (Member)} method.</p>
    *
    * @param entries the list of {@link Member} objects to be converted
    * @return a list of {@link StreamSpeakerResponse} objects, or an empty list if the input is null
    */
   @Override
-  public List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(final List<StreamAttendeeInfoSelect> entries) {
+  public List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(final List<IsAttendee> entries) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)

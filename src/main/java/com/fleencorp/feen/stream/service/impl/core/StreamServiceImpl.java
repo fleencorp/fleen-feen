@@ -116,14 +116,14 @@ public class StreamServiceImpl implements StreamService {
    * <p>If any of these conditions are not met, an appropriate exception is thrown to indicate the failure.</p>
    *
    * @param stream the stream to verify
-   * @param user   the user attempting to join the stream
+   * @param userId   the user attempting to join the stream
    * @throws FailedOperationException if the verification fails
    */
   @Override
-  public void verifyStreamDetailAllDetails(final FleenStream stream, final RegisteredUser user) {
+  public void verifyStreamDetailAllDetails(final FleenStream stream, final Long userId) {
     if (nonNull(stream)) {
       // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-      stream.checkIsNotOrganizer(user.getId());
+      stream.checkIsNotOrganizer(userId);
       // Verify stream is not canceled
       stream.checkNotCancelled();
       // Check if the stream is still active and can be joined.
@@ -131,7 +131,7 @@ public class StreamServiceImpl implements StreamService {
       // Check if the stream is private
       stream.checkNotPrivateForJoining();
       // Check if the user is already an attendee
-      verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
+      verifyIfUserIsNotAlreadyAnAttendee(stream, userId);
 
       return;
     }
@@ -147,22 +147,22 @@ public class StreamServiceImpl implements StreamService {
    * verifies that the stream has not been canceled, and confirms that the user is not already an attendee.</p>
    *
    * @param stream the {@link FleenStream} to validate
-   * @param user the {@link RegisteredUser} to validate against the stream
+   * @param userId the user id to validate against the stream
    * @throws FailedOperationException if the stream is public, already happened, is canceled, or the user
    *         is already an attendee.
    */
   @Override
-  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final RegisteredUser user) {
+  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final Long userId) {
     // Check if the stream is public and halt the operation
     stream.checkIsPublicForRequestToJoin();
     // Verify if the user is the owner and fail the operation because the owner is automatically a member of an entity
-    stream.checkIsNotOrganizer(user.getId());
+    stream.checkIsNotOrganizer(userId);
     // Check if the stream is still active and can be joined.
     stream.checkNotEnded();
     // Check if stream is not cancelled
     stream.checkNotCancelled();
     // CHeck if the user is already an attendee
-    verifyIfUserIsNotAlreadyAnAttendee(stream, user.getId());
+    verifyIfUserIsNotAlreadyAnAttendee(stream, userId);
   }
 
   /**
@@ -220,13 +220,13 @@ public class StreamServiceImpl implements StreamService {
    * reference. Also mark the attendee as an organizer and speaker in the stream.</p>
    *
    * @param stream the FleenStream object representing the stream to which the organizer is joining.
-   * @param user the FleenUser object representing the user (organizer) joining the stream as an attendee.
+   * @param userId the FleenUser object representing the user (organizer) joining the stream as an attendee.
    */
   @Override
   @Transactional
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final RegisteredUser user) {
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final Long userId) {
     // Add the organizer as an attendee of the stream
-    final StreamAttendee streamAttendee = StreamAttendee.of(user.toMember(), stream);
+    final StreamAttendee streamAttendee = StreamAttendee.of(userId, stream.getStreamId());
     // Approve the organizer's request to join automatically
     streamAttendee.approveUserAttendance();
     // Mark the organizer as a speaker
@@ -284,7 +284,7 @@ public class StreamServiceImpl implements StreamService {
     checkIsNullAny(Set.of(stream, userId), FailedOperationException::new);
 
     // Try to check if the user is an existing attendee
-    final Optional<StreamAttendee> existingAttendee = streamAttendeeOperationsService.findAttendeeByMemberId(stream, userId);
+    final Optional<StreamAttendee> existingAttendee = streamAttendeeOperationsService.findAttendeeByMemberId(stream.getStreamId(), userId);
     // If the user is found as an attendee, throw an exception with the attendee's request to join status
     existingAttendee
       .ifPresent(streamAttendee -> {
@@ -323,7 +323,7 @@ public class StreamServiceImpl implements StreamService {
    */
   @Override
   @Transactional
-  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final RegisteredUser user)
+  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final IsAMember user)
       throws CalendarNotFoundException, Oauth2InvalidAuthorizationException, FailedOperationException {
     checkIsNull(stream, FailedOperationException::new);
 
@@ -336,7 +336,7 @@ public class StreamServiceImpl implements StreamService {
 
     // If the stream is a broadcast or live stream, retrieve the oauth2 authorization
     final Oauth2Authorization oauth2Authorization = StreamType.isLiveStream(streamType)
-      ? googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user) : null;
+      ? googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user.getMemberId()) : null;
 
     return StreamOtherDetailsHolder.of(calendar, oauth2Authorization);
   }

@@ -87,7 +87,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     final FleenStream stream = streamOperationsService.findStream(streamId);
     stream.checkStreamTypeNotEqual(deleteStreamDto.getStreamType());
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -151,7 +151,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
     stream.checkNotOngoingForCancelOrDeleteOrUpdate();
     stream.cancel();
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -207,7 +207,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
 
     stream.checkStreamTypeNotEqual(rescheduleStreamDto.getStreamType());
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -273,7 +273,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
 
     stream = streamOperationsService.save(stream);
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -376,7 +376,7 @@ public class CommonStreamServiceImpl implements CommonStreamService, StreamReque
 
     streamOperationsService.save(stream);
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 

@@ -5,13 +5,15 @@ import com.fleencorp.feen.calendar.model.domain.Calendar;
 import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.NotAttendingEventRequest;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.notification.model.domain.Notification;
 import com.fleencorp.feen.notification.service.NotificationService;
 import com.fleencorp.feen.notification.service.impl.NotificationMessageService;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.attendee.StreamAttendeeNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
@@ -121,7 +123,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final StreamType streamType = stream.getStreamType();
     final StreamAttendee attendee = processAttendeeRequestToJoin(stream, processRequestToJoinDto);
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -151,7 +153,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
   private StreamAttendee processAttendeeRequestToJoin(final FleenStream stream, final ProcessAttendeeRequestToJoinStreamDto processRequestToJoinDto)
       throws StreamAttendeeNotFoundException, FailedOperationException {
     final Long attendeeId = processRequestToJoinDto.getAttendeeId();
-    final StreamAttendee attendee = streamAttendeeOperationsService.findAttendee(stream, attendeeId)
+    final StreamAttendee attendee = streamAttendeeOperationsService.findAttendee(stream.getStreamId(), attendeeId)
       .orElseThrow(StreamAttendeeNotFoundException.of(attendeeId));
 
     if (attendee.isRequestToJoinDisapprovedOrPending()) {
@@ -159,7 +161,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       handleAttendeeRequestApproval(stream, attendee, processRequestToJoinDto);
       streamAttendeeOperationsService.save(attendee);
 
-      final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(attendee.getStream(), attendee, attendee.getMember());
+      final Notification notification = notificationMessageService.ofApprovedOrDisapprovedStreamJoinRequest(attendee.getStream(), attendee, attendee.getMemberId());
       notificationService.save(notification);
     } else {
       throw new FailedOperationException();
@@ -215,12 +217,10 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
       final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto = externalStreamRequest.getProcessAttendeeRequestToJoinStreamDto();
 
       if (externalStreamRequest.isAnEvent() && processAttendeeRequestToJoinStreamDto.isApproved()) {
-        // Retrieve the stream, attendee and calendar from the request
-        final FleenStream stream = externalStreamRequest.getStream();
-        final StreamAttendee attendee = externalStreamRequest.getAttendee();
+        final IsAStream stream = externalStreamRequest.getStream();
+        final IsAttendee attendee = externalStreamRequest.getAttendee();
         final Calendar calendar = externalStreamRequest.getCalendar();
 
-        // Add the attendee to the event associated with the stream
         eventOperationsService.addAttendeeToEventExternally(calendar.getExternalId(), stream.getExternalId(), attendee.getEmailAddress(), null);
       }
     }
@@ -263,12 +263,12 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final FleenStream stream = streamService.findStream(streamId);
 
     stream.checkStreamTypeNotEqual(joinStreamDto.getStreamType());
-    streamService.verifyStreamDetailAllDetails(stream, user);
+    streamService.verifyStreamDetailAllDetails(stream, user.getId());
 
     final StreamType streamType = stream.getStreamType();
-    final StreamAttendee attendee = attemptToJoinPublicStream(stream, joinStreamDto.getComment(), user);
+    final StreamAttendee attendee = attemptToJoinPublicStream(stream, joinStreamDto.getComment(), user.toMember());
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     final Oauth2Authorization oauth2Authorization = streamOtherDetailsHolder.oauth2Authorization();
 
@@ -299,7 +299,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    * @param user    the user attempting to join the stream
    * @return the {@link StreamAttendee} instance representing the user's participation
    */
-  private StreamAttendee attemptToJoinPublicStream(final FleenStream stream, final String comment, final RegisteredUser user)
+  private StreamAttendee attemptToJoinPublicStream(final FleenStream stream, final String comment, final IsAMember user)
     throws StreamNotFoundException, StreamAlreadyCanceledException, StreamAlreadyHappenedException,
       CannotJoinPrivateStreamWithoutApprovalException, AlreadyRequestedToJoinStreamException, AlreadyApprovedRequestToJoinException {
     final StreamAttendee streamAttendee = streamAttendeeOperationsService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
@@ -376,9 +376,9 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     final FleenStream stream = streamOperationsService.findStream(streamId);
 
     stream.checkStreamTypeNotEqual(requestToJoinStreamDto.getStreamType());
-    streamOperationsService.validateStreamAndUserForProtectedStream(stream, user);
+    streamOperationsService.validateStreamAndUserForProtectedStream(stream, user.getId());
 
-    final StreamAttendee attendee = streamAttendeeOperationsService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user);
+    final StreamAttendee attendee = streamAttendeeOperationsService.getExistingOrCreateNewStreamAttendee(stream, requestToJoinStreamDto.getComment(), user.toMember());
     setAttendeeRequestToJoinPendingIfStreamIsPrivate(attendee, stream);
     saveStreamAndAttendee(stream, attendee);
 
@@ -423,7 +423,7 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
    */
   private void sendJoinRequestNotificationForPrivateStream(final FleenStream stream, final StreamAttendee streamAttendee, final RegisteredUser user) {
     // Create and save notification
-    final Notification notification = notificationMessageService.ofReceivedStreamJoinRequest(stream, streamAttendee, stream.getOrganizer(), user.toMember());
+    final Notification notification = notificationMessageService.ofReceivedStreamJoinRequest(stream, streamAttendee, stream.getOrganizerId(), user.toMember());
     // Save the notification
     notificationService.save(notification);
   }
@@ -475,10 +475,10 @@ public class CommonStreamJoinServiceImpl implements CommonStreamJoinService {
     stream.checkNotEnded();
     stream.checkIsNotOrganizer(user.getId());
 
-    final StreamAttendee attendee = streamAttendeeOperationsService.findAttendeeByStreamAndUser(stream, user.toMember())
+    final StreamAttendee attendee = streamAttendeeOperationsService.findAttendeeByStreamAndUser(stream.getStreamId(), user.getId())
       .orElseThrow(FailedOperationException::new);
 
-    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user);
+    final StreamOtherDetailsHolder streamOtherDetailsHolder = streamOperationsService.retrieveStreamOtherDetailsHolder(stream, user.toMember());
     final Calendar calendar = streamOtherDetailsHolder.calendar();
     streamService.processNotAttendingStream(stream, attendee);
 

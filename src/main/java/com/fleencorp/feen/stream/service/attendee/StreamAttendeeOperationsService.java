@@ -3,19 +3,18 @@ package com.fleencorp.feen.stream.service.attendee;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
-import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
 import com.fleencorp.feen.stream.model.search.attendee.StreamAttendeeSearchResult;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,31 +33,31 @@ public interface StreamAttendeeOperationsService {
 
   void markAllAttendeesAsSpeaker(List<Long> attendeeIds);
 
-  Optional<StreamAttendee> findOrganizerByStream(FleenStream stream, Member member);
+  Optional<StreamAttendee> findOrganizerByStream(IsAStream stream, IsAMember member);
 
   Optional<StreamAttendee> findDistinctByEmail(String emailAddress);
 
   List<StreamAttendee> findAllByAttendeeIds(Set<Long> attendeeIds);
 
-  List<StreamAttendee> findAllByStreamAndRequestToJoinStatus(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus);
+  List<IsAttendee> findAllByStreamAndRequestToJoinStatus(IsAStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus);
 
-  Optional<StreamAttendee> findAttendeeByStreamAndUser(FleenStream stream, Member member);
+  Optional<StreamAttendee> findAttendeeByStreamAndUser(Long streamId, Long memberId);
 
-  Optional<StreamAttendee> findAttendeeByIdAndStream(Long attendeeId, FleenStream stream);
+  Optional<StreamAttendee> findAttendeeByIdAndStream(Long attendeeId, Long streamId);
 
-  List<StreamAttendee> findAttendeesGoingToStream(Long streamId);
+  List<IsAttendee> findAttendeesGoingToStream(Long streamId);
 
   Set<StreamAttendee> findAttendeesByIdsAndStreamIdAndStatuses(List<Long> speakerAttendeeIds, Long streamId, List<StreamAttendeeRequestToJoinStatus> statuses);
 
-  Page<StreamAttendee> findByStreamAndStreamType(FleenStream stream, StreamType streamType, Pageable pageable);
+  Page<IsAttendee> findByStreamAndStreamType(IsAStream stream, StreamType streamType, Pageable pageable);
 
-  Page<StreamAttendee> findByStreamAndRequestToJoinStatus(FleenStream stream, Set<StreamAttendeeRequestToJoinStatus> requestToJoinStatuses, Pageable pageable);
+  Page<IsAttendee> findByStreamAndRequestToJoinStatus(IsAStream stream, Set<StreamAttendeeRequestToJoinStatus> requestToJoinStatuses, Pageable pageable);
 
-  Page<StreamAttendee> findAttendeesGoingToStream(FleenStream stream, Pageable pageable);
+  Page<IsAttendee> findAttendeesGoingToStream(IsAStream stream, Pageable pageable);
 
-  Page<StreamAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(FleenStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
+  Page<IsAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(IsAStream stream, StreamAttendeeRequestToJoinStatus requestToJoinStatus, Boolean isAttending, Pageable pageable);
 
-  Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(Long streamId, Long organizerId, String userIdOrName, Pageable pageable);
+  Page<IsAttendee> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(Long streamId, Long organizerId, String userIdOrName, Pageable pageable);
 
   List<StreamAttendeeSelect> findByMemberAndStreamIds(IsAMember member, List<Long> streamIds);
 
@@ -68,19 +67,19 @@ public interface StreamAttendeeOperationsService {
 
   StreamAttendeeSearchResult findStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest);
 
-  void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, RegisteredUser user);
+  void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(boolean isAttendeeMemberOfChatSpace, String streamExternalId, String comment, IsAMember user);
 
   Collection<StreamAttendeeResponse> getAttendeesGoingToStream(StreamResponse streamResponse);
 
   StreamAttendeeSearchResult getStreamAttendees(Long streamId, StreamAttendeeSearchRequest searchRequest) throws StreamNotFoundException;
 
-  Optional<StreamAttendee> findAttendeeByMemberId(FleenStream stream, Long userId);
+  Optional<StreamAttendee> findAttendeeByMemberId(Long streamId, Long userId);
 
-  Optional<StreamAttendee> findAttendee(FleenStream stream, Long attendeeId);
+  Optional<StreamAttendee> findAttendee(Long streamId, Long attendeeId);
 
-  RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, RegisteredUser user);
+  RequestToJoinSearchResult getAttendeeRequestsToJoinStream(Long streamId, StreamAttendeeSearchRequest searchRequest, IsAMember user);
 
-  StreamAttendee getExistingOrCreateNewStreamAttendee(FleenStream stream, String comment, RegisteredUser user) throws FailedOperationException;
+  StreamAttendee getExistingOrCreateNewStreamAttendee(IsAStream stream, String comment, IsAMember user) throws FailedOperationException;
 
   void createNewEventAttendeeRequestAndSendInvitation(String calendarExternalId, String streamExternalId, String attendeeEmailAddress, String comment);
 }

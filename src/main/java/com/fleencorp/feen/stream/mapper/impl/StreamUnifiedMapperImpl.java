@@ -1,9 +1,10 @@
 package com.fleencorp.feen.stream.mapper.impl;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
-import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -15,18 +16,13 @@ import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
 import com.fleencorp.feen.stream.mapper.speaker.StreamSpeakerMapper;
 import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamSpeaker;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.attendee.IsASpeakerInfo;
-import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
-import com.fleencorp.feen.stream.model.info.attendee.IsOrganizerInfo;
-import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.ProcessAttendeeRequestToJoinStreamResponse;
@@ -63,38 +59,8 @@ public class StreamUnifiedMapperImpl implements StreamUnifiedMapper {
   }
 
   @Override
-  public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatus(final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    return streamInfoMapper.toRequestToJoinStatus(requestToJoinStatus);
-  }
-
-  @Override
-  public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatusInfo(StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    return streamInfoMapper.toRequestToJoinStatusInfo(requestToJoinStatus);
-  }
-
-  @Override
-  public IsOrganizerInfo toIsOrganizerInfo(final boolean organizer) {
-    return streamInfoMapper.toIsOrganizerInfo(organizer);
-  }
-
-  @Override
-  public JoinStatusInfo toJoinStatusInfo(final JoinStatus joinStatus) {
-    return streamInfoMapper.toJoinStatusInfo(joinStatus);
-  }
-
-  @Override
-  public JoinStatusInfo toJoinStatus(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending) {
-    return streamInfoMapper.toJoinStatus(stream, requestToJoinStatus, isAttending);
-  }
-
-  @Override
   public AttendanceInfo toAttendanceInfo(final StreamResponse stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final boolean isAttending, final boolean isASpeaker) {
     return streamInfoMapper.toAttendanceInfo(stream, requestToJoinStatus, isAttending, isASpeaker);
-  }
-
-  @Override
-  public IsAttendingInfo toIsAttendingInfo(final boolean isAttending) {
-    return streamInfoMapper.toIsAttendingInfo(isAttending);
   }
 
   @Override
@@ -108,28 +74,33 @@ public class StreamUnifiedMapperImpl implements StreamUnifiedMapper {
   }
 
   @Override
-  public StreamAttendeeResponse toStreamAttendeeResponse(final StreamAttendee entry, final StreamResponse streamResponse) {
+  public StreamAttendeeResponse toStreamAttendeeResponse(final IsAttendee entry, final StreamResponse streamResponse) {
     return streamAttendeeMapper.toStreamAttendeeResponse(entry, streamResponse);
   }
 
   @Override
-  public Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(final List<StreamAttendee> entries, final StreamResponse streamResponse) {
+  public Collection<StreamAttendeeResponse> toStreamAttendeeResponsesPublic(final List<IsAttendee> entries, final StreamResponse streamResponse) {
     return streamAttendeeMapper.toStreamAttendeeResponsesPublic(entries, streamResponse);
   }
 
   @Override
-  public StreamResponse toStreamResponse(final FleenStream entry) {
+  public StreamResponse toStreamResponse(final IsAStream entry) {
     return streamMapper.toStreamResponse(entry);
   }
 
   @Override
-  public StreamResponse toStreamResponseNoJoinStatus(final FleenStream entry) {
+  public StreamResponse toStreamResponseNoJoinStatus(final IsAStream entry) {
     return streamMapper.toStreamResponseNoJoinStatus(entry);
   }
 
   @Override
-  public List<StreamResponse> toStreamResponses(final List<FleenStream> entries) {
+  public List<StreamResponse> toStreamResponses(final List<IsAStream> entries) {
     return streamMapper.toStreamResponses(entries);
+  }
+
+  @Override
+  public List<StreamResponse> toStreamResponsesActual(List<FleenStream> entries) {
+    return streamMapper.toStreamResponsesActual(entries);
   }
 
   @Override
@@ -163,7 +134,7 @@ public class StreamUnifiedMapperImpl implements StreamUnifiedMapper {
   }
 
   @Override
-  public List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(List<StreamAttendeeInfoSelect> entries) {
+  public List<StreamSpeakerResponse> toStreamSpeakerResponsesByProjection(List<IsAttendee> entries) {
     return streamSpeakerMapper.toStreamSpeakerResponsesByProjection(entries);
   }
 
@@ -173,12 +144,12 @@ public class StreamUnifiedMapperImpl implements StreamUnifiedMapper {
   }
 
   @Override
-  public StreamResponse toStreamResponseByAdminUpdate(FleenStream entry) {
+  public StreamResponse toStreamResponseByAdminUpdate(IsAStream entry) {
     return streamMapper.toStreamResponseByAdminUpdate(entry);
   }
 
   @Override
-  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, StreamAttendee attendee) {
+  public ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, IsAttendee attendee) {
     return streamCommonMapper.processAttendeeRequestToJoinStream(stream, attendee);
   }
 

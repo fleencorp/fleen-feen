@@ -7,6 +7,7 @@ import com.fleencorp.feen.chat.space.exception.request.AlreadyJoinedChatSpaceExc
 import com.fleencorp.feen.chat.space.exception.request.RequestToJoinChatSpacePendingException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpaceMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +25,8 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @Entity
 @Table(name = "chat_space_member")
-public class ChatSpaceMember extends FleenFeenEntity {
+public class ChatSpaceMember extends FleenFeenEntity
+  implements IsAChatSpaceMember {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -90,7 +92,7 @@ public class ChatSpaceMember extends FleenFeenEntity {
     return nonNull(member) ? member.getProfilePhotoUrl() : null;
   }
 
-  public boolean hasLeft() {
+  public Boolean hasLeft() {
     return nonNull(left) && left;
   }
 

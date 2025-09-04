@@ -1,5 +1,6 @@
 package com.fleencorp.feen.stream.mapper.common;
 
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.response.attendance.NotAttendingStreamResponse;
@@ -9,5 +10,5 @@ public interface StreamCommonMapper {
 
   NotAttendingStreamResponse notAttendingStream();
 
-  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, StreamAttendee attendee);
+  ProcessAttendeeRequestToJoinStreamResponse processAttendeeRequestToJoinStream(StreamResponse stream, IsAttendee attendee);
 }

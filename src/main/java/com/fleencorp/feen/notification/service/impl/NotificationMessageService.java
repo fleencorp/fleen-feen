@@ -6,7 +6,9 @@ import com.fleencorp.feen.follower.model.domain.Follower;
 import com.fleencorp.feen.model.domain.social.ShareContactRequest;
 import com.fleencorp.feen.notification.constant.NotificationStatus;
 import com.fleencorp.feen.notification.model.domain.Notification;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
@@ -201,9 +203,8 @@ public class NotificationMessageService {
   public Notification ofApprovedChatSpaceJoinRequest(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
-    notification.setChatSpace(chatSpace);
-    notification.setChatSpaceMember(chatSpaceMember);
+    notification.setChatSpaceId(chatSpace.getChatSpaceId());
+    notification.setChatSpaceMemberId(chatSpaceMember.getChatSpaceMemberId());
     notification.setReceiverId(member.getMemberId());
     notification.setChatSpaceTitle(chatSpace.getTitle());
     notification.setNotificationStatus(NotificationStatus.unread());
@@ -228,11 +229,10 @@ public class NotificationMessageService {
   public Notification ofReceivedChatSpaceJoinRequest(final ChatSpace chatSpace, final ChatSpaceMember chatSpaceMember, final Member member, final Member requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
-    notification.setChatSpace(chatSpace);
-    notification.setInitiatorOrRequester(requester);
+    notification.setChatSpaceId(chatSpace.getChatSpaceId());
+    notification.setInitiatorOrRequesterId(requester.getMemberId());
     notification.setReceiverId(member.getMemberId());
-    notification.setChatSpaceMember(chatSpaceMember);
+    notification.setChatSpaceMemberId(chatSpaceMember.getChatSpaceMemberId());
     notification.setChatSpaceTitle(chatSpace.getTitle());
     notification.setNotificationStatus(NotificationStatus.unread());
     notification.setOtherComment(chatSpaceMember.getMemberComment());
@@ -250,11 +250,11 @@ public class NotificationMessageService {
    *
    * @param stream the FleenStream for which the request was made
    * @param streamAttendee the attendee whose request to join is being processed
-   * @param member the member receiving the notification
+   * @param memberId the member receiving the notification
    * @return a notification indicating whether the request to join was approved or disapproved
    */
-  public Notification ofApprovedOrDisapprovedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member) {
-    final Notification notification = ofApprovedStreamJoinRequest(stream, streamAttendee, member);
+  public Notification ofApprovedOrDisapprovedStreamJoinRequest(final IsAStream stream, final StreamAttendee streamAttendee, final Long memberId) {
+    final Notification notification = ofApprovedStreamJoinRequest(stream, streamAttendee, memberId);
     updateNotificationTypeAndMessageKey(stream, notification, streamAttendee.isRequestToJoinApproved());
     return notification;
   }
@@ -263,23 +263,22 @@ public class NotificationMessageService {
    * Builds a notification for an approved request to join an event.
    *
    * @param stream      the stream associated with the approved request
-   * @param streamAttendee   the attendee of the event receiving the notification
-   * @param member           the member who approved the request
+   * @param attendee   the attendee of the event receiving the notification
+   * @param memberId           the member who approved the request
    * @return a Notification object representing the approved request to join the event
    */
-  public Notification ofApprovedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member) {
+  public Notification ofApprovedStreamJoinRequest(final IsAStream stream, final IsAttendee attendee, final Long memberId) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
-    notification.setStream(stream);
-    notification.setStreamAttendee(streamAttendee);
-    notification.setReceiverId(member.getMemberId());
+    notification.setStreamId(stream.getStreamId());
+    notification.setStreamAttendeeId(attendee.getAttendeeId());
+    notification.setReceiverId(memberId);
     notification.setStreamTitle(stream.getTitle());
     notification.setNotificationType(requestToJoinEventApproved());
     notification.setNotificationStatus(NotificationStatus.unread());
-    notification.setStreamAttendeeName(streamAttendee.getFullName());
+    notification.setStreamAttendeeName(attendee.getFullName());
     notification.setMessageKey(requestToJoinEventApproved().getCode());
-    notification.setOtherComment(streamAttendee.getOrganizerComment());
+    notification.setOtherComment(attendee.getOrganizerComment());
     notification.setIdOrLinkOrUrl(String.valueOf(stream.getStreamId()));
 
     return notification;
@@ -289,25 +288,24 @@ public class NotificationMessageService {
    * Builds a notification for a received request to join an event.
    *
    * @param stream      the event associated with the received request
-   * @param streamAttendee   the attendee of the event receiving the notification
+   * @param attendee   the attendee of the event receiving the notification
    * @param member           the member to whom the notification is sent
    * @param requester          the member who made the request to join the event
    * @return a Notification object representing the received request to join the event
    */
-  public Notification ofReceivedStreamJoinRequest(final FleenStream stream, final StreamAttendee streamAttendee, final Member member, final Member requester) {
+  public Notification ofReceivedStreamJoinRequest(final IsAStream stream, final IsAttendee attendee, final Long memberId, final IsAMember requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
-    notification.setStream(stream);
-    notification.setStreamAttendee(streamAttendee);
-    notification.setInitiatorOrRequester(requester);
-    notification.setReceiverId(member.getMemberId());
+    notification.setStreamId(stream.getStreamId());
+    notification.setStreamAttendeeId(attendee.getAttendeeId());
+    notification.setInitiatorOrRequesterId(requester.getMemberId());
+    notification.setReceiverId(memberId);
     notification.setStreamTitle(stream.getTitle());
     notification.setNotificationType(requestToJoinEventReceived());
     notification.setNotificationStatus(NotificationStatus.unread());
-    notification.setStreamAttendeeName(streamAttendee.getFullName());
+    notification.setStreamAttendeeName(attendee.getFullName());
     notification.setInitiatorOrRequesterName(requester.getFullName());
-    notification.setOtherComment(streamAttendee.getAttendeeComment());
+    notification.setOtherComment(attendee.getAttendeeComment());
     notification.setMessageKey(requestToJoinEventReceived().getCode());
     notification.setIdOrLinkOrUrl(String.valueOf(stream.getStreamId()));
 
@@ -324,7 +322,7 @@ public class NotificationMessageService {
    * @param notification the notification that will be updated with the appropriate type and message key.
    * @param approved a boolean indicating whether the request to join the event or broadcast was approved.
    */
-  public void updateNotificationTypeAndMessageKey(final FleenStream stream, final Notification notification, final boolean approved) {
+  public void updateNotificationTypeAndMessageKey(final IsAStream stream, final Notification notification, final boolean approved) {
     if (nonNull(stream) && nonNull(notification)) {
       if (stream.isALiveStream() && approved) {
         notification.setNotificationType(requestToJoinLiveBroadcastApproved());
@@ -365,7 +363,6 @@ public class NotificationMessageService {
   public Notification ofApprovedShareContactRequest(final ShareContactRequest shareContactRequest, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
     notification.setReceiverId(member.getMemberId());
     notification.setShareContactRequest(shareContactRequest);
     notification.setRecipient(shareContactRequest.getRecipient());
@@ -391,8 +388,7 @@ public class NotificationMessageService {
   public Notification ofReceivedShareContactRequest(final ShareContactRequest shareContactRequest, final Member member, final Member requester) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
-    notification.setInitiatorOrRequester(requester);
+    notification.setInitiatorOrRequesterId(requester.getMemberId());
     notification.setReceiverId(member.getMemberId());
     notification.setShareContactRequest(shareContactRequest);
     notification.setNotificationStatus(NotificationStatus.unread());
@@ -416,12 +412,11 @@ public class NotificationMessageService {
   public Notification ofFollowing(final Follower follower, final Member member) {
     final Notification notification = new Notification();
     notification.markAsUnread();
-    notification.setReceiver(member);
     notification.setFollower(follower);
     notification.setReceiverId(member.getMemberId());
     notification.setNotificationType(userFollowing());
     notification.setMessageKey(userFollowing().getCode());
-    notification.setInitiatorOrRequester(follower.getFollowing());
+    notification.setInitiatorOrRequesterId(follower.getFollowing().getMemberId());
     notification.setNotificationStatus(NotificationStatus.unread());
     notification.setInitiatorOrRequesterName(follower.getFollowingName());
     notification.setIdOrLinkOrUrl(String.valueOf(follower.getFollowerId()));

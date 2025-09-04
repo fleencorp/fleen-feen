@@ -9,6 +9,7 @@ import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.IsForKids;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.common.MusicLinkType;
@@ -59,7 +60,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
    * @return a {@link StreamResponse} object populated with stream information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public StreamResponse toStreamResponse(final FleenStream entry) {
+  public StreamResponse toStreamResponse(final IsAStream entry) {
     if (nonNull(entry)) {
 
       final StreamResponse response = new StreamResponse();
@@ -159,7 +160,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
    * @return a {@link StreamResponse} object with approved status information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public StreamResponse toStreamResponseByAdminUpdate(final FleenStream entry) {
+  public StreamResponse toStreamResponseByAdminUpdate(final IsAStream entry) {
     if (nonNull(entry)) {
       final StreamResponse stream = toStreamResponse(entry);
 
@@ -183,11 +184,11 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
   /**
    * Converts a {@link FleenStream} entry to a {@link StreamResponse} object, excluding request-to-join and join status information.
    *
-   * @param entry the {@link FleenStream} entry to convert
+   * @param entry the {@link IsAStream} entry to convert
    * @return a {@link StreamResponse} object with no join status or request-to-join status information, or {@code null} if the input entry is {@code null}
    */
   @Override
-  public StreamResponse toStreamResponseNoJoinStatus(final FleenStream entry) {
+  public StreamResponse toStreamResponseNoJoinStatus(final IsAStream entry) {
     if (nonNull(entry)) {
       final StreamResponse stream = toStreamResponse(entry);
       stream.setAttendanceInfo(AttendanceInfo.of());
@@ -198,21 +199,32 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
   }
 
   /**
-  * Converts a list of FleenStream entities to a list of FleenStreamResponse DTOs.
+  * Converts a list of IsAStream entities to a list of FleenStreamResponse DTOs.
   *
-  * <p>This method takes a list of FleenStream entities and converts each entity
+  * <p>This method takes a list of IsAStream entities and converts each entity
   * to a FleenStreamResponse DTO. Null entries are filtered out from the result.</p>
   *
-  * @param entries the list of FleenStream entities to convert
+  * @param entries the list of IsAStream entities to convert
   * @return a list of FleenStreamResponse DTOs, or an empty list if the input is null or empty
   */
   @Override
-  public List<StreamResponse> toStreamResponses(final List<FleenStream> entries) {
+  public List<StreamResponse> toStreamResponses(final List<IsAStream> entries) {
     if (nonNull(entries) && !entries.isEmpty()) {
       return entries.stream()
           .filter(Objects::nonNull)
           .map(this::toStreamResponse)
           .toList();
+    }
+    return List.of();
+  }
+
+  @Override
+  public List<StreamResponse> toStreamResponsesActual(List<FleenStream> entries) {
+    if (nonNull(entries) && !entries.isEmpty()) {
+      return entries.stream()
+        .filter(Objects::nonNull)
+        .map(this::toStreamResponse)
+        .toList();
     }
     return List.of();
   }

@@ -30,6 +30,18 @@ public class MemberQueryServiceImpl implements MemberQueryService {
   }
 
   @Override
+  public Optional<IsAMember> findByEmailAddress(String emailAddress) {
+    List<IsAMember> results = entityManager.createQuery(
+        "SELECT m.memberId, m.emailAddress FROM Member m WHERE m.emailAddress = :email",
+        IsAMember.class)
+      .setParameter("email", emailAddress)
+      .getResultList();
+
+    return results.stream().findFirst();
+  }
+
+
+  @Override
   public IsAMember findMemberOrThrow(Long memberId) {
     return findMemberById(memberId)
       .orElseThrow(MemberNotFoundException.of(memberId));

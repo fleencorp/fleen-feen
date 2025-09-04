@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   public NotificationSearchResult findNotifications(final SearchRequest searchRequest, final RegisteredUser user) {
     // Find a list of notifications based on the page details in the search request
-    final Page<Notification> page = notificationRepository.findMany(user.toMember(), searchRequest.getPage());
+    final Page<Notification> page = notificationRepository.findMany(user.getId(), searchRequest.getPage());
     // Convert the notifications to a list of notification responses
     final List<NotificationResponse> notificationResponses = toNotificationResponses(page.getContent());
     // Create a search result
@@ -144,7 +144,7 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   public ReadNotificationResponse markAllAsRead(final RegisteredUser user) {
     // Mark all notifications currently unread as now read for the given user
-    notificationRepository.markAllAsRead(NotificationStatus.read(), NotificationStatus.unread(), user.toMember());
+    notificationRepository.markAllAsRead(NotificationStatus.read(), NotificationStatus.unread(), user.getId());
     // Return a response indicating that the notifications have been marked as read
     return localizer.of(ReadNotificationResponse.of());
   }

@@ -1,10 +1,8 @@
 package com.fleencorp.feen.model.domain.stream;
 
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.stream.constant.core.*;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -500,29 +498,6 @@ class FleenStreamTest {
   }
 
   @Test
-  @DisplayName("Ensure member is empty")
-  void ensure_member_is_empty() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // then
-    assertNull(stream.getMember());
-  }
-
-  @Test
-  @DisplayName("Ensure stream member is not empty")
-  void ensure_member_is_not_empty() {
-    // given
-    final Member member = new Member();
-
-    final FleenStream stream = new FleenStream();
-    stream.setMember(member);
-
-    // then
-    assertNotNull(stream.getMember());
-  }
-
-  @Test
   @DisplayName("Ensure attendees is set by default")
   void ensure_attendees_is_set_by_default() {
     // given
@@ -530,29 +505,6 @@ class FleenStreamTest {
 
     // then
     assertNotNull(stream.getAttendees());
-  }
-
-  @Test
-  @DisplayName("Ensure chat space is empty")
-  void ensure_chat_space_is_empty() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // then
-    assertNull(stream.getChatSpace());
-  }
-
-  @Test
-  @DisplayName("Ensure chat space is not empty")
-  void ensure_chat_space_is_not_empty() {
-    // given
-    final ChatSpace chatSpace = new ChatSpace();
-
-    final FleenStream stream = new FleenStream();
-    stream.setChatSpace(chatSpace);
-
-    // then
-    assertNotNull(stream.getChatSpace());
   }
 
   @Test
@@ -634,52 +586,6 @@ class FleenStreamTest {
 
     // then
     assertNotNull(stream.getChatSpaceId());
-  }
-
-  @Test
-  @DisplayName("Ensure chat space external id or name is empty")
-  void ensure_chat_space_external_id_or_name_is_empty() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // then
-    assertNull(stream.getExternalSpaceIdOrName());
-  }
-
-  @Test
-  @DisplayName("Ensure chat space external id or name is not empty")
-  void ensure_chat_space_external_id_or_name_is_not_empty() {
-    // given
-    final ChatSpace chatSpace = new ChatSpace();
-    chatSpace.setExternalIdOrName("AaAbVH8QN6o");
-
-    final FleenStream stream = new FleenStream();
-    stream.setChatSpace(chatSpace);
-
-    // then
-    assertNotNull(stream.getExternalSpaceIdOrName());
-  }
-
-  @Test
-  @DisplayName("Ensure organizer is empty")
-  void ensure_organizer_is_empty() {
-    // given
-    final FleenStream stream = new FleenStream();
-
-    // then
-    assertNull(stream.getOrganizer());
-  }
-
-  @Test
-  @DisplayName("Ensure organizer is not empty")
-  void ensure_organizer_is_not_empty() {
-    // given
-    final FleenStream stream = new FleenStream();
-    final Member member = new Member();
-    stream.setMember(member);
-
-    // then
-    assertNotNull(stream.getOrganizer());
   }
 
   @Test

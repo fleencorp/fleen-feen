@@ -19,8 +19,8 @@ import com.fleencorp.feen.oauth2.model.response.StartOauth2AuthorizationResponse
 import com.fleencorp.feen.oauth2.model.response.base.Oauth2AuthorizationResponse;
 import com.fleencorp.feen.oauth2.repository.Oauth2AuthorizationRepository;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.auth.oauth2.TokenResponseException;
@@ -166,12 +166,10 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
   public CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(final String authorizationCode, final Oauth2AuthenticationRequest authenticationRequest, final RegisteredUser user) {
     // Verify the authorization code and obtain the completed OAuth2 authorization response
     final CompletedOauth2AuthorizationResponse oauth2AuthorizationResponse = verifyAuthorizationCode(authorizationCode, authenticationRequest);
-    // Convert the user to a member instance
-    final Member member = user.toMember();
     // Get service type associated with authorization and authorization code
     final Oauth2ServiceType oauth2ServiceType = authenticationRequest.getOauth2ServiceType();
     // Retrieve the OAuth2 authorization for the member and service type, or create a new one if not found
-    final Oauth2Authorization oauth2Authorization = findOauth2AuthorizationOrCreateOne(oauth2ServiceType, member);
+    final Oauth2Authorization oauth2Authorization = findOauth2AuthorizationOrCreateOne(oauth2ServiceType, user.getId());
 
     // Update the OAuth2 authorization with the details from the authorization response
     updateOauth2Authorization(oauth2Authorization, oauth2AuthorizationResponse);
@@ -196,18 +194,16 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * expiration time, token type, and scope. It then returns the RefreshOauth2TokenResponse.</p>
    *
    * @param authenticationRequest The Oauth 2.0 authentication request
-   * @param user The FleenUser for whom the OAuth 2.0 authorization is being refreshed.
+   * @param userId The FleenUser for whom the OAuth 2.0 authorization is being refreshed.
    * @return A RefreshOauth2TokenResponse containing the refreshed OAuth 2.0 access token and other details.
    */
-  protected RefreshOauth2TokenResponse refreshUserAccessToken(final Oauth2AuthenticationRequest authenticationRequest, final RegisteredUser user) {
+  protected RefreshOauth2TokenResponse refreshUserAccessToken(final Oauth2AuthenticationRequest authenticationRequest, final Long userId) {
     // Attempt to refresh the user's OAuth2 token using the provided refresh token
     final RefreshOauth2TokenResponse oauth2TokenResponse = refreshUserToken(authenticationRequest.getRefreshToken());
     // If the token response is not null, proceed with updating the authorization
     if (nonNull(oauth2TokenResponse)) {
-      // Convert the user to a member instance
-      final Member member = user.toMember();
       // Retrieve the OAuth2 authorization for the user
-      final Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, member);
+      final Oauth2Authorization oauth2Authorization = getOauth2Authorization(authenticationRequest, userId);
       // Update the authorization with the new token information
       updateOauth2Authorization(oauth2Authorization, oauth2TokenResponse);
       // Save the updated authorization in the repository
@@ -230,19 +226,19 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * the method attempts to retrieve an existing authorization for the {@link Member}; if none is found, a new one is created.</p>
    *
    * @param authenticationRequest the authentication request containing OAuth2 details.
-   * @param member the member associated with the authorization.
+   * @param userId the member associated with the authorization.
    * @return an {@link Oauth2Authorization} instance based on the provided request and member.
    */
-  protected Oauth2Authorization getOauth2Authorization(final Oauth2AuthenticationRequest authenticationRequest, final Member member) {
+  protected Oauth2Authorization getOauth2Authorization(final Oauth2AuthenticationRequest authenticationRequest, final Long userId) {
     // Check if the request already contains an OAuth2 authorization
     if (authenticationRequest.isOauth2AuthorizationPresent()) {
       return authenticationRequest.getOauth2Authorization();
     } else if (authenticationRequest.isOauth2ServiceTypePresent()) {
       // If no authorization is provided, check for a specific OAuth2 service type and retrieve the authorization if available
-      return findOauth2AuthorizationOrCreateOne(authenticationRequest.getOauth2ServiceType(), member);
+      return findOauth2AuthorizationOrCreateOne(authenticationRequest.getOauth2ServiceType(), userId);
     } else {
       // If neither an authorization nor a service type is provided, find or create a general OAuth2 authorization for the member
-      return Oauth2Authorization.of(member);
+      return Oauth2Authorization.of(userId);
     }
   }
 
@@ -588,7 +584,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    *
    * @param oauth2ServiceType The type of the OAuth2 service (e.g., Google Calendar) for which the authorization
    *                          details are being validated.
-   * @param user              The user whose OAuth2 authorization details are to be validated.
+   * @param userId              The user whose OAuth2 authorization details are to be validated.
    * @return The updated {@link Oauth2Authorization} entity containing the authorization details for the specified
    *         OAuth2 service and user.
    * @throws Oauth2InvalidAuthorizationException if no valid OAuth2 authorization details are found for the
@@ -596,14 +592,14 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    */
   @Override
   @Transactional
-  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
+  public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final Long userId) {
     // Retrieve user oauth2 authorization details associated with Google Calendar
-    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberAndServiceType(user.toMember(), oauth2ServiceType)
+    final Oauth2Authorization oauth2Authorization = oauth2AuthorizationRepository.findByMemberIdAndServiceType(userId, oauth2ServiceType)
       .orElseThrow(Oauth2InvalidAuthorizationException.of(oauth2ServiceType));
 
     final String currentAccessToken = oauth2Authorization.getAccessToken();
     // Check access token expiry date and refresh access token if it is expired
-    validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, user);
+    validateAccessTokenExpiryTimeOrRefreshToken(oauth2Authorization, oauth2ServiceType, userId);
     // Save Oauth2Authorization if new token has been set
     saveTokenIfAccessTokenUpdated(oauth2Authorization, currentAccessToken);
     // Return the oauth2 authorization
@@ -619,9 +615,9 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    *
    * @param oauth2Authorization the {@link Oauth2Authorization} containing the current access and refresh tokens
    * @param oauth2ServiceType the type of OAuth2 service being validated, e.g., Google, Facebook
-   * @param user the authenticated user for whom the token validation and refresh are being performed
+   * @param userId the authenticated user for whom the token validation and refresh are being performed
    */
-  protected void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
+  protected void validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2Authorization oauth2Authorization, final Oauth2ServiceType oauth2ServiceType, final Long userId) {
     // Create a new authentication request for the specified OAuth2 service type
     final Oauth2AuthenticationRequest authenticationRequest = Oauth2AuthenticationRequest.of(oauth2ServiceType);
     // Set the refresh token in the authentication request
@@ -632,7 +628,7 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
     // Check if the access token has expired
     if (oauth2Authorization.isAccessTokenExpired()) {
       // Refresh the access token using the refresh token
-      final Oauth2AuthorizationResponse refreshOauth2TokenResponse = refreshUserAccessToken(authenticationRequest, user);
+      final Oauth2AuthorizationResponse refreshOauth2TokenResponse = refreshUserAccessToken(authenticationRequest, userId);
       // Update the access token if the refresh response contains a new one
       setIfNonNull(refreshOauth2TokenResponse::getAccessToken, oauth2Authorization::setAccessToken);
       // Update the refresh token if the refresh response contains a new one
@@ -666,14 +662,14 @@ public class GoogleOauth2ServiceImpl implements GoogleOauth2Service {
    * for the member.</p>
    *
    * @param oauth2ServiceType the {@link Oauth2ServiceType} to create
-   * @param member the {@link Member} for whom the authorization is being retrieved or created
+   * @param userId the {@link Member} for whom the authorization is being retrieved or created
    * @return the existing or newly created {@link Oauth2Authorization} for the member
    */
-  protected Oauth2Authorization findOauth2AuthorizationOrCreateOne(final Oauth2ServiceType oauth2ServiceType, final Member member) {
+  protected Oauth2Authorization findOauth2AuthorizationOrCreateOne(final Oauth2ServiceType oauth2ServiceType, final Long userId) {
     // Find the OAuth2 authorization for the member and service type, or create a new one if not found
     return oauth2AuthorizationRepository
-      .findByMemberAndServiceType(member, oauth2ServiceType)
-      .orElseGet(() -> Oauth2Authorization.of(member));
+      .findByMemberIdAndServiceType(userId, oauth2ServiceType)
+      .orElseGet(() -> Oauth2Authorization.of(userId));
   }
 
 }

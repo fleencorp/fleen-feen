@@ -6,6 +6,8 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEven
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
@@ -19,7 +21,6 @@ import com.fleencorp.feen.stream.model.dto.event.CreateInstantEventDto;
 import com.fleencorp.feen.stream.model.response.base.CreateStreamResponse;
 import com.fleencorp.feen.stream.model.response.common.AddNewStreamAttendeeResponse;
 import com.fleencorp.feen.stream.model.response.common.event.DataForCreateEventResponse;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface EventOperationsService {
 
@@ -29,10 +30,10 @@ public interface EventOperationsService {
 
   CreateStreamResponse createInstantEvent(CreateInstantEventDto createInstantEventDto, RegisteredUser user) throws CalendarNotFoundException;
 
-  void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(String calendarExternalId, FleenStream stream, StreamVisibility previousStreamVisibility)
+  void sendInvitationToPendingAttendeesBasedOnCurrentStreamStatus(String calendarExternalId, IsAStream stream, StreamVisibility previousStreamVisibility)
     throws FailedOperationException;
 
-  void createEventInGoogleCalendar(FleenStream stream, CreateCalendarEventRequest createCalendarEventRequest);
+  void createEventInGoogleCalendar(IsAStream stream, CreateCalendarEventRequest createCalendarEventRequest);
 
   void addOrganizerOrAnyoneAsAttendeeOrGuestOfEvent(String calendarId, String eventId, String organizerEmail, String organizerDisplayName);
 
@@ -40,11 +41,11 @@ public interface EventOperationsService {
 
   void addNewAttendeeToCalendarEvent(AddNewEventAttendeeRequest addNewEventAttendeeRequest);
 
-  void createEventInGoogleCalendarAndAnnounceInSpace(FleenStream stream, CreateCalendarEventRequest createCalendarEventRequest);
+  void createEventInGoogleCalendarAndAnnounceInSpace(IsAStream stream, CreateCalendarEventRequest createCalendarEventRequest);
 
-  void createInstantEventInGoogleCalendar(FleenStream stream, CreateInstantCalendarEventRequest createInstantCalendarEventRequest);
+  void createInstantEventInGoogleCalendar(IsAStream stream, CreateInstantCalendarEventRequest createInstantCalendarEventRequest);
 
-  void updateEventInGoogleCalendar(FleenStream stream, PatchCalendarEventRequest patchCalendarEventRequest);
+  void updateEventInGoogleCalendar(IsAStream stream, PatchCalendarEventRequest patchCalendarEventRequest);
 
   void deleteEventInGoogleCalendar(DeleteCalendarEventRequest deleteCalendarEventRequest);
 

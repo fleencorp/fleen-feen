@@ -33,7 +33,7 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
 
   public FleenStream toFleenStream(final Member member) {
     final FleenStream stream = toFleenStream();
-    stream.setMember(member);
+    stream.setMemberId(member.getMemberId());
     stream.setStreamSource(YOUTUBE_LIVE);
     stream.setStreamType(LIVE_STREAM);
     return stream;

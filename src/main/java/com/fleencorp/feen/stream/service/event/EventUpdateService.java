@@ -3,15 +3,16 @@ package com.fleencorp.feen.stream.service.event;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 
 public interface EventUpdateService {
 
-  void createEventInGoogleCalendarAndAnnounceInSpace(FleenStream stream, CreateCalendarEventRequest createCalendarEventRequest);
+  void createEventInGoogleCalendarAndAnnounceInSpace(IsAStream stream, CreateCalendarEventRequest createCalendarEventRequest);
 
-  void createInstantEventInGoogleCalendar(FleenStream stream, CreateInstantCalendarEventRequest createInstantCalendarEventRequest);
+  void createInstantEventInGoogleCalendar(IsAStream stream, CreateInstantCalendarEventRequest createInstantCalendarEventRequest);
 
-  void updateEventInGoogleCalendar(FleenStream stream, PatchCalendarEventRequest patchCalendarEventRequest);
+  void updateEventInGoogleCalendar(IsAStream stream, PatchCalendarEventRequest patchCalendarEventRequest);
 
   void deleteEventInGoogleCalendar(DeleteCalendarEventRequest deleteCalendarEventRequest);
 

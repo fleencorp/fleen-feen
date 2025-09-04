@@ -3,13 +3,13 @@ package com.fleencorp.feen.stream.service.impl.attendee;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
-import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
 import com.fleencorp.feen.stream.model.request.search.StreamAttendeeSearchRequest;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
@@ -22,7 +22,6 @@ import com.fleencorp.feen.stream.repository.attendee.StreamAttendeeSearchReposit
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeService;
 import com.fleencorp.feen.stream.service.update.StreamAttendeeUpdateService;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -82,8 +81,8 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public Optional<StreamAttendee> findOrganizerByStream(final FleenStream stream, final Member member) {
-    return streamAttendeeSearchRepository.findOrganizerByStream(stream, member);
+  public Optional<StreamAttendee> findOrganizerByStream(final IsAStream stream, final IsAMember member) {
+    return streamAttendeeSearchRepository.findOrganizerByStream(stream.getStreamId(), member.getMemberId());
   }
 
   @Override
@@ -97,22 +96,22 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public List<StreamAttendee> findAllByStreamAndRequestToJoinStatus(final FleenStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    return streamAttendeeSearchRepository.findAllByStreamAndRequestToJoinStatus(stream, requestToJoinStatus);
+  public List<IsAttendee> findAllByStreamAndRequestToJoinStatus(final IsAStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
+    return streamAttendeeSearchRepository.findAllByStreamAndRequestToJoinStatus(stream.getStreamId(), requestToJoinStatus);
   }
 
   @Override
-  public Optional<StreamAttendee> findAttendeeByStreamAndUser(final FleenStream stream, final Member member) {
-    return streamAttendeeSearchRepository.findAttendeeByStreamAndUser(stream, member);
+  public Optional<StreamAttendee> findAttendeeByStreamAndUser(final Long streamId, final Long memberId) {
+    return streamAttendeeSearchRepository.findAttendeeByStreamAndUser(streamId, memberId);
   }
 
   @Override
-  public Optional<StreamAttendee> findAttendeeByIdAndStream(final Long attendeeId, final FleenStream stream) {
-    return streamAttendeeSearchRepository.findAttendeeByIdAndStream(attendeeId, stream);
+  public Optional<StreamAttendee> findAttendeeByIdAndStream(final Long attendeeId, final Long streamId) {
+    return streamAttendeeSearchRepository.findAttendeeByIdAndStream(attendeeId, streamId);
   }
 
   @Override
-  public List<StreamAttendee> findAttendeesGoingToStream(final Long streamId) {
+  public List<IsAttendee> findAttendeesGoingToStream(final Long streamId) {
     return streamAttendeeSearchRepository.findAttendeesGoingToStream(streamId);
   }
 
@@ -122,28 +121,28 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public Page<StreamAttendee> findByStreamAndStreamType(final FleenStream stream, final StreamType streamType, final Pageable pageable) {
-    return streamAttendeeRepository.findByStreamAndStreamType(stream, streamType, pageable);
+  public Page<IsAttendee> findByStreamAndStreamType(final IsAStream stream, final StreamType streamType, final Pageable pageable) {
+    return streamAttendeeRepository.findByStreamAndStreamType(stream.getStreamId(), streamType, pageable);
   }
 
   @Override
-  public Page<StreamAttendee> findByStreamAndRequestToJoinStatus(final FleenStream stream, final Set<StreamAttendeeRequestToJoinStatus> requestToJoinStatuses, final Pageable pageable) {
-    return streamAttendeeRepository.findByStreamAndRequestToJoinStatus(stream, requestToJoinStatuses, pageable);
+  public Page<IsAttendee> findByStreamAndRequestToJoinStatus(final IsAStream stream, final Set<StreamAttendeeRequestToJoinStatus> requestToJoinStatuses, final Pageable pageable) {
+    return streamAttendeeRepository.findByStreamAndRequestToJoinStatus(stream.getStreamId(), requestToJoinStatuses, pageable);
   }
 
   @Override
-  public Page<StreamAttendee> findAttendeesGoingToStream(final FleenStream stream, final Pageable pageable) {
-    return streamAttendeeRepository.findAttendeesGoingToStream(stream, pageable);
+  public Page<IsAttendee> findAttendeesGoingToStream(final IsAStream stream, final Pageable pageable) {
+    return streamAttendeeRepository.findAttendeesGoingToStream(stream.getStreamId(), pageable);
   }
 
   @Override
-  public Page<StreamAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(final FleenStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final Boolean isAttending, final Pageable pageable) {
+  public Page<IsAttendee> findAllByStreamAndRequestToJoinStatusAndAttending(final IsAStream stream, final StreamAttendeeRequestToJoinStatus requestToJoinStatus, final Boolean isAttending, final Pageable pageable) {
     return streamAttendeeRepository.findAllByStreamAndRequestToJoinStatusAndAttending(
-      stream, requestToJoinStatus, isAttending, pageable);
+      stream.getStreamId(), requestToJoinStatus, isAttending, pageable);
   }
 
   @Override
-  public Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
+  public Page<IsAttendee> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
     final Long streamId, final Long organizerId, final String userIdOrName, final Pageable pageable) {
     return streamAttendeeProjectionRepository.findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
       streamId, organizerId, userIdOrName, pageable);
@@ -173,7 +172,7 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
 
   @Override
   public void checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(
-    final boolean isAttendeeMemberOfChatSpace, final String streamExternalId, final String comment, final RegisteredUser user) {
+    final boolean isAttendeeMemberOfChatSpace, final String streamExternalId, final String comment, final IsAMember user) {
     streamAttendeeService.checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(
       isAttendeeMemberOfChatSpace, streamExternalId, comment, user);
   }
@@ -189,22 +188,22 @@ public class StreamAttendeeOperationsServiceImpl implements StreamAttendeeOperat
   }
 
   @Override
-  public Optional<StreamAttendee> findAttendeeByMemberId(final FleenStream stream, final Long userId) {
-    return streamAttendeeService.findAttendeeByMemberId(stream, userId);
+  public Optional<StreamAttendee> findAttendeeByMemberId(final Long streamId, final Long userId) {
+    return streamAttendeeService.findAttendeeByMemberId(streamId, userId);
   }
 
   @Override
-  public Optional<StreamAttendee> findAttendee(final FleenStream stream, final Long attendeeId) {
-    return streamAttendeeService.findAttendee(stream, attendeeId);
+  public Optional<StreamAttendee> findAttendee(final Long streamId, final Long attendeeId) {
+    return streamAttendeeService.findAttendee(streamId, attendeeId);
   }
 
   @Override
-  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final RegisteredUser user) {
+  public RequestToJoinSearchResult getAttendeeRequestsToJoinStream(final Long streamId, final StreamAttendeeSearchRequest searchRequest, final IsAMember user) {
     return streamAttendeeService.getAttendeeRequestsToJoinStream(streamId, searchRequest, user);
   }
 
   @Override
-  public StreamAttendee getExistingOrCreateNewStreamAttendee(final FleenStream stream, final String comment, final RegisteredUser user) throws FailedOperationException {
+  public StreamAttendee getExistingOrCreateNewStreamAttendee(final IsAStream stream, final String comment, final IsAMember user) throws FailedOperationException {
     return streamAttendeeService.getExistingOrCreateNewStreamAttendee(stream, comment, user);
   }
 

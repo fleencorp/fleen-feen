@@ -1,7 +1,7 @@
 package com.fleencorp.feen.stream.repository.attendee;
 
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
-import com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect;
 import com.fleencorp.feen.stream.model.projection.StreamAttendeeSelect;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,32 +13,58 @@ import java.util.List;
 
 public interface StreamAttendeeProjectionRepository extends JpaRepository<StreamAttendee, Long> {
 
-  /**
-   * Finds non-speaker attendees of a specific stream, organized by the given organizer,
-   * whose username, first name, or last name matches the provided query string.
-   *
-   * <p>This method is typically used to search for potential attendees who can be selected
-   * or invited as speakers. The results are paginated and returned as {@link StreamAttendeeInfoSelect}
-   * projections.</p>
-   *
-   * @param streamId the ID of the stream to search within
-   * @param organizerId the ID of the stream organizer to ensure authorized access
-   * @param userIdOrName a query string used to match against the attendee's username, first name, or last name
-   * @param pageable the pagination configuration
-   * @return a {@link Page} of {@link StreamAttendeeInfoSelect} matching the search criteria
-   */
-  @Query(value =
-    """
-      SELECT new com.fleencorp.feen.stream.model.projection.StreamAttendeeInfoSelect(sa.attendeeId, fs.streamId, m.firstName, m.lastName, m.username)
-      FROM StreamAttendee sa
-      LEFT JOIN sa.stream fs
-      LEFT JOIN sa.member m
-      WHERE (fs.streamId = :streamId AND sa.aSpeaker = false)
-        AND (fs.organizerId = :organizerId)
-        AND (m.username = :q OR m.firstName = :q OR m.lastName = :q)
-    """)
-  Page<StreamAttendeeInfoSelect> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
-    @Param("streamId") Long streamId, @Param("organizerId") Long organizerId, @Param("q") String userIdOrName, Pageable pageable);
+  @Query(
+    value = """
+          SELECT
+              sa.stream_attendee_id AS attendeeId,
+              sa.stream_id AS streamId,
+              sa.member_id AS memberId,
+              sa.is_attending AS attending,
+              sa.is_a_speaker AS aSpeaker,
+              sa.is_organizer AS isOrganizer,
+              sa.attendee_comment AS attendeeComment,
+              sa.organizer_comment AS organizerComment,
+              sa.request_to_join_status AS requestToJoinStatus,
+              m.email_address AS emailAddress,
+              CONCAT(m.first_name, ' ', m.last_name) AS fullName,
+              m.username AS username,
+              m.profile_photo_url AS profilePhoto,
+              m.first_name AS firstName,
+              m.last_name AS lastName
+          FROM stream_attendee sa
+          JOIN stream s ON sa.stream_id = s.stream_id
+          JOIN member m ON sa.member_id = m.member_id
+          WHERE sa.is_a_speaker = false
+            AND s.stream_id = :streamId
+            AND s.member_id = :organizerId
+            AND (
+                  m.username = :q
+                  OR m.first_name = :q
+                  OR m.last_name = :q
+                )
+          """,
+    countQuery = """
+          SELECT COUNT(*)
+          FROM stream_attendee sa
+          JOIN stream s ON sa.stream_id = s.stream_id
+          JOIN member m ON sa.member_id = m.member_id
+          WHERE sa.is_a_speaker = false
+            AND s.stream_id = :streamId
+            AND s.member_id = :organizerId
+            AND (
+                  m.username = :q
+                  OR m.first_name = :q
+                  OR m.last_name = :q
+                )
+          """,
+    nativeQuery = true
+  )
+  Page<IsAttendee> findPotentialAttendeeSpeakersByStreamAndFullNameOrUsername(
+    @Param("streamId") Long streamId,
+    @Param("organizerId") Long organizerId,
+    @Param("q") String userIdOrName,
+    Pageable pageable
+  );
 
   /**
    * Retrieves a list of stream attendee information for a given member and a list of stream IDs.

@@ -4,6 +4,7 @@ import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.calendar.model.request.search.EventSearchRequest;
 import com.fleencorp.feen.chat.space.model.search.core.RequestToJoinSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamTimeType;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
@@ -16,7 +17,6 @@ import com.fleencorp.feen.stream.model.search.common.StreamSearchResult;
 import com.fleencorp.feen.stream.service.attendee.StreamAttendeeOperationsService;
 import com.fleencorp.feen.stream.service.search.StreamSearchService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -234,6 +234,6 @@ public class StreamSearchController {
         @AuthenticationPrincipal final RegisteredUser user,
       @Parameter(description = "Search criteria for join requests", required = true)
         @SearchParam final StreamAttendeeSearchRequest streamAttendeeSearchRequest) {
-    return streamAttendeeOperationsService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user);
+    return streamAttendeeOperationsService.getAttendeeRequestsToJoinStream(streamId, streamAttendeeSearchRequest, user.toMember());
   }
 }

@@ -25,19 +25,20 @@ import com.fleencorp.feen.follower.service.FollowerService;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowedInfo;
 import com.fleencorp.feen.model.info.user.profile.TotalFollowingInfo;
+import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.service.StreamQueryService;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import com.fleencorp.feen.stream.model.search.common.UserCreatedStreamsSearchResult;
 import com.fleencorp.feen.stream.model.search.mutual.MutualStreamAttendanceSearchResult;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import com.fleencorp.feen.user.model.search.UserProfileSearchRequest;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.feen.user.service.profile.UserProfilePublicService;
 import com.fleencorp.localizer.service.Localizer;
@@ -61,48 +62,35 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
   private final FollowerService followerService;
   private final MemberService memberService;
   private final FollowerRepository followerRepository;
-  private final StreamOperationsService streamOperationsService;
+  private final StreamQueryService streamQueryService;
   private final BlockUserRepository blockUserRepository;
   private final ContactMapper contactMapper;
   private final UnifiedMapper unifiedMapper;
+  private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
-  /**
-   * Constructs a new {@code UserProfilePublicServiceImpl}, responsible for handling
-   * public-facing user profile operations such as viewing streams, contacts,
-   * chat spaces, and follow/block status.
-   *
-   * @param chatSpaceOperationsService service for managing chat space-related operations
-   * @param contactService service for retrieving and managing user contacts
-   * @param followerService service for managing user follows
-   * @param memberService service for accessing member-related data and actions
-   * @param streamOperationsService service for managing user streams and related activities
-   * @param followerRepository repository for accessing and managing follower relationships
-   * @param blockUserRepository repository for managing blocked user relationships
-   * @param contactMapper mapper for contact related features
-   * @param unifiedMapper general-purpose mapper for DTO and entity transformations
-   * @param localizer utility for resolving localized text responses
-   */
   public UserProfilePublicServiceImpl(
       final ChatSpaceOperationsService chatSpaceOperationsService,
       final ContactService contactService,
       final FollowerService followerService,
       final MemberService memberService,
-      final StreamOperationsService streamOperationsService,
+      final StreamQueryService streamQueryService,
       final FollowerRepository followerRepository,
       final BlockUserRepository blockUserRepository,
       final ContactMapper contactMapper,
       final UnifiedMapper unifiedMapper,
+      final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.chatSpaceOperationsService = chatSpaceOperationsService;
     this.contactService = contactService;
     this.followerService = followerService;
     this.memberService = memberService;
-    this.streamOperationsService = streamOperationsService;
+    this.streamQueryService = streamQueryService;
     this.followerRepository = followerRepository;
     this.blockUserRepository = blockUserRepository;
     this.contactMapper = contactMapper;
     this.unifiedMapper = unifiedMapper;
+    this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -215,12 +203,12 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
     final String targetMemberFullName = nonNull(targetMember) ? targetMember.getFullName() : null;
 
     final Pageable pageable = PageRequest.of(0, 10);
-    final Page<FleenStream> userCreatedStreams = nonNull(targetMemberId)
-      ? streamOperationsService.findStreamsCreatedByMember(targetMemberId, List.of(StreamStatus.ACTIVE), pageable)
+    final Page<IsAStream> userCreatedStreams = nonNull(targetMemberId)
+      ? streamQueryService.findStreamsCreatedByMember(targetMemberId, List.of(StreamStatus.ACTIVE), pageable)
       : Page.empty();
 
-    final Page<FleenStream> mutualAttendedStreams = allNonNull(memberId, targetMemberId)
-      ? streamOperationsService.findCommonPastAttendedStreams(memberId, targetMemberId, List.of(StreamAttendeeRequestToJoinStatus.APPROVED), List.of(StreamStatus.ACTIVE), pageable)
+    final Page<IsAStream> mutualAttendedStreams = allNonNull(memberId, targetMemberId)
+      ? streamQueryService.findCommonPastAttendedStreams(memberId, targetMemberId, List.of(StreamAttendeeRequestToJoinStatus.APPROVED), List.of(StreamStatus.ACTIVE), pageable)
       : Page.empty();
 
     final Page<ChatSpace> mutualChatSpaceMemberships = allNonNull(memberId, targetMemberId)
@@ -244,9 +232,9 @@ public class UserProfilePublicServiceImpl implements UserProfilePublicService {
    * @param targetUserFullName the full name of the target user (for display in the response)
    * @param userProfileResponse the response object to set the search results in
    */
-  protected void setSearchResultDetails(final Page<FleenStream> userCreatedStreams, final Page<FleenStream> mutualAttendedStreams, final Page<ChatSpace> mutualChatSpaceMemberships, final String targetUserFullName, final UserProfileResponse userProfileResponse) {
-    final Collection<StreamResponse> userCreatedStreamResponses = unifiedMapper.toStreamResponses(userCreatedStreams.getContent());
-    final Collection<StreamResponse> mutualAttendedStreamResponses = unifiedMapper.toStreamResponses(mutualAttendedStreams.getContent());
+  protected void setSearchResultDetails(final Page<IsAStream> userCreatedStreams, final Page<IsAStream> mutualAttendedStreams, final Page<ChatSpace> mutualChatSpaceMemberships, final String targetUserFullName, final UserProfileResponse userProfileResponse) {
+    final Collection<StreamResponse> userCreatedStreamResponses = streamUnifiedMapper.toStreamResponses(userCreatedStreams.getContent());
+    final Collection<StreamResponse> mutualAttendedStreamResponses = streamUnifiedMapper.toStreamResponses(mutualAttendedStreams.getContent());
     final Collection<ChatSpaceResponse> mutualChatSpaceMembershipResponses = unifiedMapper.toChatSpaceResponses(mutualChatSpaceMemberships.getContent());
 
     final SearchResult userCreatedStreamsSearchResultView = toSearchResult(userCreatedStreamResponses, userCreatedStreams);

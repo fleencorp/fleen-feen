@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface Oauth2AuthorizationRepository extends JpaRepository<Oauth2Authorization, Long> {
 
-  Optional<Oauth2Authorization> findByMemberAndServiceType(Member member, Oauth2ServiceType oauth2ServiceType);
+  Optional<Oauth2Authorization> findByMemberIdAndServiceType(Long memberId, Oauth2ServiceType oauth2ServiceType);
 }

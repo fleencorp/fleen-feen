@@ -1,20 +1,18 @@
 package com.fleencorp.feen.stream.model.domain;
 
 import com.fleencorp.base.converter.impl.security.StringCryptoConverter;
-import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.constant.mask.MaskedStreamLinkUri;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
 import com.fleencorp.feen.review.exception.core.CannotAddReviewIfStreamHasNotStartedException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.core.*;
 import com.fleencorp.feen.stream.exception.core.*;
 import com.fleencorp.feen.stream.exception.request.CannotJoinPrivateStreamWithoutApprovalException;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedBy;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -25,7 +23,6 @@ import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generate
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
-import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -123,14 +120,8 @@ public class FleenStream extends FleenFeenEntity
   @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
   private Long organizerId;
 
-  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "member_id", updatable = false)
   private Long memberId;
-
-  @ToString.Exclude
-  @CreatedBy
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member member;
 
   @ToString.Exclude
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
@@ -138,11 +129,6 @@ public class FleenStream extends FleenFeenEntity
 
   @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
   private Long chatSpaceId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = LAZY, optional = false, targetEntity = ChatSpace.class)
-  @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", nullable = false, updatable = false)
-  private ChatSpace chatSpace;
 
   @Column(name = "made_for_kids", nullable = false)
   private Boolean forKids = false;
@@ -172,12 +158,8 @@ public class FleenStream extends FleenFeenEntity
     return nonNull(forKids) && forKids;
   }
 
-  public String getExternalSpaceIdOrName() {
-    return nonNull(chatSpace) ? chatSpace.getExternalIdOrName() : null;
-  }
-
-  public Member getOrganizer() {
-    return member;
+  public IsAMember getOrganizer() {
+    return IsAMember.defaultInstance(memberId);
   }
 
   public Long getOrganizerId() {

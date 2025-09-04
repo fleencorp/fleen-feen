@@ -66,7 +66,6 @@ public class CreateEventDto extends CreateStreamDto {
     stream.setStreamSource(GOOGLE_MEET);
 
     stream.setMemberId(member.getMemberId());
-    stream.setMember(member);
 
     return stream;
   }

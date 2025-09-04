@@ -3,7 +3,6 @@ package com.fleencorp.feen.stream.service.impl.common;
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -124,17 +123,17 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final RegisteredUser user) {
-    streamService.validateStreamAndUserForProtectedStream(stream, user);
+  public void validateStreamAndUserForProtectedStream(final FleenStream stream, final Long userId) {
+    streamService.validateStreamAndUserForProtectedStream(stream, userId);
   }
 
   @Override
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final RegisteredUser user) {
-    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final Long userId) {
+    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, userId);
   }
 
   @Override
-  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final RegisteredUser user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException {
+  public StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(final FleenStream stream, final IsAMember user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException {
     return streamService.retrieveStreamOtherDetailsHolder(stream, user);
   }
 
@@ -162,6 +161,16 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   @Override
   public FleenStream save(final FleenStream stream) {
     return streamManagementRepository.save(stream);
+  }
+
+  @Override
+  public void updateExternalId(final Long streamId, final String externalId) {
+    streamManagementRepository.updateExternalId(streamId, externalId);
+  }
+
+  @Override
+  public void updateExternalIdAndLink(final Long streamId, final String externalId, final String link) {
+    streamManagementRepository.updateExternalIdAndLink(streamId, externalId, link);
   }
 
   @Override

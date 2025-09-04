@@ -83,7 +83,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   @Override
   public ChatSpaceEventSearchResult findChatSpaceEvents(final Long chatSpaceId, final SearchRequest searchRequest, final RegisteredUser user) {
     final Page<FleenStream> page = streamOperationsService.findByChatSpaceId(chatSpaceId, searchRequest.getPage());
-    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponses(page.getContent());
+    final List<StreamResponse> streamResponses = streamUnifiedMapper.toStreamResponsesActual(page.getContent());
 
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
 
@@ -120,12 +120,14 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
 
     FleenStream stream = createChatSpaceEventDto.toStream(user.toMember(), chatSpace);
     final String organizerAliasOrDisplayName = createChatSpaceEventDto.getOrganizerAlias(user.getFullName());
+    String chatSpaceExternalId = chatSpace.getExternalIdOrName();
+    createCalendarEventRequest.setChatSpaceExternalIdOrName(chatSpaceExternalId);
 
     stream.update(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
     stream = streamOperationsService.save(stream);
 
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user);
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
     createEventExternally(stream, createCalendarEventRequest);
 
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);

@@ -13,5 +13,5 @@ public interface GoogleOauth2Service {
 
   CompletedOauth2AuthorizationResponse verifyAuthorizationCodeAndSaveOauth2AuthorizationTokenDetails(String authorizationCode, Oauth2AuthenticationRequest authenticationRequest, RegisteredUser user);
 
-  Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType oauth2ServiceType, RegisteredUser user);
+  Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType oauth2ServiceType, Long userId);
 }

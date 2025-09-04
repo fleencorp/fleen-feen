@@ -39,6 +39,7 @@ public class CreateCalendarEventRequest {
   private String calendarIdOrName;
   private String eventId;
   private String eventLinkOrUri;
+  private String chatSpaceExternalIdOrName;
 
   @Builder.Default
   private Map<String, String> eventMetaData = new HashMap<>();

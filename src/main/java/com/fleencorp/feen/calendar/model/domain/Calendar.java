@@ -3,6 +3,7 @@ package com.fleencorp.feen.calendar.model.domain;
 import com.fleencorp.feen.calendar.constant.CalendarStatus;
 import com.fleencorp.feen.calendar.exception.core.CalendarAlreadyActiveException;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.calendar.contract.IsACalendar;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +22,8 @@ import static java.util.Objects.nonNull;
 @Table(name = "calendar", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"code"})
 })
-public class Calendar extends FleenFeenEntity {
+public class Calendar extends FleenFeenEntity
+  implements IsACalendar {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)

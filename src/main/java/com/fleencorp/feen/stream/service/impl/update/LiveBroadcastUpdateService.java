@@ -7,7 +7,7 @@ import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.model.request.external.broadcast.*;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.stream.service.external.YouTubeLiveBroadcastService;
@@ -59,13 +59,14 @@ public class LiveBroadcastUpdateService {
    */
   @Async
   @Transactional
-  public void createLiveBroadcastAndStream(final FleenStream stream, final CreateLiveBroadcastRequest createLiveBroadcastRequest) {
-    // Create the live broadcast using YouTubeLiveBroadcastService
+  public void createLiveBroadcastAndStream(final IsAStream stream, final CreateLiveBroadcastRequest createLiveBroadcastRequest) {
     final CreateYouTubeLiveBroadcastResponse createYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.createBroadcast(createLiveBroadcastRequest);
-    // Update the stream with the event ID and HTML link from the created YouTube live broadcast
-    stream.update(createYouTubeLiveBroadcastResponse.liveBroadcastId(), createYouTubeLiveBroadcastResponse.liveStreamLink());
-    // Save the stream
-    streamOperationsService.save(stream);
+
+    streamOperationsService.updateExternalIdAndLink(
+      stream.getStreamId(),
+      createYouTubeLiveBroadcastResponse.liveBroadcastId(),
+      createYouTubeLiveBroadcastResponse.liveStreamLink()
+    );
 
     // Create an event stream created result
     final EventStreamCreatedResult eventStreamCreatedResult = EventStreamCreatedResult
@@ -87,15 +88,12 @@ public class LiveBroadcastUpdateService {
    */
   @Async
   @Transactional
-  public void updateLiveBroadcastAndStream(final FleenStream stream, final UpdateLiveBroadcastRequest updateLiveBroadcastRequest) {
+  public void updateLiveBroadcastAndStream(final IsAStream stream, final UpdateLiveBroadcastRequest updateLiveBroadcastRequest) {
     // Send the update request to YouTube Live Broadcast Service
     final UpdateYouTubeLiveBroadcastResponse updateYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.updateLiveBroadcast(updateLiveBroadcastRequest);
     log.info("Updated broadcast: {}", updateYouTubeLiveBroadcastResponse);
 
-    // Update the FleenStream entity with the external ID from the updated YouTube broadcast
-    stream.setExternalId(updateYouTubeLiveBroadcastResponse.liveBroadcastId());
-    // Save the updated FleenStream entity to the repository
-    streamOperationsService.save(stream);
+    streamOperationsService.updateExternalId(stream.getStreamId(), updateYouTubeLiveBroadcastResponse.liveBroadcastId());
   }
 
   /**
@@ -108,15 +106,12 @@ public class LiveBroadcastUpdateService {
    */
   @Async
   @Transactional
-  public void rescheduleLiveBroadcastAndStream(final FleenStream stream, final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest) {
+  public void rescheduleLiveBroadcastAndStream(final IsAStream stream, final RescheduleLiveBroadcastRequest rescheduleLiveBroadcastRequest) {
     // Create the reschedule request to update the live stream in YouTube
     final RescheduleYouTubeLiveBroadcastResponse rescheduleYouTubeLiveBroadcastResponse = youTubeLiveBroadcastService.rescheduleLiveBroadcast(rescheduleLiveBroadcastRequest);
     log.info("Rescheduled broadcast: {}", rescheduleYouTubeLiveBroadcastResponse);
 
-    // Update the FleenStream entity with the external ID from the updated YouTube broadcast
-    stream.setExternalId(rescheduleYouTubeLiveBroadcastResponse.liveBroadcastId());
-    // Save the updated FleenStream entity to the repository
-    streamOperationsService.save(stream);
+    streamOperationsService.updateExternalId(stream.getStreamId(), rescheduleYouTubeLiveBroadcastResponse.liveBroadcastId());
   }
 
   /**
