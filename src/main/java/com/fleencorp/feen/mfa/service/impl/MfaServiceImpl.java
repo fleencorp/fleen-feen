@@ -4,7 +4,7 @@ import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
-import com.fleencorp.feen.configuration.security.properties.MfaProperties;
+import com.fleencorp.feen.security.properties.MfaProperties;
 import com.fleencorp.feen.mapper.CommonMapper;
 import com.fleencorp.feen.mfa.constant.MfaSetupStatus;
 import com.fleencorp.feen.mfa.constant.MfaType;

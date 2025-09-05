@@ -108,25 +108,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       final UsernamePasswordAuthenticationToken unauthenticatedUser = new UsernamePasswordAuthenticationToken(RegisteredUser.of(), null);
 
       if (isNull(token)) {
+        log.info("Step 1");
         SecurityContextHolder.getContext().setAuthentication(unauthenticatedUser);
+        log.info("Step 2");
         filterChain.doFilter(request, response);
         return;
       }
 
+      log.info("Step 3");
       // Retrieve email address from the JWT token
       final String emailAddress = getEmailAddressFromToken(token);
       if (!StringUtils.isNotEmpty(emailAddress)) {
+        log.info("Step 4");
         SecurityContextHolder.getContext().setAuthentication(unauthenticatedUser);
+        log.info("Step 5");
         filterChain.doFilter(request, response);
         return;
       }
 
+      log.info("Step 6");
       // Validate the JWT token and set authentication details
       final boolean validationSuccessful = handleJwtTokenValidation(token, request);
+      log.info("Step 7");
       if (!validationSuccessful) {
+        log.info("Step 8");
         throw new InvalidAuthenticationTokenException();
       }
 
+      log.info("Step 9");
       // Continue with the filter chain
       filterChain.doFilter(request, response);
     } catch (final InvalidAuthenticationTokenException | IOException | ServletException ex) {
@@ -149,19 +158,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    */
   private boolean handleJwtTokenValidation(final String token, final HttpServletRequest request) {
     try {
+      log.info("Step 1-1");
       if (isAuthenticationEmpty()) {
+        log.info("Step 1-2");
         final UserDetails userDetails = extractUserDetailsFromToken(token);
+        log.info("Step 1-3");
         final String key = getAccessTokenCacheKey(userDetails.getUsername());
+        log.info("Step 1-4");
         final String savedToken = getTokenFromCache(key);
 
+        log.info("Step 1-5");
         if (isTokenValid(token, userDetails)) {
+          log.info("Step 1-6");
           final UsernamePasswordAuthenticationToken authentication = createAuthenticationToken(request, userDetails);
 
+          log.info("Step 1-7");
           // Set authentication in SecurityContextHolder based on conditions
           // Extract checks for if user is existing in the record even if the token is valid
           if (shouldSetAuthentication(key, savedToken, userDetails) && isEmailExists(userDetails)) {
+            log.info("Step 1-8");
             SecurityContextHolder.getContext().setAuthentication(authentication);
           } else {
+            log.info("Step 1-9");
             return false;
           }
         }
@@ -170,6 +188,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       // Log any exceptions as errors
       logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
     }
+    log.info("Step 1-10");
     return true;
   }
 
@@ -293,10 +312,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    */
   private String getEmailAddressFromToken(final String token) {
     try {
+      log.info("Step 2-1");
       return tokenUtil.getUsernameFromToken(token);
     } catch (final IllegalArgumentException | ExpiredJwtException | MalformedJwtException | SignatureException ex) {
       // Log the error
       logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
+      log.info("Step 2-2");
       throw new InvalidAuthenticationTokenException();
     }
   }
@@ -331,13 +352,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
    */
   private void handleException(final HttpServletRequest request, final HttpServletResponse response, final Exception ex) {
     logIfEnabled(log::isErrorEnabled, () -> log.error(ex.getMessage(), ex));
-
+log.info("Step 3-1");
     if (ex instanceof InvalidAuthenticationTokenException) {
       resolver.resolveException(request, response, null, ex);
+      log.info("Step 3-2");
       return;
     }
 
+    log.info("Step 3-3");
     final InvalidAuthenticationException exception = new InvalidAuthenticationException(UNKNOWN);
+    log.info("Step 3-4");
     resolver.resolveException(request, response, null, exception);
   }
 }

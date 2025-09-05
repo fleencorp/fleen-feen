@@ -4,7 +4,7 @@ import com.fleencorp.feen.adapter.slack.SlackAdapter;
 import com.fleencorp.feen.adapter.slack.model.enums.SlackColor;
 import com.fleencorp.feen.common.constant.base.ReportMessageType;
 import com.fleencorp.feen.common.service.report.ReporterService;
-import com.fleencorp.feen.configuration.external.slack.SlackProperties;
+import com.fleencorp.feen.common.configuration.external.slack.SlackProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
