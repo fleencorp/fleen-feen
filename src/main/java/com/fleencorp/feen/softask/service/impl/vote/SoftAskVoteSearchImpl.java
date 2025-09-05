@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.service.impl.vote;
 
 import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
@@ -15,7 +16,6 @@ import com.fleencorp.feen.softask.model.search.SoftAskVoteSearchResult;
 import com.fleencorp.feen.softask.repository.vote.SoftAskVoteSearchRepository;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

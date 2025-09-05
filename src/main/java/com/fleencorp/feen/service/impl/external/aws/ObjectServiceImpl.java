@@ -1,7 +1,7 @@
 package com.fleencorp.feen.service.impl.external.aws;
 
-import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.common.configuration.external.aws.s3.S3BucketNames;
+import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.model.dto.aws.CreateSignedUrlDto;
 import com.fleencorp.feen.model.response.external.aws.SignedUrlsResponse;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;

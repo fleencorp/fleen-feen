@@ -7,8 +7,8 @@ import com.fleencorp.feen.follower.model.response.UnfollowUserResponse;
 import com.fleencorp.feen.follower.model.search.FollowerSearchResult;
 import com.fleencorp.feen.follower.model.search.FollowingSearchResult;
 import com.fleencorp.feen.model.contract.UserFollowStat;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.user.model.domain.Member;
 
 public interface FollowerService {
 

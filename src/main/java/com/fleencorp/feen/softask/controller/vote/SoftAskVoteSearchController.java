@@ -2,10 +2,10 @@ package com.fleencorp.feen.softask.controller.vote;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.search.SoftAskVoteSearchResult;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -4,10 +4,10 @@ import com.fleencorp.feen.bookmark.model.dto.BookmarkDto;
 import com.fleencorp.feen.bookmark.model.response.BookmarkCreateResponse;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface BookmarkService {
 

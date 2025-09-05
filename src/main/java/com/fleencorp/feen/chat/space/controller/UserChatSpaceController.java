@@ -14,8 +14,8 @@ import com.fleencorp.feen.chat.space.model.response.membership.ProcessRequestToJ
 import com.fleencorp.feen.chat.space.service.join.ChatSpaceJoinService;
 import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

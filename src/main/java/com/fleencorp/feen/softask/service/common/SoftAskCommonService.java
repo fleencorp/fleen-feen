@@ -1,8 +1,9 @@
 package com.fleencorp.feen.softask.service.common;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
-import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -11,7 +12,6 @@ import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.common.SoftAskContentUpdateResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 
 import java.util.Collection;
 

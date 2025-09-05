@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.controller.search;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.exception.speaker.OrganizerOfStreamCannotBeRemovedAsSpeakerException;
@@ -15,7 +16,6 @@ import com.fleencorp.feen.stream.model.response.speaker.UpdateStreamSpeakerRespo
 import com.fleencorp.feen.stream.model.search.speaker.StreamSpeakerSearchResult;
 import com.fleencorp.feen.stream.service.speaker.StreamSpeakerService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

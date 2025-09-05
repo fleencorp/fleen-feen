@@ -4,7 +4,6 @@ import com.fleencorp.base.model.view.search.SearchResult;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
-import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.domain.PollVote;

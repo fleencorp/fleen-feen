@@ -4,10 +4,10 @@ import com.fleencorp.feen.model.response.authentication.ResendSignUpVerification
 import com.fleencorp.feen.model.response.authentication.SignUpResponse;
 import com.fleencorp.feen.model.response.security.ChangePasswordResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.model.dto.authentication.ChangePasswordDto;
 import com.fleencorp.feen.user.model.dto.authentication.CompleteSignUpDto;
 import com.fleencorp.feen.user.model.dto.authentication.ResendSignUpVerificationCodeDto;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.authentication.AuthenticationService;
 import com.fleencorp.feen.verification.service.VerificationService;
 import jakarta.validation.Valid;

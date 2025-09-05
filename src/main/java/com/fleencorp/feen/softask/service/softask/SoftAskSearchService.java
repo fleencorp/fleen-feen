@@ -1,10 +1,10 @@
 package com.fleencorp.feen.softask.service.softask;
 
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskRetrieveResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface SoftAskSearchService {
 

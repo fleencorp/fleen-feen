@@ -2,14 +2,15 @@ package com.fleencorp.feen.user.service.impl.member;
 
 import com.fleencorp.base.service.EmailService;
 import com.fleencorp.base.service.PhoneService;
+import com.fleencorp.feen.common.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.common.event.model.base.PublishMessageRequest;
 import com.fleencorp.feen.common.event.publisher.ProfileRequestPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
-import com.fleencorp.feen.common.configuration.external.aws.s3.S3BucketNames;
 import com.fleencorp.feen.country.model.domain.Country;
 import com.fleencorp.feen.country.service.CountryService;
 import com.fleencorp.feen.service.impl.external.aws.s3.StorageService;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.constant.profile.ProfileStatus;
 import com.fleencorp.feen.user.exception.user.*;
 import com.fleencorp.feen.user.mapper.UserMapper;
@@ -20,7 +21,6 @@ import com.fleencorp.feen.user.model.request.profile.ProfileUpdateVerificationRe
 import com.fleencorp.feen.user.model.response.RemoveProfilePhotoResponse;
 import com.fleencorp.feen.user.model.response.SendUpdateEmailOrPhoneVerificationCodeResponse;
 import com.fleencorp.feen.user.model.response.update.*;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.repository.MemberRepository;
 import com.fleencorp.feen.user.repository.UserProfileRepository;
 import com.fleencorp.feen.user.service.authentication.PasswordService;

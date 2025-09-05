@@ -2,7 +2,6 @@ package com.fleencorp.feen.stream.mapper.common;
 
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
-import com.fleencorp.feen.poll.model.info.PollIsEndedInfo;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;

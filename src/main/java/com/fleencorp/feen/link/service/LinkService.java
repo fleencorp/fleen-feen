@@ -8,8 +8,8 @@ import com.fleencorp.feen.link.model.dto.UpdateStreamMusicLinkDto;
 import com.fleencorp.feen.link.model.response.LinkDeleteResponse;
 import com.fleencorp.feen.link.model.response.LinkStreamMusicUpdateResponse;
 import com.fleencorp.feen.link.model.response.LinkUpdateResponse;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 
 public interface LinkService {
 

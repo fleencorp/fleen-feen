@@ -3,8 +3,8 @@ package com.fleencorp.feen.business.service;
 import com.fleencorp.feen.business.model.domain.Business;
 import com.fleencorp.feen.business.model.request.search.BusinessSearchRequest;
 import com.fleencorp.feen.business.model.search.BusinessSearchResult;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.shared.security.RegisteredUser;
+import com.fleencorp.feen.user.model.domain.Member;
 
 public interface BusinessSearchService {
 

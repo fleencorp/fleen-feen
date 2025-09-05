@@ -1,8 +1,9 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
 import com.fleencorp.base.model.view.search.SearchResult;
-import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.model.contract.UserHaveOtherDetail;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskSearchRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;

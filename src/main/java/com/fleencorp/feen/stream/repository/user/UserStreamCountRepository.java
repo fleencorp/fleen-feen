@@ -2,7 +2,6 @@ package com.fleencorp.feen.stream.repository.user;
 
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

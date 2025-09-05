@@ -1,9 +1,9 @@
 package com.fleencorp.feen.common.service.impl.message;
 
+import com.fleencorp.feen.common.configuration.message.EmailMessageProperties;
 import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
 import com.fleencorp.feen.common.model.message.EmailMessage;
 import com.fleencorp.feen.common.service.message.EmailMessageService;
-import com.fleencorp.feen.common.configuration.message.EmailMessageProperties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;

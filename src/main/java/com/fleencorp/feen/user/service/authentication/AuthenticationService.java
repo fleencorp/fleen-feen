@@ -5,6 +5,7 @@ import com.fleencorp.feen.model.response.authentication.DataForSignUpResponse;
 import com.fleencorp.feen.model.response.authentication.SignInResponse;
 import com.fleencorp.feen.model.response.authentication.SignUpResponse;
 import com.fleencorp.feen.model.response.security.SignOutResponse;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
 import com.fleencorp.feen.user.exception.user.BannedAccountException;
 import com.fleencorp.feen.user.exception.user.DisabledAccountException;
@@ -12,7 +13,6 @@ import com.fleencorp.feen.user.exception.user.UserNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.model.dto.authentication.SignInDto;
 import com.fleencorp.feen.user.model.dto.authentication.SignUpDto;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.verification.constant.VerificationType;
 
 public interface AuthenticationService {

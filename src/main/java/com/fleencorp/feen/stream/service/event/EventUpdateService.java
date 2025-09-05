@@ -4,7 +4,6 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEven
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
-import com.fleencorp.feen.stream.model.domain.FleenStream;
 
 public interface EventUpdateService {
 

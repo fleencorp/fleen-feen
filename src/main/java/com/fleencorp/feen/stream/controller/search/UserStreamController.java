@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.controller.search;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.*;
 import com.fleencorp.feen.stream.model.dto.attendee.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.stream.model.dto.core.*;
@@ -17,7 +18,6 @@ import com.fleencorp.feen.stream.service.core.CommonStreamService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.search.StreamSearchService;
 import com.fleencorp.feen.user.exception.authentication.InvalidAuthenticationException;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

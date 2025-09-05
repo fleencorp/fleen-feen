@@ -1,8 +1,8 @@
 package com.fleencorp.feen.user.controller.profile;
 
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.model.response.UserProfileResponse;
 import com.fleencorp.feen.user.model.search.UserProfileSearchRequest;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.service.profile.UserProfilePublicService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

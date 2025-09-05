@@ -2,6 +2,7 @@ package com.fleencorp.feen.stream.service.join;
 
 import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
@@ -10,7 +11,6 @@ import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.domain.StreamAttendee;
 import com.fleencorp.feen.stream.model.dto.event.AddNewStreamAttendeeDto;
 import com.fleencorp.feen.stream.model.response.common.AddNewStreamAttendeeResponse;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface EventJoinService {
 

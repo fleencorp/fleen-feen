@@ -2,7 +2,6 @@ package com.fleencorp.feen.like.service;
 
 import com.fleencorp.feen.model.contract.Likeable;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
-import com.fleencorp.feen.user.model.domain.Member;
 
 import java.util.Collection;
 
