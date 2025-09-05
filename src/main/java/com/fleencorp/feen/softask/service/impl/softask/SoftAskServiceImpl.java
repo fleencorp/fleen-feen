@@ -84,8 +84,8 @@ public class SoftAskServiceImpl implements SoftAskService {
     final String parentTitle = softAskParentDetailHolder.parentTitle();
 
     final SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, parentType, member);
-    softAskOperationService.save(softAsk);
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+    softAskOperationService.save(softAsk);
 
     final SoftAskUsername softAskUsername = softAskOperationService.generateUsername(softAsk.getSoftAskId(), user.getId());
     softAsk.setSoftAskUsername(softAskUsername);

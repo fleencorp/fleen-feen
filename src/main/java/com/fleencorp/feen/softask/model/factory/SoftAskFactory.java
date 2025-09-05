@@ -10,6 +10,7 @@ import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 
 import java.math.BigDecimal;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 public final class SoftAskFactory {
@@ -33,16 +34,14 @@ public final class SoftAskFactory {
   }
 
   private static void checkParameters(AddSoftAskDto dto, IsAMember author) {
-    if (dto == null || author == null) {
+    if (isNull(dto) || isNull(author)) {
       throw FailedOperationException.of();
     }
   }
 
   private static void setLocationDetails(AddSoftAskDto dto, SoftAsk softAsk) {
-    if (dto.getLatitude() != null) {
+    if (nonNull(dto.getLatitude()) && nonNull(dto.getLongitude())) {
       softAsk.setLatitude(BigDecimal.valueOf(dto.getLatitude()));
-    }
-    if (dto.getLongitude() != null) {
       softAsk.setLongitude(BigDecimal.valueOf(dto.getLongitude()));
     }
   }

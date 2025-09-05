@@ -88,8 +88,8 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final SoftAskReply softAskParentReply = softAskReplyParentDetailHolder.softAskReply();
 
     final SoftAskReply reply = SoftAskReplyFactory.toSoftAskReply(addSoftAskReplyDto, author, softAsk, softAskParentReply);
-    softAskReplyRepository.save(reply);
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+    softAskReplyRepository.save(reply);
 
     final SoftAskUsername softAskUsername = softAskOperationService.getOrAssignUsername(softAskId, user.getId());
     reply.setSoftAskUsername(softAskUsername);
