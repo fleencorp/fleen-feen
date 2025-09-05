@@ -14,6 +14,8 @@ public interface SoftAskCommonData {
 
   Long getAuthorId();
 
+  String getUserDisplayName();
+
   String getParentTitle();
 
   Double getLatitude();

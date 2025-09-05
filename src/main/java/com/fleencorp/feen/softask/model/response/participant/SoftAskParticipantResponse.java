@@ -17,6 +17,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "username",
+  "display_name",
   "avatar_urls"
 })
 public class SoftAskParticipantResponse {
@@ -24,10 +25,13 @@ public class SoftAskParticipantResponse {
   @JsonProperty("username")
   private String username;
 
+  @JsonProperty("display_name")
+  private String displayName;
+
   @JsonProperty("avatar_urls")
   private Map<String, String> avatarUrls;
 
-  public static SoftAskParticipantResponse of(final String username, final Map<String, String> avatarUrls) {
-    return new SoftAskParticipantResponse(username, avatarUrls);
+  public static SoftAskParticipantResponse of(final String username, final String displayName, final Map<String, String> avatarUrls) {
+    return new SoftAskParticipantResponse(username, displayName, avatarUrls);
   }
 }

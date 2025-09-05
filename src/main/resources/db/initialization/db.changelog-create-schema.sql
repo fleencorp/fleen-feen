@@ -865,6 +865,7 @@ CREATE TABLE poll_option (
 
 
 --changeset alamu:create_table_poll_vote
+
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_vote';
 
@@ -929,12 +930,12 @@ CREATE TABLE soft_ask (
   geohash VARCHAR(9) NULL,
   geohash_prefix VARCHAR(5) NULL,
 
-  chat_space_id BIGINT NOT NULL,
+  chat_space_id BIGINT,
   stream_id BIGINT,
   author_id BIGINT NOT NULL,
 
-  parent_type VARCHAR(255) NOT NULL
-    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
+  parent_type VARCHAR(255) NULL
+    CHECK (parent_type IN ('CHAT_SPACE', 'STREAM')),
   status VARCHAR(255) NOT NULL
     CHECK (status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
   visibility VARCHAR(255) NOT NULL
@@ -1081,6 +1082,7 @@ CREATE TABLE soft_ask_username (
   user_id BIGINT NOT NULL,
 
   username VARCHAR(100) NOT NULL,
+  display_name VARCHAR(100) NOT NULL,
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -1099,6 +1101,7 @@ CREATE TABLE soft_ask_username (
 
 
 
+--changeset alamu:create_table_bookmarks
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'bookmarks';
@@ -1159,6 +1162,8 @@ CREATE TABLE bookmarks (
 --rollback DROP TABLE IF EXISTS `bookmarks`;
 
 
+
+--changeset alamu:create_table_business
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'business';

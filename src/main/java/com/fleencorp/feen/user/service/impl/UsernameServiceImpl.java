@@ -4,6 +4,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.word.bank.WordBankService;
 import com.fleencorp.feen.model.domain.word.bank.Adjective;
 import com.fleencorp.feen.model.domain.word.bank.Noun;
+import com.fleencorp.feen.shared.common.model.GeneratedUsername;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.feen.user.service.UsernameService;
 import com.fleencorp.feen.user.service.member.MemberService;
@@ -38,7 +39,7 @@ public class UsernameServiceImpl implements UsernameService {
    * @return a randomly selected {@code Adjective} from the adjective repository
    */
   @Override
-  public String generateRandomUsername() {
+  public GeneratedUsername generateRandomUsername() {
     final Random random = new SecureRandom();
     final Adjective adjective = wordBankService.findRandomAdjective();
     final Noun noun = wordBankService.findRandomNoun();
@@ -48,7 +49,12 @@ public class UsernameServiceImpl implements UsernameService {
     }
 
     final int number = random.nextInt(10000);
-    return adjective.getWord() + noun.getWord() + number;
+
+    final String username = adjective.getWord() + noun.getWord() + number;
+    final String displayName = GeneratedUsername.createDisplayName(adjective.getWord(), noun.getWord());
+    final String displayName2 = GeneratedUsername.createOtherDisplayName(adjective.getWord(), noun.getWord(), number);
+
+    return GeneratedUsername.of(username, displayName, displayName2);
   }
 
   /**
@@ -68,7 +74,9 @@ public class UsernameServiceImpl implements UsernameService {
     int attempts = 0;
 
     while (attempts < maxAttempts) {
-      final String username = generateRandomUsername();
+      final GeneratedUsername generatedUsername = generateRandomUsername();
+      final String username = generatedUsername.username();
+
       if (!memberService.isUsernameExist(username)) {
         member.setUsername(username);
         return;

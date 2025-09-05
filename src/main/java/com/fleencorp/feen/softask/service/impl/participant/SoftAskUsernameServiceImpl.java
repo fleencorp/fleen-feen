@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.participant;
 
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
+import com.fleencorp.feen.shared.common.model.GeneratedUsername;
 import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.repository.participant.SoftAskUsernameRepository;
 import com.fleencorp.feen.softask.service.participant.SoftAskUsernameService;
@@ -39,8 +40,10 @@ public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
   @Override
   @Transactional
   public SoftAskUsername generateUsername(final Long softAskId, final Long userId) {
-    final String username = usernameService.generateRandomUsername();
-    final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, username);
+    final GeneratedUsername generatedUsername = usernameService.generateRandomUsername();
+    final String username = generatedUsername.username();
+    final String displayName = generatedUsername.displayName();
+    final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, username, displayName);
 
     usernameRepository.save(softAskUsername);
     return softAskUsername;
@@ -64,28 +67,38 @@ public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
    */
   @Override
   @Transactional
-  public String getOrAssignUsername(final Long softAskId, final Long userId) {
+  public GeneratedUsername getOrAssignUsername(final Long softAskId, final Long userId) {
     final String cacheKey = USERNAME_CACHE_PREFIX + softAskId + ":" + userId;
     final Object cachedUsername = cacheService.get(cacheKey);
 
     if (nonNull(cachedUsername)) {
-      return String.valueOf(cachedUsername);
+      final String username = String.valueOf(cachedUsername);
+      return GeneratedUsername.getFromCachedValue(username);
     }
 
-    final Optional<String> existingUsername = usernameRepository.findUsernameBySoftAskIdAndUserId(softAskId, userId);
+    final Optional<SoftAskUsername> existingUsername = usernameRepository.findUsernameBySoftAskIdAndUserId(softAskId, userId);
     if (existingUsername.isPresent()) {
-      cacheUsername(cacheKey, existingUsername.get());
-      return existingUsername.get();
+      SoftAskUsername softAskUsername = existingUsername.get();
+      final String username = softAskUsername.getUsername();
+      final String displayName = softAskUsername.getDisplayName();
+
+      final String usernameToCache = GeneratedUsername.createCacheValue(username, displayName);
+      cacheUsername(cacheKey, usernameToCache);
+
+      return GeneratedUsername.of(username, displayName);
     }
 
     while (true) {
-      final String newUsername = usernameService.generateRandomUsername();
+      final GeneratedUsername generatedUsername = usernameService.generateRandomUsername();
+      final String newUsername = generatedUsername.username();
+      final String displayName = generatedUsername.displayName();
+
       try {
-        final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, newUsername);
+        final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, newUsername, displayName);
         usernameRepository.save(softAskUsername);
 
         cacheUsername(cacheKey, newUsername);
-        return newUsername;
+        return generatedUsername;
       } catch (final DataIntegrityViolationException ex) {
         logIfEnabled(log::isErrorEnabled, () -> log.debug("""
         Username is already in use and may be because of race conditions. Continue and try to generate a new username.

@@ -7,14 +7,15 @@ import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 import com.fleencorp.localizer.model.response.ErrorResponse;
 import com.fleencorp.localizer.service.ErrorLocalizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice(basePackages = {"com.fleencorp.feen.role"})
+@Slf4j
 public class SoftAskExceptionHandler {
 
   private final ErrorLocalizer localizer;
@@ -37,6 +38,16 @@ public class SoftAskExceptionHandler {
   })
   @ResponseStatus(value = FORBIDDEN)
   public ErrorResponse handleForbidden(final LocalizedException e) {
+    log.info(e.getMessage());
     return localizer.withStatus(e, FleenHttpStatus.forbidden());
+  }
+
+  @ExceptionHandler(value = {
+    Exception.class
+  })
+  @ResponseStatus(value = INTERNAL_SERVER_ERROR)
+  public Object handleForbidden(final Exception e) {
+    log.info(e.getMessage());
+    return e.getMessage();
   }
 }

@@ -8,7 +8,6 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 @Getter
 public enum SoftAskParentType implements ApiParameter {
 
-  NONE("None"),
   CHAT_SPACE("Chat Space"),
   STREAM("Stream");
 

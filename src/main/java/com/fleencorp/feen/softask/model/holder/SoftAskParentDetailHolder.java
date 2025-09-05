@@ -5,14 +5,19 @@ import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 
+import static java.util.Objects.nonNull;
+
 public record SoftAskParentDetailHolder(IsAChatSpace chatSpace, IsAStream stream, SoftAskParentType parentType) {
 
   public String parentTitle() {
-    return switch (parentType) {
-      case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
-      case STREAM -> HasTitle.getTitle(stream);
-      default -> null;
-    };
+    if (nonNull(parentType)) {
+      return switch (parentType) {
+        case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
+        case STREAM -> HasTitle.getTitle(stream);
+      };
+    }
+
+    return null;
   }
 
   public static SoftAskParentDetailHolder of(final IsAChatSpace chatSpace, final IsAStream stream, final SoftAskParentType parentType) {

@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.service.impl.reply;
 
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
@@ -11,6 +12,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
+import com.fleencorp.feen.softask.model.factory.SoftAskReplyFactory;
 import com.fleencorp.feen.softask.model.holder.SoftAskReplyParentDetailHolder;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyAddResponse;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyDeleteResponse;
@@ -21,7 +23,6 @@ import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -86,7 +87,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final SoftAsk softAsk = softAskReplyParentDetailHolder.softAsk();
     final SoftAskReply softAskParentReply = softAskReplyParentDetailHolder.softAskReply();
 
-    final SoftAskReply reply = addSoftAskReplyDto.toSoftAskReply(author, softAsk, softAskParentReply);
+    final SoftAskReply reply = SoftAskReplyFactory.toSoftAskReply(addSoftAskReplyDto, author, softAsk, softAskParentReply);
     softAskReplyRepository.save(reply);
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
 

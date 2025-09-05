@@ -5,13 +5,19 @@ import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.review.constant.ReviewParentType;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 
+import static java.util.Objects.nonNull;
+
 public record ReviewParentDetailHolder(ChatSpace chatSpace, FleenStream stream, ReviewParentType parentType) {
 
   public String parentTitle() {
-    return switch (parentType) {
-      case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
-      case STREAM -> HasTitle.getTitle(stream);
-    };
+    if (nonNull(parentType)) {
+      return switch (parentType) {
+        case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
+        case STREAM -> HasTitle.getTitle(stream);
+      };
+    }
+
+    return null;
   }
 
   public static ReviewParentDetailHolder of(final ChatSpace chatSpace, final FleenStream stream, final ReviewParentType parentType) {

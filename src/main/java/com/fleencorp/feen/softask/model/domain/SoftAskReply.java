@@ -7,6 +7,7 @@ import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
+import com.fleencorp.feen.softask.model.factory.SoftAskReplyFactory;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -118,12 +119,17 @@ public class SoftAskReply extends FleenFeenEntity
 
   @Override
   public String getTitle() {
-    return content;
+    return SoftAskReplyFactory.truncateContent(content);
   }
 
   @Override
   public String getUserAliasOrUsername() {
     return nonNull(softAskUsername) ? softAskUsername.getUsername() : null;
+  }
+
+  @Override
+  public String getUserDisplayName() {
+    return nonNull(softAskUsername) ? softAskUsername.getDisplayName() : null;
   }
 
   @Override

@@ -62,8 +62,8 @@ public class SoftAsk extends FleenFeenEntity
   private String parentTitle;
 
   @Enumerated(STRING)
-  @Column(name = "parent_type", nullable = false)
-  private SoftAskParentType softAskParentType = SoftAskParentType.NONE;
+  @Column(name = "parent_type")
+  private SoftAskParentType softAskParentType;
 
   @Enumerated(STRING)
   @Column(name = "visibility", nullable = false)
@@ -141,6 +141,11 @@ public class SoftAsk extends FleenFeenEntity
   @Override
   public String getUserAliasOrUsername() {
     return nonNull(softAskUsername) ? softAskUsername.getUsername() : null;
+  }
+
+  @Override
+  public String getUserDisplayName() {
+    return nonNull(softAskUsername) ? softAskUsername.getDisplayName() : null;
   }
 
   @Override

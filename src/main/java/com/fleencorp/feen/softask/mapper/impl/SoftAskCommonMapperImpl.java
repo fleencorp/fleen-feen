@@ -70,6 +70,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       final Map<String, String> avatarUrls = objectService.getAvatarUrls(generateRandomNumberForAvatar());
       final SoftAskParticipantResponse softAskParticipantResponse = SoftAskParticipantResponse.of(
         entry.getUserAliasOrUsername(),
+        entry.getUserDisplayName(),
         avatarUrls
       );
       response.setSoftAskParticipantResponse(softAskParticipantResponse);

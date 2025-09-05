@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.service.impl.vote;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
@@ -11,6 +12,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
+import com.fleencorp.feen.softask.model.factory.SoftAskVoteFactory;
 import com.fleencorp.feen.softask.model.holder.SoftAskVoteParentDetailsHolder;
 import com.fleencorp.feen.softask.model.response.vote.SoftAskVoteUpdateResponse;
 import com.fleencorp.feen.softask.model.response.vote.core.SoftAskVoteResponse;
@@ -19,7 +21,6 @@ import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteService;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -140,7 +141,7 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
         existingVote.setVoteType(softAskVoteDto.getVoteType());
         return existingVote;
       })
-      .orElseGet(() -> softAskVoteDto.by(member, softAsk, softAskReply));
+      .orElseGet(() -> SoftAskVoteFactory.toSoftAskVote(softAskVoteDto, member, softAsk, softAskReply));
   }
 
   /**

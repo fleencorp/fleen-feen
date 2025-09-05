@@ -8,6 +8,8 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 
+import static java.util.Objects.nonNull;
+
 public record BookmarkParentDetailHolder(
   ChatSpace chatSpace,
   FleenStream stream,
@@ -18,14 +20,18 @@ public record BookmarkParentDetailHolder(
 ) {
 
   public String parentTitle() {
-    return switch (parentType) {
-      case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
-      case REVIEW -> HasTitle.getTitle(review);
-      case SOFT_ASK -> HasTitle.getTitle(softAsk);
-      case SOFT_ASK_REPLY -> HasTitle.getTitle(softAskReply);
-      case STREAM ->  HasTitle.getTitle(stream);
-      case BUSINESS, JOB_OPPORTUNITY -> null;
-    };
+    if (nonNull(parentType)) {
+      return switch (parentType) {
+        case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
+        case REVIEW -> HasTitle.getTitle(review);
+        case SOFT_ASK -> HasTitle.getTitle(softAsk);
+        case SOFT_ASK_REPLY -> HasTitle.getTitle(softAskReply);
+        case STREAM ->  HasTitle.getTitle(stream);
+        case BUSINESS, JOB_OPPORTUNITY -> null;
+      };
+    }
+
+    return null;
   }
 
   public static BookmarkParentDetailHolder of(

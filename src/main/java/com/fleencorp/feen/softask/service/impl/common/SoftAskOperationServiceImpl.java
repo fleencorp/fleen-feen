@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.service.impl.common;
 
 import com.fleencorp.feen.common.service.location.GeoService;
+import com.fleencorp.feen.shared.common.model.GeneratedUsername;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
@@ -156,8 +157,11 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
   @Override
   public SoftAskUsername getOrAssignUsername(final Long softAskId, final Long userId) {
-    final String username = softAskUsernameService.getOrAssignUsername(softAskId, userId);
-    return SoftAskUsername.of(softAskId, userId, username);
+    final GeneratedUsername generatedUsername = softAskUsernameService.getOrAssignUsername(softAskId, userId);
+    final String username = generatedUsername.username();
+    final String displayName = generatedUsername.displayName();
+
+    return SoftAskUsername.of(softAskId, userId, username, displayName);
   }
 
   /**

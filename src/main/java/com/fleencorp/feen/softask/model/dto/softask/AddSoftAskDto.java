@@ -4,14 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
-import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
-import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
 import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
-import com.fleencorp.feen.softask.constant.other.ModerationStatus;
-import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -21,8 +17,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.URL;
-
-import java.math.BigDecimal;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -50,12 +44,12 @@ public class AddSoftAskDto extends UserOtherDetailDto {
 
   @NotBlank(message = "{softAsk.tags.NotBlank}")
   @Size(min = 1, max = 1000, message = "{softAsk.tags.Size}")
-  @JsonProperty(value = "tags", access = JsonProperty.Access.READ_ONLY)
+  @JsonProperty(value = "tags")
   private String tags;
 
   @URL(message = "{softAsk.link.URL}")
   @Size(min = 1, max = 1000, message = "{softAsk.link.Size}")
-  @JsonProperty(value = "link", access = JsonProperty.Access.READ_ONLY)
+  @JsonProperty(value = "link")
   private String link = null;
 
   @NotNull(message = "{softAsk.visibility.NotNull}")
@@ -86,6 +80,14 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     return nonNull(parent) ? parent.getParentId() : null;
   }
 
+  public SoftAskVisibility getSoftAskVisibility() {
+    return SoftAskVisibility.of(visibility);
+  }
+
+  public SoftAskStatus getSoftAskStatus() {
+    return SoftAskStatus.of(status);
+  }
+
   public SoftAskParentType getParentType() {
     return hasParent() ? parent.getParentType() : null;
   }
@@ -96,42 +98,6 @@ public class AddSoftAskDto extends UserOtherDetailDto {
 
   public boolean isStreamParent() {
     return hasParent() && parent.isStreamParent();
-  }
-
-  public SoftAsk toSoftAsk(final IsAMember author, final String parentTitle, final SoftAskParentType parentType) {
-    final SoftAskVisibility softAskVisibility = SoftAskVisibility.of(visibility);
-    final SoftAskStatus softAskStatus = SoftAskStatus.of(status);
-
-    final SoftAsk softAsk = new SoftAsk();
-    softAsk.setTitle(title);
-    softAsk.setDescription(description);
-    softAsk.setOtherText(otherText);
-    softAsk.setTags(tags);
-    softAsk.setLink(link);
-    softAsk.setSoftAskVisibility(softAskVisibility);
-    softAsk.setSoftAskStatus(softAskStatus);
-    softAsk.setVisible(true);
-
-    softAsk.setAuthorId(author.getMemberId());
-
-    softAsk.setParentId(getParentId());
-    softAsk.setParentTitle(parentTitle);
-    softAsk.setSoftAskParentType(parentType);
-
-    if (SoftAskParentType.isChatSpace(parentType)) {
-      softAsk.setChatSpaceId(getParentId());
-    } else if (SoftAskParentType.isStream(parentType)) {
-      softAsk.setStreamId(getParentId());
-    }
-
-    softAsk.setLatitude(BigDecimal.valueOf(latitude));
-    softAsk.setLongitude(BigDecimal.valueOf(longitude));
-
-    softAsk.setModerationStatus(ModerationStatus.CLEAN);
-    softAsk.setLocationVisibility(LocationVisibility.GLOBAL);
-    softAsk.setMoodTag(getMood());
-
-    return softAsk;
   }
 
   @Valid

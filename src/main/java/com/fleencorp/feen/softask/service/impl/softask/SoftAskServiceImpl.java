@@ -4,6 +4,7 @@ import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
@@ -13,6 +14,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 import com.fleencorp.feen.softask.model.dto.softask.DeleteSoftAskDto;
+import com.fleencorp.feen.softask.model.factory.SoftAskFactory;
 import com.fleencorp.feen.softask.model.holder.SoftAskParentDetailHolder;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
@@ -23,7 +25,6 @@ import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
-import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +75,7 @@ public class SoftAskServiceImpl implements SoftAskService {
     final SoftAskParentType parentType = softAskParentDetailHolder.parentType();
     final String parentTitle = softAskParentDetailHolder.parentTitle();
 
-    final SoftAsk softAsk = addSoftAskDto.toSoftAsk(member, parentTitle, parentType);
+    final SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, parentType, member);
     softAskOperationService.save(softAsk);
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
 
