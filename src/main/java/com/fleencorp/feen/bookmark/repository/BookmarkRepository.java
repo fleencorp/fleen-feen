@@ -63,8 +63,8 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
            b.streamId IN (:parentIds) OR
            b.chatSpaceId IN (:parentIds) OR
            b.reviewId IN (:parentIds) OR
-           b.softAskId IN (:softAskIds) OR
-           (b.softAskReplyId IN (:softAskReplyIds) AND b.softAskReply.softAskId = :otherId)
+           b.softAskId IN (:parentIds) OR
+           (b.softAskReplyId IN (:parentIds) AND b.softAskReply.softAskId = :otherId)
           )
     """)
   List<UserBookmarkInfoSelect> findBookmarksByParentIdsAndMember(

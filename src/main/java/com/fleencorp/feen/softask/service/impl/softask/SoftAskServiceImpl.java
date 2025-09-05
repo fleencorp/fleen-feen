@@ -7,6 +7,7 @@ import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
+import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
@@ -19,6 +20,7 @@ import com.fleencorp.feen.softask.model.holder.SoftAskParentDetailHolder;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
+import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
@@ -29,9 +31,13 @@ import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.List;
+
 @Service
 public class SoftAskServiceImpl implements SoftAskService {
 
+  private final SoftAskCommonService softAskCommonService;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskOperationService softAskOperationService;
   private final SoftAskQueryService softAskQueryService;
@@ -39,11 +45,13 @@ public class SoftAskServiceImpl implements SoftAskService {
   private final Localizer localizer;
   
   public SoftAskServiceImpl(
+      final SoftAskCommonService softAskCommonService,
       final SoftAskOperationService softAskOperationService,
       final SoftAskSearchService softAskSearchService,
       final SoftAskQueryService softAskQueryService,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
+    this.softAskCommonService = softAskCommonService;
     this.softAskOperationService = softAskOperationService;
     this.softAskSearchService = softAskSearchService;
     this.softAskQueryService = softAskQueryService;
@@ -83,6 +91,9 @@ public class SoftAskServiceImpl implements SoftAskService {
     softAsk.setSoftAskUsername(softAskUsername);
 
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
+    final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskResponse);
+    softAskCommonService.processSoftAskResponses(softAskCommonResponses, member, addSoftAskDto.getUserOtherDetail());
+
     final SoftAskAddResponse softAskAddResponse = SoftAskAddResponse.of(softAsk.getSoftAskId(), softAskResponse);
     return localizer.of(softAskAddResponse);
   }

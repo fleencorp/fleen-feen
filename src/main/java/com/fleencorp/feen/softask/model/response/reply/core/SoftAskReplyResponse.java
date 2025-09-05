@@ -46,7 +46,6 @@ import static java.util.Objects.nonNull;
   "child_reply_count_info",
   "share_count_info",
   "parent_info",
-  "child_replies_search_result",
   "user_location_info",
   "mood_tag_info",
   "display_time_label",
@@ -55,6 +54,7 @@ import static java.util.Objects.nonNull;
   "is_updatable",
   "created_on",
   "updated_on",
+  "child_replies_search_result",
 })
 public class SoftAskReplyResponse extends FleenFeenResponse
   implements Bookmarkable, HasId, HasMood, HasSlug, SoftAskCommonResponse, Updatable {

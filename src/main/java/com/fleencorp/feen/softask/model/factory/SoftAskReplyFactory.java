@@ -10,6 +10,8 @@ import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 
 import java.math.BigDecimal;
 
+import static java.util.Objects.nonNull;
+
 public final class SoftAskReplyFactory {
 
   private SoftAskReplyFactory() {}
@@ -55,9 +57,12 @@ public final class SoftAskReplyFactory {
     reply.setVisible(true);
     reply.setAuthorId(author.getMemberId());
 
-    reply.setSoftAskId(softAsk.getSoftAskId());
+    if (nonNull(softAsk)) {
+      reply.setSoftAskId(softAsk.getSoftAskId());
+      reply.setSoftAsk(softAsk);
+    }
 
-    if (parentReply != null) {
+    if (nonNull(parentReply)) {
       reply.setParentReplyId(parentReply.getSoftAskReplyId());
       reply.setParentReply(parentReply);
     }
