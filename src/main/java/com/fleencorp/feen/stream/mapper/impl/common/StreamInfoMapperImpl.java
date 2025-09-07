@@ -3,10 +3,15 @@ package com.fleencorp.feen.stream.mapper.impl.common;
 import com.fleencorp.feen.common.constant.common.JoinStatus;
 import com.fleencorp.feen.common.model.info.JoinStatusInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
-import com.fleencorp.feen.stream.constant.attendee.*;
+import com.fleencorp.feen.stream.constant.attendee.AttendeeCount;
+import com.fleencorp.feen.stream.constant.attendee.IsAttending;
+import com.fleencorp.feen.stream.constant.attendee.IsOrganizer;
+import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
 import com.fleencorp.feen.stream.constant.core.StreamStatus;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
+import com.fleencorp.feen.stream.constant.speaker.IsASpeaker;
+import com.fleencorp.feen.stream.constant.speaker.SpeakerCount;
 import com.fleencorp.feen.stream.mapper.common.StreamInfoMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
@@ -18,6 +23,7 @@ import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
+import com.fleencorp.feen.stream.model.info.speaker.SpeakerCountInfo;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
@@ -289,6 +295,15 @@ public class StreamInfoMapperImpl extends BaseMapper implements StreamInfoMapper
     }
 
     return StreamTypeInfo.of();
+  }
+
+  @Override
+  public SpeakerCountInfo toSpeakerCountInfo(final Integer speakerCount) {
+    final SpeakerCount totalSpeakerCount = SpeakerCount.totalSpeakerCount();
+
+    return SpeakerCountInfo.of(speakerCount,
+      translate(totalSpeakerCount.getMessageCode(), speakerCount)
+    );
   }
 
 }

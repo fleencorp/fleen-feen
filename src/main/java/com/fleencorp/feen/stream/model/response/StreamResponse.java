@@ -22,6 +22,7 @@ import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
 import com.fleencorp.feen.stream.model.info.attendance.AttendeeCountInfo;
 import com.fleencorp.feen.stream.model.info.core.*;
 import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
+import com.fleencorp.feen.stream.model.info.speaker.SpeakerCountInfo;
 import com.fleencorp.feen.stream.model.other.Organizer;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.response.attendee.StreamAttendeeResponse;
@@ -55,22 +56,21 @@ import static java.util.Objects.nonNull;
   "is_for_kids_info",
   "stream_link",
   "music_link",
+  "other_detail_info",
+  "is_deleted_info",
   "stream_type_info",
   "stream_source_info",
   "stream_status_info",
-  "visibility_info",
-  "is_deleted_info",
-  "other_detail_info",
-  "user_like_info",
-  "bookmark_count_info",
-  "user_bookmark_info",
-  "like_count_info",
-  "speaker_count",
-  "share_count_info",
-  "music_link",
   "schedule_time_type_info",
+  "visibility_info",
+  "user_bookmark_info",
+  "user_like_info",
   "attendee_count_info",
+  "bookmark_count_info",
+  "like_count_info",
+  "share_count_info",
   "review_count_info",
+  "speaker_count_info",
   "attendance_info",
   "some_attendees",
   "reviews",
@@ -129,6 +129,9 @@ public class StreamResponse extends FleenFeenResponse
   @JsonProperty("attendee_count_info")
   private AttendeeCountInfo attendeeCountInfo;
 
+  @JsonProperty("speaker_count_info")
+  private SpeakerCountInfo speakerCountInfo;
+
   @JsonProperty("review_count_info")
   private ReviewCountInfo reviewCountInfo;
 
@@ -158,9 +161,6 @@ public class StreamResponse extends FleenFeenResponse
 
   @JsonProperty("like_count_info")
   private LikeCountInfo likeCountInfo;
-
-  @JsonProperty("speaker_count")
-  private Integer speakerCount;
 
   @JsonProperty("share_count_info")
   private ShareCountInfo shareCountInfo;

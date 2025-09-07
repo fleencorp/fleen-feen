@@ -5,8 +5,8 @@ import lombok.Getter;
 @Getter
 public enum IsBookmarked {
 
-  NO("No", "is.bookmarked.no.otherText"),
-  YES("Yes", "is.bookmarked.yes.otherText");
+  NO("No", "is.bookmarked.no"),
+  YES("Yes", "is.bookmarked.yes");
 
   private final String label;
   private final String messageCode;

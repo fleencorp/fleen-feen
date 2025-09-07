@@ -1,4 +1,4 @@
-package com.fleencorp.feen.stream.constant.attendee;
+package com.fleencorp.feen.stream.constant.speaker;
 
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;

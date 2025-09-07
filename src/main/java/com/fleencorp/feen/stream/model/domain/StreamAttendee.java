@@ -168,6 +168,7 @@ public class StreamAttendee extends FleenFeenEntity
     attendee.setMemberId(member.getMemberId());
     attendee.setEmailAddress(member.getEmailAddress());
     attendee.setStreamId(streamId);
+    attendee.setStream(FleenStream.of(streamId));
 
     return attendee;
   }

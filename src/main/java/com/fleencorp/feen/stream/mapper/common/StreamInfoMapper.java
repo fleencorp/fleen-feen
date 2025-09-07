@@ -15,6 +15,7 @@ import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoin
 import com.fleencorp.feen.stream.model.info.core.StreamStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
 import com.fleencorp.feen.stream.model.info.core.StreamVisibilityInfo;
+import com.fleencorp.feen.stream.model.info.speaker.SpeakerCountInfo;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
 
 public interface StreamInfoMapper {
@@ -42,4 +43,6 @@ public interface StreamInfoMapper {
   StreamStatusInfo toStreamStatusInfo(StreamStatus streamStatus);
 
   StreamTypeInfo toStreamTypeInfo(StreamType streamType);
+
+  SpeakerCountInfo toSpeakerCountInfo(Integer speakerCount);
 }

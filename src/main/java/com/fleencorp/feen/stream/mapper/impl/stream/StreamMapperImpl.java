@@ -25,6 +25,7 @@ import com.fleencorp.feen.stream.model.info.attendee.IsAttendingInfo;
 import com.fleencorp.feen.stream.model.info.attendee.StreamAttendeeRequestToJoinStatusInfo;
 import com.fleencorp.feen.stream.model.info.core.*;
 import com.fleencorp.feen.stream.model.info.schedule.ScheduleTimeTypeInfo;
+import com.fleencorp.feen.stream.model.info.speaker.SpeakerCountInfo;
 import com.fleencorp.feen.stream.model.other.Organizer;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.fleencorp.feen.stream.model.response.StreamResponse;
@@ -70,7 +71,6 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       response.setTags(entry.getTags());
       response.setLocation(entry.getLocation());
       response.setOtherSchedule(Schedule.of());
-      response.setSpeakerCount(entry.getTotalSpeakers());
 
       response.setStreamLink(entry.getMaskedStreamLink());
       response.setStreamLinkUnmasked(entry.getStreamLink());
@@ -95,6 +95,9 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
 
       final AttendeeCountInfo attendeeCountInfo = streamInfoMapper.toAttendeeCountInfo(entry.getTotalAttendees());
       response.setAttendeeCountInfo(attendeeCountInfo);
+
+      final SpeakerCountInfo speakerCountInfo = streamInfoMapper.toSpeakerCountInfo(entry.getTotalSpeakers());
+      response.setSpeakerCountInfo(speakerCountInfo);
 
       final StreamStatusInfo streamStatusInfo = streamInfoMapper.toStreamStatusInfo(entry.getStreamStatus());
       response.setStreamStatusInfo(streamStatusInfo);
@@ -167,7 +170,7 @@ public class StreamMapperImpl extends BaseMapper implements StreamMapper {
       final IsAttendingInfo isAttendingInfo = streamInfoMapper.toIsAttendingInfo(true);
       final IsASpeakerInfo isASpeakerInfo = streamInfoMapper.toIsASpeakerInfo(true);
 
-      final JoinStatus joinStatus = JoinStatus.joinedChatSpace();
+      final JoinStatus joinStatus = JoinStatus.joinedStream();
       final JoinStatusInfo joinStatusInfo = JoinStatusInfo.of(joinStatus, translate(joinStatus.getMessageCode()), translate(joinStatus.getMessageCode2()), translate(joinStatus.getMessageCode3()));
 
       final StreamAttendeeRequestToJoinStatus requestToJoinStatus = StreamAttendeeRequestToJoinStatus.approved();
