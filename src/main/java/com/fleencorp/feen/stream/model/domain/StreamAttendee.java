@@ -5,12 +5,10 @@ import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.attendee.StreamAttendeeRequestToJoinStatus;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Objects.nonNull;
@@ -37,13 +35,8 @@ public class StreamAttendee extends FleenFeenEntity
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
-  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "member_id", nullable = false, updatable = false)
   private Long memberId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = EAGER, optional = false, targetEntity = Member.class)
-  @JoinColumn(name = "member_id", referencedColumnName = "member_id", nullable = false, updatable = false)
-  private Member member;
 
   @Enumerated(STRING)
   @Column(name = "request_to_join_status", nullable = false)
@@ -64,7 +57,7 @@ public class StreamAttendee extends FleenFeenEntity
   @Column(name = "organizer_comment", length = 1000)
   private String organizerComment;
 
-  @Column(name = "email", length = 1000)
+  @Column(name = "email_address")
   private String emailAddress;
 
   @Override
@@ -181,6 +174,7 @@ public class StreamAttendee extends FleenFeenEntity
   public static StreamAttendee of(final IsAMember member, final IsAStream stream, final String comment) {
     final StreamAttendee streamAttendee = of(member.getMemberId(), stream.getStreamId());
     streamAttendee.setAttendeeComment(comment);
+    streamAttendee.setEmailAddress(member.getEmailAddress());
 
     return streamAttendee;
   }

@@ -32,16 +32,15 @@ public interface UserStreamSearchRepository extends JpaRepository<FleenStream, L
     @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("visibility") StreamVisibility streamVisibility,
     @Param("memberId") Long memberId, Pageable pageable);
 
-  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa JOIN sa.member m WHERE m.memberId = :memberId")
+  @Query("SELECT DISTINCT fs FROM FleenStream fs JOIN fs.attendees sa WHERE sa.memberId = :memberId")
   Page<FleenStream> findAttendedByUser(@Param("memberId") Long memberId, Pageable pageable);
 
   @Query(value = """
     SELECT DISTINCT fs FROM FleenStream fs
     JOIN fs.attendees sa
-    JOIN sa.member m
     WHERE
       fs.scheduledStartDate BETWEEN :startDate AND :endDate AND
-      m.memberId = :memberId ORDER
+      sa.memberId = :memberId ORDER
     BY fs.scheduledStartDate DESC
   """)
   Page<FleenStream> findAttendedByDateBetweenAndUser(
@@ -50,9 +49,9 @@ public interface UserStreamSearchRepository extends JpaRepository<FleenStream, L
   @Query(value = """
     SELECT DISTINCT fs FROM FleenStream fs
     JOIN fs.attendees sa
-    JOIN sa.member m WHERE LOWER(fs.title)
+    WHERE LOWER(fs.title)
     LIKE LOWER(CONCAT('%', :title, '%')) AND
-      m.memberId = :memberId
+      sa.memberId = :memberId
     ORDER BY fs.scheduledStartDate DESC
   """)
   Page<FleenStream> findAttendedByTitleAndUser(

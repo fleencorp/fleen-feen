@@ -1,5 +1,6 @@
 package com.fleencorp.feen.oauth2.model.response.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -47,12 +48,14 @@ public class Oauth2AuthorizationResponse extends LocalizedResponse {
   @JsonProperty("scope")
   private String scope;
 
+  @JsonIgnore
   public long getAccessTokenExpirationTimeInMilliseconds() {
     final long currentTimeMillis = System.currentTimeMillis();
     return currentTimeMillis + (accessTokenExpirationTimeInSeconds * 1000);
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "oauth2.authorization";
   }

@@ -5,6 +5,7 @@ import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttende
 import com.fleencorp.feen.chat.space.constant.core.ChatSpaceRequestToJoinStatus;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.calendar.contract.IsACalendar;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyCanceledException;
 import com.fleencorp.feen.stream.exception.core.StreamAlreadyHappenedException;
@@ -69,7 +70,7 @@ public class EventJoinServiceImpl implements EventJoinService {
    */
   @Override
   @Transactional
-  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final RegisteredUser user) {
+  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final IsAMember member) {
     boolean isMemberPartOfChatSpace = false;
 
     if (stream.hasChatSpaceId()) {
@@ -81,7 +82,7 @@ public class EventJoinServiceImpl implements EventJoinService {
       streamAttendeeOperationsService.save(streamAttendee);
     }
 
-    streamAttendeeOperationsService.checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(isMemberPartOfChatSpace, stream.getExternalId(), comment, user.toMember());
+    streamAttendeeOperationsService.checkIfAttendeeIsMemberOfChatSpaceAndSendInvitationForJoinStreamRequest(isMemberPartOfChatSpace, stream.getExternalId(), comment, member);
   }
 
   /**

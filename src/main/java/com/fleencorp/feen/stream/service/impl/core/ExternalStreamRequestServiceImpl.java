@@ -1,7 +1,13 @@
 package com.fleencorp.feen.stream.service.impl.core;
 
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
+import com.fleencorp.feen.calendar.model.domain.Calendar;
+import com.fleencorp.feen.calendar.model.request.event.create.AddNewEventAttendeeRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
+import com.fleencorp.feen.shared.stream.contract.IsAStream;
+import com.fleencorp.feen.shared.stream.contract.IsAttendee;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
+import com.fleencorp.feen.stream.model.dto.attendee.ProcessAttendeeRequestToJoinStreamDto;
 import com.fleencorp.feen.stream.model.request.external.ExternalStreamRequest;
 import com.fleencorp.feen.stream.model.request.external.broadcast.DeleteLiveBroadcastRequest;
 import com.fleencorp.feen.stream.model.request.external.broadcast.RescheduleLiveBroadcastRequest;
@@ -11,6 +17,9 @@ import com.fleencorp.feen.stream.service.core.ExternalStreamRequestService;
 import com.fleencorp.feen.stream.service.event.EventOperationsService;
 import com.fleencorp.feen.stream.service.impl.update.LiveBroadcastUpdateService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class ExternalStreamRequestServiceImpl implements ExternalStreamRequestService {
@@ -229,4 +238,83 @@ public class ExternalStreamRequestServiceImpl implements ExternalStreamRequestSe
       liveBroadcastUpdateService.updateStreamVisibility(updateLiveBroadcastVisibilityRequest);
     }
   }
+
+  /**
+   * Handles the external operation for marking a user as not attending an event.
+   *
+   * <p>This method checks if the stream is an event, and if so, it creates a request to remove the user
+   * from the associated external service event. It then sends the non-attendance update to the external
+   * event service to complete the operation.</p>
+   *
+   * @param notAttendingStreamRequest the request containing details for the non-attendance update
+   */
+  @Override
+  @Transactional
+  public void notAttendingStreamExternally(final ExternalStreamRequest notAttendingStreamRequest) {
+    if (notAttendingStreamRequest.isAnEvent() && notAttendingStreamRequest.isNotAttendingRequest()) {
+      // Create a request that remove the attendee from the external service
+      final NotAttendingEventRequest notAttendingEventRequest = NotAttendingEventRequest.of(
+        notAttendingStreamRequest.calendarExternalId(),
+        notAttendingStreamRequest.streamExternalId(),
+        notAttendingStreamRequest.getAttendeeEmailAddress()
+      );
+      // Send the request for the update of non-attendance
+      eventOperationsService.notAttendingEvent(notAttendingEventRequest);
+    }
+  }
+
+  /**
+   * Registers an attendee for an external stream associated with a stream.
+   * This method adds the attendee to the event via an external calendar or event service.
+   *
+   * @param externalStreamRequest the request containing stream and attendee details
+   */
+  @Override
+  public void joinStreamExternally(final ExternalStreamRequest externalStreamRequest) {
+    if (nonNull(externalStreamRequest) && externalStreamRequest.isJoinStreamRequest()
+      && externalStreamRequest.isAnEvent()) {
+      final AddNewEventAttendeeRequest addNewEventAttendeeRequest = AddNewEventAttendeeRequest.withComment(
+        externalStreamRequest.calendarExternalId(),
+        externalStreamRequest.streamExternalId(),
+        externalStreamRequest.getAttendeeEmailAddress(),
+        externalStreamRequest.getJoinStreamDto().getComment()
+      );
+
+      // Send an invitation to the user in the Calendar & Event API
+      eventOperationsService.addNewAttendeeToCalendarEvent(addNewEventAttendeeRequest);
+    }
+  }
+
+  /**
+   * Adds an attendee to an external event associated with a stream. This method handles the process of registering
+   * an attendee in an external calendar or event service, provided the request is valid and approved. It works
+   * specifically for events that are associated with streams, such as scheduled meetings or webinars.
+   *
+   * <p>The method begins by verifying that the provided {@code ExternalStreamRequest} is not null and that it represents
+   * an attendee request process. It checks if the request pertains to an event and if the attendee's request to join
+   * the stream has been approved. Once these validations pass, the method retrieves the stream, the attendee, and the
+   * associated calendar details from the request.</p>
+   *
+   * <p>After the necessary details are gathered, the attendee is added to the event using the external event joining
+   * service. The service uses the external calendar ID, stream ID, and attendee's email address to register the attendee
+   * in the external system (e.g., Google Calendar, Zoom, or similar external services).</p>
+   *
+   * @param externalStreamRequest     the request object containing details about the stream, attendee, and calendar
+   * @throws CalendarNotFoundException if the associated calendar for the event cannot be found
+   */
+  @Override
+  public void addAttendeeToStreamExternally(final ExternalStreamRequest externalStreamRequest) throws CalendarNotFoundException {
+    if (nonNull(externalStreamRequest) && externalStreamRequest.isProcessAttendeeRequest()) {
+      final ProcessAttendeeRequestToJoinStreamDto processAttendeeRequestToJoinStreamDto = externalStreamRequest.getProcessAttendeeRequestToJoinStreamDto();
+
+      if (externalStreamRequest.isAnEvent() && processAttendeeRequestToJoinStreamDto.isApproved()) {
+        final IsAStream stream = externalStreamRequest.getStream();
+        final IsAttendee attendee = externalStreamRequest.getAttendee();
+        final Calendar calendar = externalStreamRequest.getCalendar();
+
+        eventOperationsService.addAttendeeToEventExternally(calendar.getExternalId(), stream.getExternalId(), attendee.getEmailAddress(), null);
+      }
+    }
+  }
+
 }

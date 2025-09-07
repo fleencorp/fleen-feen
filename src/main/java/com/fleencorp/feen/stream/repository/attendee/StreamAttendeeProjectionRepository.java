@@ -90,14 +90,13 @@ public interface StreamAttendeeProjectionRepository extends JpaRepository<Stream
         CASE WHEN COUNT(l) > 0 THEN TRUE ELSE FALSE END
       )
       FROM StreamAttendee sa
-      LEFT JOIN sa.member m
       LEFT JOIN sa.stream fs
       LEFT JOIN Like l
-        ON l.memberId = m.memberId
+        ON l.memberId = sa.memberId
         AND l.parentId = fs.streamId
         AND l.likeParentType = 'STREAM'
         AND l.likeType = 'LIKE'
-      WHERE m.memberId = :memberId
+      WHERE sa.memberId = :memberId
       AND fs.streamId IN (:streamIds)
       GROUP BY fs.streamId, sa.requestToJoinStatus, sa.attending, sa.aSpeaker, sa.stream.streamVisibility, sa.stream.scheduledEndDate
     """)

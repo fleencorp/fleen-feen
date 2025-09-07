@@ -69,7 +69,7 @@ public interface StreamAttendeeSearchRepository extends JpaRepository<StreamAtte
 
   @Query(
     value = """
-          SELECT 
+          SELECT
               sa.stream_attendee_id AS attendeeId,
               sa.stream_id AS streamId,
               sa.member_id AS memberId,
@@ -81,7 +81,7 @@ public interface StreamAttendeeSearchRepository extends JpaRepository<StreamAtte
               m.email_address AS emailAddress,
               CONCAT(m.first_name, ' ', m.last_name) AS fullName,
               m.username AS username,
-              m.profile_photo AS profilePhoto
+              m.profile_photo_url AS profilePhoto
           FROM stream_attendee sa
           JOIN member m ON sa.member_id = m.member_id
           WHERE sa.stream_id = :streamId

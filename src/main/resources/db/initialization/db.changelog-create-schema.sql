@@ -326,6 +326,7 @@ CREATE TABLE stream_attendee (
   stream_attendee_id BIGSERIAL PRIMARY KEY,
   attendee_comment VARCHAR(1000) NULL,
   organizer_comment VARCHAR(1000) NULL,
+  email_address VARCHAR(255) NOT NULL,
   is_attending BOOLEAN NOT NULL DEFAULT false,
   is_a_speaker BOOLEAN NOT NULL DEFAULT false,
   is_organizer BOOLEAN NOT NULL DEFAULT false,

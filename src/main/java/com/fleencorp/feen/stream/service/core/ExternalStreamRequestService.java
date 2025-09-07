@@ -1,5 +1,6 @@
 package com.fleencorp.feen.stream.service.core;
 
+import com.fleencorp.feen.calendar.exception.core.CalendarNotFoundException;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.model.request.external.ExternalStreamRequest;
 
@@ -14,4 +15,10 @@ public interface ExternalStreamRequestService {
   void patchStreamExternally(ExternalStreamRequest patchStreamRequest);
 
   void updateStreamVisibilityExternally(ExternalStreamRequest updateStreamVisibilityRequest, StreamVisibility previousStreamVisibility);
+
+  void notAttendingStreamExternally(ExternalStreamRequest notAttendingStreamRequest);
+
+  void joinStreamExternally(ExternalStreamRequest externalStreamRequest);
+
+  void addAttendeeToStreamExternally(ExternalStreamRequest externalStreamRequest) throws CalendarNotFoundException;
 }

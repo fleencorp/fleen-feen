@@ -6,6 +6,7 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateCalendarEven
 import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalendarEventRequest;
 import com.fleencorp.feen.calendar.model.request.event.update.*;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
@@ -128,8 +129,8 @@ public class EventOperationsServiceImpl implements EventOperationsService {
   }
 
   @Override
-  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final RegisteredUser user) {
-    eventJoinService.handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, streamAttendee, comment, user);
+  public void handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(final FleenStream stream, final StreamAttendee streamAttendee, final String comment, final IsAMember member) {
+    eventJoinService.handleJoinRequestForPrivateStreamBasedOnChatSpaceMembership(stream, streamAttendee, comment, member);
   }
 
   @Override
