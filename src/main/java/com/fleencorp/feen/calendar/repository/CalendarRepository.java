@@ -14,10 +14,10 @@ import java.util.Optional;
 
 public interface CalendarRepository extends JpaRepository<Calendar, Long> {
 
-  @Query("SELECT cal FROM Calendar cal WHERE cal.createdOn BETWEEN :startDate AND :endDate AND cal.isActive = true ORDER BY cal.updatedOn DESC")
+  @Query("SELECT cal FROM Calendar cal WHERE cal.createdOn BETWEEN :startDate AND :endDate AND cal.status = 'ACTIVE' ORDER BY cal.updatedOn DESC")
   Page<Calendar> findByDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-  @Query("SELECT cal FROM Calendar cal WHERE cal.title = :title AND cal.isActive = true")
+  @Query("SELECT cal FROM Calendar cal WHERE cal.title = :title AND cal.status = 'ACTIVE'")
   Page<Calendar> findByTitle(@Param("title") String title, Pageable pageable);
 
   @Query("SELECT cal FROM Calendar cal WHERE cal.status IN (:statuses)")
