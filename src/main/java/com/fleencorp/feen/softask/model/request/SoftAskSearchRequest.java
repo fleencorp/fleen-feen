@@ -6,6 +6,8 @@ import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +33,14 @@ public class SoftAskSearchRequest extends SearchRequest {
 
   @JsonProperty("user_other_detail")
   private UserOtherDetailDto userOtherDetailDto;
+
+  @DecimalMin(value = "-90.0", message = "{user.location.latitude.DecimalMin}")
+  @DecimalMax(value = "90.0", message = "{user.location.latitude.DecimalMax}")
+  protected Double latitude;
+
+  @DecimalMin(value = "-180.0", message = "{user.location.longitude.DecimalMin}")
+  @DecimalMax(value = "180.0", message = "{user.location.longitude.DecimalMax}")
+  protected Double longitude;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private IsAMember author;
@@ -59,24 +69,20 @@ public class SoftAskSearchRequest extends SearchRequest {
     return nonNull(parentId);
   }
 
+  public boolean hasLatitudeAndLongitude() {
+    return nonNull(latitude) && nonNull(longitude);
+  }
+
   public Long getAuthorId() {
     return hasAuthor() ? author.getMemberId() : null;
   }
 
   public UserOtherDetailHolder getUserOtherDetail() {
-    if (nonNull(userOtherDetailDto) && userOtherDetailDto.hasLatitudeAndLongitude()) {
-      return UserOtherDetailHolder.of(userOtherDetailDto.getLatitude(), userOtherDetailDto.getLongitude());
+    if (hasLatitudeAndLongitude()) {
+      return UserOtherDetailHolder.of(latitude, longitude);
     }
 
     return UserOtherDetailHolder.empty();
-  }
-
-  public Double getLatitude() {
-    return nonNull(userOtherDetailDto) ? userOtherDetailDto.getLatitude() : null;
-  }
-
-  public Double getLongitude() {
-    return nonNull(userOtherDetailDto) ? userOtherDetailDto.getLongitude() : null;
   }
 
   public void updateParentId(final Long parentId) {

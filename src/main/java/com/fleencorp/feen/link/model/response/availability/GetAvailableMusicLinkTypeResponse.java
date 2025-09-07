@@ -1,5 +1,6 @@
 package com.fleencorp.feen.link.model.response.availability;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.link.model.info.MusicLinkTypeInfo;
@@ -26,6 +27,7 @@ public class GetAvailableMusicLinkTypeResponse extends LocalizedResponse {
   private Map<MusicLinkType, MusicLinkTypeInfo> linkTypes;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "get.available.music.link.type";
   }

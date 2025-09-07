@@ -16,7 +16,13 @@ public interface SoftAskCommonData {
 
   String getUserDisplayName();
 
+  String getAvatarUrl();
+
   String getParentTitle();
+
+  Integer getBookmarkCount();
+
+  Integer getShareCount();
 
   Double getLatitude();
 

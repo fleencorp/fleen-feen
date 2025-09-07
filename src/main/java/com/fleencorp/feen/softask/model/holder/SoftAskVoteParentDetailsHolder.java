@@ -1,11 +1,12 @@
 package com.fleencorp.feen.softask.model.holder;
 
+import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 
 import java.util.Optional;
 
-public record SoftAskVoteParentDetailsHolder(SoftAsk softAsk, SoftAskReply softAskReply) {
+public record SoftAskVoteParentDetailsHolder(SoftAsk softAsk, SoftAskReply softAskReply, SoftAskVoteParentType parentType) {
 
   public Long getSoftAskId() {
     return Optional.of(softAsk)
@@ -19,7 +20,7 @@ public record SoftAskVoteParentDetailsHolder(SoftAsk softAsk, SoftAskReply softA
       .orElse(null);
   }
 
-  public static SoftAskVoteParentDetailsHolder of(final SoftAsk softAsk, final SoftAskReply softAskReply) {
-    return new SoftAskVoteParentDetailsHolder(softAsk, softAskReply);
+  public static SoftAskVoteParentDetailsHolder of(final SoftAsk softAsk, final SoftAskReply softAskReply, final SoftAskVoteParentType parentType) {
+    return new SoftAskVoteParentDetailsHolder(softAsk, softAskReply, parentType);
   }
 }

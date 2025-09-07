@@ -1,5 +1,6 @@
 package com.fleencorp.feen.user.model.response.read;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -21,6 +22,7 @@ import lombok.Setter;
 public class RetrieveProfileStatusResponse extends LocalizedResponse {
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "retrieve.profile.status";
   }

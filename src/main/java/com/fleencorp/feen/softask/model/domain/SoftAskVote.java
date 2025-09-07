@@ -31,11 +31,11 @@ public class SoftAskVote extends FleenFeenEntity {
   private String parentTitle;
 
   @Enumerated(STRING)
-  @Column(name = "vote_parent_type", nullable = false)
+  @Column(name = "parent_type", nullable = false)
   private SoftAskVoteParentType parentType;
 
   @Enumerated(STRING)
-  @Column(name = "vote_type", nullable = false)
+  @Column(name = "type", nullable = false)
   private SoftAskVoteType voteType;
 
   @Column(name = "soft_ask_id", updatable = false, insertable = false)

@@ -14,6 +14,7 @@ import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.HasId;
 import com.fleencorp.feen.model.contract.HasSlug;
 import com.fleencorp.feen.model.contract.Updatable;
+import com.fleencorp.feen.shared.common.contract.IsShareable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import com.fleencorp.feen.softask.contract.HasMood;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
@@ -57,7 +58,8 @@ import static java.util.Objects.nonNull;
   "child_replies_search_result",
 })
 public class SoftAskReplyResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasMood, HasSlug, SoftAskCommonResponse, Updatable {
+  implements Bookmarkable, HasId, HasMood, HasSlug, IsShareable,
+  SoftAskCommonResponse, Updatable {
 
   @JsonProperty("content")
   private String content;

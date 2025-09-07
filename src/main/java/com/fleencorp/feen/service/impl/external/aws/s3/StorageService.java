@@ -701,21 +701,19 @@ public class StorageService {
     return newExpirationDate.toInstant();
   }
 
-  /**
-   * Builds avatar URLs for both PNG and JPG formats.
-   *
-   * @param bucketName the S3 bucket containing the avatar
-   * @param avatarId   the avatar identifier (without extension)
-   * @return a map of file extension to full S3 URL
-   */
-  public Map<String, String> getAvatarUrls(final String bucketName, final String avatarId) {
+  public Map<String, String> getAvatarBaseName(final String bucketName, final String avatarId) {
     final String region = awsConfig.getRegionName();
-
     final Map<String, String> urls = new HashMap<>();
-    urls.put("png", String.format("https://%s.s3.%s.amazonaws.com/%s.png", bucketName, region, avatarId));
-    urls.put("jpg", String.format("https://%s.s3.%s.amazonaws.com/%s.jpg", bucketName, region, avatarId));
+    urls.put("default", String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, avatarId));
 
     return urls;
   }
 
+  public Map<String, String> getAvatarUrls(final String avatarName) {
+    final Map<String, String> urls = new HashMap<>();
+    urls.put("png", String.format(avatarName + ".png", avatarName));
+    urls.put("jpg", String.format(avatarName + ".jpg", avatarName));
+
+    return urls;
+  }
 }

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.model.response.softask;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,6 +30,7 @@ public class SoftAskAddResponse extends LocalizedResponse {
   private SoftAskResponse softAskResponse;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "soft.ask.add";
   }

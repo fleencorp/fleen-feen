@@ -3,7 +3,7 @@ package com.fleencorp.feen.softask.service.common;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 
 public interface SoftAskOperationService {
 
@@ -27,9 +27,9 @@ public interface SoftAskOperationService {
 
   Integer updateBookmarkCount(Long softAskId, Long softAskReplyId, boolean increment);
 
-  SoftAskUsername generateUsername(Long softAskId, Long userId);
+  SoftAskParticipantDetail generateParticipantDetail(Long softAskId, Long userId);
 
-  SoftAskUsername getOrAssignUsername(Long softAskId, Long userId);
+  SoftAskParticipantDetail getOrAssignUsername(Long softAskId, Long userId);
 
   void setGeoHashAndGeoPrefix(SoftAskCommonData softAskCommonData);
 }

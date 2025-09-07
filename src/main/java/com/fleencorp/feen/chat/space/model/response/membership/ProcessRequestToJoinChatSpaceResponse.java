@@ -1,5 +1,6 @@
 package com.fleencorp.feen.chat.space.model.response.membership;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -41,6 +42,7 @@ public class ProcessRequestToJoinChatSpaceResponse extends LocalizedResponse {
   private Integer totalRequestToJoin;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "process.request.to.join.chat.space";
   }

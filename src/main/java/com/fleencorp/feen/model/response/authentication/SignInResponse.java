@@ -63,6 +63,7 @@ public class SignInResponse extends LocalizedResponse {
   private IsMfaEnabledInfo mfaEnabledInfo;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "sign.in";
   }

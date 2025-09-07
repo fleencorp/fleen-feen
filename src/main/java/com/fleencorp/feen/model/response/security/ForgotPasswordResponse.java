@@ -1,9 +1,6 @@
 package com.fleencorp.feen.model.response.security;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.common.constant.mask.MaskedEmailAddress;
 import com.fleencorp.feen.common.constant.mask.MaskedPhoneNumber;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
@@ -33,6 +30,7 @@ public class ForgotPasswordResponse extends LocalizedResponse {
   private MaskedPhoneNumber phoneNumber;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "forgot.password";
   }

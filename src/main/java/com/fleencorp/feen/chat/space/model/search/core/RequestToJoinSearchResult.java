@@ -1,5 +1,6 @@
 package com.fleencorp.feen.chat.space.model.search.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -27,6 +28,7 @@ public class RequestToJoinSearchResult extends LocalizedResponse {
   private SearchResult result;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "request.to.join.search" : "request.to.join.empty.search";
   }

@@ -1,17 +1,16 @@
 package com.fleencorp.feen.softask.controller.softask;
 
-import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskParentNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 import com.fleencorp.feen.softask.model.dto.softask.DeleteSoftAskDto;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,12 +38,12 @@ public class SoftAskController {
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully created the soft ask",
       content = @Content(schema = @Schema(implementation = SoftAskAddResponse.class))),
-    @ApiResponse(responseCode = "404", description = "Member not found",
+    @ApiResponse(responseCode = "400", description = "Member not found",
       content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Chat Space not found",
-      content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
-    @ApiResponse(responseCode = "404", description = "Stream not found",
-      content = @Content(schema = @Schema(implementation = StreamNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Chat Space not found",
+      content = @Content(schema = @Schema(implementation = SoftAskParentNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Stream not found",
+      content = @Content(schema = @Schema(implementation = SoftAskParentNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

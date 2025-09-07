@@ -42,7 +42,7 @@ public class BookmarkDto {
   }
 
   public BookmarkParentType getBookmarkParentType() {
-    return hasParent() ? BookmarkParentType.of(parent.getLikeParentType()) : null;
+    return hasParent() ? BookmarkParentType.of(parent.getBookmarkParentType()) : null;
   }
 
   public BookmarkType getBookmarkType() {
@@ -58,7 +58,7 @@ public class BookmarkDto {
     @NotNull(message = "{bookmark.parentType.NotNull}")
     @OneOf(enumClass = BookmarkParentType.class, message = "{bookmark.parentType.Type}")
     @JsonProperty("parent_type")
-    private String likeParentType;
+    private String bookmarkParentType;
 
     @NotNull(message = "{bookmark.parentId.NotNull}")
     @IsNumber(message = "{bookmark.parentId.IsNumber}")

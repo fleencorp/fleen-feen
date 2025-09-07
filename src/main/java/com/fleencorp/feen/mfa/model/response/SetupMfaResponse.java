@@ -1,9 +1,6 @@
 package com.fleencorp.feen.mfa.model.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fleencorp.feen.common.constant.mask.MaskedEmailAddress;
 import com.fleencorp.feen.common.constant.mask.MaskedPhoneNumber;
 import com.fleencorp.feen.mfa.constant.MfaSetupStage;
@@ -62,6 +59,7 @@ public class SetupMfaResponse extends LocalizedResponse {
   private MfaSetupStage mfaSetupStage;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "setup.mfa";
   }

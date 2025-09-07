@@ -5,11 +5,11 @@ import com.fleencorp.feen.shared.common.model.GeneratedUsername;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplyRepository;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
-import com.fleencorp.feen.softask.service.participant.SoftAskUsernameService;
+import com.fleencorp.feen.softask.service.participant.SoftAskParticipantDetailService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
   private final GeoService geoService;
   private final SoftAskReplySearchService softAskReplySearchService;
   private final SoftAskSearchService softAskSearchService;
-  private final SoftAskUsernameService softAskUsernameService;
+  private final SoftAskParticipantDetailService softAskParticipantDetailService;
   private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskRepository softAskRepository;
 
@@ -31,13 +31,13 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
       final GeoService geoService,
       final SoftAskReplySearchService softAskReplySearchService,
       final SoftAskSearchService softAskSearchService,
-      final SoftAskUsernameService softAskUsernameService,
+      final SoftAskParticipantDetailService softAskParticipantDetailService,
       final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskRepository softAskRepository) {
     this.geoService = geoService;
     this.softAskReplySearchService = softAskReplySearchService;
     this.softAskSearchService = softAskSearchService;
-    this.softAskUsernameService = softAskUsernameService;
+    this.softAskParticipantDetailService = softAskParticipantDetailService;
     this.softAskReplyRepository = softAskReplyRepository;
     this.softAskRepository = softAskRepository;
   }
@@ -151,17 +151,17 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
   }
 
   @Override
-  public SoftAskUsername generateUsername(final Long softAskId, final Long userId) {
-    return softAskUsernameService.generateUsername(softAskId, userId);
+  public SoftAskParticipantDetail generateParticipantDetail(final Long softAskId, final Long userId) {
+    return softAskParticipantDetailService.generateParticipantDetail(softAskId, userId);
   }
 
   @Override
-  public SoftAskUsername getOrAssignUsername(final Long softAskId, final Long userId) {
-    final GeneratedUsername generatedUsername = softAskUsernameService.getOrAssignUsername(softAskId, userId);
+  public SoftAskParticipantDetail getOrAssignUsername(final Long softAskId, final Long userId) {
+    final GeneratedUsername generatedUsername = softAskParticipantDetailService.getOrAssignUsername(softAskId, userId);
     final String username = generatedUsername.username();
     final String displayName = generatedUsername.displayName();
 
-    return SoftAskUsername.of(softAskId, userId, username, displayName);
+    return SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
   }
 
   /**

@@ -29,6 +29,7 @@ public class BlockUserStatusResponse extends LocalizedResponse {
   private BlockStatus blockStatus;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return BlockStatus.isBlocked(blockStatus)
       ? "block.user.status.blocked"

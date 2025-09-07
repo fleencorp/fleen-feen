@@ -1,15 +1,18 @@
 package com.fleencorp.feen.softask.service.impl.reply;
 
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.factory.SoftAskReplyFactory;
@@ -24,6 +27,7 @@ import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SoftAskReplyServiceImpl implements SoftAskReplyService {
 
@@ -59,26 +64,11 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     this.localizer = localizer;
   }
 
-  /**
-   * Adds a reply to a soft ask and returns the corresponding response.
-   *
-   * <p>This method creates a new {@link SoftAskReply} based on the provided
-   * {@link AddSoftAskReplyDto} and the authenticated {@link RegisteredUser}.
-   * It validates and retrieves the parent soft ask or parent reply, constructs
-   * the new reply, and persists it. The method also sets geohash information,
-   * assigns or retrieves a username for the reply, and updates the reply count
-   * of the associated soft ask or parent reply. The saved reply is then mapped
-   * to a {@link SoftAskReplyResponse}, enriched with bookmarks, votes, location,
-   * and update permissions. Finally, the method returns a localized
-   * {@link SoftAskReplyAddResponse} containing the reply count and reply details.</p>
-   *
-   * @param addSoftAskReplyDto the data transfer object containing reply information
-   * @param user               the registered user creating the reply
-   * @return a localized {@link SoftAskReplyAddResponse} containing the reply count and reply details
-   */
   @Override
   @Transactional
-  public SoftAskReplyAddResponse addSoftAskReply(final AddSoftAskReplyDto addSoftAskReplyDto, final RegisteredUser user) {
+  public SoftAskReplyAddResponse addSoftAskReply(final AddSoftAskReplyDto addSoftAskReplyDto, final RegisteredUser user)
+     throws MemberNotFoundException, SoftAskNotFoundException, SoftAskReplyNotFoundException,
+      FailedOperationException {
     final IsAMember author = softAskQueryService.findMemberOrThrow(user.getId());
     final Long softAskId = addSoftAskReplyDto.getSoftAskId();
     final Long softAskParentReplyId = addSoftAskReplyDto.getSoftAskParentReplyId();
@@ -91,8 +81,8 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
     softAskReplyRepository.save(reply);
 
-    final SoftAskUsername softAskUsername = softAskOperationService.getOrAssignUsername(softAskId, user.getId());
-    reply.setSoftAskUsername(softAskUsername);
+    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.getOrAssignUsername(softAskId, user.getId());
+    reply.setSoftAskParticipantDetail(softAskParticipantDetail);
     final Integer replyCount = updateReplyCountOfSoftAskOrSoftAskReply(addSoftAskReplyDto, softAskId, softAskParentReplyId);
 
     final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(reply);
@@ -119,11 +109,12 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
    * @return a localized response containing the reply ID and its deletion status
    * @throws SoftAskUpdateDeniedException if the user is not authorized to delete the reply
    * @throws SoftAskReplyNotFoundException if the reply cannot be found
+   * @throws FailedOperationException if the operation failed
    */
   @Override
   @Transactional
   public SoftAskReplyDeleteResponse deleteSoftAskReply(final Long softAskReplyId, final DeleteSoftAskReplyDto deleteSoftAskReplyDto, final RegisteredUser user)
-      throws SoftAskUpdateDeniedException {
+      throws SoftAskReplyNotFoundException, SoftAskUpdateDeniedException, FailedOperationException {
     final Long softAskId = deleteSoftAskReplyDto.getSoftAskId();
     final Long softAskParentReplyId = deleteSoftAskReplyDto.getSoftAskParentReplyId();
 
@@ -160,6 +151,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final SoftAsk softAsk;
 
     if (addSoftAskReplyDto.hasSoftAskParentReply()) {
+       log.info("The soft ask id is {} and the reply parent id is {}", softAskId, softAskParentReplyId);
       softAskParentReply = softAskReplyRepository.findBySoftAskAndParentReply(softAskId, softAskParentReplyId)
         .orElseThrow(() -> new SoftAskReplyNotFoundException(softAskParentReplyId));
       softAsk = softAskParentReply.getSoftAsk();

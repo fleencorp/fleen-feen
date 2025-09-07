@@ -73,7 +73,7 @@ public class AddSoftAskDto extends UserOtherDetailDto {
   }
 
   public boolean hasNoParent() {
-    return isNull(parent);
+    return isNull(parent) || isNull(parent.getParentId());
   }
 
   public Long getParentId() {

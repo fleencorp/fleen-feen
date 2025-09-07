@@ -18,11 +18,11 @@ public interface SoftAskReplySearchRepository extends JpaRepository<SoftAskReply
   @Query(value = """
     SELECT new com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail(sar, sau)
     FROM SoftAskReply sar
-    JOIN SoftAskUsername sau
+    JOIN SoftAskParticipantDetail sau
     ON
       sar.softAskId = sau.softAskId AND
       sar.authorId = sau.userId AND
-      sar.parentReplyId = NULL
+      sar.parentReplyId IS NULL
     WHERE
       sar.softAskId = :softAskId AND
       sar.deleted = false
@@ -33,7 +33,7 @@ public interface SoftAskReplySearchRepository extends JpaRepository<SoftAskReply
   @Query(value = """
     SELECT new com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail(sar, sau)
     FROM SoftAskReply sar
-    JOIN SoftAskUsername sau
+    JOIN SoftAskParticipantDetail sau
     ON
       sar.softAskId = sau.softAskId AND
       sar.authorId = sau.userId
@@ -48,7 +48,7 @@ public interface SoftAskReplySearchRepository extends JpaRepository<SoftAskReply
   @Query(value = """
     SELECT new com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail(sar, sau)
     FROM SoftAskReply sar
-    JOIN SoftAskUsername sau
+    JOIN SoftAskParticipantDetail sau
     ON
       sar.softAskId = sau.softAskId AND
       sar.authorId = sau.userId

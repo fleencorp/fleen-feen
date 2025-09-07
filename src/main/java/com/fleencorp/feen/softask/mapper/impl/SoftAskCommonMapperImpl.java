@@ -1,10 +1,12 @@
 package com.fleencorp.feen.softask.mapper.impl;
 
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.common.util.common.DateTimeUtil;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
@@ -30,14 +32,17 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
 
   private final ObjectService objectService;
   private final SoftAskInfoMapper softAskInfoMapper;
+  private final ToInfoMapper toInfoMapper;
 
   public SoftAskCommonMapperImpl(
       final ObjectService objectService,
       final SoftAskInfoMapper softAskInfoMapper,
+      final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
     super(messageSource);
     this.objectService = objectService;
     this.softAskInfoMapper = softAskInfoMapper;
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -58,16 +63,18 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
     if (nonNull(entry) && nonNull(response)) {
       response.setIsUpdatable(false);
 
+      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
+
       final SoftAskVoteCountInfo voteCountInfo = softAskInfoMapper.toVoteCountInfo(entry.getVoteCount());
       response.setVoteCountInfo(voteCountInfo);
 
       final SoftAskUserVoteInfo softAskUserVoteInfo = softAskInfoMapper.toUserVoteInfo(false);
       response.setSoftAskUserVoteInfo(softAskUserVoteInfo);
 
-      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentTitle());
-      response.setParentInfo(parentInfo);
+      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
+      response.setShareCountInfo(shareCountInfo);
 
-      final Map<String, String> avatarUrls = objectService.getAvatarUrls(generateRandomNumberForAvatar());
+      final Map<String, String> avatarUrls = objectService.getAvatarUrls(entry.getAvatarUrl());
       final SoftAskParticipantResponse softAskParticipantResponse = SoftAskParticipantResponse.of(
         entry.getUserAliasOrUsername(),
         entry.getUserDisplayName(),
@@ -98,7 +105,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
    *
    * @return a string representing the randomly generated number between 1 and 2,000,000
    */
-  private static String generateRandomNumberForAvatar() {
+  public static String generateRandomNumberForAvatar() {
     final int randoNumber = ThreadLocalRandom.current().nextInt(1, 2_000_001);
     return Integer.toString(randoNumber);
   }

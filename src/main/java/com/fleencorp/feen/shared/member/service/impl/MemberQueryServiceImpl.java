@@ -43,7 +43,6 @@ public class MemberQueryServiceImpl implements MemberQueryService {
       .findFirst();
   }
 
-
   @Override
   public Optional<IsAMember> findByEmailAddress(String emailAddress) {
     List<IsAMember> results = entityManager.createQuery(
@@ -54,7 +53,6 @@ public class MemberQueryServiceImpl implements MemberQueryService {
 
     return results.stream().findFirst();
   }
-
 
   @Override
   public IsAMember findMemberOrThrow(Long memberId) {

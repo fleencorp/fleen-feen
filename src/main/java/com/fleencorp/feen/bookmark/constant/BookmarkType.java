@@ -30,4 +30,8 @@ public enum BookmarkType {
   public static boolean isBookmarked(final BookmarkType bookmarkType) {
     return bookmarkType == BOOKMARK;
   }
+
+  public static boolean isUnbookmarked(final BookmarkType bookmarkType) {
+    return bookmarkType == UNBOOKMARK;
+  }
 }

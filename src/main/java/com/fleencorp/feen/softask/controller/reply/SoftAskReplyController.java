@@ -1,15 +1,16 @@
 package com.fleencorp.feen.softask.controller.reply;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyAddResponse;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyDeleteResponse;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplyService;
-import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +40,8 @@ public class SoftAskReplyController {
       content = @Content(schema = @Schema(implementation = SoftAskReplyAddResponse.class))),
     @ApiResponse(responseCode = "404", description = "Soft Ask cannot be found",
       content = @Content(schema = @Schema(implementation = SoftAskNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Soft Ask Reply cannot be found",
+      content = @Content(schema = @Schema(implementation = SoftAskReplyNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Member cannot be found",
       content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
@@ -58,6 +61,8 @@ public class SoftAskReplyController {
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully deleted the reply",
       content = @Content(schema = @Schema(implementation = SoftAskReplyDeleteResponse.class))),
+    @ApiResponse(responseCode = "404", description = "Soft Ask Reply cannot be found",
+      content = @Content(schema = @Schema(implementation = SoftAskReplyNotFoundException.class))),
     @ApiResponse(responseCode = "403", description = "Update denied",
       content = @Content(schema = @Schema(implementation = SoftAskUpdateDeniedException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",

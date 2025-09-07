@@ -1,5 +1,6 @@
 package com.fleencorp.feen.chat.space.model.response.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -33,6 +34,7 @@ public class LeaveChatSpaceResponse extends LocalizedResponse {
   private Integer totalMembers;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "leave.chat.space";
   }

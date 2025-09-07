@@ -1,5 +1,6 @@
 package com.fleencorp.feen.link.model.response.availability;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.link.constant.LinkType;
@@ -26,6 +27,7 @@ public class GetAvailableLinkTypeResponse extends LocalizedResponse {
   private Map<LinkType, LinkTypeInfo> linkTypes;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "get.available.link.type";
   }

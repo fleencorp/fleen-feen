@@ -1,5 +1,6 @@
 package com.fleencorp.feen.chat.space.model.search.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -32,6 +33,7 @@ public class ChatSpaceEventSearchResult extends LocalizedResponse {
   protected StreamTypeInfo streamTypeInfo;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "chat.space.event.search" : "chat.space.event.empty.search";
   }

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.exception.vote;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
 public class PollVotingNotAllowedPollNoOptionException extends LocalizedException {
@@ -9,6 +10,7 @@ public class PollVotingNotAllowedPollNoOptionException extends LocalizedExceptio
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "poll.voting.not.allowed.poll.no.option";
   }

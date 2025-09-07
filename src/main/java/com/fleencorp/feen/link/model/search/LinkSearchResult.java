@@ -1,5 +1,6 @@
 package com.fleencorp.feen.link.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -31,6 +32,7 @@ public class LinkSearchResult extends LocalizedResponse {
   private Long parentId;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "link.search" : "link.empty.search";
   }

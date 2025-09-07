@@ -1,5 +1,6 @@
 package com.fleencorp.feen.like.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -29,6 +30,7 @@ public class LikeCreateResponse extends LocalizedResponse {
   private Integer parentTotalLikes;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(like) && like.isLiked() ? "like.liked" : "like.unliked";
   }

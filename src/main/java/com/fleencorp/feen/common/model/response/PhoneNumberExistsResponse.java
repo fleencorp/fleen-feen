@@ -1,5 +1,6 @@
 package com.fleencorp.feen.common.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class PhoneNumberExistsResponse extends FleenFeenResponse.EntityExistsRes
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return exists ? "phone.number.exists" : "phone.number.not.exists";
   }

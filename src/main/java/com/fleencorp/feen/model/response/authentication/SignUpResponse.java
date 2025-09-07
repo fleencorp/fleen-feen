@@ -61,6 +61,7 @@ public class SignUpResponse extends LocalizedResponse {
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return VerificationType.isEmail(getVerificationType())
       ? "sign.up.email"

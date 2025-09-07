@@ -5,7 +5,7 @@ import lombok.Getter;
 import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 
 @Getter
-public enum SoftAskType{
+public enum SoftAskType {
 
   SOFT_ASK("Soft Ask"),
   SOFT_ASK_REPLY("Reply");

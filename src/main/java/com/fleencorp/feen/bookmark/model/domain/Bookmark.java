@@ -37,11 +37,11 @@ public class Bookmark extends FleenFeenEntity {
   private String parentSummary;
 
   @Enumerated(STRING)
-  @Column(name = "bookmark_parent_type", nullable = false)
+  @Column(name = "parent_type", nullable = false)
   private BookmarkParentType bookmarkParentType;
 
   @Enumerated(STRING)
-  @Column(name = "bookmark_type", nullable = false)
+  @Column(name = "type", nullable = false)
   private BookmarkType bookmarkType;
 
   @Column(name = "chat_space_id", updatable = false, insertable = false)

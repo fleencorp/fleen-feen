@@ -9,5 +9,7 @@ public interface ObjectService {
 
   SignedUrlsResponse createSignedUrls(CreateSignedUrlDto createSignedUrlDto);
 
+  Map<String, String> getAvatarBaseName(String avatarId);
+
   Map<String, String> getAvatarUrls(String avatarId);
 }

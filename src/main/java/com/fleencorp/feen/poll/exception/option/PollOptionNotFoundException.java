@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.exception.option;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
 public class PollOptionNotFoundException extends LocalizedException {
@@ -9,6 +10,7 @@ public class PollOptionNotFoundException extends LocalizedException {
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "poll.option.not.found";
   }

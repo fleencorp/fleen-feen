@@ -1,5 +1,6 @@
 package com.fleencorp.feen.user.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -84,6 +85,7 @@ public class UserProfileResponse extends LocalizedResponse implements UserFollow
   private TotalFollowingInfo totalFollowingInfo;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "user.profile.public";
   }

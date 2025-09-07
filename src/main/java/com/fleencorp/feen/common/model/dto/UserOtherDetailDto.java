@@ -1,6 +1,5 @@
 package com.fleencorp.feen.common.model.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.OneOf;

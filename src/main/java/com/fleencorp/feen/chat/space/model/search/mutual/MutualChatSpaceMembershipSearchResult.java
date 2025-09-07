@@ -29,6 +29,7 @@ public class MutualChatSpaceMembershipSearchResult extends LocalizedResponse {
   private String targetMemberFullName;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "chat.space.mutual.membership.search" : "chat.space.mutual.membership.empty.search";
   }

@@ -55,12 +55,12 @@ public class BookmarkController {
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
   @PreAuthorize("isFullyAuthenticated()")
-  @PostMapping(value = "")
+  @PutMapping(value = "")
   public BookmarkCreateResponse bookmark(
     @Parameter(description = "Bookmark details", required = true)
-    @Valid @RequestBody final BookmarkDto bookmarkDto,
+      @Valid @RequestBody final BookmarkDto bookmarkDto,
     @Parameter(hidden = true)
-    @AuthenticationPrincipal final RegisteredUser user) {
+      @AuthenticationPrincipal final RegisteredUser user) {
     return bookmarkService.bookmark(bookmarkDto, user);
   }
 

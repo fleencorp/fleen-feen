@@ -1039,13 +1039,12 @@ CREATE TABLE soft_ask_votes (
 
   member_id BIGINT NOT NULL,
   soft_ask_id BIGINT,
-  soft_ask_answer_id BIGINT,
   soft_ask_reply_id BIGINT,
 
-  vote_parent_type VARCHAR(255) NOT NULL
-    CHECK (vote_parent_type IN ('SOFT_ASK_ANSWER', 'SOFT_ASK_REPLY', 'SOFT_ASK')),
-  vote_type VARCHAR(255) NOT NULL
-    CHECK (vote_type IN ('NOT_VOTED', 'VOTED')),
+  parent_type VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('SOFT_ASK', 'SOFT_ASK_REPLY')),
+  type VARCHAR(255) NOT NULL
+    CHECK (type IN ('NOT_VOTED', 'VOTED')),
 
   created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1070,12 +1069,12 @@ CREATE TABLE soft_ask_votes (
 
 
 
---changeset alamu:create_table_soft_ask_username
+--changeset alamu:create_table_soft_ask_participant_detail
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_username';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'soft_ask_participant_detail';
 
-CREATE TABLE soft_ask_username (
+CREATE TABLE soft_ask_participant_detail (
   id BIGSERIAL PRIMARY KEY,
 
   soft_ask_id BIGINT NOT NULL,
@@ -1083,21 +1082,22 @@ CREATE TABLE soft_ask_username (
 
   username VARCHAR(100) NOT NULL,
   display_name VARCHAR(100) NOT NULL,
+  avatar VARCHAR(1000) NOT NULL,
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-  CONSTRAINT fk_soft_ask_username_soft_ask
+  CONSTRAINT fk_soft_ask_participant_detail_soft_ask
     FOREIGN KEY (soft_ask_id)
       REFERENCES soft_ask (soft_ask_id)
         ON DELETE CASCADE,
 
-  CONSTRAINT fk_soft_ask_username_author
+  CONSTRAINT fk_soft_ask_participant_detail_author
     FOREIGN KEY (user_id)
       REFERENCES member (member_id)
         ON DELETE CASCADE
 );
 
---rollback DROP TABLE IF EXISTS `soft_ask_username`;
+--rollback DROP TABLE IF EXISTS `soft_ask_participant_detail`;
 
 
 
@@ -1111,11 +1111,11 @@ CREATE TABLE bookmarks (
   parent_id BIGINT,
   parent_summary VARCHAR(255),
 
-  bookmark_type VARCHAR(255) NOT NULL
-    CHECK (bookmark_type IN ('BOOKMARK', 'UNBOOKMARK')),
+  type VARCHAR(255) NOT NULL
+    CHECK (type IN ('BOOKMARK', 'UNBOOKMARK')),
 
-  bookmark_parent_type VARCHAR(255) NOT NULL
-    CHECK (bookmark_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
+  parent_type VARCHAR(255) NOT NULL
+    CHECK (parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
 
   chat_space_id BIGINT,
   review_id BIGINT,

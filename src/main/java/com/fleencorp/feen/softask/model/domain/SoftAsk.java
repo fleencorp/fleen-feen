@@ -132,7 +132,7 @@ public class SoftAsk extends FleenFeenEntity
   private Set<SoftAskReply> replies = new HashSet<>();
 
   @Transient
-  private SoftAskUsername softAskUsername;
+  private SoftAskParticipantDetail softAskParticipantDetail;
 
   public Long getId() {
     return softAskId;
@@ -140,12 +140,17 @@ public class SoftAsk extends FleenFeenEntity
 
   @Override
   public String getUserAliasOrUsername() {
-    return nonNull(softAskUsername) ? softAskUsername.getUsername() : null;
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getUsername() : null;
   }
 
   @Override
   public String getUserDisplayName() {
-    return nonNull(softAskUsername) ? softAskUsername.getDisplayName() : null;
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getDisplayName() : null;
+  }
+
+  @Override
+  public String getAvatarUrl() {
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getAvatarUrl() : null;
   }
 
   @Override

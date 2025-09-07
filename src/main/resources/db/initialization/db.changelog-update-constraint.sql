@@ -111,24 +111,48 @@ ALTER TABLE stream ADD CONSTRAINT uq_stream_slug UNIQUE (slug);
 
 
 
---changeset alamu:add_constraint_soft_ask_username_unique_softask_username
+--changeset alamu:add_constraint_soft_ask_participant_detail_unique_softask_username
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_username' AND constraint_name = 'unique_soft_ask_username' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_participant_detail' AND constraint_name = 'unique_soft_ask_participant_detail' AND constraint_type = 'UNIQUE';
 
-ALTER TABLE soft_ask_username
-  ADD CONSTRAINT unique_soft_ask_username UNIQUE (soft_ask_id, username);
+ALTER TABLE soft_ask_participant_detail
+  ADD CONSTRAINT unique_soft_ask_participant_detail UNIQUE (soft_ask_id, username);
 
---rollback ALTER TABLE soft_ask_username DROP CONSTRAINT IF EXISTS unique_soft_ask_username;
+--rollback ALTER TABLE soft_ask_participant_detail DROP CONSTRAINT IF EXISTS unique_soft_ask_participant_detail;
 
 
 
---changeset alamu:add_constraint_soft_ask_username_unique_softask_user
+--changeset alamu:add_constraint_soft_ask_participant_detail_unique_softask_user
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_username' AND constraint_name = 'uq_soft_ask_username_softask_user' AND constraint_type = 'UNIQUE';
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_participant_detail' AND constraint_name = 'uq_soft_ask_participant_detail_softask_user' AND constraint_type = 'UNIQUE';
 
-ALTER TABLE soft_ask_username
-  ADD CONSTRAINT uq_soft_ask_username_softask_user UNIQUE (soft_ask_id, user_id);
+ALTER TABLE soft_ask_participant_detail
+  ADD CONSTRAINT uq_soft_ask_participant_detail_softask_user UNIQUE (soft_ask_id, user_id);
 
---rollback ALTER TABLE soft_ask_username DROP CONSTRAINT IF EXISTS uq_soft_ask_username_softask_user;
+--rollback ALTER TABLE soft_ask_participant_detail DROP CONSTRAINT IF EXISTS uq_soft_ask_participant_detail_softask_user;
+
+
+
+--changeset alamu:add_index_bookmark_parent_type
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'bookmarks' AND indexname = 'idx_bookmark_parent_type';
+
+CREATE INDEX idx_bookmark_parent_type
+  ON bookmarks (parent_id, parent_type, type);
+
+--rollback DROP INDEX IF EXISTS `idx_bookmark_parent_type`;
+
+
+
+--changeset alamu:add_index_soft_ask_vote_parent_type
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'soft_ask_votes' AND indexname = 'idx_soft_ask_vote_parent_type';
+
+CREATE INDEX idx_soft_ask_vote_parent_type
+  ON soft_ask_votes (parent_id, parent_type, type);
+
+--rollback DROP INDEX IF EXISTS `idx_soft_ask_vote_parent_type`;

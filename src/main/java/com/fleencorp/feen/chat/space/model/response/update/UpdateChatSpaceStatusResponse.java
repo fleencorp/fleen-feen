@@ -38,6 +38,7 @@ public class UpdateChatSpaceStatusResponse extends LocalizedResponse {
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return isActive() ? "enable.chat.space" : "disable.chat.space";
   }

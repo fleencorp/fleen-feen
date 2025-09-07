@@ -21,11 +21,15 @@ public enum SoftAskVoteType implements ApiParameter {
     return parseEnumOrNull(value, SoftAskVoteType.class);
   }
 
-  public static boolean isVoted(final SoftAskVoteType softAskVoteType) {
-    return VOTED == softAskVoteType;
+  public static boolean isNotVoted(SoftAskVoteType voteType) {
+    return voteType == NOT_VOTED;
   }
 
-  public static boolean voted(final SoftAskVoteType softAskVoteType) {
-    return VOTED == softAskVoteType;
+  public static boolean isVoted(final SoftAskVoteType voteType) {
+    return voteType == VOTED;
+  }
+
+  public static boolean voted(final SoftAskVoteType voteType) {
+    return voteType == VOTED;
   }
 }

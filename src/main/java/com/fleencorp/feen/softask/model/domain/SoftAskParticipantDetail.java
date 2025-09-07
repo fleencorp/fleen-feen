@@ -17,11 +17,11 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "soft_ask_username", uniqueConstraints = {
+@Table(name = "soft_ask_participant_detail", uniqueConstraints = {
   @UniqueConstraint(columnNames = {"soft_ask_id", "user_id"}),
   @UniqueConstraint(columnNames = {"soft_ask_id", "username"})
 })
-public class SoftAskUsername {
+public class SoftAskParticipantDetail {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -44,20 +44,23 @@ public class SoftAskUsername {
   @Column(name = "display_name", nullable = false, length = 100)
   private String displayName;
 
+  @Column(name = "avatar_url", nullable = false, length = 1000)
+  private String avatarUrl;
+
   @CreatedDate
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
-  public static SoftAskUsername of(final Long softAskId, final Long userId, final String username, final String displayName) {
+  public static SoftAskParticipantDetail of(final Long softAskId, final Long userId, final String username, final String displayName) {
     final SoftAsk softAsk = SoftAsk.of(softAskId);
 
-    final SoftAskUsername softAskUsername = new SoftAskUsername();
-    softAskUsername.setSoftAskId(softAskId);
-    softAskUsername.setSoftAsk(softAsk);
-    softAskUsername.setUserId(userId);
-    softAskUsername.setUsername(username);
-    softAskUsername.setDisplayName(displayName);
+    final SoftAskParticipantDetail softAskParticipantDetail = new SoftAskParticipantDetail();
+    softAskParticipantDetail.setSoftAskId(softAskId);
+    softAskParticipantDetail.setSoftAsk(softAsk);
+    softAskParticipantDetail.setUserId(userId);
+    softAskParticipantDetail.setUsername(username);
+    softAskParticipantDetail.setDisplayName(displayName);
 
-    return softAskUsername;
+    return softAskParticipantDetail;
   }
 }

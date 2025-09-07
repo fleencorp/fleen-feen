@@ -1,5 +1,6 @@
 package com.fleencorp.feen.block.user.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -27,6 +28,7 @@ public class BlockUserSearchResult extends LocalizedResponse {
   private SearchResult result;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "block.user.search" : "block.user.empty.search";
   }

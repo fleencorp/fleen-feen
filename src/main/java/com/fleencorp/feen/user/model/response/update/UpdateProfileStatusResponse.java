@@ -1,5 +1,6 @@
 package com.fleencorp.feen.user.model.response.update;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.user.model.info.ProfileStatusInfo;
@@ -23,6 +24,7 @@ public class UpdateProfileStatusResponse extends LocalizedResponse {
   private ProfileStatusInfo profileStatusInfo;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "update.profile.status";
   }

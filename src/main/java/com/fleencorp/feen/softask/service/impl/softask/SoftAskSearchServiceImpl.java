@@ -143,7 +143,7 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
       final Collection<SoftAskResponse> softAskResponses = softAskMapper.toSoftAskResponses(page.getContent());
       softAskCommonService.processSoftAskResponses(softAskResponses, member, userHaveOtherDetail);
 
-      final SearchResult searchResult = toSearchResult(softAskResponses, page);
+      final SearchResult<SoftAskResponse> searchResult = toSearchResult(softAskResponses, page);
       final SoftAskSearchResult softAskSearchResult = SoftAskSearchResult.of(searchResult);
 
       return localizer.of(softAskSearchResult);

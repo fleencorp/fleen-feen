@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.model.response.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -44,6 +45,7 @@ public class PollVoteResponse extends LocalizedResponse {
   private Collection<PollOptionResponse> pollOptions = new ArrayList<>();
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "poll.vote";
   }

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.mfa.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -24,6 +25,7 @@ public class EnableOrDisableMfaResponse extends LocalizedResponse {
   private boolean status;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "enable.disable.mfa";
   }

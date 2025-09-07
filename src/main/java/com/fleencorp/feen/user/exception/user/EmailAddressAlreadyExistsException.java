@@ -1,5 +1,6 @@
 package com.fleencorp.feen.user.exception.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
@@ -7,6 +8,7 @@ import java.util.function.Supplier;
 public class EmailAddressAlreadyExistsException extends LocalizedException {
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "email.address.already.exists";
   }

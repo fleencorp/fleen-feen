@@ -1,5 +1,6 @@
 package com.fleencorp.feen.link.model.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 public class LinkUpdateResponse extends LocalizedResponse {
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "update.link";
   }

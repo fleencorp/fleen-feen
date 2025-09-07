@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.search.social.share.contact;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -27,6 +28,7 @@ public class ShareContactRequestSearchResult extends LocalizedResponse {
   private SearchResult result;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "share.contact.request.search" : "share.contact.request.empty.search";
   }

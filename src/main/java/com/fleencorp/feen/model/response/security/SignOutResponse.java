@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.response.security;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
@@ -17,6 +18,7 @@ import lombok.Setter;
 public class SignOutResponse extends LocalizedResponse {
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "sign.out";
   }

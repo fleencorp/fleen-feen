@@ -1,5 +1,6 @@
 package com.fleencorp.feen.model.response.social.share;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -25,6 +26,7 @@ public class CancelShareContactRequestResponse extends LocalizedResponse {
   private ShareContactRequestStatusInfo requestStatusInfo;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "cancel.share.contact.request";
   }

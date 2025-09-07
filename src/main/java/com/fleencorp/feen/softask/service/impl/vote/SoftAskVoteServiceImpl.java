@@ -7,6 +7,7 @@ import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
@@ -72,15 +73,15 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
       throws SoftAskNotFoundException, SoftAskReplyNotFoundException, FailedOperationException {
     final Long softAskId = softAskVoteDto.getSoftAskId();
     final Long softAskReplyId = softAskVoteDto.getSoftAskReplyId();
+    final SoftAskVoteType voteType = softAskVoteDto.getVoteType();
     final SoftAskVoteParentType parentType = softAskVoteDto.getVoteParentType();
     final IsAMember member = user.toMember();
 
     final SoftAskVoteParentDetailsHolder parentDetailsHolder = findSoftAskVoteParentDetailsHolder(softAskId, softAskReplyId, parentType);
-    SoftAskVote softAskVote = createOrUpdateSoftVote(softAskVoteDto, parentType, member, parentDetailsHolder);
-    softAskVote = softAskVoteRepository.save(softAskVote);
+    SoftAskVote softAskVote = createOrUpdateSoftVote(softAskVoteDto, member, parentDetailsHolder);
 
-    final boolean voted = SoftAskVoteType.isVoted(softAskVoteDto.getVoteType());
-    final Integer total = updateVoteCount(parentDetailsHolder.getSoftAskId(), parentDetailsHolder.getSoftAskReplyId(), parentType, softAskVoteDto.getVoteType());
+    final boolean voted = SoftAskVoteType.isVoted(voteType);
+    final Integer total = updateVoteCount(softAskId, softAskReplyId, parentType, voteType);
     final SoftAskVoteResponse softAskVoteResponse = softAskMapper.toSoftAskVoteResponse(softAskVote, voted);
     softAskVoteResponse.setParentTotalVotes(total);
 
@@ -101,47 +102,58 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
    *
    * @param softAskId            the ID of the {@code SoftAsk}
    * @param softAskReplyId       the ID of the {@code SoftAskReply}, if applicable
-   * @param softAskVoteParentType the type of parent entity to find (SoftAsk or SoftAskReply)
+   * @param voteParentType the type of parent entity to find (SoftAsk or SoftAskReply)
    * @return a {@link SoftAskVoteParentDetailsHolder} containing the found entities
    * @throws SoftAskNotFoundException      if the {@code SoftAsk} could not be found
    * @throws SoftAskReplyNotFoundException if the {@code SoftAskReply} could not be found
    * @throws FailedOperationException      if {@code softAskVoteParentType} is {@code null}
    */
-  private SoftAskVoteParentDetailsHolder findSoftAskVoteParentDetailsHolder(final Long softAskId, final Long softAskReplyId, final SoftAskVoteParentType softAskVoteParentType)
+  private SoftAskVoteParentDetailsHolder findSoftAskVoteParentDetailsHolder(final Long softAskId, final Long softAskReplyId, final SoftAskVoteParentType voteParentType)
       throws SoftAskNotFoundException, SoftAskReplyNotFoundException, FailedOperationException {
-    checkIsNull(softAskVoteParentType, FailedOperationException::new);
+    checkIsNull(voteParentType, FailedOperationException::new);
 
-    final SoftAsk softAsk = SoftAskVoteParentType.isSoftAsk(softAskVoteParentType) ? softAskSearchService.findSoftAsk(softAskId) : null;
-    final SoftAskReply softAskReply = SoftAskVoteParentType.isSoftAskReply(softAskVoteParentType) ? softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId) : null;
+    final SoftAsk softAsk = SoftAskVoteParentType.isSoftAsk(voteParentType) ? softAskSearchService.findSoftAsk(softAskId) : SoftAsk.of(softAskId);
+    final SoftAskReply softAskReply = SoftAskVoteParentType.isSoftAskReply(voteParentType) ? softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId) : null;
 
-    return SoftAskVoteParentDetailsHolder.of(softAsk, softAskReply);
+    return SoftAskVoteParentDetailsHolder.of(softAsk, softAskReply, voteParentType);
   }
 
   /**
-   * Creates a new vote or updates an existing vote for the specified SoftAsk or SoftAskReply.
+   * Creates a new {@link SoftAskVote} or updates an existing one based on the provided
+   * {@link SoftAskVoteDto}. If a vote exists for the given parent and member, its vote type must
+   * match the incoming type; otherwise, a {@link FailedOperationException} is thrown. When no vote
+   * exists, a new vote is created and saved if the vote type is valid; otherwise, a
+   * {@link SoftAskUpdateDeniedException} is thrown to prevent creating an empty vote.
    *
-   * <p>If a vote already exists for the given member and target (determined by the
-   * {@code softAskVoteParentType} and the IDs in {@code parentDetailsHolder}),
-   * the vote type is updated to the one provided in {@code softAskVoteDto}.
-   * If no existing vote is found, a new {@link SoftAskVote} is created using
-   * the provided member, {@link SoftAsk}, and optional {@link SoftAskReply}.</p>
-   *
-   * @param softAskVoteDto         the DTO containing the vote type and related data
-   * @param softAskVoteParentType  the type of entity the vote is associated with
-   * @param member                 the member casting or updating the vote
-   * @param parentDetailsHolder    holder containing the associated SoftAsk and optional SoftAskReply
-   * @return the created or updated {@link SoftAskVote} entity (not yet persisted)
+   * @param softAskVoteDto the DTO containing vote details including type and parent references
+   * @param member the member performing the vote action
+   * @param parentDetailsHolder a holder containing the related {@link SoftAsk} and optional {@link SoftAskReply}
+   * @return the created or updated {@link SoftAskVote}
    */
-  private SoftAskVote createOrUpdateSoftVote(final SoftAskVoteDto softAskVoteDto, final SoftAskVoteParentType softAskVoteParentType, final IsAMember member, final SoftAskVoteParentDetailsHolder parentDetailsHolder) {
+  private SoftAskVote createOrUpdateSoftVote(final SoftAskVoteDto softAskVoteDto, final IsAMember member, final SoftAskVoteParentDetailsHolder parentDetailsHolder) {
     final SoftAsk softAsk = parentDetailsHolder.softAsk();
     final SoftAskReply softAskReply = parentDetailsHolder.softAskReply();
+    final SoftAskVoteType voteType = softAskVoteDto.getVoteType();
+    final SoftAskVoteParentType voteParentType = softAskVoteDto.getVoteParentType();
 
-    return findVoteByParent(parentDetailsHolder.getSoftAskId(), parentDetailsHolder.getSoftAskReplyId(), softAskVoteParentType, member)
+    return findVoteByParent(softAskVoteDto.getSoftAskId(), softAskVoteDto.getSoftAskReplyId(), voteParentType, member)
       .map(existingVote -> {
-        existingVote.setVoteType(softAskVoteDto.getVoteType());
-        return existingVote;
-      })
-      .orElseGet(() -> SoftAskVoteFactory.toSoftAskVote(softAskVoteDto, member, softAsk, softAskReply));
+        if (existingVote.getVoteType() == voteType) {
+          throw FailedOperationException.of();
+        }
+
+        existingVote.setVoteType(voteType);
+        return softAskVoteRepository.save(existingVote);
+      }).orElseGet(() -> {
+        if (SoftAskVoteType.isNotVoted(voteType)) {
+          throw SoftAskUpdateDeniedException.of();
+        }
+
+        SoftAskVote softAskVote = SoftAskVoteFactory.toSoftAskVote(softAskVoteDto, member, softAsk, softAskReply);
+        softAskVote = softAskVoteRepository.save(softAskVote);
+
+        return softAskVote;
+    });
   }
 
   /**
@@ -155,14 +167,14 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
    *
    * @param softAskId              the ID of the SoftAsk entity
    * @param softAskReplyId         the ID of the SoftAskReply entity, if applicable
-   * @param softAskVoteParentType  the type of entity the vote is associated with
+   * @param voteParentType  the type of entity the vote is associated with
    * @param member                 the member whose vote is being searched for
    * @return an {@link Optional} containing the found {@link SoftAskVote}, or empty if none exists
    */
-  private Optional<SoftAskVote> findVoteByParent(final Long softAskId, final Long softAskReplyId, final SoftAskVoteParentType softAskVoteParentType, final IsAMember member) {
+  private Optional<SoftAskVote> findVoteByParent(final Long softAskId, final Long softAskReplyId, final SoftAskVoteParentType voteParentType, final IsAMember member) {
     final Long memberId = member.getMemberId();
 
-    return switch (softAskVoteParentType) {
+    return switch (voteParentType) {
       case SOFT_ASK -> softAskVoteRepository.findByMemberAndSoftAsk(memberId, softAskId);
       case SOFT_ASK_REPLY -> softAskVoteRepository.findByMemberAndSoftAskAndSoftAskReply(memberId, softAskId, softAskReplyId);
     };

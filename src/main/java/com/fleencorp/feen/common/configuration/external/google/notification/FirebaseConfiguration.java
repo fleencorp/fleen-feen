@@ -60,10 +60,14 @@ public class FirebaseConfiguration extends GoogleApiConfiguration {
    */
   @Bean
   public FirebaseMessaging firebaseMessaging() throws IOException {
-    // Initialize the Firebase application using the configured Firebase options
-    final FirebaseApp firebaseApp = FirebaseApp.initializeApp(firebaseOptions(), applicationName);
     // Return the FirebaseMessaging instance associated with the initialized Firebase app
-    return FirebaseMessaging.getInstance(firebaseApp);
+    return FirebaseMessaging.getInstance(firebaseApp());
+  }
+
+  @Bean
+  public FirebaseApp firebaseApp() throws IOException {
+    // Initialize the Firebase application using the configured Firebase options
+    return FirebaseApp.initializeApp(firebaseOptions(), applicationName);
   }
 
   /**
@@ -76,6 +80,8 @@ public class FirebaseConfiguration extends GoogleApiConfiguration {
     // Set credentials by retrieving them from the service account with required scopes
     return FirebaseOptions.builder()
       .setCredentials(getGoogleClientCredentialFromServiceAccountBase(List.of(CLOUD_PLATFORM, CLOUD_MESSAGING)))
+      .setDatabaseUrl("https://soft-ask-default-rtdb.firebaseio.com/")
       .build();
   }
+
 }

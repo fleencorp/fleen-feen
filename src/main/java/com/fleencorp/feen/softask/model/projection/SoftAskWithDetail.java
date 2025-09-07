@@ -1,6 +1,6 @@
 package com.fleencorp.feen.softask.model.projection;
 
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 
-public record SoftAskWithDetail(SoftAsk softAsk, SoftAskUsername username) {}
+public record SoftAskWithDetail(SoftAsk softAsk, SoftAskParticipantDetail username) {}

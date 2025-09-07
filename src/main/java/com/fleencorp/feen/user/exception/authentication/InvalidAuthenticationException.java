@@ -1,5 +1,6 @@
 package com.fleencorp.feen.user.exception.authentication;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
@@ -7,6 +8,7 @@ import java.util.function.Supplier;
 public class InvalidAuthenticationException extends LocalizedException {
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "invalid.authentication";
   }

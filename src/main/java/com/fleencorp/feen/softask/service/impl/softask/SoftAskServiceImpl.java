@@ -1,18 +1,19 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
-import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
+import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskParentNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 import com.fleencorp.feen.softask.model.dto.softask.DeleteSoftAskDto;
 import com.fleencorp.feen.softask.model.factory.SoftAskFactory;
@@ -25,8 +26,6 @@ import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskService;
-import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
-import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,13 +69,12 @@ public class SoftAskServiceImpl implements SoftAskService {
    * @param user the user authoring the soft ask
    * @return a {@link SoftAskAddResponse} containing the created soft ask's identifier and details
    * @throws MemberNotFoundException if the member corresponding to the given user does not exist
-   * @throws StreamNotFoundException if the specified stream parent cannot be found
-   * @throws ChatSpaceNotFoundException if the specified chat space parent cannot be found
+   * @throws SoftAskParentNotFoundException if the specified chat space or stream parent cannot be found
    */
   @Override
   @Transactional
   public SoftAskAddResponse addSoftAsk(final AddSoftAskDto addSoftAskDto, final RegisteredUser user)
-      throws MemberNotFoundException, StreamNotFoundException, ChatSpaceNotFoundException {
+      throws MemberNotFoundException, SoftAskParentNotFoundException {
     final IsAMember member = softAskQueryService.findMemberOrThrow(user.getId());
 
     final SoftAskParentDetailHolder softAskParentDetailHolder = findAndValidateParent(addSoftAskDto);
@@ -87,8 +85,8 @@ public class SoftAskServiceImpl implements SoftAskService {
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
     softAskOperationService.save(softAsk);
 
-    final SoftAskUsername softAskUsername = softAskOperationService.generateUsername(softAsk.getSoftAskId(), user.getId());
-    softAsk.setSoftAskUsername(softAskUsername);
+    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAsk.getSoftAskId(), user.getId());
+    softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
 
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskResponse);
@@ -109,11 +107,10 @@ public class SoftAskServiceImpl implements SoftAskService {
    * @param addSoftAskDto the DTO containing details of the soft ask and its potential parent
    * @return a {@link SoftAskParentDetailHolder} encapsulating the resolved parent details
    * @throws MemberNotFoundException if the parent member does not exist
-   * @throws ChatSpaceNotFoundException if the parent chat space does not exist
-   * @throws StreamNotFoundException if the parent stream does not exist
+   * @throws SoftAskParentNotFoundException if the parent chat space or stream does not exist
    */
   private SoftAskParentDetailHolder findAndValidateParent(final AddSoftAskDto addSoftAskDto)
-      throws MemberNotFoundException, ChatSpaceNotFoundException, StreamNotFoundException {
+      throws MemberNotFoundException, SoftAskParentNotFoundException {
 
     if (addSoftAskDto.hasNoParent()) {
       return SoftAskParentDetailHolder.empty();

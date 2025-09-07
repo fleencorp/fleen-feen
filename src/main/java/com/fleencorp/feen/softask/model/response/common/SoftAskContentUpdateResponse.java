@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.model.response.common;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "message",
   "soft_ask_id",
   "soft_ask_reply_id"
 })
@@ -27,6 +29,7 @@ public class SoftAskContentUpdateResponse extends LocalizedResponse {
   private Long softAskReplyId;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "soft.ask.content.update";
   }

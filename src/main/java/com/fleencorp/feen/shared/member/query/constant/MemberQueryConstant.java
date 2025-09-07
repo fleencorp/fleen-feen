@@ -29,5 +29,4 @@ public final class MemberQueryConstant {
     WHERE m.member_id = :id
     """;
 
-
 }

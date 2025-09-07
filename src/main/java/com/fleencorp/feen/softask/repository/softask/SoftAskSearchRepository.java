@@ -13,7 +13,7 @@ public interface SoftAskSearchRepository extends JpaRepository<SoftAsk, Long> {
   @Query(value = """
     SELECT new com.fleencorp.feen.softask.model.projection.SoftAskWithDetail(sa, sau)
     FROM SoftAsk sa
-    JOIN SoftAskUsername sau
+    JOIN SoftAskParticipantDetail sau
     ON
       sa.softAskId = sau.softAskId
     WHERE
@@ -25,7 +25,7 @@ public interface SoftAskSearchRepository extends JpaRepository<SoftAsk, Long> {
   @Query(value = """
     SELECT new com.fleencorp.feen.softask.model.projection.SoftAskWithDetail(sa, sau)
     FROM SoftAsk sa
-    JOIN SoftAskUsername sau
+    JOIN SoftAskParticipantDetail sau
     ON
       sa.softAskId = sau.softAskId
     WHERE

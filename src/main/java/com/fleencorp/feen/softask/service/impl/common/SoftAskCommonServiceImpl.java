@@ -10,6 +10,7 @@ import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.mapper.UserLocationMapper;
@@ -27,6 +28,7 @@ import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ import java.util.Optional;
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Service
 public class SoftAskCommonServiceImpl implements SoftAskCommonService {
 
@@ -64,32 +67,29 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
     this.localizer = localizer;
   }
 
-  /**
-   * Processes a collection of soft ask responses by enriching them with bookmarks, votes,
-   * location details, and update permissions for a given member.
-   *
-   * <p>This method applies multiple transformations to the provided responses. It first
-   * processes bookmarks and votes for each response in the collection. Then, it sets the
-   * location details using the provided {@link UserHaveOtherDetail}. If the member is not
-   * null, each response is marked as updatable by that member.</p>
-   *
-   * @param softAskCommonResponses the collection of responses to process, may be {@code null}
-   * @param member                 the member for whom bookmarks, votes, and update permissions are applied
-   * @param userHaveOtherDetail    the user detail object used to set location information
-   */
+  @Transactional(readOnly = true)
+  protected <T extends SoftAskCommonResponse> void processResponsesInternal(
+    Collection<T> softAskCommonResponses,
+    IsAMember member,
+    UserHaveOtherDetail userHaveOtherDetail) {
+
+    softAskCommonResponses.forEach(commonResponse -> {
+      userLocationMapper.setLocationDetails(commonResponse, userHaveOtherDetail);
+
+      if (nonNull(member)) {
+        setEntityUpdatableByUser((Updatable) commonResponse, member.getMemberId());
+      }
+    });
+  }
+
   @Override
-  public <T extends SoftAskCommonResponse> void processSoftAskResponses(final Collection<T> softAskCommonResponses, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
+  @Transactional(readOnly = true)
+  public <T extends SoftAskCommonResponse> void processSoftAskResponses(Collection<T> softAskCommonResponses, IsAMember member, UserHaveOtherDetail userHaveOtherDetail) {
+
     if (nonNull(softAskCommonResponses)) {
       processBookmarkForResponses(softAskCommonResponses, member);
       softAskVoteSearchService.processVotesForResponses(softAskCommonResponses, member);
-
-      softAskCommonResponses.forEach(softAskCommonResponse -> {
-        userLocationMapper.setLocationDetails(softAskCommonResponse, userHaveOtherDetail);
-
-        if (nonNull(member)) {
-          setEntityUpdatableByUser((Updatable) softAskCommonResponse, member.getMemberId());
-        }
-      });
+      processResponsesInternal(softAskCommonResponses, member, userHaveOtherDetail);
     }
   }
 
@@ -137,14 +137,16 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   @Override
   @Transactional(readOnly = true)
   public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskSearchRequest searchRequest, final SoftAskResponse softAskResponse, final IsAMember member) {
-    searchRequest.updateParentId(softAskResponse.getParentId());
+    searchRequest.updateParentId(softAskResponse.getNumberId());
+    log.info("The parent ID is {}", searchRequest.getParentId());
     searchRequest.setPageSize(10);
 
     final SoftAskReplySearchResult softAskReplySearchResult = softAskReplySearchService.findSoftAskReplies(searchRequest, member);
-    final SearchResult searchResult = softAskReplySearchResult.getResult();
+    log.info("The search result is {}", softAskReplySearchResult.getResult().getTotalEntries());
+    log.info("The search result is {}", softAskReplySearchResult.getResult().getTotalEntries());
+    final SearchResult<SoftAskReplyResponse> searchResult = softAskReplySearchResult.getResult();
 
-    searchResult.getValues().forEach(searchResultValue -> {
-      final SoftAskReplyResponse softAskReplyResponse = (SoftAskReplyResponse) searchResultValue;
+    searchResult.getValues().forEach(softAskReplyResponse -> {
       final SoftAskReplySearchResult softAskChildReplySearchResult = findSomeSoftAskChildReplyForReply(softAskReplyResponse, member);
       softAskReplyResponse.setChildRepliesSearchResult(softAskChildReplySearchResult);
     });
@@ -164,9 +166,12 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @return a search result containing soft ask replies matching the criteria
    */
   private SoftAskReplySearchResult findSomeSoftAskChildReplyForReply(final SoftAskReplyResponse softAskReplyResponse, final IsAMember member) {
+    log.info("Somebody is trying to get here");
     final SoftAskSearchRequest searchRequest = SoftAskSearchRequest.of(softAskReplyResponse.getParentId(), softAskReplyResponse.getNumberId());
     searchRequest.setPageSize(10);
 
+    log.info("Somebody got here");
+    log.info("The parent id is {} and the reply id is {}", softAskReplyResponse.getParentId(), softAskReplyResponse.getNumberId());
     return softAskReplySearchService.findSoftAskReplies(searchRequest, member);
   }
 
@@ -187,12 +192,13 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   @Override
   @Transactional
   public SoftAskContentUpdateResponse updateSoftAskContent(final UpdateSoftAskContentDto updateSoftAskContentDto, final RegisteredUser user)
-    throws SoftAskReplyNotFoundException, SoftAskUpdateDeniedException,
+    throws SoftAskNotFoundException, SoftAskReplyNotFoundException, SoftAskUpdateDeniedException,
       FailedOperationException {
 
     final Long softAskId = updateSoftAskContentDto.getSoftAskId();
     final Long softAskReplyId = updateSoftAskContentDto.getSoftAskReplyId();
     final SoftAskCommonData softAskCommonData = findSoftAskTypeToUpdate(softAskId, softAskReplyId, updateSoftAskContentDto.getSoftAskType());
+
     softAskCommonData.checkIsAuthor(user.getId());
     softAskCommonData.setContent(updateSoftAskContentDto.getContent());
     saveSoftAskCommonData(softAskCommonData);

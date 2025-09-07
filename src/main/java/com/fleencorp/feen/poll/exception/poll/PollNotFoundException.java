@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.exception.poll;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
@@ -11,6 +12,7 @@ public class PollNotFoundException extends LocalizedException {
   }
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "poll.not.found";
   }

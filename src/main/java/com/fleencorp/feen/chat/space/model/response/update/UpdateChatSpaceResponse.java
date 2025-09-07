@@ -1,5 +1,6 @@
 package com.fleencorp.feen.chat.space.model.response.update;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -25,6 +26,7 @@ public class UpdateChatSpaceResponse extends LocalizedResponse {
   private ChatSpaceResponse chatSpace;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return "update.chat.space";
   }

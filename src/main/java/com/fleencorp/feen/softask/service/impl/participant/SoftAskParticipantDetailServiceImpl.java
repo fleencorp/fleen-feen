@@ -1,10 +1,11 @@
 package com.fleencorp.feen.softask.service.impl.participant;
 
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
+import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.shared.common.model.GeneratedUsername;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
-import com.fleencorp.feen.softask.repository.participant.SoftAskUsernameRepository;
-import com.fleencorp.feen.softask.service.participant.SoftAskUsernameService;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
+import com.fleencorp.feen.softask.repository.participant.SoftAskParticipantDetailRepository;
+import com.fleencorp.feen.softask.service.participant.SoftAskParticipantDetailService;
 import com.fleencorp.feen.user.service.UsernameService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -12,41 +13,49 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
+import static com.fleencorp.feen.softask.mapper.impl.SoftAskCommonMapperImpl.generateRandomNumberForAvatar;
 import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
-public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
+public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDetailService {
 
   private final CacheService cacheService;
+  private final ObjectService objectService;
   private final UsernameService usernameService;
-  private final SoftAskUsernameRepository usernameRepository;
+  private final SoftAskParticipantDetailRepository softAskParticipantDetailRepository;
 
   private static final String USERNAME_CACHE_PREFIX = "sa::username:";
   private static final Duration CACHE_TTL = Duration.ofHours(1);
 
-  public SoftAskUsernameServiceImpl(
+  public SoftAskParticipantDetailServiceImpl(
       final CacheService cacheService,
-      final SoftAskUsernameRepository usernameRepository,
+      final ObjectService objectService,
+      final SoftAskParticipantDetailRepository softAskParticipantDetailRepository,
       final UsernameService usernameService) {
     this.cacheService = cacheService;
-    this.usernameRepository = usernameRepository;
+    this.objectService = objectService;
+    this.softAskParticipantDetailRepository = softAskParticipantDetailRepository;
     this.usernameService = usernameService;
   }
 
   @Override
   @Transactional
-  public SoftAskUsername generateUsername(final Long softAskId, final Long userId) {
+  public SoftAskParticipantDetail generateParticipantDetail(final Long softAskId, final Long userId) {
     final GeneratedUsername generatedUsername = usernameService.generateRandomUsername();
     final String username = generatedUsername.username();
     final String displayName = generatedUsername.displayName();
-    final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, username, displayName);
+    final SoftAskParticipantDetail softAskParticipantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
 
-    usernameRepository.save(softAskUsername);
-    return softAskUsername;
+    final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
+    softAskParticipantDetail.setAvatarUrl(avatarUrls.get("default"));
+
+    softAskParticipantDetailRepository.save(softAskParticipantDetail);
+    return softAskParticipantDetail;
   }
 
   /**
@@ -76,11 +85,11 @@ public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
       return GeneratedUsername.getFromCachedValue(username);
     }
 
-    final Optional<SoftAskUsername> existingUsername = usernameRepository.findUsernameBySoftAskIdAndUserId(softAskId, userId);
+    final Optional<SoftAskParticipantDetail> existingUsername = softAskParticipantDetailRepository.findUsernameBySoftAskIdAndUserId(softAskId, userId);
     if (existingUsername.isPresent()) {
-      SoftAskUsername softAskUsername = existingUsername.get();
-      final String username = softAskUsername.getUsername();
-      final String displayName = softAskUsername.getDisplayName();
+      SoftAskParticipantDetail softAskParticipantDetail = existingUsername.get();
+      final String username = softAskParticipantDetail.getUsername();
+      final String displayName = softAskParticipantDetail.getDisplayName();
 
       final String usernameToCache = GeneratedUsername.createCacheValue(username, displayName);
       cacheUsername(cacheKey, usernameToCache);
@@ -94,8 +103,11 @@ public class SoftAskUsernameServiceImpl implements SoftAskUsernameService {
       final String displayName = generatedUsername.displayName();
 
       try {
-        final SoftAskUsername softAskUsername = SoftAskUsername.of(softAskId, userId, newUsername, displayName);
-        usernameRepository.save(softAskUsername);
+        final SoftAskParticipantDetail softAskParticipantDetail = SoftAskParticipantDetail.of(softAskId, userId, newUsername, displayName);
+        final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
+        softAskParticipantDetail.setAvatarUrl(avatarUrls.get("default"));
+
+        softAskParticipantDetailRepository.save(softAskParticipantDetail);
 
         cacheUsername(cacheKey, newUsername);
         return generatedUsername;

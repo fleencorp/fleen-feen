@@ -107,7 +107,7 @@ public class SoftAskReply extends FleenFeenEntity
   private String slug;
 
   @Transient
-  private SoftAskUsername softAskUsername;
+  private SoftAskParticipantDetail softAskParticipantDetail;
 
   public Long getId() {
     return softAskReplyId;
@@ -117,6 +117,10 @@ public class SoftAskReply extends FleenFeenEntity
     return nonNull(parentReplyId) ? parentReplyId : null;
   }
 
+  public Long getOtherParentId() {
+    return nonNull(softAskId) ? softAskId : null;
+  }
+
   @Override
   public String getTitle() {
     return SoftAskReplyFactory.truncateContent(content);
@@ -124,12 +128,17 @@ public class SoftAskReply extends FleenFeenEntity
 
   @Override
   public String getUserAliasOrUsername() {
-    return nonNull(softAskUsername) ? softAskUsername.getUsername() : null;
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getUsername() : null;
   }
 
   @Override
   public String getUserDisplayName() {
-    return nonNull(softAskUsername) ? softAskUsername.getDisplayName() : null;
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getDisplayName() : null;
+  }
+
+  @Override
+  public String getAvatarUrl() {
+    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getAvatarUrl() : null;
   }
 
   @Override

@@ -1,7 +1,7 @@
 package com.fleencorp.feen.softask.mapper.impl;
 
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
@@ -11,7 +11,7 @@ import com.fleencorp.feen.softask.mapper.SoftAskInfoMapper;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
-import com.fleencorp.feen.softask.model.domain.SoftAskUsername;
+import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
 import com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail;
@@ -72,16 +72,14 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setUpdatedOn(entry.getUpdatedOn());
       response.setSlug(entry.getSlug());
 
-      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
-
-      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
-      response.setShareCountInfo(shareCountInfo);
-
       final SoftAskReplyCountInfo softAskReplyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getReplyCount());
       response.setReplyCountInfo(softAskReplyCountInfo);
 
       final SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.empty(entry.getSoftAskId());
       response.setSoftAskReplySearchResult(softAskReplySearchResult);
+
+      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentTitle());
+      response.setParentInfo(parentInfo);
 
       setOtherDetails(entry, response);
 
@@ -107,8 +105,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
         .filter(Objects::nonNull)
         .map(entry -> {
           final SoftAsk softAsk = entry.softAsk();
-          final SoftAskUsername softAskUsername = entry.username();
-          softAsk.setSoftAskUsername(softAskUsername);
+          final SoftAskParticipantDetail softAskParticipantDetail = entry.username();
+          softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
 
           return toSoftAskResponse(softAsk);
       }).toList();
@@ -141,10 +139,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
-      toInfoMapper.setBookmarkInfo(response, false, entry.getBookmarkCount());
-
-      final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
-      response.setShareCountInfo(shareCountInfo);
+      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getSoftAskId(), entry.getParentTitle());
+      response.setParentInfo(parentInfo);
 
       final SoftAskReplyCountInfo replyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getChildReplyCount());
       response.setReplyCountInfo(replyCountInfo);
@@ -176,8 +172,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
         .filter(Objects::nonNull)
         .map(entry -> {
           final SoftAskReply reply = entry.reply();
-          final SoftAskUsername softAskUsername = entry.username();
-          reply.setSoftAskUsername(softAskUsername);
+          final SoftAskParticipantDetail softAskParticipantDetail = entry.username();
+          reply.setSoftAskParticipantDetail(softAskParticipantDetail);
 
           return toSoftAskReplyResponse(reply);
         }).toList();
@@ -196,12 +192,12 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     return softAskCommonMapper.toSoftAskVoteResponses(entries);
   }
 
-  private void setOtherDetails(final SoftAskCommonData entry, final SoftAskCommonResponse response) {
-    softAskCommonMapper.setOtherDetails(entry, response);
-  }
-
   @Override
   public IsDeletedInfo toIsDeletedInfo(final boolean isDeleted) {
     return toInfoMapper.toIsDeletedInfo(isDeleted);
+  }
+
+  private void setOtherDetails(final SoftAskCommonData entry, final SoftAskCommonResponse response) {
+    softAskCommonMapper.setOtherDetails(entry, response);
   }
 }

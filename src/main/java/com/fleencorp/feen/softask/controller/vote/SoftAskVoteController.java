@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/softask/vote")
+@RequestMapping(value = "/api/soft-ask/vote")
 @PreAuthorize("hasAnyRole('USER', 'ADMINISTRATOR', 'SUPER_ADMINISTRATOR')")
 public class SoftAskVoteController {
 
@@ -44,7 +44,7 @@ public class SoftAskVoteController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @PutMapping(value = "/vote")
+  @PutMapping(value = "")
   public SoftAskVoteUpdateResponse vote(
     @Parameter(description = "Soft ask vote details", required = true)
       @Valid @RequestBody final SoftAskVoteDto softAskVoteDto,

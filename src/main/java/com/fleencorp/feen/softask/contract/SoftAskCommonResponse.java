@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.contract;
 
 import com.fleencorp.feen.common.model.info.ParentInfo;
+import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.model.contract.Bookmarkable;
 import com.fleencorp.feen.model.contract.Updatable;
@@ -30,4 +31,6 @@ public interface SoftAskCommonResponse extends Bookmarkable, HasMood, Updatable 
   void setUserLocationInfo(UserLocationInfo userLocationInfo);
 
   SoftAskType getSoftAskType();
+
+  void setShareCountInfo(ShareCountInfo shareCountInfo);
 }

@@ -26,7 +26,6 @@ import java.util.Optional;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
 * Implementation of the {@link CountryService} interface.
@@ -224,14 +223,10 @@ public class CountryServiceImpl implements CountryService {
    */
   @Override
   public Optional<CountryResponse> getCountryFromCache(final String title) {
-    // Retrieve the country from the cache using the generated cache key
-    final CountryResponse country = cacheService.get(getCountryCacheKey(title), CountryResponse.class);
-    // Check if the country was found in the cache and return it wrapped in an Optional
-    if (nonNull(country)) {
-      return Optional.of(country);
-    }
-    // Return an empty Optional if the country is not found
-    return Optional.empty();
+    final String cacheKey = getCountryCacheKey(title);
+    final CountryResponse country = cacheService.get(cacheKey, CountryResponse.class);
+
+    return Optional.ofNullable(country);
   }
 
   /**

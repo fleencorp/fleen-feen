@@ -82,7 +82,7 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
       return Collections.emptyMap();
     }
 
-    // Query the database for LIKE and UNLIKE entries for the given member and parent type
+    // Query the database for BOOKMARK and UNBOOKMARK entries for the given member and parent type
     final List<UserBookmarkInfoSelect> bookmarks = bookmarkRepository.findBookmarksByParentIdsAndMember(
       parentIds,
       otherId,
