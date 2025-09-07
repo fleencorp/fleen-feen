@@ -45,9 +45,6 @@ public class Calendar extends FleenFeenEntity
   @Column(name = "code", nullable = false, length = 100)
   private String code;
 
-  @Column(name = "is_active", nullable = false)
-  private Boolean isActive = true;
-
   @Enumerated(STRING)
   @Column(name = "status", nullable = false)
   private CalendarStatus status;

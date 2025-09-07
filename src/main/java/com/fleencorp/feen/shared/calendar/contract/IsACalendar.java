@@ -13,6 +13,4 @@ public interface IsACalendar {
   String getTimezone();
 
   String getCode();
-
-  Boolean getIsActive();
 }

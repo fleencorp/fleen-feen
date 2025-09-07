@@ -44,7 +44,7 @@ public class SoftAskParticipantDetail {
   @Column(name = "display_name", nullable = false, length = 100)
   private String displayName;
 
-  @Column(name = "avatar_url", nullable = false, length = 1000)
+  @Column(name = "avatar", nullable = false, length = 1000)
   private String avatarUrl;
 
   @CreatedDate

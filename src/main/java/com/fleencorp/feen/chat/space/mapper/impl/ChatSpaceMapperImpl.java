@@ -309,7 +309,7 @@ public class ChatSpaceMapperImpl extends BaseMapper implements ChatSpaceMapper {
   @Override
   public ChatSpaceTotalMemberInfo toChatSpaceTotalMemberInfo(final Integer totalMember) {
     final TotalChatSpaceMember totalChatSpaceMember = TotalChatSpaceMember.totalChatSpaceMember();
-    return ChatSpaceTotalMemberInfo.of(totalMember, translate(totalChatSpaceMember.getMessageCode(), totalChatSpaceMember));
+    return ChatSpaceTotalMemberInfo.of(totalMember, translate(totalChatSpaceMember.getMessageCode(), totalMember));
   }
 
 }

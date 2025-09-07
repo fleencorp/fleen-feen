@@ -79,23 +79,23 @@ public class FleenStream extends FleenFeenEntity
   private String thumbnailLink;
 
   @Enumerated(STRING)
-  @Column(name = "stream_source", nullable = false)
+  @Column(name = "source", nullable = false)
   private StreamSource streamSource;
 
   @Enumerated(STRING)
-  @Column(name = "stream_type", nullable = false)
+  @Column(name = "type", nullable = false)
   private StreamType streamType;
 
   @Enumerated(STRING)
-  @Column(name = "stream_creation_type", nullable = false)
+  @Column(name = "creation_type", nullable = false)
   private StreamCreationType streamCreationType;
 
   @Enumerated(STRING)
-  @Column(name = "stream_visibility", nullable = false)
+  @Column(name = "visibility", nullable = false)
   private StreamVisibility streamVisibility;
 
   @Enumerated(STRING)
-  @Column(name = "stream_status", nullable = false)
+  @Column(name = "status", nullable = false)
   private StreamStatus streamStatus;
 
   @Column(name = "scheduled_start_date", nullable = false)

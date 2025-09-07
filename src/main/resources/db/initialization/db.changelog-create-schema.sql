@@ -260,16 +260,16 @@ CREATE TABLE stream (
   music_link VARCHAR(1000) NULL,
   group_or_organization_name VARCHAR(500) NULL,
 
-  stream_source VARCHAR(255) DEFAULT 'NONE'
-    NOT NULL CHECK (stream_source IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
-  stream_type VARCHAR(255)
-    NOT NULL CHECK (stream_creation_type IN ('EVENT', 'LIVE_STREAM')),
-  stream_creation_type VARCHAR(255) DEFAULT 'INSTANT'
-    NOT NULL CHECK (stream_creation_type IN ('INSTANT', 'SCHEDULED')),
-  stream_visibility VARCHAR(255) DEFAULT 'PUBLIC'
-    NOT NULL CHECK (stream_visibility IN ('PRIVATE', 'PROTECTED', 'PUBLIC')),
-  stream_status VARCHAR(255) DEFAULT 'ACTIVE'
-    NOT NULL CHECK (stream_status IN ('ACTIVE', 'CANCELED')),
+  source VARCHAR(255) DEFAULT 'NONE'
+    NOT NULL CHECK (source IN ('GOOGLE_MEET', 'GOOGLE_MEET_LIVESTREAM', 'NONE', 'YOUTUBE_LIVE', 'EMAIL', 'PHONE', 'NONE')),
+  type VARCHAR(255)
+    NOT NULL CHECK (type IN ('EVENT', 'LIVE_STREAM')),
+  creation_type VARCHAR(255) DEFAULT 'INSTANT'
+    NOT NULL CHECK (creation_type IN ('INSTANT', 'SCHEDULED')),
+  visibility VARCHAR(255) DEFAULT 'PUBLIC'
+    NOT NULL CHECK (visibility IN ('PRIVATE', 'PROTECTED', 'PUBLIC')),
+  status VARCHAR(255) DEFAULT 'ACTIVE'
+    NOT NULL CHECK (status IN ('ACTIVE', 'CANCELED')),
   scheduled_start_date TIMESTAMP NOT NULL,
   scheduled_end_date TIMESTAMP NOT NULL,
 

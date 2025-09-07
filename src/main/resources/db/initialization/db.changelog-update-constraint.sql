@@ -79,7 +79,7 @@ ALTER TABLE nouns ADD CONSTRAINT unique_noun_word UNIQUE (word);
 --preconditions onFail:MARK_RAN onError:MARK_RAN
 --precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.table_constraints WHERE table_name = 'soft_ask_votes' AND constraint_name = 'unique_soft_ask_vote_per_item' AND constraint_type = 'UNIQUE';
 
-ALTER TABLE soft_ask_votes ADD CONSTRAINT unique_soft_ask_vote_per_item UNIQUE (member_id, vote_parent_type, parent_id);
+ALTER TABLE soft_ask_votes ADD CONSTRAINT unique_soft_ask_vote_per_item UNIQUE (member_id, parent_type, parent_id);
 
 --rollback ALTER TABLE soft_ask_votes DROP CONSTRAINT IF EXISTS unique_soft_ask_vote_per_item;
 
