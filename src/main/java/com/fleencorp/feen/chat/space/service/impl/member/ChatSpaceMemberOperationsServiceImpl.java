@@ -8,6 +8,7 @@ import com.fleencorp.feen.chat.space.model.projection.ChatSpaceMemberSelect;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceRequestToJoinPendingSelect;
 import com.fleencorp.feen.chat.space.repository.member.*;
 import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberOperationsService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -97,8 +98,8 @@ public class ChatSpaceMemberOperationsServiceImpl implements ChatSpaceMemberOper
   }
 
   @Override
-  public Optional<ChatSpaceMember> findByChatSpaceAndMember(final ChatSpace chatSpace, final Member member) {
-    return chatSpaceMemberLookupRepository.findByChatSpaceAndMember(chatSpace, member);
+  public Optional<ChatSpaceMember> findByChatSpaceAndMember(final ChatSpace chatSpace, final IsAMember member) {
+    return chatSpaceMemberLookupRepository.findByChatSpaceAndMemberId(chatSpace, member.getMemberId());
   }
 
   @Override

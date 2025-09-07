@@ -8,6 +8,7 @@ import com.fleencorp.feen.calendar.model.request.event.create.CreateInstantCalen
 import com.fleencorp.feen.common.event.publisher.StreamEventPublisher;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.shared.stream.contract.IsAttendee;
@@ -119,36 +120,28 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   @Override
   @Transactional
   public CreateStreamResponse createEvent(final CreateEventDto createEventDto, final RegisteredUser user) throws CalendarNotFoundException {
-    // Find the calendar associated with the user's country
+    final IsAMember member = user.toMember();
     final Calendar calendar = miscService.findCalendar(user.getCountry());
-    // Set event organizer as attendee in Google calendar
-    final String organizerAliasOrDisplayName = createEventDto.getOrganizerAlias(user.getFullName());
-    // Retrieve the organizer details to be added as an attendee
-    final EventAttendeeOrGuest attendeeOrGuest = EventAttendeeOrGuest.of(user.getEmailAddress(), organizerAliasOrDisplayName);
+    final String organizerAliasOrDisplayName = createEventDto.getOrganizerAlias(member.getFullName());
+    final EventAttendeeOrGuest attendeeOrGuest = EventAttendeeOrGuest.of(member.getEmailAddress(), organizerAliasOrDisplayName);
 
-    // Create a FleenStream object from the DTO and update its details with the Google Calendar response
-    FleenStream stream = createEventDto.toStream(user.toMember());
+    FleenStream stream = createEventDto.toStream(member);
     stream.update(
       organizerAliasOrDisplayName,
-      user.getEmailAddress(),
-      user.getPhoneNumber()
+      member.getEmailAddress(),
+      member.getPhoneNumber()
     );
 
-    // Save stream and create event in Google Calendar Event Service externally
     stream = streamOperationsService.save(stream);
-    // Increase attendees count, save the event
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
-    // Register the organizer of the event as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
-    // Create and build the request to create an event
-    final ExternalStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, user.getEmailAddress(), createEventDto);
-    // Create and add event in Calendar through external service
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, member);
+
+    final ExternalStreamRequest createStreamRequest = createAndBuildStreamRequest(calendar, stream, attendeeOrGuest, member.getEmailAddress(), createEventDto);
     createEventExternally(createStreamRequest);
-    // Increment attendee count because of creator or organizer of event
+
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Return a localized response of the created event
+
     return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 
@@ -222,33 +215,27 @@ public class EventServiceImpl implements EventService, StreamRequestService {
   @Override
   @Transactional
   public CreateStreamResponse createInstantEvent(final CreateInstantEventDto createInstantEventDto, final RegisteredUser user) throws CalendarNotFoundException {
-    // Find the calendar associated with the user's country
+    final IsAMember member = user.toMember();
     final Calendar calendar = miscService.findCalendar(user.getCountry());
-    // Create a Stream object from the DTO and update its details with the Google Calendar response
-    FleenStream stream = createInstantEventDto.toFleenStream(user.toMember());
-    // Update the details of the stream
+    FleenStream stream = createInstantEventDto.toFleenStream(member);
     stream.update(
-      user.getFullName(),
-      user.getEmailAddress(),
-      user.getPhoneNumber());
+      member.getFullName(),
+      member.getEmailAddress(),
+      member.getPhoneNumber()
+    );
 
-    // Increase attendees count, save the event and and add the event in Google Calendar
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
-    // Register the organizer of the event as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
-    // Save stream and create event in Google Calendar Event Service externally
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, member);
+
     stream = streamOperationsService.save(stream);
-    // Create and build the create stream request to be use for external purpose
+
     final ExternalStreamRequest createInstantStreamRequest = ExternalStreamRequest.ofCreateInstantEvent(calendar, stream, stream.getStreamType(), createInstantEventDto);
-    // Create and add event in Calendar through external service
     createInstantEventExternally(createInstantStreamRequest);
-    // Get the stream response
+
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Create the response
     final CreateStreamResponse createStreamResponse = CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse);
-    // Return a localized response of the created event
+
     return localizer.of(createStreamResponse);
   }
 

@@ -5,6 +5,7 @@ import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
@@ -97,31 +98,25 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   @Override
   @Transactional
   public CreateStreamResponse createLiveBroadcast(final CreateLiveBroadcastDto createLiveBroadcastDto, final RegisteredUser user) throws Oauth2InvalidAuthorizationException {
-    // Check if there is a valid OAuth2 authorization for the user
+    final IsAMember member = user.toMember();
     final Oauth2Authorization oauth2Authorization = validateAccessTokenExpiryTimeOrRefreshToken(createLiveBroadcastDto.getOauth2ServiceType(), user);
-    // Create a request object to create the live broadcast on YouTube
     final String organizerAliasOrDisplayName = createLiveBroadcastDto.getOrganizerAlias(user.getFullName());
-    // Create a new FleenStream entity based on the DTO and set YouTube response details
-    final FleenStream stream = createLiveBroadcastDto.toFleenStream(user.toMember());
-    // Update the stream details
+    final FleenStream stream = createLiveBroadcastDto.toFleenStream(member);
     stream.update(
       organizerAliasOrDisplayName,
-      user.getEmailAddress(),
-      user.getPhoneNumber());
+      member.getEmailAddress(),
+      member.getPhoneNumber()
+    );
 
-    // Increase attendees count, save the live broadcast and and add the stream in YouTube Live Stream
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
-    // Register the organizer of the live broadcast as an attendee or guest
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
-    // Create and build the request to create a live broadcast
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, member);
+
     final ExternalStreamRequest createStreamRequest = ExternalStreamRequest.ofCreateLiveBroadcast(oauth2Authorization, stream, stream.getStreamType(), createLiveBroadcastDto);
-    // Create and add live broadcast or stream in external service
     createLiveBroadcastExternally(createStreamRequest);
-    // Get the stream response
+
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);
-    // Retrieve the stream type info
     final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(stream.getStreamType());
-    // Return the localized response of the created stream
+
     return localizer.of(CreateStreamResponse.of(stream.getStreamId(), streamTypeInfo, streamResponse));
   }
 

@@ -14,6 +14,7 @@ import com.fleencorp.feen.chat.space.model.request.core.ChatSpaceMemberSearchReq
 import com.fleencorp.feen.chat.space.model.response.member.*;
 import com.fleencorp.feen.chat.space.model.search.member.ChatSpaceMemberSearchResult;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -50,7 +51,7 @@ public interface ChatSpaceMemberService {
 
   ChatSpaceMember getExistingOrCreateNewChatSpaceMember(ChatSpace chatSpace, RegisteredUser user) throws FailedOperationException;
 
-  ChatSpaceMember findByChatSpaceAndMember(ChatSpace chatSpace, Member member) throws ChatSpaceMemberNotFoundException;
+  ChatSpaceMember findByChatSpaceAndMember(ChatSpace chatSpace, IsAMember member) throws ChatSpaceMemberNotFoundException;
 
   void addMemberToChatSpaceExternally(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace, Member member);
 }

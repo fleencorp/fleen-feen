@@ -163,18 +163,18 @@ public class StreamAttendee extends FleenFeenEntity
     return attendee;
   }
 
-  public static StreamAttendee of(final Long userId, final Long streamId) {
+  public static StreamAttendee of(final IsAMember member, final Long streamId) {
     final StreamAttendee attendee = new StreamAttendee();
-    attendee.setMemberId(userId);
+    attendee.setMemberId(member.getMemberId());
+    attendee.setEmailAddress(member.getEmailAddress());
     attendee.setStreamId(streamId);
 
     return attendee;
   }
 
   public static StreamAttendee of(final IsAMember member, final IsAStream stream, final String comment) {
-    final StreamAttendee streamAttendee = of(member.getMemberId(), stream.getStreamId());
+    final StreamAttendee streamAttendee = of(member, stream.getStreamId());
     streamAttendee.setAttendeeComment(comment);
-    streamAttendee.setEmailAddress(member.getEmailAddress());
 
     return streamAttendee;
   }

@@ -7,6 +7,7 @@ import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceMemberSelect;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceRequestToJoinPendingSelect;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,7 @@ public interface ChatSpaceMemberOperationsService {
 
   List<ChatSpaceRequestToJoinPendingSelect> countPendingJoinRequestsForChatSpaces(List<Long> chatSpaceIds, ChatSpaceRequestToJoinStatus status);
 
-  Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Member member);
+  Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, IsAMember member);
 
   Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Long chatSpaceMemberId);
 

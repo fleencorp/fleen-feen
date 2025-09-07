@@ -128,8 +128,8 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
   }
 
   @Override
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final Long userId) {
-    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, userId);
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final IsAMember member) {
+    streamService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, member);
   }
 
   @Override

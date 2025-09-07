@@ -39,7 +39,7 @@ public interface StreamOperationsService {
 
   void validateStreamAndUserForProtectedStream(FleenStream stream, Long userId);
 
-  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, Long userId);
+  void registerAndApproveOrganizerOfStreamAsAnAttendee(FleenStream stream, IsAMember member);
 
   StreamOtherDetailsHolder retrieveStreamOtherDetailsHolder(FleenStream stream, IsAMember user) throws CalendarNotFoundException, Oauth2InvalidAuthorizationException;
 

@@ -13,10 +13,10 @@ import com.fleencorp.feen.chat.space.service.event.ChatSpaceEventService;
 import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.service.misc.MiscService;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
-import com.fleencorp.feen.stream.mapper.stream.StreamMapper;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.event.CreateChatSpaceEventDto;
 import com.fleencorp.feen.stream.model.info.core.StreamTypeInfo;
@@ -43,7 +43,6 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   private final EventOperationsService eventOperationsService;
   private final MiscService miscService;
   private final StreamOperationsService streamOperationsService;
-  private final StreamMapper streamMapper;
   private final StreamUnifiedMapper streamUnifiedMapper;
   private final Localizer localizer;
 
@@ -54,7 +53,6 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
       final EventOperationsService eventOperationsService,
       final MiscService miscService,
       final StreamOperationsService streamOperationsService,
-      final StreamMapper streamMapper,
       final StreamUnifiedMapper streamUnifiedMapper,
       final Localizer localizer) {
     this.delegatedAuthorityEmail = delegatedAuthorityEmail;
@@ -63,7 +61,6 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     this.miscService = miscService;
     this.streamOperationsService = streamOperationsService;
     this.eventOperationsService = eventOperationsService;
-    this.streamMapper = streamMapper;
     this.streamUnifiedMapper = streamUnifiedMapper;
     this.localizer = localizer;
   }
@@ -88,7 +85,7 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
     streamOperationsService.processOtherStreamDetails(streamResponses, user.toMember());
 
     final StreamTypeInfo streamTypeInfo = streamUnifiedMapper.toStreamTypeInfo(StreamType.EVENT);
-    final SearchResult searchResult = toSearchResult(streamResponses, page);
+    final SearchResult<StreamResponse> searchResult = toSearchResult(streamResponses, page);
     final ChatSpaceEventSearchResult chatSpaceEventSearchResult = ChatSpaceEventSearchResult.of(searchResult, streamTypeInfo);
     return localizer.of(chatSpaceEventSearchResult);
   }
@@ -112,22 +109,23 @@ public class ChatSpaceEventServiceImpl implements ChatSpaceEventService {
   public CreateStreamResponse createChatSpaceEvent(final Long chatSpaceId, final CreateChatSpaceEventDto createChatSpaceEventDto, final RegisteredUser user)
       throws ChatSpaceNotFoundException, CalendarNotFoundException, FailedOperationException {
     final ChatSpace chatSpace = chatSpaceOperationsService.findChatSpace(chatSpaceId);
+    final IsAMember member = user.toMember();
 
-    chatSpaceMemberService.findByChatSpaceAndMember(chatSpace, user.toMember());
+    chatSpaceMemberService.findByChatSpaceAndMember(chatSpace, member);
     final Calendar calendar = miscService.findCalendar(user.getCountry());
     final CreateCalendarEventRequest createCalendarEventRequest = CreateCalendarEventRequest.bySuper(createChatSpaceEventDto);
     createCalendarEventRequest.update(calendar.getExternalId(), delegatedAuthorityEmail, user.getEmailAddress(), chatSpace.getMetadata());
 
-    FleenStream stream = createChatSpaceEventDto.toStream(user.toMember(), chatSpace);
+    FleenStream stream = createChatSpaceEventDto.toStream(member, chatSpace);
     final String organizerAliasOrDisplayName = createChatSpaceEventDto.getOrganizerAlias(user.getFullName());
     String chatSpaceExternalId = chatSpace.getExternalIdOrName();
     createCalendarEventRequest.setChatSpaceExternalIdOrName(chatSpaceExternalId);
 
-    stream.update(organizerAliasOrDisplayName, user.getEmailAddress(), user.getPhoneNumber());
+    stream.update(organizerAliasOrDisplayName, member.getEmailAddress(), member.getPhoneNumber());
     stream = streamOperationsService.save(stream);
 
     streamOperationsService.increaseTotalAttendeesOrGuests(stream);
-    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, user.getId());
+    streamOperationsService.registerAndApproveOrganizerOfStreamAsAnAttendee(stream, member);
     createEventExternally(stream, createCalendarEventRequest);
 
     final StreamResponse streamResponse = streamUnifiedMapper.toStreamResponseByAdminUpdate(stream);

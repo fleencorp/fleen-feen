@@ -18,7 +18,7 @@ import java.util.Set;
 
 public interface ChatSpaceMemberLookupRepository extends JpaRepository<ChatSpaceMember, Long> {
 
-  Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Member member);
+  Optional<ChatSpaceMember> findByChatSpaceAndMemberId(ChatSpace chatSpace, Long memberId);
 
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.chatSpaceMemberId = :chatSpaceMemberId")
   Optional<ChatSpaceMember> findByChatSpaceAndMember(ChatSpace chatSpace, Long chatSpaceMemberId);

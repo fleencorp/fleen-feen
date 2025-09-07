@@ -3,9 +3,9 @@ package com.fleencorp.feen.stream.model.dto.event;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.ValidEmail;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -60,7 +60,7 @@ public class CreateEventDto extends CreateStreamDto {
     }
   }
 
-  public FleenStream toStream(final Member member) {
+  public FleenStream toStream(final IsAMember member) {
     final FleenStream stream = toFleenStream();
     stream.setStreamType(EVENT);
     stream.setStreamSource(GOOGLE_MEET);

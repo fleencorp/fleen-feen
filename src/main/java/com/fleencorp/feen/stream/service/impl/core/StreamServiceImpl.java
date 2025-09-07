@@ -220,13 +220,13 @@ public class StreamServiceImpl implements StreamService {
    * reference. Also mark the attendee as an organizer and speaker in the stream.</p>
    *
    * @param stream the FleenStream object representing the stream to which the organizer is joining.
-   * @param userId the FleenUser object representing the user (organizer) joining the stream as an attendee.
+   * @param member the {@link IsAMember} object representing the user (organizer) joining the stream as an attendee.
    */
   @Override
   @Transactional
-  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final Long userId) {
+  public void registerAndApproveOrganizerOfStreamAsAnAttendee(final FleenStream stream, final IsAMember member) {
     // Add the organizer as an attendee of the stream
-    final StreamAttendee streamAttendee = StreamAttendee.of(userId, stream.getStreamId());
+    final StreamAttendee streamAttendee = StreamAttendee.of(member, stream.getStreamId());
     // Approve the organizer's request to join automatically
     streamAttendee.approveUserAttendance();
     // Mark the organizer as a speaker

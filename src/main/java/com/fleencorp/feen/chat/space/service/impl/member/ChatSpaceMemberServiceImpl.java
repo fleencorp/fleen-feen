@@ -25,6 +25,7 @@ import com.fleencorp.feen.chat.space.service.member.ChatSpaceMemberService;
 import com.fleencorp.feen.chat.space.service.update.ChatSpaceUpdateService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -621,7 +622,7 @@ public class ChatSpaceMemberServiceImpl implements ChatSpaceMemberService {
    * @throws ChatSpaceMemberNotFoundException if no chat space member is found for the specified chat space and member.
    */
   @Override
-  public ChatSpaceMember findByChatSpaceAndMember(final ChatSpace chatSpace, final Member member) throws ChatSpaceMemberNotFoundException {
+  public ChatSpaceMember findByChatSpaceAndMember(final ChatSpace chatSpace, final IsAMember member) throws ChatSpaceMemberNotFoundException {
     // Retrieve the chat space member and throw an exception if not found
     return chatSpaceMemberOperationsService.findByChatSpaceAndMember(chatSpace, member)
       .orElseThrow(ChatSpaceMemberNotFoundException.of(member.getMemberId()));

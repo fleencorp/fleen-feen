@@ -3,9 +3,9 @@ package com.fleencorp.feen.stream.model.dto.livebroadcast;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.model.dto.core.CreateStreamDto;
-import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class CreateLiveBroadcastDto extends CreateStreamDto {
   @JsonProperty("thumbnail_link_or_url")
   private String thumbnailUrl;
 
-  public FleenStream toFleenStream(final Member member) {
+  public FleenStream toFleenStream(final IsAMember member) {
     final FleenStream stream = toFleenStream();
     stream.setMemberId(member.getMemberId());
     stream.setStreamSource(YOUTUBE_LIVE);
