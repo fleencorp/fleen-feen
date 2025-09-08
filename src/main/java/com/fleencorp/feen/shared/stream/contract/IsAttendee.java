@@ -39,31 +39,17 @@ public interface IsAttendee {
 
   String getProfilePhoto();
 
-  String getFirstName();
-
-  String getLastName();
-
   boolean isRequestToJoinDisapprovedOrPending();
 
-  default boolean isAttending() {
-    return nonNull(getAttending()) && getAttending();
-  }
+  boolean isAttending();
 
-  default boolean isOrganizer() {
-    return nonNull(getIsOrganizer()) && getIsOrganizer();
-  }
+  boolean isOrganizer();
 
-  default boolean isASpeaker() {
-    return nonNull(getASpeaker()) && getASpeaker();
-  }
+  boolean isASpeaker();
 
-  default boolean isRequestToJoinPending() {
-    return StreamAttendeeRequestToJoinStatus.isPending(getRequestToJoinStatus());
-  }
+  boolean isRequestToJoinPending();
 
-  default boolean isRequestToJoinDisapproved() {
-    return StreamAttendeeRequestToJoinStatus.isDisapproved(getRequestToJoinStatus());
-  }
+  boolean isRequestToJoinDisapproved();
 
   void approveUserAttendance();
 

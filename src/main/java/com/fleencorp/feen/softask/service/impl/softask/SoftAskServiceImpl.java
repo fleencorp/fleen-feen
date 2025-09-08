@@ -4,6 +4,7 @@ import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
+import com.fleencorp.feen.shared.poll.contract.IsAPoll;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
@@ -119,9 +120,10 @@ public class SoftAskServiceImpl implements SoftAskService {
     final Long parentId = addSoftAskDto.getParentId();
 
     IsAChatSpace chatSpace = addSoftAskDto.isChatSpaceParent() ? softAskQueryService.findChatSpaceOrThrow(parentId) : null;
+    IsAPoll poll = addSoftAskDto.isPollParent() ? softAskQueryService.findPollOrThrow(parentId) : null;
     IsAStream stream = addSoftAskDto.isStreamParent() ? softAskQueryService.findStreamOrThrow(parentId) : null;
 
-    return SoftAskParentDetailHolder.of(chatSpace, stream, addSoftAskDto.getParentType());
+    return SoftAskParentDetailHolder.of(chatSpace, poll, stream, addSoftAskDto.getParentType());
   }
 
   /**

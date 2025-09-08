@@ -4,6 +4,8 @@ import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.chat.space.service.ChatSpaceQueryService;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.member.service.MemberQueryService;
+import com.fleencorp.feen.shared.poll.contract.IsAPoll;
+import com.fleencorp.feen.shared.poll.service.PollQueryService;
 import com.fleencorp.feen.shared.stream.contract.IsAStream;
 import com.fleencorp.feen.shared.stream.service.StreamQueryService;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
@@ -17,14 +19,17 @@ public class SoftAskQueryServiceImpl implements SoftAskQueryService {
 
   private final ChatSpaceQueryService chatSpaceQueryService;
   private final MemberQueryService memberQueryService;
+  private final PollQueryService pollQueryService;
   private final StreamQueryService streamQueryService;
 
   public SoftAskQueryServiceImpl(
       final ChatSpaceQueryService chatSpaceQueryService,
       final MemberQueryService memberQueryService,
+      final PollQueryService pollQueryService,
       @Qualifier("sharedStreamQueryService") final StreamQueryService streamQueryService) {
     this.chatSpaceQueryService = chatSpaceQueryService;
     this.memberQueryService = memberQueryService;
+    this.pollQueryService = pollQueryService;
     this.streamQueryService = streamQueryService;
   }
 
@@ -43,5 +48,11 @@ public class SoftAskQueryServiceImpl implements SoftAskQueryService {
   @Override
   public IsAMember findMemberOrThrow(final Long memberId) {
     return memberQueryService.findMemberOrThrow(memberId);
+  }
+
+  @Override
+  public IsAPoll findPollOrThrow(final Long pollId) {
+    return pollQueryService.findPollById(pollId)
+      .orElseThrow(SoftAskParentNotFoundException.of(SoftAskParentType.POLL, pollId));
   }
 }

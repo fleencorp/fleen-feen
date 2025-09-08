@@ -8,6 +8,7 @@ import com.fleencorp.feen.poll.exception.poll.PollUpdateUnauthorizedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollDeletedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollEndedException;
 import com.fleencorp.feen.poll.exception.vote.PollVotingNotAllowedPollNoOptionException;
+import com.fleencorp.feen.shared.poll.contract.IsAPoll;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
 import jakarta.persistence.*;
@@ -33,7 +34,8 @@ import static java.util.Objects.nonNull;
 @NoArgsConstructor
 @Entity
 @Table(name = "poll")
-public class Poll extends FleenFeenEntity {
+public class Poll extends FleenFeenEntity
+  implements IsAPoll {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -109,55 +111,8 @@ public class Poll extends FleenFeenEntity {
   @Column(name = "slug", nullable = false, unique = true, updatable = false)
   private String slug;
 
-  public void update(
-      final String question,final String description, final LocalDateTime expiresAt,
-      final PollVisibility pollVisibility, final Boolean isAnonymous, final Boolean isMultipleChoice) {
-    this.question = question;
-    this.description = description;
-    this.expiresAt = expiresAt;
-    this.visibility = pollVisibility;
-    this.isAnonymous = isAnonymous;
-    this.multipleChoice = isMultipleChoice;
-  }
-
-  /**
-   * Adds an option to the poll.
-   *
-   * @param option the option to add
-   */
-  public void addOption(final PollOption option) {
-    if (nonNull(options)) {
-      option.setPoll(this);
-      options.add(option);
-    }
-  }
-
-  public void addOptions(final Collection<PollOption> options) {
-    if (nonNull(options)) {
-      options.forEach(this::addOption);
-    }
-  }
-
-  public void delete() {
-    deleted = true;
-  }
-
-  public Collection<Long> getPollOptionIds() {
-    return options.stream()
-      .filter(Objects::nonNull)
-      .map(PollOption::getPollOptionId)
-      .collect(Collectors.toSet());
-  }
-
-  public Map<Long, PollOption> getOptionsGrouped() {
-    return options.stream()
-      .filter(opt -> opt.getPollOptionId() != null)
-      .collect(Collectors.toMap(PollOption::getPollOptionId, Function.identity()));
-  }
-
-  public Map<Long, PollOption> getOptionsGroupedCopy() {
-    return getOptionsGrouped().entrySet().stream()
-      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  public String getTitle() {
+    return question;
   }
 
   public boolean isDeleted() {
@@ -218,6 +173,57 @@ public class Poll extends FleenFeenEntity {
     } else if (hasNoOptions()) {
       throw PollVotingNotAllowedPollNoOptionException.of(pollId);
     }
+  }
+
+  public void update(
+    final String question,final String description, final LocalDateTime expiresAt,
+    final PollVisibility pollVisibility, final Boolean isAnonymous, final Boolean isMultipleChoice) {
+    this.question = question;
+    this.description = description;
+    this.expiresAt = expiresAt;
+    this.visibility = pollVisibility;
+    this.isAnonymous = isAnonymous;
+    this.multipleChoice = isMultipleChoice;
+  }
+
+  /**
+   * Adds an option to the poll.
+   *
+   * @param option the option to add
+   */
+  public void addOption(final PollOption option) {
+    if (nonNull(options)) {
+      option.setPoll(this);
+      options.add(option);
+    }
+  }
+
+  public void addOptions(final Collection<PollOption> options) {
+    if (nonNull(options)) {
+      options.forEach(this::addOption);
+    }
+  }
+
+  public void delete() {
+    deleted = true;
+  }
+
+  public Collection<Long> getPollOptionIds() {
+    return options.stream()
+      .filter(Objects::nonNull)
+      .map(PollOption::getPollOptionId)
+      .collect(Collectors.toSet());
+  }
+
+  public Map<Long, PollOption> getOptionsGrouped() {
+    return options.stream()
+      .filter(opt -> opt.getPollOptionId() != null)
+      .collect(Collectors.toMap(PollOption::getPollOptionId, Function.identity()));
+  }
+
+  public Map<Long, PollOption> getOptionsGroupedCopy() {
+    return getOptionsGrouped().entrySet().stream()
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   public static Poll of(final Long pollId) {

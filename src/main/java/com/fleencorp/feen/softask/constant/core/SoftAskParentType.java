@@ -9,6 +9,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public enum SoftAskParentType implements ApiParameter {
 
   CHAT_SPACE("Chat Space"),
+  POLL("Poll"),
   STREAM("Stream");
 
   private final String value;
@@ -23,6 +24,10 @@ public enum SoftAskParentType implements ApiParameter {
 
   public static boolean isChatSpace(final SoftAskParentType softAskParentType) {
     return softAskParentType == CHAT_SPACE;
+  }
+
+  public static boolean isPoll(final SoftAskParentType softAskParentType) {
+    return softAskParentType == POLL;
   }
 
   public static boolean isStream(final SoftAskParentType softAskParentType) {

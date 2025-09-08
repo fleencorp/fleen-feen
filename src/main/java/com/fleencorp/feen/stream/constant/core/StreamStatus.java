@@ -3,6 +3,8 @@ package com.fleencorp.feen.stream.constant.core;
 import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 /**
 * Enum representing different types of stream status.
 *
@@ -29,6 +31,10 @@ public enum StreamStatus implements ApiParameter {
     this.messageCode = messageCode;
     this.messageCode2 = messageCode2;
     this.messageCode3 = messageCode3;
+  }
+
+  public static StreamStatus of(final String value) {
+    return parseEnumOrNull(value, StreamStatus.class);
   }
 
   public static boolean isCanceled(final StreamStatus streamStatus) {

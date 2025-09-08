@@ -88,6 +88,9 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "chat_space_id", updatable = false)
   private Long chatSpaceId;
 
+  @Column(name = "poll_id", updatable = false)
+  private Long pollId;
+
   @Column(name = "stream_id", updatable = false)
   private Long streamId;
 

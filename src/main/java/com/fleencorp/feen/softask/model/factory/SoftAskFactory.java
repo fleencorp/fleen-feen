@@ -53,6 +53,10 @@ public final class SoftAskFactory {
           softAsk.setSoftAskParentType(SoftAskParentType.CHAT_SPACE);
           softAsk.setChatSpaceId(dto.getParentId());
         }
+        case POLL -> {
+          softAsk.setSoftAskParentType(SoftAskParentType.POLL);
+          softAsk.setPollId(dto.getParentId());
+        }
         case STREAM -> {
           softAsk.setSoftAskParentType(SoftAskParentType.STREAM);
           softAsk.setStreamId(dto.getParentId());

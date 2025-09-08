@@ -75,16 +75,6 @@ public class StreamAttendee extends FleenFeenEntity
     return "";
   }
 
-  @Override
-  public String getFirstName() {
-    return "";
-  }
-
-  @Override
-  public String getLastName() {
-    return "";
-  }
-
   public void approveUserAttendance() {
     requestToJoinStatus = StreamAttendeeRequestToJoinStatus.APPROVED;
     attending = true;

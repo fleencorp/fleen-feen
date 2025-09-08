@@ -1,28 +1,27 @@
 package com.fleencorp.feen.stream.constant.core;
 
-import com.fleencorp.base.constant.base.ApiParameter;
 import lombok.Getter;
 
-/**
-* Enum representing different duration or creation of streams.
-*
-* @author Yusuf Alamu Musa
-* @version 1.0
-*/
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 @Getter
-public enum StreamCreationType implements ApiParameter {
+public enum StreamCreationType {
 
   INSTANT("Instant", "stream.creation.type.instant"),
   SCHEDULED("Scheduled", "stream.creation.type.scheduled");
 
-  private final String value;
+  private final String label;
   private final String messageCode;
 
   StreamCreationType(
-      final String value,
+      final String label,
       final String messageCode) {
-    this.value = value;
+    this.label = label;
     this.messageCode = messageCode;
+  }
+
+  public static StreamCreationType of(final String value) {
+    return parseEnumOrNull(value, StreamCreationType.class);
   }
 
 }

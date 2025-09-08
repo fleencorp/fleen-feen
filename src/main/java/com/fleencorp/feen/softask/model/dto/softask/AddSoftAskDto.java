@@ -96,6 +96,10 @@ public class AddSoftAskDto extends UserOtherDetailDto {
     return hasParent() && parent.isChatSpaceParent();
   }
 
+  public boolean isPollParent() {
+    return hasParent() && parent.isPollParent();
+  }
+
   public boolean isStreamParent() {
     return hasParent() && parent.isStreamParent();
   }
@@ -123,12 +127,16 @@ public class AddSoftAskDto extends UserOtherDetailDto {
       return SoftAskParentType.of(parentType);
     }
 
-    public boolean isStreamParent() {
-      return SoftAskParentType.isStream(getParentType());
-    }
-
     public boolean isChatSpaceParent() {
       return SoftAskParentType.isChatSpace(getParentType());
+    }
+
+    public boolean isPollParent() {
+      return SoftAskParentType.isPoll(getParentType());
+    }
+
+    public boolean isStreamParent() {
+      return SoftAskParentType.isStream(getParentType());
     }
 
   }

@@ -932,6 +932,7 @@ CREATE TABLE soft_ask (
   geohash_prefix VARCHAR(5) NULL,
 
   chat_space_id BIGINT,
+  poll_id BIGINT,
   stream_id BIGINT,
   author_id BIGINT NOT NULL,
 
@@ -955,6 +956,11 @@ CREATE TABLE soft_ask (
     FOREIGN KEY (chat_space_id)
       REFERENCES chat_space (chat_space_id)
         ON DELETE SET NULL,
+
+  CONSTRAINT soft_ask_fk_poll_id
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+      ON DELETE SET NULL,
 
   CONSTRAINT soft_ask_fk_stream_id
     FOREIGN KEY (stream_id)
