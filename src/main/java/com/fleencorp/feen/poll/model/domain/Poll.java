@@ -26,6 +26,7 @@ import static com.fleencorp.feen.common.util.common.HybridSlugGenerator.generate
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Getter
@@ -58,8 +59,8 @@ public class Poll extends FleenFeenEntity
   private String parentTitle;
 
   @Enumerated(STRING)
-  @Column(name = "parent_type", nullable = false)
-  private PollParentType pollParentType = PollParentType.NONE;
+  @Column(name = "parent_type")
+  private PollParentType pollParentType;
 
   @Enumerated(STRING)
   @Column(name = "visibility", nullable = false)
@@ -136,7 +137,7 @@ public class Poll extends FleenFeenEntity
   }
 
   public boolean hasNoParent() {
-    return nonNull(parentId) && PollParentType.isNone(pollParentType);
+    return isNull(parentId);
   }
 
   public boolean hasEnded() {
@@ -176,8 +177,12 @@ public class Poll extends FleenFeenEntity
   }
 
   public void update(
-    final String question,final String description, final LocalDateTime expiresAt,
-    final PollVisibility pollVisibility, final Boolean isAnonymous, final Boolean isMultipleChoice) {
+      final String question,
+      final String description,
+      final LocalDateTime expiresAt,
+      final PollVisibility pollVisibility,
+      final Boolean isAnonymous,
+      final Boolean isMultipleChoice) {
     this.question = question;
     this.description = description;
     this.expiresAt = expiresAt;

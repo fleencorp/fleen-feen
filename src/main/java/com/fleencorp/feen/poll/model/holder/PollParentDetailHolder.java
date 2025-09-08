@@ -14,7 +14,6 @@ public record PollParentDetailHolder(ChatSpace chatSpace, FleenStream stream, Po
       return switch (parentType) {
         case CHAT_SPACE -> HasTitle.getTitle(chatSpace);
         case STREAM -> HasTitle.getTitle(stream);
-        case NONE -> null;
       };
     }
 

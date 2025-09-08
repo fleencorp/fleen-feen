@@ -127,8 +127,8 @@ public class PollServiceImpl implements PollService {
     final Long parentId = addPollDto.getParentId();
     final PollParentType parentType = addPollDto.getParentType();
 
-    final ChatSpace chatSpace = findAndValidateChatSpaceParent(parentId, member);
-    final FleenStream stream = findAndValidateStreamParent(parentId, member);
+    final ChatSpace chatSpace = addPollDto.isChatSpaceParent() ? findAndValidateChatSpaceParent(parentId, member) : null;
+    final FleenStream stream =  addPollDto.isStreamParent() ? findAndValidateStreamParent(parentId, member) : null;
 
     return PollParentDetailHolder.of(chatSpace, stream, parentType);
   }

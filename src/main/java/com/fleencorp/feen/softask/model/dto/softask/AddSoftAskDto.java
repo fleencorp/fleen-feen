@@ -111,12 +111,12 @@ public class AddSoftAskDto extends UserOtherDetailDto {
   public static class SoftAskParentDto {
 
     @IsNumber(message = "{softAsk.parentId.IsNumber}")
-    @JsonProperty(value = "parent_id", access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(value = "parent_id")
     private String parentId = null;
 
     @OneOf(enumClass = SoftAskParentType.class, message = "{softAsk.parentType.Type}", ignoreCase = true)
     @ToUpperCase
-    @JsonProperty(value = "parent_type", access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(value = "parent_type")
     private String parentType;
 
     public Long getParentId() {

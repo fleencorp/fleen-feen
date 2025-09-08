@@ -14,7 +14,7 @@ public final class ChatSpaceQueryConstant {
       cs.guidelines_or_rules    AS guidelinesOrRules,
       cs.space_link             AS spaceLink,
       cs.member_id              AS organizerId,
-      m.full_name               AS organizerName,
+      CONCAT(m.first_name, ' ', m.last_name) AS organizerName,
       cs.space_visibility       AS spaceVisibility,
       cs.space_status           AS status,
       cs.total_members          AS totalMembers,

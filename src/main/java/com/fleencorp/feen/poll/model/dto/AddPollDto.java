@@ -99,6 +99,14 @@ public class AddPollDto {
     return hasParent() ? parent.getParentType() : null;
   }
 
+  public boolean isChatSpaceParent() {
+    return hasParent() && parent.isChatSpaceParent();
+  }
+
+  public boolean isStreamParent() {
+    return hasParent() && parent.isStreamParent();
+  }
+
   public Poll toPoll(final Member author, final String parentTitle, final ChatSpace chatSpace, final FleenStream stream) {
     final Long parentId = getParentId();
     final PollParentType parentType = getParentType();
@@ -191,6 +199,14 @@ public class AddPollDto {
 
     public PollParentType getParentType() {
       return PollParentType.of(parentType);
+    }
+
+    public boolean isChatSpaceParent() {
+      return PollParentType.isChatSpace(getParentType());
+    }
+
+    public boolean isStreamParent() {
+      return PollParentType.isStream(getParentType());
     }
   }
 }

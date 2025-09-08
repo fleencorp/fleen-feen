@@ -816,8 +816,8 @@ CREATE TABLE poll (
   total_entries INTEGER NOT NULL DEFAULT 0,
   share_count INTEGER NOT NULL DEFAULT 0,
 
-  parent_type VARCHAR(255) NOT NULL
-    CHECK (parent_type IN ('NONE', 'CHAT_SPACE', 'STREAM')),
+  parent_type VARCHAR(255) NULL
+    CHECK (parent_type IN ('CHAT_SPACE', 'STREAM')),
   visibility VARCHAR(255) NOT NULL
     CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
 
@@ -937,7 +937,7 @@ CREATE TABLE soft_ask (
   author_id BIGINT NOT NULL,
 
   parent_type VARCHAR(255) NULL
-    CHECK (parent_type IN ('CHAT_SPACE', 'STREAM')),
+    CHECK (parent_type IN ('CHAT_SPACE', 'POLL', 'STREAM')),
   status VARCHAR(255) NOT NULL
     CHECK (status IN ('ANONYMOUS', 'NON_ANONYMOUS')),
   visibility VARCHAR(255) NOT NULL
