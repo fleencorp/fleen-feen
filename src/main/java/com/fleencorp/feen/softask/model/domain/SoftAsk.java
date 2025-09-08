@@ -58,7 +58,7 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "parent_id", updatable = false)
   private Long parentId;
 
-  @Column(name = "parent_title", length = 1000, updatable = false)
+  @Column(name = "parent_title", length = 300, updatable = false)
   private String parentTitle;
 
   @Enumerated(STRING)

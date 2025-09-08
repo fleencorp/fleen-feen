@@ -912,7 +912,7 @@ CREATE TABLE soft_ask (
   slug VARCHAR(255) NOT NULL,
 
   parent_id BIGINT,
-  parent_title VARCHAR(1000),
+  parent_title VARCHAR(300),
 
   summary VARCHAR(4000),
   other_text VARCHAR(2000) NOT NULL,

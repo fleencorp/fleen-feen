@@ -76,7 +76,11 @@ public final class SoftAskFactory {
     softAsk.setAuthorId(author.getMemberId());
 
     softAsk.setParentId(dto.getParentId());
-    softAsk.setParentTitle(parentTitle);
+    if (nonNull(parentTitle) && parentTitle.trim().length() > 300) {
+      softAsk.setParentTitle(parentTitle.substring(0, 300));
+    } else {
+      softAsk.setParentTitle(parentTitle);
+    }
 
     softAsk.setModerationStatus(ModerationStatus.CLEAN);
     softAsk.setLocationVisibility(LocationVisibility.GLOBAL);
