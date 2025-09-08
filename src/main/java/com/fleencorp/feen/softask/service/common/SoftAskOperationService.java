@@ -2,8 +2,8 @@ package com.fleencorp.feen.softask.service.common;
 
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
-import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
+import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 
 public interface SoftAskOperationService {
 
