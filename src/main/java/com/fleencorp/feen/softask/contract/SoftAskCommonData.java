@@ -43,4 +43,6 @@ public interface SoftAskCommonData {
   void setGeoHash(String geoHash);
 
   void setGeoHashPrefix(String geoHashPrefix);
+
+  String getSummary();
 }

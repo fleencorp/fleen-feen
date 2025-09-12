@@ -9,7 +9,6 @@ import lombok.*;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static java.util.Objects.nonNull;
 
 @Getter
 @Setter
@@ -29,6 +28,9 @@ public class SoftAskVote extends FleenFeenEntity {
 
   @Column(name = "parent_title", updatable = false)
   private String parentTitle;
+
+  @Column(name = "parent_summary", updatable = false)
+  private String parentSummary;
 
   @Enumerated(STRING)
   @Column(name = "parent_type", nullable = false)
@@ -56,13 +58,6 @@ public class SoftAskVote extends FleenFeenEntity {
 
   @Column(name = "member_id", nullable = false, updatable = false)
   private Long memberId;
-
-  public String getParentContent() {
-    return switch (parentType) {
-      case SOFT_ASK_REPLY -> nonNull(softAskReply) ? softAskReply.getContent(): null;
-      case SOFT_ASK -> nonNull(softAsk) ? softAsk.getDescription() : null;
-    };
-  }
 
   public boolean isVoted() {
     return SoftAskVoteType.voted(voteType);

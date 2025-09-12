@@ -3,10 +3,12 @@ package com.fleencorp.feen.softask.model.factory;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
+import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
+import com.fleencorp.feen.softask.util.SoftAskUtil;
 
 import java.util.Map;
 
@@ -47,7 +49,7 @@ public final class SoftAskVoteFactory {
 
   private static SoftAskVote createSoftAskVote(SoftAskVoteDto dto, IsAMember member, SoftAsk softAsk, SoftAskReply unused) {
 
-    final SoftAskVote vote = baseVote(dto, member, softAsk.getSoftAskId());
+    final SoftAskVote vote = baseVote(dto, member, softAsk.getSoftAskId(), softAsk);
     vote.setSoftAskId(softAsk.getSoftAskId());
     vote.setSoftAsk(softAsk);
     vote.setParentTitle(softAsk.getTitle());
@@ -57,7 +59,7 @@ public final class SoftAskVoteFactory {
 
   private static SoftAskVote createSoftAskReplyVote(SoftAskVoteDto dto, IsAMember member, SoftAsk softAsk, SoftAskReply reply) {
 
-    final SoftAskVote vote = baseVote(dto, member, reply.getSoftAskReplyId());
+    final SoftAskVote vote = baseVote(dto, member, reply.getSoftAskReplyId(), reply);
     vote.setSoftAskReplyId(reply.getSoftAskReplyId());
     vote.setSoftAskReply(reply);
     vote.setSoftAskId(softAsk.getSoftAskId());
@@ -67,12 +69,15 @@ public final class SoftAskVoteFactory {
     return vote;
   }
 
-  private static SoftAskVote baseVote(SoftAskVoteDto dto, IsAMember member, Long parentId) {
+  private static SoftAskVote baseVote(SoftAskVoteDto dto, IsAMember member, Long parentId, SoftAskCommonData softAskCommonData) {
     final SoftAskVote vote = new SoftAskVote();
     vote.setParentId(parentId);
     vote.setParentType(dto.getVoteParentType());
     vote.setVoteType(dto.getVoteType());
     vote.setMemberId(member.getMemberId());
+
+    final String parentSummary = SoftAskUtil.getParentSummary(softAskCommonData.getSummary());
+    vote.setParentSummary(parentSummary);
 
     return vote;
   }

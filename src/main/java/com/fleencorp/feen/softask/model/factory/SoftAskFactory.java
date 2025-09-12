@@ -7,6 +7,7 @@ import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
+import com.fleencorp.feen.softask.util.SoftAskUtil;
 
 import java.math.BigDecimal;
 
@@ -76,11 +77,9 @@ public final class SoftAskFactory {
     softAsk.setAuthorId(author.getMemberId());
 
     softAsk.setParentId(dto.getParentId());
-    if (nonNull(parentTitle) && parentTitle.trim().length() > 300) {
-      softAsk.setParentTitle(parentTitle.substring(0, 300));
-    } else {
-      softAsk.setParentTitle(parentTitle);
-    }
+
+    final String titleSummary = SoftAskUtil.getParentSummary(parentTitle);
+    softAsk.setParentTitle(titleSummary);
 
     softAsk.setModerationStatus(ModerationStatus.CLEAN);
     softAsk.setLocationVisibility(LocationVisibility.GLOBAL);

@@ -130,7 +130,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       final ParentInfo parentInfo = ParentInfo.of(
         entry.getParentId(),
         entry.getParentTitle(),
-        entry.getParentContent()
+        entry.getParentSummary()
       );
       response.setParentInfo(parentInfo);
 

@@ -25,10 +25,6 @@ public class UserBookmarkInfo {
   @JsonProperty("bookmark_other_text")
   private String bookmarkOtherText;
 
-  public boolean isBookmarked() {
-    return bookmarked;
-  }
-
   public static UserBookmarkInfo of(final boolean bookmarked, final String bookmarkOtherText) {
     return new UserBookmarkInfo(bookmarked, bookmarkOtherText);
   }

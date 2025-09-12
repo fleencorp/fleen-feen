@@ -156,6 +156,11 @@ public class SoftAskReply extends FleenFeenEntity
     return nonNull(longitude) ?  longitude.doubleValue() : null;
   }
 
+  @Override
+  public String getSummary() {
+    return content;
+  }
+
   public boolean isDeleted() {
     return nonNull(deleted) && deleted;
   }

@@ -40,7 +40,6 @@ import static java.util.Objects.nonNull;
   "id",
   "title",
   "content",
-  "author_id",
   "reply_count_info",
   "vote_count_info",
   "user_vote_info",
@@ -59,8 +58,8 @@ import static java.util.Objects.nonNull;
   "reply_search_result"
 })
 public class SoftAskResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasMood, HasSlug, IsShareable,
-  SoftAskCommonResponse, Updatable {
+  implements Bookmarkable, HasId, HasMood, HasSlug,
+  IsShareable, SoftAskCommonResponse, Updatable {
 
   @JsonProperty("title")
   private String title;
