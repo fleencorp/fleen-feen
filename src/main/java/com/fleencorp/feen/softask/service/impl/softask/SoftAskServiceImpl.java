@@ -38,8 +38,8 @@ import java.util.List;
 public class SoftAskServiceImpl implements SoftAskService {
 
   private final SoftAskCommonService softAskCommonService;
-  private final SoftAskSearchService softAskSearchService;
   private final SoftAskOperationService softAskOperationService;
+  private final SoftAskSearchService softAskSearchService;
   private final SoftAskQueryService softAskQueryService;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
@@ -79,22 +79,43 @@ public class SoftAskServiceImpl implements SoftAskService {
     final IsAMember member = softAskQueryService.findMemberOrThrow(user.getId());
 
     final SoftAskParentDetailHolder softAskParentDetailHolder = findAndValidateParent(addSoftAskDto);
-    final SoftAskParentType parentType = softAskParentDetailHolder.parentType();
     final String parentTitle = softAskParentDetailHolder.parentTitle();
 
-    final SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, parentType, member);
-    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
-    softAskOperationService.save(softAsk);
-
-    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAsk.getSoftAskId(), user.getId());
-    softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
-
+    final SoftAsk softAsk = createAndSaveSoftAsk(addSoftAskDto, parentTitle, member);
     final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskResponse);
+
     softAskCommonService.processSoftAskResponses(softAskCommonResponses, member, addSoftAskDto.getUserOtherDetail());
 
     final SoftAskAddResponse softAskAddResponse = SoftAskAddResponse.of(softAsk.getSoftAskId(), softAskResponse);
     return localizer.of(softAskAddResponse);
+  }
+
+  /**
+   * Creates and persists a new {@link SoftAsk} entity based on the given input data.
+   *
+   * <p>The method first converts the provided DTO and metadata into a {@code SoftAsk}
+   * using the {@link SoftAskFactory}. It then enriches the entity with geo-location
+   * details, persists it, and generates participant details for the initiating member.
+   * The participant details are associated with the {@code SoftAsk} before returning
+   * the final instance.</p>
+   *
+   * @param addSoftAskDto the data transfer object containing information needed to create the SoftAsk
+   * @param parentTitle the title of the parent entity associated with this SoftAsk
+   * @param member the member initiating the SoftAsk
+   * @return the fully created and persisted SoftAsk entity with participant details
+   */
+  private SoftAsk createAndSaveSoftAsk(AddSoftAskDto addSoftAskDto, String parentTitle, IsAMember member) {
+    final SoftAskParentType parentType = addSoftAskDto.getParentType();
+    SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, parentType, member);
+
+    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+    softAsk = softAskOperationService.save(softAsk);
+
+    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAsk.getSoftAskId(), member.getMemberId());
+    softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
+
+    return softAsk;
   }
 
   /**

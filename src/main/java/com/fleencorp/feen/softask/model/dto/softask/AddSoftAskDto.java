@@ -50,7 +50,7 @@ public class AddSoftAskDto extends UserOtherDetailDto {
   @URL(message = "{softAsk.link.URL}")
   @Size(min = 1, max = 1000, message = "{softAsk.link.Size}")
   @JsonProperty(value = "link")
-  private String link = null;
+  private String link;
 
   @NotNull(message = "{softAsk.visibility.NotNull}")
   @OneOf(enumClass = SoftAskVisibility.class, message = "{softAsk.visibility.Type}", ignoreCase = true)
