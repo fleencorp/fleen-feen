@@ -4,6 +4,8 @@ import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.shared.common.contract.IsAuthor;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.mapper.SoftAskCommonMapper;
@@ -47,23 +49,33 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     this.toInfoMapper = toInfoMapper;
   }
 
+  @Override
+  public SoftAskResponse toSoftAskResponse(final SoftAsk entry) {
+    return toSoftAskResponse(entry, null);
+  }
+
   /**
    * Converts a {@link SoftAsk} entity into a {@link SoftAskResponse} DTO.
    *
-   * <p>Maps fields such as ID, title, content, timestamps, author ID, and reply count information.
-   * Also delegates additional detail population to {@code setOtherDetails}.</p>
+   * <p>The method maps core fields such as identifiers, title, description,
+   * timestamps, and slug. It also includes reply count information,
+   * initializes an empty reply search result, and attaches parent details.
+   * Additional metadata such as author-related details are set using
+   * helper methods. If the provided entry is {@code null}, the method
+   * returns {@code null}.</p>
    *
-   * @param entry the {@link SoftAsk} entity to convert; can be {@code null}.
-   * @return the corresponding {@link SoftAskResponse} object, or {@code null} if the input is {@code null}.
+   * @param entry the SoftAsk entity to convert
+   * @param member the member viewing or interacting with the SoftAsk
+   * @return a populated SoftAskResponse, or null if the entry is null
    */
   @Override
-  public SoftAskResponse toSoftAskResponse(final SoftAsk entry) {
+  public SoftAskResponse toSoftAskResponse(final SoftAsk entry, final IsAMember member) {
     if (nonNull(entry)) {
       final SoftAskResponse response = new SoftAskResponse();
       response.setId(entry.getSoftAskId());
       response.setMemberId(entry.getAuthorId());
       response.setTitle(entry.getTitle());
-      response.setContent(entry.getDescription());
+      response.setQuestion(entry.getDescription());
 
       response.setAuthorId(entry.getAuthorId());
       response.setOrganizerId(entry.getAuthorId());
@@ -82,6 +94,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setParentInfo(parentInfo);
 
       setOtherDetails(entry, response);
+      setIsAuthorDetails(entry, member, response);
 
       return response;
     }
@@ -115,17 +128,26 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     return List.of();
   }
 
+  @Override
+  public SoftAskReplyResponse toSoftAskReplyResponse(final SoftAskReply entry) {
+    return toSoftAskReplyResponse(entry, null);
+  }
+
   /**
    * Converts a {@link SoftAskReply} entity into a {@link SoftAskReplyResponse} DTO.
    *
-   * <p>Maps fields such as ID, author ID, content, timestamps, and member ID,
-   * and delegates additional detail population to {@code setOtherDetails}.</p>
+   * <p>The method maps key fields such as identifiers, content, author information,
+   * timestamps, and slug. It attaches parent details, reply count information,
+   * and initializes an empty search result for child replies. Additional metadata
+   * is set using helper methods. If the provided entry is {@code null}, the method
+   * returns {@code null}.</p>
    *
-   * @param entry the {@link SoftAskReply} entity to convert; can be {@code null}.
-   * @return the corresponding {@link SoftAskReplyResponse} object, or {@code null} if the input is {@code null}.
+   * @param entry the SoftAskReply entity to convert
+   * @param member the member viewing or interacting with the reply
+   * @return a populated SoftAskReplyResponse, or null if the entry is null
    */
   @Override
-  public SoftAskReplyResponse toSoftAskReplyResponse(final SoftAskReply entry) {
+  public SoftAskReplyResponse toSoftAskReplyResponse(final SoftAskReply entry, final IsAMember member) {
     if (nonNull(entry)) {
       final SoftAskReplyResponse response = new SoftAskReplyResponse();
       response.setId(entry.getSoftAskReplyId());
@@ -149,6 +171,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setChildRepliesSearchResult(searchResult);
 
       setOtherDetails(entry, response);
+      setIsAuthorDetails(entry, member, response);
 
       return response;
     }
@@ -197,7 +220,14 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     return toInfoMapper.toIsDeletedInfo(isDeleted);
   }
 
+  private static void setIsAuthorDetails(SoftAskCommonData entry, IsAMember member, SoftAskCommonResponse response) {
+    if (IsAuthor.isAuthor(member, entry.getAuthorId())) {
+      response.markAsAuthor();
+    }
+  }
+
   private void setOtherDetails(final SoftAskCommonData entry, final SoftAskCommonResponse response) {
     softAskCommonMapper.setOtherDetails(entry, response);
   }
+
 }

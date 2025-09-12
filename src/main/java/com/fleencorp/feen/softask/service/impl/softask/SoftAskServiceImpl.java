@@ -20,6 +20,7 @@ import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
 import com.fleencorp.feen.softask.model.dto.softask.DeleteSoftAskDto;
 import com.fleencorp.feen.softask.model.factory.SoftAskFactory;
 import com.fleencorp.feen.softask.model.holder.SoftAskParentDetailHolder;
+import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskAddResponse;
 import com.fleencorp.feen.softask.model.response.softask.SoftAskDeleteResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
@@ -84,10 +85,11 @@ public class SoftAskServiceImpl implements SoftAskService {
     final String parentTitle = softAskParentDetailHolder.parentTitle();
 
     final SoftAsk softAsk = createAndSaveSoftAsk(addSoftAskDto, parentTitle, member);
-    final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
+    final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk, member);
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskResponse);
+    final UserOtherDetailHolder userOtherDetailHolder = addSoftAskDto.getUserOtherDetail();
 
-    softAskCommonService.processSoftAskResponses(softAskCommonResponses, member, addSoftAskDto.getUserOtherDetail());
+    softAskCommonService.processSoftAskResponses(softAskCommonResponses, member, userOtherDetailHolder);
 
     final SoftAskAddResponse softAskAddResponse = SoftAskAddResponse.of(softAsk.getSoftAskId(), softAskResponse);
     return localizer.of(softAskAddResponse);
@@ -113,7 +115,10 @@ public class SoftAskServiceImpl implements SoftAskService {
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
     softAsk = softAskOperationService.save(softAsk);
 
-    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAsk.getSoftAskId(), member.getMemberId());
+    final Long softAskId = softAsk.getId();
+    final Long memberId = member.getMemberId();
+
+    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAskId, memberId);
     softAsk.setParticipant(softAskParticipantDetail);
 
     return softAsk;

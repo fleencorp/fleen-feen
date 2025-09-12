@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.mapper;
 
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
@@ -16,9 +17,13 @@ public interface SoftAskMapper {
 
   SoftAskResponse toSoftAskResponse(final SoftAsk entry);
 
+  SoftAskResponse toSoftAskResponse(SoftAsk entry, IsAMember member);
+
   Collection<SoftAskResponse> toSoftAskResponses(final Collection<SoftAskWithDetail> entries);
 
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry);
+
+  SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry, IsAMember member);
 
   Collection<SoftAskReplyResponse> toSoftAskReplyResponses(Collection<SoftAskReplyWithDetail> entries);
 

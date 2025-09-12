@@ -10,13 +10,7 @@ import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.common.model.info.ShareCountInfo;
 import com.fleencorp.feen.common.model.info.UserLocationInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
-import com.fleencorp.feen.model.contract.Bookmarkable;
-import com.fleencorp.feen.model.contract.HasId;
-import com.fleencorp.feen.model.contract.HasSlug;
-import com.fleencorp.feen.model.contract.Updatable;
-import com.fleencorp.feen.shared.common.contract.IsShareable;
 import com.fleencorp.feen.softask.constant.core.SoftAskType;
-import com.fleencorp.feen.softask.contract.HasMood;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.model.info.core.MoodTagInfo;
 import com.fleencorp.feen.softask.model.info.reply.SoftAskReplyCountInfo;
@@ -52,14 +46,14 @@ import static java.util.Objects.nonNull;
   "display_time_label",
   "user",
   "slug",
+  "is_author",
   "is_updatable",
   "created_on",
   "updated_on",
   "child_replies_search_result",
 })
 public class SoftAskReplyResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasMood, HasSlug, IsShareable,
-  SoftAskCommonResponse, Updatable {
+  implements SoftAskCommonResponse {
 
   @JsonProperty("content")
   private String content;
@@ -103,6 +97,9 @@ public class SoftAskReplyResponse extends FleenFeenResponse
   @JsonProperty("slug")
   private String slug;
 
+  @JsonProperty("is_author")
+  private Boolean isAuthor;
+
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
 
@@ -141,6 +138,16 @@ public class SoftAskReplyResponse extends FleenFeenResponse
   @Override
   public void markAsUpdatable() {
     setIsUpdatable(true);
+  }
+
+  @Override
+  public void setIsAuthor(final boolean isAuthor) {
+    this.isAuthor = isAuthor;
+  }
+
+  @Override
+  public void markAsAuthor() {
+    setIsAuthor(true);
   }
 }
 

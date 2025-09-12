@@ -281,11 +281,12 @@ public class ToInfoMapperImpl extends BaseMapper implements ToInfoMapper {
   @Override
   public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
     final IsDeleted isDeleted = IsDeleted.by(deleted);
-    return IsDeletedInfo.of(deleted, translate(isDeleted.getMessageCode()), translate(isDeleted.getMessageCode2()));
+    return IsDeletedInfo.of(
+      deleted,
+      translate(isDeleted.getMessageCode()),
+      translate(isDeleted.getMessageCode2())
+    );
   }
-
-
-
 
   /**
    * Converts a raw like count into a {@link LikeCountInfo} DTO,
