@@ -131,6 +131,7 @@ public class SoftAsk extends FleenFeenEntity
   @Transient
   private SoftAskParticipantDetail participant;
 
+  @Override
   public Long getId() {
     return softAskId;
   }
@@ -169,10 +170,12 @@ public class SoftAsk extends FleenFeenEntity
     return nonNull(deleted) && deleted;
   }
 
+  @Override
   public boolean hasLatitudeAndLongitude() {
     return nonNull(latitude) && nonNull(longitude);
   }
 
+  @Override
   public void setContent(final String content) {
     this.description = content;
   }
@@ -181,6 +184,7 @@ public class SoftAsk extends FleenFeenEntity
     deleted = true;
   }
 
+  @Override
   public void checkIsAuthor(final Long userId) throws SoftAskUpdateDeniedException {
     if (nonNull(authorId) && !authorId.equals(userId)) {
       throw SoftAskUpdateDeniedException.of();

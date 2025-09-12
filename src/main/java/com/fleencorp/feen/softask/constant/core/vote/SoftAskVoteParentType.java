@@ -21,11 +21,11 @@ public enum SoftAskVoteParentType implements ApiParameter {
     return parseEnumOrNull(value, SoftAskVoteParentType.class);
   }
 
-  public static boolean isSoftAsk(final SoftAskVoteParentType softAskVoteParentType) {
-    return softAskVoteParentType == SOFT_ASK;
+  public static boolean isSoftAsk(final SoftAskVoteParentType parentType) {
+    return parentType == SOFT_ASK;
   }
 
-  public static boolean isSoftAskReply(final SoftAskVoteParentType softAskVoteParentType) {
-    return softAskVoteParentType == SOFT_ASK_REPLY;
+  public static boolean isSoftAskReply(final SoftAskVoteParentType parentType) {
+    return parentType == SOFT_ASK_REPLY;
   }
 }

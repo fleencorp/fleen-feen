@@ -11,7 +11,7 @@ public class SoftAskParentNotFoundException extends LocalizedException {
 
   private final SoftAskParentType parentType;
 
-  public SoftAskParentNotFoundException(SoftAskParentType parentType, Object... params) {
+  public SoftAskParentNotFoundException(final SoftAskParentType parentType, final Object... params) {
     super(params);
     this.parentType = parentType;
   }
@@ -29,7 +29,7 @@ public class SoftAskParentNotFoundException extends LocalizedException {
     return "empty";
   }
 
-  public static Supplier<SoftAskParentNotFoundException> of(final SoftAskParentType parentType, Long parentId) {
+  public static Supplier<SoftAskParentNotFoundException> of(final SoftAskParentType parentType, final Long parentId) {
     return () -> new SoftAskParentNotFoundException(parentType, parentId);
   }
 }

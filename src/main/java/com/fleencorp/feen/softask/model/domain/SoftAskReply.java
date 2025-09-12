@@ -109,10 +109,12 @@ public class SoftAskReply extends FleenFeenEntity
   @Transient
   private SoftAskParticipantDetail softAskParticipantDetail;
 
+  @Override
   public Long getId() {
     return softAskReplyId;
   }
 
+  @Override
   public Long getParentId() {
     return nonNull(parentReplyId) ? parentReplyId : null;
   }
@@ -165,6 +167,7 @@ public class SoftAskReply extends FleenFeenEntity
     return nonNull(deleted) && deleted;
   }
 
+  @Override
   public boolean hasLatitudeAndLongitude() {
     return nonNull(latitude) && nonNull(longitude);
   }
@@ -173,6 +176,7 @@ public class SoftAskReply extends FleenFeenEntity
     deleted = true;
   }
 
+  @Override
   public void checkIsAuthor(final Long userId) throws SoftAskUpdateDeniedException {
     if (nonNull(authorId) && !authorId.equals(userId)) {
       throw SoftAskUpdateDeniedException.of();

@@ -21,7 +21,7 @@ public enum SoftAskVoteType implements ApiParameter {
     return parseEnumOrNull(value, SoftAskVoteType.class);
   }
 
-  public static boolean isNotVoted(SoftAskVoteType voteType) {
+  public static boolean isNotVoted(final SoftAskVoteType voteType) {
     return voteType == NOT_VOTED;
   }
 

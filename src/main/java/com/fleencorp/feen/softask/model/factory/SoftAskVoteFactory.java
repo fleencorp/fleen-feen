@@ -14,12 +14,12 @@ import java.util.Map;
 
 public final class SoftAskVoteFactory {
 
-  private SoftAskVoteFactory() {}
-
   private static final Map<SoftAskVoteParentType, VoteCreator> CREATORS = Map.of(
     SoftAskVoteParentType.SOFT_ASK, SoftAskVoteFactory::createSoftAskVote,
     SoftAskVoteParentType.SOFT_ASK_REPLY, SoftAskVoteFactory::createSoftAskReplyVote
   );
+
+  private SoftAskVoteFactory() {}
 
   public static SoftAskVote toSoftAskVote(
       final SoftAskVoteDto dto,

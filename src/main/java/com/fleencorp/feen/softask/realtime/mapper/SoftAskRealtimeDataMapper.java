@@ -4,10 +4,12 @@ import com.fleencorp.feen.common.util.common.DateTimeUtil;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.realtime.model.Counters;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@NoArgsConstructor
 public class SoftAskRealtimeDataMapper {
 
   public Counters recomputeCounters(SoftAsk sa) {

@@ -15,11 +15,11 @@ import java.util.Collection;
 
 public interface SoftAskMapper {
 
-  SoftAskResponse toSoftAskResponse(final SoftAsk entry);
+  SoftAskResponse toSoftAskResponse(SoftAsk entry);
 
   SoftAskResponse toSoftAskResponse(SoftAsk entry, IsAMember member);
 
-  Collection<SoftAskResponse> toSoftAskResponses(final Collection<SoftAskWithDetail> entries);
+  Collection<SoftAskResponse> toSoftAskResponses(Collection<SoftAskWithDetail> entries);
 
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry);
 

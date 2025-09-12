@@ -30,9 +30,9 @@ public interface SoftAskCommonResponse
 
   void setParentInfo(ParentInfo parentInfo);
 
-  void setSoftAskUserVoteInfo(SoftAskUserVoteInfo softAskUserVoteInfo);
+  void setSoftAskUserVoteInfo(SoftAskUserVoteInfo userVoteInfo);
 
-  void setSoftAskParticipantResponse(SoftAskParticipantResponse softAskParticipantResponse);
+  void setSoftAskParticipantResponse(SoftAskParticipantResponse participantResponse);
 
   void setUserLocationInfo(UserLocationInfo userLocationInfo);
 

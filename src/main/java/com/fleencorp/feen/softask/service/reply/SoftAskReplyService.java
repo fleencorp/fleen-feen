@@ -13,6 +13,6 @@ public interface SoftAskReplyService {
 
   SoftAskReplyAddResponse addSoftAskReply(AddSoftAskReplyDto dto, RegisteredUser user);
 
-  SoftAskReplyDeleteResponse deleteSoftAskReply(final Long softAskReplyId, DeleteSoftAskReplyDto deleteSoftAskReplyDto, RegisteredUser user)
+  SoftAskReplyDeleteResponse deleteSoftAskReply(Long softAskReplyId, DeleteSoftAskReplyDto deleteSoftAskReplyDto, RegisteredUser user)
     throws SoftAskReplyNotFoundException, SoftAskUpdateDeniedException, FailedOperationException;
 }

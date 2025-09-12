@@ -195,8 +195,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
         .filter(Objects::nonNull)
         .map(entry -> {
           final SoftAskReply reply = entry.reply();
-          final SoftAskParticipantDetail softAskParticipantDetail = entry.username();
-          reply.setSoftAskParticipantDetail(softAskParticipantDetail);
+          final SoftAskParticipantDetail participantDetail = entry.username();
+          reply.setSoftAskParticipantDetail(participantDetail);
 
           return toSoftAskReplyResponse(reply);
         }).toList();
@@ -220,7 +220,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     return toInfoMapper.toIsDeletedInfo(isDeleted);
   }
 
-  private static void setIsAuthorDetails(SoftAskCommonData entry, IsAMember member, SoftAskCommonResponse response) {
+  private static void setIsAuthorDetails(final SoftAskCommonData entry, final IsAMember member, SoftAskCommonResponse response) {
     if (IsAuthor.isAuthor(member, entry.getAuthorId())) {
       response.markAsAuthor();
     }

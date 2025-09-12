@@ -37,13 +37,13 @@ public final class SoftAskFactory {
     return softAsk;
   }
 
-  private static void checkParameters(AddSoftAskDto dto, IsAMember author) {
+  private static void checkParameters(final AddSoftAskDto dto, final IsAMember author) {
     if (isNull(dto) || isNull(author)) {
       throw FailedOperationException.of();
     }
   }
 
-  private static void setLocationDetails(AddSoftAskDto dto, SoftAsk softAsk) {
+  private static void setLocationDetails(final AddSoftAskDto dto, final SoftAsk softAsk) {
     if (dto.hasLatitudeAndLongitude()) {
       softAsk.setLatitude(BigDecimal.valueOf(dto.getLatitude()));
       softAsk.setLongitude(BigDecimal.valueOf(dto.getLongitude()));
