@@ -8,13 +8,7 @@ public class SoftAskDtoRecordUtil {
 
   public static AddSoftAskDto createSoftAskDto() {
     AddSoftAskDto dto = new AddSoftAskDto();
-    dto.setTitle("What's your favorite color?");
-    dto.setDescription("About a person favorite color");
-    dto.setOtherText("Favorite color");
-    dto.setTags("color,person");
-    dto.setLink("https://www.example.com");
-    dto.setVisibility("PUBLIC");
-    dto.setStatus("ANONYMOUS");
+    dto.setQuestion("What's your favorite color?");
 
     return dto;
   }

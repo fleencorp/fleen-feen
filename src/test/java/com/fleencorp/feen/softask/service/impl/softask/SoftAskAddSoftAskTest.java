@@ -354,6 +354,6 @@ class SoftAskAddSoftAskTest {
   @DisplayName("Test add soft ask, throw failed operation exception")
   void test_add_soft_ask_throw_failed_operation_exception() {
     assertThrows(FailedOperationException.class,
-      () -> SoftAskFactory.toSoftAsk(null, SoftAskDtoDefaultTestConstants.NULL_TITLE, SoftAskParentType.POLL, member));
+      () -> SoftAskFactory.toSoftAsk(null, SoftAskDtoDefaultTestConstants.NULL_TITLE, member));
   }
 }

@@ -13,10 +13,7 @@ public class SoftAskMother {
 
   public static AddSoftAskDto createAddSoftAskDto() {
     AddSoftAskDto dto = new AddSoftAskDto();
-    dto.setTitle(SoftAskDtoDefaultTestConstants.TITLE);
-    dto.setDescription(SoftAskDtoDefaultTestConstants.DESCRIPTION);
-    dto.setOtherText(SoftAskDtoDefaultTestConstants.OTHER_TEXT);
-    dto.setTags(SoftAskDtoDefaultTestConstants.TAGS);
+    dto.setQuestion(SoftAskDtoDefaultTestConstants.DESCRIPTION);
 
     return dto;
   }
