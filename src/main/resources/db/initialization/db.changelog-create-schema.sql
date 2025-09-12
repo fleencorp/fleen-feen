@@ -906,16 +906,13 @@ CREATE TABLE poll_vote (
 CREATE TABLE soft_ask (
   soft_ask_id BIGSERIAL PRIMARY KEY,
   title VARCHAR(500) NOT NULL,
-  description VARCHAR(4000) NOT NULL,
+  description VARCHAR(2000) NOT NULL,
   tags VARCHAR(500),
   link VARCHAR(1000),
   slug VARCHAR(255) NOT NULL,
 
   parent_id BIGINT,
-  parent_title VARCHAR(300),
-
-  summary VARCHAR(4000),
-  other_text VARCHAR(2000) NOT NULL,
+  parent_title VARCHAR(500),
 
   is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
   is_visible BOOLEAN NOT NULL DEFAULT TRUE,
@@ -1042,7 +1039,8 @@ CREATE TABLE soft_ask_reply (
 CREATE TABLE soft_ask_votes (
   vote_id BIGSERIAL PRIMARY KEY,
   parent_id BIGINT,
-  parent_title VARCHAR(1000),
+  parent_title VARCHAR(500),
+  parent_summary VARCHAR(500),
 
   member_id BIGINT NOT NULL,
   soft_ask_id BIGINT,

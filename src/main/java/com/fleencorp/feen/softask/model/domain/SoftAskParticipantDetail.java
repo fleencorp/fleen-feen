@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -27,24 +26,19 @@ public class SoftAskParticipantDetail {
   @GeneratedValue(strategy = IDENTITY)
   private Long id;
 
-  @Column(name = "soft_ask_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "soft_ask_id", nullable = false, updatable = false)
   private Long softAskId;
-
-  @ToString.Exclude
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "soft_ask_id", nullable = false, updatable = false)
-  private SoftAsk softAsk;
 
   @Column(name = "user_id", nullable = false, updatable = false)
   private Long userId;
 
-  @Column(name = "username", nullable = false, length = 100)
+  @Column(name = "username", length = 100, nullable = false, updatable = false)
   private String username;
 
-  @Column(name = "display_name", nullable = false, length = 100)
+  @Column(name = "display_name", length = 100, nullable = false, updatable = false)
   private String displayName;
 
-  @Column(name = "avatar", nullable = false, length = 1000)
+  @Column(name = "avatar", length = 1000, nullable = false, updatable = false)
   private String avatarUrl;
 
   @CreatedDate
@@ -52,15 +46,12 @@ public class SoftAskParticipantDetail {
   private LocalDateTime createdAt;
 
   public static SoftAskParticipantDetail of(final Long softAskId, final Long userId, final String username, final String displayName) {
-    final SoftAsk softAsk = SoftAsk.of(softAskId);
+    final SoftAskParticipantDetail participantDetail = new SoftAskParticipantDetail();
+    participantDetail.setSoftAskId(softAskId);
+    participantDetail.setUserId(userId);
+    participantDetail.setUsername(username);
+    participantDetail.setDisplayName(displayName);
 
-    final SoftAskParticipantDetail softAskParticipantDetail = new SoftAskParticipantDetail();
-    softAskParticipantDetail.setSoftAskId(softAskId);
-    softAskParticipantDetail.setSoftAsk(softAsk);
-    softAskParticipantDetail.setUserId(userId);
-    softAskParticipantDetail.setUsername(username);
-    softAskParticipantDetail.setDisplayName(displayName);
-
-    return softAskParticipantDetail;
+    return participantDetail;
   }
 }

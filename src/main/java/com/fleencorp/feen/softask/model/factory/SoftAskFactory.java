@@ -4,6 +4,8 @@ import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
+import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
+import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
@@ -21,12 +23,13 @@ public final class SoftAskFactory {
   public static SoftAsk toSoftAsk(
       final AddSoftAskDto dto,
       final String parentTitle,
-      final SoftAskParentType parentType,
       final IsAMember author) {
 
     checkParameters(dto, author);
 
+    final SoftAskParentType parentType = dto.getParentType();
     final SoftAsk softAsk = new SoftAsk();
+
     setBaseFields(dto, parentTitle, author, softAsk);
     setParentDetails(dto, parentType, softAsk);
     setLocationDetails(dto, softAsk);
@@ -67,25 +70,25 @@ public final class SoftAskFactory {
   }
 
   private static void setBaseFields(AddSoftAskDto dto, String parentTitle, IsAMember author, SoftAsk softAsk) {
-    softAsk.setTitle(dto.getTitle());
-    softAsk.setOtherText(dto.getOtherText());
-    softAsk.setDescription(dto.getDescription());
-    softAsk.setTags(dto.getTags());
-    softAsk.setLink(dto.getLink());
+    final String title = SoftAskUtil.getSoftAskTitle(dto.getQuestion());
+    softAsk.setTitle(title);
+
+    softAsk.setDescription(dto.getQuestion());
     softAsk.setMoodTag(dto.getMood());
     softAsk.setVisible(true);
 
     softAsk.setAuthorId(author.getMemberId());
     softAsk.setParentId(dto.getParentId());
+    softAsk.setParentTitle(parentTitle);
 
-    final String titleSummary = SoftAskUtil.getParentSummary(parentTitle);
-    softAsk.setParentTitle(titleSummary);
+    softAsk.setTags(null);
+    softAsk.setLink(null);
 
     softAsk.setModerationStatus(ModerationStatus.CLEAN);
     softAsk.setLocationVisibility(LocationVisibility.GLOBAL);
 
-    softAsk.setSoftAskStatus(dto.getSoftAskStatus());
-    softAsk.setSoftAskVisibility(dto.getSoftAskVisibility());
+    softAsk.setSoftAskStatus(SoftAskStatus.ANONYMOUS);
+    softAsk.setSoftAskVisibility(SoftAskVisibility.PUBLIC);
   }
 }
 

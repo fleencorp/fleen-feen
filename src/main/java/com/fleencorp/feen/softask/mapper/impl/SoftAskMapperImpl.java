@@ -106,7 +106,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
         .map(entry -> {
           final SoftAsk softAsk = entry.softAsk();
           final SoftAskParticipantDetail softAskParticipantDetail = entry.username();
-          softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
+          softAsk.setParticipant(softAskParticipantDetail);
 
           return toSoftAskResponse(softAsk);
       }).toList();

@@ -51,10 +51,12 @@ public class UsernameServiceImpl implements UsernameService {
     final int number = random.nextInt(10000);
 
     final String username = adjective.getWord() + noun.getWord() + number;
+
+    final String finalUsername = username.trim();
     final String displayName = GeneratedUsername.createDisplayName(adjective.getWord(), noun.getWord());
     final String displayName2 = GeneratedUsername.createOtherDisplayName(adjective.getWord(), noun.getWord(), number);
 
-    return GeneratedUsername.of(username, displayName, displayName2);
+    return GeneratedUsername.of(finalUsername, displayName, displayName2);
   }
 
   /**

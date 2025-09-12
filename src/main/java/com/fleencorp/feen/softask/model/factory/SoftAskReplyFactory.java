@@ -71,10 +71,5 @@ public final class SoftAskReplyFactory {
     reply.setMoodTag(dto.getMood());
   }
 
-  public static String truncateContent(String content) {
-    if (content == null) return null;
-    return content.length() <= 200 ? content : content.substring(0, 200);
-  }
-
 }
 

@@ -40,17 +40,11 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "title", nullable = false, length = 500)
   private String title;
 
-  @Column(name = "description", nullable = false, length = 4000)
+  @Column(name = "description", nullable = false, length = 2000)
   private String description;
-
-  @Column(name = "summary", length = 4000)
-  private String summary;
 
   @Column(name = "tags", length = 1000)
   private String tags;
-
-  @Column(name = "other_text", nullable = false, length = 2000)
-  private String otherText;
 
   @Column(name = "link", length = 1000)
   private String link;
@@ -58,7 +52,7 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "parent_id", updatable = false)
   private Long parentId;
 
-  @Column(name = "parent_title", length = 300, updatable = false)
+  @Column(name = "parent_title", length = 500, updatable = false)
   private String parentTitle;
 
   @Enumerated(STRING)
@@ -66,23 +60,23 @@ public class SoftAsk extends FleenFeenEntity
   private SoftAskParentType softAskParentType;
 
   @Enumerated(STRING)
-  @Column(name = "visibility", nullable = false)
+  @Column(name = "visibility", nullable = false, updatable = false)
   private SoftAskVisibility softAskVisibility;
 
   @Enumerated(STRING)
-  @Column(name = "status", nullable = false)
+  @Column(name = "status", nullable = false, updatable = false)
   private SoftAskStatus softAskStatus;
 
   @Enumerated(STRING)
-  @Column(name = "moderation_status", nullable = false)
+  @Column(name = "moderation_status", nullable = false, updatable = false)
   private ModerationStatus moderationStatus;
 
   @Enumerated(STRING)
-  @Column(name = "location_visibility", nullable = false)
+  @Column(name = "location_visibility", nullable = false, updatable = false)
   private LocationVisibility locationVisibility;
 
   @Enumerated(STRING)
-  @Column(name = "mood_tag")
+  @Column(name = "mood_tag", updatable = false)
   private MoodTag moodTag;
 
   @Column(name = "chat_space_id", updatable = false)
@@ -135,25 +129,10 @@ public class SoftAsk extends FleenFeenEntity
   private Set<SoftAskReply> replies = new HashSet<>();
 
   @Transient
-  private SoftAskParticipantDetail softAskParticipantDetail;
+  private SoftAskParticipantDetail participant;
 
   public Long getId() {
     return softAskId;
-  }
-
-  @Override
-  public String getUserAliasOrUsername() {
-    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getUsername() : null;
-  }
-
-  @Override
-  public String getUserDisplayName() {
-    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getDisplayName() : null;
-  }
-
-  @Override
-  public String getAvatarUrl() {
-    return nonNull(softAskParticipantDetail) ? softAskParticipantDetail.getAvatarUrl() : null;
   }
 
   @Override
@@ -164,6 +143,21 @@ public class SoftAsk extends FleenFeenEntity
   @Override
   public Double getLongitude() {
     return nonNull(longitude) ?  longitude.doubleValue() : null;
+  }
+
+  @Override
+  public String getUserAliasOrUsername() {
+    return nonNull(participant) ? participant.getUsername() : null;
+  }
+
+  @Override
+  public String getUserDisplayName() {
+    return nonNull(participant) ? participant.getDisplayName() : null;
+  }
+
+  @Override
+  public String getAvatarUrl() {
+    return nonNull(participant) ? participant.getAvatarUrl() : null;
   }
 
   @Override

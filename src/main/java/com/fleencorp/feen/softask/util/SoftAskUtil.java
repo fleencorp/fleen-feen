@@ -7,10 +7,18 @@ public final class SoftAskUtil {
   private SoftAskUtil() {}
 
   public static String getParentSummary(final String content) {
-    if (nonNull(content) && content.trim().length() > 200) {
-      return content.substring(0, 200);
+    return truncate(content, 200);
+  }
+
+  public static String getSoftAskTitle(final String title) {
+    return truncate(title, 200);
+  }
+
+  public static String truncate(final String value, final int maxLength) {
+    if (nonNull(value) && value.trim().length() > maxLength) {
+      return value.substring(0, maxLength);
     } else {
-      return content;
+      return value;
     }
   }
 }

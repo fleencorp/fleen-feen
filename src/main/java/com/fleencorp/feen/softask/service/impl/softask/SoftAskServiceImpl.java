@@ -108,14 +108,13 @@ public class SoftAskServiceImpl implements SoftAskService {
    * @return the fully created and persisted SoftAsk entity with participant details
    */
   private SoftAsk createAndSaveSoftAsk(AddSoftAskDto addSoftAskDto, String parentTitle, IsAMember member) {
-    final SoftAskParentType parentType = addSoftAskDto.getParentType();
-    SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, parentType, member);
+    SoftAsk softAsk = SoftAskFactory.toSoftAsk(addSoftAskDto, parentTitle, member);
 
     softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
     softAsk = softAskOperationService.save(softAsk);
 
     final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.generateParticipantDetail(softAsk.getSoftAskId(), member.getMemberId());
-    softAsk.setSoftAskParticipantDetail(softAskParticipantDetail);
+    softAsk.setParticipant(softAskParticipantDetail);
 
     return softAsk;
   }
