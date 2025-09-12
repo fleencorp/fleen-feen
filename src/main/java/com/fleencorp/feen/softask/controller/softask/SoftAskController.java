@@ -42,6 +42,8 @@ public class SoftAskController {
       content = @Content(schema = @Schema(implementation = MemberNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Chat Space not found",
       content = @Content(schema = @Schema(implementation = SoftAskParentNotFoundException.class))),
+    @ApiResponse(responseCode = "400", description = "Poll not found",
+      content = @Content(schema = @Schema(implementation = SoftAskParentNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Stream not found",
       content = @Content(schema = @Schema(implementation = SoftAskParentNotFoundException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",

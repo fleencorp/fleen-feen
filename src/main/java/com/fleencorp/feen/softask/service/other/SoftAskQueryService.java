@@ -9,9 +9,9 @@ public interface SoftAskQueryService {
 
   IsAChatSpace findChatSpaceOrThrow(Long chatSpaceId);
 
+  IsAPoll findPollOrThrow(Long pollId);
+
   IsAStream findStreamOrThrow(Long streamId);
 
   IsAMember findMemberOrThrow(Long memberId);
-
-  IsAPoll findPollOrThrow(Long pollId);
 }

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.service.impl.softask;
 
+import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.MemberNotFoundException;
@@ -71,11 +72,12 @@ public class SoftAskServiceImpl implements SoftAskService {
    * @return a {@link SoftAskAddResponse} containing the created soft ask's identifier and details
    * @throws MemberNotFoundException if the member corresponding to the given user does not exist
    * @throws SoftAskParentNotFoundException if the specified chat space or stream parent cannot be found
+   * @throws FailedOperationException if the operation failed
    */
   @Override
   @Transactional
   public SoftAskAddResponse addSoftAsk(final AddSoftAskDto addSoftAskDto, final RegisteredUser user)
-      throws MemberNotFoundException, SoftAskParentNotFoundException {
+      throws MemberNotFoundException, SoftAskParentNotFoundException, FailedOperationException {
     final IsAMember member = softAskQueryService.findMemberOrThrow(user.getId());
 
     final SoftAskParentDetailHolder softAskParentDetailHolder = findAndValidateParent(addSoftAskDto);
@@ -119,32 +121,33 @@ public class SoftAskServiceImpl implements SoftAskService {
   }
 
   /**
-   * Finds and validates the parent entity for a new {@link SoftAsk}.
+   * Finds and validates the parent entity associated with the given SoftAsk DTO.
    *
-   * <p>The method checks whether the given {@link AddSoftAskDto} specifies a parent. If no parent is provided,
-   * an empty {@link SoftAskParentDetailHolder} is returned. If a parent is specified, the method retrieves the
-   * parent {@link IsAChatSpace} or {@link IsAStream} based on the parent type, and returns a detail holder
-   * containing the resolved entities and type information.</p>
+   * <p>If the DTO does not specify a parent, an empty {@link SoftAskParentDetailHolder}
+   * is returned. Otherwise, the method attempts to resolve the parent based on the
+   * provided parent type and ID. Depending on the type, it may look up a chat space,
+   * poll, or stream using the query service. If the parent cannot be found, a
+   * {@link SoftAskParentNotFoundException} is thrown.</p>
    *
-   * @param addSoftAskDto the DTO containing details of the soft ask and its potential parent
-   * @return a {@link SoftAskParentDetailHolder} encapsulating the resolved parent details
-   * @throws MemberNotFoundException if the parent member does not exist
-   * @throws SoftAskParentNotFoundException if the parent chat space or stream does not exist
+   * @param addSoftAskDto the data transfer object containing parent information
+   * @return a detail holder containing the resolved parent entity and type
+   * @throws SoftAskParentNotFoundException if the specified parent does not exist
    */
   private SoftAskParentDetailHolder findAndValidateParent(final AddSoftAskDto addSoftAskDto)
-      throws MemberNotFoundException, SoftAskParentNotFoundException {
+      throws SoftAskParentNotFoundException {
 
     if (addSoftAskDto.hasNoParent()) {
       return SoftAskParentDetailHolder.empty();
     }
 
     final Long parentId = addSoftAskDto.getParentId();
+    final SoftAskParentType parentType = addSoftAskDto.getParentType();
 
     IsAChatSpace chatSpace = addSoftAskDto.isChatSpaceParent() ? softAskQueryService.findChatSpaceOrThrow(parentId) : null;
     IsAPoll poll = addSoftAskDto.isPollParent() ? softAskQueryService.findPollOrThrow(parentId) : null;
     IsAStream stream = addSoftAskDto.isStreamParent() ? softAskQueryService.findStreamOrThrow(parentId) : null;
 
-    return SoftAskParentDetailHolder.of(chatSpace, poll, stream, addSoftAskDto.getParentType());
+    return SoftAskParentDetailHolder.of(chatSpace, poll, stream, parentType);
   }
 
   /**

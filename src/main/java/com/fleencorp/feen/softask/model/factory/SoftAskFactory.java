@@ -74,8 +74,8 @@ public final class SoftAskFactory {
     softAsk.setLink(dto.getLink());
     softAsk.setMoodTag(dto.getMood());
     softAsk.setVisible(true);
-    softAsk.setAuthorId(author.getMemberId());
 
+    softAsk.setAuthorId(author.getMemberId());
     softAsk.setParentId(dto.getParentId());
 
     final String titleSummary = SoftAskUtil.getParentSummary(parentTitle);

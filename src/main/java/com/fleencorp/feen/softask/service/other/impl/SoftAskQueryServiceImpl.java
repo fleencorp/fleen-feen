@@ -40,6 +40,12 @@ public class SoftAskQueryServiceImpl implements SoftAskQueryService {
   }
 
   @Override
+  public IsAPoll findPollOrThrow(final Long pollId) {
+    return pollQueryService.findPollById(pollId)
+      .orElseThrow(SoftAskParentNotFoundException.of(SoftAskParentType.POLL, pollId));
+  }
+
+  @Override
   public IsAStream findStreamOrThrow(final Long streamId) {
     return streamQueryService.findStreamById(streamId)
       .orElseThrow(SoftAskParentNotFoundException.of(SoftAskParentType.STREAM, streamId));
@@ -48,11 +54,5 @@ public class SoftAskQueryServiceImpl implements SoftAskQueryService {
   @Override
   public IsAMember findMemberOrThrow(final Long memberId) {
     return memberQueryService.findMemberOrThrow(memberId);
-  }
-
-  @Override
-  public IsAPoll findPollOrThrow(final Long pollId) {
-    return pollQueryService.findPollById(pollId)
-      .orElseThrow(SoftAskParentNotFoundException.of(SoftAskParentType.POLL, pollId));
   }
 }

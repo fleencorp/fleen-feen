@@ -5,6 +5,8 @@ import com.fleencorp.localizer.model.exception.LocalizedException;
 
 import java.util.function.Supplier;
 
+import static java.util.Objects.nonNull;
+
 public class SoftAskParentNotFoundException extends LocalizedException {
 
   private final SoftAskParentType parentType;
@@ -16,14 +18,18 @@ public class SoftAskParentNotFoundException extends LocalizedException {
 
   @Override
   public String getMessageCode() {
-    return switch (parentType) {
-      case CHAT_SPACE -> "chat.space.not.found";
-      case STREAM ->  "stream.not.found";
-      default -> "empty";
-    };
+    if (nonNull(parentType)) {
+      return switch (parentType) {
+        case CHAT_SPACE -> "chat.space.not.found";
+        case POLL -> "poll.not.found";
+        case STREAM ->  "stream.not.found";
+      };
+    }
+
+    return "empty";
   }
 
-  public static Supplier<SoftAskParentNotFoundException> of(final SoftAskParentType parentType, Object parentId) {
+  public static Supplier<SoftAskParentNotFoundException> of(final SoftAskParentType parentType, Long parentId) {
     return () -> new SoftAskParentNotFoundException(parentType, parentId);
   }
 }
