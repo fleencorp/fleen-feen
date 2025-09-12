@@ -28,7 +28,7 @@ public final class SoftAskFactory {
 
     final SoftAsk softAsk = new SoftAsk();
     setBaseFields(dto, parentTitle, author, softAsk);
-    setParentTitle(dto, parentType, softAsk);
+    setParentDetails(dto, parentType, softAsk);
     setLocationDetails(dto, softAsk);
 
     return softAsk;
@@ -41,13 +41,13 @@ public final class SoftAskFactory {
   }
 
   private static void setLocationDetails(AddSoftAskDto dto, SoftAsk softAsk) {
-    if (nonNull(dto.getLatitude()) && nonNull(dto.getLongitude())) {
+    if (dto.hasLatitudeAndLongitude()) {
       softAsk.setLatitude(BigDecimal.valueOf(dto.getLatitude()));
       softAsk.setLongitude(BigDecimal.valueOf(dto.getLongitude()));
     }
   }
 
-  private static void setParentTitle(AddSoftAskDto dto, SoftAskParentType parentType, SoftAsk softAsk) {
+  private static void setParentDetails(AddSoftAskDto dto, SoftAskParentType parentType, SoftAsk softAsk) {
     if (nonNull(parentType)) {
       switch (parentType) {
         case CHAT_SPACE -> {
