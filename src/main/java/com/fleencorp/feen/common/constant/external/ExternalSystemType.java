@@ -19,6 +19,7 @@ public enum ExternalSystemType implements ApiParameter {
   GOOGLE_RECAPTCHA("Google ReCaptcha"),
   GOOGLE_OAUTH2("Google OAuth2"),
   SLACK("Slack"),
+  SPOTIFY("Spotify"),
   YOUTUBE("YouTube");
 
   private final String value;

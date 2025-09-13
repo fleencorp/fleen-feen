@@ -12,8 +12,9 @@ public enum ReportMessageType implements ApiParameter {
   GOOGLE_CALENDAR("Google Calendar"),
   GOOGLE_OAUTH2("Google Oauth2"),
   GOOGLE_CHAT("Google Chat"),
-  YOUTUBE("YouTube"),
   PROFILE_VERIFICATION("Profile Verification"),
+  SPOTIFY_OAUTH2("Spotify Oauth2"),
+  YOUTUBE("YouTube"),
   GENERAL("General");
 
   private final String value;
@@ -24,5 +25,9 @@ public enum ReportMessageType implements ApiParameter {
 
   public static ReportMessageType googleOauth2() {
     return GOOGLE_OAUTH2;
+  }
+
+  public static ReportMessageType spotifyOauth2() {
+    return SPOTIFY_OAUTH2;
   }
 }

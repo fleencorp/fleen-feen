@@ -4,7 +4,7 @@ import com.fleencorp.feen.model.response.external.google.youtube.category.YouTub
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
-import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.oauth2.service.external.BaseOauth2Service;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.mapper.StreamUnifiedMapper;
@@ -35,7 +35,7 @@ import static com.fleencorp.feen.common.validator.impl.TimezoneValidValidator.ge
 @Service
 public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamRequestService {
 
-  private final GoogleOauth2Service googleOauth2Service;
+  private final BaseOauth2Service baseOauth2Service;
   private final StreamOperationsService streamOperationsService;
   private final LiveBroadcastUpdateService liveBroadcastUpdateService;
   private final YouTubeChannelService youTubeChannelService;
@@ -43,13 +43,13 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
   private final Localizer localizer;
 
   public LiveBroadcastServiceImpl(
-      final GoogleOauth2Service googleOauth2Service,
+      final BaseOauth2Service baseOauth2Service,
       final StreamOperationsService streamOperationsService,
       @Lazy final LiveBroadcastUpdateService liveBroadcastUpdateService,
       final YouTubeChannelService youTubeChannelService,
       final Localizer localizer,
       final StreamUnifiedMapper streamUnifiedMapper) {
-    this.googleOauth2Service = googleOauth2Service;
+    this.baseOauth2Service = baseOauth2Service;
     this.streamOperationsService = streamOperationsService;
     this.liveBroadcastUpdateService = liveBroadcastUpdateService;
     this.youTubeChannelService = youTubeChannelService;
@@ -151,7 +151,7 @@ public class LiveBroadcastServiceImpl implements LiveBroadcastService, StreamReq
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
-    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
+    return baseOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
   }
 
 }

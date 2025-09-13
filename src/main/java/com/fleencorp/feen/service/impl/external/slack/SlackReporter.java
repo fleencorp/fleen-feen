@@ -95,6 +95,7 @@ public class SlackReporter implements ReporterService {
       case GOOGLE_CHAT -> slackProperties.getChannelGoogleChatReportId();
       case GOOGLE_OAUTH2 -> slackProperties.getChannelGoogleOauth2ReportId();
       case PROFILE_VERIFICATION -> slackProperties.getChannelVerificationReportId();
+      case SPOTIFY_OAUTH2 -> slackProperties.getChannelSpotifyReportId();
       case YOUTUBE -> slackProperties.getChannelYoutubeReportId();
     };
   }
@@ -114,7 +115,7 @@ public class SlackReporter implements ReporterService {
       case ERROR -> SlackColor.RED;
       case INFO -> SlackColor.GREEN;
       case WARN -> SlackColor.ORANGE;
-      case GENERAL, GOOGLE_CALENDAR, GOOGLE_CHAT, GOOGLE_OAUTH2, PROFILE_VERIFICATION, YOUTUBE -> SlackColor.BLUE;
+      case GENERAL, GOOGLE_CALENDAR, GOOGLE_CHAT, GOOGLE_OAUTH2, PROFILE_VERIFICATION, SPOTIFY_OAUTH2, YOUTUBE -> SlackColor.BLUE;
     };
   }
 

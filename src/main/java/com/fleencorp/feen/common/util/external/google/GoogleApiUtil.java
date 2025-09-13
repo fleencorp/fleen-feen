@@ -1,7 +1,6 @@
 package com.fleencorp.feen.common.util.external.google;
 
 import com.fleencorp.feen.common.constant.external.google.chat.base.GoogleChatParameter;
-import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.stream.model.other.Schedule;
 import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -20,6 +19,7 @@ import java.util.Locale;
 import static com.fleencorp.feen.common.constant.base.SimpleConstant.FORWARD_SLASH;
 import static com.fleencorp.feen.common.constant.external.google.youtube.base.YouTubeParameter.LIVE_STREAMING_BASE_LINK;
 import static com.fleencorp.feen.common.util.common.DateTimeUtil.toDate;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getJsonFactory;
 import static com.google.auth.http.AuthHttpConstants.AUTHORIZATION;
 import static com.google.auth.http.AuthHttpConstants.BEARER;
 import static java.util.Objects.isNull;
@@ -88,7 +88,7 @@ public final class GoogleApiUtil {
    */
   public static HttpRequestInitializer getHttpRequestInitializer(final String accessToken) {
     return httpRequest -> {
-      httpRequest.setParser(new JsonObjectParser(GoogleOauth2ServiceImpl.getJsonFactory()));
+      httpRequest.setParser(new JsonObjectParser(getJsonFactory()));
       httpRequest.setHeaders(getHeaders(accessToken));
       httpRequest.setThrowExceptionOnExecuteError(true);
       httpRequest.setConnectTimeout(50_000);

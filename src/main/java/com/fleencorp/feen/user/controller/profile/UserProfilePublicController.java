@@ -23,9 +23,9 @@ public class UserProfilePublicController {
   }
 
   @GetMapping(value = "/profile/{userId}")
-  public UserProfileResponse getUserProfile(@PathVariable(name ="userId") final String targetUserId, @AuthenticationPrincipal final RegisteredUser user) {
-      final UserProfileSearchRequest userProfileSearchRequest = UserProfileSearchRequest.of(targetUserId);
-      log.info("User id is {}", userProfileSearchRequest.getUserId());
+  public UserProfileResponse getUserProfile(
+      @PathVariable(name ="userId") final String targetUserId, @AuthenticationPrincipal final RegisteredUser user) {
+    final UserProfileSearchRequest userProfileSearchRequest = UserProfileSearchRequest.of(targetUserId);
     return userProfilePublicService.getUserProfile(userProfileSearchRequest, user);
   }
 }

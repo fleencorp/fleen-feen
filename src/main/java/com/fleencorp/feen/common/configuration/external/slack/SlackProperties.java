@@ -26,6 +26,7 @@ public class SlackProperties {
   private String channelGoogleCalendarReportId;
   private String channelGoogleChatReportId;
   private String channelGoogleOauth2ReportId;
+  private String channelSpotifyReportId;
   private String channelYoutubeReportId;
   private String channelVerificationReportId;
   private String channelGeneralReportId;

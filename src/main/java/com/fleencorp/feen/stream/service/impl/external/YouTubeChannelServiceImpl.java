@@ -7,7 +7,6 @@ import com.fleencorp.feen.common.constant.external.google.youtube.YouTubeVideoPa
 import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoriesResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.category.YouTubeCategoryResponse;
-import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.stream.service.external.YouTubeChannelService;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.Channel;
@@ -27,6 +26,8 @@ import java.util.Optional;
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.YOUTUBE;
 import static com.fleencorp.feen.common.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.common.constant.external.google.youtube.base.YouTubeParameter.US;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getJsonFactory;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getTransport;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 
@@ -240,8 +241,8 @@ public class YouTubeChannelServiceImpl implements YouTubeChannelService {
    */
   public YouTube getYouTube() throws IOException {
     return new YouTube.Builder(
-        GoogleOauth2ServiceImpl.getTransport(),
-        GoogleOauth2ServiceImpl.getJsonFactory(),
+        getTransport(),
+        getJsonFactory(),
         _ -> {})
         .setApplicationName(applicationName)
         .build();

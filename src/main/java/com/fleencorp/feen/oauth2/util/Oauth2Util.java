@@ -36,6 +36,7 @@ public final class Oauth2Util {
    */
   public static Oauth2ServiceType validateOauth2ScopeAndReturn(final String statesStr) {
     final Map<String, String> statesMap = getStatesMap(statesStr);
+
     return validateOauth2ScopeAndReturn(statesMap);
   }
 
@@ -70,9 +71,5 @@ public final class Oauth2Util {
    */
   public static Map<String, String> getStatesMap(final String statesStr) {
     return StringUtil.strToMap(statesStr);
-  }
-
-  public static Oauth2AuthenticationRequest toOauth2AuthenticationRequest(final Oauth2ServiceType oauth2ServiceType) {
-    return Oauth2AuthenticationRequest.of(oauth2ServiceType);
   }
 }

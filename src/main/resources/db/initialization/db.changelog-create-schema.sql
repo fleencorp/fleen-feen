@@ -97,9 +97,9 @@ CREATE TABLE oauth2_authorization (
   token_expiration_time_in_milliseconds BIGINT,
 
   oauth2_service_type VARCHAR(255)
-    NOT NULL CHECK (oauth2_service_type IN ('GOOGLE_CALENDAR', 'YOUTUBE')),
+    NOT NULL CHECK (oauth2_service_type IN ('GOOGLE_CALENDAR', 'SPOTIFY', 'YOUTUBE')),
   oauth2_source VARCHAR(255)
-    NOT NULL CHECK (oauth2_source IN ('GOOGLE')),
+    NOT NULL CHECK (oauth2_source IN ('GOOGLE', 'SPOTIFY')),
 
   member_id BIGINT NOT NULL,
 

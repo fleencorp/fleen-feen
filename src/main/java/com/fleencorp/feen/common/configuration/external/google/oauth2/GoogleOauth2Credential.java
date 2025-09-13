@@ -41,7 +41,7 @@ import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.*;
 @PropertySources({
   @PropertySource("classpath:properties/google-oauth2-web-client.properties")
 })
-public class Oauth2Credential {
+public class GoogleOauth2Credential {
 
   private String projectId;
   private String clientId;

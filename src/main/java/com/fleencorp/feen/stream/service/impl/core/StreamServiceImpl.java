@@ -7,7 +7,7 @@ import com.fleencorp.feen.common.service.misc.MiscService;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidAuthorizationException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
-import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.oauth2.service.external.BaseOauth2Service;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.constant.core.StreamType;
@@ -54,17 +54,17 @@ import static java.util.Objects.nonNull;
 @Service
 public class StreamServiceImpl implements StreamService {
 
-  private final GoogleOauth2Service googleOauth2Service;
+  private final BaseOauth2Service baseOauth2Service;
   private final MiscService miscService;
   private final StreamAttendeeOperationsService streamAttendeeOperationsService;
   private final StreamOperationsService streamOperationsService;
 
   public StreamServiceImpl(
-      final GoogleOauth2Service googleOauth2Service,
+      final BaseOauth2Service baseOauth2Service,
       final MiscService miscService,
       @Lazy final StreamAttendeeOperationsService streamAttendeeOperationsService,
       @Lazy final StreamOperationsService streamOperationsService) {
-    this.googleOauth2Service = googleOauth2Service;
+    this.baseOauth2Service = baseOauth2Service;
     this.miscService = miscService;
     this.streamAttendeeOperationsService = streamAttendeeOperationsService;
     this.streamOperationsService = streamOperationsService;
@@ -336,7 +336,7 @@ public class StreamServiceImpl implements StreamService {
 
     // If the stream is a broadcast or live stream, retrieve the oauth2 authorization
     final Oauth2Authorization oauth2Authorization = StreamType.isLiveStream(streamType)
-      ? googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user.getMemberId()) : null;
+      ? baseOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(Oauth2ServiceType.youTube(), user.getMemberId()) : null;
 
     return StreamOtherDetailsHolder.of(calendar, oauth2Authorization);
   }

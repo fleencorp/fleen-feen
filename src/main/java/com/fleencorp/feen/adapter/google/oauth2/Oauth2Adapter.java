@@ -8,6 +8,7 @@ import com.fleencorp.feen.common.constant.external.ExternalSystemType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 
+@Component
 public class Oauth2Adapter extends BaseAdapter {
 
   protected Oauth2Adapter(

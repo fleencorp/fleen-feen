@@ -6,7 +6,6 @@ import com.fleencorp.feen.common.constant.external.google.calendar.ConferenceSol
 import com.fleencorp.feen.common.exception.UnableToCompleteOperationException;
 import com.fleencorp.feen.common.service.report.ReporterService;
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.*;
-import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
 import com.google.api.services.calendar.Calendar;
@@ -27,6 +26,8 @@ import static com.fleencorp.feen.calendar.mapper.external.GoogleCalendarMapper.m
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.GOOGLE_CALENDAR;
 import static com.fleencorp.feen.common.util.common.LoggingUtil.logIfEnabled;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.getHttpRequestInitializer;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getJsonFactory;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getTransport;
 import static com.fleencorp.feen.user.model.domain.Member.isInternalEmailOrEmailIsAnOriginEmail;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
@@ -306,7 +307,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
    * @return a {@link Calendar} service instance configured for the authenticated user
    */
   private Calendar getService(final String accessToken) {
-    return new Calendar.Builder(GoogleOauth2ServiceImpl.getTransport(), GoogleOauth2ServiceImpl.getJsonFactory(), getHttpRequestInitializer(accessToken))
+    return new Calendar.Builder(getTransport(), getJsonFactory(), getHttpRequestInitializer(accessToken))
       .setApplicationName(applicationName)
       .build();
   }

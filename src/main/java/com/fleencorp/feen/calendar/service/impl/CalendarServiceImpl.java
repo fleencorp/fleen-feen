@@ -27,7 +27,7 @@ import com.fleencorp.feen.model.response.external.google.calendar.calendar.Googl
 import com.fleencorp.feen.model.response.external.google.calendar.calendar.GoogleShareCalendarWithUserResponse;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
-import com.fleencorp.feen.oauth2.service.external.GoogleOauth2Service;
+import com.fleencorp.feen.oauth2.service.external.BaseOauth2Service;
 import com.fleencorp.feen.service.external.google.calendar.GoogleCalendarService;
 import com.fleencorp.feen.service.external.google.calendar.update.GoogleCalendarUpdateService;
 import com.fleencorp.feen.shared.security.RegisteredUser;
@@ -61,7 +61,7 @@ public class CalendarServiceImpl implements CalendarService {
   private final GoogleCalendarService googleCalendarService;
   private final GoogleCalendarUpdateService googleCalendarUpdateService;
   private final CalendarRepository calendarRepository;
-  private final GoogleOauth2Service googleOauth2Service;
+  private final BaseOauth2Service baseOauth2Service;
   private final CalendarMapper calendarMapper;
   private final Localizer localizer;
 
@@ -69,14 +69,14 @@ public class CalendarServiceImpl implements CalendarService {
       final CountryService countryService,
       final GoogleCalendarService googleCalendarService,
       final GoogleCalendarUpdateService googleCalendarUpdateService,
-      final GoogleOauth2Service googleOauth2Service,
+      final BaseOauth2Service baseOauth2Service,
       final CalendarRepository calendarRepository,
       final CalendarMapper calendarMapper,
       final Localizer localizer) {
     this.countryService = countryService;
     this.googleCalendarService = googleCalendarService;
     this.googleCalendarUpdateService = googleCalendarUpdateService;
-    this.googleOauth2Service = googleOauth2Service;
+    this.baseOauth2Service = baseOauth2Service;
     this.calendarRepository = calendarRepository;
     this.calendarMapper = calendarMapper;
     this.localizer = localizer;
@@ -400,7 +400,7 @@ public class CalendarServiceImpl implements CalendarService {
    * @return an {@link Oauth2Authorization} object containing updated authorization details
    */
   public Oauth2Authorization validateAccessTokenExpiryTimeOrRefreshToken(final Oauth2ServiceType oauth2ServiceType, final RegisteredUser user) {
-    return googleOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
+    return baseOauth2Service.validateAccessTokenExpiryTimeOrRefreshToken(oauth2ServiceType, user.getId());
   }
 
 }

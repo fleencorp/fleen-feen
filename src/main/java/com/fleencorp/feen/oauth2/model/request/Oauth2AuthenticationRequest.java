@@ -1,17 +1,22 @@
 package com.fleencorp.feen.oauth2.model.request;
 
+import com.fleencorp.feen.common.configuration.external.spotify.SpotifyScopes;
 import com.fleencorp.feen.oauth2.constant.Oauth2ServiceType;
 import com.fleencorp.feen.oauth2.exception.core.Oauth2InvalidScopeException;
 import com.fleencorp.feen.oauth2.model.domain.Oauth2Authorization;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.youtube.YouTubeScopes;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static com.fleencorp.feen.oauth2.constant.Oauth2WebKey.SERVICE_TYPE;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Builder
 @Getter
 @Setter
@@ -21,7 +26,7 @@ public class Oauth2AuthenticationRequest {
 
   public static final String OAUTH_2_SERVICE_TYPE_KEY = SERVICE_TYPE;
   private Oauth2ServiceType oauth2ServiceType;
-  private Set<String> scopes;
+  private Collection<String> scopes;
   private String refreshToken;
   private Oauth2Authorization oauth2Authorization;
 
@@ -43,107 +48,57 @@ public class Oauth2AuthenticationRequest {
       : "";
   }
 
-  /**
-   * Creates an {@link Oauth2AuthenticationRequest} based on the specified OAuth2 scope.
-   *
-   * <p>This method generates an OAuth2 authentication request specific to the given scope. If the scope is
-   * {@link Oauth2ServiceType#GOOGLE_CALENDAR}, it returns a request configured for Google Calendar. If the scope is
-   * {@link Oauth2ServiceType#YOUTUBE}, it returns a request configured for YouTube. If the scope is not recognized,
-   * an {@link Oauth2InvalidScopeException} is thrown.</p>
-   *
-   * @param oauth2ServiceType The OAuth2 scope for which the authentication request should be created.
-   * @return A configured {@link Oauth2AuthenticationRequest} for the given scope.
-   * @throws Oauth2InvalidScopeException If the provided scope is not valid or recognized.
-   */
+
   public static Oauth2AuthenticationRequest of(final Oauth2ServiceType oauth2ServiceType) {
     if (nonNull(oauth2ServiceType)) {
-      if (Oauth2ServiceType.isGoogleCalendar(oauth2ServiceType)) {
-        return getGoogleCalendarOauth2AuthenticationRequest();
-      } else if (Oauth2ServiceType.isYoutube(oauth2ServiceType)) {
-        return getYouTubeOauth2AuthenticationRequest();
-      }
+      return switch (oauth2ServiceType) {
+        case GOOGLE_CALENDAR -> getGoogleCalendarOauth2AuthenticationRequest();
+        case SPOTIFY -> getSpotifyOauth2AuthenticationRequest();
+        case YOUTUBE -> getYouTubeOauth2AuthenticationRequest();
+      };
     }
+
     throw new Oauth2InvalidScopeException();
   }
 
-  /**
-   * Creates an {@link Oauth2AuthenticationRequest} for Google Calendar OAuth2 authentication.
-   *
-   * <p>This method sets the OAuth2 scope to {@link Oauth2ServiceType#GOOGLE_CALENDAR} and includes all necessary scopes
-   * for Google Calendar API access.</p>
-   *
-   * @return A configured {@link Oauth2AuthenticationRequest} for Google Calendar.
-   */
   public static Oauth2AuthenticationRequest getGoogleCalendarOauth2AuthenticationRequest() {
-    return Oauth2AuthenticationRequest.builder()
-      .oauth2ServiceType(Oauth2ServiceType.googleCalendar())
-      .scopes(getCalendarScopes())
-      .build();
+    final Oauth2AuthenticationRequest authRequest = new Oauth2AuthenticationRequest();
+    authRequest.setOauth2ServiceType(Oauth2ServiceType.googleCalendar());
+    authRequest.setScopes(getCalendarScopes());
+
+    return authRequest;
   }
 
-  /**
-   * Creates an {@link Oauth2AuthenticationRequest} for YouTube OAuth2 authentication.
-   *
-   * <p>This method sets the OAuth2 scope to {@link Oauth2ServiceType#YOUTUBE} and includes all necessary scopes
-   * for YouTube API access.</p>
-   *
-   * @return A configured {@link Oauth2AuthenticationRequest} for YouTube.
-   */
+  public static Oauth2AuthenticationRequest getSpotifyOauth2AuthenticationRequest() {
+    Collection<String> scopes = List.of(SpotifyScopes.allScopesAsString());
+
+    final Oauth2AuthenticationRequest authRequest = new Oauth2AuthenticationRequest();
+    authRequest.setOauth2ServiceType(Oauth2ServiceType.spotify());
+    authRequest.setScopes(scopes);
+
+    return authRequest;
+  }
+
   public static Oauth2AuthenticationRequest getYouTubeOauth2AuthenticationRequest() {
-    return Oauth2AuthenticationRequest.builder()
-      .oauth2ServiceType(Oauth2ServiceType.youTube())
-      .scopes(getYouTubeScopes())
-      .build();
+    final Oauth2AuthenticationRequest authRequest = new Oauth2AuthenticationRequest();
+    authRequest.setOauth2ServiceType(Oauth2ServiceType.youTube());
+    authRequest.setScopes(getYouTubeScopes());
+
+    return authRequest;
   }
 
-  /**
-   * Retrieves the OAuth 2.0 scopes required for interacting with Calendar APIs.
-   *
-   * <p>This method returns a set of strings representing all available scopes for Calendar APIs.</p>
-   *
-   * <p>The scopes define the level of access and permissions granted to the application when
-   * interacting with user data through Calendar services.</p>
-   *
-   * @return A {@code Set<String>} containing OAuth 2.0 scopes required for Calendar APIs.
-   */
   private static Set<String> getCalendarScopes() {
     return CalendarScopes.all();
   }
 
-  /**
-   * Retrieves the OAuth 2.0 scopes required for interacting with YouTube APIs.
-   *
-   * <p>This method returns a set of strings representing all available scopes for YouTube APIs.</p>
-   *
-   * <p>The scopes define the level of access and permissions granted to the application when
-   * interacting with user data through YouTube services.</p>
-   *
-   * @return A {@code Set<String>} containing OAuth 2.0 scopes required for YouTube APIs.
-   */
   private static Set<String> getYouTubeScopes() {
     return YouTubeScopes.all();
   }
 
-  /**
-   * Checks if an OAuth2 authorization is present.
-   *
-   * <p>This method verifies whether the {@link Oauth2Authorization} object is non-null,
-   * indicating that an OAuth2 authorization is available.</p>
-   *
-   * @return {@code true} if the OAuth2 authorization is present, otherwise {@code false}
-   */
   public boolean isOauth2AuthorizationPresent() {
     return nonNull(oauth2Authorization);
   }
 
-  /**
-   * Checks if an OAuth2 service type is present.
-   *
-   * <p>This method verifies whether the {@link Oauth2ServiceType} object is non-null,
-   * indicating that an OAuth2 service type is available.</p>
-   *
-   * @return {@code true} if the OAuth2 service type is present, otherwise {@code false}
-   */
   public boolean isOauth2ServiceTypePresent() {
     return nonNull(oauth2ServiceType);
   }

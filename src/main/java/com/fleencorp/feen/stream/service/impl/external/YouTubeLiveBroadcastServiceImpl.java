@@ -9,7 +9,6 @@ import com.fleencorp.feen.model.response.external.google.youtube.CreateYouTubeLi
 import com.fleencorp.feen.model.response.external.google.youtube.DeleteYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.RescheduleYouTubeLiveBroadcastResponse;
 import com.fleencorp.feen.model.response.external.google.youtube.UpdateYouTubeLiveBroadcastResponse;
-import com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl;
 import com.fleencorp.feen.stream.model.request.external.broadcast.*;
 import com.fleencorp.feen.stream.service.external.YouTubeChannelService;
 import com.fleencorp.feen.stream.service.external.YouTubeLiveBroadcastService;
@@ -27,6 +26,8 @@ import java.util.List;
 import static com.fleencorp.feen.common.constant.base.ReportMessageType.YOUTUBE;
 import static com.fleencorp.feen.common.constant.base.SimpleConstant.COMMA;
 import static com.fleencorp.feen.common.util.external.google.GoogleApiUtil.*;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getJsonFactory;
+import static com.fleencorp.feen.oauth2.service.external.impl.external.GoogleOauth2ServiceImpl.getTransport;
 import static com.fleencorp.feen.stream.mapper.external.YouTubeLiveBroadcastMapper.mapToLiveBroadcastResponse;
 import static java.util.Objects.nonNull;
 
@@ -618,7 +619,7 @@ public class YouTubeLiveBroadcastServiceImpl implements YouTubeLiveBroadcastServ
    *   Obtaining authorization credentials</a>
    */
   private YouTube createRequest(final String accessToken) {
-    return new YouTube.Builder(GoogleOauth2ServiceImpl.getTransport(), GoogleOauth2ServiceImpl.getJsonFactory(), getHttpRequestInitializer(accessToken))
+    return new YouTube.Builder(getTransport(), getJsonFactory(), getHttpRequestInitializer(accessToken))
             .setApplicationName(applicationName)
             .build();
   }
