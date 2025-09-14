@@ -34,6 +34,7 @@ public class SoftAskExceptionHandler {
   })
   @ResponseStatus(value = NOT_FOUND)
   public ErrorResponse handleNotFound(final LocalizedException e) {
+    log.info(e.getMessage());
     return localizer.withStatus(e, notFound());
   }
 
@@ -43,6 +44,7 @@ public class SoftAskExceptionHandler {
   })
   @ResponseStatus(value = BAD_REQUEST)
   public ErrorResponse handleBadRequest(final LocalizedException e) {
+    log.info(e.getMessage());
     return localizer.withStatus(e, badRequest());
   }
 
@@ -61,6 +63,6 @@ public class SoftAskExceptionHandler {
   @ResponseStatus(value = INTERNAL_SERVER_ERROR)
   public ErrorResponse handleInternal(final Exception e) {
     log.info(e.getMessage());
-    return new ErrorResponse();
+    return localizer.withStatus(ErrorResponse.defaultMessageCode(), internalServerError());
   }
 }
