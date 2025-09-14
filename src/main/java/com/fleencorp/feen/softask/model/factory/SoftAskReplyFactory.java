@@ -19,9 +19,9 @@ public final class SoftAskReplyFactory {
 
   public static SoftAskReply toSoftAskReply(
     final AddSoftAskReplyDto dto,
-    final IsAMember author,
     final SoftAsk softAsk,
-    final SoftAskReply parentReply) {
+    final SoftAskReply parentReply,
+    final IsAMember author) {
 
     checkParameters(dto, author, softAsk);
 

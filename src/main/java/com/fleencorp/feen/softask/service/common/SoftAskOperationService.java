@@ -29,7 +29,7 @@ public interface SoftAskOperationService {
 
   SoftAskParticipantDetail generateParticipantDetail(Long softAskId, Long userId);
 
-  SoftAskParticipantDetail getOrAssignUsername(Long softAskId, Long userId);
+  SoftAskParticipantDetail getOrAssignParticipantDetail(Long softAskId, Long userId);
 
   void setGeoHashAndGeoPrefix(SoftAskCommonData softAskCommonData);
 }

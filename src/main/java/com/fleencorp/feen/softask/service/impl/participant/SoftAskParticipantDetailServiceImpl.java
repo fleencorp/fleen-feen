@@ -43,6 +43,17 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
     this.usernameService = usernameService;
   }
 
+  /**
+   * Generates and persists a new {@link SoftAskParticipantDetail} for the given user within
+   * the context of a soft ask. A random username and display name are created, and an avatar
+   * URL is assigned based on a randomly selected avatar base name. The participant detail is
+   * saved to the repository before being returned.
+   *
+   * @param softAskId the identifier of the soft ask the participant is associated with
+   * @param userId the identifier of the user for whom the participant detail is generated
+   * @return the newly created and persisted {@code SoftAskParticipantDetail} with username,
+   *         display name, and avatar information
+   */
   @Override
   @Transactional
   public SoftAskParticipantDetail generateParticipantDetail(final Long softAskId, final Long userId) {
@@ -56,6 +67,32 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
 
     softAskParticipantDetailRepository.save(softAskParticipantDetail);
     return softAskParticipantDetail;
+  }
+
+  /**
+   * Retrieves or assigns a {@link SoftAskParticipantDetail} for the given user in the context of
+   * a specific soft ask. A username and display name are resolved or generated, and a participant
+   * detail object is created. An avatar URL is also assigned using a randomly selected avatar base
+   * name before the participant detail is returned.
+   *
+   * @param softAskId the identifier of the soft ask the participant is associated with
+   * @param userId the identifier of the user for whom the participant detail is retrieved or created
+   * @return a fully initialized {@code SoftAskParticipantDetail} containing username, display name,
+   *         and avatar information
+   */
+  @Override
+  @Transactional
+  public SoftAskParticipantDetail getOrAssignParticipantDetail(final Long softAskId, final Long userId) {
+    final GeneratedUsername generatedUsername = getOrAssignUsername(softAskId, userId);
+    final String username = generatedUsername.username();
+    final String displayName = generatedUsername.displayName();
+
+    SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
+
+    final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
+    participantDetail.setAvatarUrl(avatarUrls.get("default"));
+
+    return participantDetail;
   }
 
   /**
@@ -74,7 +111,6 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
    * @param userId the identifier of the user associated with the soft ask
    * @return the existing or newly assigned username
    */
-  @Override
   @Transactional
   public GeneratedUsername getOrAssignUsername(final Long softAskId, final Long userId) {
     final String cacheKey = USERNAME_CACHE_PREFIX + softAskId + ":" + userId;

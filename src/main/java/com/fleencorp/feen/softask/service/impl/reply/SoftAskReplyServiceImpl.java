@@ -17,6 +17,7 @@ import com.fleencorp.feen.softask.model.dto.reply.AddSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.dto.reply.DeleteSoftAskReplyDto;
 import com.fleencorp.feen.softask.model.factory.SoftAskReplyFactory;
 import com.fleencorp.feen.softask.model.holder.SoftAskReplyParentDetailHolder;
+import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyAddResponse;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyDeleteResponse;
 import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse;
@@ -72,25 +73,48 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final IsAMember author = softAskQueryService.findMemberOrThrow(user.getId());
     final Long softAskId = addSoftAskReplyDto.getSoftAskId();
     final Long softAskParentReplyId = addSoftAskReplyDto.getSoftAskParentReplyId();
+    final UserOtherDetailHolder userOtherDetailHolder = addSoftAskReplyDto.getUserOtherDetail();
 
     final SoftAskReplyParentDetailHolder softAskReplyParentDetailHolder = findSoftAskReplyParentDetailHolder(addSoftAskReplyDto, softAskId, softAskParentReplyId);
     final SoftAsk softAsk = softAskReplyParentDetailHolder.softAsk();
     final SoftAskReply softAskParentReply = softAskReplyParentDetailHolder.softAskReply();
 
-    final SoftAskReply reply = SoftAskReplyFactory.toSoftAskReply(addSoftAskReplyDto, author, softAsk, softAskParentReply);
-    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
-    softAskReplyRepository.save(reply);
-
-    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.getOrAssignUsername(softAskId, user.getId());
-    reply.setSoftAskParticipantDetail(softAskParticipantDetail);
+    final SoftAskReply reply = createAndPersistReply(addSoftAskReplyDto, softAsk, softAskParentReply, author);
     final Integer replyCount = updateReplyCountOfSoftAskOrSoftAskReply(addSoftAskReplyDto, softAskId, softAskParentReplyId);
 
-    final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(reply);
+    final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(reply, author);
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskReplyResponse);
-    softAskCommonService.processSoftAskResponses(softAskCommonResponses, author, addSoftAskReplyDto.getUserOtherDetail());
+    softAskCommonService.processSoftAskResponses(softAskCommonResponses, author, userOtherDetailHolder);
 
     final SoftAskReplyAddResponse softAskReplyAddResponse = SoftAskReplyAddResponse.of(replyCount, softAskReplyResponse);
     return localizer.of(softAskReplyAddResponse);
+  }
+
+  /**
+   * Creates a new {@link SoftAskReply} from the given input and persists it to the repository.
+   * The reply is built using the provided DTO, the associated {@link SoftAsk}, an optional parent
+   * reply, and the author information. After creation, the soft ask is enriched with geolocation
+   * data, and the reply is saved. A participant detail is also retrieved or assigned for the
+   * author within the context of the soft ask and linked to the reply before returning it.
+   *
+   * @param addSoftAskReplyDto the data transfer object containing the reply content and metadata
+   * @param softAsk the soft ask to which this reply belongs
+   * @param softAskParentReply the parent reply if this is a nested reply, otherwise {@code null}
+   * @param author the member authoring the reply
+   * @return the persisted {@code SoftAskReply} with participant details attached
+   */
+  private SoftAskReply createAndPersistReply(AddSoftAskReplyDto addSoftAskReplyDto, SoftAsk softAsk, SoftAskReply softAskParentReply, IsAMember author) {
+    final Long softAskId = softAsk.getSoftAskId();
+    final Long memberId = author.getMemberId();
+    final SoftAskReply reply = SoftAskReplyFactory.toSoftAskReply(addSoftAskReplyDto, softAsk, softAskParentReply, author);
+
+    softAskOperationService.setGeoHashAndGeoPrefix(softAsk);
+    softAskReplyRepository.save(reply);
+
+    final SoftAskParticipantDetail softAskParticipantDetail = softAskOperationService.getOrAssignParticipantDetail(softAskId, memberId);
+    reply.setSoftAskParticipantDetail(softAskParticipantDetail);
+
+    return reply;
   }
 
   /**
@@ -151,7 +175,6 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final SoftAsk softAsk;
 
     if (addSoftAskReplyDto.hasSoftAskParentReply()) {
-       log.info("The soft ask id is {} and the reply parent id is {}", softAskId, softAskParentReplyId);
       softAskParentReply = softAskReplyRepository.findBySoftAskAndParentReply(softAskId, softAskParentReplyId)
         .orElseThrow(() -> new SoftAskReplyNotFoundException(softAskParentReplyId));
       softAsk = softAskParentReply.getSoftAsk();
