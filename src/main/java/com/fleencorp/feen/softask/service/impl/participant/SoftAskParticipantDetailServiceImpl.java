@@ -124,9 +124,10 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
     final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
     final String avatarUrl = avatarUrls.get("default");
 
-    SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(username, displayName, avatarUrl);
-    participantDetailRepository.save(participantDetail);
+    SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
+    participantDetail.setAvatarUrl(avatarUrl);
 
+    participantDetailRepository.save(participantDetail);
     cacheNewDetail(softAskId, userId, username, displayName, avatarUrl);
     return participantDetail;
   }
