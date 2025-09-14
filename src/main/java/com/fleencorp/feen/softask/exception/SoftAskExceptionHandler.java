@@ -33,7 +33,7 @@ public class SoftAskExceptionHandler {
     SoftAskReplyNotFoundException.class
   })
   @ResponseStatus(value = NOT_FOUND)
-  public ErrorResponse handleNotZFound(final LocalizedException e) {
+  public ErrorResponse handleNotFound(final LocalizedException e) {
     return localizer.withStatus(e, notFound());
   }
 
@@ -59,7 +59,7 @@ public class SoftAskExceptionHandler {
     Exception.class
   })
   @ResponseStatus(value = INTERNAL_SERVER_ERROR)
-  public ErrorResponse handleForbidden(final Exception e) {
+  public ErrorResponse handleInternal(final Exception e) {
     log.info(e.getMessage());
     return new ErrorResponse();
   }
