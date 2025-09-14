@@ -65,6 +65,22 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     this.localizer = localizer;
   }
 
+  /**
+   * Adds a reply to a soft ask on behalf of a registered user. The method first resolves the
+   * author as a member, retrieves the associated soft ask and optional parent reply, and then
+   * creates and persists a new {@link SoftAskReply}. Reply counts on the soft ask or parent
+   * reply are updated accordingly. The created reply is mapped to a response object and
+   * enriched with additional user and common response details. Finally, a localized response
+   * is returned containing both the updated reply count and the reply details.
+   *
+   * @param addSoftAskReplyDto the data transfer object containing the new reply content and context
+   * @param user the registered user submitting the reply
+   * @return a localized {@link SoftAskReplyAddResponse} with the updated reply count and reply details
+   * @throws MemberNotFoundException if the user is not found as a valid member
+   * @throws SoftAskNotFoundException if the soft ask associated with the reply cannot be found
+   * @throws SoftAskReplyNotFoundException if a specified parent reply cannot be found
+   * @throws FailedOperationException if the reply could not be created due to an unexpected failure
+   */
   @Override
   @Transactional
   public SoftAskReplyAddResponse addSoftAskReply(final AddSoftAskReplyDto addSoftAskReplyDto, final RegisteredUser user)

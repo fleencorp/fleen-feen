@@ -54,4 +54,13 @@ public class SoftAskParticipantDetail {
 
     return participantDetail;
   }
+
+  public static SoftAskParticipantDetail of(final String username, final String displayName, final String avatarUrl) {
+    final SoftAskParticipantDetail participantDetail = new SoftAskParticipantDetail();
+    participantDetail.setUsername(username);
+    participantDetail.setDisplayName(displayName);
+    participantDetail.setAvatarUrl(avatarUrl);
+
+    return participantDetail;
+  }
 }

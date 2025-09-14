@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface SoftAskParticipantDetailRepository extends JpaRepository<SoftAskParticipantDetail, Long> {
 
   @Query("SELECT sau FROM SoftAskParticipantDetail sau WHERE sau.softAskId = :softAskId AND sau.userId = :userId")
-  Optional<SoftAskParticipantDetail> findUsernameBySoftAskIdAndUserId(@Param("softAskId") Long softAskId, @Param("userId") Long userId);
+  Optional<SoftAskParticipantDetail> findBySoftAskIdAndUserId(@Param("softAskId") Long softAskId, @Param("userId") Long userId);
 }

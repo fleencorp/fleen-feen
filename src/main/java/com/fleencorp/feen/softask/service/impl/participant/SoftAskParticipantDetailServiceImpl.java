@@ -2,7 +2,7 @@ package com.fleencorp.feen.softask.service.impl.participant;
 
 import com.fleencorp.feen.common.service.impl.cache.CacheService;
 import com.fleencorp.feen.common.service.misc.ObjectService;
-import com.fleencorp.feen.shared.common.model.GeneratedUsername;
+import com.fleencorp.feen.shared.common.model.GeneratedParticipantDetail;
 import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.repository.participant.SoftAskParticipantDetailRepository;
 import com.fleencorp.feen.softask.service.participant.SoftAskParticipantDetailService;
@@ -27,7 +27,7 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
   private final CacheService cacheService;
   private final ObjectService objectService;
   private final UsernameService usernameService;
-  private final SoftAskParticipantDetailRepository softAskParticipantDetailRepository;
+  private final SoftAskParticipantDetailRepository participantDetailRepository;
 
   private static final String USERNAME_CACHE_PREFIX = "sa::username:";
   private static final Duration CACHE_TTL = Duration.ofHours(1);
@@ -35,11 +35,11 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
   public SoftAskParticipantDetailServiceImpl(
       final CacheService cacheService,
       final ObjectService objectService,
-      final SoftAskParticipantDetailRepository softAskParticipantDetailRepository,
+      final SoftAskParticipantDetailRepository participantDetailRepository,
       final UsernameService usernameService) {
     this.cacheService = cacheService;
     this.objectService = objectService;
-    this.softAskParticipantDetailRepository = softAskParticipantDetailRepository;
+    this.participantDetailRepository = participantDetailRepository;
     this.usernameService = usernameService;
   }
 
@@ -57,106 +57,200 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
   @Override
   @Transactional
   public SoftAskParticipantDetail generateParticipantDetail(final Long softAskId, final Long userId) {
-    final GeneratedUsername generatedUsername = usernameService.generateRandomUsername();
-    final String username = generatedUsername.username();
-    final String displayName = generatedUsername.displayName();
+    final GeneratedParticipantDetail generatedParticipantDetail = usernameService.generateRandomUsername();
+    final String username = generatedParticipantDetail.username();
+    final String displayName = generatedParticipantDetail.displayName();
     final SoftAskParticipantDetail softAskParticipantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
 
     final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
     softAskParticipantDetail.setAvatarUrl(avatarUrls.get("default"));
 
-    softAskParticipantDetailRepository.save(softAskParticipantDetail);
+    participantDetailRepository.save(softAskParticipantDetail);
     return softAskParticipantDetail;
   }
 
   /**
-   * Retrieves or assigns a {@link SoftAskParticipantDetail} for the given user in the context of
-   * a specific soft ask. A username and display name are resolved or generated, and a participant
-   * detail object is created. An avatar URL is also assigned using a randomly selected avatar base
-   * name before the participant detail is returned.
+   * Retrieves a participant detail for the given soft ask and user, resolving it in three stages.
    *
-   * @param softAskId the identifier of the soft ask the participant is associated with
-   * @param userId the identifier of the user for whom the participant detail is retrieved or created
-   * @return a fully initialized {@code SoftAskParticipantDetail} containing username, display name,
-   *         and avatar information
+   * <p>It first attempts to load the detail from the cache.
+   * If not present, it falls back to retrieving it from the database.
+   * If the detail is not found in the database either, a new one is generated, persisted, cached, and returned.</p>
+   *
+   * @param softAskId the identifier of the soft ask
+   * @param userId the identifier of the user
+   * @return an existing participant detail from cache or database, or a newly generated one if none exist
    */
   @Override
   @Transactional
   public SoftAskParticipantDetail getOrAssignParticipantDetail(final Long softAskId, final Long userId) {
-    final GeneratedUsername generatedUsername = getOrAssignUsername(softAskId, userId);
-    final String username = generatedUsername.username();
-    final String displayName = generatedUsername.displayName();
+    return findParticipantDetailInCache(softAskId, userId)
+      .map(this::toSoftAskParticipantDetail)
+      .orElseGet(() -> getFromDbOrGenerate(softAskId, userId));
+  }
 
-    SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
+  /**
+   * Retrieves a participant detail from the database if it exists, otherwise generates a new one.
+   *
+   * <p>If a record is found in the repository for the given soft ask and user, it is cached before being returned.
+   * If no record exists, a new participant detail is generated, persisted, cached, and then returned.</p>
+   *
+   * @param softAskId the identifier of the soft ask
+   * @param userId the identifier of the user
+   * @return an existing or newly generated participant detail
+   */
+  private SoftAskParticipantDetail getFromDbOrGenerate(final Long softAskId, final Long userId) {
+    return participantDetailRepository.findBySoftAskIdAndUserId(softAskId, userId)
+      .map(detail -> cacheAndReturnDetail(softAskId, userId, detail))
+      .orElseGet(() -> generateAndCacheAndReturnNewDetail(softAskId, userId));
+  }
+
+  /**
+   * Generates a new participant detail, assigns an avatar, persists it, and caches the result.
+   *
+   * <p>A random username and display name are first generated via {@link #generateNewDetail()}.
+   * An avatar URL is then selected from {@code objectService}. A new
+   * {@link SoftAskParticipantDetail} is created and saved to the repository, and the same
+   * detail is stored in the cache for faster subsequent lookups.</p>
+   *
+   * @param softAskId the identifier of the SoftAsk session
+   * @param userId    the identifier of the user
+   * @return the newly created and cached {@code SoftAskParticipantDetail}
+   */
+  private SoftAskParticipantDetail generateAndCacheAndReturnNewDetail(final Long softAskId, final Long userId) {
+    GeneratedParticipantDetail newDetail = generateNewDetail();
+    final String username = newDetail.username();
+    final String displayName = newDetail.displayName();
 
     final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
-    participantDetail.setAvatarUrl(avatarUrls.get("default"));
+    final String avatarUrl = avatarUrls.get("default");
 
+    SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(username, displayName, avatarUrl);
+    participantDetailRepository.save(participantDetail);
+
+    cacheNewDetail(softAskId, userId, username, displayName, avatarUrl);
     return participantDetail;
   }
 
   /**
-   * Retrieves an existing username associated with a given soft ask and user, or generates and assigns
-   * a new one if none exists.
+   * Retrieves a participant detail from the cache for the given SoftAsk and user.
    *
-   * <p>This method first checks whether the username is present in the cache for the specified
-   * {@code softAskId} and {@code userId}. If found, the cached value is returned. Otherwise, it
-   * queries the repository to determine if a username has already been assigned. If an existing
-   * username is found, it is cached and returned. If no username exists, a new random username
-   * is generated and persisted. In cases where persistence fails due to a race condition (for
-   * example, another process assigning the same username concurrently), the method retries until
-   * a unique username is successfully stored.</p>
+   * <p>The method builds a cache key using {@code softAskId} and {@code userId},
+   * fetches the raw cached value, and converts it into a
+   * {@link GeneratedParticipantDetail} if present.</p>
    *
-   * @param softAskId the identifier of the soft ask for which the username is retrieved or assigned
-   * @param userId the identifier of the user associated with the soft ask
-   * @return the existing or newly assigned username
+   * @param softAskId the identifier of the SoftAsk session
+   * @param userId    the identifier of the user
+   * @return an {@link Optional} containing the cached participant detail if found,
+   *         otherwise {@link Optional#empty()}
    */
-  @Transactional
-  public GeneratedUsername getOrAssignUsername(final Long softAskId, final Long userId) {
-    final String cacheKey = USERNAME_CACHE_PREFIX + softAskId + ":" + userId;
-    final Object cachedUsername = cacheService.get(cacheKey);
+  private Optional<GeneratedParticipantDetail> findParticipantDetailInCache(final Long softAskId, final Long userId) {
+    final String cacheKey = generateCacheKey(softAskId, userId);
+    final Object cachedDetail = cacheService.get(cacheKey);
 
-    if (nonNull(cachedUsername)) {
-      final String username = String.valueOf(cachedUsername);
-      return GeneratedUsername.getFromCachedValue(username);
+    if (nonNull(cachedDetail)) {
+      final String cachedValue = String.valueOf(cachedDetail);
+      final GeneratedParticipantDetail participantDetail = GeneratedParticipantDetail.getFromCachedValue(cachedValue);
+
+      return Optional.of(participantDetail);
     }
 
-    final Optional<SoftAskParticipantDetail> existingUsername = softAskParticipantDetailRepository.findUsernameBySoftAskIdAndUserId(softAskId, userId);
-    if (existingUsername.isPresent()) {
-      SoftAskParticipantDetail softAskParticipantDetail = existingUsername.get();
-      final String username = softAskParticipantDetail.getUsername();
-      final String displayName = softAskParticipantDetail.getDisplayName();
+    return Optional.empty();
+  }
 
-      final String usernameToCache = GeneratedUsername.createCacheValue(username, displayName);
-      cacheUsername(cacheKey, usernameToCache);
+  /**
+   * Caches the given participant detail for the specified SoftAsk and user,
+   * then returns the same detail.
+   *
+   * <p>The participant's username, display name, and avatar URL are extracted and
+   * stored in the cache under a generated key, ensuring faster lookups on
+   * subsequent requests.</p>
+   *
+   * @param softAskId         the identifier of the SoftAsk session
+   * @param userId            the identifier of the user
+   * @param participantDetail the participant detail to cache and return
+   * @return the same {@code SoftAskParticipantDetail} that was provided
+   */
+  private SoftAskParticipantDetail cacheAndReturnDetail(final Long softAskId, final Long userId, SoftAskParticipantDetail participantDetail) {
+    final String username = participantDetail.getUsername();
+    final String displayName = participantDetail.getDisplayName();
+    final String avatarUrl = participantDetail.getAvatarUrl();
 
-      return GeneratedUsername.of(username, displayName);
-    }
+    cacheNewDetail(softAskId, userId, username, displayName, avatarUrl);
+    return participantDetail;
+  }
 
+  /**
+   * Generates a new {@link GeneratedParticipantDetail} with a unique random username.
+   *
+   * <p>This method delegates to {@code usernameService.generateRandomUsername()} and retries
+   * in case of a {@link DataIntegrityViolationException}, which can occur if the username
+   * is already in use due to race conditions. The loop continues until a valid, unique
+   * username is successfully generated.</p>
+   *
+   * @return a newly generated participant detail with a unique username
+   */
+  private GeneratedParticipantDetail generateNewDetail() {
     while (true) {
-      final GeneratedUsername generatedUsername = usernameService.generateRandomUsername();
-      final String newUsername = generatedUsername.username();
-      final String displayName = generatedUsername.displayName();
-
       try {
-        final SoftAskParticipantDetail softAskParticipantDetail = SoftAskParticipantDetail.of(softAskId, userId, newUsername, displayName);
-        final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
-        softAskParticipantDetail.setAvatarUrl(avatarUrls.get("default"));
-
-        softAskParticipantDetailRepository.save(softAskParticipantDetail);
-
-        cacheUsername(cacheKey, newUsername);
-        return generatedUsername;
+        return usernameService.generateRandomUsername();
       } catch (final DataIntegrityViolationException ex) {
         logIfEnabled(log::isErrorEnabled, () -> log.debug("""
-        Username is already in use and may be because of race conditions. Continue and try to generate a new username.
-        Message: {}
-        """, ex.getMessage()));
+      Username is already in use and may be because of race conditions. Continue and try to generate a new username.
+      Message: {}
+      """, ex.getMessage()));
       }
     }
   }
 
-  private void cacheUsername(final String cacheKey, final String newUsername) {
-    cacheService.set(cacheKey, newUsername, CACHE_TTL);
+  /**
+   * Converts a {@link GeneratedParticipantDetail} into a {@link SoftAskParticipantDetail}.
+   *
+   * <p>This creates a new participant detail entity using the username, display name,
+   * and avatar extracted from the generated detail.</p>
+   *
+   * @param generated the generated participant detail containing username, display name, and avatar
+   * @return a new {@code SoftAskParticipantDetail} created from the given generated detail
+   */
+  private SoftAskParticipantDetail toSoftAskParticipantDetail(GeneratedParticipantDetail generated) {
+    return SoftAskParticipantDetail.of(
+      generated.username(),
+      generated.displayName(),
+      generated.avatar()
+    );
   }
+
+  /**
+   * Stores a participant detail in the cache for the given SoftAsk and user.
+   *
+   * <p>The detail is serialized into a cache value using the provided username,
+   * display name, and avatar, then stored with a TTL under a generated cache key.</p>
+   *
+   * @param softAskId   the identifier of the SoftAsk session
+   * @param userId      the identifier of the user
+   * @param username    the participant's username
+   * @param displayName the participant's display name
+   * @param avatar      the participant's avatar URL
+   */
+  private void cacheNewDetail(final Long softAskId, final Long userId, final String username, final String displayName, final String avatar) {
+    final String cacheKey = generateCacheKey(softAskId, userId);
+    final String detailToCache = GeneratedParticipantDetail.createCacheValue(username, displayName, avatar);
+
+    cacheService.set(cacheKey, detailToCache, CACHE_TTL);
+  }
+
+  /**
+   * Generates a unique cache key for identifying a participant detail within a specific SoftAsk context.
+   *
+   * <p>The cache key is composed of the constant {@code USERNAME_CACHE_PREFIX}, followed by the
+   * {@code softAskId} and {@code userId}, separated by a colon. This ensures that each participant
+   * in a given SoftAsk session can be uniquely identified in the cache.</p>
+   *
+   * @param softAskId the identifier of the SoftAsk session
+   * @param userId the identifier of the user participating in the SoftAsk
+   * @return a cache key string in the format {@code PREFIX + softAskId + ":" + userId}
+   */
+  private String generateCacheKey(final Long softAskId, final Long userId) {
+    return USERNAME_CACHE_PREFIX + softAskId + ":" + userId;
+  }
+
 }
