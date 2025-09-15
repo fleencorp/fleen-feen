@@ -12,6 +12,10 @@ import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -96,6 +100,9 @@ public class SoftAsk extends FleenFeenEntity
 
   @Column(name = "geohash_prefix", length = 5, updatable = false)
   private String geoHashPrefix;
+
+  @Column(columnDefinition = "geography(Point, 4326)", updatable = false)
+  private Point location;
 
   @Column(name = "is_deleted", nullable = false)
   private Boolean deleted = false;
@@ -207,6 +214,13 @@ public class SoftAsk extends FleenFeenEntity
   @PrePersist
   public void prePersist() {
     slug = generateHybridSlug(description);
+    if (hasLatitudeAndLongitude()) {
+      final PrecisionModel precisionModel = new PrecisionModel();
+      final GeometryFactory factory = new GeometryFactory(precisionModel, 4326);
+      final Coordinate coordinate = new Coordinate(getLongitude(), getLatitude());
+
+      location = factory.createPoint(coordinate);
+    }
   }
 
 }

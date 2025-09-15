@@ -927,6 +927,7 @@ CREATE TABLE soft_ask (
 
   geohash VARCHAR(9) NULL,
   geohash_prefix VARCHAR(5) NULL,
+  location geography(Point, 4326),
 
   chat_space_id BIGINT,
   poll_id BIGINT,

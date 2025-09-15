@@ -114,12 +114,16 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
   public SoftAskSearchResult findSoftAsks(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
     final IsAMember member = user.toMember();
     final Pageable pageable = searchRequest.getPage();
+    final UserOtherDetailHolder userOtherDetailHolder = searchRequest.getUserOtherDetail();
+    final Double latitude = searchRequest.getLatitude();
+    final Double longitude = searchRequest.getLongitude();
+    final Double defaultRadius = 5000.0;
 
     final Page<SoftAskWithDetail> page = searchRequest.isByAuthor()
       ? softAskSearchRepository.findByAuthor(member.getMemberId(), pageable)
-      : softAskSearchRepository.findMany(searchRequest.getPage());
+      : softAskSearchRepository.findMany(latitude, longitude, defaultRadius, searchRequest.getPage());
 
-    return processAndReturnSoftAsks(page, member, searchRequest.getUserOtherDetail());
+    return processAndReturnSoftAsks(page, member, userOtherDetailHolder);
   }
 
   /**

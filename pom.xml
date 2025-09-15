@@ -288,6 +288,10 @@
             <artifactId>firebase-admin</artifactId>
             <version>9.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-spatial</artifactId>
+        </dependency>
 
     </dependencies>
 

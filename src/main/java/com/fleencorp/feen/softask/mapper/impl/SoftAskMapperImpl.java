@@ -94,7 +94,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setParentInfo(parentInfo);
 
       setOtherDetails(entry, response);
-      setIsAuthorDetails(entry, member, response);
+      IsAuthor.setIsAuthorDetails(entry, member, response);
 
       return response;
     }
@@ -116,13 +116,11 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
-        .map(entry -> {
-          final SoftAsk softAsk = entry.softAsk();
-          final SoftAskParticipantDetail softAskParticipantDetail = entry.username();
-          softAsk.setParticipant(softAskParticipantDetail);
-
+        .map(softAskWithDetail -> {
+          final SoftAsk softAsk = softAskWithDetail.softAsk();
           return toSoftAskResponse(softAsk);
-      }).toList();
+        })
+        .toList();
     }
 
     return List.of();
@@ -171,7 +169,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setChildRepliesSearchResult(searchResult);
 
       setOtherDetails(entry, response);
-      setIsAuthorDetails(entry, member, response);
+      IsAuthor.setIsAuthorDetails(entry, member, response);
 
       return response;
     }
@@ -199,7 +197,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
           reply.setSoftAskParticipantDetail(participantDetail);
 
           return toSoftAskReplyResponse(reply);
-        }).toList();
+        })
+        .toList();
     }
 
     return List.of();
@@ -218,12 +217,6 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
   @Override
   public IsDeletedInfo toIsDeletedInfo(final boolean isDeleted) {
     return toInfoMapper.toIsDeletedInfo(isDeleted);
-  }
-
-  private static void setIsAuthorDetails(final SoftAskCommonData entry, final IsAMember member, SoftAskCommonResponse response) {
-    if (IsAuthor.isAuthor(member, entry.getAuthorId())) {
-      response.markAsAuthor();
-    }
   }
 
   private void setOtherDetails(final SoftAskCommonData entry, final SoftAskCommonResponse response) {
