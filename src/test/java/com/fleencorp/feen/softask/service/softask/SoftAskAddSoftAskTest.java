@@ -1,4 +1,4 @@
-package com.fleencorp.feen.softask.service.impl.softask;
+package com.fleencorp.feen.softask.service.softask;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
@@ -19,9 +19,8 @@ import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.mother.SoftAskMother;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
+import com.fleencorp.feen.softask.service.impl.softask.SoftAskServiceImpl;
 import com.fleencorp.feen.softask.service.other.SoftAskQueryService;
-import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.softask.service.softask.SoftAskService;
 import com.fleencorp.localizer.service.Localizer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

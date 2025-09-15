@@ -43,8 +43,8 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
   private final SoftAskCommonService softAskCommonService;
   private final SoftAskOperationService softAskOperationService;
   private final SoftAskQueryService softAskQueryService;
-  private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskSearchService softAskSearchService;
+  private final SoftAskReplyRepository softAskReplyRepository;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
 
@@ -52,15 +52,15 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
       @Lazy final SoftAskCommonService softAskCommonService,
       final SoftAskOperationService softAskOperationService,
       final SoftAskQueryService softAskQueryService,
-      final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskSearchService softAskSearchService,
+      final SoftAskReplyRepository softAskReplyRepository,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
     this.softAskCommonService = softAskCommonService;
     this.softAskOperationService = softAskOperationService;
     this.softAskQueryService = softAskQueryService;
-    this.softAskReplyRepository = softAskReplyRepository;
     this.softAskSearchService = softAskSearchService;
+    this.softAskReplyRepository = softAskReplyRepository;
     this.softAskMapper = softAskMapper;
     this.localizer = localizer;
   }
