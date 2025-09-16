@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,19 +25,19 @@ import static java.util.Objects.nonNull;
 public class SoftAskSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  private SearchResult result;
+  private SearchResult<SoftAskResponse> result;
 
   @Override
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "soft.ask.search" : "soft.ask.empty.search";
   }
 
-  public static SoftAskSearchResult of(final SearchResult result) {
+  public static SoftAskSearchResult of(final SearchResult<SoftAskResponse> result) {
     return new SoftAskSearchResult(result);
   }
 
   public static SoftAskSearchResult empty() {
-    final SearchResult result = SearchResult.empty();
+    final SearchResult<SoftAskResponse> result = SearchResult.empty();
     return new SoftAskSearchResult(result);
   }
 }

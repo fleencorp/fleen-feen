@@ -123,36 +123,8 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
       ? softAskSearchRepository.findByAuthor(member.getMemberId(), pageable)
       : softAskSearchRepository.findMany(latitude, longitude, defaultRadius, searchRequest.getPage());
 
-    return processAndReturnSoftAsks(page, member, userOtherDetailHolder);
+    return softAskCommonService.processAndReturnSoftAsks(page, member, userOtherDetailHolder);
   }
 
-  /**
-   * Processes a page of soft asks and returns the corresponding search result.
-   *
-   * <p>This method maps the content of the given {@link Page} of
-   * {@link SoftAskWithDetail} entities to {@link SoftAskResponse} objects,
-   * enriches them with bookmarks, votes, location, and update permissions,
-   * and converts them into a {@link SearchResult}. The result is then wrapped
-   * into a {@link SoftAskSearchResult} and localized before being returned.
-   * If the provided page is {@code null}, an empty search result is returned.</p>
-   *
-   * @param page                the page of soft asks with details, may be {@code null}
-   * @param member              the member for whom the responses are processed
-   * @param userHaveOtherDetail the user detail object used to set location information
-   * @return a localized {@link SoftAskSearchResult} containing the processed soft asks,
-   *         or an empty result if the input page is {@code null}
-   */
-  private SoftAskSearchResult processAndReturnSoftAsks(final Page<SoftAskWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
-    if (nonNull(page)) {
-      final Collection<SoftAskResponse> softAskResponses = softAskMapper.toSoftAskResponses(page.getContent());
-      softAskCommonService.processSoftAskResponses(softAskResponses, member, userHaveOtherDetail);
 
-      final SearchResult<SoftAskResponse> searchResult = toSearchResult(softAskResponses, page);
-      final SoftAskSearchResult softAskSearchResult = SoftAskSearchResult.of(searchResult);
-
-      return localizer.of(softAskSearchResult);
-    }
-
-    return SoftAskSearchResult.empty();
-  }
 }

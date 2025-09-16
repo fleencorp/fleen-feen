@@ -13,15 +13,18 @@ import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
+import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.mapper.UserLocationMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.dto.common.UpdateSoftAskContentDto;
+import com.fleencorp.feen.softask.model.projection.SoftAskWithDetail;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.common.SoftAskContentUpdateResponse;
 import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
+import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
@@ -29,12 +32,14 @@ import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
 
@@ -47,6 +52,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   private final SoftAskOperationService softAskOperationService;
   private final SoftAskSearchService softAskSearchService;
   private final SoftAskVoteSearchService softAskVoteSearchService;
+  private final SoftAskMapper softAskMapper;
   private final UserLocationMapper userLocationMapper;
   private final Localizer localizer;
 
@@ -56,6 +62,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
       final SoftAskOperationService softAskOperationService,
       final SoftAskSearchService softAskSearchService,
       final SoftAskVoteSearchService softAskVoteSearchService,
+      final SoftAskMapper softAskMapper,
       final UserLocationMapper userLocationMapper,
       final Localizer localizer) {
     this.bookmarkOperationService = bookmarkOperationService;
@@ -63,10 +70,57 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
     this.softAskOperationService = softAskOperationService;
     this.softAskSearchService = softAskSearchService;
     this.softAskVoteSearchService = softAskVoteSearchService;
+    this.softAskMapper = softAskMapper;
     this.userLocationMapper = userLocationMapper;
     this.localizer = localizer;
   }
 
+  /**
+   * Processes a page of soft asks and returns the corresponding search result.
+   *
+   * <p>This method maps the content of the given {@link Page} of
+   * {@link SoftAskWithDetail} entities to {@link SoftAskResponse} objects,
+   * enriches them with bookmarks, votes, location, and update permissions,
+   * and converts them into a {@link SearchResult}. The result is then wrapped
+   * into a {@link SoftAskSearchResult} and localized before being returned.
+   * If the provided page is {@code null}, an empty search result is returned.</p>
+   *
+   * @param page                the page of soft asks with details, may be {@code null}
+   * @param member              the member for whom the responses are processed
+   * @param userHaveOtherDetail the user detail object used to set location information
+   * @return a localized {@link SoftAskSearchResult} containing the processed soft asks,
+   *         or an empty result if the input page is {@code null}
+   */
+  @Override
+  @Transactional(readOnly = true)
+  public SoftAskSearchResult processAndReturnSoftAsks(final Page<SoftAskWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
+    if (nonNull(page)) {
+      final Collection<SoftAskResponse> softAskResponses = softAskMapper.toSoftAskResponses(page.getContent());
+      processSoftAskResponses(softAskResponses, member, userHaveOtherDetail);
+
+      final SearchResult<SoftAskResponse> searchResult = toSearchResult(softAskResponses, page);
+      final SoftAskSearchResult softAskSearchResult = SoftAskSearchResult.of(searchResult);
+
+      return localizer.of(softAskSearchResult);
+    }
+
+    return SoftAskSearchResult.empty();
+  }
+
+  /**
+   * Processes a collection of soft ask response objects by enriching them with
+   * user-related details. The method applies location information from the given
+   * user details and, if a member is provided, marks the response as updatable by
+   * that member. This ensures that each response carries both contextual location
+   * data and edit permissions when applicable.
+   *
+   * @param softAskCommonResponses the collection of response objects to process
+   * @param member the member whose ID may be used to mark responses as updatable,
+   *               or null if no member is available
+   * @param userHaveOtherDetail additional details used for setting location
+   *                            information on the responses
+   * @param <T> the type of response, which must extend SoftAskCommonResponse
+   */
   @Transactional(readOnly = true)
   protected <T extends SoftAskCommonResponse> void processResponsesInternal(
     Collection<T> softAskCommonResponses,
@@ -82,6 +136,21 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
     });
   }
 
+  /**
+   * Processes a collection of soft ask responses by applying additional user-specific
+   * details. The method updates bookmark information, vote data, and location details
+   * for each response. If a member is provided, responses are also marked as updatable
+   * by that member. This ensures that all relevant user context is included in the
+   * responses before they are returned or used further.
+   *
+   * @param softAskCommonResponses the collection of response objects to process,
+   *                               may be null
+   * @param member the member whose information may be used for processing bookmarks,
+   *               votes, and edit permissions
+   * @param userHaveOtherDetail additional details used for setting location
+   *                            information on the responses
+   * @param <T> the type of response, which must extend SoftAskCommonResponse
+   */
   @Override
   @Transactional(readOnly = true)
   public <T extends SoftAskCommonResponse> void processSoftAskResponses(Collection<T> softAskCommonResponses, IsAMember member, UserHaveOtherDetail userHaveOtherDetail) {

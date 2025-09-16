@@ -9,14 +9,19 @@ import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.common.UpdateSoftAskContentDto;
+import com.fleencorp.feen.softask.model.projection.SoftAskWithDetail;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.common.SoftAskContentUpdateResponse;
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
+import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
+import org.springframework.data.domain.Page;
 
 import java.util.Collection;
 
 public interface SoftAskCommonService {
+
+  SoftAskSearchResult processAndReturnSoftAsks(Page<SoftAskWithDetail> page, IsAMember member, UserHaveOtherDetail userHaveOtherDetail);
 
   <T extends SoftAskCommonResponse> void processSoftAskResponses(
     Collection<T> softAskCommonResponses,
