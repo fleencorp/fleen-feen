@@ -10,6 +10,7 @@ import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.model.contract.*;
 import com.fleencorp.feen.poll.model.info.*;
+import com.fleencorp.feen.shared.common.contract.IsShareable;
 import com.fleencorp.feen.user.model.response.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -54,7 +55,8 @@ import static com.fleencorp.base.util.datetime.DateFormatUtil.DATE_TIME;
   "updated_on",
 })
 public class PollResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasSlug, Likeable, Updatable {
+  implements Bookmarkable, HasId, HasSlug,
+    IsShareable, Likeable, Updatable {
 
   @JsonProperty("question")
   private String question;
@@ -113,7 +115,6 @@ public class PollResponse extends FleenFeenResponse
 
   @JsonProperty("is_updatable")
   private Boolean isUpdatable;
-
 
   @JsonIgnore
   private Long authorId;

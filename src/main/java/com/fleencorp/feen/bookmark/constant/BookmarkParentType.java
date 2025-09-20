@@ -13,8 +13,8 @@ public enum BookmarkParentType {
   BUSINESS("Business"),
   CHAT_SPACE("Chat Space"),
   JOB_OPPORTUNITY("Job Opportunity"),
-  REVIEW("Review"),
   POLL("Poll"),
+  REVIEW("Review"),
   SOFT_ASK("Soft Ask"),
   SOFT_ASK_REPLY("Soft Ask Reply"),
   STREAM("Stream");

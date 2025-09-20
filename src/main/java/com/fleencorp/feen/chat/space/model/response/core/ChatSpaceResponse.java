@@ -22,6 +22,7 @@ import com.fleencorp.feen.like.model.info.LikeCountInfo;
 import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.model.contract.*;
+import com.fleencorp.feen.shared.common.contract.IsShareable;
 import com.fleencorp.feen.stream.model.other.Organizer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -69,7 +70,9 @@ import static java.util.Objects.nonNull;
   "updated_on"
 })
 public class ChatSpaceResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasLinks, HasOrganizer, HasSlug, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasLinks,
+    IsShareable, HasOrganizer, HasSlug,
+    Updatable, Likeable {
 
   @JsonProperty("title")
   private String title;

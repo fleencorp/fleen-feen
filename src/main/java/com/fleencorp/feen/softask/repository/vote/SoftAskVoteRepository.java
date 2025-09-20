@@ -14,7 +14,8 @@ public interface SoftAskVoteRepository extends JpaRepository<SoftAskVote, Long> 
     WHERE
       sav.memberId = :memberId AND
       sav.softAskId = :softAskId AND
-      sav.parentId = :softAskId
+      sav.parentId = :softAskId AND
+      sav.softAskReplyId is NULL
   """)
   Optional<SoftAskVote> findByMemberAndSoftAsk(
     @Param("memberId") Long memberId,

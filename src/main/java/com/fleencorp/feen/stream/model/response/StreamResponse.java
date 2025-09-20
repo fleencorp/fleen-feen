@@ -16,6 +16,7 @@ import com.fleencorp.feen.link.model.response.base.LinkMusicResponse;
 import com.fleencorp.feen.model.contract.*;
 import com.fleencorp.feen.review.model.info.ReviewCountInfo;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
+import com.fleencorp.feen.shared.common.contract.IsShareable;
 import com.fleencorp.feen.stream.constant.core.StreamType;
 import com.fleencorp.feen.stream.constant.core.StreamVisibility;
 import com.fleencorp.feen.stream.model.info.attendance.AttendanceInfo;
@@ -81,7 +82,9 @@ import static java.util.Objects.nonNull;
   "updated_on",
 })
 public class StreamResponse extends FleenFeenResponse
-  implements Bookmarkable, HasId, HasOrganizer, HasSlug, Updatable, Likeable {
+  implements Bookmarkable, HasId, HasOrganizer,
+    HasSlug, IsShareable, Likeable,
+    Updatable {
 
   @JsonProperty("title")
   private String title;

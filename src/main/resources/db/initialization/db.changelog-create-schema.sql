@@ -1145,6 +1145,7 @@ CREATE TABLE bookmarks (
     CHECK (parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'POLL', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
 
   chat_space_id BIGINT,
+  poll_id BIGINT,
   review_id BIGINT,
   stream_id BIGINT,
   soft_ask_id BIGINT,
@@ -1156,34 +1157,39 @@ CREATE TABLE bookmarks (
   updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
   CONSTRAINT bookmarks_fk_chat_space
-   FOREIGN KEY (chat_space_id)
-     REFERENCES chat_space (chat_space_id)
-     ON DELETE CASCADE,
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+        ON DELETE CASCADE,
+
+  CONSTRAINT bookmarks_fk_poll
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT bookmarks_fk_stream
-   FOREIGN KEY (stream_id)
-     REFERENCES stream (stream_id)
-     ON DELETE CASCADE,
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT bookmarks_fk_review
-   FOREIGN KEY (review_id)
-     REFERENCES review (review_id)
-     ON DELETE CASCADE,
+    FOREIGN KEY (review_id)
+      REFERENCES review (review_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT bookmarks_fk_soft_ask
-   FOREIGN KEY (soft_ask_id)
-     REFERENCES soft_ask (soft_ask_id)
-     ON DELETE CASCADE,
+    FOREIGN KEY (soft_ask_id)
+      REFERENCES soft_ask (soft_ask_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT bookmarks_fk_soft_ask_reply
-   FOREIGN KEY (soft_ask_reply_id)
-     REFERENCES soft_ask_reply (soft_ask_reply_id)
-     ON DELETE CASCADE,
+    FOREIGN KEY (soft_ask_reply_id)
+      REFERENCES soft_ask_reply (soft_ask_reply_id)
+        ON DELETE CASCADE,
 
   CONSTRAINT bookmarks_fk_member
-   FOREIGN KEY (member_id)
-     REFERENCES member (member_id)
-     ON DELETE CASCADE
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
 );
 
 --rollback DROP TABLE IF EXISTS `bookmarks`;

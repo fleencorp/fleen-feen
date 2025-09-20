@@ -12,6 +12,7 @@ import com.fleencorp.feen.link.model.response.base.LinkResponse;
 import com.fleencorp.feen.model.contract.HasLinks;
 import com.fleencorp.feen.model.contract.HasSlug;
 import com.fleencorp.feen.model.contract.Updatable;
+import com.fleencorp.feen.shared.common.contract.IsShareable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,7 +45,8 @@ import java.util.HashSet;
   "updated_on"
 })
 public class BusinessResponse extends FleenFeenResponse
-  implements HasLinks, HasSlug, Updatable {
+  implements HasLinks, HasSlug, IsShareable,
+    Updatable {
 
   @JsonProperty("title")
   private String title;
