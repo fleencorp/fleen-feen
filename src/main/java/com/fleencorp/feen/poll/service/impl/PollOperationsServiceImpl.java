@@ -9,7 +9,7 @@ import com.fleencorp.feen.poll.model.projection.PollOptionEntry;
 import com.fleencorp.feen.poll.model.projection.PollVoteAggregate;
 import com.fleencorp.feen.poll.repository.*;
 import com.fleencorp.feen.poll.service.PollOperationsService;
-import com.fleencorp.feen.poll.service.PollSearchService;
+import com.fleencorp.feen.poll.service.PollOtherService;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Service
 public class PollOperationsServiceImpl implements PollOperationsService {
 
-  private final PollSearchService pollSearchService;
+  private final PollOtherService pollOtherService;
   private final PollRepository pollRepository;
   private final PollManagementRepository pollManagementRepository;
   private final PollOptionRepository pollOptionRepository;
@@ -31,13 +31,13 @@ public class PollOperationsServiceImpl implements PollOperationsService {
   private final PollVoteRepository pollVoteRepository;
 
   public PollOperationsServiceImpl(
-      final PollSearchService pollSearchService,
+      final PollOtherService pollOtherService,
       final PollRepository pollRepository,
       final PollManagementRepository pollManagementRepository,
       final PollOptionRepository pollOptionRepository,
       final PollVoteSearchRepository pollVoteSearchRepository,
       final PollVoteRepository pollVoteRepository) {
-    this.pollSearchService = pollSearchService;
+    this.pollOtherService = pollOtherService;
     this.pollRepository = pollRepository;
     this.pollManagementRepository = pollManagementRepository;
     this.pollOptionRepository = pollOptionRepository;
@@ -59,7 +59,7 @@ public class PollOperationsServiceImpl implements PollOperationsService {
 
   @Override
   public Poll findPoll(Long pollId) {
-    return pollSearchService.findPollById(pollId);
+    return pollOtherService.findPollById(pollId);
   }
 
   @Override

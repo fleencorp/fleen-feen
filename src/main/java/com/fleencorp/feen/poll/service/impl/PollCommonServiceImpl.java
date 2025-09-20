@@ -1,7 +1,6 @@
 package com.fleencorp.feen.poll.service.impl;
 
 import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.like.service.LikeOperationService;
 import com.fleencorp.feen.poll.exception.poll.PollUpdateUnauthorizedException;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
@@ -15,9 +14,11 @@ import com.fleencorp.feen.poll.model.response.core.PollOptionResponse;
 import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
+import com.fleencorp.feen.poll.service.PollExternalQueryService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -33,19 +34,19 @@ public class PollCommonServiceImpl implements PollCommonService {
 
   private final BookmarkOperationService bookmarkOperationService;
   private final LikeOperationService likeOperationService;
-  private final ChatSpaceService chatSpaceService;
+  private final PollExternalQueryService pollExternalQueryService;
   private final PollOperationsService pollOperationsService;
   private final PollUnifiedMapper pollUnifiedMapper;
 
   public PollCommonServiceImpl(
       final BookmarkOperationService bookmarkOperationService,
       final LikeOperationService likeOperationService,
-      final ChatSpaceService chatSpaceService,
-      final PollOperationsService pollOperationsService,
+      final PollExternalQueryService pollExternalQueryService,
+      @Lazy final PollOperationsService pollOperationsService,
       final PollUnifiedMapper pollUnifiedMapper) {
     this.bookmarkOperationService = bookmarkOperationService;
     this.likeOperationService = likeOperationService;
-    this.chatSpaceService = chatSpaceService;
+    this.pollExternalQueryService = pollExternalQueryService;
     this.pollOperationsService = pollOperationsService;
     this.pollUnifiedMapper = pollUnifiedMapper;
   }
@@ -65,7 +66,7 @@ public class PollCommonServiceImpl implements PollCommonService {
   @Override
   public void checkUpdatePermission(final Poll poll, final Member member) {
     if (poll.hasAChatSpaceParent()) {
-      chatSpaceService.verifyCreatorOrAdminOfChatSpace(poll.getChatSpace(), member);
+      pollExternalQueryService.verifyCreatorOrAdminOfChatSpace(poll.getChatSpace(), member);
     } else if (poll.hasAStreamParent() || poll.hasNoParent()) {
       poll.checkAuthor(member.getMemberId());
     }
@@ -105,7 +106,7 @@ public class PollCommonServiceImpl implements PollCommonService {
       });
 
     bookmarkOperationService.populateBookmarkForReviews(pollResponses, member);
-    likeOperationService.populateLikesForReviews(pollResponses, member);
+    likeOperationService.populateLikesForPoll(pollResponses, member);
   }
 
   /**

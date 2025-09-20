@@ -25,6 +25,7 @@ import com.fleencorp.localizer.service.Localizer;
 import com.fleencorp.localizer.service.adapter.DefaultLocalizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,8 @@ public class PollSearchServiceImpl implements PollSearchService {
   private final Localizer localizer;
 
   public PollSearchServiceImpl(
-      final PollCommonService pollCommonService,
-      final PollOperationsService pollOperationsService,
+      @Lazy final PollCommonService pollCommonService,
+      @Lazy final PollOperationsService pollOperationsService,
       final PollUnifiedMapper pollUnifiedMapper,
       final DefaultLocalizer defaultLocalizer,
       final Localizer localizer) {
