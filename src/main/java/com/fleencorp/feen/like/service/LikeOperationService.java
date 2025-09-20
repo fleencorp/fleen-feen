@@ -11,5 +11,7 @@ public interface LikeOperationService {
 
   <T extends Likeable> void populateStreamLikesFor(Collection<T> responses, IsAMember member);
 
+  <T extends Likeable> void populateLikesForPoll(Collection<T> reviewResponses, IsAMember member);
+
   <T extends Likeable> void populateLikesForReviews(Collection<T> reviewResponses, IsAMember member);
 }

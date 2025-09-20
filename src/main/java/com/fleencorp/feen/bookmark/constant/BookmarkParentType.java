@@ -14,6 +14,7 @@ public enum BookmarkParentType {
   CHAT_SPACE("Chat Space"),
   JOB_OPPORTUNITY("Job Opportunity"),
   REVIEW("Review"),
+  POLL("Poll"),
   SOFT_ASK("Soft Ask"),
   SOFT_ASK_REPLY("Soft Ask Reply"),
   STREAM("Stream");
@@ -34,6 +35,10 @@ public enum BookmarkParentType {
 
   public static boolean isChatSpace(final BookmarkParentType bookmarkParentType) {
     return bookmarkParentType == CHAT_SPACE;
+  }
+
+  public static boolean isPoll(final BookmarkParentType bookmarkParentType) {
+    return bookmarkParentType == POLL;
   }
 
   public static boolean isReview(final BookmarkParentType bookmarkParentType) {

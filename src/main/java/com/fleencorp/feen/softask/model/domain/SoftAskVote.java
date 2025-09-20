@@ -40,7 +40,7 @@ public class SoftAskVote extends FleenFeenEntity {
   @Column(name = "type", nullable = false)
   private SoftAskVoteType voteType;
 
-  @Column(name = "soft_ask_id", updatable = false, insertable = false)
+  @Column(name = "soft_ask_id", insertable = false, updatable = false)
   private Long softAskId;
 
   @ToString.Exclude
@@ -48,7 +48,7 @@ public class SoftAskVote extends FleenFeenEntity {
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id")
   private SoftAsk softAsk;
 
-  @Column(name = "soft_ask_reply_id", updatable = false, insertable = false)
+  @Column(name = "soft_ask_reply_id", insertable = false, updatable = false)
   private Long softAskReplyId;
 
   @ToString.Exclude

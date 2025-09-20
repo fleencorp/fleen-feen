@@ -759,7 +759,7 @@ CREATE TABLE likes (
   member_id BIGINT NOT NULL,
 
   like_parent_type VARCHAR(255)
-    NOT NULL CHECK (like_parent_type IN ('CHAT_SPACE', 'REVIEW', 'STREAM')),
+    NOT NULL CHECK (like_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'POLL', 'REVIEW', 'STREAM')),
 
   like_type VARCHAR(255)
     NOT NULL CHECK (like_type IN ('LIKE', 'UNLIKE')),
@@ -1121,7 +1121,7 @@ CREATE TABLE bookmarks (
     CHECK (type IN ('BOOKMARK', 'UNBOOKMARK')),
 
   parent_type VARCHAR(255) NOT NULL
-    CHECK (parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
+    CHECK (parent_type IN ('BUSINESS', 'CHAT_SPACE', 'JOB_OPPORTUNITY', 'POLL', 'REVIEW', 'SOFT_ASK', 'SOFT_ASK_REPLY', 'STREAM')),
 
   chat_space_id BIGINT,
   review_id BIGINT,

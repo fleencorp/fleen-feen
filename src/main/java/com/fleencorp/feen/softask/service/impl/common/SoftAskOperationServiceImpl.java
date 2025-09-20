@@ -125,8 +125,8 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
   @Override
   @Transactional
-  public Integer updateBookmarkCount(final Long softAskId, final boolean isBookmarked) {
-    return isBookmarked
+  public Integer updateBookmarkCount(final Long softAskId, final boolean bookmarked) {
+    return bookmarked
       ? incrementBookmarkCount(softAskId)
       : decrementBookmarkCount(softAskId);
   }
@@ -143,8 +143,8 @@ public class SoftAskOperationServiceImpl implements SoftAskOperationService {
 
   @Override
   @Transactional
-  public Integer updateBookmarkCount(final Long softAskId, final Long softAskReplyId, final boolean isBookmarked) {
-    return isBookmarked
+  public Integer updateBookmarkCount(final Long softAskId, final Long softAskReplyId, final boolean bookmarked) {
+    return bookmarked
       ? incrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId)
       : decrementSoftAskReplyBookmarkCount(softAskId, softAskReplyId);
   }

@@ -4,6 +4,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
 import com.fleencorp.feen.softask.model.response.vote.SoftAskVoteUpdateResponse;
 import com.fleencorp.feen.softask.service.vote.SoftAskVoteService;
@@ -41,6 +42,8 @@ public class SoftAskVoteController {
       content = @Content(schema = @Schema(implementation = SoftAskNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Soft Ask Reply not found",
       content = @Content(schema = @Schema(implementation = SoftAskReplyNotFoundException.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden operation",
+      content = @Content(schema = @Schema(implementation = SoftAskUpdateDeniedException.class))),
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })

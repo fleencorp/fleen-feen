@@ -10,7 +10,7 @@ import com.fleencorp.feen.review.model.projection.ReviewParentCount;
 import com.fleencorp.feen.review.model.response.base.ReviewResponse;
 import com.fleencorp.feen.review.repository.ReviewRepository;
 import com.fleencorp.feen.review.service.ReviewCommonService;
-import com.fleencorp.feen.user.model.domain.Member;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +51,7 @@ public class ReviewCommonServiceImpl implements ReviewCommonService {
    * @param member the current member interacting with the reviews
    */
   @Override
-  public void processReviewsOtherDetails(final Collection<ReviewResponse> reviewResponses, final Member member) {
+  public void processReviewsOtherDetails(final Collection<ReviewResponse> reviewResponses, final IsAMember member) {
     if (allNonNull(reviewResponses, member)) {
       reviewResponses.stream()
         .filter(Objects::nonNull)

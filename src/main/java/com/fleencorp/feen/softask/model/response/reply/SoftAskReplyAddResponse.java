@@ -16,13 +16,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "id",
+  "message",
+  "soft_ask_reply_id",
   "child_reply_count",
   "reply",
   "created_on",
   "updated_on"
 })
 public class SoftAskReplyAddResponse extends LocalizedResponse {
+
+  @JsonProperty("soft_ask_reply_id")
+  private Long softAskReplyId;
 
   @JsonProperty("child_reply_count")
   private Integer childReplyCount;
@@ -35,7 +39,7 @@ public class SoftAskReplyAddResponse extends LocalizedResponse {
     return "soft.ask.reply.add";
   }
 
-  public static SoftAskReplyAddResponse of(final Integer childReplyCount, final SoftAskReplyResponse softAskReplyResponse) {
-    return new SoftAskReplyAddResponse(childReplyCount, softAskReplyResponse);
+  public static SoftAskReplyAddResponse of(final Long softAskReplyId, final Integer childReplyCount, final SoftAskReplyResponse softAskReplyResponse) {
+    return new SoftAskReplyAddResponse(softAskReplyId, childReplyCount, softAskReplyResponse);
   }
 }

@@ -2,7 +2,6 @@ package com.fleencorp.feen.like.service.impl;
 
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
@@ -13,17 +12,16 @@ import com.fleencorp.feen.like.model.holder.LikeParentDetailHolder;
 import com.fleencorp.feen.like.model.response.LikeCreateResponse;
 import com.fleencorp.feen.like.model.response.LikeResponse;
 import com.fleencorp.feen.like.repository.LikeRepository;
+import com.fleencorp.feen.like.service.LikeExternalQueryService;
 import com.fleencorp.feen.like.service.LikeService;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.review.exception.core.ReviewNotFoundException;
 import com.fleencorp.feen.review.model.domain.Review;
-import com.fleencorp.feen.review.service.ReviewOperationService;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,23 +34,17 @@ import static com.fleencorp.base.util.ExceptionUtil.checkIsNullAny;
 @Service
 public class LikeServiceImpl implements LikeService {
 
-  private final ChatSpaceService chatSpaceService;
-  private final ReviewOperationService reviewOperationService;
-  private final StreamOperationsService streamOperationsService;
+  private final LikeExternalQueryService likeExternalQueryService;
   private final LikeRepository likeRepository;
   private final LikeMapper likeMapper;
   private final Localizer localizer;
 
   public LikeServiceImpl(
-      final ChatSpaceService chatSpaceService,
-      final ReviewOperationService reviewOperationService,
-      @Lazy final StreamOperationsService streamOperationsService,
+    final LikeExternalQueryService likeExternalQueryService,
       final LikeRepository likeRepository,
       final LikeMapper likeMapper,
       final Localizer localizer) {
-    this.chatSpaceService = chatSpaceService;
-    this.reviewOperationService = reviewOperationService;
-    this.streamOperationsService = streamOperationsService;
+    this.likeExternalQueryService = likeExternalQueryService;
     this.likeRepository = likeRepository;
     this.likeMapper = likeMapper;
     this.localizer = localizer;
@@ -107,13 +99,14 @@ public class LikeServiceImpl implements LikeService {
    * @return the newly created or updated {@link Like}
    */
   protected Like createOrUpdateLike(final LikeDto likeDto, final Long parentId, final LikeParentType parentType, final Member member, final LikeParentDetailHolder detailsHolder) {
-    final FleenStream stream = detailsHolder.stream();
     final ChatSpace chatSpace = detailsHolder.chatSpace();
+    final Poll poll = detailsHolder.poll();
     final Review review = detailsHolder.review();
+    final FleenStream stream = detailsHolder.stream();
 
     return findLikeByParent(parentId, parentType, member)
       .map(existingLike -> existingLike.updateType(likeDto.getLikeType()))
-      .orElseGet(() -> likeDto.by(chatSpace, review, stream, member));
+      .orElseGet(() -> likeDto.by(chatSpace, poll, review, stream, member));
   }
 
   /**
@@ -138,11 +131,12 @@ public class LikeServiceImpl implements LikeService {
       FailedOperationException {
     checkIsNull(likeParentType, FailedOperationException::new);
 
-    final FleenStream stream = LikeParentType.isStream(likeParentType) ? streamOperationsService.findStream(parentId) : null;
-    final ChatSpace chatSpace = LikeParentType.isChatSpace(likeParentType) ? chatSpaceService.findChatSpace(parentId) : null;
-    final Review review = LikeParentType.isReview(likeParentType) ? reviewOperationService.findReview(parentId) : null;
+    final ChatSpace chatSpace = LikeParentType.isChatSpace(likeParentType) ? likeExternalQueryService.findChatSpaceById(parentId) : null;
+    final Poll poll = LikeParentType.isPoll(likeParentType) ? likeExternalQueryService.findPollById(parentId) : null;
+    final Review review = LikeParentType.isReview(likeParentType) ? likeExternalQueryService.findReviewById(parentId) : null;
+    final FleenStream stream = LikeParentType.isStream(likeParentType) ? likeExternalQueryService.findStreamById(parentId) : null;
 
-    return LikeParentDetailHolder.of(chatSpace, review, stream, likeParentType);
+    return LikeParentDetailHolder.of(chatSpace, poll, review, stream, likeParentType);
   }
 
   /**
@@ -164,9 +158,10 @@ public class LikeServiceImpl implements LikeService {
     final boolean isLiked = LikeType.isLiked(likeType);
 
     return switch (parentType) {
-      case CHAT_SPACE -> chatSpaceService.updateLikeCount(parentId, isLiked);
-      case STREAM -> streamOperationsService.updateLikeCount(parentId, isLiked);
-      case REVIEW -> reviewOperationService.updateLikeCount(parentId, isLiked);
+      case CHAT_SPACE -> likeExternalQueryService.updateChatSpaceLikeCount(parentId, isLiked);
+      case POLL -> likeExternalQueryService.updatePollLikeCount(parentId, isLiked);
+      case REVIEW -> likeExternalQueryService.updateReviewLikeCount(parentId, isLiked);
+      case STREAM -> likeExternalQueryService.updateStreamLikeCount(parentId, isLiked);
     };
   }
 
@@ -189,9 +184,10 @@ public class LikeServiceImpl implements LikeService {
     final Long memberId = member.getMemberId();
 
     return switch (likeParentType) {
-      case STREAM -> likeRepository.findByMemberAndStream(memberId, parentId);
       case CHAT_SPACE -> likeRepository.findByMemberAndChatSpace(memberId, parentId);
+      case POLL -> likeRepository.findByMemberAndPoll(memberId, parentId);
       case REVIEW -> likeRepository.findByMemberAndReview(memberId, parentId);
+      case STREAM -> likeRepository.findByMemberAndStream(memberId, parentId);
     };
   }
 }

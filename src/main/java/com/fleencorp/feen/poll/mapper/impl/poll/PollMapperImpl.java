@@ -1,6 +1,11 @@
 package com.fleencorp.feen.poll.mapper.impl.poll;
 
+import com.fleencorp.feen.bookmark.model.info.BookmarkCountInfo;
+import com.fleencorp.feen.bookmark.model.info.UserBookmarkInfo;
+import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.common.model.info.ShareCountInfo;
+import com.fleencorp.feen.like.model.info.LikeCountInfo;
+import com.fleencorp.feen.like.model.info.UserLikeInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.poll.mapper.common.PollInfoMapper;
@@ -68,6 +73,18 @@ public final class PollMapperImpl extends BaseMapper implements PollMapper {
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
+      final UserLikeInfo userLikeInfo = toInfoMapper.toLikeInfo(false);
+      response.setUserLikeInfo(userLikeInfo);
+
+      final LikeCountInfo likeCountInfo = toInfoMapper.toLikeCountInfo(entry.getLikeCount());
+      response.setLikeCountInfo(likeCountInfo);
+
+      final UserBookmarkInfo userBookmarkInfo = toInfoMapper.toBookmarkInfo(false);
+      response.setUserBookmarkInfo(userBookmarkInfo);
+
+      final BookmarkCountInfo bookmarkCountInfo = toInfoMapper.toBookmarkCountInfo(entry.getBookmarkCount());
+      response.setBookmarkCountInfo(bookmarkCountInfo);
+
       final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
       response.setShareCountInfo(shareCountInfo);
 
@@ -95,6 +112,9 @@ public final class PollMapperImpl extends BaseMapper implements PollMapper {
 
       final PollVoteResponse pollVoteResponse = PollVoteResponse.of(isVotedInfo, totalPollVoteEntriesInfo);
       response.setPollVote(pollVoteResponse);
+
+      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentTitle());
+      response.setParentInfo(parentInfo);
 
       final Member author = entry.getAuthor();
       final UserResponse userResponse = UserResponse.of(

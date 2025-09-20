@@ -27,7 +27,7 @@ public class StreamAttendee extends FleenFeenEntity
   @Column(name = "stream_attendee_id", nullable = false, updatable = false, unique = true)
   private Long attendeeId;
 
-  @Column(name = "stream_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "stream_id", nullable = false, insertable = false, updatable = false)
   private Long streamId;
 
   @ToString.Exclude

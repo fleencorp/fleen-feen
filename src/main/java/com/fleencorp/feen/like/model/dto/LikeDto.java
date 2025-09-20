@@ -8,6 +8,7 @@ import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
 import com.fleencorp.feen.like.model.domain.Like;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -47,9 +48,10 @@ public class LikeDto {
     return LikeType.of(likeType);
   }
 
-  public Like by(final ChatSpace chatSpace, final Review review, final FleenStream stream, final Member member) {
+  public Like by(final ChatSpace chatSpace, final Poll poll, final Review review, final FleenStream stream, final Member member) {
     return switch (getLikeParentType()) {
       case CHAT_SPACE -> toChatSpaceLike(chatSpace, member);
+      case POLL -> toPollLike(poll, member);
       case REVIEW -> toReviewLike(review, member);
       case STREAM -> toStreamLike(stream, member);
       case null -> throw FailedOperationException.of();
@@ -60,6 +62,14 @@ public class LikeDto {
     final Like like = toLike(chatSpace.getChatSpaceId(), chatSpace.getTitle(), member);
     like.setChatSpaceId(chatSpace.getChatSpaceId());
     like.setChatSpace(chatSpace);
+
+    return like;
+  }
+
+  protected Like toPollLike(final Poll poll, final Member member) {
+    final Like like = toLike(poll.getPollId(), poll.getTitle(), member);
+    like.setPollId(poll.getPollId());
+    like.setPoll(poll);
 
     return like;
   }

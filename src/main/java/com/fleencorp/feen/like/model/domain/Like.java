@@ -4,6 +4,7 @@ import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.like.constant.LikeParentType;
 import com.fleencorp.feen.like.constant.LikeType;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.user.model.domain.Member;
@@ -43,7 +44,7 @@ public class Like extends FleenFeenEntity {
   @Column(name = "like_type", nullable = false)
   private LikeType likeType;
 
-  @Column(name = "chat_space_id", updatable = false, insertable = false)
+  @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
   @ToString.Exclude
@@ -51,15 +52,15 @@ public class Like extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id")
   private ChatSpace chatSpace;
 
-  @Column(name = "stream_id", updatable = false, insertable = false)
-  private Long streamId;
+  @Column(name = "poll_id", insertable = false, updatable = false)
+  private Long pollId;
 
   @ToString.Exclude
-  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
-  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
-  private FleenStream stream;
+  @ManyToOne(fetch = LAZY, targetEntity = Poll.class)
+  @JoinColumn(name = "poll_id", referencedColumnName = "poll_id")
+  private Poll poll;
 
-  @Column(name = "review_id", updatable = false, insertable = false)
+  @Column(name = "review_id", insertable = false, updatable = false)
   private Long reviewId;
 
   @ToString.Exclude
@@ -67,6 +68,14 @@ public class Like extends FleenFeenEntity {
   @JoinColumn(name = "review_id", referencedColumnName = "review_id")
   private Review review;
 
+  @Column(name = "stream_id", insertable = false, updatable = false)
+  private Long streamId;
+
+  @ToString.Exclude
+  @ManyToOne(fetch = LAZY, targetEntity = FleenStream.class)
+  @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
+  private FleenStream stream;
+  
   @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 

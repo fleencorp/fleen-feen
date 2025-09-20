@@ -16,6 +16,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
+  "message",
   "vote_id",
   "vote"
 })

@@ -5,20 +5,14 @@ import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
-import com.fleencorp.feen.poll.model.domain.PollOption;
-import com.fleencorp.feen.poll.model.domain.PollVote;
 import com.fleencorp.feen.poll.model.form.PollFormField;
 import com.fleencorp.feen.poll.model.form.field.PollFormFieldGuide;
 import com.fleencorp.feen.poll.model.holder.PollResponseEntriesHolder;
-import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
-import com.fleencorp.feen.poll.model.info.IsVotedInfo;
 import com.fleencorp.feen.poll.model.info.PollVisibilityInfo;
 import com.fleencorp.feen.poll.model.request.PollSearchRequest;
 import com.fleencorp.feen.poll.model.response.GetDataRequiredToCreatePoll;
 import com.fleencorp.feen.poll.model.response.PollRetrieveResponse;
-import com.fleencorp.feen.poll.model.response.core.PollOptionResponse;
 import com.fleencorp.feen.poll.model.response.core.PollResponse;
-import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.poll.model.search.ChatSpacePollSearchResult;
 import com.fleencorp.feen.poll.model.search.PollSearchResult;
 import com.fleencorp.feen.poll.model.search.StreamPollSearchResult;
@@ -36,15 +30,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
-import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -139,7 +132,7 @@ public class PollSearchServiceImpl implements PollSearchService {
 
     final PollResponse pollResponse = pollUnifiedMapper.toPollResponse(poll);
     final PollResponseEntriesHolder pollResponseEntriesHolder = PollResponseEntriesHolder.of(pollResponse);
-    processPollOtherDetails(pollResponseEntriesHolder, user.toMember());
+    pollCommonService.processPollOtherDetails(pollResponseEntriesHolder, user.toMember());
 
     final PollRetrieveResponse pollRetrieveResponse = PollRetrieveResponse.of(pollId, pollResponse);
     return localizer.of(pollRetrieveResponse);
@@ -229,13 +222,13 @@ public class PollSearchServiceImpl implements PollSearchService {
    * @param resultWrapper a function to transform the {@code SearchResult} into a result of type {@code T}
    * @return the result of applying the {@code resultWrapper} to the constructed {@code SearchResult}
    */
-  protected  <T> T findPollsWithResult(final PollSearchRequest searchRequest, final Member member, final Function<SearchResult, T> resultWrapper) {
+  protected  <T> T findPollsWithResult(final PollSearchRequest searchRequest, final Member member, final Function<SearchResult<PollResponse>, T> resultWrapper) {
     final Page<Poll> page = findPolls(searchRequest);
     final PollResponseEntriesHolder pollResponseEntriesHolder = pollUnifiedMapper.toPollResponses(page.getContent());
     final Collection<PollResponse> pollResponses = pollResponseEntriesHolder.pollResponses();
-    final SearchResult searchResult = toSearchResult(pollResponses, page);
+    final SearchResult<PollResponse> searchResult = toSearchResult(pollResponses, page);
 
-    processPollOtherDetails(pollResponseEntriesHolder, member);
+    pollCommonService.processPollOtherDetails(pollResponseEntriesHolder, member);
     return resultWrapper.apply(searchResult);
   }
 
@@ -263,81 +256,4 @@ public class PollSearchServiceImpl implements PollSearchService {
 
     return pollOperationsService.findMany(pageable);
   }
-
-  /**
-   * Enriches each {@link PollResponse} with the voting details of the specified {@link Member}, if applicable.
-   *
-   * <p>If the member is {@code null} or the {@code pollResponseEntriesHolder} does not contain any polls,
-   * the method returns immediately. Otherwise, it retrieves all poll IDs and fetches the corresponding
-   * {@link PollVote} entries made by the member. It then updates each {@link PollResponse} with the user's vote,
-   * using {@code setUserVote}.</p>
-   *
-   * @param pollResponseEntriesHolder the holder containing the poll responses to process
-   * @param member the member whose voting details should be applied
-   */
-  protected void processPollOtherDetails(final PollResponseEntriesHolder pollResponseEntriesHolder, final Member member) {
-    if (isNull(member) || pollResponseEntriesHolder.hasNoPolls()) {
-      return;
-    }
-
-    final Collection<Long> pollIds = pollResponseEntriesHolder.getPollIds();
-    if (pollIds.isEmpty()) {
-      return;
-    }
-
-    final Collection<PollResponse> pollResponses = pollResponseEntriesHolder.pollResponses();
-    final PollVoteEntriesHolder pollVoteEntriesHolder = pollOperationsService.findVotesByPollIdsAndMemberId(pollIds, member.getMemberId());
-
-    pollResponses.stream()
-      .filter(Objects::nonNull)
-      .forEach(pollResponse -> {
-        setUserVote(pollResponse, pollVoteEntriesHolder);
-        setEntityUpdatableByUser(pollResponse, member.getMemberId());
-    });
-  }
-
-  /**
-   * Sets the user's vote information on the given {@link PollResponse}, if available.
-   *
-   * <p>This method retrieves the list of {@link PollVote} entries for the poll using its ID from the provided
-   * {@link PollVoteEntriesHolder}. If votes are found, it delegates to {@code setPollVoteOptions}
-   * to populate the vote details in the response.</p>
-   *
-   * @param pollResponse the poll response to update with the user's vote
-   * @param pollVoteEntriesHolder the holder containing vote entries mapped by poll ID
-   */
-  protected void setUserVote(final PollResponse pollResponse, final PollVoteEntriesHolder pollVoteEntriesHolder) {
-    final Long pollId = pollResponse.getNumberId();
-    final List<PollVote> votes = pollVoteEntriesHolder.getPollVotes(pollId);
-
-    if (nonNull(votes) && !votes.isEmpty()) {
-      setPollVoteOptions(pollResponse, votes);
-    }
-  }
-
-  /**
-   * Sets the poll vote options and voting status on the given {@link PollResponse}.
-   *
-   * <p>This method extracts the {@link PollOption} objects from the provided list of {@link PollVote} entities,
-   * maps them to {@link PollOptionResponse} objects, and determines whether any votes were cast.
-   * It then builds a {@link PollVoteResponse} containing the option responses and voting status,
-   * and sets it on the provided {@code pollResponse}.</p>
-   *
-   * @param pollResponse the response object to enrich with vote information
-   * @param votes the list of votes associated with the poll
-   */
-  protected void setPollVoteOptions(final PollResponse pollResponse, final List<PollVote> votes) {
-    final List<PollOption> pollOptions = votes.stream()
-      .map(PollVote::getPollOption)
-      .toList();
-
-    final Collection<PollOptionResponse> optionResponses = pollUnifiedMapper.toVotedPollOptionResponses(pollOptions);
-
-    final boolean isVoted = !votes.isEmpty();
-    final IsVotedInfo isVotedInfo = pollUnifiedMapper.toIsVotedInfo(isVoted);
-
-    final PollVoteResponse pollVoteResponse = PollVoteResponse.of(optionResponses, isVotedInfo);
-    pollResponse.setPollVote(pollVoteResponse);
-  }
-
 }

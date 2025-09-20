@@ -4,6 +4,7 @@ import com.fleencorp.feen.bookmark.constant.BookmarkParentType;
 import com.fleencorp.feen.bookmark.constant.BookmarkType;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
@@ -37,14 +38,14 @@ public class Bookmark extends FleenFeenEntity {
   private String parentSummary;
 
   @Enumerated(STRING)
-  @Column(name = "parent_type", nullable = false)
-  private BookmarkParentType bookmarkParentType;
+  @Column(name = "parent_type", nullable = false, updatable = false)
+  private BookmarkParentType parentType;
 
   @Enumerated(STRING)
   @Column(name = "type", nullable = false)
   private BookmarkType bookmarkType;
 
-  @Column(name = "chat_space_id", updatable = false, insertable = false)
+  @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
   @ToString.Exclude
@@ -52,7 +53,7 @@ public class Bookmark extends FleenFeenEntity {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id")
   private ChatSpace chatSpace;
 
-  @Column(name = "stream_id", updatable = false, insertable = false)
+  @Column(name = "stream_id", insertable = false, updatable = false)
   private Long streamId;
 
   @ToString.Exclude
@@ -60,7 +61,7 @@ public class Bookmark extends FleenFeenEntity {
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id")
   private FleenStream stream;
 
-  @Column(name = "review_id", updatable = false, insertable = false)
+  @Column(name = "review_id", insertable = false, updatable = false)
   private Long reviewId;
 
   @ToString.Exclude
@@ -68,7 +69,15 @@ public class Bookmark extends FleenFeenEntity {
   @JoinColumn(name = "review_id", referencedColumnName = "review_id")
   private Review review;
 
-  @Column(name = "soft_ask_id", updatable = false, insertable = false)
+  @Column(name = "poll_id", insertable = false, updatable = false)
+  private Long pollId;
+
+  @ToString.Exclude
+  @ManyToOne(fetch = LAZY, targetEntity = Poll.class)
+  @JoinColumn(name = "poll_id", referencedColumnName = "poll_id")
+  private Poll poll;
+
+  @Column(name = "soft_ask_id", insertable = false, updatable = false)
   private Long softAskId;
 
   @ToString.Exclude
@@ -76,7 +85,7 @@ public class Bookmark extends FleenFeenEntity {
   @JoinColumn(name = "soft_ask_id", referencedColumnName = "soft_ask_id")
   private SoftAsk softAsk;
 
-  @Column(name = "soft_ask_reply_id", updatable = false, insertable = false)
+  @Column(name = "soft_ask_reply_id", insertable = false, updatable = false)
   private Long softAskReplyId;
 
   @ToString.Exclude
@@ -94,7 +103,7 @@ public class Bookmark extends FleenFeenEntity {
   private Member member;
 
   public Long getOtherId() {
-    return BookmarkParentType.isSoftAskReply(bookmarkParentType) ? softAskId : null;
+    return BookmarkParentType.isSoftAskReply(parentType) ? softAskId : null;
   }
 
   public boolean isBookmarked() {

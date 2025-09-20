@@ -16,9 +16,20 @@ public interface ChatSpaceRepository extends JpaRepository<ChatSpace, Long> {
 
   IsAChatSpace findByChatSpaceId(Long chatSpaceId);
 
-  @Query(value = "SELECT cs FROM ChatSpace cs WHERE cs.createdOn BETWEEN :startDate AND :endDate AND cs.status = :status ORDER BY cs.updatedOn DESC")
-  Page<ChatSpace> findByDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, @Param("status") ChatSpaceStatus status,
-                                    Pageable pageable);
+  @Query(value = """
+    SELECT cs FROM ChatSpace cs
+    WHERE
+      cs.createdOn BETWEEN :startDate AND :endDate AND
+      cs.status = :status
+    ORDER BY
+      cs.updatedOn DESC
+  """)
+  Page<ChatSpace> findByDateBetween(
+    @Param("startDate") LocalDateTime startDate,
+    @Param("endDate") LocalDateTime endDate,
+    @Param("status") ChatSpaceStatus status,
+    Pageable pageable
+  );
 
   @Query(value = "SELECT cs FROM ChatSpace cs WHERE cs.title = :title AND cs.status = :status")
   Page<ChatSpace> findByTitle(@Param("title") String title, @Param("status") ChatSpaceStatus status, Pageable pageable);
@@ -35,11 +46,11 @@ public interface ChatSpaceRepository extends JpaRepository<ChatSpace, Long> {
   void incrementTotalMembers(@Param("id") Long chatSpaceId);
 
   @Modifying
-  @Query(value = "UPDATE chat_space SET like_count = like_count - 1 WHERE chat_space_id = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  @Query(value = "UPDATE chat_space SET like_count = like_count - 1 WHERE chat_space_id = :chatSpaceId", nativeQuery = true)
   void decrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
 
   @Modifying
-  @Query(value = "UPDATE chat_space SET like_count = like_count + 1 WHERE chat_space_id = :chatSpaceId RETURNING like_count", nativeQuery = true)
+  @Query(value = "UPDATE chat_space SET like_count = like_count + 1 WHERE chat_space_id = :chatSpaceId", nativeQuery = true)
   void incrementAndGetLikeCount(@Param("chatSpaceId") Long chatSpaceId);
 
   @Query(value = "SELECT like_count FROM chat_space WHERE chat_space_id = :chatSpaceId", nativeQuery = true)

@@ -9,11 +9,13 @@ public interface BookmarkOperationService {
 
   <T extends Bookmarkable> void populateChatSpaceBookmarksFor(Collection<T> responses, IsAMember member);
 
-  <T extends Bookmarkable> void populateStreamBookmarksFor(Collection<T> responses, IsAMember member);
-  
+  <T extends Bookmarkable> void populateBookmarkForReviews(Collection<T> responses, IsAMember member);
+
+  <T extends Bookmarkable> void populateBookmarkForPoll(Collection<T> responses, IsAMember member);
+
   <T extends Bookmarkable> void populateSoftAskBookmarksFor(Collection<T> responses, IsAMember member);
-  
+
   <T extends Bookmarkable> void populateSoftAskReplyBookmarksFor(Collection<T> responses, IsAMember member);
 
-  <T extends Bookmarkable> void populateBookmarkForReviews(Collection<T> responses, IsAMember member);
+  <T extends Bookmarkable> void populateStreamBookmarksFor(Collection<T> responses, IsAMember member);
 }

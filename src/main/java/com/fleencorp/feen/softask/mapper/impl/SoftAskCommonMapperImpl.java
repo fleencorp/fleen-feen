@@ -157,6 +157,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
     if (nonNull(entry)) {
       final SoftAskVoteResponse response = new SoftAskVoteResponse();
       response.setId(entry.getVoteId());
+      response.setVoteType(entry.getVoteType());
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 

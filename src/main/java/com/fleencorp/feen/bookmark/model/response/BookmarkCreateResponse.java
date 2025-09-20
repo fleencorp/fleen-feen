@@ -17,16 +17,17 @@ import static java.util.Objects.nonNull;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-  "bookmark",
+  "message",
   "parent_total_bookmarks",
+  "bookmark"
 })
 public class BookmarkCreateResponse extends LocalizedResponse {
 
-  @JsonProperty("bookmark")
-  private BookmarkResponse bookmark;
-
   @JsonProperty("parent_total_bookmarks")
   private Integer parentTotalBookmarks;
+
+  @JsonProperty("bookmark")
+  private BookmarkResponse bookmark;
 
   @Override
   public String getMessageCode() {
@@ -34,6 +35,6 @@ public class BookmarkCreateResponse extends LocalizedResponse {
   }
 
   public static BookmarkCreateResponse of(final BookmarkResponse bookmarkResponse, final Integer parentTotalBookmarks) {
-    return new BookmarkCreateResponse(bookmarkResponse, parentTotalBookmarks);
+    return new BookmarkCreateResponse(parentTotalBookmarks, bookmarkResponse);
   }
 }

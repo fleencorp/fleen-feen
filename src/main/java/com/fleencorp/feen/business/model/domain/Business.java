@@ -71,7 +71,7 @@ public class Business extends FleenFeenEntity
   @OneToMany(fetch = LAZY, mappedBy = "business", targetEntity = Link.class, cascade = CascadeType.PERSIST)
   private Set<Link> links = new HashSet<>();
 
-  @Column(name = "owner_id", updatable = false, insertable = false)
+  @Column(name = "owner_id", insertable = false, updatable = false)
   private Long ownerId;
 
   @Column(name = "share_count", nullable = false)

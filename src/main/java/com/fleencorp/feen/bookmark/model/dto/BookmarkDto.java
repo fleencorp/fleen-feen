@@ -1,6 +1,7 @@
 package com.fleencorp.feen.bookmark.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fleencorp.base.converter.common.ToUpperCase;
 import com.fleencorp.base.validator.IsNumber;
 import com.fleencorp.base.validator.OneOf;
 import com.fleencorp.feen.bookmark.constant.BookmarkParentType;
@@ -22,6 +23,7 @@ public class BookmarkDto {
 
   @NotNull(message = "{bookmark.type.NotNull}")
   @OneOf(enumClass = BookmarkType.class, message = "{bookmark.type.Type}")
+  @ToUpperCase
   @JsonProperty("type")
   private String bookmarkType;
 
@@ -42,7 +44,7 @@ public class BookmarkDto {
   }
 
   public BookmarkParentType getBookmarkParentType() {
-    return hasParent() ? BookmarkParentType.of(parent.getBookmarkParentType()) : null;
+    return hasParent() ? parent.getBookmarkParentType() : null;
   }
 
   public BookmarkType getBookmarkType() {
@@ -75,6 +77,10 @@ public class BookmarkDto {
 
     public Long getOtherId() {
       return nonNull(otherId) ? Long.parseLong(otherId) : null;
+    }
+
+    public BookmarkParentType getBookmarkParentType() {
+      return BookmarkParentType.of(bookmarkParentType);
     }
   }
 }

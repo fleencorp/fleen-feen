@@ -86,7 +86,6 @@ public class StreamOperationsServiceImpl implements StreamOperationsService {
     return streamManagementRepository.getBookmarkCount(streamId);
   }
 
-
   @Override
   public Long countTotalStreamsAttended(final IsAMember member) {
     return userStreamCountRepository.countTotalStreamsAttended(member.getMemberId());

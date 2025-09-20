@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.base.model.view.search.SearchResult;
+import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.localizer.model.response.LocalizedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,7 +26,7 @@ import static java.util.Objects.nonNull;
 public class PollSearchResult extends LocalizedResponse {
 
   @JsonProperty("result")
-  private SearchResult result;
+  private SearchResult<PollResponse> result;
 
   @Override
   @JsonIgnore
@@ -33,7 +34,7 @@ public class PollSearchResult extends LocalizedResponse {
     return nonNull(result) && result.hasValue() ? "poll.search" : "poll.empty.search";
   }
 
-  public static PollSearchResult of(final SearchResult result) {
+  public static PollSearchResult of(final SearchResult<PollResponse> result) {
     return new PollSearchResult(result);
   }
 }

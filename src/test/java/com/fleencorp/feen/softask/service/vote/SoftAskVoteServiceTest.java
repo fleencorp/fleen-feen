@@ -232,8 +232,8 @@ class SoftAskVoteServiceTest {
     assertThrows(SoftAskNotFoundException.class, () -> softAskVoteService.vote(softAskVoteDtoForAskUpvote, user));
 
     // verify
-    verify(softAskSearchService, times(1)).findSoftAsk(softAskId);
-    verify(softAskReplySearchService, times(0)).findSoftAskReply(softAskId, softAskReplyId);
+    verify(softAskSearchService, never()).findSoftAsk(softAskId);
+    verify(softAskReplySearchService, never()).findSoftAskReply(softAskId, softAskReplyId);
     verifyNoInteractions(softAskVoteRepository, softAskOperationService, softAskMapper);
   }
 
@@ -270,7 +270,7 @@ class SoftAskVoteServiceTest {
     when(softAskVoteRepository.findByMemberAndSoftAsk(memberId, softAskId)).thenReturn(Optional.of(existingVote));
 
     // act & assert
-    assertThrows(FailedOperationException.class, () -> softAskVoteService.vote(softAskVoteDtoForAskUpvote, user));
+    assertThrows(SoftAskUpdateDeniedException.class, () -> softAskVoteService.vote(softAskVoteDtoForAskUpvote, user));
 
     // verify
     verify(softAskVoteRepository, times(1)).findByMemberAndSoftAsk(memberId, softAskId);

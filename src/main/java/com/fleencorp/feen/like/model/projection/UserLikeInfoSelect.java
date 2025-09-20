@@ -12,15 +12,18 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserLikeInfoSelect {
 
-  private Long streamId;
   private Long chatSpaceId;
+  private Long pollId;
+  private Long memberId;
   private Long reviewId;
+  private Long streamId;
   private boolean liked;
 
   public UserLikeInfoSelect(final Like like) {
-    this.streamId = like.getStreamId();
     this.chatSpaceId = like.getChatSpaceId();
+    this.pollId = like.getPollId();
     this.reviewId = like.getReviewId();
+    this.streamId = like.getStreamId();
     this.liked = like.isLiked();
   }
 

@@ -50,7 +50,7 @@ public class SoftAskReply extends FleenFeenEntity
   @Column(name = "mood_tag")
   private MoodTag moodTag;
 
-  @Column(name = "soft_ask_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "soft_ask_id", nullable = false, insertable = false, updatable = false)
   private Long softAskId;
 
   @ToString.Exclude
@@ -71,7 +71,7 @@ public class SoftAskReply extends FleenFeenEntity
   @OneToMany(mappedBy = "parentReply", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<SoftAskReply> childReplies = new HashSet<>();
 
-  @Column(name = "parent_reply_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "parent_reply_id", nullable = false, insertable = false, updatable = false)
   private Long parentReplyId;
 
   @ToString.Exclude

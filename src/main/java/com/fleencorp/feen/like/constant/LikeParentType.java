@@ -21,6 +21,7 @@ import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
 public enum LikeParentType {
 
   CHAT_SPACE("Chat Space"),
+  POLL("Poll"),
   REVIEW("Review"),
   STREAM("Stream");
 
@@ -40,6 +41,10 @@ public enum LikeParentType {
 
   public static boolean isChatSpace(final LikeParentType likeParentType) {
     return likeParentType == CHAT_SPACE;
+  }
+
+  public static boolean isPoll(final LikeParentType likeParentType) {
+    return likeParentType == POLL;
   }
 
   public static boolean isReview(final LikeParentType likeParentType) {

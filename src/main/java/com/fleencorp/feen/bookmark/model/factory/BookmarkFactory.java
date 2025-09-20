@@ -93,7 +93,7 @@ public final class BookmarkFactory {
     final Bookmark bookmark = new Bookmark();
     bookmark.setParentId(parentId);
     bookmark.setParentSummary(parentSummary);
-    bookmark.setBookmarkParentType(dto.getBookmarkParentType());
+    bookmark.setParentType(dto.getBookmarkParentType());
     bookmark.setBookmarkType(dto.getBookmarkType());
     bookmark.setMemberId(member.getMemberId());
     bookmark.setMember(member);

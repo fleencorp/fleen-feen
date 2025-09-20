@@ -7,10 +7,8 @@ import com.fleencorp.feen.poll.model.holder.PollVoteAggregateHolder;
 import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
 import com.fleencorp.feen.poll.model.projection.PollOptionEntry;
 import com.fleencorp.feen.poll.model.projection.PollVoteAggregate;
-import com.fleencorp.feen.poll.repository.PollOptionRepository;
-import com.fleencorp.feen.poll.repository.PollRepository;
-import com.fleencorp.feen.poll.repository.PollVoteRepository;
-import com.fleencorp.feen.poll.repository.PollVoteSearchRepository;
+import com.fleencorp.feen.poll.repository.*;
+import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
@@ -25,17 +23,23 @@ import java.util.Optional;
 @Service
 public class PollOperationsServiceImpl implements PollOperationsService {
 
+  private final PollCommonService pollCommonService;
   private final PollRepository pollRepository;
+  private final PollManagementRepository pollManagementRepository;
   private final PollOptionRepository pollOptionRepository;
   private final PollVoteSearchRepository pollVoteSearchRepository;
   private final PollVoteRepository pollVoteRepository;
 
   public PollOperationsServiceImpl(
+      final PollCommonService pollCommonService,
       final PollRepository pollRepository,
+      final PollManagementRepository pollManagementRepository,
       final PollOptionRepository pollOptionRepository,
       final PollVoteSearchRepository pollVoteSearchRepository,
       final PollVoteRepository pollVoteRepository) {
+    this.pollCommonService = pollCommonService;
     this.pollRepository = pollRepository;
+    this.pollManagementRepository = pollManagementRepository;
     this.pollOptionRepository = pollOptionRepository;
     this.pollVoteSearchRepository = pollVoteSearchRepository;
     this.pollVoteRepository = pollVoteRepository;
@@ -51,6 +55,11 @@ public class PollOperationsServiceImpl implements PollOperationsService {
   @Transactional
   public void saveAll(final Collection<PollVote> pollVotes) {
     pollVoteRepository.saveAll(pollVotes);
+  }
+
+  @Override
+  public Poll findPoll(Long pollId) {
+    return pollCommonService.findPollById(pollId);
   }
 
   @Override
@@ -129,6 +138,42 @@ public class PollOperationsServiceImpl implements PollOperationsService {
   @Transactional
   public void deleteVoteByPollIdAndMemberId(final Long pollId, final Long memberId) {
     pollVoteRepository.deleteByPollIdAndMemberId(pollId, memberId);
+  }
+
+  private int incrementAndGetBookmarkCount(final Long streamId) {
+    pollManagementRepository.incrementAndGetBookmarkCount(streamId);
+    return pollManagementRepository.getBookmarkCount(streamId);
+  }
+
+  private int decrementAndGetBookmarkCount(final Long streamId) {
+    pollManagementRepository.decrementAndGetBookmarkCount(streamId);
+    return pollManagementRepository.getBookmarkCount(streamId);
+  }
+
+  @Override
+  @Transactional
+  public Integer updateBookmarkCount(final Long streamId, final boolean bookmarked) {
+    if (bookmarked) {
+      return incrementAndGetBookmarkCount(streamId);
+    } else {
+      return decrementAndGetBookmarkCount(streamId);
+    }
+  }
+
+  public Integer incrementLikeCount(final Long chatSpaceId) {
+    pollManagementRepository.incrementAndGetLikeCount(chatSpaceId);
+    return pollManagementRepository.getLikeCount(chatSpaceId);
+  }
+
+  private Integer decrementLikeCount(final Long chatSpaceId) {
+    pollManagementRepository.decrementAndGetLikeCount(chatSpaceId);
+    return pollManagementRepository.getLikeCount(chatSpaceId);
+  }
+
+  @Override
+  @Transactional
+  public Integer updateLikeCount(final Long chatSpaceId, final boolean isLiked) {
+    return isLiked ? incrementLikeCount(chatSpaceId) : decrementLikeCount(chatSpaceId);
   }
 }
 

@@ -13,19 +13,21 @@ import lombok.Setter;
 public class UserBookmarkInfoSelect {
 
   private Long chatSpaceId;
+  private Long pollId;
   private Long reviewId;
-  private Long streamId;
   private Long softAskId;
   private Long softAskReplyId;
+  private Long streamId;
   private boolean bookmarked;
 
   public UserBookmarkInfoSelect(final Bookmark bookmark) {
     this.chatSpaceId = bookmark.getChatSpaceId();
+    this.pollId = bookmark.getPollId();
     this.reviewId = bookmark.getReviewId();
-    this.streamId = bookmark.getStreamId();
-    this.bookmarked = bookmark.isBookmarked();
     this.softAskId = bookmark.getSoftAskReply().getSoftAskId();
     this.softAskReplyId = bookmark.getSoftAskReplyId();
+    this.streamId = bookmark.getStreamId();
+    this.bookmarked = bookmark.isBookmarked();
   }
 
 }

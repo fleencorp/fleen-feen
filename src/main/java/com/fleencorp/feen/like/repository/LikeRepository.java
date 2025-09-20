@@ -16,11 +16,14 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
   @Query("SELECT l FROM Like l WHERE l.memberId = :memberId AND l.chatSpaceId = :chatSpaceId")
   Optional<Like> findByMemberAndChatSpace(@Param("memberId") Long memberId, @Param("chatSpaceId") Long chatSpaceId);
 
-  @Query("SELECT l FROM Like l WHERE l.memberId = :memberId AND l.streamId = :streamId")
-  Optional<Like> findByMemberAndStream(@Param("memberId") Long memberId, @Param("streamId") Long streamId);
+  @Query("SELECT l FROM Like l WHERE l.memberId = :memberId AND l.pollId = :pollId")
+  Optional<Like> findByMemberAndPoll(@Param("memberId") Long memberId, @Param("pollId") Long pollId);
 
   @Query("SELECT l FROM Like l WHERE l.memberId = :memberId AND l.reviewId = :reviewId")
   Optional<Like> findByMemberAndReview(@Param("memberId") Long memberId, @Param("reviewId") Long reviewId);
+
+  @Query("SELECT l FROM Like l WHERE l.memberId = :memberId AND l.streamId = :streamId")
+  Optional<Like> findByMemberAndStream(@Param("memberId") Long memberId, @Param("streamId") Long streamId);
 
   /**
    * Retrieves a list of like information for the specified member and parent entities (streams, chat spaces, or reviews),

@@ -35,12 +35,13 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
     populateBookmarkFor(responses, member, BookmarkParentType.CHAT_SPACE);
   }
 
-  public <T extends Bookmarkable> void populateStreamBookmarksFor(final Collection<T> responses, final IsAMember member) {
-    populateBookmarkFor(responses, member, STREAM);
-  }
-
   public <T extends Bookmarkable> void populateBookmarkForReviews(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, REVIEW);
+  }
+
+  @Override
+  public <T extends Bookmarkable> void populateBookmarkForPoll(Collection<T> responses, IsAMember member) {
+    populateBookmarkFor(responses, member, POLL);
   }
 
   public <T extends Bookmarkable> void populateSoftAskBookmarksFor(final Collection<T> responses, final IsAMember member) {
@@ -49,6 +50,10 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
 
   public <T extends Bookmarkable> void populateSoftAskReplyBookmarksFor(final Collection<T> responses, final IsAMember member) {
     populateBookmarkFor(responses, member, SOFT_ASK_REPLY);
+  }
+
+  public <T extends Bookmarkable> void populateStreamBookmarksFor(final Collection<T> responses, final IsAMember member) {
+    populateBookmarkFor(responses, member, STREAM);
   }
 
   public <T extends Bookmarkable> void populateBookmarkFor(final Collection<T> responses, final IsAMember member, final BookmarkParentType bookmarkParentType) {
@@ -97,6 +102,7 @@ public class BookmarkOperationServiceImpl implements BookmarkOperationService {
       info -> switch (bookmarkParentType) {
         case STREAM -> info.getStreamId();
         case CHAT_SPACE -> info.getChatSpaceId();
+        case POLL -> info.getPollId();
         case REVIEW -> info.getReviewId();
         case SOFT_ASK -> info.getSoftAskId();
         case SOFT_ASK_REPLY -> info.getSoftAskReplyId();

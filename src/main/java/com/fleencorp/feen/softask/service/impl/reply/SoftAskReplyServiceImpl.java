@@ -102,7 +102,7 @@ public class SoftAskReplyServiceImpl implements SoftAskReplyService {
     final Collection<SoftAskCommonResponse> softAskCommonResponses = List.of(softAskReplyResponse);
     softAskCommonService.processSoftAskResponses(softAskCommonResponses, author, userOtherDetailHolder);
 
-    final SoftAskReplyAddResponse softAskReplyAddResponse = SoftAskReplyAddResponse.of(replyCount, softAskReplyResponse);
+    final SoftAskReplyAddResponse softAskReplyAddResponse = SoftAskReplyAddResponse.of(reply.getSoftAskReplyId(), replyCount, softAskReplyResponse);
     return localizer.of(softAskReplyAddResponse);
   }
 

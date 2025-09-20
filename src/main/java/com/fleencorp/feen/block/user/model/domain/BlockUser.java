@@ -25,7 +25,7 @@ public class BlockUser extends FleenFeenEntity {
   @Column(name = "block_user_id", nullable = false, updatable = false, unique = true)
   private Long blockedUserId;
 
-  @Column(name = "initiator_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "initiator_id", nullable = false, insertable = false, updatable = false)
   private Long initiatorId;
 
   @ToString.Exclude
@@ -33,7 +33,7 @@ public class BlockUser extends FleenFeenEntity {
   @JoinColumn(name = "initiator_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member initiator;
 
-  @Column(name = "recipient_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "recipient_id", nullable = false, insertable = false, updatable = false)
   private Long recipientId;
 
   @ToString.Exclude

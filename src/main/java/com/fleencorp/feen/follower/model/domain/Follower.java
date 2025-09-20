@@ -22,7 +22,7 @@ public class Follower extends FleenFeenEntity {
   @Column(name = "follower_id", nullable = false, updatable = false, unique = true)
   private Long followerId;
 
-  @Column(name = "following_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "following_id", nullable = false, insertable = false, updatable = false)
   private Long followingId;
 
   @ToString.Exclude
@@ -30,7 +30,7 @@ public class Follower extends FleenFeenEntity {
   @JoinColumn(name = "following_id", referencedColumnName = "member_id", nullable = false, updatable = false)
   private Member following;
 
-  @Column(name = "followed_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "followed_id", nullable = false, insertable = false, updatable = false)
   private Long followedId;
 
   @ToString.Exclude

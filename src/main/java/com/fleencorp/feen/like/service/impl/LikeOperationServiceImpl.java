@@ -36,13 +36,18 @@ public class LikeOperationServiceImpl implements LikeOperationService {
   }
 
   @Override
-  public <T extends Likeable> void populateStreamLikesFor(final Collection<T> responses, final IsAMember member) {
-    populateLikeFor(responses, member, LikeParentType.STREAM);
+  public <T extends Likeable> void populateLikesForPoll(final Collection<T> reviewResponses, final IsAMember member) {
+    populateLikeFor(reviewResponses, member, LikeParentType.POLL);
   }
 
   @Override
   public <T extends Likeable> void populateLikesForReviews(final Collection<T> reviewResponses, final IsAMember member) {
     populateLikeFor(reviewResponses, member, LikeParentType.REVIEW);
+  }
+
+  @Override
+  public <T extends Likeable> void populateStreamLikesFor(final Collection<T> responses, final IsAMember member) {
+    populateLikeFor(responses, member, LikeParentType.STREAM);
   }
 
   /**
@@ -133,6 +138,7 @@ public class LikeOperationServiceImpl implements LikeOperationService {
       .collect(Collectors.toMap(
       info -> switch (likeParentType) {
         case CHAT_SPACE -> info.getChatSpaceId();
+        case POLL -> info.getPollId();
         case REVIEW -> info.getReviewId();
         case STREAM -> info.getStreamId();
       },

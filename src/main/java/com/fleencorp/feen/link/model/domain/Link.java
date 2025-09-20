@@ -40,7 +40,7 @@ public class Link {
   @Column(name = "url", nullable = false, length = 1000)
   private String url;
 
-  @Column(name = "chat_space_id", updatable = false, insertable = false)
+  @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
   @ToString.Exclude
@@ -48,7 +48,7 @@ public class Link {
   @JoinColumn(name = "chat_space_id", referencedColumnName = "chat_space_id", updatable = false)
   private ChatSpace chatSpace;
 
-  @Column(name = "business_id", updatable = false, insertable = false)
+  @Column(name = "business_id", insertable = false, updatable = false)
   private Long businessId;
 
   @ToString.Exclude
@@ -56,7 +56,7 @@ public class Link {
   @JoinColumn(name = "business_id", referencedColumnName = "business_id", updatable = false)
   private Business business;
 
-  @Column(name = "member_id", updatable = false, insertable = false)
+  @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
   @ToString.Exclude

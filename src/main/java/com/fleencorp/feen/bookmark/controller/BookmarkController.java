@@ -9,6 +9,7 @@ import com.fleencorp.feen.bookmark.service.BookmarkSearchService;
 import com.fleencorp.feen.bookmark.service.BookmarkService;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
@@ -39,12 +40,14 @@ public class BookmarkController {
   }
 
   @Operation(summary = "Bookmark a entity",
-    description = "Creates a bookmark for a specific entity. Requires full user authentication.")
+    description = "Creates a bookmark for a specific entity. Requires user authentication.")
   @ApiResponses({
-    @ApiResponse(responseCode = "200", description = "Successfully bookmarked the chat",
+    @ApiResponse(responseCode = "200", description = "Successfully bookmarked",
       content = @Content(schema = @Schema(implementation = BookmarkCreateResponse.class))),
     @ApiResponse(responseCode = "404", description = "Chat space not found",
       content = @Content(schema = @Schema(implementation = ChatSpaceNotFoundException.class))),
+    @ApiResponse(responseCode = "404", description = "Poll not found",
+      content = @Content(schema = @Schema(implementation = PollNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Soft Ask not found",
       content = @Content(schema = @Schema(implementation = SoftAskNotFoundException.class))),
     @ApiResponse(responseCode = "404", description = "Soft Ask Reply not found",

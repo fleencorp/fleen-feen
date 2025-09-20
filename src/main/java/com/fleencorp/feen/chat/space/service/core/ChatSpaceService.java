@@ -48,5 +48,5 @@ public interface ChatSpaceService {
 
   Integer updateLikeCount(Long chatSpaceId, boolean isLiked);
 
-  Integer updateBookmarkCount(Long chatSpaceId, boolean increment);
+  Integer updateBookmarkCount(Long chatSpaceId, boolean bookmarked);
 }

@@ -28,7 +28,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", nullable = false, updatable = false)
   private FleenStream stream;
 
-  @Column(name = "attendee_id", updatable = false, insertable = false)
+  @Column(name = "attendee_id", insertable = false, updatable = false)
   private Long attendeeId;
 
   @ToString.Exclude
@@ -36,7 +36,7 @@ public class StreamSpeaker extends FleenFeenEntity {
   @JoinColumn(name = "attendee_id", referencedColumnName = "stream_attendee_id")
   private StreamAttendee attendee;
 
-  @Column(name = "member_id", updatable = false, insertable = false)
+  @Column(name = "member_id", insertable = false, updatable = false)
   private Long memberId;
 
   @ToString.Exclude

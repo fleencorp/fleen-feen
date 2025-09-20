@@ -6,13 +6,13 @@ import java.util.function.Supplier;
 
 public class StreamNotFoundException extends LocalizedException {
 
+  public StreamNotFoundException(final Object...params) {
+    super(params);
+  }
+
   @Override
   public String getMessageCode() {
     return "stream.not.found";
-  }
-
-  public StreamNotFoundException(final Object...params) {
-    super(params);
   }
 
   public static Supplier<StreamNotFoundException> of(final Object streamId) {

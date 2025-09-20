@@ -481,8 +481,8 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
 
   @Override
   @Transactional
-  public Integer updateBookmarkCount(final Long chatSpaceId, final boolean increment) {
-    return increment
+  public Integer updateBookmarkCount(final Long chatSpaceId, final boolean bookmarked) {
+    return bookmarked
       ? incrementBookmarkCount(chatSpaceId)
       : decrementBookmarkCount(chatSpaceId);
   }

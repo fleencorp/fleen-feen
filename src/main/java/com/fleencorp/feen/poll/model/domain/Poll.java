@@ -106,6 +106,12 @@ public class Poll extends FleenFeenEntity
   @Column(name = "total_entries", nullable = false)
   private Integer totalEntries = 0;
 
+  @Column(name = "bookmark_count", nullable = false)
+  private Integer bookmarkCount = 0;
+
+  @Column(name = "like_count", nullable = false)
+  private Integer likeCount = 0;
+
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
 

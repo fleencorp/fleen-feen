@@ -117,7 +117,7 @@ public class FleenStream extends FleenFeenEntity
   private String groupOrOrganizationName;
 
   /** Use for query purpose in repositories **/
-  @Column(name = "member_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "member_id", nullable = false, insertable = false, updatable = false)
   private Long organizerId;
 
   @Column(name = "member_id", updatable = false)
@@ -127,7 +127,7 @@ public class FleenStream extends FleenFeenEntity
   @OneToMany(fetch = EAGER, cascade = ALL, targetEntity = StreamAttendee.class, mappedBy = "stream")
   private Set<StreamAttendee> attendees = new HashSet<>();
 
-  @Column(name = "chat_space_id", nullable = false, updatable = false, insertable = false)
+  @Column(name = "chat_space_id", nullable = false, insertable = false, updatable = false)
   private Long chatSpaceId;
 
   @Column(name = "made_for_kids", nullable = false)

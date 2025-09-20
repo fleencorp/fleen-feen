@@ -50,7 +50,7 @@ public class Review extends FleenFeenEntity
   @Column(name = "parent_type", nullable = false)
   private ReviewParentType reviewParentType;
 
-  @Column(name = "stream_id", updatable = false, insertable = false)
+  @Column(name = "stream_id", insertable = false, updatable = false)
   private Long streamId;
 
   @ToString.Exclude
@@ -58,7 +58,7 @@ public class Review extends FleenFeenEntity
   @JoinColumn(name = "stream_id", referencedColumnName = "stream_id", updatable = false)
   private FleenStream stream;
 
-  @Column(name = "chat_space_id", updatable = false, insertable = false)
+  @Column(name = "chat_space_id", insertable = false, updatable = false)
   private Long chatSpaceId;
 
   @ToString.Exclude

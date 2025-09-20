@@ -43,7 +43,7 @@ public interface ChatSpaceMemberProjectionRepository extends JpaRepository<ChatS
     LEFT JOIN csm.chatSpace cs
     LEFT JOIN Bookmark l
         ON l.memberId = m.memberId
-        AND l.bookmarkParentType = 'CHAT_SPACE'
+        AND l.parentType = 'CHAT_SPACE'
         AND l.parentId = cs.chatSpaceId
         AND l.bookmarkType = 'LIKE'
     WHERE m = :member

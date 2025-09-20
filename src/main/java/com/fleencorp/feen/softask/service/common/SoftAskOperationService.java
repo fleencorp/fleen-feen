@@ -23,9 +23,9 @@ public interface SoftAskOperationService {
 
   Integer incrementSoftAskReplyChildReplyCountAndGetReplyCount(Long softAskId, Long softAskReplyParentId);
 
-  Integer updateBookmarkCount(Long softAskId, boolean increment);
+  Integer updateBookmarkCount(Long softAskId, boolean bookmarked);
 
-  Integer updateBookmarkCount(Long softAskId, Long softAskReplyId, boolean increment);
+  Integer updateBookmarkCount(Long softAskId, Long softAskReplyId, boolean bookmarked);
 
   SoftAskParticipantDetail generateParticipantDetail(Long softAskId, Long userId);
 
