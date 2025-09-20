@@ -713,10 +713,9 @@ CREATE TABLE link (
   link_id BIGSERIAL PRIMARY KEY,
   parent_id BIGINT NOT NULL,
   url VARCHAR(1000),
-  chat_space_id BIGINT,
 
   link_parent_type VARCHAR(255)
-    NOT NULL CHECK (link_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'STREAM', 'USER')),
+    NOT NULL CHECK (link_parent_type IN ('BUSINESS', 'CHAT_SPACE', 'POLL', 'STREAM', 'USER')),
 
   link_type VARCHAR(255) NOT NULL CHECK (link_type IN (
     'EMAIL',
@@ -733,10 +732,32 @@ CREATE TABLE link (
     'OTHER'
     )),
 
+  business_id BIGINT,
+  chat_space_id BIGINT,
+  stream_id BIGINT,
+
+  member_id BIGNIT,
+
+  CONSTRAINT link_fk_business_id
+    FOREIGN KEY (business_id)
+      REFERENCES business (business_id)
+      ON DELETE SET NULL,
+
   CONSTRAINT link_fk_chat_space_id
     FOREIGN KEY (chat_space_id)
       REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT link_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+      ON DELETE SET NULL,
+
+  CONSTRAINT link_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
       ON DELETE SET NULL
+
 );
 
 --rollback DROP TABLE IF EXISTS `link`;
