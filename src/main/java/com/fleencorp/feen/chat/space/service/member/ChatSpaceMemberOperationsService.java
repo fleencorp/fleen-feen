@@ -7,6 +7,7 @@ import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpaceMember;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceMemberSelect;
 import com.fleencorp.feen.chat.space.model.projection.ChatSpaceRequestToJoinPendingSelect;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public interface ChatSpaceMemberOperationsService {
 
   Optional<ChatSpaceMember> findByChatSpaceMemberAndChatSpace(ChatSpaceMember chatSpaceMember, ChatSpace chatSpace);
 
-  Set<ChatSpaceMember> findByChatSpaceAndRole(ChatSpace chatSpace, ChatSpaceMemberRole role);
+  Set<ChatSpaceMember> findByChatSpaceAndRole(IsAChatSpace chatSpace, ChatSpaceMemberRole role);
 
   Page<ChatSpaceMember> findSpaceIBelongByDateBetween(LocalDateTime startDate, LocalDateTime endDate, Member member, Pageable pageable);
 

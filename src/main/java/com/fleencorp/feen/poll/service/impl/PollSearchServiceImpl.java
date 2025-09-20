@@ -63,6 +63,22 @@ public class PollSearchServiceImpl implements PollSearchService {
   }
 
   /**
+   * Retrieves a {@link Poll} by its ID or throws a {@link PollNotFoundException} if not found.
+   *
+   * <p>This method delegates to {@code pollOperationsService.findById}. If the poll is not present,
+   * it throws an exception constructed with the given {@code pollId}.</p>
+   *
+   * @param pollId the ID of the poll to retrieve
+   * @return the {@link Poll} associated with the given ID
+   * @throws PollNotFoundException if no poll exists with the specified ID
+   */
+  @Override
+  public Poll findPollById(final Long pollId) {
+    return pollOperationsService.findById(pollId)
+      .orElseThrow(PollNotFoundException.of(pollId));
+  }
+
+  /**
    * Retrieves the data required to display or initialize the poll creation process.
    *
    * <p>This method builds a map of all possible {@link PollVisibility} values to their corresponding
@@ -128,7 +144,7 @@ public class PollSearchServiceImpl implements PollSearchService {
   @Override
   @Transactional(readOnly = true)
   public PollRetrieveResponse findPoll(final Long pollId, final RegisteredUser user) throws PollNotFoundException {
-    final Poll poll = pollCommonService.findPollById(pollId);
+    final Poll poll = findPollById(pollId);
 
     final PollResponse pollResponse = pollUnifiedMapper.toPollResponse(poll);
     final PollResponseEntriesHolder pollResponseEntriesHolder = PollResponseEntriesHolder.of(pollResponse);

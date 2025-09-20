@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.mapper.common;
 
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.model.info.*;
 
@@ -16,4 +17,6 @@ public interface PollInfoMapper {
   IsPollAnonymousInfo toIsAnonymousInfo(boolean anonymous);
 
   PollVisibilityInfo toPollVisibilityInfo(PollVisibility pollVisibility);
+
+  IsDeletedInfo toIsDeletedInfo(boolean deleted);
 }

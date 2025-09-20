@@ -35,5 +35,9 @@ public class ChatSpaceData implements IsAChatSpace {
   public static ChatSpaceData empty() {
     return new ChatSpaceData();
   }
+
+  public boolean isOrganizer(final Long memberUserId) {
+    return getOrganizerId().equals(memberUserId);
+  }
 }
 

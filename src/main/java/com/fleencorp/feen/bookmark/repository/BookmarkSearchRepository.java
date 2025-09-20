@@ -17,7 +17,7 @@ public interface BookmarkSearchRepository extends JpaRepository<Bookmark, Long> 
   @Query(value = """
     SELECT b FROM Bookmark b
       WHERE b.createdOn BETWEEN :startDate AND :endDate AND
-      b.bookmarkParentType IN (:bookmarkParentTypes) AND
+      b.parentType IN (:parentTypes) AND
       b.bookmarkType = :bookmarked AND
       b.memberId = :memberId
       ORDER BY b.updatedOn DESC
@@ -25,7 +25,7 @@ public interface BookmarkSearchRepository extends JpaRepository<Bookmark, Long> 
   Page<Bookmark> findByDateBetween(
     @Param("startDate") LocalDateTime startDate,
     @Param("endDate") LocalDateTime endDate,
-    @Param("bookmarkParentTypes") List<BookmarkParentType> bookmarkParentTypes,
+    @Param("parentTypes") List<BookmarkParentType> parentTypes,
     @Param("bookmarkType") BookmarkType bookmarkType,
     @Param("memberId") Long memberId,
     Pageable pageable);
@@ -33,14 +33,14 @@ public interface BookmarkSearchRepository extends JpaRepository<Bookmark, Long> 
   @Query(value = """
     SELECT b FROM Bookmark b
       WHERE b.parentSummary = :summary AND
-      b.bookmarkParentType IN (:bookmarkParentTypes) AND
+      b.parentType IN (:parentTypes) AND
       b.bookmarkType = :bookmarkType AND
       b.memberId = :memberId
       ORDER BY b.updatedOn DESC
   """)
   Page<Bookmark> findByTitle(
     @Param("summary") String summary,
-    @Param("bookmarkParentTypes") List<BookmarkParentType> bookmarkParentTypes,
+    @Param("parentTypes") List<BookmarkParentType> parentTypes,
     @Param("bookmarkType") BookmarkType bookmarkType,
     @Param("memberId") Long memberId,
     Pageable pageable);
@@ -48,13 +48,13 @@ public interface BookmarkSearchRepository extends JpaRepository<Bookmark, Long> 
   @Query(value = """
     SELECT b FROM Bookmark b
       WHERE b.bookmarkId IS NOT NULL AND
-      b.bookmarkParentType IN (:bookmarkParentTypes) AND
+      b.parentType IN (:parentTypes) AND
       b.bookmarkType = :bookmarkType AND
       b.memberId = :memberId
       ORDER BY b.updatedOn DESC
   """)
   Page<Bookmark> findMany(
-    @Param("bookmarkParentTypes") List<BookmarkParentType> bookmarkParentTypes,
+    @Param("parentTypes") List<BookmarkParentType> parentTypes,
     @Param("bookmarkType") BookmarkType bookmarkType,
     @Param("memberId") Long memberId,
     Pageable pageable);

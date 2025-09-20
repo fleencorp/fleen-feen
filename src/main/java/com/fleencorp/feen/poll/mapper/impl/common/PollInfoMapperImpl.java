@@ -1,6 +1,8 @@
 package com.fleencorp.feen.poll.mapper.impl.common;
 
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
+import com.fleencorp.feen.mapper.info.ToInfoMapper;
 import com.fleencorp.feen.poll.constant.*;
 import com.fleencorp.feen.poll.constant.core.PollVisibility;
 import com.fleencorp.feen.poll.mapper.common.PollInfoMapper;
@@ -11,8 +13,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class PollInfoMapperImpl extends BaseMapper implements PollInfoMapper {
 
-  public PollInfoMapperImpl(final MessageSource messageSource) {
+  private final ToInfoMapper toInfoMapper;
+
+  public PollInfoMapperImpl(
+      final ToInfoMapper toInfoMapper,
+      final MessageSource messageSource) {
     super(messageSource);
+    this.toInfoMapper = toInfoMapper;
   }
 
   /**
@@ -134,6 +141,11 @@ public class PollInfoMapperImpl extends BaseMapper implements PollInfoMapper {
       translate(pollVisibility.getLabelCode()),
       translate(pollVisibility.getMessageCode2())
     );
+  }
+
+  @Override
+  public IsDeletedInfo toIsDeletedInfo(final boolean deleted) {
+    return toInfoMapper.toIsDeletedInfo(deleted);
   }
 
 }

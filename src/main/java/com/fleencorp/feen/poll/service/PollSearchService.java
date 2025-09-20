@@ -1,6 +1,7 @@
 package com.fleencorp.feen.poll.service;
 
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.request.PollSearchRequest;
 import com.fleencorp.feen.poll.model.response.GetDataRequiredToCreatePoll;
 import com.fleencorp.feen.poll.model.response.PollRetrieveResponse;
@@ -10,6 +11,8 @@ import com.fleencorp.feen.poll.model.search.StreamPollSearchResult;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 
 public interface PollSearchService {
+
+  Poll findPollById(Long pollId);
 
   GetDataRequiredToCreatePoll getDataRequiredToCreatePoll();
 

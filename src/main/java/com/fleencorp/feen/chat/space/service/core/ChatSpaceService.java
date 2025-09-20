@@ -12,6 +12,8 @@ import com.fleencorp.feen.chat.space.model.response.DeleteChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceResponse;
 import com.fleencorp.feen.chat.space.model.response.update.UpdateChatSpaceStatusResponse;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.model.domain.Member;
 
@@ -36,7 +38,7 @@ public interface ChatSpaceService {
     throws ChatSpaceNotFoundException, ChatSpaceAlreadyDeletedException, ChatSpaceNotAnAdminException,
     FailedOperationException;
 
-  boolean verifyCreatorOrAdminOfChatSpace(ChatSpace chatSpace, Member member)
+  boolean verifyCreatorOrAdminOfChatSpace(IsAChatSpace chatSpace, IsAMember member)
     throws FailedOperationException, ChatSpaceNotAnAdminException;
 
   boolean verifyCreatorOrAdminOfChatSpaceNoThrow(ChatSpace chatSpace, Long memberId)

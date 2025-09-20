@@ -42,6 +42,8 @@ public interface IsAChatSpace extends HasTitle {
 
   String getSlug();
 
+  boolean isOrganizer(Long memberId);
+
   default boolean isDeleted() {
     return nonNull(getDeleted()) && getDeleted();
   }

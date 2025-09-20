@@ -736,7 +736,7 @@ CREATE TABLE link (
   chat_space_id BIGINT,
   stream_id BIGINT,
 
-  member_id BIGNIT,
+  member_id BIGINT,
 
   CONSTRAINT link_fk_business_id
     FOREIGN KEY (business_id)

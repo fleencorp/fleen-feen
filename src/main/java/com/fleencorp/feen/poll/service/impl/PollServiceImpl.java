@@ -3,13 +3,10 @@ package com.fleencorp.feen.poll.service.impl;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotFoundException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
-import com.fleencorp.feen.chat.space.service.core.ChatSpaceOperationsService;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
-import com.fleencorp.feen.mapper.common.UnifiedMapper;
 import com.fleencorp.feen.poll.constant.core.PollParentType;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
-import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.dto.AddPollDto;
 import com.fleencorp.feen.poll.model.dto.DeletePollDto;
@@ -17,17 +14,14 @@ import com.fleencorp.feen.poll.model.holder.PollParentDetailHolder;
 import com.fleencorp.feen.poll.model.response.PollCreateResponse;
 import com.fleencorp.feen.poll.model.response.PollDeleteResponse;
 import com.fleencorp.feen.poll.model.response.core.PollResponse;
-import com.fleencorp.feen.poll.service.PollCommonService;
-import com.fleencorp.feen.poll.service.PollOperationsService;
-import com.fleencorp.feen.poll.service.PollService;
+import com.fleencorp.feen.poll.service.*;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.stream.exception.core.StreamNotCreatedByUserException;
 import com.fleencorp.feen.stream.exception.core.StreamNotFoundException;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
-import com.fleencorp.feen.stream.service.common.StreamOperationsService;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
 import com.fleencorp.feen.user.model.domain.Member;
-import com.fleencorp.feen.user.service.member.MemberService;
 import com.fleencorp.localizer.service.Localizer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,33 +29,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PollServiceImpl implements PollService {
 
-  private final ChatSpaceOperationsService chatSpaceOperationsService;
-  private final MemberService memberService;
-  private final StreamOperationsService streamOperationsService;
+  private final PollExternalQueryService pollExternalQueryService;
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
-  private final PollMapper pollMapper;
-  private final UnifiedMapper unifiedMapper;
+  private final PollSearchService pollSearchService;
   private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
   public PollServiceImpl(
-      final ChatSpaceOperationsService chatSpaceOperationsService,
-      final MemberService memberService,
+      final PollExternalQueryService pollExternalQueryService,
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
-      final StreamOperationsService streamOperationsService,
-      final PollMapper pollMapper,
-      final UnifiedMapper unifiedMapper,
+      final PollSearchService pollSearchService,
       final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
-    this.chatSpaceOperationsService = chatSpaceOperationsService;
-    this.memberService = memberService;
+    this.pollExternalQueryService = pollExternalQueryService;
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
-    this.streamOperationsService = streamOperationsService;
-    this.pollMapper = pollMapper;
-    this.unifiedMapper = unifiedMapper;
+    this.pollSearchService = pollSearchService;
     this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }
@@ -87,14 +72,14 @@ public class PollServiceImpl implements PollService {
   public PollCreateResponse addPoll(final AddPollDto addPollDto, final RegisteredUser user)
     throws MemberNotFoundException, ChatSpaceNotFoundException, ChatSpaceNotAnAdminException,
       StreamNotFoundException, StreamNotCreatedByUserException {
-    final Member member = memberService.findMember(user.getId());
+    final IsAMember member = pollExternalQueryService.findMemberById(user.getId());
 
     final PollParentDetailHolder parentDetailHolder = findAndValidateParent(addPollDto, member);
     final String parentTitle = parentDetailHolder.parentTitle();
     final ChatSpace chatSpace = parentDetailHolder.chatSpace();
     final FleenStream stream = parentDetailHolder.stream();
 
-    final Poll poll = addPollDto.toPoll(member, parentTitle, chatSpace, stream);
+    final Poll poll = addPollDto.toPoll(Member.of(member.getMemberId()), parentTitle, chatSpace, stream);
     pollOperationsService.save(poll);
 
     final PollResponse response = pollUnifiedMapper.toPollResponse(poll);
@@ -120,7 +105,7 @@ public class PollServiceImpl implements PollService {
    * @throws StreamNotFoundException if the specified stream does not exist
    * @throws StreamNotCreatedByUserException if the member is not the organizer of the stream
    */
-  protected PollParentDetailHolder findAndValidateParent(final AddPollDto addPollDto, final Member member)
+  protected PollParentDetailHolder findAndValidateParent(final AddPollDto addPollDto, final IsAMember member)
     throws MemberNotFoundException, ChatSpaceNotFoundException, ChatSpaceNotAnAdminException,
       StreamNotFoundException, StreamNotCreatedByUserException {
 
@@ -146,9 +131,9 @@ public class PollServiceImpl implements PollService {
    * @throws StreamNotFoundException if no stream exists with the given ID
    * @throws StreamNotCreatedByUserException if the given member is not the organizer of the stream
    */
-  protected FleenStream findAndValidateStreamParent(final Long streamId, final Member member)
+  protected FleenStream findAndValidateStreamParent(final Long streamId, final IsAMember member)
       throws StreamNotFoundException, StreamNotCreatedByUserException {
-    final FleenStream stream = streamOperationsService.findStream(streamId);
+    final FleenStream stream = pollExternalQueryService.findStreamById(streamId);
     stream.checkIsOrganizer(member.getMemberId());
 
     return stream;
@@ -167,10 +152,10 @@ public class PollServiceImpl implements PollService {
    * @throws ChatSpaceNotFoundException if no chat space exists with the given ID
    * @throws ChatSpaceNotAnAdminException if the given member is neither the creator nor an admin
    */
-  protected ChatSpace findAndValidateChatSpaceParent(final Long chatSpaceId, final Member member)
+  protected ChatSpace findAndValidateChatSpaceParent(final Long chatSpaceId, final IsAMember member)
       throws ChatSpaceNotFoundException, ChatSpaceNotAnAdminException {
-    final ChatSpace chatSpace = chatSpaceOperationsService.findChatSpace(chatSpaceId);
-    chatSpaceOperationsService.verifyCreatorOrAdminOfChatSpace(chatSpace, member);
+    final ChatSpace chatSpace = pollExternalQueryService.findChatSpaceById(chatSpaceId);
+    pollExternalQueryService.verifyCreatorOrAdminOfChatSpace(chatSpace, member);
 
     return chatSpace;
   }
@@ -190,12 +175,12 @@ public class PollServiceImpl implements PollService {
   @Transactional
   public PollDeleteResponse deletePoll(final DeletePollDto deletePollDto, final RegisteredUser user) throws PollNotFoundException {
     final Long pollId = deletePollDto.getPollId();
-    final Poll poll = pollCommonService.findPollById(pollId);
+    final Poll poll = pollSearchService.findPollById(pollId);
 
     pollCommonService.checkUpdatePermission(poll, user.toMember());
     poll.delete();
 
-    final IsDeletedInfo isDeletedInfo = unifiedMapper.toIsDeletedInfo(poll.isDeleted());
+    final IsDeletedInfo isDeletedInfo = pollUnifiedMapper.toIsDeletedInfo(poll.isDeleted());
     final PollDeleteResponse pollDeleteResponse = PollDeleteResponse.of(pollId, isDeletedInfo);
 
     return localizer.of(pollDeleteResponse);

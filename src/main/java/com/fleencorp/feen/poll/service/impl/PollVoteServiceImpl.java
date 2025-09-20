@@ -5,7 +5,6 @@ import com.fleencorp.feen.poll.exception.option.PollOptionNotFoundException;
 import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.exception.vote.*;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
-import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollVote;
 import com.fleencorp.feen.poll.model.dto.VotePollDto;
@@ -18,8 +17,8 @@ import com.fleencorp.feen.poll.model.request.PollVoteSearchRequest;
 import com.fleencorp.feen.poll.model.response.core.PollOptionResponse;
 import com.fleencorp.feen.poll.model.response.core.PollVoteResponse;
 import com.fleencorp.feen.poll.model.search.PollVoteSearchResult;
-import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
+import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.poll.service.PollVoteService;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.exception.member.MemberNotFoundException;
@@ -44,23 +43,20 @@ import static java.util.Objects.nonNull;
 public class PollVoteServiceImpl implements PollVoteService {
 
   private final MemberService memberService;
-  private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
-  private final PollMapper pollMapper;
+  private final PollSearchService pollSearchService;
   private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
   public PollVoteServiceImpl(
       final MemberService memberService,
-      final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
-      final PollMapper pollMapper,
+      final PollSearchService pollSearchService,
       final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
     this.memberService = memberService;
-    this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
-    this.pollMapper = pollMapper;
+    this.pollSearchService = pollSearchService;
     this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }
@@ -80,10 +76,9 @@ public class PollVoteServiceImpl implements PollVoteService {
       ? pollUnifiedMapper.toPollVoteResponses(page.getContent())
       : List.of();
 
-    final SearchResult searchResult = toSearchResult(voteResponses, page);
+    final SearchResult<UserResponse> searchResult = toSearchResult(voteResponses, page);
     return PollVoteSearchResult.of(searchResult);
   }
-
 
   /**
    * Casts a vote for the specified {@link Poll} by the given {@link RegisteredUser}.
@@ -113,7 +108,7 @@ public class PollVoteServiceImpl implements PollVoteService {
       PollVotingNoMultipleChoiceException {
     final Member member = memberService.findMember(user.getId());
     final Collection<Long> votePollOptionIds = votePollDto.getOptionIds();
-    final Poll poll = pollCommonService.findPollById(pollId);
+    final Poll poll = pollSearchService.findPollById(pollId);
 
     // Validate poll eligibility
     poll.validatePollForVote();
@@ -148,7 +143,6 @@ public class PollVoteServiceImpl implements PollVoteService {
    *
    * @param poll the poll to validate
    * @param votePollOptionIds the IDs of the options the member intends to vote for
-   * @param member the member attempting to vote
    * @throws PollOptionNotFoundException if any of the selected option IDs are invalid
    * @throws PollVotingNoMultipleChoiceException if multiple options are selected in a single-choice poll
    */

@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.mapper;
 
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.holder.PollOptionEntriesHolder;
@@ -17,6 +18,8 @@ import java.util.List;
 public interface PollUnifiedMapper {
 
   IsVotedInfo toIsVotedInfo(boolean isVoted);
+
+  IsDeletedInfo toIsDeletedInfo(boolean isDeleted);
 
   PollResponse toPollResponse(Poll entry);
 

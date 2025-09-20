@@ -5,6 +5,8 @@ import com.fleencorp.feen.chat.space.constant.core.ChatSpaceStatus;
 import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +18,7 @@ public interface ChatSpaceOperationsService {
 
   boolean checkIsAdmin(ChatSpace chatSpace, Member member);
 
-  void verifyCreatorOrAdminOfChatSpace(ChatSpace chatSpace, Member member)
+  void verifyCreatorOrAdminOfChatSpace(IsAChatSpace chatSpace, IsAMember member)
     throws FailedOperationException, ChatSpaceNotAnAdminException;
 
   ChatSpace findChatSpace(Long chatSpaceId);

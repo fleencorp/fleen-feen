@@ -3,7 +3,6 @@ package com.fleencorp.feen.poll.service.impl;
 import com.fleencorp.feen.bookmark.service.BookmarkOperationService;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
 import com.fleencorp.feen.like.service.LikeOperationService;
-import com.fleencorp.feen.poll.exception.poll.PollNotFoundException;
 import com.fleencorp.feen.poll.exception.poll.PollUpdateUnauthorizedException;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
@@ -49,22 +48,6 @@ public class PollCommonServiceImpl implements PollCommonService {
     this.chatSpaceService = chatSpaceService;
     this.pollOperationsService = pollOperationsService;
     this.pollUnifiedMapper = pollUnifiedMapper;
-  }
-
-  /**
-   * Retrieves a {@link Poll} by its ID or throws a {@link PollNotFoundException} if not found.
-   *
-   * <p>This method delegates to {@code pollOperationsService.findById}. If the poll is not present,
-   * it throws an exception constructed with the given {@code pollId}.</p>
-   *
-   * @param pollId the ID of the poll to retrieve
-   * @return the {@link Poll} associated with the given ID
-   * @throws PollNotFoundException if no poll exists with the specified ID
-   */
-  @Override
-  public Poll findPollById(final Long pollId) {
-    return pollOperationsService.findById(pollId)
-      .orElseThrow(PollNotFoundException.of(pollId));
   }
 
   /**

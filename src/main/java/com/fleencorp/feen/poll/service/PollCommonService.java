@@ -7,8 +7,6 @@ import com.fleencorp.feen.user.model.domain.Member;
 
 public interface PollCommonService {
 
-  Poll findPollById(Long pollId);
-
   void checkUpdatePermission(Poll poll, Member member);
 
   void processPollOtherDetails(PollResponseEntriesHolder pollResponseEntriesHolder, IsAMember member);

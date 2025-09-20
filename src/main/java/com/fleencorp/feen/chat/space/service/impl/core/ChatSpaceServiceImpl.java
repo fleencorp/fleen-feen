@@ -26,6 +26,8 @@ import com.fleencorp.feen.chat.space.util.ChatSpaceServiceUtil;
 import com.fleencorp.feen.common.exception.FailedOperationException;
 import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.mapper.common.UnifiedMapper;
+import com.fleencorp.feen.shared.chat.space.contract.IsAChatSpace;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
@@ -351,7 +353,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws ChatSpaceNotAnAdminException if the user is neither the creator nor an admin of the chat space.
    */
   @Override
-  public boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Member member)
+  public boolean verifyCreatorOrAdminOfChatSpace(final IsAChatSpace chatSpace, final IsAMember member)
     throws FailedOperationException, ChatSpaceNotAnAdminException {
 
     if (nonNull(chatSpace) && nonNull(member)) {
@@ -373,7 +375,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @throws FailedOperationException       if any of the provided values is null.
    * @throws ChatSpaceNotAnAdminException if the user is neither the creator nor an admin of the chat space.
    */
-  protected boolean verifyCreatorOrAdminOfChatSpace(final ChatSpace chatSpace, final Long memberId)
+  protected boolean verifyCreatorOrAdminOfChatSpace(final IsAChatSpace chatSpace, final Long memberId)
     throws FailedOperationException, ChatSpaceNotAnAdminException {
     checkIsNullAny(List.of(chatSpace, memberId), FailedOperationException::new);
 
@@ -434,7 +436,7 @@ public class ChatSpaceServiceImpl implements ChatSpaceService {
    * @param memberId The member id whose admin status is being checked.
    * @return {@code true} if the user is an admin in the chat space; {@code false} otherwise.
    */
-  protected boolean checkIfUserIsAnAdminInSpace(final ChatSpace chatSpace, final Long memberId) {
+  protected boolean checkIfUserIsAnAdminInSpace(final IsAChatSpace chatSpace, final Long memberId) {
     // Retrieve all members of the chat space with the admin role
     final Set<ChatSpaceMember> chatSpaceMembers = chatSpaceMemberOperationsService.findByChatSpaceAndRole(chatSpace, ChatSpaceMemberRole.ADMIN);
     // Extract the IDs of the admin members

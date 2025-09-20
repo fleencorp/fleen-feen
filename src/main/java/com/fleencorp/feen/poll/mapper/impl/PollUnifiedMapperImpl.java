@@ -1,5 +1,6 @@
 package com.fleencorp.feen.poll.mapper.impl;
 
+import com.fleencorp.feen.common.model.info.IsDeletedInfo;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
 import com.fleencorp.feen.poll.mapper.common.PollInfoMapper;
 import com.fleencorp.feen.poll.mapper.poll.PollMapper;
@@ -34,6 +35,11 @@ public class PollUnifiedMapperImpl implements PollUnifiedMapper {
   @Override
   public IsVotedInfo toIsVotedInfo(final boolean isVoted) {
     return pollInfoMapper.toIsVotedInfo(isVoted);
+  }
+
+  @Override
+  public IsDeletedInfo toIsDeletedInfo(final boolean isDeleted) {
+    return pollInfoMapper.toIsDeletedInfo(isDeleted);
   }
 
   @Override

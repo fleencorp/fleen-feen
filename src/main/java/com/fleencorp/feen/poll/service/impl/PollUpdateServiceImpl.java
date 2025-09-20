@@ -13,6 +13,7 @@ import com.fleencorp.feen.poll.model.response.PollUpdateResponse;
 import com.fleencorp.feen.poll.model.response.core.PollResponse;
 import com.fleencorp.feen.poll.service.PollCommonService;
 import com.fleencorp.feen.poll.service.PollOperationsService;
+import com.fleencorp.feen.poll.service.PollSearchService;
 import com.fleencorp.feen.poll.service.PollUpdateService;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.localizer.service.Localizer;
@@ -27,6 +28,7 @@ import static java.util.Objects.nonNull;
 @Service
 public class PollUpdateServiceImpl implements PollUpdateService {
 
+  private final PollSearchService pollSearchService;
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
   private final PollMapper pollMapper;
@@ -34,11 +36,13 @@ public class PollUpdateServiceImpl implements PollUpdateService {
   private final Localizer localizer;
 
   public PollUpdateServiceImpl(
+      final PollSearchService pollSearchService,
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
       final PollMapper pollMapper,
       final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
+    this.pollSearchService = pollSearchService;
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
     this.pollMapper = pollMapper;
@@ -73,7 +77,7 @@ public class PollUpdateServiceImpl implements PollUpdateService {
     throws PollNotFoundException, PollUpdateUnauthorizedException, PollUpdateCantChangeQuestionException,
       PollUpdateCantChangeMultipleChoiceException, PollUpdateCantChangeVisibilityException, PollUpdateCantChangeAnonymityException,
       PollUpdateCantChangeOptionsException, ChatSpaceNotAnAdminException {
-    final Poll poll = pollCommonService.findPollById(pollId);
+    final Poll poll = pollSearchService.findPollById(pollId);
     final PollVoteAggregateHolder pollVoteAggregateHolder = pollOperationsService.findPollVoteAggregate(pollId);
 
     validatePollDetails(poll, updatePollDto, pollVoteAggregateHolder);

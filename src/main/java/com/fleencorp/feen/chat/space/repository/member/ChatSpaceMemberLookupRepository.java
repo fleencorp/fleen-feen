@@ -32,8 +32,8 @@ public interface ChatSpaceMemberLookupRepository extends JpaRepository<ChatSpace
   @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm = :chatSpaceMember AND csm.chatSpace = :chatSpace")
   Optional<ChatSpaceMember> findByChatSpaceMemberAndChatSpace(@Param("chatSpaceMember") ChatSpaceMember chatSpaceMember, @Param("chatSpace") ChatSpace chatSpace);
 
-  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpace AND csm.role = :role")
-  Set<ChatSpaceMember> findByChatSpaceAndRole(@Param("chatSpace") ChatSpace chatSpace, @Param("role") ChatSpaceMemberRole role);
+  @Query("SELECT csm FROM ChatSpaceMember csm WHERE csm.chatSpace = :chatSpaceId AND csm.role = :role")
+  Set<ChatSpaceMember> findByChatSpaceAndRole(@Param("chatSpaceId") Long chatSpaceId, @Param("role") ChatSpaceMemberRole role);
 
   @EntityGraph(attributePaths = {"chatSpace"})
   @Query(value =
