@@ -19,6 +19,16 @@ public class SoftAskFeatureTestConstant {
 
   }
 
+  public static class SoftAskVoteDtoDefaultTestConstants {
+    public static final String PARENT_ID = "1";
+    public static final String VOTED = "VOTED";
+    public static final String NOT_VOTED = "NOT_VOTED";
+
+    public static final String PARENT_TYPE_SOFT_ASK = "SOFT_ASK";
+    public static final String PARENT_TYPE_SOFT_ASK_REPLY = "SOFT_ASK_REPLY";
+
+  }
+
   public static class UserOtherDtoDefaultTestConstants {
     public static final Double LONGITUDE = 9.292;
     public static final Double LATITUDE = -9.292;
@@ -48,6 +58,13 @@ public class SoftAskFeatureTestConstant {
     public static final Long ID_6 = 6L;
 
     public static final String ID_1_Str = String.valueOf(ID_1);
+  }
+
+  public static class SoftAskVoteDefaultTestConstants {
+    public static final Long ID_1 = 1L;
+    public static final Long ID_2 = 2L;
+
+
   }
 
   public static class SoftAskResponseTestConstants {
@@ -82,5 +99,10 @@ public class SoftAskFeatureTestConstant {
     public static final String USERNAME = "john123";
     public static final String EMAIL_ADDRESS = "john@example.com";
     public static final String PASSWORD = "00000";
+  }
+
+  public static class OtherTestConstants {
+
+    public static final Integer PARENT_TOTAL_VOTES = 1;
   }
 }

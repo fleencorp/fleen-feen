@@ -93,7 +93,7 @@ class SoftAskAddSoftAskTest {
     when(softAskOperationService.save(any(SoftAsk.class))).thenReturn(softAskMock);
 
     when(softAskOperationService.generateParticipantDetail(anyLong(), anyLong())).thenReturn(participantDetail);
-    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class))).thenReturn(softAskResponse);
+    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class), any(IsAMember.class))).thenReturn(softAskResponse);
     doNothing().when(softAskCommonService).processSoftAskResponses(anyCollection(), any(IsAMember.class), any());
 
     when(localizer.of(any(SoftAskAddResponse.class))).thenReturn(expectedResponse);
@@ -110,7 +110,7 @@ class SoftAskAddSoftAskTest {
     verify(softAskQueryService).findMemberOrThrow(user.getId());
     verify(softAskOperationService).save(any(SoftAsk.class));
     verify(softAskOperationService).generateParticipantDetail(anyLong(), eq(user.getId()));
-    verify(softAskMapper).toSoftAskResponse(any(SoftAsk.class));
+    verify(softAskMapper).toSoftAskResponse(any(SoftAsk.class), eq(member));
     verify(softAskCommonService).processSoftAskResponses(anyCollection(), eq(member), any());
     verify(localizer).of(any(SoftAskAddResponse.class));
   }
@@ -139,7 +139,7 @@ class SoftAskAddSoftAskTest {
     when(softAskOperationService.save(any(SoftAsk.class))).thenReturn(softAskMock);
 
     when(softAskOperationService.generateParticipantDetail(anyLong(), anyLong())).thenReturn(participantDetail);
-    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class))).thenReturn(softAskResponse);
+    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class), any(IsAMember.class))).thenReturn(softAskResponse);
     doNothing().when(softAskCommonService).processSoftAskResponses(anyCollection(), any(IsAMember.class), any());
 
     when(localizer.of(any(SoftAskAddResponse.class))).thenReturn(expectedResponse);
@@ -179,7 +179,7 @@ class SoftAskAddSoftAskTest {
     when(softAskOperationService.save(any(SoftAsk.class))).thenReturn(softAskMock);
 
     when(softAskOperationService.generateParticipantDetail(anyLong(), anyLong())).thenReturn(participantDetail);
-    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class))).thenReturn(softAskResponse);
+    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class), any(IsAMember.class))).thenReturn(softAskResponse);
     doNothing().when(softAskCommonService).processSoftAskResponses(anyCollection(), any(IsAMember.class), any());
 
     when(localizer.of(any(SoftAskAddResponse.class))).thenReturn(expectedResponse);
@@ -218,7 +218,7 @@ class SoftAskAddSoftAskTest {
     when(softAskOperationService.save(any(SoftAsk.class))).thenReturn(softAskMock);
 
     when(softAskOperationService.generateParticipantDetail(anyLong(), anyLong())).thenReturn(participantDetail);
-    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class))).thenReturn(softAskResponse);
+    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class), any(IsAMember.class))).thenReturn(softAskResponse);
     doNothing().when(softAskCommonService).processSoftAskResponses(anyCollection(), any(IsAMember.class), any());
 
     when(localizer.of(any(SoftAskAddResponse.class))).thenReturn(expectedResponse);
@@ -256,13 +256,13 @@ class SoftAskAddSoftAskTest {
     SoftAsk softAskMock = SoftAskMother.createSoftAsk();
     SoftAskAddResponse expectedResponse = SoftAskAddResponse.of(SoftAskResponseTestConstants.ID_1, softAskResponse);
 
-    addSoftAskDto.setParent(null);
+    addSoftAskDto.setParent(SoftAskMother.createSoftAskVoteParentDtoEmpty());
 
     // when
     when(softAskQueryService.findMemberOrThrow(user.getId())).thenReturn(member);
     when(softAskOperationService.save(any(SoftAsk.class))).thenReturn(softAskMock);
     when(softAskOperationService.generateParticipantDetail(anyLong(), anyLong())).thenReturn(new SoftAskParticipantDetail());
-    when(softAskMapper.toSoftAskResponse(any())).thenReturn(softAskResponse);
+    when(softAskMapper.toSoftAskResponse(any(SoftAsk.class), any(IsAMember.class))).thenReturn(softAskResponse);
     when(localizer.of(any(SoftAskAddResponse.class))).thenReturn(expectedResponse);
 
     // act

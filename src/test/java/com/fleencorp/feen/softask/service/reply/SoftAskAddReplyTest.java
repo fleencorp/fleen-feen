@@ -1,8 +1,11 @@
 package com.fleencorp.feen.softask.service.reply;
 
+import com.fleencorp.feen.shared.member.MemberNotFoundException;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
+import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
+import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
@@ -28,6 +31,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -277,6 +281,68 @@ class SoftAskAddReplyTest {
     // assert
     assertThat(result).isNotNull();
     assertThat(result.getChildReplyCount()).isEqualTo(5);
+  }
+
+  @Test
+  @DisplayName("Throw when author or member is not found")
+  void test_should_throw_when_author_or_member_not_found() {
+    // parameters
+    Long memberId = SoftAskFeatureTestConstant.IsAMemberTestConstants.ID_1;
+
+    // when
+    when(queryService.findMemberOrThrow(memberId))
+      .thenThrow(new MemberNotFoundException(memberId));
+
+    // when
+    // act
+    assertThatThrownBy(() -> replyService.addSoftAskReply(dto, user))
+      .isInstanceOf(MemberNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("Throw when soft ask not found without parent")
+  void test_should_throw_when_soft_ask_not_found_without_parent() {
+    // parameters
+    Long memberId = SoftAskFeatureTestConstant.IsAMemberTestConstants.ID_1;
+    Long softAskId = SoftAskFeatureTestConstant.SoftAskDefaultTestConstants.ID_1;
+    String softAskIdStr = SoftAskFeatureTestConstant.SoftAskDefaultTestConstants.ID_1_Str;
+
+    SoftAskWithParentDto.SoftAskParentDto parentDto = new SoftAskWithParentDto.SoftAskParentDto();
+    parentDto.setSoftAskId(softAskIdStr);
+    dto.setParent(parentDto);
+
+    // when
+    when(queryService.findMemberOrThrow(memberId)).thenReturn(author);
+    when(searchService.findSoftAsk(softAskId)).thenThrow(new SoftAskNotFoundException(softAskId));
+
+    // when
+    // act
+    assertThatThrownBy(() -> replyService.addSoftAskReply(dto, user))
+      .isInstanceOf(SoftAskNotFoundException.class);
+  }
+
+  @Test
+  @DisplayName("Throw when parent reply not found")
+  void test_should_throw_when_parent_reply_not_found() {
+    // parameters
+    Long memberId = SoftAskFeatureTestConstant.IsAMemberTestConstants.ID_1;
+    Long softAskId = SoftAskFeatureTestConstant.SoftAskDefaultTestConstants.ID_1;
+    Long softAskReplyId = SoftAskFeatureTestConstant.SoftAskReplyDefaultTestConstants.ID_1;
+    String softAskIdStr = SoftAskFeatureTestConstant.SoftAskDefaultTestConstants.ID_1_Str;
+    String softAskReplyIdStr = SoftAskFeatureTestConstant.SoftAskReplyDefaultTestConstants.ID_1_Str;
+
+    SoftAskWithParentDto.SoftAskParentDto parentDto = new SoftAskWithParentDto.SoftAskParentDto();
+    parentDto.setSoftAskId(softAskIdStr);
+    parentDto.setSoftAskReplyId(softAskReplyIdStr);
+    dto.setParent(parentDto);
+
+    when(queryService.findMemberOrThrow(memberId)).thenReturn(author);
+    when(repository.findBySoftAskAndParentReply(softAskId, softAskReplyId)).thenReturn(Optional.empty());
+
+    // when
+    // act
+    assertThatThrownBy(() -> replyService.addSoftAskReply(dto, user))
+      .isInstanceOf(SoftAskReplyNotFoundException.class);
   }
 
 }
