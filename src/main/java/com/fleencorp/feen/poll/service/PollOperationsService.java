@@ -8,7 +8,6 @@ import com.fleencorp.feen.poll.model.holder.PollVoteEntriesHolder;
 import com.fleencorp.feen.user.model.domain.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -49,10 +48,8 @@ public interface PollOperationsService {
 
   void deleteVoteByPollIdAndMemberId(Long pollId, Long memberId);
 
-  @Transactional
   Integer updateBookmarkCount(Long streamId, boolean bookmarked);
 
-  @Transactional
   Integer updateLikeCount(Long chatSpaceId, boolean isLiked);
 }
 

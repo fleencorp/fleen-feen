@@ -6,7 +6,9 @@ import com.fleencorp.feen.bookmark.model.dto.BookmarkDto;
 import com.fleencorp.feen.bookmark.model.holder.BookmarkParentDetailHolder;
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.review.model.domain.Review;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
@@ -23,6 +25,7 @@ public final class BookmarkFactory {
 
   private static final Map<BookmarkParentType, BookmarkCreator> CREATORS = Map.of(
     BookmarkParentType.CHAT_SPACE, BookmarkFactory::createChatSpaceBookmark,
+    BookmarkParentType.POLL, BookmarkFactory::createPollBookmark,
     BookmarkParentType.REVIEW, BookmarkFactory::createReviewBookmark,
     BookmarkParentType.SOFT_ASK, BookmarkFactory::createSoftAskBookmark,
     BookmarkParentType.SOFT_ASK_REPLY, BookmarkFactory::createSoftAskReplyBookmark,
@@ -50,17 +53,27 @@ public final class BookmarkFactory {
 
   private static Bookmark createReviewBookmark(final BookmarkDto dto, final BookmarkParentDetailHolder holder, final Member member) {
     final Review review = holder.review();
+
     return createBaseBookmark(dto, member, review.getReviewId(), review.getReviewText())
       .apply(bookmark -> {
         bookmark.setReviewId(review.getReviewId());
         bookmark.setReview(review);
-        bookmark.setChatSpaceId(review.getChatSpaceId());
-        bookmark.setStreamId(review.getStreamId());
+      });
+  }
+
+  private static Bookmark createPollBookmark(final BookmarkDto dto, final BookmarkParentDetailHolder holder, final Member member) {
+    final Poll poll = holder.poll();
+
+    return createBaseBookmark(dto, member, poll.getPollId(), poll.getTitle())
+      .apply(bookmark -> {
+        bookmark.setPollId(poll.getPollId());
+        bookmark.setPoll(poll);
       });
   }
 
   private static Bookmark createSoftAskBookmark(final BookmarkDto dto, final BookmarkParentDetailHolder holder, final Member member) {
     final SoftAsk softAsk = holder.softAsk();
+
     return createBaseBookmark(dto, member, softAsk.getSoftAskId(), softAsk.getDescription())
       .apply(bookmark -> {
         bookmark.setSoftAskId(softAsk.getSoftAskId());
@@ -71,6 +84,7 @@ public final class BookmarkFactory {
   private static Bookmark createSoftAskReplyBookmark(final BookmarkDto dto, final BookmarkParentDetailHolder holder, final Member member) {
     final SoftAsk softAsk = holder.softAsk();
     final SoftAskReply reply = holder.softAskReply();
+
     return createBaseBookmark(dto, member, reply.getSoftAskReplyId(), reply.getContent())
       .apply(bookmark -> {
         bookmark.setSoftAskId(softAsk.getSoftAskId());
@@ -82,6 +96,7 @@ public final class BookmarkFactory {
 
   private static Bookmark createStreamBookmark(final BookmarkDto dto, final BookmarkParentDetailHolder holder, final Member member) {
     final FleenStream stream = holder.stream();
+
     return createBaseBookmark(dto, member, stream.getStreamId(), stream.getTitle())
       .apply(bookmark -> {
         bookmark.setStreamId(stream.getStreamId());
@@ -89,7 +104,9 @@ public final class BookmarkFactory {
       });
   }
 
-  private static BookmarkApplier createBaseBookmark(final BookmarkDto dto, final Member member, final Long parentId, final String parentSummary) {
+  private static BookmarkApplier createBaseBookmark(final BookmarkDto dto, final Member member, final Long parentId, String parentSummary) {
+    parentSummary = ParentInfoUtil.getParentSummary(parentSummary);
+
     final Bookmark bookmark = new Bookmark();
     bookmark.setParentId(parentId);
     bookmark.setParentSummary(parentSummary);
@@ -103,6 +120,7 @@ public final class BookmarkFactory {
 
   @FunctionalInterface
   private interface BookmarkCreator {
+
     Bookmark create(BookmarkDto dto, BookmarkParentDetailHolder holder, Member member);
   }
 
@@ -110,6 +128,7 @@ public final class BookmarkFactory {
 
     public Bookmark apply(final Consumer<Bookmark> configurer) {
       configurer.accept(bookmark);
+
       return bookmark;
     }
   }

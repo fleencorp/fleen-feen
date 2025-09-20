@@ -9,7 +9,7 @@ import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
-import com.fleencorp.feen.softask.util.SoftAskUtil;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 
 import java.math.BigDecimal;
 
@@ -70,7 +70,7 @@ public final class SoftAskFactory {
   }
 
   private static void setBaseFields(AddSoftAskDto dto, String parentTitle, IsAMember author, SoftAsk softAsk) {
-    final String title = SoftAskUtil.getSoftAskTitle(dto.getQuestion());
+    final String title = ParentInfoUtil.getSoftAskTitle(dto.getQuestion());
     softAsk.setTitle(title);
 
     softAsk.setDescription(dto.getQuestion());

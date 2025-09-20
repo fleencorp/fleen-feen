@@ -1,10 +1,10 @@
-package com.fleencorp.feen.softask.util;
+package com.fleencorp.feen.shared.common.util;
 
 import static java.util.Objects.nonNull;
 
-public final class SoftAskUtil {
+public final class ParentInfoUtil {
 
-  private SoftAskUtil() {}
+  private ParentInfoUtil() {}
 
   public static String getParentSummary(final String content) {
     return truncate(content, 200);

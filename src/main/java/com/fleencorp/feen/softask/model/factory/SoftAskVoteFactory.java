@@ -8,7 +8,7 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
-import com.fleencorp.feen.softask.util.SoftAskUtil;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 
 import java.util.Map;
 
@@ -82,7 +82,7 @@ public final class SoftAskVoteFactory {
     vote.setVoteType(dto.getVoteType());
     vote.setMemberId(member.getMemberId());
 
-    final String parentSummary = SoftAskUtil.getParentSummary(softAskCommonData.getSummary());
+    final String parentSummary = ParentInfoUtil.getParentSummary(softAskCommonData.getSummary());
     vote.setParentSummary(parentSummary);
 
     return vote;

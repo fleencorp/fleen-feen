@@ -45,10 +45,11 @@ public class BookmarkMapperImpl extends BaseMapper implements BookmarkMapper {
     if (nonNull(entry)) {
       final BookmarkResponse response = new BookmarkResponse();
       response.setId(entry.getBookmarkId());
+      response.setBookmarkType(entry.getBookmarkType());
+      response.setOtherId(entry.getOtherId());
+
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
-      response.setOtherId(entry.getOtherId());
-      response.setBookmarkType(entry.getBookmarkType());
 
       final ParentInfo parentInfo = ParentInfo.of(entry.getParentId(), entry.getParentSummary());
       response.setParentInfo(parentInfo);

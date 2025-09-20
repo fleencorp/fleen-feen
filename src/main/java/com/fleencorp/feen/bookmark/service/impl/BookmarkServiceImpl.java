@@ -144,15 +144,16 @@ public class BookmarkServiceImpl implements BookmarkService {
    * @return a {@link BookmarkParentDetailHolder} containing the resolved parent entity details
    * @throws FailedOperationException if the bookmarkParentType is null or retrieval fails
    */
-  protected BookmarkParentDetailHolder retrieveBookmarkDetailsHolder(final BookmarkParentType bookmarkParentType, final Long parentId, final Long otherId) throws FailedOperationException {
+  protected BookmarkParentDetailHolder retrieveBookmarkDetailsHolder(final BookmarkParentType bookmarkParentType, final Long parentId, final Long otherId)
+      throws FailedOperationException {
     checkIsNull(bookmarkParentType, FailedOperationException::new);
 
     final ChatSpace chatSpace = BookmarkParentType.isChatSpace(bookmarkParentType) ? externalService.findChatSpaceById(parentId) : null;
     final Poll poll = BookmarkParentType.isPoll(bookmarkParentType) ? externalService.findPollById(otherId) : null;
     final Review review = BookmarkParentType.isReview(bookmarkParentType) ? externalService.findReviewById(parentId) : null;
     final SoftAsk softAsk = BookmarkParentType.isSoftAsk(bookmarkParentType) ? externalService.findSoftAskById(parentId) : SoftAsk.of(otherId);
-    final FleenStream stream = BookmarkParentType.isStream(bookmarkParentType) ? externalService.findStreamById(parentId) : null;
     final SoftAskReply softAskReply = BookmarkParentType.isSoftAskReply(bookmarkParentType) ? externalService.findSoftAskReply(otherId, parentId) : null;
+    final FleenStream stream = BookmarkParentType.isStream(bookmarkParentType) ? externalService.findStreamById(parentId) : null;
 
     return BookmarkParentDetailHolder.of(chatSpace, poll, review, softAsk, softAskReply, stream, bookmarkParentType);
   }
@@ -173,8 +174,8 @@ public class BookmarkServiceImpl implements BookmarkService {
    */
   protected Integer updateBookmarkCount(final Long parentId, final Long otherId, final BookmarkParentType parentType, final BookmarkType bookmarkType) {
     checkIsNullAny(List.of(parentId, parentType), FailedOperationException::new);
-    final boolean isBookmarked = BookmarkType.isBookmarked(bookmarkType);
 
+    final boolean isBookmarked = BookmarkType.isBookmarked(bookmarkType);
     return switch (parentType) {
       case CHAT_SPACE -> externalService.updateChatSpaceBookmarkCount(parentId, isBookmarked);
       case STREAM -> externalService.updateStreamBookmarkCount(parentId, isBookmarked);

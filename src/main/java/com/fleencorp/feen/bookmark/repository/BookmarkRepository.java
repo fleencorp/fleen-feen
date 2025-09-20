@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
-  @Query("SELECT l FROM Bookmark l WHERE l.memberId = :memberId AND l.chatSpaceId = :chatSpaceId AND l.parentType =:parentType")
+  @Query("SELECT l FROM Bookmark l WHERE l.memberId = :memberId AND l.chatSpaceId = :chatSpaceId AND l.parentType = :parentType")
   Optional<Bookmark> findByMemberAndChatSpace(
     @Param("memberId") Long memberId,
     @Param("chatSpaceId") Long chatSpaceId,

@@ -7,7 +7,7 @@ import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.softask.util.SoftAskUtil;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -125,7 +125,7 @@ public class SoftAskReply extends FleenFeenEntity
 
   @Override
   public String getTitle() {
-    return SoftAskUtil.getParentSummary(content);
+    return ParentInfoUtil.getParentSummary(content);
   }
 
   @Override

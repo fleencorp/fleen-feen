@@ -25,8 +25,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "id",
   "parent_info",
   "user_bookmark_info",
-  "bookmark_parent_type",
-  "bookmark_type",
+  "parent_type",
+  "type",
   "is_bookmarked",
   "other_id",
   "created_on",
@@ -41,14 +41,14 @@ public class BookmarkResponse extends FleenFeenResponse {
   private UserBookmarkInfo userBookmarkInfo;
 
   @JsonFormat(shape = STRING)
-  @JsonProperty("bookmark_parent_type")
+  @JsonProperty("parent_type")
   private BookmarkParentType bookmarkParentType;
 
   @JsonProperty("other_id")
   private Long otherId;
 
   @JsonFormat(shape = STRING)
-  @JsonProperty("bookmark_type")
+  @JsonProperty("type")
   private BookmarkType bookmarkType;
 
   @JsonProperty("is_bookmarked")

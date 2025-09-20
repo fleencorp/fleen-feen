@@ -141,12 +141,12 @@ public class PollOperationsServiceImpl implements PollOperationsService {
   }
 
   private int incrementAndGetBookmarkCount(final Long streamId) {
-    pollManagementRepository.incrementAndGetBookmarkCount(streamId);
+    pollManagementRepository.incrementBookmarkCount(streamId);
     return pollManagementRepository.getBookmarkCount(streamId);
   }
 
   private int decrementAndGetBookmarkCount(final Long streamId) {
-    pollManagementRepository.decrementAndGetBookmarkCount(streamId);
+    pollManagementRepository.decrementBookmarkCount(streamId);
     return pollManagementRepository.getBookmarkCount(streamId);
   }
 
@@ -161,12 +161,12 @@ public class PollOperationsServiceImpl implements PollOperationsService {
   }
 
   public Integer incrementLikeCount(final Long chatSpaceId) {
-    pollManagementRepository.incrementAndGetLikeCount(chatSpaceId);
+    pollManagementRepository.incrementLikeCount(chatSpaceId);
     return pollManagementRepository.getLikeCount(chatSpaceId);
   }
 
   private Integer decrementLikeCount(final Long chatSpaceId) {
-    pollManagementRepository.decrementAndGetLikeCount(chatSpaceId);
+    pollManagementRepository.decrementLikeCount(chatSpaceId);
     return pollManagementRepository.getLikeCount(chatSpaceId);
   }
 
