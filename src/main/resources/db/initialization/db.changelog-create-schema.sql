@@ -477,6 +477,61 @@ CREATE TABLE stream_speaker (
 
 
 
+--changeset alamu:create_table_poll
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll';
+
+CREATE TABLE poll (
+  poll_id BIGSERIAL PRIMARY KEY,
+  question VARCHAR(1000) NOT NULL,
+  description VARCHAR(2000),
+  summary VARCHAR(2000) NULL,
+  expires_at TIMESTAMP,
+  slug VARCHAR(255) NOT NULL,
+
+  parent_id BIGINT,
+  parent_title VARCHAR(1000),
+
+  author_id BIGINT NOT NULL,
+  stream_id BIGINT,
+  chat_space_id BIGINT,
+
+  is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
+  is_multiple_choice BOOLEAN NOT NULL DEFAULT FALSE,
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+
+  total_entries INTEGER NOT NULL DEFAULT 0,
+  bookmark_count INTEGER NOT NULL DEFAULT 0,
+  like_count INTEGER NOT NULL DEFAULT 0,
+  share_count INTEGER NOT NULL DEFAULT 0,
+
+  parent_type VARCHAR(255) NULL
+    CHECK (parent_type IN ('CHAT_SPACE', 'STREAM')),
+  visibility VARCHAR(255) NOT NULL
+    CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_fk_author_id
+    FOREIGN KEY (author_id)
+      REFERENCES member (member_id)
+      ON DELETE SET NULL,
+  CONSTRAINT poll_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+      ON DELETE SET NULL,
+  CONSTRAINT poll_fk_chat_space_id
+    FOREIGN KEY (chat_space_id)
+      REFERENCES chat_space (chat_space_id)
+      ON DELETE SET NULL
+);
+
+--rollback DROP TABLE IF EXISTS `poll`;
+
+
+
 --changeset alamu:create_table_share_contact_request
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
@@ -816,62 +871,6 @@ CREATE TABLE likes (
 );
 
 --rollback DROP TABLE IF EXISTS `likes`;
-
-
-
---changeset alamu:create_table_poll
-
---preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll';
-
-CREATE TABLE poll (
-  poll_id BIGSERIAL PRIMARY KEY,
-  question VARCHAR(1000) NOT NULL,
-  description VARCHAR(2000),
-  summary VARCHAR(2000) NULL,
-  expires_at TIMESTAMP,
-  slug VARCHAR(255) NOT NULL,
-
-  parent_id BIGINT,
-  parent_title VARCHAR(1000),
-
-  author_id BIGINT NOT NULL,
-  stream_id BIGINT,
-  chat_space_id BIGINT,
-
-  is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
-  is_multiple_choice BOOLEAN NOT NULL DEFAULT FALSE,
-  deleted BOOLEAN NOT NULL DEFAULT FALSE,
-
-  total_entries INTEGER NOT NULL DEFAULT 0,
-  bookmark_count INTEGER NOT NULL DEFAULT 0,
-  like_count INTEGER NOT NULL DEFAULT 0,
-  share_count INTEGER NOT NULL DEFAULT 0,
-
-  parent_type VARCHAR(255) NULL
-    CHECK (parent_type IN ('CHAT_SPACE', 'STREAM')),
-  visibility VARCHAR(255) NOT NULL
-    CHECK (visibility IN ('PUBLIC', 'PRIVATE', 'FOLLOWERS_ONLY', 'MEMBERS_ONLY', 'ATTENDEES_ONLY')),
-
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-  CONSTRAINT poll_fk_author_id
-    FOREIGN KEY (author_id)
-      REFERENCES member (member_id)
-      ON DELETE SET NULL,
-  CONSTRAINT poll_fk_stream_id
-    FOREIGN KEY (stream_id)
-      REFERENCES stream (stream_id)
-      ON DELETE SET NULL,
-  CONSTRAINT poll_fk_chat_space_id
-    FOREIGN KEY (chat_space_id)
-      REFERENCES chat_space (chat_space_id)
-      ON DELETE SET NULL
-);
-
---rollback DROP TABLE IF EXISTS `poll`;
-
 
 
 --changeset alamu:create_table_poll_option
