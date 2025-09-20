@@ -139,7 +139,7 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
     return findVoteByParent(softAskVoteDto.getSoftAskId(), softAskVoteDto.getSoftAskReplyId(), voteParentType, member)
       .map(existingVote -> {
         if (existingVote.getVoteType() == voteType) {
-          throw FailedOperationException.of();
+          throw SoftAskUpdateDeniedException.of();
         }
 
         existingVote.setVoteType(voteType);

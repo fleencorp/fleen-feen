@@ -12,6 +12,8 @@ import com.fleencorp.feen.softask.util.SoftAskUtil;
 
 import java.util.Map;
 
+import static java.util.Objects.isNull;
+
 public final class SoftAskVoteFactory {
 
   private static final Map<SoftAskVoteParentType, VoteCreator> CREATORS = Map.of(
@@ -35,22 +37,25 @@ public final class SoftAskVoteFactory {
 
   private static VoteCreator checkParentType(SoftAskVoteDto dto) {
     final VoteCreator creator = CREATORS.get(dto.getVoteParentType());
+
     if (creator == null) {
       throw FailedOperationException.of();
     }
+
     return creator;
   }
 
   private static void checkParameters(SoftAskVoteDto dto, IsAMember member) {
-    if (dto == null || member == null) {
+    if (isNull(dto) || isNull(member)) {
       throw FailedOperationException.of();
     }
   }
 
   private static SoftAskVote createSoftAskVote(SoftAskVoteDto dto, IsAMember member, SoftAsk softAsk, SoftAskReply unused) {
+    final Long softAskId = softAsk.getId();
 
-    final SoftAskVote vote = baseVote(dto, member, softAsk.getSoftAskId(), softAsk);
-    vote.setSoftAskId(softAsk.getSoftAskId());
+    final SoftAskVote vote = baseVote(dto, member, softAskId, softAsk);
+    vote.setSoftAskId(softAskId);
     vote.setSoftAsk(softAsk);
     vote.setParentTitle(softAsk.getTitle());
 
@@ -58,9 +63,10 @@ public final class SoftAskVoteFactory {
   }
 
   private static SoftAskVote createSoftAskReplyVote(SoftAskVoteDto dto, IsAMember member, SoftAsk softAsk, SoftAskReply reply) {
+    final Long softAskReplyId = reply.getSoftAskReplyId();
 
-    final SoftAskVote vote = baseVote(dto, member, reply.getSoftAskReplyId(), reply);
-    vote.setSoftAskReplyId(reply.getSoftAskReplyId());
+    final SoftAskVote vote = baseVote(dto, member, softAskReplyId, reply);
+    vote.setSoftAskReplyId(softAskReplyId);
     vote.setSoftAskReply(reply);
     vote.setSoftAskId(softAsk.getSoftAskId());
     vote.setSoftAsk(softAsk);
@@ -84,6 +90,7 @@ public final class SoftAskVoteFactory {
 
   @FunctionalInterface
   private interface VoteCreator {
+
     SoftAskVote create(SoftAskVoteDto dto, IsAMember member, SoftAsk softAsk, SoftAskReply reply);
   }
 }

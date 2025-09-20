@@ -33,7 +33,7 @@ public class SoftAskVoteController {
   }
 
   @Operation(summary = "Vote on a soft ask",
-    description = "Submits a vote for a specified soft ask. Requires user authentication.")
+    description = "Submits a vote for a specified soft ask or soft ask reply. Requires user authentication.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Successfully submitted the vote",
       content = @Content(schema = @Schema(implementation = SoftAskVoteUpdateResponse.class))),

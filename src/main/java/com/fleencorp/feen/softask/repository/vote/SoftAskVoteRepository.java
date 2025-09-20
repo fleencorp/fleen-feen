@@ -11,20 +11,29 @@ public interface SoftAskVoteRepository extends JpaRepository<SoftAskVote, Long> 
 
   @Query(value = """
     SELECT sav FROM SoftAskVote sav
-    WHERE sav.memberId = :memberId AND
-    sav.softAskId = :softAskId AND
-    sav.parentId = :softAskId
+    WHERE
+      sav.memberId = :memberId AND
+      sav.softAskId = :softAskId AND
+      sav.parentId = :softAskId
   """)
-  Optional<SoftAskVote> findByMemberAndSoftAsk(@Param("memberId") Long memberId, @Param("softAskId") Long softAskId);
+  Optional<SoftAskVote> findByMemberAndSoftAsk(
+    @Param("memberId") Long memberId,
+    @Param("softAskId") Long softAskId
+  );
 
   @Query(value = """
     SELECT sav FROM SoftAskVote sav
-    WHERE sav.memberId = :memberId AND
-    sav.softAskId = :softAskId AND
-    sav.softAskReplyId = :softAskReplyId AND
-    sav.parentId = :softAskReplyId
+    WHERE
+      sav.memberId = :memberId AND
+      sav.softAskId = :softAskId AND
+      sav.softAskReplyId = :softAskReplyId AND
+      sav.parentId = :softAskReplyId
   """)
-  Optional<SoftAskVote> findByMemberAndSoftAskAndSoftAskReply(@Param("memberId") Long memberId, @Param("softAskId") Long softAskId, @Param("softAskReplyId") Long softAskReplyId);
+  Optional<SoftAskVote> findByMemberAndSoftAskAndSoftAskReply(
+    @Param("memberId") Long memberId,
+    @Param("softAskId") Long softAskId,
+    @Param("softAskReplyId") Long softAskReplyId
+  );
 
   @Query("SELECT COUNT(v) FROM SoftAskVote v WHERE v.softAsk.authorId = :memberId")
   int countVotesOnMySoftAsks(@Param("memberId") Long memberId);

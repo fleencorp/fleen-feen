@@ -31,6 +31,10 @@ public class SoftAskMother {
     return dto;
   }
 
+  public static AddSoftAskDto.SoftAskParentDto createSoftAskParentDtoEmpty() {
+    return new AddSoftAskDto.SoftAskParentDto();
+  }
+
   public static SoftAskVoteDto.SoftAskVoteParentDto createSoftAskVoteParentDto() {
     SoftAskVoteDto.SoftAskVoteParentDto dto = new SoftAskVoteDto.SoftAskVoteParentDto();
     dto.setSoftAskId(SoftAskDefaultTestConstants.ID_1_Str);
@@ -39,20 +43,17 @@ public class SoftAskMother {
     return dto;
   }
 
-  public static AddSoftAskDto.SoftAskParentDto createSoftAskVoteParentDtoEmpty() {
-    return new AddSoftAskDto.SoftAskParentDto();
+  public static SoftAskVoteDto.SoftAskVoteParentDto createSoftAskVoteNoParentTypeDto() {
+    return new SoftAskVoteDto.SoftAskVoteParentDto();
   }
 
   public static SoftAskVoteDto.SoftAskVoteParentDto createSoftAskReplyVoteParentDto() {
     SoftAskVoteDto.SoftAskVoteParentDto dto = new SoftAskVoteDto.SoftAskVoteParentDto();
     dto.setVoteParentType(SoftAskVoteDtoDefaultTestConstants.PARENT_TYPE_SOFT_ASK_REPLY);
     dto.setSoftAskId(SoftAskDefaultTestConstants.ID_1_Str);
+    dto.setSoftAskReplyId(SoftAskReplyDefaultTestConstants.ID_1_Str);
 
     return dto;
-  }
-
-  public static AddSoftAskDto.SoftAskParentDto createSoftAskReplyVoteParentDtoEmpty() {
-    return new AddSoftAskDto.SoftAskParentDto();
   }
 
   public static SoftAskVoteDto createSoftAskVoteDtoVoted() {
@@ -79,13 +80,22 @@ public class SoftAskMother {
     return softAskVoteDto;
   }
 
-  public static SoftAskVoteDto createSoftAskReplyVoteDtoNotNotVoted() {
+  public static SoftAskVoteDto createSoftAskReplyVoteDtoNotVoted() {
     SoftAskVoteDto softAskVoteDto = new SoftAskVoteDto();
     softAskVoteDto.setVoteType(SoftAskVoteDtoDefaultTestConstants.NOT_VOTED);
     softAskVoteDto.setParent(createSoftAskReplyVoteParentDto());
 
     return softAskVoteDto;
   }
+
+  public static SoftAskVoteDto createSoftAskVoteDtoNoParentType() {
+    SoftAskVoteDto softAskVoteDto = new SoftAskVoteDto();
+    softAskVoteDto.setVoteType(SoftAskVoteDtoDefaultTestConstants.VOTED);
+    softAskVoteDto.setParent(createSoftAskVoteNoParentTypeDto());
+
+    return softAskVoteDto;
+  }
+
 
   public static SoftAsk createSoftAsk() {
     SoftAsk softAsk = new SoftAsk();
@@ -135,6 +145,34 @@ public class SoftAskMother {
     softAskVote.setSoftAskId(SoftAskDefaultTestConstants.ID_1);
 
     SoftAskVoteParentType parentType = SoftAskVoteParentType.of(SoftAskVoteDtoDefaultTestConstants.PARENT_TYPE_SOFT_ASK);
+    SoftAskVoteType voteType = SoftAskVoteType.of(SoftAskVoteDtoDefaultTestConstants.NOT_VOTED);
+    softAskVote.setParentType(parentType);
+    softAskVote.setVoteType(voteType);
+
+    return softAskVote;
+  }
+
+  public static SoftAskVote createSoftAskReplyVoteForVoted() {
+    SoftAskVote softAskVote = new SoftAskVote();
+    softAskVote.setVoteId(SoftAskVoteDefaultTestConstants.ID_1);
+    softAskVote.setMemberId(IsAMemberTestConstants.ID_1);
+    softAskVote.setSoftAskId(SoftAskReplyDefaultTestConstants.ID_1);
+
+    SoftAskVoteParentType parentType = SoftAskVoteParentType.of(SoftAskVoteDtoDefaultTestConstants.PARENT_TYPE_SOFT_ASK_REPLY);
+    SoftAskVoteType voteType = SoftAskVoteType.of(SoftAskVoteDtoDefaultTestConstants.VOTED);
+    softAskVote.setParentType(parentType);
+    softAskVote.setVoteType(voteType);
+
+    return softAskVote;
+  }
+
+  public static SoftAskVote createSoftAskReplyVoteForNotVoted() {
+    SoftAskVote softAskVote = new SoftAskVote();
+    softAskVote.setVoteId(SoftAskVoteDefaultTestConstants.ID_1);
+    softAskVote.setMemberId(IsAMemberTestConstants.ID_1);
+    softAskVote.setSoftAskId(SoftAskReplyDefaultTestConstants.ID_1);
+
+    SoftAskVoteParentType parentType = SoftAskVoteParentType.of(SoftAskVoteDtoDefaultTestConstants.PARENT_TYPE_SOFT_ASK_REPLY);
     SoftAskVoteType voteType = SoftAskVoteType.of(SoftAskVoteDtoDefaultTestConstants.NOT_VOTED);
     softAskVote.setParentType(parentType);
     softAskVote.setVoteType(voteType);

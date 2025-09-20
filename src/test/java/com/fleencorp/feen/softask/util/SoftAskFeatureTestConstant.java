@@ -103,6 +103,7 @@ public class SoftAskFeatureTestConstant {
 
   public static class OtherTestConstants {
 
-    public static final Integer PARENT_TOTAL_VOTES = 1;
+    public static final Integer PARENT_TOTAL_VOTES_1 = 1;
+    public static final Integer PARENT_TOTAL_VOTES_0 = 0;
   }
 }

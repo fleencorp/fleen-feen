@@ -18,25 +18,25 @@ import lombok.Setter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
   "id",
-  "parent_info",
   "parent_total_votes",
+  "parent_info",
   "user_vote_info",
   "created_on",
   "updated_on"
 })
 public class SoftAskVoteResponse extends FleenFeenResponse {
 
-  @JsonProperty("parent_info")
-  private ParentInfo parentInfo;
-
   @JsonProperty("parent_total_votes")
   private Integer parentTotalVotes;
+
+  @JsonProperty("parent_info")
+  private ParentInfo parentInfo;
 
   @JsonProperty("user_vote_info")
   private SoftAskUserVoteInfo userVoteInfo;
 
   public static SoftAskVoteResponse of(final Long parentId, final Integer parentTotalVotes, final SoftAskUserVoteInfo softAskUserVoteInfo) {
     final ParentInfo parentInfo = ParentInfo.of(parentId);
-    return new SoftAskVoteResponse(parentInfo, parentTotalVotes, softAskUserVoteInfo);
+    return new SoftAskVoteResponse(parentTotalVotes, parentInfo, softAskUserVoteInfo);
   }
 }

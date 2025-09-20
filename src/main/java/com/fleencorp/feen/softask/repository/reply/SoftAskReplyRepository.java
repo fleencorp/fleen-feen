@@ -34,16 +34,18 @@ public interface SoftAskReplyRepository extends JpaRepository<SoftAskReply, Long
   @Modifying
   @Query(value = """
     UPDATE SoftAskReply sar SET sar.voteCount = sar.voteCount + 1
-    WHERE sar.softAskId = :softAskId AND
-    sar.softAskReplyId = :softAskReplyId
+    WHERE
+      sar.softAskId = :softAskId AND
+      sar.softAskReplyId = :softAskReplyId
   """)
   void incrementVoteCount(@Param("softAskId") Long softAskId, @Param("softAskReplyId") Long softAskReplyId);
 
   @Modifying
   @Query(value = """
     UPDATE SoftAskReply sar SET sar.voteCount = sar.voteCount - 1
-    WHERE sar.softAskId = :softAskId AND
-    sar.softAskReplyId = :softAskReplyId
+    WHERE
+      sar.softAskId = :softAskId AND
+      sar.softAskReplyId = :softAskReplyId
   """)
   void decrementVoteCount(@Param("softAskId") Long softAskId, @Param("softAskReplyId") Long softAskReplyId);
 

@@ -253,10 +253,11 @@ class SoftAskAddSoftAskTest {
   @DisplayName("Test add soft ask with no parent")
   void test_add_soft_ask_no_parent() {
     // parameters
+    AddSoftAskDto.SoftAskParentDto parent = SoftAskMother.createSoftAskParentDtoEmpty();
     SoftAsk softAskMock = SoftAskMother.createSoftAsk();
     SoftAskAddResponse expectedResponse = SoftAskAddResponse.of(SoftAskResponseTestConstants.ID_1, softAskResponse);
 
-    addSoftAskDto.setParent(SoftAskMother.createSoftAskVoteParentDtoEmpty());
+    addSoftAskDto.setParent(parent);
 
     // when
     when(softAskQueryService.findMemberOrThrow(user.getId())).thenReturn(member);
