@@ -105,7 +105,7 @@ public class PollCommonServiceImpl implements PollCommonService {
         setEntityUpdatableByUser(pollResponse, memberId);
       });
 
-    bookmarkOperationService.populateBookmarkForReviews(pollResponses, member);
+    bookmarkOperationService.populateBookmarkForPoll(pollResponses, member);
     likeOperationService.populateLikesForPoll(pollResponses, member);
   }
 

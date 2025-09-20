@@ -775,8 +775,9 @@ CREATE TABLE likes (
   parent_title varchar(1000) NULL,
 
   chat_space_id BIGINT NULL,
-  stream_id BIGINT NULL,
+  poll_id BIGINT NULL,
   review_id BIGINT NULL,
+  stream_id BIGINT NULL,
   member_id BIGINT NOT NULL,
 
   like_parent_type VARCHAR(255)
@@ -791,19 +792,27 @@ CREATE TABLE likes (
   CONSTRAINT like_fk_member_id
     FOREIGN KEY (member_id)
       REFERENCES member (member_id)
-      ON DELETE SET NULL,
+        ON DELETE SET NULL,
+
   CONSTRAINT like_fk_chat_space_id
     FOREIGN KEY (chat_space_id)
       REFERENCES stream (stream_id)
+        ON DELETE SET NULL,
+
+  CONSTRAINT like_fk_poll_id
+    FOREIGN KEY (poll)
+      REFERENCES poll (poll_id)
       ON DELETE SET NULL,
-  CONSTRAINT like_fk_stream_id
-    FOREIGN KEY (stream_id)
-      REFERENCES stream (stream_id)
-      ON DELETE SET NULL,
+
   CONSTRAINT like_fk_review_id
     FOREIGN KEY (review_id)
       REFERENCES review (review_id)
-      ON DELETE SET NULL
+        ON DELETE SET NULL,
+
+  CONSTRAINT like_fk_stream_id
+    FOREIGN KEY (stream_id)
+      REFERENCES stream (stream_id)
+        ON DELETE SET NULL
 );
 
 --rollback DROP TABLE IF EXISTS `likes`;
@@ -835,6 +844,8 @@ CREATE TABLE poll (
   deleted BOOLEAN NOT NULL DEFAULT FALSE,
 
   total_entries INTEGER NOT NULL DEFAULT 0,
+  bookmark_count INTEGER NOT NULL DEFAULT 0,
+  like_count INTEGER NOT NULL DEFAULT 0,
   share_count INTEGER NOT NULL DEFAULT 0,
 
   parent_type VARCHAR(255) NULL

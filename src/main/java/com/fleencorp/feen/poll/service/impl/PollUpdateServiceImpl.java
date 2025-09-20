@@ -4,7 +4,6 @@ import com.fleencorp.feen.chat.space.exception.core.ChatSpaceNotAnAdminException
 import com.fleencorp.feen.poll.exception.option.PollUpdateCantChangeOptionsException;
 import com.fleencorp.feen.poll.exception.poll.*;
 import com.fleencorp.feen.poll.mapper.PollUnifiedMapper;
-import com.fleencorp.feen.poll.mapper.poll.PollMapper;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.model.domain.PollOption;
 import com.fleencorp.feen.poll.model.dto.UpdatePollDto;
@@ -31,7 +30,6 @@ public class PollUpdateServiceImpl implements PollUpdateService {
   private final PollSearchService pollSearchService;
   private final PollCommonService pollCommonService;
   private final PollOperationsService pollOperationsService;
-  private final PollMapper pollMapper;
   private final PollUnifiedMapper pollUnifiedMapper;
   private final Localizer localizer;
 
@@ -39,13 +37,11 @@ public class PollUpdateServiceImpl implements PollUpdateService {
       final PollSearchService pollSearchService,
       final PollCommonService pollCommonService,
       final PollOperationsService pollOperationsService,
-      final PollMapper pollMapper,
       final PollUnifiedMapper pollUnifiedMapper,
       final Localizer localizer) {
     this.pollSearchService = pollSearchService;
     this.pollCommonService = pollCommonService;
     this.pollOperationsService = pollOperationsService;
-    this.pollMapper = pollMapper;
     this.pollUnifiedMapper = pollUnifiedMapper;
     this.localizer = localizer;
   }

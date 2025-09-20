@@ -2,8 +2,6 @@ package com.fleencorp.feen.like.service.impl;
 
 import com.fleencorp.feen.chat.space.model.domain.ChatSpace;
 import com.fleencorp.feen.chat.space.service.core.ChatSpaceService;
-import com.fleencorp.feen.like.mapper.LikeMapper;
-import com.fleencorp.feen.like.repository.LikeRepository;
 import com.fleencorp.feen.like.service.LikeExternalQueryService;
 import com.fleencorp.feen.poll.model.domain.Poll;
 import com.fleencorp.feen.poll.service.PollOperationsService;
@@ -11,7 +9,6 @@ import com.fleencorp.feen.review.model.domain.Review;
 import com.fleencorp.feen.review.service.ReviewOperationService;
 import com.fleencorp.feen.stream.model.domain.FleenStream;
 import com.fleencorp.feen.stream.service.common.StreamOperationsService;
-import com.fleencorp.localizer.service.Localizer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -22,25 +19,16 @@ public class LikeExternalQueryServiceImpl implements LikeExternalQueryService {
   private final PollOperationsService pollOperationsService;
   private final ReviewOperationService reviewOperationService;
   private final StreamOperationsService streamOperationsService;
-  private final LikeRepository likeRepository;
-  private final LikeMapper likeMapper;
-  private final Localizer localizer;
 
   public LikeExternalQueryServiceImpl(
       final ChatSpaceService chatSpaceService,
       final PollOperationsService pollOperationsService,
       final ReviewOperationService reviewOperationService,
-      @Lazy final StreamOperationsService streamOperationsService,
-      final LikeRepository likeRepository,
-      final LikeMapper likeMapper,
-      final Localizer localizer) {
+      @Lazy final StreamOperationsService streamOperationsService) {
     this.chatSpaceService = chatSpaceService;
     this.pollOperationsService = pollOperationsService;
     this.reviewOperationService = reviewOperationService;
     this.streamOperationsService = streamOperationsService;
-    this.likeRepository = likeRepository;
-    this.likeMapper = likeMapper;
-    this.localizer = localizer;
   }
 
   @Override
