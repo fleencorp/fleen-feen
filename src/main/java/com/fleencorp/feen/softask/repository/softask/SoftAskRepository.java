@@ -36,4 +36,9 @@ public interface SoftAskRepository extends JpaRepository<SoftAsk, Long> {
 
   @Query(value = "SELECT bookmark_count FROM soft_ask WHERE soft_ask_id = :softAskId", nativeQuery = true)
   Integer getBookmarkCount(@Param("softAskId") Long softAskId);
+
+  @Modifying
+  @Query("UPDATE SoftAsk sa SET sa.participantCount = sa.participantCount + 1 WHERE sa.softAskId = :softAskId")
+  void incrementParticipantCount(@Param("softAskId") Long softAskId);
+
 }

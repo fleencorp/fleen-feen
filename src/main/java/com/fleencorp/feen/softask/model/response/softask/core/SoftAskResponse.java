@@ -40,6 +40,7 @@ import static java.util.Objects.nonNull;
   "bookmark_count_info",
   "user_bookmark_info",
   "share_count_info",
+  "participant_count",
   "parent_info",
   "user_location_info",
   "mood_tag_info",
@@ -78,6 +79,9 @@ public class SoftAskResponse extends FleenFeenResponse
 
   @JsonProperty("share_count_info")
   private ShareCountInfo shareCountInfo;
+
+  @JsonProperty("participant_count")
+  private Integer participantCount;
 
   @JsonProperty("parent_info")
   private ParentInfo parentInfo;

@@ -949,6 +949,7 @@ CREATE TABLE soft_ask (
   is_visible BOOLEAN NOT NULL DEFAULT TRUE,
 
   bookmark_count INTEGER DEFAULT 0 NOT NULL,
+  participant_count INTEGER NOT NULL DEFAULT 0,
   reply_count INTEGER NOT NULL DEFAULT 0,
   share_count INTEGER NOT NULL DEFAULT 0,
   vote_count INTEGER NOT NULL DEFAULT 0,

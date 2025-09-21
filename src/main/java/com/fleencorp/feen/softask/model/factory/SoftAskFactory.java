@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.model.factory;
 
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.SoftAskParentType;
 import com.fleencorp.feen.softask.constant.core.SoftAskStatus;
@@ -9,7 +10,6 @@ import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.dto.softask.AddSoftAskDto;
-import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 
 import java.math.BigDecimal;
 

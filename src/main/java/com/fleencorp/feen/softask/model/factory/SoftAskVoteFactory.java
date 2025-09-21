@@ -1,6 +1,7 @@
 package com.fleencorp.feen.softask.model.factory;
 
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
@@ -8,7 +9,6 @@ import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.domain.SoftAskVote;
 import com.fleencorp.feen.softask.model.dto.vote.SoftAskVoteDto;
-import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 
 import java.util.Map;
 

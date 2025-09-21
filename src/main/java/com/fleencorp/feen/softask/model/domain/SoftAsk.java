@@ -110,17 +110,20 @@ public class SoftAsk extends FleenFeenEntity
   @Column(name = "is_visible", nullable = false)
   private Boolean visible = true;
 
-  @Column(name = "reply_count", nullable = false)
-  private Integer replyCount = 0;
-
-  @Column(name = "vote_count", nullable = false)
-  private Integer voteCount = 0;
-
   @Column(name = "bookmark_count", nullable = false)
   private Integer bookmarkCount = 0;
 
+  @Column(name = "participant_count", nullable = false)
+  private Integer participantCount = 0;
+
+  @Column(name = "reply_count", nullable = false)
+  private Integer replyCount = 0;
+
   @Column(name = "share_count", nullable = false)
   private Integer shareCount = 0;
+
+  @Column(name = "vote_count", nullable = false)
+  private Integer voteCount = 0;
 
   @Column(name = "latitude", precision = 3, scale = 1, updatable = false)
   private BigDecimal latitude;

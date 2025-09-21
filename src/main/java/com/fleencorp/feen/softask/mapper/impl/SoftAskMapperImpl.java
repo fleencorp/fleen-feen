@@ -76,6 +76,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       response.setMemberId(entry.getAuthorId());
       response.setTitle(entry.getTitle());
       response.setQuestion(entry.getDescription());
+      response.setParticipantCount(entry.getParticipantCount());
 
       response.setAuthorId(entry.getAuthorId());
       response.setOrganizerId(entry.getAuthorId());

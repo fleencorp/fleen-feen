@@ -5,6 +5,7 @@ import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.shared.common.model.GeneratedParticipantDetail;
 import com.fleencorp.feen.softask.model.domain.SoftAskParticipantDetail;
 import com.fleencorp.feen.softask.repository.participant.SoftAskParticipantDetailRepository;
+import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
 import com.fleencorp.feen.softask.service.participant.SoftAskParticipantDetailService;
 import com.fleencorp.feen.user.service.UsernameService;
 import jakarta.transaction.Transactional;
@@ -28,6 +29,7 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
   private final ObjectService objectService;
   private final UsernameService usernameService;
   private final SoftAskParticipantDetailRepository participantDetailRepository;
+  private final SoftAskRepository softAskRepository;
 
   private static final String USERNAME_CACHE_PREFIX = "sa::username:";
   private static final Duration CACHE_TTL = Duration.ofHours(1);
@@ -35,12 +37,14 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
   public SoftAskParticipantDetailServiceImpl(
       final CacheService cacheService,
       final ObjectService objectService,
+      final UsernameService usernameService,
       final SoftAskParticipantDetailRepository participantDetailRepository,
-      final UsernameService usernameService) {
+      final SoftAskRepository softAskRepository) {
     this.cacheService = cacheService;
     this.objectService = objectService;
-    this.participantDetailRepository = participantDetailRepository;
     this.usernameService = usernameService;
+    this.participantDetailRepository = participantDetailRepository;
+    this.softAskRepository = softAskRepository;
   }
 
   /**
@@ -128,6 +132,8 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
     participantDetail.setAvatarUrl(avatarUrl);
 
     participantDetailRepository.save(participantDetail);
+    softAskRepository.incrementParticipantCount(softAskId);
+
     cacheNewDetail(softAskId, userId, username, displayName, avatarUrl);
     return participantDetail;
   }

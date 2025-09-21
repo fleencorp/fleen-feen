@@ -3,11 +3,11 @@ package com.fleencorp.feen.softask.model.domain;
 import com.fleencorp.feen.common.constant.location.LocationVisibility;
 import com.fleencorp.feen.model.contract.HasTitle;
 import com.fleencorp.feen.model.domain.base.FleenFeenEntity;
+import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.shared.common.util.ParentInfoUtil;
 import jakarta.persistence.*;
 import lombok.*;
 
