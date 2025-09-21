@@ -9,6 +9,7 @@ import com.fleencorp.feen.softask.constant.core.SoftAskVisibility;
 import com.fleencorp.feen.softask.constant.other.ModerationStatus;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
+import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedDueToNon0ReplyException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -203,7 +204,7 @@ public class SoftAsk extends FleenFeenEntity
 
   public void checkIsReplyIsNotMoreThanOne() {
     if (nonNull(replyCount) && replyCount > 0) {
-      throw SoftAskUpdateDeniedException.of();
+      throw SoftAskUpdateDeniedDueToNon0ReplyException.of();
     }
   }
 
