@@ -114,7 +114,7 @@ public class SoftAsk extends FleenFeenEntity
   private Integer bookmarkCount = 0;
 
   @Column(name = "participant_count", nullable = false)
-  private Integer participantCount = 0;
+  private Integer participantCount = 1;
 
   @Column(name = "reply_count", nullable = false)
   private Integer replyCount = 0;
