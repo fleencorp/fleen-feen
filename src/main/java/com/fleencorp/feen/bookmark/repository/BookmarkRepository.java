@@ -37,7 +37,14 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     @Param("reviewId") Long reviewId,
     @Param("parentType") BookmarkParentType bookmarkParentType);
 
-  @Query("SELECT l FROM Bookmark l WHERE l.memberId = :memberId AND l.softAskId = :softAskId AND l.parentType =:parentType")
+  @Query(value = """
+    SELECT l FROM Bookmark l
+    WHERE
+      l.memberId = :memberId AND
+      l.softAskId = :softAskId AND
+      l.parentType =:parentType AND
+      l.softAskReplyId is NULL
+  """)
   Optional<Bookmark> findByMemberAndSoftAsk(
     @Param("memberId") Long memberId,
     @Param("softAskId") Long softAskId,
