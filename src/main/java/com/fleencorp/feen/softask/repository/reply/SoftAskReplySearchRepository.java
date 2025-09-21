@@ -12,7 +12,12 @@ import java.util.Optional;
 
 public interface SoftAskReplySearchRepository extends JpaRepository<SoftAskReply, Long> {
 
-  @Query("SELECT sar FROM SoftAskReply sar WHERE sar.softAskId = :softAskId AND sar.softAskReplyId = :softAskReplyId")
+  @Query(value = """
+    SELECT sar FROM SoftAskReply sar
+    WHERE
+      sar.softAskId = :softAskId AND
+      sar.softAskReplyId = :softAskReplyId
+  """)
   Optional<SoftAskReply> findBySoftAskAndSoftAskReply(Long softAskId, Long softAskReplyId);
 
   @Query(value = """

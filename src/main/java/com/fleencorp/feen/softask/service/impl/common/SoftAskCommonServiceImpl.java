@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.fleencorp.base.util.ExceptionUtil.checkIsNull;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static com.fleencorp.feen.common.service.impl.misc.MiscServiceImpl.setEntityUpdatableByUser;
 import static java.util.Objects.nonNull;
@@ -266,7 +267,8 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
 
     final Long softAskId = updateSoftAskContentDto.getSoftAskId();
     final Long softAskReplyId = updateSoftAskContentDto.getSoftAskReplyId();
-    final SoftAskCommonData softAskCommonData = findSoftAskTypeToUpdate(softAskId, softAskReplyId, updateSoftAskContentDto.getSoftAskType());
+    final SoftAskType softAskType = updateSoftAskContentDto.getSoftAskType();
+    final SoftAskCommonData softAskCommonData = findSoftAskTypeToUpdate(softAskId, softAskReplyId, softAskType);
 
     softAskCommonData.checkIsAuthor(user.getId());
     softAskCommonData.setContent(updateSoftAskContentDto.getContent());
@@ -291,19 +293,16 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
    * @throws FailedOperationException if {@code softAskType} is null or not recognized
    */
   private SoftAskCommonData findSoftAskTypeToUpdate(final Long softAskId, final Long softAskReplyId, final SoftAskType softAskType) {
-    if (nonNull(softAskType)) {
+    checkIsNull(softAskType, FailedOperationException::new);
 
-      return switch (softAskType) {
-        case SOFT_ASK_REPLY -> softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId);
-        case SOFT_ASK -> {
-          final SoftAsk softAsk = softAskSearchService.findSoftAsk(softAskId);
-          softAsk.checkIsReplyIsNotMoreThanOne();
-          yield softAsk;
-        }
-      };
-    }
-
-    throw FailedOperationException.of();
+    return switch (softAskType) {
+      case SOFT_ASK_REPLY -> softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId);
+      case SOFT_ASK -> {
+        final SoftAsk softAsk = softAskSearchService.findSoftAsk(softAskId);
+        softAsk.checkIsReplyIsNotMoreThanOne();
+        yield softAsk;
+      }
+    };
   }
 
   /**
