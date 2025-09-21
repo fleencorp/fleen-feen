@@ -532,6 +532,105 @@ CREATE TABLE poll (
 
 
 
+--changeset alamu:create_table_poll_option
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_option';
+
+CREATE TABLE poll_option (
+  poll_option_id BIGSERIAL PRIMARY KEY,
+  poll_id BIGINT NOT NULL,
+  option_text VARCHAR(1000) NOT NULL,
+  vote_count INTEGER NOT NULL DEFAULT 0,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_option_fk_poll_id
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `poll_option`;
+
+
+
+--changeset alamu:create_table_poll_vote
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_vote';
+
+CREATE TABLE poll_vote (
+  vote_id BIGSERIAL PRIMARY KEY,
+  poll_id BIGINT NOT NULL,
+  option_id BIGINT NOT NULL,
+  member_id BIGINT NOT NULL,
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT poll_vote_fk_poll_id
+    FOREIGN KEY (poll_id)
+      REFERENCES poll (poll_id)
+        ON DELETE CASCADE,
+  CONSTRAINT poll_vote_fk_option_id
+    FOREIGN KEY (option_id)
+      REFERENCES poll_option (poll_option_id)
+        ON DELETE CASCADE,
+  CONSTRAINT poll_vote_fk_member_id
+    FOREIGN KEY (member_id)
+      REFERENCES member (member_id)
+        ON DELETE SET NULL,
+
+  CONSTRAINT poll_vote_unique_poll_member_option
+   UNIQUE (poll_id, member_id, option_id)
+);
+
+--rollback DROP TABLE IF EXISTS `poll_vote`;
+
+
+
+--changeset alamu:create_table_business
+
+--preconditions onFail:MARK_RAN onError:MARK_RAN
+--precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'business';
+
+CREATE TABLE business (
+  business_id BIGSERIAL PRIMARY KEY,
+  title VARCHAR(300) NOT NULL,
+  description VARCHAR(3000) NOT NULL,
+  slug VARCHAR(255) NOT NULL,
+
+  motto VARCHAR(500),
+  other_details VARCHAR(3000),
+  address VARCHAR(500),
+  country VARCHAR(300),
+  logo_url VARCHAR(2000),
+  founding_year INTEGER,
+
+  deleted BOOLEAN NOT NULL DEFAULT FALSE,
+  share_count INT NOT NULL DEFAULT 0,
+
+  channel_type VARCHAR(255) NOT NULL
+    CHECK (channel_type IN ('OFFLINE', 'ONLINE', 'OFFLINE_AND_ONLINE')),
+  status VARCHAR(255) NOT NULL
+    CHECK (status IN ('ACTIVE', 'INACTIVE')),
+
+  owner_id BIGINT NOT NULL,
+
+  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  CONSTRAINT business_fk_owner
+    FOREIGN KEY (owner_id)
+      REFERENCES member (member_id)
+        ON DELETE CASCADE
+);
+
+--rollback DROP TABLE IF EXISTS `business`;
+
+
+
 --changeset alamu:create_table_share_contact_request
 
 --preconditions onFail:MARK_RAN onError:MARK_RAN
@@ -855,7 +954,7 @@ CREATE TABLE likes (
         ON DELETE SET NULL,
 
   CONSTRAINT like_fk_poll_id
-    FOREIGN KEY (poll)
+    FOREIGN KEY (poll_id)
       REFERENCES poll (poll_id)
       ON DELETE SET NULL,
 
@@ -871,61 +970,6 @@ CREATE TABLE likes (
 );
 
 --rollback DROP TABLE IF EXISTS `likes`;
-
-
---changeset alamu:create_table_poll_option
-
---preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_option';
-
-CREATE TABLE poll_option (
-  poll_option_id BIGSERIAL PRIMARY KEY,
-  poll_id BIGINT NOT NULL,
-  option_text VARCHAR(1000) NOT NULL,
-  vote_count INTEGER NOT NULL DEFAULT 0,
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-  CONSTRAINT poll_option_fk_poll_id
-    FOREIGN KEY (poll_id)
-      REFERENCES poll (poll_id)
-      ON DELETE CASCADE
-);
-
---rollback DROP TABLE IF EXISTS `poll_option`;
-
-
-
---changeset alamu:create_table_poll_vote
-
---preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'poll_vote';
-
-CREATE TABLE poll_vote (
-  vote_id BIGSERIAL PRIMARY KEY,
-  poll_id BIGINT NOT NULL,
-  option_id BIGINT NOT NULL,
-  member_id BIGINT NOT NULL,
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-  CONSTRAINT poll_vote_fk_poll_id
-    FOREIGN KEY (poll_id)
-      REFERENCES poll (poll_id)
-      ON DELETE CASCADE,
-  CONSTRAINT poll_vote_fk_option_id
-    FOREIGN KEY (option_id)
-      REFERENCES poll_option (poll_option_id)
-      ON DELETE CASCADE,
-  CONSTRAINT poll_vote_fk_member_id
-    FOREIGN KEY (member_id)
-      REFERENCES member (member_id)
-      ON DELETE SET NULL,
-  CONSTRAINT poll_vote_unique_poll_member_option
-    UNIQUE (poll_id, member_id, option_id)
-);
-
---rollback DROP TABLE IF EXISTS `poll_vote`;
 
 
 
@@ -1204,44 +1248,3 @@ CREATE TABLE bookmarks (
 );
 
 --rollback DROP TABLE IF EXISTS `bookmarks`;
-
-
-
---changeset alamu:create_table_business
-
---preconditions onFail:MARK_RAN onError:MARK_RAN
---precondition-sql-check expectedResult:0 SELECT count(*) FROM information_schema.tables WHERE table_name = 'business';
-
-CREATE TABLE business (
-  business_id BIGSERIAL PRIMARY KEY,
-  title VARCHAR(300) NOT NULL,
-  description VARCHAR(3000) NOT NULL,
-  slug VARCHAR(255) NOT NULL,
-
-  motto VARCHAR(500),
-  other_details VARCHAR(3000),
-  address VARCHAR(500),
-  country VARCHAR(300),
-  logo_url VARCHAR(2000),
-  founding_year INTEGER,
-
-  deleted BOOLEAN NOT NULL DEFAULT FALSE,
-  share_count INT NOT NULL DEFAULT 0,
-
-  channel_type VARCHAR(255) NOT NULL
-    CHECK (channel_type IN ('OFFLINE', 'ONLINE', 'OFFLINE_AND_ONLINE')),
-  status VARCHAR(255) NOT NULL
-    CHECK (status IN ('ACTIVE', 'INACTIVE')),
-
-  owner_id BIGINT NOT NULL,
-
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  updated_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-  CONSTRAINT business_fk_owner
-    FOREIGN KEY (owner_id)
-      REFERENCES member (member_id)
-      ON DELETE CASCADE
-);
-
---rollback DROP TABLE IF EXISTS `business`;

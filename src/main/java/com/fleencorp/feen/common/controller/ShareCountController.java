@@ -5,9 +5,7 @@ import com.fleencorp.feen.shared.shared.count.model.response.ShareResponse;
 import com.fleencorp.feen.shared.shared.count.service.ShareCountService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/api/share")
@@ -19,6 +17,7 @@ public class ShareCountController {
     this.shareCountService = shareCountService;
   }
 
+  @PostMapping(value = "")
   public ShareResponse share(
       @Parameter(description = "Details for share", required = true)
       @Valid @RequestBody final ShareDto shareDto) {
