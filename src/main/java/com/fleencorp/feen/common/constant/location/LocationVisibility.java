@@ -2,6 +2,8 @@ package com.fleencorp.feen.common.constant.location;
 
 import lombok.Getter;
 
+import static com.fleencorp.base.util.EnumUtil.parseEnumOrNull;
+
 @Getter
 public enum LocationVisibility {
 
@@ -16,5 +18,9 @@ public enum LocationVisibility {
 
   LocationVisibility(final String label) {
     this.label = label;
+  }
+
+  public static LocationVisibility of(final String value) {
+    return parseEnumOrNull(value, LocationVisibility.class);
   }
 }

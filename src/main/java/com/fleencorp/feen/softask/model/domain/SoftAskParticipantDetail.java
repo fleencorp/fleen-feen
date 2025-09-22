@@ -24,6 +24,7 @@ public class SoftAskParticipantDetail {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
+  @Column(name = "id", nullable = false, updatable = false)
   private Long id;
 
   @Column(name = "soft_ask_id", nullable = false, updatable = false)

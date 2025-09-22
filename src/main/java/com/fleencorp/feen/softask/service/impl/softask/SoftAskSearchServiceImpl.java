@@ -13,36 +13,39 @@ import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
 import com.fleencorp.feen.softask.repository.softask.SoftAskRepository;
-import com.fleencorp.feen.softask.repository.softask.SoftAskSearchRepository;
+import com.fleencorp.feen.softask.repository.softask.SoftAskSearchCustomRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
 import com.fleencorp.localizer.service.Localizer;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SoftAskSearchServiceImpl implements SoftAskSearchService {
 
   private final SoftAskCommonService softAskCommonService;
   private final SoftAskRepository softAskRepository;
-  private final SoftAskSearchRepository softAskSearchRepository;
+  private final SoftAskSearchCustomRepository softAskSearchCustomRepository;
   private final SoftAskMapper softAskMapper;
   private final Localizer localizer;
 
   public SoftAskSearchServiceImpl(
       @Lazy final SoftAskCommonService softAskCommonService,
       final SoftAskRepository softAskRepository,
-      final SoftAskSearchRepository softAskSearchRepository,
+      final SoftAskSearchCustomRepository softAskSearchCustomRepository,
       final SoftAskMapper softAskMapper,
       final Localizer localizer) {
     this.softAskCommonService = softAskCommonService;
     this.softAskRepository = softAskRepository;
-    this.softAskSearchRepository = softAskSearchRepository;
+    this.softAskSearchCustomRepository = softAskSearchCustomRepository;
     this.softAskMapper = softAskMapper;
     this.localizer = localizer;
   }
@@ -108,18 +111,22 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
   @Override
   public SoftAskSearchResult findSoftAsks(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
     final IsAMember member = user.toMember();
-    final Pageable pageable = searchRequest.getPage();
+    Pageable pageable = searchRequest.getPage();
+
+    if (pageable.getSort().isSorted()) {
+      pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+    }
+
     final UserOtherDetailHolder userOtherDetailHolder = searchRequest.getUserOtherDetail();
     final Double latitude = searchRequest.getLatitude();
     final Double longitude = searchRequest.getLongitude();
     final Double defaultRadius = 5000.0;
 
     final Page<SoftAskWithDetail> page = searchRequest.isByAuthor()
-      ? softAskSearchRepository.findByAuthor(member.getMemberId(), pageable)
-      : softAskSearchRepository.findMany(latitude, longitude, defaultRadius, searchRequest.getPage());
+      ? softAskSearchCustomRepository.findByAuthor(member.getMemberId(), pageable)
+      : softAskSearchCustomRepository.findMany(latitude, longitude, defaultRadius, pageable);
 
     return softAskCommonService.processAndReturnSoftAsks(page, member, userOtherDetailHolder);
   }
-
 
 }

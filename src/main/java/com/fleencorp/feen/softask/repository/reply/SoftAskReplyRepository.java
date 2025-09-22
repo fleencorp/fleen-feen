@@ -26,7 +26,10 @@ public interface SoftAskReplyRepository extends JpaRepository<SoftAskReply, Long
     sar.parentReplyId = :softAskReplyParentId AND
     sar.softAskReplyId = :softAskReplyId
   """)
-  Optional<SoftAskReply> findBySoftAskAndReplyParentAndReply(Long softAskParentId, Long softAskReplyParentId, Long softAskReplyId);
+  Optional<SoftAskReply> findBySoftAskAndReplyParentAndReply(
+    @Param("softAskId") Long softAskParentId,
+    @Param("softAskReplyParentId") Long softAskReplyParentId,
+    @Param("softAskReplyId") Long softAskReplyId);
 
   @Query(value = "SELECT sar FROM SoftAskReply sar WHERE sar.softAskId = :softAskId AND sar.softAskReplyId = :softAskReplyId")
   Optional<SoftAskReply> findBySoftAskAndReply(@Param("softAskId") Long softAskId, @Param("softAskReplyId") Long softAskReplyId);
