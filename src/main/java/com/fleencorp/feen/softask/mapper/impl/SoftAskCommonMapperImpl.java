@@ -74,7 +74,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       final ShareCountInfo shareCountInfo = toInfoMapper.toShareCountInfo(entry.getShareCount());
       response.setShareCountInfo(shareCountInfo);
 
-      final Map<String, String> avatarUrls = objectService.getAvatarUrls(entry.getAvatarUrl());
+      final Map<String, String> avatarUrls = ObjectService.getAvatarUrls(entry.getAvatarUrl());
       final SoftAskParticipantResponse participantResponse = SoftAskParticipantResponse.of(
         entry.getUserAliasOrUsername(),
         entry.getUserDisplayName(),

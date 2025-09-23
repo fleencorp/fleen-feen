@@ -708,12 +708,4 @@ public class StorageService {
 
     return urls;
   }
-
-  public Map<String, String> getAvatarUrls(final String avatarName) {
-    final Map<String, String> urls = new HashMap<>();
-    urls.put("png", String.format(avatarName + ".png", avatarName));
-    urls.put("jpg", String.format(avatarName + ".jpg", avatarName));
-
-    return urls;
-  }
 }

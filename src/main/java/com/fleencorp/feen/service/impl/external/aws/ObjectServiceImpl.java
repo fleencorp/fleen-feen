@@ -123,13 +123,8 @@ public class ObjectServiceImpl implements ObjectService {
   }
 
   @Override
-  public Map<String, String> getAvatarBaseName(final String avatarId) {
+  public Map<String, String> generateAvatarUrl(final String avatarId) {
     return storageService.getAvatarBaseName(bucketNames.getSoftAskAvatar(), avatarId);
-  }
-
-  @Override
-  public Map<String, String> getAvatarUrls(final String avatarName) {
-    return storageService.getAvatarUrls(avatarName);
   }
 
 }

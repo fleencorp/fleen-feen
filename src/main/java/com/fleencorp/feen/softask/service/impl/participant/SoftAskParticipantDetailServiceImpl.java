@@ -66,7 +66,7 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
     final String displayName = generatedParticipantDetail.displayName();
     final SoftAskParticipantDetail softAskParticipantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
 
-    final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
+    final Map<String, String> avatarUrls = objectService.generateAvatarUrl(generateRandomNumberForAvatar());
     softAskParticipantDetail.setAvatarUrl(avatarUrls.get("default"));
 
     participantDetailRepository.save(softAskParticipantDetail);
@@ -125,7 +125,7 @@ public class SoftAskParticipantDetailServiceImpl implements SoftAskParticipantDe
     final String username = newDetail.username();
     final String displayName = newDetail.displayName();
 
-    final Map<String, String> avatarUrls = objectService.getAvatarBaseName(generateRandomNumberForAvatar());
+    final Map<String, String> avatarUrls = objectService.generateAvatarUrl(generateRandomNumberForAvatar());
     final String avatarUrl = avatarUrls.get("default");
 
     SoftAskParticipantDetail participantDetail = SoftAskParticipantDetail.of(softAskId, userId, username, displayName);
