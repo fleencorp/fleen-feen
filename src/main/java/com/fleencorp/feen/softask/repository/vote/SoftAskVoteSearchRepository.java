@@ -16,6 +16,6 @@ public interface SoftAskVoteSearchRepository extends JpaRepository<SoftAskVote, 
   @Query("SELECT sav FROM SoftAskVote sav WHERE sav.parentId IN (:parentIds) AND sav.memberId = :memberId")
   List<SoftAskVote> findByParentsAndMember(@Param("parentIds") Collection<Long> parentIds, @Param("memberId") Long memberId);
 
-  @Query("SELECT sav FROM SoftAskVote sav WHERE sav.memberId = :memberId AND sav.voteType IN (:voteTypeS) ORDER BY sav.updatedOn DESC")
+  @Query("SELECT sav FROM SoftAskVote sav WHERE sav.memberId = :memberId AND sav.voteType IN (:voteTypes) ORDER BY sav.updatedOn DESC")
   Page<SoftAskVote> findByAuthor(@Param("memberId") Long memberId, @Param("voteTypes") List<SoftAskVoteType> voteTypes, Pageable pageable);
 }
