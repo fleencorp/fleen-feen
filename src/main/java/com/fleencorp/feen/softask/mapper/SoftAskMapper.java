@@ -19,13 +19,13 @@ public interface SoftAskMapper {
 
   SoftAskResponse toSoftAskResponse(SoftAsk entry, IsAMember member);
 
-  Collection<SoftAskResponse> toSoftAskResponses(Collection<SoftAskWithDetail> entries);
+  Collection<SoftAskResponse> toSoftAskResponses(Collection<SoftAskWithDetail> entries, IsAMember member);
 
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry);
 
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry, IsAMember member);
 
-  Collection<SoftAskReplyResponse> toSoftAskReplyResponses(Collection<SoftAskReplyWithDetail> entries);
+  Collection<SoftAskReplyResponse> toSoftAskReplyResponses(Collection<SoftAskReplyWithDetail> entries, IsAMember member);
 
   SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry, boolean voted);
 

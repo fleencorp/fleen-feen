@@ -84,7 +84,7 @@ public class SoftAskSearchServiceImpl implements SoftAskSearchService {
   public SoftAskRetrieveResponse retrieveSoftAsk(final Long softAskId, final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
     final IsAMember member = user.toMember();
     final SoftAsk softAsk = findSoftAsk(softAskId);
-    final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk);
+    final SoftAskResponse softAskResponse = softAskMapper.toSoftAskResponse(softAsk, member);
     final Collection<SoftAskResponse> softAskResponses = List.of(softAskResponse);
     final UserOtherDetailHolder userOtherDetailHolder = searchRequest.getUserOtherDetail();
 

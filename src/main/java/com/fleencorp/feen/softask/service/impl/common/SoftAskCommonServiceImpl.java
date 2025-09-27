@@ -13,8 +13,7 @@ import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
 import com.fleencorp.feen.softask.exception.core.SoftAskNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.exception.core.SoftAskUpdateDeniedException;
-import com.fleencorp.feen.softask.mapper.SoftAskMapper;
-import com.fleencorp.feen.softask.mapper.UserLocationMapper;
+import com.fleencorp.feen.softask.mapper.SoftAskUnifiedMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAsk;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
 import com.fleencorp.feen.softask.model.dto.common.UpdateSoftAskContentDto;
@@ -25,11 +24,9 @@ import com.fleencorp.feen.softask.model.response.reply.core.SoftAskReplyResponse
 import com.fleencorp.feen.softask.model.response.softask.core.SoftAskResponse;
 import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.model.search.SoftAskSearchResult;
+import com.fleencorp.feen.softask.service.common.SoftAskCommonSearchService;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.common.SoftAskOperationService;
-import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
-import com.fleencorp.feen.softask.service.softask.SoftAskSearchService;
-import com.fleencorp.feen.softask.service.vote.SoftAskVoteSearchService;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,30 +46,21 @@ import static java.util.Objects.nonNull;
 public class SoftAskCommonServiceImpl implements SoftAskCommonService {
 
   private final BookmarkOperationService bookmarkOperationService;
-  private final SoftAskReplySearchService softAskReplySearchService;
+  private final SoftAskCommonSearchService softAskCommonSearchService;
   private final SoftAskOperationService softAskOperationService;
-  private final SoftAskSearchService softAskSearchService;
-  private final SoftAskVoteSearchService softAskVoteSearchService;
-  private final SoftAskMapper softAskMapper;
-  private final UserLocationMapper userLocationMapper;
+  private final SoftAskUnifiedMapper softAskUnifiedMapper;
   private final Localizer localizer;
 
   public SoftAskCommonServiceImpl(
       final BookmarkOperationService bookmarkOperationService,
-      final SoftAskReplySearchService softAskReplySearchService,
+      final SoftAskCommonSearchService softAskCommonSearchService,
       final SoftAskOperationService softAskOperationService,
-      final SoftAskSearchService softAskSearchService,
-      final SoftAskVoteSearchService softAskVoteSearchService,
-      final SoftAskMapper softAskMapper,
-      final UserLocationMapper userLocationMapper,
+      final SoftAskUnifiedMapper softAskUnifiedMapper,
       final Localizer localizer) {
     this.bookmarkOperationService = bookmarkOperationService;
-    this.softAskReplySearchService = softAskReplySearchService;
+    this.softAskCommonSearchService = softAskCommonSearchService;
     this.softAskOperationService = softAskOperationService;
-    this.softAskSearchService = softAskSearchService;
-    this.softAskVoteSearchService = softAskVoteSearchService;
-    this.softAskMapper = softAskMapper;
-    this.userLocationMapper = userLocationMapper;
+    this.softAskUnifiedMapper = softAskUnifiedMapper;
     this.localizer = localizer;
   }
 
@@ -95,17 +83,17 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   @Override
   @Transactional(readOnly = true)
   public SoftAskSearchResult processAndReturnSoftAsks(final Page<SoftAskWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
+    SoftAskSearchResult softAskSearchResult = SoftAskSearchResult.empty();
+
     if (nonNull(page)) {
-      final Collection<SoftAskResponse> softAskResponses = softAskMapper.toSoftAskResponses(page.getContent());
+      final Collection<SoftAskResponse> softAskResponses = softAskUnifiedMapper.toSoftAskResponses(page.getContent(), member);
       processSoftAskResponses(softAskResponses, member, userHaveOtherDetail);
 
       final SearchResult<SoftAskResponse> searchResult = toSearchResult(softAskResponses, page);
-      final SoftAskSearchResult softAskSearchResult = SoftAskSearchResult.of(searchResult);
-
-      return localizer.of(softAskSearchResult);
+      softAskSearchResult = SoftAskSearchResult.of(searchResult);
     }
 
-    return SoftAskSearchResult.empty();
+    return localizer.of(softAskSearchResult);
   }
 
   /**
@@ -129,7 +117,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
     UserHaveOtherDetail userHaveOtherDetail) {
 
     softAskCommonResponses.forEach(commonResponse -> {
-      userLocationMapper.setLocationDetails(commonResponse, userHaveOtherDetail);
+      softAskUnifiedMapper.setLocationDetails(commonResponse, userHaveOtherDetail);
 
       if (nonNull(member)) {
         setEntityUpdatableByUser((Updatable) commonResponse, member.getMemberId());
@@ -158,7 +146,7 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
 
     if (nonNull(softAskCommonResponses)) {
       processBookmarkForResponses(softAskCommonResponses, member);
-      softAskVoteSearchService.processVotesForResponses(softAskCommonResponses, member);
+      softAskCommonSearchService.processVotesForResponses(softAskCommonResponses, member);
       processResponsesInternal(softAskCommonResponses, member, userHaveOtherDetail);
     }
   }
@@ -208,41 +196,10 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
   @Transactional(readOnly = true)
   public SoftAskReplySearchResult findSomeSoftAskRepliesForSoftAsk(final SoftAskSearchRequest searchRequest, final SoftAskResponse softAskResponse, final IsAMember member) {
     searchRequest.updateParentId(softAskResponse.getNumberId());
-    log.info("The parent ID is {}", searchRequest.getParentId());
     searchRequest.setPageSize(10);
 
-    final SoftAskReplySearchResult softAskReplySearchResult = softAskReplySearchService.findSoftAskReplies(searchRequest, member);
-    log.info("The search result is {}", softAskReplySearchResult.getResult().getTotalEntries());
-    log.info("The search result is {}", softAskReplySearchResult.getResult().getTotalEntries());
-    final SearchResult<SoftAskReplyResponse> searchResult = softAskReplySearchResult.getResult();
-
-    searchResult.getValues().forEach(softAskReplyResponse -> {
-      final SoftAskReplySearchResult softAskChildReplySearchResult = findSomeSoftAskChildReplyForReply(softAskReplyResponse, member);
-      softAskReplyResponse.setChildRepliesSearchResult(softAskChildReplySearchResult);
-    });
-
-    return softAskReplySearchResult;
-  }
-
-  /**
-   * Finds some child replies of a given soft ask reply.
-   *
-   * <p>Creates a search request using the parent ID and number ID from the provided
-   * {@code softAskReplyResponse}, limits the result to 10 items, and retrieves matching
-   * soft ask replies for the given {@code member}.</p>
-   *
-   * @param softAskReplyResponse the soft ask reply response containing parent and number IDs
-   * @param member the member performing the search
-   * @return a search result containing soft ask replies matching the criteria
-   */
-  private SoftAskReplySearchResult findSomeSoftAskChildReplyForReply(final SoftAskReplyResponse softAskReplyResponse, final IsAMember member) {
-    log.info("Somebody is trying to get here");
-    final SoftAskSearchRequest searchRequest = SoftAskSearchRequest.of(softAskReplyResponse.getParentId(), softAskReplyResponse.getNumberId());
-    searchRequest.setPageSize(10);
-
-    log.info("Somebody got here");
-    log.info("The parent id is {} and the reply id is {}", softAskReplyResponse.getParentId(), softAskReplyResponse.getNumberId());
-    return softAskReplySearchService.findSoftAskReplies(searchRequest, member);
+    final SoftAskReplySearchResult softAskReplySearchResult = softAskCommonSearchService.findSoftAskReplies(searchRequest, member);
+    return localizer.of(softAskReplySearchResult);
   }
 
   /**
@@ -296,9 +253,9 @@ public class SoftAskCommonServiceImpl implements SoftAskCommonService {
     checkIsNull(softAskType, FailedOperationException::new);
 
     return switch (softAskType) {
-      case SOFT_ASK_REPLY -> softAskReplySearchService.findSoftAskReply(softAskId, softAskReplyId);
+      case SOFT_ASK_REPLY -> softAskCommonSearchService.findSoftAskReply(softAskId, softAskReplyId);
       case SOFT_ASK -> {
-        final SoftAsk softAsk = softAskSearchService.findSoftAsk(softAskId);
+        final SoftAsk softAsk = softAskCommonSearchService.findSoftAsk(softAskId);
         softAsk.checkIsReplyIsNotMoreThanOne();
         yield softAsk;
       }

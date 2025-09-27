@@ -3,7 +3,6 @@ package com.fleencorp.feen.softask.model.request;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fleencorp.base.model.request.search.SearchRequest;
 import com.fleencorp.base.validator.IsNumber;
-import com.fleencorp.feen.common.model.dto.UserOtherDetailDto;
 import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
 import jakarta.validation.constraints.DecimalMax;
@@ -30,9 +29,6 @@ public class SoftAskSearchRequest extends SearchRequest {
   @IsNumber
   @JsonProperty("parent_reply_id")
   private String parentReplyId;
-
-  @JsonProperty("user_other_detail")
-  private UserOtherDetailDto userOtherDetailDto;
 
   @DecimalMin(value = "-90.0", message = "{user.location.latitude.DecimalMin}")
   @DecimalMax(value = "90.0", message = "{user.location.latitude.DecimalMax}")

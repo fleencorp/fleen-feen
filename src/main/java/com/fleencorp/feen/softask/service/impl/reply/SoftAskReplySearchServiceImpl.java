@@ -15,7 +15,6 @@ import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import com.fleencorp.feen.softask.repository.reply.SoftAskReplySearchRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
-import com.fleencorp.feen.user.model.domain.Member;
 import com.fleencorp.localizer.service.Localizer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -88,20 +87,9 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
       .orElseThrow(SoftAskReplyNotFoundException.of(softAskReplyId));
   }
 
-  /**
-   * Delegates to {@link #findSoftAskReplies(SoftAskSearchRequest, RegisteredUser)} using the given {@link Member}.
-   *
-   * <p>Wraps the member in a {@link RegisteredUser} and forwards the request.</p>
-   *
-   * @param searchRequest the request containing filter and pagination parameters.
-   * @param member the {@link IsAMember} performing the request.
-   * @return a localized {@link SoftAskReplySearchResult} containing the paginated and enriched replies.
-   */
   @Override
-  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final IsAMember member) {
-    final Long memberId = member.getMemberId();
-    final RegisteredUser user = RegisteredUser.of(memberId);
-    return findSoftAskReplies(searchRequest, user);
+  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
+    return findSoftAskReplies(searchRequest, user.toMember());
   }
 
   /**
@@ -112,22 +100,22 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
    * Otherwise, it fetches replies associated with the specified SoftAsk reply ID.</p>
    *
    * @param searchRequest the request containing filter and pagination parameters.
-   * @param user the {@link RegisteredUser} performing the request.
+   * @param member the {@link IsAMember} performing the request.
    * @return a localized {@link SoftAskReplySearchResult} containing the paginated and enriched replies.
    */
   @Override
-  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
-    final Long parentId = searchRequest.getParentId();
+  public SoftAskReplySearchResult findSoftAskReplies(final SoftAskSearchRequest searchRequest, final IsAMember member) {
+    final Long softAskId = searchRequest.getParentId();
     final Long parentReplyId = searchRequest.getParentReplyId();
     final Long authorId = searchRequest.getAuthorId();
     final Pageable pageable = searchRequest.getPage();
 
     final Page<SoftAskReplyWithDetail> page;
-    if (searchRequest.hasParentReplyId()) {
-      page = softAskReplySearchRepository.findBySoftAskAndParentReply(parentId, parentReplyId, pageable);
+    if (searchRequest.hasParentId() && searchRequest.hasParentReplyId()) {
+      page = softAskReplySearchRepository.findBySoftAskAndParentReply(softAskId, parentReplyId, pageable);
     } else if (searchRequest.hasParentId()) {
-      log.info("Trying to find parent reply with id {} and {}", parentReplyId, parentId);
-      page = softAskReplySearchRepository.findBySoftAsk(parentId, pageable);
+      log.info("Trying to find parent reply with id {} and {}", parentReplyId, softAskId);
+      page = softAskReplySearchRepository.findBySoftAsk(softAskId, pageable);
     } else if (searchRequest.isByAuthor()) {
       page = softAskReplySearchRepository.findByAuthor(authorId, pageable);
     } else {
@@ -137,7 +125,7 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     log.info("Total pages found is {}", page.getTotalPages());
     log.info("Total entries found is {}", page.getTotalElements());
 
-    return processAndReturnSoftAskReplies(parentId, page, user.toMember(), searchRequest.getUserOtherDetail());
+    return processAndReturnSoftAskReplies(softAskId, page, member, searchRequest.getUserOtherDetail());
   }
 
   /**
@@ -154,17 +142,18 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
    *         or an empty result if the page is {@code null}.
    */
   protected SoftAskReplySearchResult processAndReturnSoftAskReplies(final Long parentId, final Page<SoftAskReplyWithDetail> page, final IsAMember member, final UserHaveOtherDetail userHaveOtherDetail) {
+    SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.empty(parentId);
+
     if (nonNull(page)) {
       log.info("Processing page of {} entries", page.getTotalPages());
-      final Collection<SoftAskReplyResponse> softAskReplyResponses = softAskMapper.toSoftAskReplyResponses(page.getContent());
+      final Collection<SoftAskReplyResponse> softAskReplyResponses = softAskMapper.toSoftAskReplyResponses(page.getContent(), member);
       softAskCommonService.processSoftAskResponses(softAskReplyResponses, member, userHaveOtherDetail);
 
       log.info("222 Processing page of {} entries", softAskReplyResponses.size());
-      final SearchResult searchResult = toSearchResult(softAskReplyResponses, page);
-      final SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.of(parentId, searchResult);
-      return localizer.of(softAskReplySearchResult);
+      final SearchResult<SoftAskReplyResponse> searchResult = toSearchResult(softAskReplyResponses, page);
+      softAskReplySearchResult = SoftAskReplySearchResult.of(parentId, searchResult);
     }
 
-    return SoftAskReplySearchResult.empty(parentId);
+    return localizer.of(softAskReplySearchResult);
   }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import static com.fleencorp.feen.shared.util.SharedUtil.sanitize;
 import static java.util.Objects.isNull;
 
 @Service
@@ -49,8 +50,7 @@ public class UsernameServiceImpl implements UsernameService {
     }
 
     final int number = random.nextInt(10000);
-
-    final String username = adjective.getWord() + noun.getWord() + number;
+    final String username = sanitize(adjective.getWord()) + sanitize(noun.getWord()) + number;
     final String finalUsername = username.trim();
 
     final String displayName = GeneratedParticipantDetail.createDisplayName(adjective.getWord(), noun.getWord());

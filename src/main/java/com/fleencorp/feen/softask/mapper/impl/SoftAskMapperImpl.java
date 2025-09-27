@@ -106,19 +106,24 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
   /**
    * Converts a collection of {@link SoftAskWithDetail} entities into a collection of {@link SoftAskResponse} DTOs.
    *
-   * <p>If the input collection is {@code null}, an empty list is returned. Null elements in the collection
-   * are filtered out before mapping.</p>
+   * <p>If the input collection is {@code null}, an empty list is returned. Null elements inside the collection
+   * are ignored. For each non-null entry, the associated {@link SoftAsk} is enriched with its participant details
+   * before being mapped to a response.</p>
    *
-   * @param entries the collection of {@link SoftAskWithDetail} entities to convert; can be {@code null}.
-   * @return a list of corresponding {@link SoftAskResponse} instances; never {@code null}.
+   * @param entries the collection of {@link SoftAskWithDetail} entities to convert; may be {@code null}.
+   * @param member the current member context; not directly used in this implementation, but reserved for
+   *               downstream conversion logic or extensions.
+   * @return a list of {@link SoftAskResponse} instances corresponding to the input entities; never {@code null}.
    */
   @Override
-  public Collection<SoftAskResponse> toSoftAskResponses(final Collection<SoftAskWithDetail> entries) {
+  public Collection<SoftAskResponse> toSoftAskResponses(final Collection<SoftAskWithDetail> entries, final IsAMember member) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(softAskWithDetail -> {
           final SoftAsk softAsk = softAskWithDetail.softAsk();
+          softAsk.setParticipant(softAskWithDetail.participantDetail());
+
           return toSoftAskResponse(softAsk);
         })
         .toList();
@@ -188,16 +193,16 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
    * @return a list of corresponding {@link SoftAskReplyResponse} instances; never {@code null}.
    */
   @Override
-  public Collection<SoftAskReplyResponse> toSoftAskReplyResponses(final Collection<SoftAskReplyWithDetail> entries) {
+  public Collection<SoftAskReplyResponse> toSoftAskReplyResponses(final Collection<SoftAskReplyWithDetail> entries, final IsAMember member) {
     if (nonNull(entries)) {
       return entries.stream()
         .filter(Objects::nonNull)
         .map(entry -> {
           final SoftAskReply reply = entry.reply();
-          final SoftAskParticipantDetail participantDetail = entry.username();
+          final SoftAskParticipantDetail participantDetail = entry.participantDetail();
           reply.setSoftAskParticipantDetail(participantDetail);
 
-          return toSoftAskReplyResponse(reply);
+          return toSoftAskReplyResponse(reply, member);
         })
         .toList();
     }

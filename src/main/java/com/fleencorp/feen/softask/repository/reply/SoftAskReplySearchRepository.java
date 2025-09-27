@@ -43,6 +43,7 @@ public interface SoftAskReplySearchRepository extends JpaRepository<SoftAskReply
       sar.softAskId = sau.softAskId AND
       sar.authorId = sau.userId
     WHERE
+      sar.softAskId = :softAskId AND
       sar.parentReplyId = :parentReplyId AND
       sar.deleted = false
     ORDER BY sar.updatedOn DESC
