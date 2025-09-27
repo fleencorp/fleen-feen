@@ -95,7 +95,7 @@ class SoftAskVoteServiceTest {
     when(softAskVoteRepository.findByMemberAndSoftAsk(memberId, softAskId)).thenReturn(Optional.empty());
     when(softAskVoteRepository.save(any(SoftAskVote.class))).thenReturn(newVote);
     when(softAskOperationService.updateVoteCount(any(), eq(true))).thenReturn(1);
-    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class), eq(true))).thenReturn(expectedResponse);
+    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class))).thenReturn(expectedResponse);
 
     // act
     SoftAskVoteUpdateResponse response = softAskVoteService.vote(softAskVoteDtoForAskUpvote, user);
@@ -110,7 +110,7 @@ class SoftAskVoteServiceTest {
     verify(softAskVoteRepository, times(1)).save(any(SoftAskVote.class));
     verify(softAskOperationService, times(1)).updateVoteCount(softAskId, true);
     verify(softAskOperationService, times(1)).updateVoteCount(eq(softAskId), eq(true));
-    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class), eq(true));
+    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class));
   }
 
   @Test
@@ -130,7 +130,7 @@ class SoftAskVoteServiceTest {
     when(softAskVoteRepository.findByMemberAndSoftAsk(memberId, softAskId)).thenReturn(Optional.of(existingVote));
     when(softAskVoteRepository.save(any(SoftAskVote.class))).thenReturn(updatedVote);
     when(softAskOperationService.updateVoteCount(any(), eq(false))).thenReturn(SoftAskFeatureTestConstant.OtherTestConstants.PARENT_TOTAL_VOTES_0);
-    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class), eq(false))).thenReturn(expectedResponse);
+    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class))).thenReturn(expectedResponse);
 
     // act
     SoftAskVoteUpdateResponse response = softAskVoteService.vote(softAskVoteDtoForAskUnvote, user);
@@ -144,7 +144,7 @@ class SoftAskVoteServiceTest {
     verify(softAskVoteRepository, times(1)).findByMemberAndSoftAsk(memberId, softAskId);
     verify(softAskVoteRepository, times(1)).save(any(SoftAskVote.class));
     verify(softAskOperationService, times(1)).updateVoteCount(softAskId, false);
-    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class), eq(false));
+    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class));
   }
 
   @Test
@@ -165,7 +165,7 @@ class SoftAskVoteServiceTest {
     when(softAskVoteRepository.findByMemberAndSoftAskAndSoftAskReply(memberId, softAskId, softAskReplyId)).thenReturn(Optional.empty());
     when(softAskVoteRepository.save(any(SoftAskVote.class))).thenReturn(newVote);
     when(softAskOperationService.updateVoteCount(anyLong(), anyLong(), eq(true))).thenReturn(SoftAskFeatureTestConstant.OtherTestConstants.PARENT_TOTAL_VOTES_1);
-    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class), eq(true))).thenReturn(expectedResponse);
+    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class))).thenReturn(expectedResponse);
 
     // act
     SoftAskVoteUpdateResponse response = softAskVoteService.vote(softAskVoteDtoForReplyUpvote, user);
@@ -179,7 +179,7 @@ class SoftAskVoteServiceTest {
     verify(softAskVoteRepository, times(1)).findByMemberAndSoftAskAndSoftAskReply(memberId, softAskId, softAskReplyId);
     verify(softAskVoteRepository, times(1)).save(any(SoftAskVote.class));
     verify(softAskOperationService, times(1)).updateVoteCount(softAskId, softAskReplyId, true);
-    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class), eq(true));
+    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class));
   }
 
   @Test
@@ -201,7 +201,7 @@ class SoftAskVoteServiceTest {
     when(softAskVoteRepository.findByMemberAndSoftAskAndSoftAskReply(memberId, softAskId, softAskReplyId)).thenReturn(Optional.of(existingVote));
     when(softAskVoteRepository.save(any(SoftAskVote.class))).thenReturn(updatedVote);
     when(softAskOperationService.updateVoteCount(anyLong(), anyLong(), eq(false))).thenReturn(SoftAskFeatureTestConstant.OtherTestConstants.PARENT_TOTAL_VOTES_0);
-    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class), eq(false))).thenReturn(expectedResponse);
+    when(softAskMapper.toSoftAskVoteResponse(any(SoftAskVote.class))).thenReturn(expectedResponse);
 
     // act
     SoftAskVoteUpdateResponse response = softAskVoteService.vote(softAskVoteDtoForReplyUnvote, user);
@@ -215,7 +215,7 @@ class SoftAskVoteServiceTest {
     verify(softAskVoteRepository, times(1)).findByMemberAndSoftAskAndSoftAskReply(memberId, softAskId, softAskReplyId);
     verify(softAskVoteRepository, times(1)).save(any(SoftAskVote.class));
     verify(softAskOperationService, times(1)).updateVoteCount(softAskId, softAskReplyId, false);
-    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class), eq(false));
+    verify(softAskMapper, times(1)).toSoftAskVoteResponse(any(SoftAskVote.class));
   }
 
   @Test

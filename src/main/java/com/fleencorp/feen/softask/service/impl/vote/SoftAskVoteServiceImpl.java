@@ -80,9 +80,8 @@ public class SoftAskVoteServiceImpl implements SoftAskVoteService {
     final SoftAskVoteParentDetailsHolder parentDetailsHolder = findSoftAskVoteParentDetailsHolder(softAskId, softAskReplyId, parentType);
     SoftAskVote softAskVote = createOrUpdateSoftVote(softAskVoteDto, member, parentDetailsHolder);
 
-    final boolean voted = SoftAskVoteType.isVoted(voteType);
     final Integer total = updateVoteCount(softAskId, softAskReplyId, parentType, voteType);
-    final SoftAskVoteResponse softAskVoteResponse = softAskMapper.toSoftAskVoteResponse(softAskVote, voted);
+    final SoftAskVoteResponse softAskVoteResponse = softAskMapper.toSoftAskVoteResponse(softAskVote);
     softAskVoteResponse.setParentTotalVotes(total);
 
     return SoftAskVoteUpdateResponse.of(softAskVote.getVoteId(), softAskVoteResponse);

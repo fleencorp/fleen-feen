@@ -7,6 +7,7 @@ import com.fleencorp.feen.common.service.misc.ObjectService;
 import com.fleencorp.feen.common.util.common.DateTimeUtil;
 import com.fleencorp.feen.mapper.impl.BaseMapper;
 import com.fleencorp.feen.mapper.info.ToInfoMapper;
+import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.constant.other.MoodTag;
 import com.fleencorp.feen.softask.contract.SoftAskCommonData;
 import com.fleencorp.feen.softask.contract.SoftAskCommonResponse;
@@ -30,17 +31,14 @@ import static java.util.Objects.nonNull;
 @Component
 public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommonMapper {
 
-  private final ObjectService objectService;
   private final SoftAskInfoMapper softAskInfoMapper;
   private final ToInfoMapper toInfoMapper;
 
   public SoftAskCommonMapperImpl(
-      final ObjectService objectService,
       final SoftAskInfoMapper softAskInfoMapper,
       final ToInfoMapper toInfoMapper,
       final MessageSource messageSource) {
     super(messageSource);
-    this.objectService = objectService;
     this.softAskInfoMapper = softAskInfoMapper;
     this.toInfoMapper = toInfoMapper;
   }
@@ -111,10 +109,9 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
   }
 
   /**
-   * Converts a {@link SoftAskVote} entity into a {@link SoftAskVoteResponse} DTO.
+   * Converts a {@link SoftAskVote} entity into a {@link SoftAskVoteResponse} DTO using the given vote state.
    *
-   * <p>Maps fields such as vote ID and timestamps, constructs the parent info object,
-   * and assigns a user vote info object with a fixed vote state of {@code true}.</p>
+   * <p>Maps vote ID, timestamps, and parent info. Sets the user vote info using the provided {@code voted} flag.</p>
    *
    * @param entry the {@link SoftAskVote} entity to convert; can be {@code null}.
    * @return the corresponding {@link SoftAskVoteResponse} object, or {@code null} if the input is {@code null}.
@@ -124,8 +121,12 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
     if (nonNull(entry)) {
       final SoftAskVoteResponse response = new SoftAskVoteResponse();
       response.setId(entry.getVoteId());
+      response.setVoteType(entry.getVoteType());
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
+
+      final boolean voted = SoftAskVoteType.isVoted(entry.getVoteType());
+      response.setIsVoted(voted);
 
       final ParentInfo parentInfo = ParentInfo.of(
         entry.getParentId(),
@@ -134,35 +135,6 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       );
       response.setParentInfo(parentInfo);
 
-      final SoftAskUserVoteInfo softAskUserVoteInfo = softAskInfoMapper.toUserVoteInfo(true);
-      response.setUserVoteInfo(softAskUserVoteInfo);
-
-      return response;
-    }
-
-    return null;
-  }
-
-  /**
-   * Converts a {@link SoftAskVote} entity into a {@link SoftAskVoteResponse} DTO using the given vote state.
-   *
-   * <p>Maps vote ID, timestamps, and parent info. Sets the user vote info using the provided {@code voted} flag.</p>
-   *
-   * @param entry the {@link SoftAskVote} entity to convert; can be {@code null}.
-   * @param voted {@code true} if the user has voted; {@code false} otherwise.
-   * @return the corresponding {@link SoftAskVoteResponse} object, or {@code null} if the input is {@code null}.
-   */
-  @Override
-  public SoftAskVoteResponse toSoftAskVoteResponse(final SoftAskVote entry, final boolean voted) {
-    if (nonNull(entry)) {
-      final SoftAskVoteResponse response = new SoftAskVoteResponse();
-      response.setId(entry.getVoteId());
-      response.setVoteType(entry.getVoteType());
-      response.setCreatedOn(entry.getCreatedOn());
-      response.setUpdatedOn(entry.getUpdatedOn());
-
-      final ParentInfo parentInfo = ParentInfo.of(entry.getParentId());
-      response.setParentInfo(parentInfo);
 
       final SoftAskUserVoteInfo softAskUserVoteInfo = softAskInfoMapper.toUserVoteInfo(voted);
       response.setUserVoteInfo(softAskUserVoteInfo);

@@ -46,7 +46,5 @@ public class SoftAskVoteResponse extends FleenFeenResponse {
   private SoftAskVoteType voteType;
 
   @JsonProperty("is_voted")
-  public boolean isVoted() {
-    return SoftAskVoteType.isVoted(voteType);
-  }
+  public Boolean isVoted;
 }

@@ -103,7 +103,7 @@ public class SoftAskVoteSearchImpl implements SoftAskVoteSearchService {
       : Page.empty();
 
     final Collection<SoftAskVoteResponse> softAskVoteResponses = softAskMapper.toSoftAskVoteResponses(page.getContent());
-    final SearchResult searchResult = toSearchResult(softAskVoteResponses, page);
+    final SearchResult<SoftAskVoteResponse> searchResult = toSearchResult(softAskVoteResponses, page);
     final SoftAskVoteSearchResult softAskVoteSearchResult = SoftAskVoteSearchResult.of(searchResult);
 
     return localizer.of(softAskVoteSearchResult);

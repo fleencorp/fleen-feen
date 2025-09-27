@@ -13,7 +13,5 @@ public interface SoftAskCommonMapper {
 
   SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry);
 
-  SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry, boolean voted);
-
   Collection<SoftAskVoteResponse> toSoftAskVoteResponses(Collection<SoftAskVote> entries);
 }

@@ -202,8 +202,8 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
   }
 
   @Override
-  public SoftAskVoteResponse toSoftAskVoteResponse(final SoftAskVote entry, final boolean voted) {
-    return softAskCommonMapper.toSoftAskVoteResponse(entry, voted);
+  public SoftAskVoteResponse toSoftAskVoteResponse(final SoftAskVote entry) {
+    return softAskCommonMapper.toSoftAskVoteResponse(entry);
   }
 
   @Override

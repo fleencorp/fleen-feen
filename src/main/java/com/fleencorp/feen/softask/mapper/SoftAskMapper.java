@@ -23,7 +23,7 @@ public interface SoftAskMapper {
 
   Collection<SoftAskReplyResponse> toSoftAskReplyResponses(Collection<SoftAskReplyWithDetail> entries, IsAMember member);
 
-  SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry, boolean voted);
+  SoftAskVoteResponse toSoftAskVoteResponse(SoftAskVote entry);
 
   Collection<SoftAskVoteResponse> toSoftAskVoteResponses(Collection<SoftAskVote> entries);
 

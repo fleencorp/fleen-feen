@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.model.search;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -28,6 +29,7 @@ public class SoftAskSearchResult extends LocalizedResponse {
   private SearchResult<SoftAskResponse> result;
 
   @Override
+  @JsonIgnore
   public String getMessageCode() {
     return nonNull(result) && result.hasValue() ? "soft.ask.search" : "soft.ask.empty.search";
   }

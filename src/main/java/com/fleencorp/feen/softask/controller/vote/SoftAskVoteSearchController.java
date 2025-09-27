@@ -2,6 +2,7 @@ package com.fleencorp.feen.softask.controller.vote;
 
 import com.fleencorp.base.resolver.SearchParam;
 import com.fleencorp.feen.common.exception.FailedOperationException;
+import com.fleencorp.feen.shared.member.contract.IsAMember;
 import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.search.SoftAskVoteSearchResult;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/softask/vote")
+@PreAuthorize("isFullyAuthenticated()")
 public class SoftAskVoteSearchController {
 
   private final SoftAskVoteSearchService softAskVoteSearchService;
@@ -41,6 +44,7 @@ public class SoftAskVoteSearchController {
       @SearchParam final SoftAskSearchRequest searchRequest,
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
+    searchRequest.setAuthor(IsAMember.defaultInstance(user.getId()));
     return softAskVoteSearchService.findUserVotes(searchRequest, user);
   }
 } 
