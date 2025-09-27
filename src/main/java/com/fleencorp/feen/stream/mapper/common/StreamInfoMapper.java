@@ -20,8 +20,6 @@ import com.fleencorp.feen.stream.model.response.StreamResponse;
 
 public interface StreamInfoMapper {
 
-  StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatus(StreamAttendeeRequestToJoinStatus requestToJoinStatus);
-
   IsOrganizerInfo toIsOrganizerInfo(boolean organizer);
 
   JoinStatusInfo toJoinStatusInfo(JoinStatus joinStatus);

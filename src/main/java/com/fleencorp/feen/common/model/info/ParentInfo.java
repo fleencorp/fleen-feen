@@ -30,13 +30,13 @@ public class ParentInfo {
   private String parentSummary;
 
   public static ParentInfo of(final Long parentId, final Long otherParentId, final String parentSummary) {
-    final ParentInfo parentInfo = ParentInfo.of(parentId, parentSummary);
+    final ParentInfo parentInfo = of(parentId, parentSummary);
     parentInfo.setOtherParentId(otherParentId);
 
     return parentInfo;
   }
 
   public static ParentInfo of(final Long parentId, final String parentSummary) {
-    return of(parentId, null, parentSummary);
+    return new ParentInfo(parentId, null, parentSummary);
   }
 }

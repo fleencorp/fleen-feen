@@ -38,22 +38,6 @@ public class StreamInfoMapperImpl extends BaseMapper implements StreamInfoMapper
   }
 
   /**
-   * Converts the given request-to-join status into its corresponding status information.
-   *
-   * @param requestToJoinStatus the status of the request to join the stream
-   * @return the request-to-join status information for the given status
-   */
-  @Override
-  public StreamAttendeeRequestToJoinStatusInfo toRequestToJoinStatus(final StreamAttendeeRequestToJoinStatus requestToJoinStatus) {
-    if (nonNull(requestToJoinStatus)) {
-      return StreamAttendeeRequestToJoinStatusInfo.of(requestToJoinStatus, translate(requestToJoinStatus.getMessageCode()));
-    }
-
-    return StreamAttendeeRequestToJoinStatusInfo.of();
-  }
-
-
-  /**
    * Converts a boolean value representing whether an attendee is an organizer into an
    * {@link IsOrganizerInfo} DTO.
    *

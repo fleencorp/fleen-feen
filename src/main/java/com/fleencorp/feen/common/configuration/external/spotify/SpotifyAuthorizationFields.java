@@ -7,6 +7,8 @@ import static java.util.Objects.nonNull;
 
 public class SpotifyAuthorizationFields {
 
+  private SpotifyAuthorizationFields() {}
+
   public static final String CLIENT_ID = "client_id";
   public static final String CODE = "code";
   public static final String SCOPE = "scope";

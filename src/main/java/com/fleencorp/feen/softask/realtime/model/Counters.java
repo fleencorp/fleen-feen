@@ -1,5 +1,6 @@
 package com.fleencorp.feen.softask.realtime.model;
 
+import com.fleencorp.feen.softask.realtime.constant.SoftAskFields;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,17 +14,17 @@ import java.util.Map;
 @AllArgsConstructor
 public class Counters {
 
-  public long likeCount;
-  public long bookmarkCount;
-  public long voteCount;
-  public long replyCount;
+  private long bookmarkCount;
+  private long replyCount;
+  private long shareCount;
+  private long voteCount;
 
   public Map<String, Object> toMap() {
     return Map.of(
-      "like_count", likeCount,
-      "bookmark_count", bookmarkCount,
-      "vote_count", voteCount,
-      "reply_count", replyCount
+      SoftAskFields.bookmarkCount(), bookmarkCount,
+      SoftAskFields.replyCount(), replyCount,
+      SoftAskFields.shareCount(), shareCount,
+      SoftAskFields.voteCount(), voteCount
     );
   }
 }

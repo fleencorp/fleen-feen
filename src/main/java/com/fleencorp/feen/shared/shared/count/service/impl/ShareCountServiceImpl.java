@@ -53,6 +53,7 @@ public class ShareCountServiceImpl implements ShareCountService {
       case SOFT_ASK -> incrementSoftAskShareCount(parentId);
       case SOFT_ASK_REPLY -> incrementSoftAskReplyShareCount(parentId);
       case STREAM -> incrementStreamShareCount(parentId);
+      default -> {}
     }
 
     ShareResponse shareResponse = ShareResponse.of();

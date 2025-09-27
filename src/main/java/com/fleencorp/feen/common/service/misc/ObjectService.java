@@ -14,10 +14,11 @@ public interface ObjectService {
 
   static Map<String, String> getAvatarUrls(final String avatarName) {
     final Map<String, String> urls = new HashMap<>();
-    urls.put("png", String.format(avatarName + ".png", avatarName));
-    urls.put("jpg", String.format(avatarName + ".jpg", avatarName));
+    urls.put("png", String.format("%s.png", avatarName));
+    urls.put("jpg", String.format("%s.jpg", avatarName));
 
     return urls;
   }
+
 
 }

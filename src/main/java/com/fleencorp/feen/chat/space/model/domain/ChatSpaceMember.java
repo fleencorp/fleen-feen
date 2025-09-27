@@ -76,34 +76,42 @@ public class ChatSpaceMember extends FleenFeenEntity
   @Column(name = "space_admin_comment", length = 1000)
   private String spaceAdminComment;
 
+  @Override
   public String getEmailAddress() {
     return nonNull(member) ? member.getEmailAddress() : null;
   }
 
+  @Override
   public String getFullName() {
     return nonNull(member) ? member.getFullName() : null;
   }
 
+  @Override
   public String getUsername() {
     return nonNull(member) ? member.getUsername() : null;
   }
 
+  @Override
   public String getProfilePhoto() {
     return nonNull(member) ? member.getProfilePhotoUrl() : null;
   }
 
+  @Override
   public Boolean hasLeft() {
     return nonNull(left) && left;
   }
 
+  @Override
   public boolean isAMember() {
     return isRequestToJoinApproved() && !isRemoved() && !hasLeft();
   }
 
+  @Override
   public boolean isRemoved() {
     return nonNull(removed) && removed;
   }
 
+  @Override
   public boolean isAdmin() {
     return ChatSpaceMemberRole.isAdmin(role);
   }

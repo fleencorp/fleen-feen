@@ -5,7 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class SpotifyScopes {
+public final class SpotifyScopes {
+
+  private SpotifyScopes() {}
 
   private static final String USER_READ_CURRENTLY_PLAYING = "user-read-currently-playing";
   private static final String USER_READ_PLAYBACK_STATE = "user-read-playback-state";

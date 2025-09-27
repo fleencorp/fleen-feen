@@ -106,6 +106,7 @@ public class ChatSpace extends FleenFeenEntity
     return member;
   }
 
+  @Override
   public Long getOrganizerId() {
     return memberId;
   }
@@ -168,6 +169,7 @@ public class ChatSpace extends FleenFeenEntity
    *
    * @return true if the member is deleted; otherwise, returns false.
    */
+  @Override
   public boolean isDeleted() {
     return nonNull(deleted) && deleted;
   }

@@ -162,6 +162,7 @@ public class FleenStream extends FleenFeenEntity
     return IsAMember.defaultInstance(memberId);
   }
 
+  @Override
   public Long getOrganizerId() {
     return memberId;
   }
