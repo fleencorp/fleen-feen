@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/softask/vote")
+@RequestMapping(value = "/api/soft-ask/vote")
 @PreAuthorize("isFullyAuthenticated()")
 public class SoftAskVoteSearchController {
 

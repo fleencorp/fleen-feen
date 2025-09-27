@@ -16,8 +16,7 @@ import lombok.Setter;
 @JsonPropertyOrder({
   "parent_id",
   "other_parent_id",
-  "parent_title",
-  "parent_content"
+  "parent_summary",
 })
 public class ParentInfo {
 
@@ -27,28 +26,17 @@ public class ParentInfo {
   @JsonProperty("other_parent_id")
   private Long otherParentId;
 
-  @JsonProperty("parent_title")
-  private String parentTitle;
+  @JsonProperty("parent_summary")
+  private String parentSummary;
 
-  @JsonProperty("parent_content")
-  private String parentContent;
-
-  public static ParentInfo of(final Long parentId, final String parentTitle) {
-    return new ParentInfo(parentId, null, parentTitle, null);
-  }
-
-  public static ParentInfo of(final Long parentId, final Long otherParentId, final String parentTitle) {
-    final ParentInfo parentInfo = ParentInfo.of(parentId, parentTitle);
+  public static ParentInfo of(final Long parentId, final Long otherParentId, final String parentSummary) {
+    final ParentInfo parentInfo = ParentInfo.of(parentId, parentSummary);
     parentInfo.setOtherParentId(otherParentId);
 
     return parentInfo;
   }
 
-  public static ParentInfo of(final Long parentId, final String parentTitle, final String parentContent) {
-    return new ParentInfo(parentId, null, parentTitle, parentContent);
-  }
-
-  public static ParentInfo of(final Long parentId) {
-    return new ParentInfo(parentId, null, null, null);
+  public static ParentInfo of(final Long parentId, final String parentSummary) {
+    return of(parentId, null, parentSummary);
   }
 }
