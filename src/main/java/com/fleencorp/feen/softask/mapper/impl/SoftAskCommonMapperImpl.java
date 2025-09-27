@@ -122,6 +122,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
       final SoftAskVoteResponse response = new SoftAskVoteResponse();
       response.setId(entry.getVoteId());
       response.setVoteType(entry.getVoteType());
+      response.setVoteParentType(entry.getParentType());
       response.setCreatedOn(entry.getCreatedOn());
       response.setUpdatedOn(entry.getUpdatedOn());
 
@@ -130,7 +131,7 @@ public class SoftAskCommonMapperImpl extends BaseMapper implements SoftAskCommon
 
       final ParentInfo parentInfo = ParentInfo.of(
         entry.getParentId(),
-        entry.getParentTitle(),
+        entry.getSoftAskId(),
         entry.getParentSummary()
       );
       response.setParentInfo(parentInfo);

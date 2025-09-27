@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fleencorp.feen.common.model.info.ParentInfo;
 import com.fleencorp.feen.common.model.response.core.FleenFeenResponse;
+import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteParentType;
 import com.fleencorp.feen.softask.constant.core.vote.SoftAskVoteType;
 import com.fleencorp.feen.softask.model.info.vote.SoftAskUserVoteInfo;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
   "parent_info",
   "user_vote_info",
   "vote_type",
+  "vote_parent_type",
   "is_voted",
   "created_on",
   "updated_on"
@@ -44,6 +46,10 @@ public class SoftAskVoteResponse extends FleenFeenResponse {
   @JsonFormat(shape = STRING)
   @JsonProperty("vote_type")
   private SoftAskVoteType voteType;
+
+  @JsonFormat(shape = STRING)
+  @JsonProperty("vote_parent_type")
+  private SoftAskVoteParentType voteParentType;
 
   @JsonProperty("is_voted")
   public Boolean isVoted;
