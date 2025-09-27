@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -64,7 +65,8 @@ public class SoftAskVoteSearchImpl implements SoftAskVoteSearchService {
     if (nonNull(softAskCommonResponses) && !softAskCommonResponses.isEmpty() && nonNull(member)) {
 
       final Collection<Long> parentIds = SoftAskUserVoteHolder.getParentIdsToScanForVotes(softAskCommonResponses);
-      final Collection<SoftAskVote> userVotes = softAskVoteSearchRepository.findByParentsAndMember(parentIds, member.getMemberId());
+      final Long memberId = member.getMemberId();
+      final Collection<SoftAskVote> userVotes = softAskVoteSearchRepository.findByParentsAndMember(parentIds, memberId);
 
       final SoftAskUserVoteHolder softAskUserVoteHolder = SoftAskUserVoteHolder.of(userVotes);
       final Map<Long, SoftAskVote> voteMap = softAskUserVoteHolder.groupVotes();
@@ -97,9 +99,10 @@ public class SoftAskVoteSearchImpl implements SoftAskVoteSearchService {
   public SoftAskVoteSearchResult findUserVotes(final SoftAskSearchRequest searchRequest, final RegisteredUser user) {
     final Long authorId = searchRequest.getAuthorId();
     final Pageable pageable = searchRequest.getPage();
+    final List<SoftAskVoteType> voteTypes = List.of(SoftAskVoteType.VOTED);
 
     final Page<SoftAskVote> page = searchRequest.isByAuthor()
-      ? softAskVoteSearchRepository.findByAuthor(authorId, SoftAskVoteType.VOTED, pageable)
+      ? softAskVoteSearchRepository.findByAuthor(authorId, voteTypes, pageable)
       : Page.empty();
 
     final Collection<SoftAskVoteResponse> softAskVoteResponses = softAskMapper.toSoftAskVoteResponses(page.getContent());

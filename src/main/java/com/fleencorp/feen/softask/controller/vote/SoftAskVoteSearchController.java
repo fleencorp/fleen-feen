@@ -45,6 +45,7 @@ public class SoftAskVoteSearchController {
     @Parameter(hidden = true)
       @AuthenticationPrincipal final RegisteredUser user) {
     searchRequest.setAuthor(IsAMember.defaultInstance(user.getId()));
+
     return softAskVoteSearchService.findUserVotes(searchRequest, user);
   }
 } 
