@@ -85,6 +85,10 @@ public class SoftAskSearchRequest extends SearchRequest {
     this.parentId = Objects.toString(parentId, null);
   }
 
+  public void updateParentReplyId(final Long parentReplyId) {
+    this.parentReplyId = Objects.toString(parentReplyId, null);
+  }
+
   public static SoftAskSearchRequest of(final Long parentId) {
     final SoftAskSearchRequest searchRequest = new SoftAskSearchRequest();
     searchRequest.setParentId(String.valueOf(parentId));

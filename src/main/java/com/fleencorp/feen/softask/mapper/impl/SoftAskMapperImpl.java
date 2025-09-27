@@ -49,11 +49,6 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     this.toInfoMapper = toInfoMapper;
   }
 
-  @Override
-  public SoftAskResponse toSoftAskResponse(final SoftAsk entry) {
-    return toSoftAskResponse(entry, null);
-  }
-
   /**
    * Converts a {@link SoftAsk} entity into a {@link SoftAskResponse} DTO.
    *
@@ -124,7 +119,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
           final SoftAsk softAsk = softAskWithDetail.softAsk();
           softAsk.setParticipant(softAskWithDetail.participantDetail());
 
-          return toSoftAskResponse(softAsk);
+          return toSoftAskResponse(softAsk, member);
         })
         .toList();
     }
@@ -132,10 +127,6 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
     return List.of();
   }
 
-  @Override
-  public SoftAskReplyResponse toSoftAskReplyResponse(final SoftAskReply entry) {
-    return toSoftAskReplyResponse(entry, null);
-  }
 
   /**
    * Converts a {@link SoftAskReply} entity into a {@link SoftAskReplyResponse} DTO.
@@ -171,7 +162,7 @@ public final class SoftAskMapperImpl extends BaseMapper implements SoftAskMapper
       final SoftAskReplyCountInfo replyCountInfo = softAskInfoMapper.toReplyCountInfo(entry.getChildReplyCount());
       response.setReplyCountInfo(replyCountInfo);
 
-      final SoftAskReplySearchResult searchResult = SoftAskReplySearchResult.empty(entry.getSoftAskReplyId());
+      final SoftAskReplySearchResult searchResult = SoftAskReplySearchResult.empty(entry.getSoftAskId());
       response.setChildRepliesSearchResult(searchResult);
 
       setOtherDetails(entry, response);

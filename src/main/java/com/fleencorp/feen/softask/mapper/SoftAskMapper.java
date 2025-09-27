@@ -15,13 +15,9 @@ import java.util.Collection;
 
 public interface SoftAskMapper {
 
-  SoftAskResponse toSoftAskResponse(SoftAsk entry);
-
   SoftAskResponse toSoftAskResponse(SoftAsk entry, IsAMember member);
 
   Collection<SoftAskResponse> toSoftAskResponses(Collection<SoftAskWithDetail> entries, IsAMember member);
-
-  SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry);
 
   SoftAskReplyResponse toSoftAskReplyResponse(SoftAskReply entry, IsAMember member);
 

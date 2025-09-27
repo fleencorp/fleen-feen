@@ -11,6 +11,7 @@ import com.fleencorp.feen.softask.model.search.SoftAskReplySearchResult;
 import java.util.Collection;
 
 public interface SoftAskCommonSearchService {
+
   SoftAsk findSoftAsk(Long softAskId);
 
   SoftAskReply findSoftAskReply(Long softAskId, Long softAskReplyId) throws SoftAskReplyNotFoundException;

@@ -40,15 +40,15 @@ public class SoftAskReplySearchController {
     @ApiResponse(responseCode = "400", description = "Failed operation",
       content = @Content(schema = @Schema(implementation = FailedOperationException.class)))
   })
-  @GetMapping(value = "/detail/{softAskId}/{replyId}")
+  @GetMapping(value = "/detail/{replyId}")
   public SoftAskReplyRetrieveResponse findSoftAskReply(
     @Parameter(description = "Search criteria for soft asks", required = true)
       @SearchParam final SoftAskSearchRequest searchRequest,
-    @Parameter(description = "ID of the soft ask parent", required = true)
-      @PathVariable(name = "softAskId") final Long softAskId,
     @Parameter(description = "ID of the reply to retrieve", required = true)
-      @PathVariable(name = "replyId") final Long replyId) {
-    return softAskReplySearchService.retrieveSoftAskReply(searchRequest, softAskId, replyId);
+      @PathVariable(name = "replyId") final Long replyId,
+    @Parameter(hidden = true)
+      @AuthenticationPrincipal final RegisteredUser user) {
+    return softAskReplySearchService.retrieveSoftAskReply(searchRequest, replyId, user);
   }
 
   @Operation(summary = "Search for soft ask replies",

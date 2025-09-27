@@ -7,6 +7,7 @@ import com.fleencorp.feen.shared.security.RegisteredUser;
 import com.fleencorp.feen.softask.exception.core.SoftAskReplyNotFoundException;
 import com.fleencorp.feen.softask.mapper.SoftAskMapper;
 import com.fleencorp.feen.softask.model.domain.SoftAskReply;
+import com.fleencorp.feen.softask.model.holder.UserOtherDetailHolder;
 import com.fleencorp.feen.softask.model.projection.SoftAskReplyWithDetail;
 import com.fleencorp.feen.softask.model.request.SoftAskSearchRequest;
 import com.fleencorp.feen.softask.model.response.reply.SoftAskReplyRetrieveResponse;
@@ -16,7 +17,6 @@ import com.fleencorp.feen.softask.repository.reply.SoftAskReplySearchRepository;
 import com.fleencorp.feen.softask.service.common.SoftAskCommonService;
 import com.fleencorp.feen.softask.service.reply.SoftAskReplySearchService;
 import com.fleencorp.localizer.service.Localizer;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +27,6 @@ import java.util.Collection;
 import static com.fleencorp.base.util.FleenUtil.toSearchResult;
 import static java.util.Objects.nonNull;
 
-@Slf4j
 @Service
 public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService {
 
@@ -48,25 +47,35 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
   }
 
   /**
-   * Retrieves a specific reply for a given Soft Ask.
+   * Retrieves a specific reply for a given Soft Ask and prepares a localized response.
    *
-   * <p>This method finds the Soft Ask reply identified by the provided {@code softAskId}
-   * and {@code softAskReplyId}, maps it to a {@link SoftAskReplyResponse},
-   * wraps it into a {@link SoftAskReplyRetrieveResponse}, and then localizes the response.</p>
+   * <p>This method locates the {@link SoftAskReply} identified by the provided
+   * {@code softAskReplyId} within the context of the parent Soft Ask specified in
+   * the {@link SoftAskSearchRequest}. It then maps the entity to a
+   * {@link SoftAskReplyResponse}, attaches its child replies, wraps it into a
+   * {@link SoftAskReplyRetrieveResponse}, and localizes the result for the caller.</p>
    *
-   * @param searchRequest the search criteria used to filter or validate Soft Ask replies
-   * @param softAskId the unique identifier of the Soft Ask
-   * @param softAskReplyId the unique identifier of the Soft Ask reply to retrieve
-   * @return a localized {@link SoftAskReplyRetrieveResponse} containing the requested reply
-   * @throws SoftAskReplyNotFoundException if the specified Soft Ask reply does not exist
+   * @param searchRequest the search request containing the parent Soft Ask identifier and additional filtering or paging options
+   * @param softAskReplyId the identifier of the Soft Ask reply to retrieve
+   * @param user the {@link RegisteredUser} performing the request, used to derive membership context
+   * @return a localized {@link SoftAskReplyRetrieveResponse} containing the requested reply and its child replies; never {@code null}
+   * @throws SoftAskReplyNotFoundException if no reply exists for the specified {@code softAskReplyId under the given parent Soft Ask
    */
   @Override
-  public SoftAskReplyRetrieveResponse retrieveSoftAskReply(final SoftAskSearchRequest searchRequest, final Long softAskId, final Long softAskReplyId) throws SoftAskReplyNotFoundException {
+  public SoftAskReplyRetrieveResponse retrieveSoftAskReply(final SoftAskSearchRequest searchRequest, final Long softAskReplyId, RegisteredUser user)
+      throws SoftAskReplyNotFoundException {
+    final Long softAskId = searchRequest.getParentId();
     final SoftAskReply softAskReply = findSoftAskReply(softAskId, softAskReplyId);
+    final IsAMember member = user.toMember();
 
-    final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(softAskReply);
+    searchRequest.setPageSize(10);
+    searchRequest.updateParentReplyId(softAskReplyId);
+
+    final SoftAskReplyResponse softAskReplyResponse = softAskMapper.toSoftAskReplyResponse(softAskReply, member);
+    final SoftAskReplySearchResult softAskReplySearchResult = findSoftAskReplies(searchRequest, member);
+    softAskReplyResponse.setChildRepliesSearchResult(softAskReplySearchResult);
+
     final SoftAskReplyRetrieveResponse softAskReplyRetrieveResponse = SoftAskReplyRetrieveResponse.of(softAskReplyId, softAskReplyResponse);
-
     return localizer.of(softAskReplyRetrieveResponse);
   }
 
@@ -109,12 +118,12 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     final Long parentReplyId = searchRequest.getParentReplyId();
     final Long authorId = searchRequest.getAuthorId();
     final Pageable pageable = searchRequest.getPage();
-
+    final UserOtherDetailHolder userOtherDetailHolder = searchRequest.getUserOtherDetail();
     final Page<SoftAskReplyWithDetail> page;
+
     if (searchRequest.hasParentId() && searchRequest.hasParentReplyId()) {
       page = softAskReplySearchRepository.findBySoftAskAndParentReply(softAskId, parentReplyId, pageable);
     } else if (searchRequest.hasParentId()) {
-      log.info("Trying to find parent reply with id {} and {}", parentReplyId, softAskId);
       page = softAskReplySearchRepository.findBySoftAsk(softAskId, pageable);
     } else if (searchRequest.isByAuthor()) {
       page = softAskReplySearchRepository.findByAuthor(authorId, pageable);
@@ -122,10 +131,7 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
       page = Page.empty();
     }
 
-    log.info("Total pages found is {}", page.getTotalPages());
-    log.info("Total entries found is {}", page.getTotalElements());
-
-    return processAndReturnSoftAskReplies(softAskId, page, member, searchRequest.getUserOtherDetail());
+    return processAndReturnSoftAskReplies(softAskId, page, member, userOtherDetailHolder);
   }
 
   /**
@@ -145,11 +151,9 @@ public class SoftAskReplySearchServiceImpl implements SoftAskReplySearchService 
     SoftAskReplySearchResult softAskReplySearchResult = SoftAskReplySearchResult.empty(parentId);
 
     if (nonNull(page)) {
-      log.info("Processing page of {} entries", page.getTotalPages());
       final Collection<SoftAskReplyResponse> softAskReplyResponses = softAskMapper.toSoftAskReplyResponses(page.getContent(), member);
       softAskCommonService.processSoftAskResponses(softAskReplyResponses, member, userHaveOtherDetail);
 
-      log.info("222 Processing page of {} entries", softAskReplyResponses.size());
       final SearchResult<SoftAskReplyResponse> searchResult = toSearchResult(softAskReplyResponses, page);
       softAskReplySearchResult = SoftAskReplySearchResult.of(parentId, searchResult);
     }
